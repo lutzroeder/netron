@@ -7322,9 +7322,12 @@ python.Execution = class {
                 } else {
                     // if free_unbacked_symbols(sym):
                     //     hint = None
-                    out = new torch.SymInt(new torch.fx.experimental.sym_node.SymNode(sym, self, builtins.int, hint, null, fx_node));
+                    out = new torch.SymInt(new torch.fx.experimental.sym_node.SymNode(sym, this, builtins.int, hint, null, fx_node));
                 }
                 return out;
+            }
+            create_symboolnode(sym) {
+                return new torch.SymBool(new torch.fx.experimental.sym_node.SymNode(sym, this, builtins.bool, null));
             }
         });
         this.registerFunction('torch.fx.experimental.symbolic_shapes.symbol_is_type', (/* sym, prefix */) => {
@@ -7393,6 +7396,37 @@ python.Execution = class {
                 return this.name;
             }
         });
+        this.registerType('sympy.core.relational.Relational', class extends sympy.core.expr.Expr {
+            constructor(lhs, rhs, op) {
+                super();
+                this._args = [lhs, rhs];
+                this._op = op;
+            }
+            __str__() {
+                return `${this._args[0].__str__()} ${this._op} ${this._args[1].__str__()}`;
+            }
+        });
+        this.registerType('sympy.core.relational._Inequality', class extends sympy.core.relational.Relational {
+        });
+        this.registerType('sympy.core.relational._Greater', class extends sympy.core.relational._Inequality {
+        });
+        this.registerType('sympy.core.relational.GreaterThan', class extends sympy.core.relational._Greater {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '>');
+            }
+        });
+        this.registerType('sympy.core.relational._Less', class extends sympy.core.relational._Inequality {
+        });
+        this.registerType('sympy.core.relational.LessThan', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '<');
+            }
+        });
+        this.registerType('sympy.core.relational.Equality', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '==');
+            }
+        });
         this.registerFunction('sympy.core.sympify.sympify', (a /*, locals */) => {
             if (a instanceof sympy.core.expr.Expr) {
                 return a;
@@ -7424,6 +7458,21 @@ python.Execution = class {
                     if (node.op instanceof ast.Pow) {
                         return new sympy.core.power.Pow(sympify(node.left), sympify(node.right));
                     }
+                }
+                if (node instanceof ast.Compare) {
+                    const left = sympify(node.left);
+                    const right = sympify(node.comparators[0]);
+                    const [op] = node.ops;
+                    if (op instanceof ast.Gt) {
+                        return new sympy.core.relational.GreaterThan(left, right);
+                    }
+                    if (op instanceof ast.Lt) {
+                        return new sympy.core.relational.LessThan(left, right);
+                    }
+                    if (op instanceof ast.Eq) {
+                        return new sympy.core.relational.Equality(left, right);
+                    }
+                    throw new python.Error(`Unsupported comparison operator '${op.__class__.__name__}'.`);
                 }
                 throw new python.Error(`Unsupported SymPy expression '${node.__class__.__name__}'.`);
             };
@@ -10556,7 +10605,7 @@ python.Execution = class {
                         n = L.expect('#').text(); // # .text();
                     }
                     if (kind === torch._C.TypeKind.ComplexType || n.indexOf('j') !== -1) {
-                        throw new Error();
+                        throw new Error("Complex type not implemented.");
                         /*
                         const imag = std::stod(n.substr(0, n.size() - 1));
                         return c10::complex<double>(0, imag);
@@ -10621,16 +10670,15 @@ python.Execution = class {
                         else {
                             n = L.expect(TK_NUMBER).text();
                         }
-
                         if (kind == torch._C.TypeKind.ComplexType || n.find('j') != "std::string::npos") {
-                            throw new Error();
+                            throw new python.Error('Complex type not implemented.');
                             const imag = std::stod(n.substr(0, n.size() - 1));
                             return c10::complex<double>(0, imag);
                         } else if (kind == torch._C.TypeKind.FloatType || n.find('.') != "std::string::npos" || n.find('e') != "std::string::npos") {
-                            throw new Error();
+                            throw new python.Error('Float type not implemented.');
                             return std::stod(n);
                         } else {
-                            throw new Error();
+                            throw new python.Error("'torch._C.SchemaParser.parseSingleConstant' not implemented.");
                             int64_t v = std::stoll(n);
                             return v;
                         }
@@ -10732,7 +10780,7 @@ python.Execution = class {
                     if (!L.nextIf(')')) {
                         while (true) {
                             if (this._is_vararg) {
-                                throw new python.Error();
+                                throw new python.Error("Unexpected 'torch.FunctionSchema._is_vararg'.");
                             }
                             if (L.nextIf('*')) {
                                 this._kwarg_only = true;
@@ -10757,7 +10805,7 @@ python.Execution = class {
                         if (!L.nextIf(')')) {
                             while (true) {
                                 if (this._is_varret) {
-                                    throw new python.Error();
+                                    throw new python.Error("Unexpected 'torch.FunctionSchema._is_varret'.");
                                 }
                                 if (L.nextIf('...')) {
                                     this._is_varret = true;
@@ -15441,20 +15489,20 @@ python.Execution = class {
                 return this._owner;
             }
             __call__(/* args, kwargs */) {
-                throw new python.Error();
+                throw new python.Error("'torch.ScriptMethod.__call__' not implemented.");
             }
             get graph() {
                 return this._function.graph();
             }
             get schema() {
                 // return this.function().getSchema();
-                throw new python.Error();
+                throw new python.Error("'torch.ScriptMethod.schema' not implemented.");
             }
             get code() {
-                throw new python.Error();
+                throw new python.Error("'torch.ScriptMethod.code' not implemented.");
             }
             get code_with_constants() {
-                throw new python.Error();
+                throw new python.Error("'torch.ScriptMethod.code_with_constants' not implemented.");
             }
         });
         this.registerType('torch.ScriptObject', class {
@@ -15521,7 +15569,7 @@ python.Execution = class {
                 return this.__getattr__(name);
             }
             _properties() {
-                throw new python.Error();
+                throw new python.Error("'torch.ScriptObject._properties' not implemented.");
             }
             is_weak_compilation_ref() {
                 return true; // not implemented
@@ -16852,7 +16900,7 @@ python.Execution = class {
                     const b = new torch._C.WithInsertPoint(block.nodes()[-1]);
                     // this.emitReturn(Return::create(def.range(), Expr(Compound::create(TK_NONE, def.range(), {}))));
                     b.dispose();
-                    throw new Error();
+                    throw new python.Error("'torch._C.to_ir.handleMaybeNoReturn' not implemented.");
                 } else if (this._def_stack[this._def_stack.length - 1]._merged_return_type === null) {
                     this._def_stack[this._def_stack.length - 1]._merged_return_type = decl_ret === null ? torch.NoneType.get() : decl_ret;
                 }
@@ -18225,13 +18273,17 @@ python.Execution = class {
                     this[obj.$type] = obj.$value;
                     delete obj.$type;
                     delete obj.$value;
+                } else if (obj.type) {
+                    this.type = obj.type;
+                    const entries = Object.entries(obj).filter(([key]) => key !== 'type');
+                    this[obj.type] = Object.fromEntries(entries);
                 } else {
                     let entries = Object.entries(obj);
                     if (entries.length > 1) {
                         entries = entries.filter(([, value]) => value !== null);
                     }
                     if (entries.length !== 1) {
-                        throw new Error();
+                        throw new python.Error(`Invalid union type '${entries.map(([key]) => key).join(',')}'.`);
                     }
                     const [entry] = entries;
                     const [type, value] = entry;
@@ -19271,6 +19323,24 @@ python.Execution = class {
                     return val;
                 }
                 throw new python.Error(`SymInt has invalid field type ${s.type} with value ${s.value}.`);
+            }
+            deserialize_sym_bool(s) {
+                const val = s.value;
+                let hint = null;
+                if (s.type === 'as_expr') {
+                    if (val.hint === null) {
+                        hint = null;
+                    } else {
+                        // assert val.hint.type == "as_bool"
+                        hint = val.hint.value;
+                    }
+                    const sym = this._parse_sym_expr(val.expr_str, hint);
+                    return this.shape_env.create_symboolnode(sym, hint);
+                } else if (s.type === 'as_bool') {
+                    // assert type(val) is bool
+                    return val;
+                }
+                throw new python.Error(`SymBool has invalid field type ${s.type} with value ${s.value}.`);
             }
             deserialize_device(d) {
                 if (d.index === null) {

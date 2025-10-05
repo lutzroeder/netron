@@ -6716,6 +6716,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "sym_bool.pt2",
+    "source":   "https://github.com/user-attachments/files/22710949/sym_bool.pt2.zip[sym_bool.pt2]",
+    "format":   "PyTorch Export v8.8",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "tensor.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14733020/tensor.pkl.zip[tensor.pkl]",
     "format":   "PyTorch Pickle",
