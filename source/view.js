@@ -5998,22 +5998,18 @@ view.Context = class {
                             break;
                         }
                         case 'npz': {
-                            try {
-                                const content = new Map();
-                                const entries = await this.peek('zip');
-                                if (entries instanceof Map && entries.size > 0 &&
-                                    Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
-                                    const python = await import('./python.js');
-                                    const execution = new python.Execution();
-                                    for (const [name, stream] of entries) {
-                                        const bytes = execution.invoke('io.BytesIO', [stream]);
-                                        const array = execution.invoke('numpy.load', [bytes]);
-                                        content.set(name, array);
-                                    }
-                                    this._content.set(type, content);
+                            const content = new Map();
+                            const entries = await this.peek('zip');
+                            if (entries instanceof Map && entries.size > 0 &&
+                                Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
+                                const python = await import('./python.js');
+                                const execution = new python.Execution();
+                                for (const [name, stream] of entries) {
+                                    const bytes = execution.invoke('io.BytesIO', [stream]);
+                                    const array = execution.invoke('numpy.load', [bytes]);
+                                    content.set(name, array);
                                 }
-                            } catch {
-                                // continue regardless of error
+                                this._content.set(type, content);
                             }
                             break;
                         }
