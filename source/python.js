@@ -6912,6 +6912,7 @@ python.Execution = class {
         this.registerFunction('torch.ao.quantization.utils.get_qparam_dict');
         this.registerFunction('torch.ao.quantization.utils.has_no_children_ignoring_parametrizations');
         this.registerFunction('torch.amp.grad_scaler._refresh_per_optimizer_state');
+        this.registerType('torch.amp.grad_scaler.GradScaler', class {});
         this.registerType('torch._C._LegacyVariableBase', class {});
         this.registerType('torch.autograd.grad_mode.no_grad', class extends torch.utils._contextlib._NoParamDecoratorContextManager {});
         this.registerType('torch.autograd.variable.Variable', class extends torch._C._LegacyVariableBase {});
