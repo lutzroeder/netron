@@ -1898,7 +1898,7 @@
     "description": "Computes element-wise dot product of two tensors.\n\nIt takes a list of inputs of size 2, and the axes\ncorresponding to each input along with the dot product\nis to be performed.\n\nLet's say `x` and `y` are the two input tensors with shapes\n`(2, 3, 5)` and `(2, 10, 3)`. The batch dimension should be\nof same size for both the inputs, and `axes` should correspond\nto the dimensions that have the same size in the corresponding\ninputs. e.g. with `axes=(1, 2)`, the dot product of `x`, and `y`\nwill result in a tensor with shape `(2, 5, 10)`",
     "attributes": [
       {
-        "description": "Integer or tuple of integers, axis or axes along which to\n        take the dot product. If a tuple, should be two integers\n        corresponding to the desired axis from the first input and the\n        desired axis from the second input, respectively. Note that the\n        size of the two selected axes must match.",
+        "description": "Integer or tuple of integers, axis or axes along which to\n        take the dot product. If a tuple, should be two integers\n        corresponding to the desired axis from the first input and the\n        desired axis from the second input, respectively. Note that the\n        size of the two selected axes must match, and that\n        axis `0` (the batch axis) cannot be included.",
         "name": "axes"
       },
       {
