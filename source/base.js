@@ -97,117 +97,118 @@ if (!DataView.prototype.setFloat16) {
 
 if (!DataView.prototype.getBfloat16) {
     DataView.prototype.getBfloat16 = function(byteOffset, littleEndian) {
-        if (littleEndian) {
-            DataView.__bfloat16_get_uint16_le[1] = this.getUint16(byteOffset, littleEndian);
-            return DataView.__bfloat16_get_float32_le[0];
-        }
-        DataView.__bfloat16_uint16_be[0] = this.getUint16(byteOffset, littleEndian);
-        return DataView.__bfloat16_get_float32_be[0];
+        const value = this.getUint16(byteOffset, littleEndian);
+        DataView.__bfloat16_get_u32[0] = (value << 16) >>> 0;
+        return DataView.__bfloat16_get_f32[0];
     };
-    DataView.__bfloat16_get_float32_le = new Float32Array(1);
-    DataView.__bfloat16_get_float32_be = new Float32Array(1);
-    DataView.__bfloat16_get_uint16_le = new Uint16Array(DataView.__bfloat16_get_float32_le.buffer, DataView.__bfloat16_get_float32_le.byteOffset, 2);
-    DataView.__bfloat16_get_uint16_be = new Uint16Array(DataView.__bfloat16_get_float32_be.buffer, DataView.__bfloat16_get_float32_be.byteOffset, 2);
+    DataView.__bfloat16_get_f32 = new Float32Array(1);
+    DataView.__bfloat16_get_u32 = new Uint32Array(DataView.__bfloat16_get_f32.buffer);
 }
 
-DataView.__float4e2m1_float32 = new Float32Array([0, 0.5, 1, 1.5, 2, 3, 4, 6, -0, -0.5, -1, -1.5, -2, -3, -4, -6]);
-DataView.prototype.getFloat4e2m1 = function(byteOffset) {
-    let value = this.getUint8(byteOffset >> 1);
-    value = byteOffset & 1 ? value >> 4 : value & 0x0F;
-    return DataView.__float4e2m1_float32[value];
-};
+if (!DataView.prototype.getFloat4e2m1) {
+    DataView.__float4e2m1_float32 = new Float32Array([0, 0.5, 1, 1.5, 2, 3, 4, 6, -0, -0.5, -1, -1.5, -2, -3, -4, -6]);
+    DataView.prototype.getFloat4e2m1 = function(byteOffset) {
+        let value = this.getUint8(byteOffset >> 1);
+        value = byteOffset & 1 ? value >> 4 : value & 0x0F;
+        return DataView.__float4e2m1_float32[value];
+    };
+}
 
-DataView.__float8e4m3_float32 = new Float32Array(1);
-DataView.__float8e4m3_uint32 = new Uint32Array(DataView.__float8e4m3_float32.buffer, DataView.__float8e4m3_float32.byteOffset, 1);
-DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
-    const value = this.getUint8(byteOffset);
-    let exponent_bias = 7;
-    if (uz) {
-        exponent_bias = 8;
-        if (value === 0x80) {
-            return NaN;
-        }
-    } else if (value === 255) {
-        return -NaN;
-    } else if (value === 0x7f) {
-        return NaN;
-    }
-    let expo = (value & 0x78) >> 3;
-    let mant = value & 0x07;
-    const sign = value & 0x80;
-    let res = sign << 24;
-    if (expo === 0) {
-        if (mant > 0) {
-            expo = 0x7F - exponent_bias;
-            if ((mant & 0x4) === 0) {
-                mant &= 0x3;
-                mant <<= 1;
-                expo -= 1;
+if (!DataView.prototype.getFloat8e4m3) {
+    DataView.__float8e4m3_float32 = new Float32Array(1);
+    DataView.__float8e4m3_uint32 = new Uint32Array(DataView.__float8e4m3_float32.buffer, DataView.__float8e4m3_float32.byteOffset, 1);
+    DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
+        const value = this.getUint8(byteOffset);
+        let exponent_bias = 7;
+        if (uz) {
+            exponent_bias = 8;
+            if (value === 0x80) {
+                return NaN;
             }
-            if ((mant & 0x4) === 0) {
-                mant &= 0x3;
-                mant <<= 1;
-                expo -= 1;
-            }
-            res |= (mant & 0x3) << 21;
-            res |= expo << 23;
-        }
-    } else {
-        res |= mant << 20;
-        expo += 0x7F - exponent_bias;
-        res |= expo << 23;
-    }
-    DataView.__float8e4m3_uint32[0] = res;
-    return DataView.__float8e4m3_float32[0];
-};
-
-DataView.__float8e5m2_float32 = new Float32Array(1);
-DataView.__float8e5m2_uint32 = new Uint32Array(DataView.__float8e5m2_float32.buffer, DataView.__float8e5m2_float32.byteOffset, 1);
-DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
-    const value = this.getUint8(byteOffset);
-    let exponent_bias = NaN;
-    if (fn && uz) {
-        if (value === 0x80) {
-            return NaN;
-        }
-        exponent_bias = 16;
-    } else if (!fn && !uz) {
-        if (value >= 253 && value <= 255) {
+        } else if (value === 255) {
             return -NaN;
-        }
-        if (value >= 126 && value <= 127) {
+        } else if (value === 0x7f) {
             return NaN;
         }
-        if (value === 252) {
-            return -Infinity;
-        }
-        if (value === 124) {
-            return Infinity;
-        }
-        exponent_bias = 15;
-    }
-    let expo = (value & 0x7C) >> 2;
-    let mant = value & 0x03;
-    let res = (value & 0x80) << 24;
-    if (expo === 0) {
-        if (mant > 0) {
-            expo = 0x7F - exponent_bias;
-            if ((mant & 0x2) === 0) {
-                mant &= 0x1;
-                mant <<= 1;
-                expo -= 1;
+        let expo = (value & 0x78) >> 3;
+        let mant = value & 0x07;
+        const sign = value & 0x80;
+        let res = sign << 24;
+        if (expo === 0) {
+            if (mant > 0) {
+                expo = 0x7F - exponent_bias;
+                if ((mant & 0x4) === 0) {
+                    mant &= 0x3;
+                    mant <<= 1;
+                    expo -= 1;
+                }
+                if ((mant & 0x4) === 0) {
+                    mant &= 0x3;
+                    mant <<= 1;
+                    expo -= 1;
+                }
+                res |= (mant & 0x3) << 21;
+                res |= expo << 23;
             }
-            res |= (mant & 0x1) << 22;
+        } else {
+            res |= mant << 20;
+            expo += 0x7F - exponent_bias;
             res |= expo << 23;
         }
-    } else {
-        res |= mant << 21;
-        expo += 0x7F - exponent_bias;
-        res |= expo << 23;
-    }
-    DataView.__float8e5m2_uint32[0] = res;
-    return DataView.__float8e5m2_float32[0];
-};
+        DataView.__float8e4m3_uint32[0] = res;
+        return DataView.__float8e4m3_float32[0];
+    };
+}
+
+if (!DataView.prototype.getFloat8e5m2) {
+    DataView.__float8e5m2_float32 = new Float32Array(1);
+    DataView.__float8e5m2_uint32 = new Uint32Array(DataView.__float8e5m2_float32.buffer, DataView.__float8e5m2_float32.byteOffset, 1);
+    DataView.prototype.getFloat8e5m2 = function(byteOffset, fn, uz) {
+        const value = this.getUint8(byteOffset);
+        let exponent_bias = NaN;
+        if (fn && uz) {
+            if (value === 0x80) {
+                return NaN;
+            }
+            exponent_bias = 16;
+        } else if (!fn && !uz) {
+            if (value >= 253 && value <= 255) {
+                return -NaN;
+            }
+            if (value >= 126 && value <= 127) {
+                return NaN;
+            }
+            if (value === 252) {
+                return -Infinity;
+            }
+            if (value === 124) {
+                return Infinity;
+            }
+            exponent_bias = 15;
+        }
+        let expo = (value & 0x7C) >> 2;
+        let mant = value & 0x03;
+        let res = (value & 0x80) << 24;
+        if (expo === 0) {
+            if (mant > 0) {
+                expo = 0x7F - exponent_bias;
+                if ((mant & 0x2) === 0) {
+                    mant &= 0x1;
+                    mant <<= 1;
+                    expo -= 1;
+                }
+                res |= (mant & 0x1) << 22;
+                res |= expo << 23;
+            }
+        } else {
+            res |= mant << 21;
+            expo += 0x7F - exponent_bias;
+            res |= expo << 23;
+        }
+        DataView.__float8e5m2_uint32[0] = res;
+        return DataView.__float8e5m2_float32[0];
+    };
+}
 
 DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset *= bits;
