@@ -405,7 +405,7 @@ keras.ModelFactory = class {
                 }
                 if (groups.every((group) => group.value === null && Array.from(group.attributes.keys()).filter((key) => !tensorKeys.has(key)).length === 0 && Array.from(group.groups.values()).every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
                     for (const group of groups) {
-                        const moduleName = group.attributes.has('name') ? group.attributes.get('name') : group.name;
+                        const module = group.attributes.has('name') ? group.attributes.get('name') : group.name;
                         for (const variableGroup of group.groups.values()) {
                             if (variableGroup.attributes.size !== 0 || variableGroup.groups.size !== 0) {
                                 throw new keras.Error('Variable format is not HDF5 Weights.');
@@ -414,10 +414,10 @@ keras.ModelFactory = class {
                             if (!variable) {
                                 throw new keras.Error('Variable value is not HDF5 Weights.');
                             }
-                            const name = moduleName ? [moduleName, variableGroup.name].join('/') : moduleName.name;
+                            const name = module ? [module, variableGroup.name].join('/') : variableGroup.name;
                             const layout = variable.littleEndian ? '<' : '>';
                             const tensor = new keras.Tensor(name, variable.shape, variable.type, null, null, layout, variable.type === 'string' ? variable.value : variable.data);
-                            weights.add(moduleName, tensor);
+                            weights.add(module, tensor);
                         }
                     }
                     return open_model(format, '', '', null, weights);
@@ -681,7 +681,6 @@ keras.Graph = class {
                             return { shape, value };
                         };
                         const functional = config.layers.every((layer) => Array.isArray(layer.inbound_nodes));
-                        const layers = new Map();
                         if (functional) {
                             const read_connection = (input_data) => {
                                 const [node_name, node_index, tensor_index] = input_data;
@@ -764,7 +763,6 @@ keras.Graph = class {
                                         first_index++;
                                     }
                                 }
-                                layers.set(layer.name, layers);
                                 if (Array.isArray(layer.inbound_nodes) && layer.inbound_nodes.length === 0) {
                                     layer.inputs = [];
                                     layer.outputs = [];
