@@ -161,7 +161,8 @@ executorch.Node = class {
             const op = plan.operators[instr_args.op_index];
             const name = op.name.split('::').pop();
             const identifier = op.overload ? `${op.name}.${op.overload}` : op.name;
-            const schemas = target.execution.invoke('torch._C._jit_get_schemas_for_operator', [op.name]);
+            const torch = target.execution.__import__('torch');
+            const schemas = torch._C._jit_get_schemas_for_operator(op.name);
             const schema = schemas.find((schema) => schema.name === op.name && schema.overload_name === op.overload);
             if (!schema) {
                 throw new executorch.Error(`Operator schema for '${identifier}' not found.`);
@@ -877,7 +878,7 @@ vulkan.Metadata = class {
     }
 
     register(signature) {
-        const torch = this.execution.register('torch');
+        const torch = this.execution.__import__('torch');
         const registry = torch._C.getRegistry();
         const schema = torch.FunctionSchema.parse(signature);
         const op = new torch._C.Operator(schema);
@@ -888,7 +889,8 @@ vulkan.Metadata = class {
         identifier = identifier.split(/\.([^.]*)$/);
         const name = identifier[0].replace('.', '::');
         const overload = identifier[1] === 'default' ? '' : identifier[1];
-        const schemas = this.execution.invoke('torch._C._jit_get_schemas_for_operator', [name]);
+        const torch = this.execution.__import__('torch');
+        const schemas = torch._C._jit_get_schemas_for_operator(name);
         const schema = schemas.find((schema) => schema.name === name && schema.overload_name === overload);
         return schema;
     }

@@ -128,7 +128,7 @@ python.Execution = class {
         this.register('_codecs');
         this.register('argparse');
         this.enum = this.register('enum');
-        this.register('collections');
+        const collections = this.register('collections');
         const copy = this.register('copy');
         this.register('copy_reg');
         const ast = this.register('ast');
@@ -2592,10 +2592,12 @@ python.Execution = class {
             }
             write(data) {
                 const src = this._buf || new Uint8Array();
-                this._point = src.length + data.length;
-                this._buf = new Uint8Array(this._point);
+                const end = this._point + data.length;
+                const size = Math.max(src.length, end);
+                this._buf = new Uint8Array(size);
                 this._buf.set(src, 0);
-                this._buf.set(data, src.length);
+                this._buf.set(data, this._point);
+                this._point = end;
             }
             getbuffer() {
                 return new builtins.memoryview(this._buf);
@@ -3409,10 +3411,10 @@ python.Execution = class {
         this.registerType('pandas.core.series.Series', class {});
         this.registerFunction('pandas._libs.arrays.__pyx_unpickle_NDArrayBacked');
         this.registerFunction('pandas._libs.internals._unpickle_block', (values, placement, ndim) => {
-            values = execution.invoke('pandas.core.internals.blocks.maybe_coerce_values', [values]);
+            values = pandas.core.internals.blocks.maybe_coerce_values(values);
             // if not isinstance(placement, BlockPlacement):
             //     placement = BlockPlacement(placement)
-            return execution.invoke('pandas.core.internals.blocks.new_block', [values, placement, ndim]);
+            return pandas.core.internals.blocks.new_block(values, placement, ndim);
         });
         this.registerType('pandas._libs.tslibs.base.ABCTimestamp', class extends datetime.datetime {});
         this.registerType('pandas._libs.tslibs.offsets.BaseOffset', class {});
@@ -4354,7 +4356,7 @@ python.Execution = class {
         this.registerType('xgboost.sklearn.XGBRegressor', class {});
         this.registerType('xgboost.sklearn.XGBRFClassifier', class {});
         this.registerFunction('_codecs.encode', (obj, encoding) => {
-            return execution.invoke('builtins.bytearray', [obj, encoding]);
+            return new builtins.bytearray(obj, encoding);
         });
         this.registerType('builtins.bytearray', class extends Uint8Array {
             constructor(source, encoding /*, errors */) {
@@ -4997,7 +4999,7 @@ python.Execution = class {
                 case '|': {
                     data = file.read();
                     if (dtype.kind === 'O') {
-                        const unpickler = execution.invoke('pickle.Unpickler', [data]);
+                        const unpickler = new pickle.Unpickler(data);
                         return unpickler.load();
                     }
                     break;
@@ -5315,9 +5317,9 @@ python.Execution = class {
         this.registerFunction('theano.tensor.type.values_eq_approx_remove_nan');
         this.registerType('torch.nn.modules.module.Module', class {
             constructor() {
-                this._modules = execution.invoke('collections.OrderedDict', []);
-                this._parameters = execution.invoke('collections.OrderedDict', []);
-                this._buffers = execution.invoke('collections.OrderedDict', []);
+                this._modules = new collections.OrderedDict();
+                this._parameters = new collections.OrderedDict();
+                this._buffers = new collections.OrderedDict();
             }
             __setattr__(name, value) {
                 if (value instanceof torch.nn.modules.module.Module) {
@@ -7675,12 +7677,12 @@ python.Execution = class {
             } else {
                 fn_src = body._code || body.code;
             }
-            const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [import_block + fn_src, {}]);
-            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
+            const forward = torch.fx.graph_module._forward_from_src(import_block + fn_src, {});
+            return torch.fx.graph_module._deserialize_graph_module(forward, body);
         });
         this.registerFunction('torch.fx.graph_module.reduce_package_graph_module', (importer, body, generated_module_name) => {
             const forward = importer.import_module(generated_module_name).forward;
-            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [forward, body]);
+            return torch.fx.graph_module._deserialize_graph_module(forward, body);
         });
         this.registerType('torch.fx.graph.CodeGen', class {});
         this.registerType('torch.fx.graph._Namespace', class {
@@ -8183,14 +8185,14 @@ python.Execution = class {
             }
             const dtype = dtypes.get(obj.dtype.str);
             const strides = obj.strides.map((stride) => stride / obj.itemsize);
-            const storage = execution.invoke('torch.storage.TypedStorage', [obj.size, dtype]);
+            const storage = new torch.storage.TypedStorage(obj.size, dtype);
             storage._set_cdata(obj.data);
-            const tensor = execution.invoke('torch.Tensor', []);
+            const tensor = new torch.Tensor();
             tensor.__setstate__([storage, 0, obj.shape, strides]);
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_device_tensor_from_numpy', (data, dtype, device, requires_grad) => {
-            const tensor = execution.invoke('torch.from_numpy', [data]);
+            const tensor = torch.from_numpy(data);
             // tensor = tensor.to(dtype, device)
             tensor.requires_grad = requires_grad;
             return tensor;
@@ -8271,7 +8273,7 @@ python.Execution = class {
             return param;
         });
         this.registerFunction('torch._utils._rebuild_qtensor', (storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) => {
-            const tensor = execution.invoke('torch._utils._rebuild_tensor_v2', [storage, storage_offset, size, stride, requires_grad, backward_hooks]);
+            const tensor = torch._utils._rebuild_tensor_v2(storage, storage_offset, size, stride, requires_grad, backward_hooks);
             tensor.quantizer_params = quantizer_params;
             return tensor;
         });
@@ -8304,9 +8306,9 @@ python.Execution = class {
             if (ret.__class__ !== new_type) {
                 // ret = ret.as_subclass(new_type);
             }
-            const setstate = execution.invoke('builtins.getattr', [ret.__class__, '__setstate__', torch.Tensor.__setstate__]);
+            const setstate = builtins.getattr(ret.__class__, '__setstate__', torch.Tensor.__setstate__);
             if (setstate === torch.Tensor.__setstate__) {
-                ret = execution.invoke('torch._utils._set_obj_state', [ret, state]);
+                ret = torch._utils._set_obj_state(ret, state);
             } else {
                 ret.__setstate__(state);
             }
@@ -8343,9 +8345,9 @@ python.Execution = class {
             let storage = null;
             if (size.every((d) => d instanceof torch.SymInt === false)) {
                 const size = shape.reduce((a, b) => a * b, 1);
-                storage = execution.invoke('torch.storage.TypedStorage', [size, dtype]);
+                storage = new torch.storage.TypedStorage(size, dtype);
             }
-            const tensor = execution.invoke('torch.Tensor', []);
+            const tensor = new torch.Tensor();
             tensor.__setstate__([storage, 0, shape, stride]);
             return tensor;
         });
@@ -8603,7 +8605,7 @@ python.Execution = class {
                 const deserialized_objects = {};
                 if (entries.has('storages')) {
                     const data = entries.get('storages');
-                    const unpickler = execution.invoke('pickle.Unpickler', [data]);
+                    const unpickler = new pickle.Unpickler(data);
                     const num_storages = unpickler.load();
                     for (let i = 0; i < num_storages; i++) {
                         const args = unpickler.load();
@@ -8620,7 +8622,7 @@ python.Execution = class {
                 }
                 if (entries.has('tensors')) {
                     const data = entries.get('tensors');
-                    const unpickler = execution.invoke('pickle.Unpickler', [data]);
+                    const unpickler = new pickle.Unpickler(data);
                     const num_tensors = unpickler.load();
                     const int32 = (unpickler) => {
                         const buffer = unpickler.read(4);
@@ -8642,17 +8644,17 @@ python.Execution = class {
                         const shape = Array.from(new Array(ndim)).map(() => int64(unpickler));
                         const stride = Array.from(new Array(ndim)).map(() => int64(unpickler));
                         const storage_offset = int64(unpickler);
-                        const tensor = execution.invoke('torch._utils._rebuild_tensor', [storage, storage_offset, shape, stride]);
+                        const tensor = torch._utils._rebuild_tensor(storage, storage_offset, shape, stride);
                         deserialized_objects[key] = tensor;
                     }
                 }
                 const data = entries.get('pickle');
-                const unpickler = execution.invoke('pickle.Unpickler', [data]);
+                const unpickler = new pickle.Unpickler(data);
                 unpickler.persistent_load = (saved_id) => deserialized_objects[saved_id];
                 return unpickler.load();
             };
             const _legacy_load = () => {
-                const unpickler = execution.invoke('pickle.Unpickler', [f]);
+                const unpickler = new pickle.Unpickler(f);
                 unpickler.load(); // magic_number
                 const protocol_version = unpickler.load();
                 if (protocol_version !== 1001) {
@@ -8735,7 +8737,7 @@ python.Execution = class {
                     }
                 };
                 const data_file = entries.get('data.pkl');
-                const unpickler = execution.invoke('pickle.Unpickler', [data_file]);
+                const unpickler = new pickle.Unpickler(data_file);
                 unpickler.persistent_load = persistent_load;
                 const result = unpickler.load();
                 return result;
@@ -18134,9 +18136,9 @@ python.Execution = class {
                 const data = this._module.storage_data[index].data;
                 const dtype = this._dtypes.get(metadata.scalar_type);
                 const size = data.length / dtype.itemsize();
-                const storage = this._cu.execution.invoke('torch.storage.TypedStorage', [size, dtype]);
+                const storage = new torch.storage.TypedStorage(size, dtype);
                 storage._set_cdata(data);
-                const tensor = this._cu.execution.invoke('torch.Tensor', []);
+                const tensor = new torch.Tensor();
                 const shape = Array.from(metadata.sizes);
                 const stride = Array.from(metadata.strides);
                 tensor.__setstate__([storage, metadata.storage_offset, shape, stride]);

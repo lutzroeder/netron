@@ -3526,10 +3526,12 @@ view.TensorView = class extends view.Expander {
                 }
                 const python = await import('./python.js');
                 const execution = new python.Execution();
-                const bytes = execution.invoke('io.BytesIO', []);
-                const dtype = execution.invoke('numpy.dtype', [data_type]);
-                const array = execution.invoke('numpy.asarray', [tensor.value, dtype]);
-                execution.invoke('numpy.save', [bytes, array]);
+                const io = execution.__import__('io');
+                const numpy = execution.register('numpy');
+                const bytes = new io.BytesIO();
+                const dtype = new numpy.dtype(data_type);
+                const array = numpy.asarray(tensor.value, dtype);
+                numpy.save(bytes, array);
                 bytes.seek(0);
                 const blob = new Blob([bytes.read()], { type: 'application/octet-stream' });
                 await this._host.export(file, blob);
@@ -6004,9 +6006,11 @@ view.Context = class {
                                 Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
                                 const python = await import('./python.js');
                                 const execution = new python.Execution();
+                                const io = execution.__import__('io');
+                                const numpy = execution.__import__('numpy');
                                 for (const [name, stream] of entries) {
-                                    const bytes = execution.invoke('io.BytesIO', [stream]);
-                                    const array = execution.invoke('numpy.load', [bytes]);
+                                    const bytes = new io.BytesIO(stream);
+                                    const array = numpy.load(bytes);
                                     content.set(name, array);
                                 }
                                 this._content.set(type, content);

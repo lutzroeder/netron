@@ -22,21 +22,23 @@ flax.ModelFactory = class {
         const stream = context.stream;
         const packed = stream.peek();
         const execution = new python.Execution();
+        const msgpack = execution.__import__('msgpack');
+        const numpy = execution.__import__('numpy');
         // https://github.com/google/flax/blob/main/flax/serialization.py
         const ext_hook = (code, data) => {
             switch (code) {
                 case 1: { // _MsgpackExtType.ndarray
-                    const tuple = execution.invoke('msgpack.unpackb', [data]);
-                    const dtype = execution.invoke('numpy.dtype', [tuple[1]]);
+                    const tuple = msgpack.unpackb(data);
+                    const dtype = new numpy.dtype(tuple[1]);
                     dtype.byteorder = '<';
-                    return execution.invoke('numpy.ndarray', [tuple[0], dtype, tuple[2]]);
+                    return new numpy.ndarray(tuple[0], dtype, tuple[2]);
                 }
                 default: {
                     throw new flax.Error(`Unsupported MessagePack extension '${code}'.`);
                 }
             }
         };
-        const obj = execution.invoke('msgpack.unpackb', [packed, ext_hook]);
+        const obj = msgpack.unpackb(packed, ext_hook);
         return new flax.Model(obj);
     }
 };

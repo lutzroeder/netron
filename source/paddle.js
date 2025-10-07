@@ -216,7 +216,8 @@ paddle.ModelFactory = class {
                         };
                         const openNumPyArrayPickle = (stream) => {
                             const execution = new python.Execution();
-                            const unpickler = execution.invoke('pickle.Unpickler', [stream]);
+                            const pickle = execution.__import__('pickle');
+                            const unpickler = new pickle.Unpickler(stream);
                             const obj = unpickler.load();
                             const container = new paddle.Pickle(obj);
                             return container.weights || new Map();

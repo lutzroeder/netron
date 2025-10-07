@@ -375,7 +375,7 @@ tf.ModelFactory = class {
                         const metadata = await pytorch.Metadata.open(context);
                         const execution = new python.Execution();
                         metadata.register(execution);
-                        const torch = execution.register('torch');
+                        const torch = execution.__import__('torch');
                         for (const graph of saved_model.meta_graphs) {
                             for (const node of graph.graph_def.node) {
                                 const schemas = torch._C._jit_get_schemas_for_operator(node.op);

@@ -695,10 +695,12 @@ export class Target {
                                         }
                                         Target.execution = Target.execution || new python.Execution();
                                         const execution = Target.execution;
-                                        const bytes = execution.invoke('io.BytesIO', []);
-                                        const dtype = execution.invoke('numpy.dtype', [data_type]);
-                                        const array = execution.invoke('numpy.asarray', [tensor.value, dtype]);
-                                        execution.invoke('numpy.save', [bytes, array]);
+                                        const io = execution.__import__('io');
+                                        const numpy = execution.__import__('numpy');
+                                        const bytes = new io.BytesIO();
+                                        const dtype = new numpy.dtype(data_type);
+                                        const array = numpy.asarray(tensor.value, dtype);
+                                        numpy.save(bytes, array);
                                     }
                                 }
                             }
