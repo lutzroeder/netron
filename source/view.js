@@ -4568,7 +4568,7 @@ view.Documentation = class {
             if (source.min_output !== undefined) {
                 target.min_output = source.min_output;
             }
-            if (source.max_input !== undefined) {
+            if (source.max_output !== undefined) {
                 target.max_output = source.max_output;
             }
             if (source.inputs_range !== undefined) {
