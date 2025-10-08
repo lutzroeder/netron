@@ -3,6 +3,8 @@
 <img width="400px" height="100px" src="https://github.com/lutzroeder/netron/raw/main/.github/logo-dark.svg#gh-dark-mode-only">
 </div>
 
+[![CI](https://github.com/Desertsmogtech/netron/actions/workflows/parser-tests.yml/badge.svg)](https://github.com/Desertsmogtech/netron/actions/workflows/parser-tests.yml)
+
 Netron is a viewer for neural network, deep learning and machine learning models.
 
 Netron supports ONNX, TensorFlow Lite, Core ML, Keras, Caffe, Darknet, PyTorch, TensorFlow.js, Safetensors and NumPy.

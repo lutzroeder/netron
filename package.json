@@ -17,6 +17,7 @@
         "start": "node package.js start",
         "server": "python package.py build start",
         "test": "node test/models.js",
+        "test:parser-template": "node test/parser-template.test.js",
         "lint": "node package.js lint",
         "validate": "node package.js validate",
         "clean": "node package.js clean",
