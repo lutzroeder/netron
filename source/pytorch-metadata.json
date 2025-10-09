@@ -3317,6 +3317,9 @@
     "name": "aten::get.default_Tensor(Dict(Tensor, t) self, Tensor key, t default_value) -> t(*)"
   },
   {
+    "name": "aten::get_autocast_dtype(str device_type) -> ScalarType"
+  },
+  {
     "name": "aten::get_device(Tensor self) -> int"
   },
   {
