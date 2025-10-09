@@ -196,7 +196,7 @@ dnn.Tensor = class {
         const itemsize = Math.floor(this.values.length / size);
         const remainder = this.values.length - (itemsize * size);
         if (remainder < 0 || remainder > itemsize) {
-            throw new dnn.Error('Invalid tensor data size.');
+            throw new dnn.Error(`Invalid tensor data size '${this.values.length}' tensor shape '[${shape.dimensions}]' '.`);
         }
         let dataType = '?';
         switch (itemsize) {

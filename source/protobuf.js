@@ -405,10 +405,11 @@ protobuf.BinaryReader = class {
                 break;
             }
             case 1: {
-                if (this._position + 8 >= this._length) {
+                const position = this._position + 8;
+                if (position > this._length) {
                     return false;
                 }
-                this._position += 8;
+                this._position = position;
                 break;
             }
             case 2: {
@@ -416,10 +417,11 @@ protobuf.BinaryReader = class {
                 if (length === undefined) {
                     return false;
                 }
-                if (this._position + length > this._end) {
+                const position = this._position + length;
+                if (position > this._end) {
                     return false;
                 }
-                this._position += length;
+                this._position = position;
                 break;
             }
             case 3: {
@@ -439,10 +441,11 @@ protobuf.BinaryReader = class {
                 break;
             }
             case 5: {
-                this._position += 4;
-                if (this._position > this._length) {
+                const position = this._position + 4;
+                if (position > this._length) {
                     return false;
                 }
+                this._position = position;
                 break;
             }
             default: {

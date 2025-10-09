@@ -1989,8 +1989,22 @@
   },
   {
     "type":     "dnn",
+    "target":   "add_beard_model.dnn",
+    "source":   "https://github.com/user-attachments/files/22800584/add_beard_model.dnn.zip[add_beard_model.dnn]",
+    "format":   "SnapML v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/581"
+  },
+  {
+    "type":     "dnn",
     "target":   "brows_model.dnn",
     "source":   "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",
+    "format":   "SnapML v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/581"
+  },
+  {
+    "type":     "dnn",
+    "target":   "remove_beard_model.dnn",
+    "source":   "https://github.com/user-attachments/files/22800588/remove_beard_model.dnn.zip[remove_beard_model.dnn]",
     "format":   "SnapML v1",
     "link":     "https://github.com/lutzroeder/netron/issues/581"
   },
