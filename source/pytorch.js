@@ -868,22 +868,24 @@ pytorch.Tensor = class {
             this._values = new pytorch.Tensor('', tensor.values);
         } else if (!layout || layout === 'torch.strided') {
             this.type = new pytorch.TensorType(tensor.dtype.__reduce__(), new pytorch.TensorShape(size));
-            this._data = storage.data;
             this.encoding = '<';
             this.indices = null;
             this.stride = tensor.stride();
             const stride = this.stride;
             const offset = tensor.storage_offset();
-            let length = 0;
-            if (!Array.isArray(stride)) {
-                length = storage.size();
-            } else if (size.every((v) => v !== 0)) {
-                length = size.reduce((a, v, i) => a + stride[i] * (v - 1), 1);
-            }
-            if (offset !== 0 || length !== storage.size()) {
-                const itemsize = storage.dtype.itemsize();
-                this._offset = itemsize * offset;
-                this._length = itemsize * length;
+            if (storage) {
+                this._data = storage.data;
+                let length = 0;
+                if (!Array.isArray(stride)) {
+                    length = storage.size();
+                } else if (size.every((v) => v !== 0)) {
+                    length = size.reduce((a, v, i) => a + stride[i] * (v - 1), 1);
+                }
+                if (offset !== 0 || length !== storage.size()) {
+                    const itemsize = storage.dtype.itemsize();
+                    this._offset = itemsize * offset;
+                    this._length = itemsize * length;
+                }
             }
         } else {
             throw new pytorch.Error(`Unsupported tensor layout '${layout}'.`);

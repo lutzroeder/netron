@@ -6768,6 +6768,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "test_quint4x2.pth",
+    "source":   "https://github.com/user-attachments/files/22782069/test_quint4x2.pth.zip[test_quint4x2.pth]",
+    "format":   "PyTorch v1.6",
+    "error":    "Expected 20 more bytes. The file might be corrupted. Unexpected end of file.",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "TestSerialization.test_lstm.traced.pt",
     "source":   "https://github.com/user-attachments/files/16121906/TestSerialization.test_lstm.traced.pt.zip[TestSerialization.test_lstm.traced.pt]",
     "format":   "TorchScript v1.6",
