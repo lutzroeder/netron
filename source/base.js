@@ -1268,6 +1268,7 @@ base.Metadata = class {
             'hd5', 'hdf5', 'keras',
             'tfl', 'circle', 'lite',
             'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn',
+            'mlir', 'mlirbc',
             'param', 'params',
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
             'pkl', 'pickle', 'joblib', 'safetensors',

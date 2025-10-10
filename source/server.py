@@ -60,7 +60,8 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         ".eot": "application/vnd.ms-fontobject",
         ".woff": "font/woff",
         ".woff2": "font/woff2",
-        ".svg": "image/svg+xml"
+        ".svg": "image/svg+xml",
+        ".wasm": "application/wasm"
     }
     def do_HEAD(self):
         self.do_GET()
@@ -114,6 +115,8 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         if content:
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", len(content))
+        # Add CSP header to allow WebAssembly
+        self.send_header("Content-Security-Policy", "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'; object-src 'self'")
         self.end_headers()
         if self.command != "HEAD":
             if status_code == 404 and content is None:
