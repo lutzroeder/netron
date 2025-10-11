@@ -252,7 +252,7 @@ kmodel.Reader = class {
     }
 
     read() {
-        if (this.version < 3 || this.version > 8) {
+        if (this.version < 3 || this.version > 7) {
             throw new kmodel.Error(`Unsupported model version '${this.version}'.`);
         }
         const types = new Map();
@@ -722,7 +722,14 @@ kmodel.Reader = class {
                     layer.inputs[0].value[0].shape = reader.runtime_shape_t();
                     layer.perm = reader.runtime_shape_t();
                 });
-                register(  0x0D, 'strided_slice', 'Tensor');
+                register(  0x0D, 'strided_slice', 'Tensor', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.begin = reader.runtime_shape_t();
+                    layer.end = reader.runtime_shape_t();
+                    layer.strides = reader.runtime_shape_t();
+                });
                 register(  0x0E, 'unary', '', (layer, reader) => {
                     layer.inputs = [reader.parameter('input')];
                     layer.outputs = [reader.parameter('output')];
@@ -800,18 +807,135 @@ kmodel.Reader = class {
                     layer.inputs = [reader.parameter('input'), reader.parameter('table')];
                     layer.outputs = [reader.parameter('output')];
                 });
-                register(  0x13, 'conv2d_transpose', 'Layer');
+                register(  0x13, 'conv2d_transpose', 'Layer', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.groups = reader.int32();
+                    layer.out_channels = reader.int32();
+                    layer.padding_h = reader.padding();
+                    layer.padding_w = reader.padding();
+                    layer.filter_h = reader.int32();
+                    layer.filter_w = reader.int32();
+                    layer.stride_h = reader.int32();
+                    layer.stride_w = reader.int32();
+                    layer.dilation_h = reader.int32();
+                    layer.dilation_w = reader.int32();
+                    layer.fused_activation = [reader.float32(), reader.float32()];
+                    const weights_shape = [layer.out_channels, layer.inputs[0].value[0].shape[1] / layer.groups, layer.filter_h, layer.filter_w];
+                    const weights_size = 4 * weights_shape.reduce((a, b) => a * b);
+                    layer.inputs.push({
+                        name: 'weights',
+                        value: [{
+                            name: '',
+                            datatype: 'float32',
+                            shape: weights_shape,
+                            data: reader.read(weights_size)
+                        }]
+                    });
+                    const bias_shape = [layer.out_channels];
+                    const bias_size = 4 * layer.out_channels;
+                    layer.inputs.push({
+                        name: 'bias',
+                        value: [{
+                            name: '',
+                            datatype: 'float32',
+                            shape: bias_shape,
+                            data: reader.read(bias_size)
+                        }]
+                    });
+                });
                 register(  0x14, 'nnil_unary_method', '', (layer, reader, size) => {
                     const position = reader.position;
                     layer.inputs = [reader.parameter('input')];
                     layer.outputs = [reader.parameter('output')];
                     layer.body = reader.read(size - (reader.position - position));
                 });
-                register(0x1001, 'cpu_conv2d', 'Layer');
-                register(0x1002, 'cpu_depthwise_conv2d', 'Layer');
-                register(0x1003, 'cpu_reduce_window2d');
-                register(0x1004, 'cpu_quantized_conv2d', 'Layer');
-                register(0x1005, 'cpu_quantized_depthwise_conv2d', 'Layer');
+                register(0x1001, 'cpu_conv2d', 'Layer', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.groups = reader.int32();
+                    layer.out_channels = reader.int32();
+                    layer.padding_h = reader.padding();
+                    layer.padding_w = reader.padding();
+                    layer.filter_h = reader.int32();
+                    layer.filter_w = reader.int32();
+                    layer.stride_h = reader.int32();
+                    layer.stride_w = reader.int32();
+                    layer.dilation_h = reader.int32();
+                    layer.dilation_w = reader.int32();
+                    layer.fused_activation = [reader.float32(), reader.float32()];
+                });
+                register(0x1002, 'cpu_depthwise_conv2d', 'Layer', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.out_channels = reader.int32();
+                    layer.padding_h = reader.padding();
+                    layer.padding_w = reader.padding();
+                    layer.filter_h = reader.int32();
+                    layer.filter_w = reader.int32();
+                    layer.stride_h = reader.int32();
+                    layer.stride_w = reader.int32();
+                    layer.dilation_h = reader.int32();
+                    layer.dilation_w = reader.int32();
+                    layer.fused_activation = [reader.float32(), reader.float32()];
+                });
+                register(0x1003, 'cpu_reduce_window2d', 'Pool', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.reduce_op = reader.reduce_op_t();
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.padding_h = reader.padding();
+                    layer.padding_w = reader.padding();
+                    layer.filter_h = reader.int32();
+                    layer.filter_w = reader.int32();
+                    layer.stride_h = reader.int32();
+                    layer.stride_w = reader.int32();
+                    layer.dilation_h = reader.int32();
+                    layer.dilation_w = reader.int32();
+                    layer.fused_activation = [reader.float32(), reader.float32()];
+                });
+                register(0x1004, 'cpu_quantized_conv2d', 'Layer', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.groups = reader.int32();
+                    layer.out_channels = reader.int32();
+                    layer.padding_h = reader.padding();
+                    layer.padding_w = reader.padding();
+                    layer.filter_h = reader.int32();
+                    layer.filter_w = reader.int32();
+                    layer.stride_h = reader.int32();
+                    layer.stride_w = reader.int32();
+                    layer.dilation_h = reader.int32();
+                    layer.dilation_w = reader.int32();
+                    layer.input_offset = reader.int32();
+                    layer.filter_offset = reader.int32();
+                    layer.output_mul = reader.int32();
+                    layer.output_shift = reader.int32();
+                    layer.output_offset = reader.int32();
+                });
+                register(0x1005, 'cpu_quantized_depthwise_conv2d', 'Layer', (layer, reader) => {
+                    layer.inputs = [reader.parameter('input')];
+                    layer.outputs = [reader.parameter('output')];
+                    layer.inputs[0].value[0].shape = reader.runtime_shape_t();
+                    layer.out_channels = reader.int32();
+                    layer.padding_h = reader.padding();
+                    layer.padding_w = reader.padding();
+                    layer.filter_h = reader.int32();
+                    layer.filter_w = reader.int32();
+                    layer.stride_h = reader.int32();
+                    layer.stride_w = reader.int32();
+                    layer.dilation_h = reader.int32();
+                    layer.dilation_w = reader.int32();
+                    layer.input_offset = reader.int32();
+                    layer.filter_offset = reader.int32();
+                    layer.output_mul = reader.int32();
+                    layer.output_shift = reader.int32();
+                    layer.output_offset = reader.int32();
+                });
                 register(0x2001, 'kpu_upload', '', (layer, reader) => {
                     layer.inputs = [reader.parameter('input')];
                     layer.outputs = [reader.parameter('output')];
@@ -904,68 +1028,74 @@ kmodel.Reader = class {
                 });
                 break;
             }
-            case 5: {
-                const reader = new kmodel.BinaryReader.v5(this.stream);
+            case 5:
+            case 6:
+            case 7: {
+                let reader = null;
+                switch (this.version) {
+                    case 5: reader = new kmodel.BinaryReader.v5(this.stream); break;
+                    case 6: reader = new kmodel.BinaryReader.v6(this.stream); break;
+                    case 7: reader = new kmodel.BinaryReader.v7(this.stream); break;
+                    default: throw new kmodel.Error(`Unsupported model version '${this.version}'.`);
+                }
                 const model_header = reader.model_header();
-                if (model_header.header_size < 32) {
-                    throw new kmodel.Error(`Invalid header size '${model_header.header_size}'.`);
-                }
-                if (model_header.header_size > reader.position) {
-                    reader.skip(model_header.header_size - reader.position);
-                }
-                delete model_header.header_size;
                 this.modules = new Array(model_header.modules);
                 for (let i = 0; i < this.modules.length; i++) {
-                    const start = reader.position;
                     const module_header = reader.module_header();
-                    if (module_header.header_size > (reader.position - start)) {
-                        reader.skip(module_header.header_size - (reader.position - start));
+                    const mempools = new Array(module_header.mempools || 0);
+                    for (let j = 0; j < mempools.length; j++) {
+                        mempools[j] = reader.mempool_desc();
                     }
-                    const mempools = new Array(module_header.mempools);
-                    for (let i = 0; i < mempools.length; i++) {
-                        mempools[i] = reader.mempool_desc();
-                    }
-                    const shared_mempools = new Array(module_header.shared_mempools);
-                    for (let i = 0; i < shared_mempools.length; i++) {
+                    const shared_mempools = new Array(module_header.shared_mempools || 0);
+                    for (let j = 0; j < shared_mempools.length; j++) {
                         shared_mempools[i] = reader.mempool_desc();
                     }
                     const function_headers = new Array(module_header.functions);
                     const functions = new Array(module_header.functions);
-                    for (let i = 0; i < functions.length; i++) {
+                    for (let j = 0; j < functions.length; j++) {
                         const position = reader.position;
-                        const function_header = reader.function_header();
-                        const header_size = reader.position - position;
-                        if (function_header.header_size > header_size) {
-                            reader.skip(function_header.header_size - header_size);
+                        let inputs = [];
+                        let outputs = [];
+                        if (this.version === 5) {
+                            const function_header = reader.function_header();
+                            inputs = new Array(function_header.inputs || 0);
+                            for (let k = 0; k < inputs.length; k++) {
+                                inputs[k] = reader.parameter(`input${k === 0 ? '' : (k + 1)}`);
+                            }
+                            for (let k = 0; k < inputs.length; k++ || 0) {
+                                inputs[k].value[0].shape = reader.shape();
+                            }
+                            outputs = new Array(function_header.outputs || 0);
+                            for (let k = 0; k < outputs.length; k++) {
+                                outputs[k] = reader.parameter(`output${k === 0 ? '' : (k + 1)}`);
+                            }
+                            for (let k = 0; k < outputs.length; k++) {
+                                outputs[k].value[0].shape = reader.shape();
+                            }
+                            reader.align(8);
+                            const size = reader.position - position;
+                            if (function_header.size > size) {
+                                reader.skip(function_header.size - size);
+                            }
+                            function_headers[j] = function_header;
+                        } else {
+                            const func_start = reader.position;
+                            const function_header = reader.function_header();
+                            const header_size = reader.position - func_start;
+                            const remaining_size = function_header.size - header_size;
+                            if (remaining_size > 0) {
+                                reader.skip(remaining_size);
+                            }
+                            function_headers[j] = function_header;
                         }
-                        const inputs = new Array(function_header.inputs);
-                        for (let i = 0; i < inputs.length; i++) {
-                            inputs[i] = reader.parameter(`input${i === 0 ? '' : (i + 1)}`);
-                        }
-                        for (let i = 0; i < inputs.length; i++) {
-                            inputs[i].value[0].shape = reader.shape();
-                        }
-                        const outputs = new Array(function_header.outputs);
-                        for (let i = 0; i < outputs.length; i++) {
-                            outputs[i] = reader.parameter(`output${i === 0 ? '' : (i + 1)}`);
-                        }
-                        for (let i = 0; i < outputs.length; i++) {
-                            outputs[i].value[0].shape = reader.shape();
-                        }
-                        reader.align(8);
-                        const size = reader.size - position;
-                        if (function_header.size > size) {
-                            reader.skip(function_header.size - size);
-                        }
-                        function_headers[i] = function_header;
-                        functions[i] = {
+                        functions[j] = {
                             type: { name: 'Unknown' },
                             inputs,
                             outputs
                         };
                     }
                     const sections = new Map();
-                    for (let i = 0; i < module_header.sections; i++) {
+                    for (let j = 0; j < module_header.sections; j++) {
                         const section_header = reader.section_header();
                         reader.skip(section_header.body_start);
                         const body = reader.read(section_header.body_size);
@@ -976,28 +1106,42 @@ kmodel.Reader = class {
                         reader.align(8);
                         sections.set(section_header.name, section);
                     }
-                    for (let i = 0; i < function_headers.length; i++) {
-                        const function_header = function_headers[i];
+                    for (let j = 0; j < function_headers.length; j++) {
+                        const function_header = function_headers[j];
                         const reader = sections.get('.text').reader;
                         reader.seek(function_header.entrypoint);
-                        function_header.text = reader.read(function_header.text_size);
+                        const size = function_header.text_size;
+                        function_header.text = reader.read(size);
                         const layer = functions[i];
                         switch (module_header.type) {
-                            case 'stackvm':
+                            case 'stackvm': {
                                 layer.type = { name: 'stackvm' };
+                                let reader = null;
+                                const buffer = function_header.text;
+                                switch (this.version) {
+                                    case 5: reader = new kmodel.BytecodeReader.v5(buffer); break;
+                                    case 6: reader = new kmodel.BytecodeReader.v6(buffer); break;
+                                    case 7: reader = new kmodel.BytecodeReader.v6(buffer); break;
+                                    default: throw new kmodel.Error(`Unsupported model version '${this.version}'.`);
+                                }
+                                reader = null;
+                                if (reader) {
+                                    layer.operations = reader.read();
+                                    layer.tensor_operations = layer.operations.filter((op) => op.name === 'tensor');
+                                }
                                 break;
+                            }
                             case 'k210':
-                                break;
+                            case 'k230':
                             case 'k510':
                                 break;
                             default:
                                 throw new kmodel.Error(`Unsupported module type '${module_header.type}'.`);
                         }
                     }
-                    const name = this.modules.length > 1 ? i.toString() : '';
                     this.modules[i] = {
-                        name,
                         type: module_header.type,
+                        name: this.modules.length > 1 ? i.toString() : '',
                         layers: functions
                     };
                 }
@@ -1063,6 +1207,10 @@ kmodel.BinaryReader = class {
 
     uint32() {
         return this._reader.uint32();
+    }
+
+    uint64() {
+        return this._reader.uint64().toNumber();
     }
 
     float32() {
@@ -1268,7 +1416,7 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
     }
 
     model_header() {
-        return {
+        const model_header = {
             header_size: this.uint32(),
             flags: this.uint32(),
             alignment: this.uint32(),
@@ -1276,6 +1424,14 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
             entry_module: this.uint32(),
             entry_function: this.uint32()
         };
+        if (model_header.header_size < 32) {
+            throw new kmodel.Error(`Invalid header size '${model_header.header_size}'.`);
+        }
+        if (model_header.header_size > this.position) {
+            this.skip(model_header.header_size - this.position);
+        }
+        delete model_header.header_size;
+        return model_header;
     }
 
     module_type_t() {
@@ -1286,7 +1442,8 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
     }
 
     module_header() {
-        return {
+        const start = this.position;
+        const module_header = {
             type: this.module_type_t(),
             version: this.uint32(),
             header_size: this.uint32(),
@@ -1297,6 +1454,10 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
             functions: this.uint32(),
             reserved0: this.uint32()
         };
+        if (module_header.header_size > (this.position - start)) {
+            this.skip(module_header.header_size - (this.position - start));
+        }
+        return module_header;
     }
 
     mempool_desc() {
@@ -1321,7 +1482,8 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
     }
 
     function_header() {
-        return {
+        const position = this.position;
+        const function_header = {
             header_size: this.uint32(),
             size: this.uint32(),
             input_pool_size: this.uint32(),
@@ -1331,6 +1493,11 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
             entrypoint: this.uint32(),
             text_size: this.uint32()
         };
+        const header_size = this.position - position;
+        if (function_header.header_size > header_size) {
+            this.skip(function_header.header_size - header_size);
+        }
+        return function_header;
     }
 
     memory_location_t() {
@@ -1385,6 +1552,689 @@ kmodel.BinaryReader.v5 = class extends kmodel.BinaryReader {
             array[i] = this.uint32();
         }
         return array;
+    }
+};
+
+kmodel.BinaryReader.v6 = class extends kmodel.BinaryReader.v5 {
+
+    model_header() {
+        return {
+            flags: this.uint32(),
+            alignment: this.uint32(),
+            modules: this.uint32(),
+            entry_module: this.uint32(),
+            entry_function: this.uint32(),
+            reserved0: this.uint32()
+        };
+    }
+
+    module_header() {
+        return {
+            type: this.module_type_t(),
+            version: this.uint32(),
+            size: this.uint32(),
+            sections: this.uint32(),
+            functions: this.uint32()
+        };
+    }
+
+    function_header() {
+        return {
+            parameters: this.uint32(),
+            entrypoint: this.uint32(),
+            text_size: this.uint32(),
+            size: this.uint32(),
+            sections: this.uint32(),
+            reserved0: this.uint32(),
+        };
+    }
+
+    section_header() {
+        const buffer = this.read(16);
+        const decoder = new TextDecoder('ascii');
+        const name = decoder.decode(buffer);
+        return {
+            name: name.replace(/\0.*$/, ''),
+            size: this.uint32(),
+            flags: this.uint32(),
+            body_start: this.uint32(),
+            body_size: this.uint32(),
+            memory_size: this.uint32(),
+            reserved0: this.uint32()
+        };
+    }
+
+    deserialize_datatype() {
+        const typecode = this.byte();
+        if (typecode === 100) { // dt_pointer
+            const elem_type = this.deserialize_datatype();
+            return { type: 'pointer', elem_type };
+        } else if (typecode === 101) { // dt_valuetype
+            const uuid = this.read(16);
+            const size_bytes = this.uint32();
+            return { type: 'valuetype', uuid, size_bytes };
+        } else if (typecode >= 0 && typecode <= 12) {
+            const types = ['bool', 'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64', 'float16', 'float32', 'float64', 'bfloat16'];
+            return { type: 'prim', name: types[typecode] || `unknown_${typecode}` };
+        }
+        throw new kmodel.Error(`Unknown datatype typecode: ${typecode}`);
+    }
+
+    deserialize_type() {
+        const token = this.byte();
+        switch (token) {
+            case 0: // type_sig_invalid
+                return { type: 'invalid' };
+            case 1: // type_sig_any
+                return { type: 'any' };
+            case 2: { // type_sig_tensor
+                const elem_type = this.deserialize_datatype();
+                const is_scalar = this.byte() === 0;
+                const shape = [];
+                if (!is_scalar) {
+                    let dim_token = 0;
+                    while ((dim_token = this.byte()) !== 255) { // type_sig_end
+                        if (dim_token === 1) { // dim_fixed
+                            shape.push(this.uint32());
+                        } else if (dim_token === 2) { // dim_unknown
+                            shape.push(-1);
+                        } else {
+                            throw new kmodel.Error(`Invalid dim token: ${dim_token}`);
+                        }
+                    }
+                }
+                return { type: 'tensor', elem_type, shape, is_scalar };
+            }
+            case 3: { // type_sig_tuple
+                const fields = [];
+                while (this.peek() !== 255) { // type_sig_end
+                    fields.push(this.deserialize_type());
+                }
+                this.skip(1); // skip end token
+                return { type: 'tuple', fields };
+            }
+            case 4: // type_sig_callable
+                throw new kmodel.Error('Callable types not supported');
+            default:
+                throw new kmodel.Error(`Unknown type signature token: ${token}`);
+        }
+    }
+
+    peek() {
+        const value = this.byte();
+        this.seek(this.position - 1);
+        return value;
+    }
+};
+
+kmodel.BinaryReader.v7 = class extends kmodel.BinaryReader.v6 {
+
+    module_header() {
+        return {
+            type: this.module_type_t(),
+            version: this.uint32(),
+            sections: this.uint32(),
+            functions: this.uint32(),
+            reserved0: this.uint32(),
+            size: this.uint64(),
+        };
+    }
+
+    function_header() {
+        return {
+            parameters: this.uint32(),
+            sections: this.uint32(),
+            entrypoint: this.uint64(),
+            text_size: this.uint64(),
+            size: this.uint64(),
+        };
+    }
+
+    section_header() {
+        const buffer = this.read(16);
+        const decoder = new TextDecoder('ascii');
+        const name = decoder.decode(buffer);
+        return {
+            name: name.replace(/\0.*$/, ''),
+            flags: this.uint32(),
+            reserved0: this.uint32(),
+            size: this.uint64(),
+            body_start: this.uint64(),
+            body_size: this.uint64(),
+            memory_size: this.uint64(),
+        };
+    }
+};
+
+kmodel.BytecodeReader = class {
+
+    constructor(buffer) {
+        this._reader = base.BinaryReader.open(buffer);
+    }
+
+    read() {
+        const operations = [];
+        while (this._reader.position < this._reader.length) {
+            const position = this._reader.position;
+            const opcode = this._reader.byte();
+            if (!this._opcodes.has(opcode)) {
+                throw new kmodel.Error(`Unknown opcode '${opcode}'.`);
+            }
+            const name = this._opcodes.get(opcode);
+            const operation = { name, position };
+            this.operation(operation);
+            // console.log(JSON.stringify(operation));
+            operations.push(operation);
+            if (name === 'ret') {
+                break;
+            }
+        }
+        return operations;
+    }
+
+    strings() {
+        // Read strings until we encounter a null byte as the first character
+        const array = [];
+        while (this._reader.position < this._reader.length) {
+            // Peek at next byte
+            const byte = this._reader.byte();
+            if (byte === 0) {
+                break; // End of array
+            }
+            // Put the byte back by moving position back
+            this._reader.seek(this._reader.position - 1);
+            array.push(this.string());
+        }
+        return array;
+    }
+};
+
+kmodel.BytecodeReader.v5 = class extends kmodel.BytecodeReader {
+
+    constructor(buffer) {
+        super(buffer);
+        this._opcodes = new Map([
+            [0, 'nop'], [1, 'ldnull'], [2, 'ldc_i4'], [3, 'ldc_i4_0'], [4, 'ldc_i4_1'],
+            [5, 'ldc_r4'], [6, 'ldind_i1'], [7, 'ldind_i2'], [8, 'ldind_i4'], [9, 'ldind_i'],
+            [10, 'ldind_u1'], [11, 'ldind_u2'], [12, 'ldind_u4'], [13, 'ldind_u'],
+            [14, 'ldind_br2'], [15, 'ldind_r4'], [16, 'stind_i1'], [17, 'stind_i2'],
+            [18, 'stind_i4'], [19, 'stind_i'], [20, 'stind_br2'], [21, 'stind_r4'],
+            [22, 'lea_gp'], [23, 'lea_buffer'], [24, 'ldelem_i1'], [25, 'ldelem_i2'],
+            [26, 'ldelem_i4'], [27, 'ldelem_i'], [28, 'ldelem_u1'], [29, 'ldelem_u2'],
+            [30, 'ldelem_u4'], [0x1F, 'ldelem_u'], [0x20, 'ldelem_br2'], [33, 'ldelem_r4'],
+            [34, 'stelem_i1'], [35, 'stelem_i2'], [36, 'stelem_i4'], [37, 'stelem_i'],
+            [38, 'stelem_br2'], [39, 'stelem_r4'], [40, 'ldarg'], [41, 'ldarg_0'],
+            [42, 'ldarg_1'], [43, 'ldarg_2'], [44, 'ldarg_3'], [45, 'ldarg_4'],
+            [46, 'ldarg_5'], [47, 'dup'], [48, 'pop'], [0x31, 'stshape'], [50, 'stpaddings'],
+            [51, 'neg'], [52, 'add'], [53, 'sub'], [54, 'mul'], [55, 'div'], [56, 'div_u'],
+            [57, 'rem'], [58, 'rem_u'], [59, 'and'], [60, 'or'], [61, 'xor'], [62, 'not'],
+            [63, 'shl'], [64, 'shr'], [65, 'shr_u'], [66, 'clt'], [67, 'clt_u'],
+            [68, 'cle'], [69, 'cle_u'], [70, 'ceq'], [71, 'cge'], [72, 'cge_u'],
+            [73, 'cgt'], [74, 'cgt_u'], [75, 'cne'], [76, 'conv_i1'], [77, 'conv_i2'],
+            [78, 'conv_i4'], [79, 'conv_i'], [80, 'conv_u1'], [81, 'conv_u2'],
+            [82, 'conv_u4'], [83, 'conv_u'], [84, 'conv_br2'], [85, 'conv_r4'],
+            [86, 'br'], [87, 'br_true'], [88, 'br_false'], [89, 'ret'], [90, 'call'],
+            [91, 'ecall'], [0x5C, 'throw'], [0x5D, 'break'], [0x5E, 'tensor']
+        ]);
+        this._tensorFunctions = new Map([
+            [0x0000, { name: 'batch_to_space', category: 'Transform' }],
+            [0x0001, { name: 'binary', category: '' }],
+            [0x0002, { name: 'broadcast', category: '' }],
+            [0x0003, { name: 'call', category: '' }],
+            [0x0004, { name: 'clamp', category: 'Activation' }],
+            [0x0005, { name: 'conv2d', category: 'Layer' }],
+            [0x0006, { name: 'conv2d_transpose', category: 'Layer' }],
+            [0x0007, { name: 'convert', category: '' }],
+            [0x0008, { name: 'copy', category: '' }],
+            [0x0009, { name: 'cumsum', category: '' }],
+            [0x000A, { name: 'dequantize', category: 'Quantization' }],
+            [0x000B, { name: 'equal', category: '' }],
+            [0x000C, { name: 'gather', category: 'Transform' }],
+            [0x000D, { name: 'gather_nd', category: 'Transform' }],
+            [0x000E, { name: 'hardmax', category: 'Activation' }],
+            [0x000F, { name: 'logistic', category: 'Activation' }],
+            [0x0010, { name: 'lut1d', category: '' }],
+            [0x0011, { name: 'matmul', category: 'Layer' }],
+            [0x0012, { name: 'onehot', category: '' }],
+            [0x0013, { name: 'pad', category: '' }],
+            [0x0014, { name: 'quantize', category: 'Quantization' }],
+            [0x0015, { name: 'random_normal', category: '' }],
+            [0x0016, { name: 'random_uniform', category: '' }],
+            [0x0017, { name: 'reduce', category: 'Reduce' }],
+            [0x0018, { name: 'reduce_arg', category: 'Reduce' }],
+            [0x0019, { name: 'reduce_prod', category: 'Reduce' }],
+            [0x001A, { name: 'reduce_window2d', category: 'Pool' }],
+            [0x001B, { name: 'resize_image', category: 'Transform' }],
+            [0x001C, { name: 'roi_align', category: '' }],
+            [0x001D, { name: 'sigmoid', category: 'Activation' }],
+            [0x001E, { name: 'slice', category: 'Tensor' }],
+            [0x001F, { name: 'softmax', category: 'Activation' }],
+            [0x0020, { name: 'space_to_batch', category: 'Transform' }],
+            [0x0021, { name: 'take', category: '' }],
+            [0x0022, { name: 'ternary', category: '' }],
+            [0x0023, { name: 'topk', category: '' }],
+            [0x0024, { name: 'transpose', category: 'Transform' }],
+            [0x0025, { name: 'trilu', category: '' }],
+            [0x0026, { name: 'unary', category: '' }]
+        ]);
+    }
+
+    operation(operation) {
+        switch (operation.name) {
+            case 'ldc_i4':
+                operation.value = this._reader.int32();
+                break;
+            case 'ldc_r4':
+                operation.imm = this._reader.float32();
+                break;
+            case 'lea_gp':
+                operation.gpid = this._reader.byte();
+                operation.offset = this._reader.int32();
+                break;
+            case 'lea_buffer':
+                operation.location = this._reader.byte();
+                operation.subres_id = this._reader.byte();
+                operation.offset = this._reader.int32();
+                break;
+            case 'ldarg':
+                operation.index = this._reader.uint32();
+                break;
+            case 'stpaddings':
+                operation.rpaddings = this._reader.byte();
+                operation.rank = this._reader.byte();
+                break;
+            case 'stshape':
+                operation.rshape = this._reader.byte();
+                operation.rank = this._reader.byte();
+                break;
+            case 'br':
+            case 'br_true':
+            case 'br_false':
+                operation.target = this._reader.int32();
+                break;
+            case 'call':
+                operation.args = this._reader.byte();
+                operation.target = this._reader.int32();
+                break;
+            case 'ecall':
+                operation.args = this._reader.byte();
+                break;
+            case 'extcall':
+                operation.args = this._reader.uint16();
+                operation.is_prim_func = this._reader.byte() !== 0;
+                break;
+            case 'cuscall':
+                operation.registered_name = this.string();
+                operation.fields_size = this._reader.uint32();
+                this._reader.skip(operation.fields_size);
+                operation.args = this._reader.uint16();
+                break;
+            case 'tensor': {
+                operation.tensor_function = this._reader.uint16();
+                const func = this._tensorFunctions.get(operation.tensor_function);
+                if (func) {
+                    operation.tensor_name = func.name;
+                    operation.tensor_category = func.category;
+                }
+                this.tensor(operation);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    string() {
+        // Read null-terminated string
+        const bytes = [];
+        let byte = this._reader.byte();
+        while (byte !== 0) {
+            bytes.push(byte);
+            byte = this._reader.byte();
+        }
+        return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
+    }
+
+    tensor(operation) {
+        switch (operation.tensor_name) {
+            case 'binary':
+                operation.datatype = this._reader.byte();
+                operation.rshape_src1 = this._reader.byte();
+                operation.rstride_src1 = this._reader.byte();
+                operation.rshape_src2 = this._reader.byte();
+                operation.rstride_src2 = this._reader.byte();
+                operation.rstride_dest = this._reader.byte();
+                operation.binary_op = this._reader.byte();
+                operation.fused_clamp_low = this._reader.float32();
+                operation.fused_clamp_high = this._reader.float32();
+                break;
+            case 'bitcast':
+                operation.type = this._reader.byte();
+                operation.new_type = this._reader.byte();
+                break;
+            case 'call':
+                operation.function_id = this._reader.uint32();
+                operation.module_id = this._reader.uint16();
+                operation.num_src = this._reader.byte();
+                operation.num_dst = this._reader.byte();
+                break;
+            case 'cast':
+                operation.new_type = this._reader.byte();
+                operation.cast_mode = this._reader.uint32();
+                break;
+            case 'compare':
+                operation.compare_op = this._reader.byte();
+                break;
+            case 'concat':
+                operation.axis = this._reader.int32();
+                break;
+            case 'cumsum':
+                operation.datatype = this._reader.byte();
+                operation.rshape_src = this._reader.byte();
+                operation.axis = this._reader.int32();
+                operation.exclusive = this._reader.byte() !== 0;
+                operation.reverse = this._reader.byte() !== 0;
+                break;
+            case 'condition':
+                operation.can_fold_const_call = this._reader.byte() !== 0;
+                break;
+            case 'conv2d':
+                operation.datatype = this._reader.byte();
+                operation.rshape_src = this._reader.byte();
+                operation.rstride_src = this._reader.byte();
+                operation.rshape_kernel = this._reader.byte();
+                operation.rstride_kernel = this._reader.byte();
+                operation.rstride_bias = this._reader.byte();
+                operation.rstride_dest = this._reader.byte();
+                operation.groups = this._reader.uint16();
+                operation.stride_h = this._reader.uint16();
+                operation.stride_w = this._reader.uint16();
+                operation.dilation_h = this._reader.uint16();
+                operation.dilation_w = this._reader.uint16();
+                operation.fused_clamp_low = this._reader.float32();
+                operation.fused_clamp_high = this._reader.float32();
+                break;
+            case 'conv2d_transpose':
+                operation.pad_mode = this._reader.byte();
+                break;
+            case 'dequantize':
+                operation.target_type = this._reader.byte();
+                break;
+            case 'fake_dequantize':
+                operation.target_type = this._reader.byte();
+                break;
+            case 'fake_quantize':
+                operation.target_type = this._reader.byte();
+                break;
+            case 'gather':
+                operation.axis = this._reader.int32();
+                break;
+            case 'layer_norm':
+                operation.axis = this._reader.int32();
+                operation.epsilon = this._reader.float32();
+                operation.use_mean = this._reader.byte() !== 0;
+                break;
+            case 'lstm':
+                operation.direction = this._reader.uint32();
+                operation.layout = this._reader.uint32();
+                operation.activations = this.strings();
+                break;
+            case 'matmul':
+                operation.rshape_src1 = this._reader.byte();
+                operation.rshape_src2 = this._reader.byte();
+                operation.fused_clamp_low = this._reader.float32();
+                operation.fused_clamp_high = this._reader.float32();
+                break;
+            case 'normal':
+                operation.type = this._reader.byte();
+                break;
+            case 'random_normal':
+                operation.datatype_dest = this._reader.byte();
+                operation.rshape_dest = this._reader.byte();
+                operation.mean = this._reader.float32();
+                operation.std = this._reader.float32();
+                operation.seed = this._reader.float32();
+                break;
+            case 'normal_like':
+                operation.type = this._reader.byte();
+                break;
+            case 'one_hot':
+                operation.one_hot_mode = this._reader.byte();
+                break;
+            case 'pad':
+                operation.datatype = this._reader.byte();
+                operation.rshape_src = this._reader.byte();
+                operation.rstride_src = this._reader.byte();
+                operation.rstride_dest = this._reader.byte();
+                operation.rpaddings = this._reader.byte();
+                operation.pad_mode = this._reader.byte();
+                break;
+            case 'quantize':
+                operation.target_type = this._reader.byte();
+                break;
+            case 'quant_param_of':
+                operation.quant_mode = this._reader.uint32();
+                break;
+            case 'range_of':
+                operation.is_range_of_weight = this._reader.byte() !== 0;
+                break;
+            case 'reduce':
+                operation.reduce_op = this._reader.byte();
+                break;
+            case 'reduce_arg':
+                operation.reduce_arg_op = this._reader.byte();
+                operation.dest_type = this._reader.byte();
+                break;
+            case 'reduce_window2d':
+                operation.reduce_op = this._reader.byte();
+                break;
+            case 'require':
+                operation.message = this.string();
+                operation.can_fold_const_call = this._reader.byte() !== 0;
+                break;
+            case 'resize_image':
+                operation.resize_mode = this._reader.byte();
+                operation.transformation_mode = this._reader.uint32();
+                operation.nearest_mode = this._reader.uint32();
+                operation.is_tfresize = this._reader.byte() !== 0;
+                break;
+            case 'unary':
+                operation.unary_op = this._reader.byte();
+                break;
+            case 'uniform':
+                operation.type = this._reader.byte();
+                break;
+            case 'uniform_like':
+                operation.type = this._reader.byte();
+                break;
+            case 'where':
+                operation.is_tf_where = this._reader.byte() !== 0;
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+kmodel.BytecodeReader.v6 = class extends kmodel.BytecodeReader.v5 {
+
+    constructor(reader) {
+        super(reader);
+        this._opcodes = new Map([
+            [0, 'nop'], [1, 'ldnull'], [2, 'ldc_i4'], [3, 'ldc_i4_0'], [4, 'ldc_i4_1'],
+            [5, 'ldc_r4'], [6, 'ldind_i1'], [7, 'ldind_i2'], [8, 'ldind_i4'], [9, 'ldind_i'],
+            [10, 'ldind_u1'], [11, 'ldind_u2'], [12, 'ldind_u4'], [13, 'ldind_u'],
+            [14, 'ldind_br2'], [15, 'ldind_r4'], [16, 'stind_i1'], [17, 'stind_i2'],
+            [18, 'stind_i4'], [19, 'stind_i'], [20, 'stind_br2'], [21, 'stind_r4'],
+            [22, 'lea_gp'], [23, 'ldelem_i1'], [24, 'ldelem_i2'], [25, 'ldelem_i4'],
+            [26, 'ldelem_i'], [27, 'ldelem_u1'], [28, 'ldelem_u2'], [29, 'ldelem_u4'],
+            [30, 'ldelem_u'], [31, 'ldelem_br2'], [32, 'ldelem_r4'], [33, 'stelem_i1'],
+            [34, 'stelem_i2'], [35, 'stelem_i4'], [36, 'stelem_i'], [37, 'stelem_br2'],
+            [38, 'stelem_r4'], [39, 'ldarg'], [40, 'ldarg_0'], [41, 'ldarg_1'],
+            [42, 'ldarg_2'], [43, 'ldarg_3'], [44, 'ldarg_4'], [45, 'ldarg_5'],
+            [46, 'dup'], [47, 'pop'], [48, 'ldlocal'], [49, 'stlocal'], [50, 'ldtuple_elem'],
+            [51, 'ldtuple'], [52, 'lddatatype'], [53, 'ldtensor'], [54, 'ldscalar'],
+            [55, 'neg'], [56, 'add'], [57, 'sub'], [58, 'mul'], [59, 'div'], [60, 'div_u'],
+            [61, 'rem'], [62, 'rem_u'], [63, 'and'], [64, 'or'], [65, 'xor'], [66, 'not'],
+            [67, 'shl'], [68, 'shr'], [69, 'shr_u'], [70, 'clt'], [71, 'clt_u'],
+            [72, 'cle'], [73, 'cle_u'], [74, 'ceq'], [75, 'cge'], [76, 'cge_u'],
+            [77, 'cgt'], [78, 'cgt_u'], [79, 'cne'], [80, 'conv_i1'], [81, 'conv_i2'],
+            [82, 'conv_i4'], [83, 'conv_i'], [84, 'conv_u1'], [85, 'conv_u2'],
+            [86, 'conv_u4'], [87, 'conv_u'], [88, 'conv_br2'], [89, 'conv_r4'],
+            [90, 'br'], [91, 'br_true'], [92, 'br_false'], [93, 'ret'], [94, 'call'],
+            [95, 'ecall'], [96, 'extcall'], [97, 'cuscall'], [98, 'throw'], [99, 'break'],
+            [100, 'tensor']
+        ]);
+        this._tensorFunctions = new Map([
+            [0, { name: 'batch_normalization', category: 'Normalization' }],
+            [1, { name: 'batch_to_space', category: 'Transform' }],
+            [2, { name: 'binary', category: '' }],
+            [3, { name: 'bitcast', category: '' }],
+            [4, { name: 'broadcast', category: '' }],
+            [5, { name: 'broadcast_shape', category: 'Shape' }],
+            [6, { name: 'bucket_pad', category: '' }],
+            [7, { name: 'cast', category: '' }],
+            [8, { name: 'celu', category: 'Activation' }],
+            [9, { name: 'clamp', category: 'Activation' }],
+            [10, { name: 'compare', category: '' }],
+            [11, { name: 'concat', category: 'Tensor' }],
+            [12, { name: 'condition', category: '' }],
+            [13, { name: 'constant_of_shape', category: '' }],
+            [14, { name: 'conv2d', category: 'Layer' }],
+            [15, { name: 'conv2d_shape', category: 'Shape' }],
+            [16, { name: 'conv2d_transpose', category: 'Layer' }],
+            [17, { name: 'conv2d_transpose_shape', category: 'Shape' }],
+            [18, { name: 'cum_sum', category: '' }],
+            [19, { name: 'dequantize', category: 'Quantization' }],
+            [20, { name: 'elu', category: 'Activation' }],
+            [21, { name: 'erf', category: 'Activation' }],
+            [22, { name: 'expand', category: '' }],
+            [23, { name: 'fake_dequantize', category: 'Quantization' }],
+            [24, { name: 'fake_quantize', category: 'Quantization' }],
+            [25, { name: 'fix_shape', category: 'Shape' }],
+            [26, { name: 'flatten', category: 'Shape' }],
+            [27, { name: 'gather', category: 'Transform' }],
+            [28, { name: 'gather_elements', category: 'Transform' }],
+            [29, { name: 'gather_nd', category: 'Transform' }],
+            [30, { name: 'gelu', category: 'Activation' }],
+            [31, { name: 'get_item', category: '' }],
+            [32, { name: 'get_paddings', category: '' }],
+            [33, { name: 'hardmax', category: 'Activation' }],
+            [34, { name: 'hard_sigmoid', category: 'Activation' }],
+            [35, { name: 'hard_swish', category: 'Activation' }],
+            [36, { name: 'index_of', category: '' }],
+            [37, { name: 'instance_normalization', category: 'Normalization' }],
+            [38, { name: 'l2_normalization', category: 'Normalization' }],
+            [39, { name: 'layer_norm', category: 'Normalization' }],
+            [40, { name: 'leaky_relu', category: 'Activation' }],
+            [41, { name: 'log_softmax', category: 'Activation' }],
+            [42, { name: 'lp_normalization', category: 'Normalization' }],
+            [43, { name: 'lrn', category: 'Normalization' }],
+            [44, { name: 'lstm', category: 'Layer' }],
+            [45, { name: 'mat_mul', category: 'Layer' }],
+            [46, { name: 'mat_mul_shape', category: 'Shape' }],
+            [47, { name: 'normal' }],
+            [48, { name: 'normal_like' }],
+            [49, { name: 'one_hot', category: '' }],
+            [50, { name: 'pad', category: '' }],
+            [51, { name: 'prelu', category: 'Activation' }],
+            [52, { name: 'prod', category: '' }],
+            [53, { name: 'quantize', category: 'Quantization' }],
+            [54, { name: 'quant_param_of', category: 'Quantization' }],
+            [55, { name: 'range', category: '' }],
+            [56, { name: 'range_of', category: '' }],
+            [57, { name: 'rank', category: 'Shape' }],
+            [58, { name: 'reduce', category: 'Reduce' }],
+            [59, { name: 'reduce_arg', category: 'Reduce' }],
+            [60, { name: 'reduce_window2d', category: 'Pool' }],
+            [61, { name: 'relu', category: 'Activation' }],
+            [62, { name: 'relu6', category: 'Activation' }],
+            [63, { name: 'require', category: '' }],
+            [64, { name: 'reshape', category: 'Shape' }],
+            [65, { name: 'reshape_shape', category: 'Shape' }],
+            [66, { name: 'resize_image', category: 'Transform' }],
+            [67, { name: 'reverse_sequence', category: '' }],
+            [68, { name: 'scatter_nd', category: 'Transform' }],
+            [69, { name: 'select', category: '' }],
+            [70, { name: 'selu', category: 'Activation' }],
+            [71, { name: 'shape_of', category: 'Shape' }],
+            [72, { name: 'sigmoid', category: 'Activation' }],
+            [73, { name: 'size_of', category: 'Shape' }],
+            [74, { name: 'slice', category: 'Tensor' }],
+            [75, { name: 'softmax', category: 'Activation' }],
+            [76, { name: 'softplus', category: 'Activation' }],
+            [77, { name: 'softsign', category: 'Activation' }],
+            [78, { name: 'space_to_batch', category: 'Transform' }],
+            [79, { name: 'split', category: 'Tensor' }],
+            [80, { name: 'squeeze', category: 'Shape' }],
+            [81, { name: 'squeeze_shape', category: 'Shape' }],
+            [82, { name: 'stack', category: 'Tensor' }],
+            [83, { name: 'swish', category: 'Activation' }],
+            [84, { name: 'tile', category: '' }],
+            [85, { name: 'top_k', category: '' }],
+            [86, { name: 'transpose', category: 'Transform' }],
+            [87, { name: 'transpose_shape', category: 'Shape' }],
+            [88, { name: 'trilu', category: '' }],
+            [89, { name: 'unary', category: '' }],
+            [90, { name: 'uniform' }],
+            [91, { name: 'uniform_like' }],
+            [92, { name: 'unsqueeze', category: 'Shape' }],
+            [93, { name: 'unsqueeze_shape', category: 'Shape' }],
+            [94, { name: 'where', category: '' }]
+        ]);
+    }
+
+    operation(operation) {
+        switch (operation.opcode) {
+            case 'ldarg':
+                operation.index = this._reader.uint16();
+                break;
+            case 'call':
+                operation.args = this._reader.uint16();
+                operation.target = this._reader.int32();
+                break;
+            case 'ecall':
+                operation.args = this._reader.uint16();
+                break;
+            case 'ldlocal':
+            case 'stlocal':
+                operation.index = this._reader.uint16();
+                break;
+            default:
+                super.operation(operation);
+        }
+    }
+
+    tensor(operation) {
+        switch (operation.tensor_name) {
+            case 'binary':
+                operation.binary_op = this._reader.byte();
+                break;
+            case 'matmul':
+                break;
+            case 'normal':
+                operation.type = this._reader.byte();
+                break;
+            case 'random_normal':
+                operation.type = this._reader.byte();
+                break;
+            case 'normal_like':
+                operation.type = this._reader.byte();
+                break;
+            case 'one_hot':
+                operation.one_hot_mode = this._reader.byte();
+                break;
+            case 'pad':
+                operation.pad_mode = this._reader.byte();
+                break;
+            case 'cumsum':
+                break;
+            case 'conv2d':
+                operation.pad_mode = this._reader.byte();
+                break;
+            default:
+                super.tensor(operation);
+        }
     }
 };
 

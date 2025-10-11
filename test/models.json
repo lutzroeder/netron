@@ -2877,6 +2877,48 @@
   },
   {
     "type":     "kmodel",
+    "target":   "face_detection_320.v6.kmodel",
+    "source":   "https://github.com/user-attachments/files/22859146/face_detection_320.v6.kmodel.zip[face_detection_320.v6.kmodel]",
+    "format":   "kmodel v6",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "person_detect_yolov5n.v6.kmodel",
+    "source":   "https://github.com/user-attachments/files/22859125/person_detect_yolov5n.v6.kmodel.zip[person_detect_yolov5n.v6.kmodel]",
+    "format":   "kmodel v6",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "retinaface.v6.kmodel",
+    "source":   "https://github.com/user-attachments/files/22859164/retinaface.v6.kmodel.zip[retinaface.v6.kmodel]",
+    "format":   "kmodel v6",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "face_detection_320.v7.kmodel",
+    "source":   "https://github.com/user-attachments/files/22859159/face_detection_320.v7.kmodel.zip[face_detection_320.v7.kmodel]",
+    "format":   "kmodel v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "person_detect_yolov5n.v7.kmodel",
+    "source":   "https://github.com/user-attachments/files/22859126/person_detect_yolov5n.v7.kmodel.zip[person_detect_yolov5n.v7.kmodel]",
+    "format":   "kmodel v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "retinaface.v7.kmodel",
+    "source":   "https://github.com/user-attachments/files/22859154/retinaface.v7.kmodel.zip[retinaface.v7.kmodel]",
+    "format":   "kmodel v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
     "target":   "RFB-320.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/7965166/RFB-320.kmodel.zip[RFB-320.kmodel]",
     "format":   "kmodel v4",
