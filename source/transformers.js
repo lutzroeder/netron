@@ -128,7 +128,7 @@ transformers.Tokenizer = class {
         this.attributes = [];
         if (tokenizer) {
             const obj = tokenizer.value;
-            const keys = new Set(['decoder', 'model', 'post_processor', 'pre_tokenizer']);
+            const keys = new Set(['decoder', 'post_processor', 'pre_tokenizer']);
             for (const [key, value] of Object.entries(tokenizer.value)) {
                 if (!keys.has(key)) {
                     const argument = new transformers.Argument(key, value);
