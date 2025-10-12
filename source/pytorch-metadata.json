@@ -795,6 +795,9 @@
     "name": "aten::_aminmax.dim_out(Tensor self, int dim, bool keepdim=False, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
   },
   {
+    "name": "aten::_assert_scalar(Scalar self, str assert_msg) -> ()"
+  },
+  {
     "name": "aten::_assert_tensor_metadata(Tensor a, SymInt[]? size=None, SymInt[]? stride=None, ScalarType? dtype=None, *, Device? device=None, Layout? layout=None) -> ()"
   },
   {

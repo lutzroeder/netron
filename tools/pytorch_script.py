@@ -57,14 +57,6 @@ known_legacy_schema_definitions = [
     "_caffe2::DistributeFpnProposals(Tensor rois, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)", # noqa E501
     "_caffe2::GenerateProposals(Tensor scores, Tensor bbox_deltas, Tensor im_info, Tensor anchors, float spatial_scale, int pre_nms_topN, int post_nms_topN, float nms_thresh, float min_size, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)", # noqa E501
     "_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor", # noqa E501
-    "aten::_cast_Char(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Byte(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Double(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Float(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Half(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Int(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Long(Tensor self, bool non_blocking=False) -> Tensor",
-    "aten::_cast_Short(Tensor self, bool non_blocking=False) -> Tensor",
     "aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)",
     "aten::_cat(Tensor[] tensors, int dim=0) -> Tensor",
     "aten::arange.start_out_(Scalar start, Scalar end) -> Tensor",
