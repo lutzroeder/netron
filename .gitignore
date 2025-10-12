@@ -4,6 +4,7 @@
 .eslintcache
 .ruff_cache
 .specify
+.yarn
 dist/*
 node_modules/*
 test-results/*
