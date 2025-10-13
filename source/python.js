@@ -7544,6 +7544,13 @@ python.Execution = class {
                 super(lhs, rhs, '==');
             }
         });
+        this.registerType('sympy.functions.elementary.miscellaneous.MinMaxBase', class extends sympy.core.expr.Expr {
+        });
+        this.registerType('sympy.functions.elementary.miscellaneous.Max', class extends sympy.functions.elementary.miscellaneous.MinMaxBase {
+            __str__() {
+                return `Max(${this._args.map((a) => a.__str__()).join(', ')})`;
+            }
+        });
         this.registerFunction('sympy.core.sympify.sympify', (a /*, locals */) => {
             if (a instanceof sympy.core.expr.Expr) {
                 return a;
@@ -7556,7 +7563,11 @@ python.Execution = class {
                         case 'Mul': return new sympy.core.mul.Mul(...node.args.map((arg) => sympify(arg)));
                         case 'Add': return new sympy.core.add.Add(...node.args.map((arg) => sympify(arg)));
                         case 'Pow': return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
+                        case 'Max': return new sympy.functions.elementary.miscellaneous.Max(...node.args.map((arg) => sympify(arg)));
                         case 'Integer': return new sympy.core.numbers.Integer(node.args[0].value);
+                        case 'GreaterThan': return new sympy.core.relational.GreaterThan(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'LessThan': return new sympy.core.relational.LessThan(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'Equality': return new sympy.core.relational.Equality(sympify(node.args[0]), sympify(node.args[1]));
                         default: throw new python.Error(`Unsupported SymPy function '${node.func.id}'.`);
                     }
                 }
@@ -19233,7 +19244,7 @@ python.Execution = class {
                     if (sym_arg.type === 'as_bool') {
                         return sym_arg.as_bool;
                     } else if (sym_arg.type === 'as_name') {
-                        return self.serialized_name_to_node.get(sym_arg.as_name);
+                        return this.serialized_name_to_node.get(sym_arg.as_name);
                     }
                 }
                 throw new python.Error(`Unsupported symbolic argument type '${sym_arg.type}`);

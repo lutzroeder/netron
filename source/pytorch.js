@@ -273,9 +273,6 @@ pytorch.Graph = class {
                     if (obj.target.__module__ === 'operator' && obj.target.__name__ === 'getitem') {
                         continue;
                     }
-                    if (obj.users.size === 0) {
-                        continue;
-                    }
                 }
                 if (obj.op === 'output') {
                     for (const output of obj.args) {
