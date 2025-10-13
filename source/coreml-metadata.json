@@ -489,5 +489,9 @@
   {
     "name": "program:max_pool",
     "category": "Pool"
+  },
+  {
+    "name": "program:gather",
+    "category": "Transform"
   }
 ]
