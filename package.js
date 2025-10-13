@@ -239,9 +239,7 @@ const start = async () => {
 
 const purge = async () => {
     await clean();
-    await rm('third_party', 'bin');
-    await rm('third_party', 'env');
-    await rm('third_party', 'source');
+    await rm('third_party');
 };
 
 const build = async (target) => {
