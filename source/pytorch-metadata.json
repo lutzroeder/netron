@@ -3326,6 +3326,9 @@
     "name": "aten::get_device(Tensor self) -> int"
   },
   {
+    "name": "aten::get_num_threads() -> int"
+  },
+  {
     "name": "aten::glu(Tensor self, int dim=-1) -> Tensor",
     "category": "Activation"
   },
@@ -5486,6 +5489,9 @@
     "name": "aten::reciprocal.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::reciprocal_(Tensor(a!) self) -> Tensor(a!)"
+  },
+  {
     "name": "aten::reflection_pad1d(Tensor self, SymInt[2] padding) -> Tensor",
     "category": "Tensor"
   },
@@ -5885,6 +5891,9 @@
   },
   {
     "name": "aten::set_grad_enabled(bool val) -> ()"
+  },
+  {
+    "name": "aten::set_num_threads(int nthreads) -> ()"
   },
   {
     "name": "aten::sigmoid(Tensor self) -> Tensor",
