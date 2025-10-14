@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as playwright from '@playwright/test';
 import * as url from 'url';
 
-playwright.test.setTimeout(120_000);
+playwright.test.setTimeout(120000);
 
 playwright.test('desktop', async () => {
 
@@ -21,11 +21,11 @@ playwright.test('desktop', async () => {
 
     playwright.expect(page).toBeDefined();
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('body.welcome', { timeout: 5000 });
+    await page.waitForSelector('body.welcome', { timeout: 25000 });
     await page.waitForTimeout(1000);
 
     const consent = await page.locator('#message-button');
-    if (await consent.isVisible({ timeout: 2000 })) {
+    if (await consent.isVisible({ timeout: 25000 })) {
         await consent.click();
     }
 

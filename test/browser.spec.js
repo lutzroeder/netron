@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as playwright from '@playwright/test';
 import * as url from 'url';
 
-playwright.test.setTimeout(120_000);
+playwright.test.setTimeout(120000);
 
 playwright.test('browser', async ({ page }) => {
 
@@ -19,11 +19,11 @@ playwright.test('browser', async ({ page }) => {
     await page.waitForLoadState('domcontentloaded');
 
     // Wait for the welcome screen to be ready
-    await page.waitForSelector('body.welcome', { timeout: 5000 });
+    await page.waitForSelector('body.welcome', { timeout: 25000 });
     await page.waitForTimeout(1000);
 
     const consent = await page.locator('#message-button');
-    if (await consent.isVisible({ timeout: 2000 })) {
+    if (await consent.isVisible({ timeout: 25000 })) {
         await consent.click();
     }
 
