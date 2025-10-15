@@ -5645,6 +5645,12 @@
     "category": "Shape"
   },
   {
+    "name": "aten::resize(Tensor self, SymInt[] size, *, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::resize.out(Tensor self, SymInt[] size, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::resize_(Tensor(a!) self, SymInt[] size, *, MemoryFormat? memory_format=None) -> Tensor(a!)"
   },
   {
