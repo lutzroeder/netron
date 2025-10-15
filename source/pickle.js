@@ -231,8 +231,8 @@ pickle.Tensor = class {
             const array = obj;
             this.type = new pickle.TensorType(array.dtype.__name__, new pickle.TensorShape(array.shape));
             this.stride = Array.isArray(array.strides) ? array.strides.map((stride) => stride / array.itemsize) : null;
-            this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' ? '|' : array.dtype.byteorder;
-            this.values = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'void' ? array.flatten().tolist() : array.tobytes();
+            this.encoding = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'datetime' ? '|' : array.dtype.byteorder;
+            this.values = this.type.dataType === 'string' || this.type.dataType === 'object' || this.type.dataType === 'datetime' || this.type.dataType === 'void' ? array.flatten().tolist() : array.tobytes();
         }
     }
 };

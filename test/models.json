@@ -5296,7 +5296,15 @@
     "source":   "https://github.com/lutzroeder/netron/files/10099644/datasplit.pkl.zip[datasplit.pkl]",
     "format":   "Pickle",
     "assert":   "model.modules[0].nodes[3].type.name == 'collections.OrderedDict'",
-    "link":     "https://github.com/lutzroeder/netron/issues/711"
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
+    "target":   "datetime_array.pkl",
+    "source":   "https://github.com/user-attachments/files/22928955/datetime_array.pkl.zip[datetime_array.pkl]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'pandas.core.arrays.datetimes.DatetimeArray'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
     "type":     "pickle",

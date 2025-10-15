@@ -2650,6 +2650,7 @@ python.Execution = class {
                     case 'c8': case 'complex64': this.itemsize = 8; this.kind = 'c'; break;
                     case 'c16': case 'complex128': case 'complex': this.itemsize = 16; this.kind = 'c'; break;
                     case 'M8': case 'M': this.itemsize = 8; this.kind = 'M'; break;
+                    case 'm8': case 'm': this.itemsize = 8; this.kind = 'm'; break;
                     case 'V': case 'void': this.itemsize = 0; this.kind = 'V'; break;
                     default:
                         if (obj.startsWith('V')) {
@@ -2689,6 +2690,7 @@ python.Execution = class {
                     case 'U': return `str${this.itemsize === 0 ? '' : (this.itemsize * 8)}`;
                     case 'T': return `StringDType${this.itemsize === 0 ? '' : (this.itemsize * 8)}`;
                     case 'M': return 'datetime64';
+                    case 'm': return 'timedelta64';
                     case 'b': return 'bool';
                     default: return this.__name__;
                 }
@@ -2756,6 +2758,8 @@ python.Execution = class {
                         return 'string';
                     case 'M':
                         return 'datetime';
+                    case 'm':
+                        return 'timedelta';
                     case 'O':
                         return 'object';
                     case 'V':
@@ -2786,7 +2790,23 @@ python.Execution = class {
         this.registerType('numpy.uint16', class extends numpy.unsignedinteger {});
         this.registerType('numpy.uint32', class extends numpy.unsignedinteger {});
         this.registerType('numpy.uint64', class extends numpy.unsignedinteger {});
-        this.registerType('numpy.datetime64', class extends numpy.generic {});
+        this.registerType('numpy.datetime64', class extends numpy.generic {
+            constructor(...args) {
+                super();
+                if (args.length === 1 && args[0] instanceof Uint8Array) {
+                    [this.buffer] = args;
+                }
+            }
+            toString() {
+                const view = new DataView(this.buffer.buffer, this.buffer.byteOffset, 8);
+                const value = view.getBigInt64(0, true);
+                if (value === -9223372036854775808n) {
+                    return 'NaT';
+                }
+                const date = new Date(Number(value / 1000000n));
+                return date.toISOString().slice(0, -1);
+            }
+        });
         this.registerType('numpy.dtypes.StringDType', class extends numpy.dtype {
             constructor() {
                 super('|T16');
@@ -3177,11 +3197,20 @@ python.Execution = class {
                         return list;
                     }
                     case 'V': {
-                        const data = this.data;
                         const itemsize = this.dtype.itemsize;
                         let offset = 0;
                         for (let i = 0; i < size; i++) {
-                            list[i] = data.slice(offset, offset + itemsize);
+                            list[i] = this.data.slice(offset, offset + itemsize);
+                            offset += itemsize;
+                        }
+                        return list;
+                    }
+                    case 'M': {
+                        const itemsize = this.dtype.itemsize;
+                        let offset = 0;
+                        for (let i = 0; i < size; i++) {
+                            const buffer = this.data.slice(offset, offset + itemsize);
+                            list[i] = new numpy.datetime64(buffer);
                             offset += itemsize;
                         }
                         return list;
@@ -3330,11 +3359,34 @@ python.Execution = class {
                 super(data.shape, data.dtype, data.data);
             }
         });
-        this.registerType('numpy.core.memmap.memmap', class extends numpy.ndarray {
-        });
+        this.registerType('numpy.core.memmap.memmap', class extends numpy.ndarray {});
         this.registerType('pandas.core.arrays.categorical.Categorical', class {});
-        this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {});
-        this.registerType('pandas.core.arrays.integer.IntegerArray', class {});
+        this.registerType('pandas.core.arrays.base.ExtensionArray', class {});
+        this.registerType('pandas.core.arrays.masked.BaseMaskedArray', class extends pandas.core.arrays.base.ExtensionArray {});
+        this.registerType('pandas.core.arrays.numeric.NumericArray', class extends pandas.core.arrays.masked.BaseMaskedArray {});
+        this.registerType('pandas.core.arrays.datetimes.DatetimeArray', class {
+            __setstate__(state) {
+                [this._dtype, this._ndarray] = state;
+                Object.assign(this, Object.fromEntries(state[2]));
+            }
+        });
+        this.registerType('pandas.core.arrays.timedeltas.TimedeltaArray', class {
+            __setstate__(state) {
+                [this._dtype, this._ndarray] = state;
+                Object.assign(this, Object.fromEntries(state[2]));
+            }
+        });
+        this.registerType('pandas.core.arrays.period.PeriodArray', class {
+            __setstate__(state) {
+                [this._dtype, this._ndarray] = state;
+                Object.assign(this, Object.fromEntries(state[2]));
+            }
+        });
+        this.registerType('pandas.core.arrays.interval.IntervalArray', class {});
+        this.registerType('pandas.core.arrays.integer.IntegerArray', class extends pandas.core.arrays.numeric.NumericArray {});
+        this.registerType('pandas._libs.tslibs.dtypes.PeriodDtypeBase', class {});
+        this.registerType('pandas.core.dtypes.dtypes.PeriodDtype', class extends pandas._libs.tslibs.dtypes.PeriodDtypeBase {});
+        this.registerType('pandas.core.dtypes.dtypes.IntervalDtype', class {});
         this.registerType('pandas.core.generic.Flags', class {});
         this.registerType('pandas.core.generic.NDFrame', class {
             constructor(data) {
@@ -3409,7 +3461,20 @@ python.Execution = class {
         this.registerType('pandas.core.internals.managers.SingleBlockManager', class {});
         this.registerType('pandas.core.internals.managers.BlockManager', class {});
         this.registerType('pandas.core.series.Series', class {});
-        this.registerFunction('pandas._libs.arrays.__pyx_unpickle_NDArrayBacked');
+        this.registerFunction('pandas._libs.arrays.__pyx_unpickle_NDArrayBacked', (cls, checksum, state) => {
+            const obj = new cls();
+            if (state && obj.__setstate__) {
+                obj.__setstate__(state);
+            }
+            return obj;
+        });
+        this.registerFunction('pandas._libs.interval.__pyx_unpickle_IntervalMixin', (cls, checksum, state) => {
+            const obj = new cls();
+            if (state && obj.__setstate__) {
+                obj.__setstate__(state);
+            }
+            return obj;
+        });
         this.registerFunction('pandas._libs.internals._unpickle_block', (values, placement, ndim) => {
             values = pandas.core.internals.blocks.maybe_coerce_values(values);
             // if not isinstance(placement, BlockPlacement):

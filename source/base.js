@@ -789,7 +789,7 @@ base.Tensor = class {
                     }
                     case '|': {
                         context.data = this.values;
-                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'void') {
+                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'datetime' && dataType !== 'void') {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
                         const size = context.dimensions.reduce((a, v) => a * v, 1);
