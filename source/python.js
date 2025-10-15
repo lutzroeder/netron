@@ -18496,40 +18496,60 @@ python.Execution = class {
         this.registerType('torch._export.serde.schema.Argument', class extends torch._export.serde.union._Union {
             constructor(obj) {
                 super(obj);
-                if (this.type === 'as_int' || this.type === 'as_ints' ||
-                    this.type === 'as_float' || this.type === 'as_floats' ||
-                    this.type === 'as_bool' || this.type === 'as_bools' ||
-                    this.type === 'as_string' || this.type === 'as_strings' ||
-                    this.type === 'as_scalar_type' || this.type === 'as_device' ||
-                    this.type === 'as_memory_format' || this.type === 'as_layout') {
-                    // continue
-                } else if (this.type === 'as_none') {
-                    this.as_none = null;
-                } else if (this.type === 'as_tensor') {
-                    this.as_tensor = new torch._export.serde.schema.TensorArgument(this.as_tensor);
-                } else if (this.type === 'as_tensors') {
-                    this.as_tensors = this.as_tensors.map((item) => new torch._export.serde.schema.TensorArgument(item));
-                } else if (this.type === 'as_graph') {
-                    this.as_graph = new torch._export.serde.schema.GraphArgument(this.as_graph);
-                } else if (this.type === 'as_sym_int') {
-                    this.as_sym_int = new torch._export.serde.schema.SymIntArgument(this.as_sym_int);
-                } else if (this.type === 'as_sym_ints') {
-                    this.as_sym_ints = this.as_sym_ints.map((item) => new torch._export.serde.schema.SymIntArgument(item));
-                } else if (this.type === 'as_sym_bool') {
-                    this.as_sym_bool = new torch._export.serde.schema.SymBoolArgument(this.as_sym_bool);
-                } else if (this.type === 'as_sym_bools') {
-                    this.as_sym_bools = this.as_sym_bools.map((item) => new torch._export.serde.schema.SymBoolArgument(item));
-                } else if (this.type === 'as_optional_tensors') {
-                    this.as_optional_tensors = this.as_optional_tensors.map((item) => new torch._export.serde.schema.OptionalTensorArgument(item));
-                } else {
-                    throw new python.Error(`Unsupported argument '${this.type}'.`);
+                switch (this.type) {
+                    case 'as_int':
+                    case 'as_ints':
+                    case 'as_float':
+                    case 'as_floats':
+                    case 'as_bool':
+                    case 'as_bools':
+                    case 'as_string':
+                    case 'as_strings':
+                    case 'as_scalar_type':
+                    case 'as_device':
+                    case 'as_memory_format':
+                    case 'as_layout':
+                        break;
+                    case 'as_none':
+                        this.as_none = null;
+                        break;
+                    case 'as_tensor':
+                        this.as_tensor = new torch._export.serde.schema.TensorArgument(this.as_tensor);
+                        break;
+                    case 'as_tensors':
+                        this.as_tensors = this.as_tensors.map((item) => new torch._export.serde.schema.TensorArgument(item));
+                        break;
+                    case 'as_graph':
+                        this.as_graph = new torch._export.serde.schema.GraphArgument(this.as_graph);
+                        break;
+                    case 'as_sym_int':
+                        this.as_sym_int = new torch._export.serde.schema.SymIntArgument(this.as_sym_int);
+                        break;
+                    case 'as_sym_ints':
+                        this.as_sym_ints = this.as_sym_ints.map((item) => new torch._export.serde.schema.SymIntArgument(item));
+                        break;
+                    case 'as_sym_bool':
+                        this.as_sym_bool = new torch._export.serde.schema.SymBoolArgument(this.as_sym_bool);
+                        break;
+                    case 'as_sym_bools':
+                        this.as_sym_bools = this.as_sym_bools.map((item) => new torch._export.serde.schema.SymBoolArgument(item));
+                        break;
+                    case 'as_sym_float':
+                        this.as_sym_float = new torch._export.serde.schema.SymFloatArgument(this.as_sym_float);
+                        break;
+                    case 'as_sym_floats':
+                        this.as_sym_floats = this.as_sym_float.map((item) => new torch._export.serde.schema.SymFloatArgument(item));
+                        break;
+                    case 'as_optional_tensors':
+                        this.as_optional_tensors = this.as_optional_tensors.map((item) => new torch._export.serde.schema.OptionalTensorArgument(item));
+                        break;
+                    case 'as_custom_obj':
+                        this.as_custom_obj = new torch._export.serde.schema.CustomObjArgument(this.as_custom_obj);
+                        break;
+                    // case 'as_graph': GraphArgument
+                    default:
+                        throw new python.Error(`Unsupported argument '${this.type}'.`);
                 }
-                /*
-                as_sym_bool: SymBoolArgument
-                as_sym_bools: List[SymBoolArgument]
-                as_graph: GraphArgument
-                as_custom_obj: CustomObjArgument
-                */
             }
         });
         this.registerType('torch._export.serde.schema.Node', class {
@@ -18652,12 +18672,6 @@ python.Execution = class {
                 }
             }
         });
-        this.registerType('torch._export.serde.schema.SymIntArgument', class extends torch._export.serde.union._Union {
-            constructor(obj) {
-                super(obj);
-                Object.assign(this, { ...obj });
-            }
-        });
         this.registerType('torch._export.serde.schema.SymBool', class extends torch._export.serde.union._Union {
             constructor(obj) {
                 super(obj);
@@ -18670,9 +18684,26 @@ python.Execution = class {
                 }
             }
         });
+        this.registerType('torch._export.serde.schema.SymIntArgument', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                Object.assign(this, { ...obj });
+            }
+        });
+        this.registerType('torch._export.serde.schema.SymFloatArgument', class extends torch._export.serde.union._Union {
+            constructor(obj) {
+                super(obj);
+                Object.assign(this, { ...obj });
+            }
+        });
         this.registerType('torch._export.serde.schema.SymBoolArgument', class extends torch._export.serde.union._Union {
             constructor(obj) {
                 super(obj);
+                Object.assign(this, { ...obj });
+            }
+        });
+        this.registerType('torch._export.serde.schema.CustomObjArgument', class {
+            constructor(obj) {
                 Object.assign(this, { ...obj });
             }
         });
@@ -19261,6 +19292,8 @@ python.Execution = class {
                     return inp.as_string;
                 } else if (typ_ === 'as_sym_int') {
                     return this.deserialize_sym_argument(inp.as_sym_int);
+                } else if (typ_ === 'as_sym_float') {
+                    return this.deserialize_sym_argument(inp.as_sym_float);
                 } else if (typ_ === 'as_sym_bool') {
                     return this.deserialize_sym_argument(inp.as_sym_bool);
                 } else if (Array.isArray(value)) {
@@ -19302,6 +19335,12 @@ python.Execution = class {
                 if (sym_arg instanceof torch._export.serde.schema.SymIntArgument) {
                     if (sym_arg.type === 'as_int') {
                         return sym_arg.as_int;
+                    } else if (sym_arg.type === 'as_name') {
+                        return this.serialized_name_to_node.get(sym_arg.as_name);
+                    }
+                } else if (sym_arg instanceof torch._export.serde.schema.SymFloatArgument) {
+                    if (sym_arg.type === 'as_float') {
+                        return sym_arg.as_float;
                     } else if (sym_arg.type === 'as_name') {
                         return this.serialized_name_to_node.get(sym_arg.as_name);
                     }
@@ -19464,6 +19503,9 @@ python.Execution = class {
                 } finally {
                     this.fake_tensor_mode.__exit__(null, null, null);
                 }
+            }
+            deserialize_script_obj_meta(script_obj_meta) {
+                return new torch.export.graph_signature.CustomObjArgument(script_obj_meta.name, script_obj_meta.class_fqn);
             }
             _parse_sym_expr(expr_str, hint) {
                 const _process_sym_expr = (sym, hint) => {
