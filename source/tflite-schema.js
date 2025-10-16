@@ -20,7 +20,8 @@ tflite.TensorType = {
     UINT32: 15,
     UINT16: 16,
     INT4: 17,
-    BFLOAT16: 18
+    BFLOAT16: 18,
+    INT2: 19
 };
 
 tflite.CustomQuantization = class CustomQuantization {
