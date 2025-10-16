@@ -1113,7 +1113,7 @@ MNN.BinaryOp = class BinaryOp {
 
     static decodeText(reader, json) {
         const $ = new MNN.BinaryOp();
-        $.opType = reader.value(json.opType, 0);
+        $.opType = MNN.BinaryOpOperation[json.opType];
         $.T = MNN.DataType[json.T];
         $.activationType = reader.value(json.activationType, 0);
         return $;
