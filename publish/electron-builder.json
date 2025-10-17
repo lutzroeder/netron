@@ -76,8 +76,8 @@
         "artifactName":"${productName}-${version}-${arch}.${ext}",
         "executableName": "netron",
         "target": [ 
-            { "target": "deb", "arch": ["x64", "arm64"] },
-            { "target": "rpm", "arch": ["x64", "arm64"] },
+            { "target": "deb", "arch": ["x64"] },
+            { "target": "rpm", "arch": ["x64"] },
             { "target": "AppImage", "arch": ["x64"] }
         ]
     },
@@ -92,10 +92,12 @@
     },
     "win": {
         "target": [ "nsis" ],
-        "signtoolOptions": {
-            "signingHashAlgorithms": [ "sha256" ]
-        },
-        "verifyUpdateCodeSignature": false
+        "azureSignOptions" : {
+            "publisherName": "Lutz Roeder",
+            "endpoint": "https://eus.codesigning.azure.net/",
+            "codeSigningAccountName": "lutzroeder",
+            "certificateProfileName": "lutzroeder"
+        }
     },
     "dmg": {
         "artifactName": "${productName}-${version}.${ext}",

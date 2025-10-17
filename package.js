@@ -274,8 +274,8 @@ const build = async (target) => {
             await install();
             await exec('npx electron-builder install-app-deps');
             const table = new Map([
-                ['mac',     'npx electron-builder --mac --universal --publish never -c.mac.identity=null'],
-                ['windows', 'npx electron-builder --win --x64 --arm64 --publish never'],
+                ['mac',     'npx electron-builder --mac --universal --publish never --config.mac.identity=null'],
+                ['windows', 'npx electron-builder --win --x64 --arm64 --publish never --config.win.azureSignOptions='],
                 ['linux',   'npx electron-builder --linux --publish never']
             ]);
             const targets = table.has(key) ? [table.get(key)] : Array.from(table.values());

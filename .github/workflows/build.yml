@@ -46,15 +46,15 @@ jobs:
           npx electron-builder install-app-deps
           case "${{ matrix.os }}" in
             macos*)
-              CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never -c.mac.identity=null
+              npm run build electron mac
               ;;
             ubuntu*)
               sudo apt-get install rpm --yes
-              npx electron-builder --linux --publish never
+              npm run build electron linux
               npx electron-builder --linux snap --x64 --publish never
               ;;
             windows*)
-              npx electron-builder --win --x64 --arm64 --publish never
+              npm run build electron windows
               ;;
           esac
 

@@ -44,27 +44,28 @@ jobs:
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: |
           npx electron-builder install-app-deps
           case "${{ matrix.os }}" in
             macos*)
               mkdir -p ~/.private_keys
               echo '${{ secrets.APPLE_API_KEY }}' > ~/.private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-              npx electron-builder --mac --universal --publish always
+              npm run publish electron mac
               ;;
             ubuntu*)
               sudo apt-get install rpm --yes
-              npx electron-builder --linux --publish always
+              npm run publish electron linux
               sudo snap install snapcraft --classic
               npx electron-builder --linux snap --x64 --publish always
               ;;
             windows*)
               unset CSC_LINK;
               unset CSC_KEY_PASSWORD;
-              npx electron-builder --win --x64 --arm64 --publish always
+              npm run publish electron windows
               ;;
           esac
 
