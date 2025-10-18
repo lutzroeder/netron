@@ -6856,8 +6856,12 @@ view.ModelFactoryService = class {
                 { name: 'Cambricon model', value: /^\x7fMEF/ },
                 { name: 'Cambricon model', value: /^cambricon_offline/ },
                 { name: 'CviModel data', value: /^CviModel/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
+                { name: 'DRTcrypt data', value: /^DRTcrypt/ },
                 { name: 'ELF executable', value: /^\x7FELF/ },
-                { name: 'Encrypted File data', value: /^ENCRYPTED_FILE|EV_ENCRYPTED/ },
+                { name: 'EDL2 data', value: /^EDL2/ },
+                { name: 'encrypted data', value: /^ENCRYPTED_FILE|EV_ENCRYPTED/ },
+                { name: 'encrypted data', value: /^Salted__/ },
+                { name: 'encrypted data', value: /^KINGSOFTOFFICE/ },
                 { name: 'GGML data', value: /^lmgg|fmgg|tjgg|algg|fugg/ },
                 { name: 'Git LFS header', value: /^\s*oid sha256:/ },
                 { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com/ },
@@ -6882,11 +6886,13 @@ view.ModelFactoryService = class {
                 { name: 'undocumented HALCON model', value: /^HDLMODEL/ },
                 { name: 'undocumented license data', value: /^This model and the software may not be used or distributed in any manner except as authorized under a valid written agreemen/ },
                 { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },
+                { name: 'undocumented RKNX data', value: /^RKNX\x00\x00\x00\x00/ },
                 { name: 'V8 context snapshot', value: /^.\x00\x00\x00.\x00\x00\x00/, identifier: /^v8_context_snapshot\.bin/ },
                 { name: 'V8 natives blob', value: /^./, identifier: /^natives_blob\.bin/ },
                 { name: 'V8 snapshot', value: /^.\x00\x00\x00.\x00\x00\x00/, identifier: /^snapshot_blob\.bin/ },
                 { name: 'ViSQOL model', value: /^svm_type\s/ },
                 { name: 'VNN model', value: /^\x2F\x4E\x00\x00.\x00\x00\x00/, identifier: /.vnnmodel$/ },
+                { name: 'Windows executable', value: /^MZ[\s\S]*PE\x00\x00/ },
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
