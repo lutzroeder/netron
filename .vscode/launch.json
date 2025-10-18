@@ -98,12 +98,12 @@
             "justMyCode": true
         },
         {
-            "name": "Package.js",
+            "name": "Tools JavaScript",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/package.js",
+            "program": "${file}",
             "args": [],
             "console": "integratedTerminal",
-        },
+        }
     ]
 }
