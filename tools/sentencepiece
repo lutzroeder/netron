@@ -16,8 +16,8 @@ clean() {
 sync() {
     echo "sentencepiece sync"
     mkdir -p "./third_party/source/sentencepiece/src"
-    curl --silent --location --output "./third_party/source/sentencepiece/src/sentencepiece_model.proto" "https://github.com/google/sentencepiece/raw/master/src/sentencepiece_model.proto"
-    curl --silent --location --output "./third_party/source/sentencepiece/src/sentencepiece.proto" "https://github.com/google/sentencepiece/raw/master/src/sentencepiece.proto"
+    curl --silent --show-error --location --output "./third_party/source/sentencepiece/src/sentencepiece_model.proto" "https://github.com/google/sentencepiece/raw/master/src/sentencepiece_model.proto"
+    curl --silent --show-error --location --output "./third_party/source/sentencepiece/src/sentencepiece.proto" "https://github.com/google/sentencepiece/raw/master/src/sentencepiece.proto"
 }
 
 schema() {

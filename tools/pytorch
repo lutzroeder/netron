@@ -29,8 +29,8 @@ sync() {
     [ -d "./third_party/source/pytorch" ] || git clone --quiet https://github.com/pytorch/pytorch.git "./third_party/source/pytorch"
     git -C "./third_party/source/pytorch" pull --quiet --prune
     mkdir -p "./third_party/source/caffe2/proto"
-    curl --silent --location --output "./third_party/source/caffe2/proto/caffe2.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/caffe2.proto"
-    curl --silent --location --output "./third_party/source/caffe2/proto/torch.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/torch.proto"
+    curl --silent --show-error --location --output "./third_party/source/caffe2/proto/caffe2.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/caffe2.proto"
+    curl --silent --show-error --location --output "./third_party/source/caffe2/proto/torch.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/torch.proto"
 }
 
 install() {
