@@ -3283,7 +3283,6 @@
     "target":   "dogs_vs_cats.stablehlo.mlir",
     "source":   "https://github.com/user-attachments/files/22517931/dogs_vs_cats.stablehlo.mlir.zip[dogs_vs_cats.stablehlo.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected value 'array' at 7:20.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3291,7 +3290,6 @@
     "target":   "example.mlir",
     "source":   "https://github.com/user-attachments/files/17792104/example.mlir.zip[example.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type '=', but got '%' at 10:59.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3317,6 +3315,21 @@
   },
   {
     "type":     "mlir",
+    "target":   "conv-conversion.mlir",
+    "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
+    "format":   "MLIR",
+    "error":    "Unexpected value ',' at 6072:171.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "conv_gpu_gridwise_gemm.mlir",
+    "source":   "https://github.com/user-attachments/files/23027327/conv_gpu_gridwise_gemm.mlir.zip[conv_gpu_gridwise_gemm.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "embedding_bm1684x_f16_tpu.mlir",
     "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
     "format":   "MLIR",
@@ -3334,7 +3347,6 @@
     "target":   "gemm.onnx.mlir",
     "source":   "https://github.com/user-attachments/files/17775324/gemm.onnx.mlir.zip[gemm.onnx.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type '=', but got ')' at 50:37.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3407,7 +3419,6 @@
     "target":   "stablehlo_gpt_125M.mlir",
     "source":   "https://github.com/user-attachments/files/21081167/stablehlo_gpt_125M.mlir.zip[stablehlo_gpt_125M.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type ')', but got 'id' at 14:40.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3422,7 +3433,20 @@
     "target":   "stablehlo_resnet18.mlir",
     "source":   "https://github.com/user-attachments/files/21081166/stablehlo_resnet18.mlir.zip[stablehlo_resnet18.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected value '=' at 52:56.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "test_bf16.mlir",
+    "source":   "https://github.com/user-attachments/files/23023446/test_bf16.mlir.zip[test_bf16.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "tfl_quant_conv2d.mlir",
+    "source":   "https://github.com/user-attachments/files/23024780/tfl_quant_conv2d.mlir.zip[tfl_quant_conv2d.mlir]",
+    "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3436,6 +3460,13 @@
     "type":     "mlir",
     "target":   "torch_mlir_3429.mlir",
     "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "tosa.mlir",
+    "source":   "https://github.com/user-attachments/files/23024689/tosa.mlir.zip[tosa.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3459,6 +3490,7 @@
     "target":   "wcr.mlir",
     "source":   "https://github.com/user-attachments/files/17788767/wcr.mlir.zip[wcr.mlir]",
     "format":   "MLIR",
+    "error":    "Unexpected operation name '=' at 9:8.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
