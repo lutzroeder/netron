@@ -20,6 +20,7 @@ circle.TensorType = {
     UINT32: 15,
     UINT16: 16,
     INT4: 17,
+    BFLOAT16: 18,
     UINT4: -1,
     GGML_Q4_0: -2,
     GGML_Q4_1: -3,
@@ -65,6 +66,7 @@ circle.QuantizationDetails = class {
         switch (type) {
             case 1: return circle.CustomQuantization.decode(reader, position);
             case 2: return circle.MXQuantization.decode(reader, position);
+            case 3: return circle.BlockwiseQuantization.decode(reader, position);
             default: return undefined;
         }
     }
@@ -73,8 +75,28 @@ circle.QuantizationDetails = class {
         switch (type) {
             case 'CustomQuantization': return circle.CustomQuantization.decodeText(reader, json);
             case 'MXQuantization': return circle.MXQuantization.decodeText(reader, json);
+            case 'BlockwiseQuantization': return circle.BlockwiseQuantization.decodeText(reader, json);
             default: return undefined;
         }
+    }
+};
+
+circle.BlockwiseQuantization = class BlockwiseQuantization {
+
+    static decode(reader, position) {
+        const $ = new circle.BlockwiseQuantization();
+        $.scales = reader.int32_(position, 4, 0);
+        $.zero_points = reader.int32_(position, 6, 0);
+        $.block_size = reader.int32_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.BlockwiseQuantization();
+        $.scales = reader.value(json.scales, 0);
+        $.zero_points = reader.value(json.zero_points, 0);
+        $.block_size = reader.value(json.block_size, 0);
+        return $;
     }
 };
 
@@ -486,7 +508,11 @@ circle.BuiltinOperator = {
     STABLEHLO_TRANSPOSE: 202,
     DILATE: 203,
     STABLEHLO_RNG_BIT_GENERATOR: 204,
-    REDUCE_WINDOW: 205
+    REDUCE_WINDOW: 205,
+    STABLEHLO_COMPOSITE: 206,
+    STABLEHLO_SHIFT_LEFT: 207,
+    STABLEHLO_CBRT: 208,
+    STABLEHLO_CASE: 209
 };
 
 circle.BuiltinOptions = class {
@@ -794,6 +820,9 @@ circle.BuiltinOptions2 = class {
             case 18: return circle.DilateOptions.decode(reader, position);
             case 19: return circle.StablehloRngBitGeneratorOptions.decode(reader, position);
             case 20: return circle.ReduceWindowOptions.decode(reader, position);
+            case 21: return circle.StableHLOCompositeOptions.decode(reader, position);
+            case 22: return circle.StablehloShiftLeftOptions.decode(reader, position);
+            case 23: return circle.StablehloCaseOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -820,6 +849,9 @@ circle.BuiltinOptions2 = class {
             case 'DilateOptions': return circle.DilateOptions.decodeText(reader, json);
             case 'StablehloRngBitGeneratorOptions': return circle.StablehloRngBitGeneratorOptions.decodeText(reader, json);
             case 'ReduceWindowOptions': return circle.ReduceWindowOptions.decodeText(reader, json);
+            case 'StableHLOCompositeOptions': return circle.StableHLOCompositeOptions.decodeText(reader, json);
+            case 'StablehloShiftLeftOptions': return circle.StablehloShiftLeftOptions.decodeText(reader, json);
+            case 'StablehloCaseOptions': return circle.StablehloCaseOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -1199,6 +1231,21 @@ circle.StablehloScatterOptions = class StablehloScatterOptions {
         $.index_vector_dim = reader.int64(json.index_vector_dim, 0n);
         $.unique_indices = reader.value(json.unique_indices, false);
         $.update_computation_subgraph_index = reader.value(json.update_computation_subgraph_index, 0);
+        return $;
+    }
+};
+
+circle.StablehloCaseOptions = class StablehloCaseOptions {
+
+    static decode(reader, position) {
+        const $ = new circle.StablehloCaseOptions();
+        $.branch_subgraph_indices = reader.array(position, 4, Int32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.StablehloCaseOptions();
+        $.branch_subgraph_indices = reader.array(json.branch_subgraph_indices, Int32Array);
         return $;
     }
 };
@@ -3394,6 +3441,42 @@ circle.DataFormat = {
     CHANNELS_FIRST: 1
 };
 
+circle.StableHLOCompositeOptions = class StableHLOCompositeOptions {
+
+    static decode(reader, position) {
+        const $ = new circle.StableHLOCompositeOptions();
+        $.name = reader.string_(position, 4, null);
+        $.decomposition_subgraph_index = reader.int32_(position, 6, 0);
+        $.composite_attributes = reader.array(position, 8, Uint8Array);
+        $.composite_attributes_format = reader.int8_(position, 10, 0);
+        $.version = reader.int32_(position, 12, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new circle.StableHLOCompositeOptions();
+        $.name = reader.value(json.name, null);
+        $.decomposition_subgraph_index = reader.value(json.decomposition_subgraph_index, 0);
+        $.composite_attributes = reader.array(json.composite_attributes, Uint8Array);
+        $.composite_attributes_format = circle.CustomOptionsFormat[json.composite_attributes_format];
+        $.version = reader.value(json.version, 0);
+        return $;
+    }
+};
+
+circle.StablehloShiftLeftOptions = class StablehloShiftLeftOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new circle.StablehloShiftLeftOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new circle.StablehloShiftLeftOptions();
+        return $;
+    }
+};
+
 circle.Operator = class Operator {
 
     static decode(reader, position) {
@@ -3409,6 +3492,7 @@ circle.Operator = class Operator {
         $.large_custom_options_offset = reader.uint64_(position, 22, 0n);
         $.large_custom_options_size = reader.uint64_(position, 24, 0n);
         $.builtin_options_2 = reader.union(position, 26, circle.BuiltinOptions2);
+        $.debug_metadata_index = reader.int32_(position, 30, -1);
         return $;
     }
 
@@ -3425,6 +3509,7 @@ circle.Operator = class Operator {
         $.large_custom_options_offset = reader.uint64(json.large_custom_options_offset, 0n);
         $.large_custom_options_size = reader.uint64(json.large_custom_options_size, 0n);
         $.builtin_options_2 = circle.BuiltinOptions2.decodeText(reader, json.builtin_options_2, json.builtin_options_2_type);
+        $.debug_metadata_index = reader.value(json.debug_metadata_index, -1);
         return $;
     }
 };
@@ -3439,6 +3524,7 @@ circle.SubGraph = class SubGraph {
         $.operators = reader.tables(position, 10, circle.Operator);
         $.name = reader.string_(position, 12, null);
         $.deprecated_data_format = reader.int8_(position, 14, 0);
+        $.debug_metadata_index = reader.int32_(position, 16, -1);
         return $;
     }
 
@@ -3450,6 +3536,7 @@ circle.SubGraph = class SubGraph {
         $.operators = reader.objects(json.operators, circle.Operator);
         $.name = reader.value(json.name, null);
         $.deprecated_data_format = circle.DataFormat[json.deprecated_data_format];
+        $.debug_metadata_index = reader.value(json.debug_metadata_index, -1);
         return $;
     }
 };
