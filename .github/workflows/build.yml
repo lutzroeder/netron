@@ -12,7 +12,6 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
@@ -24,7 +23,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version:  '20.x' # Pinned to LTS
 
       - name: Install Python
         uses: actions/setup-python@v5
