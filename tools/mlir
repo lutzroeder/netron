@@ -3,196 +3,51 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+entries=(
+    "https://github.com/llvm/llvm-project.git|main|./third_party/source/llvm-project|mlir"
+    "https://github.com/openxla/stablehlo.git|main|./third_party/source/stablehlo|"
+    "https://github.com/onnx/onnx-mlir.git|main|./third_party/source/onnx-mlir|"
+    "https://github.com/llvm/torch-mlir.git|main|./third_party/source/torch-mlir|"
+    "https://github.com/tensorflow/mlir-hlo.git|main|./third_party/source/mlir-hlo|"
+    "https://github.com/iree-org/iree.git|main|./third_party/source/iree|"
+)
 
 clean() {
     echo "mlir clean"
-    rm -rf "./third_party/source/stablehlo"
-    rm -rf "./third_party/source/torch-mlir"
-    rm -rf "./third_party/source/mlir-hlo"
-    rm -rf "./third_party/source/iree"
+    for entry in "${entries[@]}"; do
+        IFS='|' read -r url branch dir root <<< "${entry}"
+        rm -rf "${dir}"
+    done
 }
 
 sync() {
     echo "mlir sync"
-    # if [ ! -d "./third_party/source/llvm-project" ]; then
-    #     git clone --quiet https://github.com/llvm/llvm-project.git "./third_party/source/llvm-project"
-    # fi
-    # git -C "./third_party/source/llvm-project" pull --quiet --prune
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Arith/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Arith/IR/ArithBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Arith/IR/ArithBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Arith/IR/ArithOpsInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Arith/IR/ArithOpsInterfaces.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Func/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Func/IR/FuncOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Func/IR/FuncOps.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Affine/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Affine/IR/AffineOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Affine/IR/AffineOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Affine/IR/AffineMemoryOpInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Affine/IR/AffineMemoryOpInterfaces.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Linalg/IR/LinalgBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgEnums.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Linalg/IR/LinalgEnums.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Linalg/IR/LinalgInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Linalg/IR/LinalgOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgStructuredOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Linalg/IR/LinalgStructuredOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgNamedStructuredOps.yaml" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Linalg/IR/LinalgNamedStructuredOps.yaml"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/MemRef/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/MemRef/IR/MemRefBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/MemRef/IR/MemRefBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/MemRef/IR/MemRefOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/MemRef/IR/MemRefOps.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Quant/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Quant/IR/QuantBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Quant/IR/QuantBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Quant/IR/QuantOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Quant/IR/QuantOps.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tensor/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tensor/IR/TensorBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tensor/IR/TensorBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tensor/IR/TensorOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tensor/IR/TensorOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tensor/IR/TensorInferTypeOpInterfaceImpl.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tensor/IR/TensorInferTypeOpInterfaceImpl.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tensor/IR/TensorTilingInterfaceImpl.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tensor/IR/TensorTilingInterfaceImpl.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR/TosaOpBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tosa/IR/TosaOpBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR/TosaTypesBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tosa/IR/TosaTypesBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR/TosaInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tosa/IR/TosaInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR/TosaOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tosa/IR/TosaOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR/TosaUtilOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tosa/IR/TosaUtilOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Tosa/IR/TosaShapeOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Tosa/IR/TosaShapeOps.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/IR/VectorOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Vector/IR/VectorOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/IR/Vector.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Vector/IR/Vector.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/IR/VectorAttributes.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Vector/IR/VectorAttributes.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/Interfaces"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/Interfaces/MaskableOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Vector/Interfaces/MaskableOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Vector/Interfaces/MaskingOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Vector/Interfaces/MaskingOpInterface.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Shape/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Shape/IR/ShapeBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Shape/IR/ShapeBase.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR/IRDL.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/IRDL/IR/IRDL.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR/IRDLOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/IRDL/IR/IRDLOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR/IRDLDialect.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/IRDL/IR/IRDLDialect.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR/IRDLAttributes.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/IRDL/IR/IRDLAttributes.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR/IRDLTypes.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/IRDL/IR/IRDLTypes.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/IRDL/IR/IRDLInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/IRDL/IR/IRDLInterfaces.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVAttributes.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVAttributes.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVAvailability.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVAvailability.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVStructureOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVStructureOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVControlFlowOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVControlFlowOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVArithmeticOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVArithmeticOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVLogicalOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVLogicalOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVBitOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVBitOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVCastOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVCastOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVCompositeOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVCompositeOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVAtomicOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVAtomicOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVBarrierOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVBarrierOps.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVGroupOps.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/SPIRV/IR/SPIRVGroupOps.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Interfaces"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/CallInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/CallInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/ControlFlowInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/ControlFlowInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/LoopLikeInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/LoopLikeInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/ViewLikeInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/ViewLikeInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/CastInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/CastInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/VectorInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/VectorInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/SideEffectInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/SideEffectInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/SideEffectInterfaceBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/SideEffectInterfaceBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/InferTypeOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/InferTypeOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/InferIntRangeInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/InferIntRangeInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/DestinationStyleOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/DestinationStyleOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/CopyOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/CopyOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/MemorySlotInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/MemorySlotInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/DataLayoutInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/DataLayoutInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/ShapedOpInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/ShapedOpInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/RuntimeVerifiableOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/RuntimeVerifiableOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/IndexingMapOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/IndexingMapOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/ParallelCombiningOpInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/ParallelCombiningOpInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/InferStridedMetadataInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/InferStridedMetadataInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/MemOpInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/MemOpInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/TilingInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/TilingInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Interfaces/FunctionInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Interfaces/FunctionInterfaces.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Utils"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/Dialect/Utils/StructuredOpsUtils.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/Dialect/Utils/StructuredOpsUtils.td"
-    mkdir -p "./third_party/source/llvm-project/mlir/include/mlir/IR"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/AttrTypeBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/AttrTypeBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/BuiltinAttributeInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/BuiltinAttributeInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/CommonAttrConstraints.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/CommonAttrConstraints.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/Constraints.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/Constraints.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/DialectBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/DialectBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/EnumAttr.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/EnumAttr.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/Interfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/Interfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/OpBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/OpBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/Properties.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/Properties.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/SymbolInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/SymbolInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/Traits.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/Traits.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/Utils.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/Utils.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/OpAsmInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/OpAsmInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/BuiltinTypes.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/BuiltinTypes.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/BuiltinTypeInterfaces.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/BuiltinTypeInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/BuiltinAttributes.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/BuiltinAttributes.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/CommonTypeConstraints.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/CommonTypeConstraints.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/RegionKindInterface.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/RegionKindInterface.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/PatternBase.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/PatternBase.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/TensorEncoding.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/TensorEncoding.td"
-    curl --silent --show-error --location --output "./third_party/source/llvm-project/mlir/include/mlir/IR/BuiltinDialect.td" "https://github.com/llvm/llvm-project/raw/main/mlir/include/mlir/IR/BuiltinDialect.td"
-    # if [ ! -d "./third_party/source/stablehlo" ]; then
-    #     git clone --quiet https://github.com/openxla/stablehlo.git "./third_party/source/stablehlo"
-    # fi
-    # git -C "./third_party/source/stablehlo" pull --quiet --prune
-    mkdir -p "./third_party/source/stablehlo/stablehlo/dialect"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/StablehloOps.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/StablehloOps.td"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/ChloOps.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/ChloOps.td"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/ChloEnums.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/ChloEnums.td"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/Base.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/Base.td"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/StablehloEnums.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/StablehloEnums.td"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/StablehloAttrs.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/StablehloAttrs.td"
-    curl --silent --show-error --location --output "./third_party/source/stablehlo/stablehlo/dialect/StablehloTypes.td" "https://github.com/openxla/stablehlo/raw/main/stablehlo/dialect/StablehloTypes.td"
-    # if [ ! -d "./third_party/source/onnx-mlir" ]; then
-    #    git clone --quiet https://github.com/onnx/onnx-mlir.git "./third_party/source/onnx-mlir"
-    # fi
-    # git -C "./third_party/source/onnx-mlir" pull --quiet --prune
-    mkdir -p "./third_party/source/onnx-mlir/src/Dialect/ONNX"
-    curl --silent --show-error --location --output "./third_party/source/onnx-mlir/src/Dialect/ONNX/ONNXOps.td.inc" "https://github.com/onnx/onnx-mlir/raw/main/src/Dialect/ONNX/ONNXOps.td.inc"
-    curl --silent --fail --location --output "./third_party/source/onnx-mlir/src/Dialect/ONNX/AdditionalONNXOps.td" "https://github.com/onnx/onnx-mlir/raw/main/src/Dialect/ONNX/AdditionalONNXOps.td"
-    mkdir -p "./third_party/source/onnx-mlir/src/IR"
-    curl --silent --show-error --location --output "./third_party/source/onnx-mlir/src/IR/AttrBase.td" "https://github.com/onnx/onnx-mlir/raw/main/src/IR/AttrBase.td"
-    curl --silent --show-error --location --output "./third_party/source/onnx-mlir/src/IR/TypeBase.td" "https://github.com/onnx/onnx-mlir/raw/main/src/IR/TypeBase.td"
-    # if [ ! -d "./third_party/source/torch-mlir" ]; then
-    #    git clone --quiet https://github.com/llvm/torch-mlir.git "./third_party/source/torch-mlir"
-    # fi
-    # git -C "./third_party/source/torch-mlir" pull --quiet --prune
-    mkdir -p "./third_party/source/torch-mlir/include/torch-mlir/Dialect/Torch/IR"
-    curl --silent --show-error --location --output "./third_party/source/torch-mlir/include/torch-mlir/Dialect/Torch/IR/TorchBase.td" "https://github.com/llvm/torch-mlir/raw/main/include/torch-mlir/Dialect/Torch/IR/TorchBase.td"
-    curl --silent --show-error --location --output "./third_party/source/torch-mlir/include/torch-mlir/Dialect/Torch/IR/TorchTypes.td" "https://github.com/llvm/torch-mlir/raw/main/include/torch-mlir/Dialect/Torch/IR/TorchTypes.td"
-    curl --silent --show-error --location --output "./third_party/source/torch-mlir/include/torch-mlir/Dialect/Torch/IR/TorchOps.td" "https://github.com/llvm/torch-mlir/raw/main/include/torch-mlir/Dialect/Torch/IR/TorchOps.td"
-    curl --silent --show-error --location --output "./third_party/source/torch-mlir/include/torch-mlir/Dialect/Torch/IR/GeneratedTorchOps.td" "https://github.com/llvm/torch-mlir/raw/main/include/torch-mlir/Dialect/Torch/IR/GeneratedTorchOps.td"
-    mkdir -p "./third_party/source/mlir-hlo/mhlo/IR"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_base.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_base.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_ops.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_ops.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_ops_attrs.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_ops_attrs.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_ops_common.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_ops_common.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_ops_enums.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_ops_enums.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_ops_typedefs.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_ops_typedefs.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_patterns.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_patterns.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/hlo_utils.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/hlo_utils.td"
-    curl --silent --show-error --location --output "./third_party/source/mlir-hlo/mhlo/IR/mhlo_canonicalize.td" "https://github.com/tensorflow/mlir-hlo/raw/master/mhlo/IR/mhlo_canonicalize.td"
-    mkdir -p "./third_party/source/iree/compiler/src/iree/compiler/Dialect/HAL/IR"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/HAL/IR/HALAttrs.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/HAL/IR/HALAttrs.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/HAL/IR/HALBase.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/HAL/IR/HALBase.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/HAL/IR/HALDialect.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/HAL/IR/HALDialect.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/HAL/IR/HALInterfaces.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/HAL/IR/HALInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/HAL/IR/HALOps.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/HAL/IR/HALOps.td"
-    mkdir -p "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Flow/IR"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Flow/IR/FlowBase.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Flow/IR/FlowBase.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Flow/IR/FlowInterfaces.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Flow/IR/FlowInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Flow/IR/FlowOps.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Flow/IR/FlowOps.td"
-    mkdir -p "./third_party/source/iree/compiler/src/iree/compiler/Dialect/TensorExt/IR"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/TensorExt/IR/TensorExtBase.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/TensorExt/IR/TensorExtBase.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/TensorExt/IR/TensorExtOps.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/TensorExt/IR/TensorExtOps.td"
-    mkdir -p "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Util/IR"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Util/IR/UtilAttrs.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Util/IR/UtilAttrs.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Util/IR/UtilBase.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Util/IR/UtilBase.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Util/IR/UtilInterfaces.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Util/IR/UtilInterfaces.td"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Util/IR/UtilTypes.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Util/IR/UtilTypes.td"
-    mkdir -p "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Stream/IR"
-    curl --silent --show-error --location --output "./third_party/source/iree/compiler/src/iree/compiler/Dialect/Stream/IR/StreamInterfaces.td" "https://github.com/iree-org/iree/raw/main/compiler/src/iree/compiler/Dialect/Stream/IR/StreamInterfaces.td"
-    if [ ! -d "./third_party/source/tensorflow" ]; then
-        git clone --quiet https://github.com/tensorflow/tensorflow.git "./third_party/source/tensorflow"
+    for entry in "${entries[@]}"; do
+        IFS='|' read -r url branch dir root <<< "${entry}"
+        if [ ! -d "${dir}" ]; then
+            if [ -n "${root}" ]; then
+                git clone --quiet --depth=1 --branch "${branch}" --single-branch --filter=blob:none --sparse "${url}" "${dir}"
+                git -C "${dir}" sparse-checkout set "${root}"
+            else
+                git clone --quiet --depth=1 --branch "${branch}" --single-branch "${url}" "${dir}"
+            fi
+        else
+            if [ -n "${root}" ]; then
+                git -C "${dir}" sparse-checkout set "${root}"
+            fi
+            git -C "${dir}" fetch --quiet --depth=1 origin "${branch}"
+            git -C "${dir}" reset --quiet --hard FETCH_HEAD
+            git -C "${dir}" gc --quiet --prune=all
+        fi
+    done
+    tensorflow_src_dir=./third_party/source/tensorflow
+    if [ ! -d "${tensorflow_src_dir}" ]; then
+        git clone --quiet --depth=1 --branch master --single-branch https://github.com/tensorflow/tensorflow.git "${tensorflow_src_dir}"
+    else
+        git -C "${tensorflow_src_dir}" fetch --quiet --depth=1 origin master
+        git -C "${tensorflow_src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${tensorflow_src_dir}" gc --quiet --prune=all
     fi
-    git -C "./third_party/source/tensorflow" pull --quiet --prune
 }
 
 schema() {

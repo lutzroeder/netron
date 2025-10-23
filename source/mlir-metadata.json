@@ -194,6 +194,28 @@
     "assemblyFormat": "attr-dict ($operands^ `:` type($operands))?"
   },
   {
+    "name": "builtin.module",
+    "summary": "A top level container operation",
+    "description": "A `module` represents a top-level container operation. It contains a single\n    [graph region](../LangRef.md#control-flow-and-ssacfg-regions) containing a single block\n    which can contain any operations and does not have a terminator. Operations\n    within this region cannot implicitly capture values defined outside the module,\n    i.e. Modules are [IsolatedFromAbove](../Traits#isolatedfromabove). Modules have\n    an optional [symbol name](../SymbolsAndSymbolTables.md) which can be used to refer\n    to them in operations.\n\n    Example:\n\n    ```mlir\n    module {\n      func.func @foo()\n    }\n    ```",
+    "attributes": [
+      { "name": "sym_name", "type": "OptionalAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "($sym_name^)? attr-dict-with-keyword $bodyRegion"
+  },
+  {
+    "name": "builtin.unrealized_conversion_cast",
+    "summary": "An unrealized conversion from one set of types to another",
+    "description": "An `unrealized_conversion_cast` operation represents an unrealized\n    conversion from one set of types to another, that is used to enable the\n    inter-mixing of different type systems. This operation should not be\n    attributed any special representational or execution semantics, and is\n    generally only intended to be used to satisfy the temporary intermixing of\n    type systems during the conversion of one type system to another.\n\n    This operation may produce results of arity 1-N, and accept as input\n    operands of arity 0-N.\n\n    Example:\n\n    ```mlir\n    // An unrealized 0-1 conversion. These types of conversions are useful in\n    // cases where a type is removed from the type system, but not all uses have\n    // been converted. For example, imagine we have a tuple type that is\n    // expanded to its element types. If only some uses of an empty tuple type\n    // instance are converted we still need an instance of the tuple type, but\n    // have no inputs to the unrealized conversion.\n    %result = unrealized_conversion_cast to !bar.tuple_type<>\n\n    // An unrealized 1-1 conversion.\n    %result1 = unrealized_conversion_cast %operand : !foo.type to !bar.lowered_type\n\n    // An unrealized 1-N conversion.\n    %results2:2 = unrealized_conversion_cast %tuple_operand : !foo.tuple_type<!foo.type, !foo.type> to !foo.type, !foo.type\n\n    // An unrealized N-1 conversion.\n    %result3 = unrealized_conversion_cast %operand, %operand : !foo.type, !foo.type to !bar.tuple_type<!foo.type, !foo.type>\n    ```",
+    "inputs": [
+      { "name": "inputs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "outputs", "type": "Variadic" }
+    ],
+    "assemblyFormat": "($inputs^ `:` type($inputs))? `to` type($outputs) attr-dict"
+  },
+  {
     "name": "chlo._asin_acos_kernel",
     "summary": "AsinAcosKernel operator",
     "description": "Returns `AsinAcosKernel(operand)` element-wise.\n\n    ```\n    If\n      w = _asin_acos_kernel(z)\n      w' = _asin_acos_kernel(I * z)\n    Then\n      asin(z) = complex(atan2(z.real, w.real), sign(z.imag) * w.imag)\n      acos(z) = complex(atan2(w.real, z.real), -sign(z.imag) * w.imag)\n      asinh(z) = complex(sign(z.real) * w'.imag, atan2(z.imag, w'.real))\n      acosh(z) = complex(w.imag, sign(z.imag) * atan2(w.real, z.real))\n    ```\n\n    This op is used as an intermediate value in decompositions and\n    should never be constructed directly by frameworks or consumed by\n    backends.",
@@ -3455,15 +3477,11 @@
   },
   {
     "name": "mhlo.abs",
-    "summary": "Abs operation",
-    "description": "Performs element-wise abs operation on `operand` tensor and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#abs\n\n    Example:\n    ```mlir\n    %result = mhlo.abs %operand : tensor<3xi32>\n    ```",
+    "summary": "Absolute value operator",
+    "description": "Returns `abs(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.acos",
@@ -3491,16 +3509,12 @@
   },
   {
     "name": "mhlo.add",
-    "summary": "Add operation",
-    "description": "Performs element-wise addition of two tensors `lhs` and `rhs` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#add\n\n    Example:\n    ```mlir\n    %result = mhlo.add %lhs, %rhs : tensor<2x2xi32>\n    ```",
+    "summary": "Addition operator",
+    "description": "Returns `lhs + rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.add_dependency",
@@ -3517,70 +3531,57 @@
   },
   {
     "name": "mhlo.after_all",
-    "summary": "AfterAll operation",
-    "description": "Ensures that the operations producing the `inputs` are executed before any\n    operations that depend on `result`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#after_all\n\n    Example:\n    ```mlir\n    %result = mhlo.after_all %input0, %input1 : !mhlo.token\n    ```",
+    "summary": "AfterAll operator",
+    "description": "AfterAll takes a variadic number of tokens and produces a single token.\n    Tokens are primitive types which can be threaded between side-effecting\n    operations to enforce ordering. AfterAll can be used as a join of tokens\n    for ordering a operation after a set operations.\n\n    See https://www.tensorflow.org/xla/operation_semantics#afterall.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_Token" }
-    ],
-    "assemblyFormat": "$inputs attr-dict\n      `:` custom<VariadicSameOperandsAndResultType>(ref($inputs), type($inputs), type($result))"
+      { "name": "operands", "type": "Variadic" }
+    ]
   },
   {
     "name": "mhlo.all_gather",
-    "summary": "AllGather operation",
-    "description": "Within each process group in the process grid, concatenates the values of the\n    operand tensor from each process along `all_gather_dim` and produces a\n    result tensor. The `computation` is applied separately for each operand in\n    `operands`, producing one result per operand.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#all_gather\n\n    Example:\n    ```mlir\n    %result = \"mhlo.all_gather\"(%operand) {\n      all_gather_dim = 1 : i64,\n      replica_groups = dense<[[0, 1]]> : tensor<1x2xi64>\n      // channel_id = 0\n      channel_handle = #mhlo.channel_handle<handle = 0, type = 0>,\n      // use_global_device_ids = false\n    } : (tensor<2x2xf32>) -> tensor<2x4xf32>\n    ```",
+    "summary": "AllGather operator",
+    "description": "Performs concatenation across replicas.\n\n    See https://www.tensorflow.org/xla/operation_semantics#allgather",
     "inputs": [
-      { "name": "operands", "type": "Variadic" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "all_gather_dim", "type": "ConfinedAttr" },
-      { "name": "replica_groups", "type": "I64ElementsAttr" },
-      { "name": "channel_handle", "type": "OptionalAttr" },
-      { "name": "use_global_device_ids", "type": "UnitAttr" }
-    ]
-  },
-  {
-    "name": "mhlo.all_reduce",
-    "summary": "AllReduce operation",
-    "description": "Within each process group in the process grid, applies a reduction function\n    `computation` to the values of an operand tensor from each process and\n    produces a result tensor. The `computation` is applied separately for each\n    operand in `operands`, producing one result per operand.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#all_reduce\n\n    Example:\n    ```mlir\n    %result = \"mhlo.all_reduce\"(%operand) ({\n      ^bb0(%arg0: tensor<f32>, %arg1: tensor<f32>):\n        %0 = mhlo.add %arg1, %arg2 : tensor<f32>\n        mhlo.return %0 : tensor<f32>\n    }) {\n      replica_groups = dense<[[0, 1]]> : tensor<1x2xi64>\n      // channel_id = 0\n      channel_handle = #mhlo.channel_handle<handle = 0, type = 0>\n      // use_global_device_ids = false\n    } : (tensor<4xf32>) -> tensor<4xf32>\n    ```",
-    "inputs": [
-      { "name": "operands", "type": "Variadic" }
-    ],
-    "attributes": [
-      { "name": "replica_groups", "type": "I64ElementsAttr" },
-      { "name": "channel_handle", "type": "OptionalAttr" },
-      { "name": "use_global_device_ids", "type": "UnitAttr" }
-    ]
-  },
-  {
-    "name": "mhlo.all_to_all",
-    "summary": "AllToAll operation",
-    "description": "Within each process group in the process grid, splits the values of the\n    `operand` tensor along `split_dimension` into parts, scatters the split parts\n    between the processes, concatenates the scattered parts along `concat_dimension`\n    and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#all_to_all\n\n    Example:\n    ```mlir\n    %result = \"mhlo.all_to_all\"(%operand) {\n      split_dimension = 1 : i64,\n      concat_dimension = 0 : i64,\n      split_count = 2 : i64,\n      replica_groups = dense<[[0, 1]]> : tensor<1x2xi64>\n    } : (tensor<2x4xf32>) -> tensor<4x2xf32>\n    ```",
-    "inputs": [
-      { "name": "operand", "type": "Variadic" }
-    ],
-    "attributes": [
-      { "name": "split_dimension", "type": "OptionalAttr" },
-      { "name": "concat_dimension", "type": "OptionalAttr" },
-      { "name": "split_count", "type": "OptionalAttr" },
+      { "name": "all_gather_dim", "type": "I64Attr" },
       { "name": "replica_groups", "type": "I64ElementsAttr" },
       { "name": "channel_handle", "type": "OptionalAttr" }
     ]
   },
   {
-    "name": "mhlo.and",
-    "summary": "And operation",
-    "description": "Performs element-wise AND of two tensors `lhs` and `rhs` and produces a\n    `result` tensor\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#and\n\n    Example:\n    ```mlir\n    %result = mhlo.and %lhs, %rhs : tensor<2x2xi32>\n    ```",
+    "name": "mhlo.all_reduce",
+    "summary": "AllReduce operator",
+    "description": "Performs a custom reduction across replicas.\n\n    See https://www.tensorflow.org/xla/operation_semantics#allreduce.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_PredOrIntTensor" },
-      { "name": "rhs", "type": "MHLO_PredOrIntTensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
+    "attributes": [
+      { "name": "replica_groups", "type": "I64ElementsAttr" },
+      { "name": "channel_handle", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "mhlo.all_to_all",
+    "inputs": [
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+    "attributes": [
+      { "name": "split_dimension", "type": "I64Attr" },
+      { "name": "concat_dimension", "type": "I64Attr" },
+      { "name": "split_count", "type": "I64Attr" },
+      { "name": "replica_groups", "type": "I64ElementsAttr" }
+    ]
+  },
+  {
+    "name": "mhlo.and",
+    "summary": "Logical and",
+    "description": "Returns `logical_and(lhs, rhs)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
+    "inputs": [
+      { "name": "lhs", "type": "HLO_PredOrIntTensor" },
+      { "name": "rhs", "type": "HLO_PredOrIntTensor" }
+    ]
   },
   {
     "name": "mhlo.asin",
@@ -3636,16 +3637,12 @@
   },
   {
     "name": "mhlo.atan2",
-    "summary": "Atan2 operation",
-    "description": "Performs element-wise atan2 operation on `lhs` and `rhs` tensor and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#atan2\n\n    Example:\n    ```mlir\n    %result = mhlo.atan2 %lhs, %rhs : tensor<3xf32>\n    ```",
+    "summary": "Atan2 operator",
+    "description": "Returns `atan2(lhs/rhs)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.atanh",
@@ -3661,87 +3658,72 @@
   },
   {
     "name": "mhlo.batch_norm_grad",
-    "summary": "BatchNormGrad operation",
-    "description": "Computes gradients of several inputs of BatchNormTrainingOp backpropagating\n    from `grad_output`, and produces `grad_operand`, `grad_scale` and\n    `grad_offset` tensors.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#batch_norm_grad\n\n    Example:\n    ```mlir\n    %grad_operand, %grad_scale, %grad_offset =\n    \"mhlo.batch_norm_grad\"(%operand, %scale, %mean, %variance, %grad_output) {\n      epsilon = 0.0 : f32,\n      feature_index = 2 : i64\n    } : (tensor<2x2x2xf32>, tensor<2xf32>, tensor<2xf32>, tensor<2xf32>,\n        tensor<2x2x2xf32>) -> (tensor<2x2x2xf32>, tensor<2xf32>, tensor<2xf32>)\n    ```",
+    "summary": "Batch Normalization Gradient",
+    "description": "Calculates gradients of batch norm.\n\n    See https://www.tensorflow.org/xla/operation_semantics#batchnormgrad",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpTensor" },
-      { "name": "scale", "type": "DTensorOf" },
-      { "name": "mean", "type": "DTensorOf" },
-      { "name": "variance", "type": "DTensorOf" },
-      { "name": "grad_output", "type": "MHLO_FpTensor" }
-    ],
-    "outputs": [
-      { "name": "grad_operand", "type": "MHLO_FpTensor" },
-      { "name": "grad_scale", "type": "DTensorOf" },
-      { "name": "grad_offset", "type": "DTensorOf" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "scale", "type": "HLO_Tensor" },
+      { "name": "mean", "type": "HLO_Tensor" },
+      { "name": "variance", "type": "HLO_Tensor" },
+      { "name": "grad_output", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "epsilon", "type": "F32Attr" },
-      { "name": "feature_index", "type": "ConfinedAttr" }
+      { "name": "feature_index", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.batch_norm_inference",
-    "summary": "BatchNormInference operation",
-    "description": "Normalizes the `operand` tensor across all dimensions except for the\n    `feature_index` dimension and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#batch_norm_inference\n\n    Example:\n    ```mlir\n    %result = \"mhlo.batch_norm_inference\"(%operand, %scale, %offset, %mean, %variance) {\n      epsilon = 0.0 : f32,\n      feature_index = 2 : i64\n    } : (tensor<2x2x2xf32>, tensor<2xf32>, tensor<2xf32>, tensor<2xf32>, tensor<2xf32>) -> tensor<2x2x2xf32>\n    ```",
+    "summary": "Batch Normalization for Inference",
+    "description": "Normalizes an array across batch and spatial dimensions.\n\n    See https://www.tensorflow.org/xla/operation_semantics#batchnorminference",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpTensor" },
-      { "name": "scale", "type": "DTensorOf" },
-      { "name": "offset", "type": "DTensorOf" },
-      { "name": "mean", "type": "DTensorOf" },
-      { "name": "variance", "type": "DTensorOf" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpTensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "scale", "type": "HLO_Tensor" },
+      { "name": "offset", "type": "HLO_Tensor" },
+      { "name": "mean", "type": "HLO_Tensor" },
+      { "name": "variance", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "epsilon", "type": "F32Attr" },
-      { "name": "feature_index", "type": "ConfinedAttr" }
+      { "name": "feature_index", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.batch_norm_training",
-    "summary": "BatchNormTraining operation",
-    "description": "Computes mean and variance across batch and spatial dimensions and\n    normalizes the `operand` tensor, for each feature in the `feature_index`\n    dimension and produces `output`, `batch_mean` and `batch_var` tensors.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#batch_norm_training\n\n    Example:\n    ```mlir\n    %output, %batch_mean, %batch_var = \"mhlo.batch_norm_training\"(%operand, %scale, %offset) {\n      epsilon = 0.0 : f32,\n      feature_index = 2 : i64\n    } : (tensor<2x2x2xf32>, tensor<2xf32>, tensor<2xf32>) -> (tensor<2x2x2xf32>, tensor<2xf32>, tensor<2xf32>)\n    ```",
+    "summary": "Batch Normalization for Training",
+    "description": "Normalizes an array across batch and spatial dimensions.\n\n    See https://www.tensorflow.org/xla/operation_semantics#batchnormtraining",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpTensor" },
-      { "name": "scale", "type": "DTensorOf" },
-      { "name": "offset", "type": "DTensorOf" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "MHLO_FpTensor" },
-      { "name": "batch_mean", "type": "DTensorOf" },
-      { "name": "batch_var", "type": "DTensorOf" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "scale", "type": "HLO_Tensor" },
+      { "name": "offset", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "epsilon", "type": "F32Attr" },
-      { "name": "feature_index", "type": "ConfinedAttr" }
+      { "name": "feature_index", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.bitcast",
-    "summary": "Bitcast operation",
-    "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation changes the shape of the input in the way that\n    the physical arrangement of elements are unchanged.\n\n    This operation needs layout information to make sense of \"physical\n    arrangement of elements\", and layout support in MHLO is currently a work\n    in progress.\n\n    Example:\n    ```mlir\n    %0 = mhlo.bitcast %arg0 : (tensor<3x4xf32>) -> tensor<3x4x1xf32>\n    ```",
+    "summary": "Bitcast operator",
+    "description": "This op changes the shape of the input in the way that the physical\n    arrangement of elements are unchanged.\n\n    However, the op needs layout information to make sense of \"physical\n    arrangement of elements\". Layout support in MHLO is currently under\n    exploration.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+      { "name": "operand", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.bitcast_convert",
-    "summary": "BitcastConvert operation",
-    "description": "Performs a bitcast operation on `operand` tensor and produces a `result`\n    tensor where the bits of the entire `operand` tensor are reinterpreted using\n    the type of the `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#bitcast_convert\n\n    Example:\n    ```mlir\n    %result = mhlo.bitcast_convert %operand : (tensor<2xf32>) -> tensor<2x4xi8>\n    ```",
+    "summary": "BitcastConvert operator",
+    "description": "Similar to a 'tf.bitcast' in TensorFlow, performs an element-wise bitcast\n    operation from a data shape to a target shape. The dimensions must match,\n    and the conversion is an element-wise one. Bitcast is implemented as a\n    low-level cast, so machines with different floating-point representations\n    will give different results.\n\n    See https://www.tensorflow.org/xla/operation_semantics#bitcastconverttype.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+      { "name": "operand", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.broadcast",
-    "summary": "Broadcast operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/3.\n\n    Informally, this operation does the same thing as XLA's Broadcast:\n    https://www.tensorflow.org/xla/operation_semantics#broadcast\n\n    Example:\n    ```mlir\n    %result = mhlo.broadcast %operand, sizes = [1, 2] : (tensor<3xi32>) -> tensor<1x2x3xi32>\n    ```",
+    "summary": "Broadcast a tensor to a higher rank by prepending dimensions",
+    "description": "Broadcasts the operand tensor to a higher rank by prepending\n    `broadcast_sizes` to the dimensions. The current values of the operand are\n    copied into the other dimensions.\n\n    This is a more limited form of broadcasting, that corresponds to the XLA\n    client Broadcast method. For a more general form of broadcasting, see the\n    BroadcastInDimOp.\n\n    See https://www.tensorflow.org/xla/operation_semantics#broadcast.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "broadcast_sizes", "type": "I64ElementsAttr" }
@@ -3749,74 +3731,59 @@
   },
   {
     "name": "mhlo.broadcast_in_dim",
-    "summary": "BroadcastInDim operation",
-    "description": "Expands the dimensions and/or rank of an input tensor by duplicating the\n    data in the `operand` tensor and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#broadcast_in_dim\n\n    Example:\n    ```mlir\n    %result = mhlo.broadcast_in_dim %operand, dims = [2, 1] : (tensor<1x3xi32>) -> tensor<2x3x2xi32>\n    ```",
+    "summary": "Broadcast a tensor into the given shape by adding dimensions.",
+    "description": "Broadcasts the `operand` tensor to a higher rank. This is not the limited\n    form of broadcasting exposed as the XLA client broadcast op, but rather the\n    more powerful \"InDim\" broadcasting, which is closer to the HLO broadcast op\n    and exposed in the XLA client BroadcastInDim method.\n\n    `broadcast_dimensions` maps the operand dimension number to the target shape\n    dimension number. It must have the same size as the rank of the operand. The\n    mapped dimensions must either be the same size or the dimension being\n    broadcast from must be size 1 (degenerate broadcasting).\n\n    For a scalar (0D tensor) operand, `broadcast_dimensions` must be empty. The\n    The scalar value will be broadcast to every element in the target shape.\n\n    See https://www.tensorflow.org/xla/broadcasting.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "broadcast_dimensions", "type": "MHLO_BroadcastDimAttr" }
+      { "name": "broadcast_dimensions", "type": "BroadcastDimAttr" }
     ]
   },
   {
     "name": "mhlo.case",
-    "summary": "Case operation",
-    "description": "Produces the output from executing exactly one `function` from `branches`\n    depending on the value of `index`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#case\n\n    Example:\n    ```mlir\n    %result0, %result1 = \"mhlo.case\"(%index) ({\n      mhlo.return %result_branch0, %result_branch0 : tensor<2xi64>, tensor<2xi64>\n    }, {\n      mhlo.return %result_branch1, %result_branch1 : tensor<2xi64>, tensor<2xi64>\n    }) : (tensor<i32>) -> (tensor<2xi64>, tensor<2xi64>)\n    ```",
+    "summary": "Switch-Case operator",
+    "description": "Returns the result of executing `branches[index]`. If\n    `index` is < 0 or >= N, then `branches[N-1] is executed as\n    the default branch.\n\n    Each branch `branches[b]` must take in a single argument of same type as\n    `branch_operands[b]` and will be invoked with `branch_operands[b]`. The type\n    of the returned value of each branch must be the same.\n\n    Note that only one of the branches will be executed depending on the value\n    of index.\n    See https://www.tensorflow.org/xla/operation_semantics#conditional.",
     "inputs": [
       { "name": "index", "type": "I32Tensor" }
     ]
   },
   {
     "name": "mhlo.cbrt",
-    "summary": "Cbrt operation",
-    "description": "Performs element-wise cubic root operation on `operand` tensor and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#cbrt\n\n    Example:\n    ```mlir\n    %result = mhlo.cbrt %operand : tensor<4xf32>\n    ```",
+    "summary": "Cubic root operator",
+    "description": "Returns element-wise cubic root of the operand.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.ceil",
-    "summary": "Ceil operation",
-    "description": "Performs element-wise ceil of `operand` tensor and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#ceil\n\n    Example:\n    ```mlir\n    %result = mhlo.ceil %operand : tensor<5xf32>\n    ```",
+    "summary": "Ceil operator",
+    "description": "Returns `Ceil(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.cholesky",
-    "summary": "Cholesky operation",
-    "description": "Computes the Cholesky decomposition of a batch of matrices.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#cholesky\n\n    Example:\n    ```mlir\n    %result = mhlo.cholesky %a, lower = true : tensor<3x3xf32>\n    ```",
+    "summary": "Cholesky operator",
+    "description": "Computes the Cholesky decomposition of a batch of symmetric (Hermitian)\n  positive definite matrices.\n\n  If lower is true, computes lower-triangular matrices l such that\n  `a=l.Transpose(l)`. If lower is false, computes upper-triangular matrices u such\n  that `a=Transpose(u).u`.\n\n  Input data is read only from the lower/upper triangle of a, depending on the\n  value of lower. Values from the other triangle are ignored. Output data is\n  returned in the same triangle; the values in the other triangle are\n  implementation-defined and may be anything.\n\n  If the rank of a is greater than 2, a is treated as a batch of matrices, where\n  all except the minor 2 dimensions are batch dimensions.\n\n  If a is not symmetric (Hermitian) positive definite, the result is\n  implementation-defined.\n\n    See https://www.tensorflow.org/xla/operation_semantics#cholesky.",
     "inputs": [
-      { "name": "a", "type": "MHLO_FpOrComplexTensor" }
+      { "name": "a", "type": "HLO_FpOrComplexTensor" }
     ],
     "attributes": [
-      { "name": "lower", "type": "DefaultValuedOptionalAttr" }
+      { "name": "lower", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.clamp",
-    "summary": "Clamp operation",
-    "description": "Clamps every element of the `operand` tensor between a minimum and maximum\n    value and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#clamp\n\n    Example:\n    ```mlir\n    %result = mhlo.clamp %min, %operand, %max : tensor<3xi32>\n    ```",
+    "summary": "Clamp operator",
+    "description": "Clamps an operand to within the range between a minimum and maximum value.\n\n    Note: All three arrays must be the same shape. Alternatively, as a\n          restricted form of broadcasting, min and/or max can be a scalar (0D\n          tensor) of the element type of the tensor operand.\n\n    See https://www.tensorflow.org/xla/operation_semantics#clamp.",
     "inputs": [
-      { "name": "min", "type": "MHLO_Tensor" },
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "max", "type": "MHLO_Tensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_Tensor" }
-    ],
-    "assemblyFormat": "$min `,` $operand `,` $max attr-dict\n      `:` custom<SameOperandsAndResultType>(type($min), type($operand), type($max), type($result))"
+      { "name": "min", "type": "HLO_Tensor" },
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "max", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.collective_broadcast",
@@ -3832,42 +3799,36 @@
   },
   {
     "name": "mhlo.collective_permute",
-    "summary": "CollectivePermute operation",
-    "description": "Within each process group in the process grid, sends the value of the\n    `operand` tensor from the source process to the target process and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#collective_permute\n\n    Example:\n    ```mlir\n    %result = \"mhlo.collective_permute\"(%operand) {\n      source_target_pairs = dense<[[0, 1], [1, 2]]> : tensor<2x2xi64>,\n      // channel_id = 0\n      channel_handle = #mhlo.channel_handle<handle = 0, type = 0>\n    } : (tensor<4x2xf32>) -> tensor<4x2xf32>\n    ```",
+    "summary": "CollectivePermute operator",
+    "description": "CollectivePermute is a collective operation that sends and receives data\n    cross replicas.\n    Note that there are the following restrictions on the source_target_pair:\n    - Any two pairs should not have the same target replica id, and they should\n    not have the same source replica id.\n    - If a replica id is not a target in any pair, then the output on that\n    replica is a tensor consists of 0(s) with the same shape as the input.\n\n    See https://www.tensorflow.org/xla/operation_semantics#collectivepermute.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "source_target_pairs", "type": "I64ElementsAttr" },
-      { "name": "channel_handle", "type": "OptionalAttr" }
+      { "name": "source_target_pairs", "type": "I64ElementsAttr" }
     ]
   },
   {
     "name": "mhlo.compare",
-    "summary": "Compare operation",
-    "description": "Performs element-wise comparison of `lhs` and `rhs` tensors according to\n    `comparison_direction` and `compare_type`, and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#compare\n\n    Example:\n    ```mlir\n    %result = mhlo.compare LT, %lhs, %rhs, FLOAT : (tensor<2xf32>, tensor<2xf32>) -> tensor<2xi1>\n    ```",
+    "summary": "Comparison operator",
+    "description": "Compares `lhs` and `rhs` elementwise according to `comparison_direction`\n    and `compare_type`. If unspecified, `compare_type` is FLOAT for float element\n    types, SIGNED for signed element types and UNSIGNED for unsigned element\n    types.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_comparison_operations.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" }
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "comparison_direction", "type": "MHLO_ComparisonDirectionAttr" },
+      { "name": "comparison_direction", "type": "HLO_ComparisonDirectionAttr" },
       { "name": "compare_type", "type": "OptionalAttr" }
-    ],
-    "assemblyFormat": "$comparison_direction `,` $lhs `,` $rhs (`,` $compare_type^)?\n      attr-dict `:` functional-type(operands, results)"
+    ]
   },
   {
     "name": "mhlo.complex",
-    "summary": "Complex operation",
-    "description": "Performs element-wise conversion to a complex value from a pair of real and\n    imaginary values, `lhs` and `rhs`, and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#complex\n\n    Example:\n    ```mlir\n    %result = mhlo.complex %lhs, %rhs : tensor<2xcomplex<f32>>\n    ```",
+    "summary": "Complex operator",
+    "description": "Performs element-wise conversion of a pair of real and imaginary values to\n    a complex value.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_Fp32Or64Tensor" },
-      { "name": "rhs", "type": "MHLO_Fp32Or64Tensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_ComplexTensor" }
-    ],
-    "assemblyFormat": "operands attr-dict\n      `:` custom<ComplexOpType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_FpTensor" },
+      { "name": "rhs", "type": "HLO_FpTensor" }
+    ]
   },
   {
     "name": "mhlo.composite",
@@ -3885,74 +3846,59 @@
     "assemblyFormat": "$name $inputs attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "mhlo.compute_reshape_shape",
+    "summary": "Compute input for reshape with any dynamic dim resolved",
+    "description": "This operation handles the dynamic aspect of a TF/NumPy/CHLO reshape. The\n    dynamic aspect is that a single extent can be -1 and that dimension will\n    instead be computed. This handles the computation and can then be passed to\n    an HLO DynamicReshapeOp to replicate the TF/NumPy reshape behavior.\n\n    This op has undefined behavior if the dimensions do not evenly divide the\n    number of elements, or if there are multiple -1 values. It is an identity op\n    if no dimensions are -1.\n\n    ```\n    %0 = hlo.compute_reshape_shape 12, [2, -1] -> [2, 6]\n    ```",
+    "inputs": [
+      { "name": "num_elements", "type": "Index" },
+      { "name": "dynamic_shape", "type": "DTensorOf" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "DTensorOf" }
+    ],
+    "assemblyFormat": "$num_elements `,` $dynamic_shape attr-dict `:` type($num_elements) `,` type($dynamic_shape) `->` type($result)"
+  },
+  {
     "name": "mhlo.concatenate",
-    "summary": "Concatenate operation",
-    "description": "Concatenates a variadic number of tensors in `inputs` along `dimension`\n    dimension in the same order as the given arguments and produces a `result`\n    tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#concatenate\n\n    Example:\n    ```mlir\n    %result = mhlo.concatenate %input0, %input1, dim = 0 : (tensor<3x2xi64>, tensor<1x2xi64>) -> tensor<4x2xi64>\n    ```",
+    "summary": "XLA's concatenate op",
+    "description": "Concatenates a set of tensors along the specified dimension.\n\n     See https://www.tensorflow.org/xla/operation_semantics#concatenate.",
     "inputs": [
       { "name": "val", "type": "Variadic" }
     ],
     "attributes": [
-      { "name": "dimension", "type": "ConfinedAttr" }
+      { "name": "dimension", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.constant",
-    "summary": "Constant operation",
-    "description": "Produces an `output` tensor from a constant `value`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#constant\n\n    Example:\n    ```mlir\n    %output = mhlo.constant dense<[[0.0, 1.0], [2.0, 3.0]]> : tensor<2x2xf32>\n    ```",
+    "summary": "Constant operator",
+    "description": "Represents a constant value.",
     "outputs": [
-      { "name": "output", "type": "MHLO_StaticShapeTensor" }
+      { "name": "output", "type": "HLO_StaticShapeTensor" }
     ],
     "attributes": [
       { "name": "value", "type": "ElementsAttr" }
-    ]
+    ],
+    "assemblyFormat": "attr-dict $value"
   },
   {
     "name": "mhlo.convert",
-    "summary": "Convert operation",
-    "description": "Performs an element-wise conversion from one element type to another on\n    `operand` tensor and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#convert\n\n    Example:\n    ```mlir\n    %result = mhlo.convert %operand : (tensor<3xi32>) -> tensor<3xcomplex<f32>>\n    ```",
+    "summary": "Convert operator",
+    "description": "Performs element-wise conversion of values from one type to another, e.g.\n    float to int.\n\n    See https://www.tensorflow.org/xla/operation_semantics#convertelementtype.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.convolution",
-    "summary": "Convolution operation",
-    "description": "Computes dot products between windows of `lhs` and slices of `rhs` and\n    produces `result`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#convolution\n\n    Example:\n    ```mlir\n    %result = \"mhlo.convolution\"(%lhs, %rhs) {\n      window_strides = dense<4> : tensor<2xi64>,\n      padding = dense<0> : tensor<2x2xi64>,\n      lhs_dilation = dense<2> : tensor<2xi64>,\n      rhs_dilation = dense<1> : tensor<2xi64>,\n      window_reversal = dense<false> : tensor<2xi1>,\n      dimension_numbers = #mhlo.conv<[b, 0, 1, f]x[0, 1, i, o]->[b, 0, 1, f]>,\n      feature_group_count = 1 : i64,\n      batch_group_count = 1 : i64,\n      precision_config = [#stablehlo<precision DEFAULT>, #stablehlo<precision DEFAULT>]\n    } : (tensor<1x4x4x1xi32>, tensor<3x3x1x1xi32>) -> tensor<1x2x2x1xi32>\n    ```",
-    "inputs": [
-      { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" },
-      { "name": "dimension_numbers", "type": "MHLO_ConvDimensionNumbers" }
-    ],
-    "attributes": [
-      { "name": "window_strides", "type": "OptionalAttr" },
-      { "name": "padding", "type": "OptionalAttr" },
-      { "name": "lhs_dilation", "type": "OptionalAttr" },
-      { "name": "rhs_dilation", "type": "OptionalAttr" },
-      { "name": "window_reversal", "type": "OptionalAttr" },
-      { "name": "feature_group_count", "type": "ConfinedAttr" },
-      { "name": "batch_group_count", "type": "ConfinedAttr" },
-      { "name": "precision_config", "type": "OptionalAttr" }
-    ],
+    "summary": "Convolution operator",
+    "description": "Computes a convolution of the kind used in neural networks.\n\n    See https://www.tensorflow.org/xla/operation_semantics#conv_convolution.",
     "assemblyFormat": "`(`operands`)`\n       `dim_numbers` `=` custom<ConvolutionDimensions>($dimension_numbers) `,`\n       `window` `=` `{` custom<WindowAttributes>($window_strides, $padding,\n                                                 $lhs_dilation, $rhs_dilation,\n                                                 $window_reversal) `}`\n       attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "mhlo.copy",
-    "summary": "Copy operation",
-    "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation a copy of `operand`. Depending on the metadata\n    attached to the operation, it can behave quite differently from a no-op.\n\n    Example:\n    ```mlir\n    %0 = mhlo.copy %arg0 : tensor<f32>\n    ```",
-    "inputs": [
-      { "name": "operand", "type": "MHLO_TensorOrTokenOrTuple" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_TensorOrTokenOrTuple" }
-    ],
-    "attributes": [
-      { "name": "cross_program_prefetch_index", "type": "OptionalAttr" }
-    ],
-    "assemblyFormat": "operands attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+    "summary": "Copy operator",
+    "description": "Returns a copy of `operand`."
   },
   {
     "name": "mhlo.cosh",
@@ -3968,83 +3914,95 @@
   },
   {
     "name": "mhlo.cosine",
-    "summary": "Cosine operation",
-    "description": "Performs element-wise cosine operation on `operand` tensor and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#cosine\n\n    Example:\n    ```mlir\n    %result = mhlo.cosine %operand : tensor<2xf32>\n    ```",
+    "summary": "Cos operator",
+    "description": "Returns `Cos(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.count_leading_zeros",
-    "summary": "Clz operation",
-    "description": "Performs element-wise count of the number of leading zero bits in the\n    `operand` tensor and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#count_leading_zeros\n\n    Example:\n    ```mlir\n    %result = mhlo.count_leading_zeros %operand : tensor<2x2xi8>\n    ```",
+    "summary": "Count-leading-zeros (Clz) operator",
+    "description": "Returns the number of leading zeros in each operand element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.create_token",
-    "summary": "CreateToken operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/3.\n\n    Informally, this operation does the same thing as AfterAllOp with 0 inputs:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#after_all\n\n    Example:\n    ```mlir\n    %output = mhlo.create_token : !mhlo.token\n    ```",
+    "summary": "Create Token operator",
+    "description": "Produces a HLO token. Tokens are used for ordering side-effecting perations.\n    This is exported to HLO as an AfterAll operation with no operands to\n    generate a token.",
     "outputs": [
-      { "name": "output", "type": "MHLO_Token" }
-    ],
-    "assemblyFormat": "attr-dict `:` type(results)"
+      { "name": "output", "type": "HLO_Token" }
+    ]
   },
   {
     "name": "mhlo.cross-replica-sum",
-    "summary": "CrossReplicaSum operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/3.\n\n    Informally, this operation does the same thing as AllReduceOp with\n    `channel_id = 0`, `use_global_device_ids = false` and `computation`\n    implementing addition:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#all_reduce\n\n    Example:\n    ```mlir\n    %result = \"mhlo.cross-replica-sum\"(%operand) {\n      replica_groups = dense<[[0, 1]]> : tensor<1x2xi64>\n    } : (tensor<4xf32>) -> tensor<4xf32>\n    ```",
+    "summary": "Sums input across replicated instances.",
+    "description": "For each of the replica groups, operands of the group devices are summed\n     so that each device has the sum.\n\n     For example, suppose there are 8 TPU devices: `[A, B, C, D, E, F, G, H]`.\n     Passing group_assignment=`[[0,2,4,6],[1,3,5,7]]` sets `A, C, E, G` as group 0,\n     and `B, D, F, H` as group 1. Thus we get the outputs:\n     `[A+C+E+G, B+D+F+H, A+C+E+G, B+D+F+H, A+C+E+G, B+D+F+H, A+C+E+G, B+D+F+H]`.\n\n     See https://www.tensorflow.org/xla/operation_semantics#crossreplicasum.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "replica_groups", "type": "I64ElementsAttr" }
     ]
   },
   {
-    "name": "mhlo.custom_call",
-    "summary": "CustomCall operation",
-    "description": "Encapsulates an implementation-defined operation `call_target_name` that\n    takes `inputs` and `called_computations` and produces `results`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#custom_call\n\n    Example:\n    ```mlir\n    %results = \"mhlo.custom_call\"(%input0) {\n      call_target_name = \"foo\",\n      has_side_effect = false,\n      backend_config = \"bar\",\n      api_version = 1 : i32,\n      called_computations = [@foo]\n    } : (tensor<f32>) -> tensor<f32>\n\n    A custom call invokes code external to XLA. The `inputs` are passed to the\n    external code, and the external code is expected to produce a result of the\n    given type. The exact mechanism is backend-specific. For example, in the CPU\n    backend, a call instruction is emitted which targets a symbol with the name\n    `call_target_name`.\n\n    If XLA runtime is enabled for a backend, then custom calls use the runtime\n    custom call calling convention to call into the external functions. This\n    calling convention defines an ABI for encoding arguments, attributes and\n    results.\n\n    Depending on the API version there are two ways to pass extra bits of static\n    information to the external function:\n\n    1. For `API_VERSION_TYPED_FFI` custom calls `backend_config` must be a\n       dictionary attribute, that will be encoded according to the custom call\n       calling convention and passed to the external function as the attributes\n       argument. External code is expected to use declarative bindings (see\n       `xla/runtime/custom_call.h`) to decode them at run time. These custom\n       calls are only supported if XLA uses XLA runtime.\n\n    2. For previous API versions it is the user responsibility to encode extra\n       bits of static information as a string `backend_config` attribute, and\n       decode it at run time.\n    ```",
+    "name": "mhlo.cstr_reshapable",
+    "summary": "Compute input for reshape with any dynamic dim resolved",
+    "description": "This operation creates a witness on the constraint that a given shape would\n    be a valid reshape for the given number of elements.\n\n    ```\n    %0 = mhlo.cstr_reshapable 12, [2, -1] -> success\n    %1 = mhlo.cstr_reshapable 13, [2, -1] -> failure\n    ```",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" }
+      { "name": "num_elements", "type": "Index" },
+      { "name": "dynamic_shape", "type": "DTensorOf" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Shape_WitnessType" }
+    ],
+    "assemblyFormat": "$num_elements `,` $dynamic_shape attr-dict `:` type($num_elements) `,` type($dynamic_shape)"
+  },
+  {
+    "name": "mhlo.custom_call",
+    "summary": "CustomCall operator",
+    "description": "A custom call invokes code external to XLA. The `args` are passed to the\n    external code, and the external code is expected to produce a result of the\n    given type. The exact mechanism is backend-specific. For example, in the CPU\n    backend, a call instruction is emitted which targets a symbol with the name\n    `call_target_name`.\n\n    `call_target_name` and `backend_config` can be arbitrary strings, but\n    `call_target_name` should be short as it may be used in labels.\n    `backend_config` can encode arbitrarily large amounts of information.\n\n    `has_side_effect` must be true if the custom call has side-effects.\n    `api_version` specifies the version of the API used by the custom call\n    function.\n\n    A custom call may apply functions within the scope of the parent module.\n    They can be referenced using `called_computations` attribute.\n\n    A custom call can also have layout constraints on operands and results which\n    can be specified as optional `operand_layouts` and `result_layouts`\n    attributes. The layout attribute is an array of rank-1 index tensors and the\n    i-th layout attribute specifies the layout for i-th operand/result.\n\n    The `operand_layouts` & `result_layouts` attributes can be specified under\n    the following constraints:\n    1) Either both `operand_layouts` and `result_layouts` are specified or none.\n    2) None of the operands are of tuple type.\n    3) None of the results are of tuple type except the common case of single\n       tuple result packing non-tuple values is allowed. In this case the i-th\n       `result_layouts` attribute specifies the layout of i-th element in the\n       result tuple.\n\n    See https://www.tensorflow.org/xla/operation_semantics#customcall.",
+    "inputs": [
+      { "name": "args", "type": "Variadic" }
     ],
     "attributes": [
       { "name": "call_target_name", "type": "StrAttr" },
-      { "name": "has_side_effect", "type": "DefaultValuedOptionalAttr" },
-      { "name": "backend_config", "type": "OptionalAttr" },
-      { "name": "api_version", "type": "DefaultValuedOptionalAttr" },
-      { "name": "called_computations", "type": "DefaultValuedOptionalAttr" },
-      { "name": "custom_call_schedule", "type": "DefaultValuedOptionalAttr" },
+      { "name": "has_side_effect", "type": "DefaultValuedAttr" },
+      { "name": "backend_config", "type": "DefaultValuedStrAttr" },
+      { "name": "api_version", "type": "DefaultValuedAttr" },
+      { "name": "called_computations", "type": "DefaultValuedAttr" },
       { "name": "operand_layouts", "type": "OptionalAttr" },
-      { "name": "result_layouts", "type": "OptionalAttr" },
-      { "name": "output_operand_aliases", "type": "DefaultValuedOptionalAttr" }
+      { "name": "result_layouts", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "mhlo.dequantize",
+    "summary": "Dequantize operator",
+    "description": "Dequantize the quantized input of packed uint32 to bfloat16. Only uint8 or\n    uint16 is supported for the original unpacked input.\n\n    Returns a tensor of shape [d0,..., dn * unpack_size] if unpacked input shape\n    is [d0, ..., dn], where unpack_size = sizeof(unit32) / sizeof(T), where T is\n    the unpacked input type. If transpose_output is true, will return a tensor\n    of shape [dn * unpack_size, dn-1, ..., d1, d0]. transpose_output is faster\n    when input's rank higher than 1. The input needs to be transposed to use\n    transpose_output feature.",
+    "inputs": [
+      { "name": "input", "type": "TensorOf" }
     ],
-    "assemblyFormat": "custom<CustomCallTarget>($call_target_name) `(` $inputs `)`\n      attr-dict `:` functional-type(operands, results)"
+    "outputs": [
+      { "name": "output", "type": "TensorOf" }
+    ],
+    "attributes": [
+      { "name": "min_range", "type": "F32Attr" },
+      { "name": "max_range", "type": "F32Attr" },
+      { "name": "mode", "type": "HLO_DequantizeModeAttr" },
+      { "name": "transpose_output", "type": "BoolAttr" },
+      { "name": "is_16bits", "type": "DefaultValuedAttr" }
+    ]
   },
   {
     "name": "mhlo.divide",
-    "summary": "Div operation",
-    "description": "Performs element-wise division of dividend `lhs` and divisor `rhs` tensors\n    and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#divide\n\n    Example:\n    ```mlir\n    %result = mhlo.divide %lhs, %rhs : tensor<4xf32>\n    ```",
+    "summary": "Division operator",
+    "description": "Returns `lhs / rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.domain",
@@ -4064,121 +4022,100 @@
   },
   {
     "name": "mhlo.dot",
-    "summary": "Dot operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/3.\n\n    Informally, this operation does the same thing as XLA's Dot:\n    https://www.tensorflow.org/xla/operation_semantics#dot\n\n    Example:\n    ```mlir\n    %0 = mhlo.dot %arg0, %arg1 : (tensor<1x2xi32>, tensor<2x1xi32>) -> tensor<1x1xi32>\n    ```",
+    "summary": "Dot operator",
+    "description": "Performs dot products between vectors, vector/matrix and matrix/matrix\n    multiplication.\n\n    See https://www.tensorflow.org/xla/operation_semantics#dot.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" }
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "precision_config", "type": "OptionalAttr" }
+      { "name": "precision_config", "type": "HLO_PrecisionConfigAttr" }
     ]
   },
   {
     "name": "mhlo.dot_general",
-    "summary": "DotGeneral operation",
-    "description": "Computes dot products between slices of `lhs` and slices of `rhs` and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dot_general\n\n    Example:\n    ```mlir\n    %result = \"mhlo.dot_general\"(%lhs, %rhs) {\n      dot_dimension_numbers = #mhlo.dot<\n        lhs_batching_dimensions = [0],\n        rhs_batching_dimensions = [0],\n        lhs_contracting_dimensions = [2],\n        rhs_contracting_dimensions = [1]\n      >,\n      precision_config = [#stablehlo<precision DEFAULT>, #stablehlo<precision DEFAULT>]\n    } : (tensor<2x2x2xi32>, tensor<2x2x2xi32>) -> tensor<2x2x2xi32>\n    ```",
+    "summary": "General Dot operator",
+    "description": "Performs general dot products between vectors, vector/matrix and\n    matrix/matrix multiplication.\n\n    See https://www.tensorflow.org/xla/operation_semantics#dotgeneral.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" },
-      { "name": "dot_dimension_numbers", "type": "MHLO_DotDimensionNumbers" }
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" },
+      { "name": "dot_dimension_numbers", "type": "DotDimensionNumbers" }
     ],
     "attributes": [
-      { "name": "precision_config", "type": "OptionalAttr" },
-      { "name": "algorithm", "type": "OptionalAttr" }
+      { "name": "precision_config", "type": "HLO_PrecisionConfigAttr" }
     ]
   },
   {
     "name": "mhlo.dynamic_broadcast_in_dim",
-    "summary": "DynamicBroadcastInDim operation",
-    "description": "This operation is functionally identical to\n    [broadcast_in_dim](https://github.com/openxla/stablehlo/blob/main/docs/spec.md#broadcast_in_dim)\n    op, but the result shape is specified dynamically via `output_dimensions`.\n\n    It also accepts optional attributes to express static knowledge about the\n    expanding behavior of dimensions. If not specified, all dimensions are\n    assumed to be possibly expanding. The sets of dimensions that are known to\n    be expanding and the set of dimensions that are known to be non-expanding\n    must be disjoint and they must be a subset of the operand's dimensions.\n\n    See: https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dynamic_broadcast_in_dim\n\n    Example:\n    ```mlir\n    %operand = mhlo.constant dense<[[1, 2, 3]]> : tensor<1x3xi64>\n    %output_dimensions = mhlo.constant dense<[2, 3, 2]> : tensor<3xi64>\n    %result = \"mhlo.dynamic_broadcast_in_dim\"(%operand, %output_dimensions) {\n      broadcast_dimensions = array<i64: 2, 1>,\n      known_expanding_dimensions = array<i64: 0>,\n      known_nonexpanding_dimensions = array<i64: 1>\n    } : (tensor<1x3xi64>, tensor<3xi64>) -> tensor<2x3x2xi64>\n    ```",
+    "summary": "Broadcast a tensor into the given dynamic shape by adding dimensions.",
+    "description": "This is a generalization of the BroadcastInDimOp which accepts its output\n    dimensions as an argument. It should eventually supercede the statically\n    shaped original, but is being phased as a separate op in order to support\n    compatibility with lowerings and translations that precede dynamic\n    shapes.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "output_dimensions", "type": "MHLO_DimensionTensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "output_dimensions", "type": "HLO_DimensionTensor" }
     ],
     "attributes": [
-      { "name": "broadcast_dimensions", "type": "MHLO_BroadcastDimAttr" },
-      { "name": "known_expanding_dimensions", "type": "OptionalAttr" },
-      { "name": "known_nonexpanding_dimensions", "type": "OptionalAttr" }
+      { "name": "broadcast_dimensions", "type": "BroadcastDimAttr" }
     ]
   },
   {
     "name": "mhlo.dynamic_conv",
-    "summary": "DynamicConv operation",
-    "description": "This operation is a work in progress, so it is not yet included in\n    the specification: https://github.com/openxla/stablehlo/issues/8.\n\n    Informally, this operation does the same thing as ConvolutionOp except\n    that `padding` is specified dynamically via `d_padding`:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#convolution\n\n    Example:\n    ```mlir\n    %result = \"mhlo.dynamic_conv\"(%lhs, %rhs, %d_padding) {\n      window_strides = dense<4> : tensor<2xi64>,\n      lhs_dilation = dense<2> : tensor<2xi64>,\n      rhs_dilation = dense<1> : tensor<2xi64>,\n      window_reversal = dense<false> : tensor<2xi1>,\n      dimension_numbers = #mhlo.conv<[b, 0, 1, f]x[0, 1, i, o]->[b, 0, 1, f]>,\n      feature_group_count = 1 : i64,\n      batch_group_count = 1 : i64,\n      precision_config = [#stablehlo<precision DEFAULT>, #stablehlo<precision DEFAULT>]\n    } : (tensor<1x4x4x1xi32>, tensor<3x3x1x1xi32>, tensor<2x2xi64>) -> tensor<1x2x2x1xi32>\n    ```",
-    "inputs": [
-      { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" },
-      { "name": "d_padding", "type": "MHLO_Tensor" },
-      { "name": "dimension_numbers", "type": "MHLO_ConvDimensionNumbers" }
-    ],
-    "attributes": [
-      { "name": "window_strides", "type": "OptionalAttr" },
-      { "name": "padding", "type": "OptionalAttr" },
-      { "name": "lhs_dilation", "type": "OptionalAttr" },
-      { "name": "rhs_dilation", "type": "OptionalAttr" },
-      { "name": "window_reversal", "type": "OptionalAttr" },
-      { "name": "feature_group_count", "type": "ConfinedAttr" },
-      { "name": "batch_group_count", "type": "ConfinedAttr" },
-      { "name": "precision_config", "type": "OptionalAttr" }
-    ]
+    "summary": "Dynamic Convolution operator",
+    "description": "The dynamic shape version of ConvOp. Computes a convolution with dynamic padding."
   },
   {
     "name": "mhlo.dynamic_gather",
-    "summary": "DynamicGather operation",
-    "description": "This operation is a work in progress, so it is not yet included in\n    the specification: https://github.com/openxla/stablehlo/issues/8.\n\n    Informally, this operation does the same thing as GatherOp except\n    that `slice_sizes` are specified dynamically:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#gather\n\n    Example:\n    ```mlir\n    %result = \"mhlo.dynamic_gather\"(%operand, %start_indices, %slice_sizes) {\n      dimension_numbers = #mhlo.gather<\n        offset_dims = [2, 3],\n        collapsed_slice_dims = [0],\n        start_index_map = [0, 2],\n        index_vector_dim = 2>,\n      indices_are_sorted = false\n    } : (tensor<3x4x2xi32>, tensor<2x3x2xi64>, tensor<3xi64>) -> tensor<2x3x2x2xi32>\n    ```",
+    "summary": "Dynamic Gather operator",
+    "description": "The dynamic shape version of GatherOp. Stitches together several slices of\n    an input array.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "start_indices", "type": "MHLO_IntTensor" },
-      { "name": "slice_sizes", "type": "MHLO_Static1DIntTensor" },
-      { "name": "dimension_numbers", "type": "MHLO_GatherDimensionNumbers" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "start_indices", "type": "HLO_IntTensor" },
+      { "name": "slice_sizes", "type": "HLO_IntTensor" },
+      { "name": "dimension_numbers", "type": "GatherDimensionNumbers" }
     ],
     "attributes": [
-      { "name": "indices_are_sorted", "type": "DefaultValuedOptionalAttr" }
+      { "name": "indices_are_sorted", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.dynamic_iota",
-    "summary": "DynamicIota operation",
-    "description": "This operation is functionally identical to\n    [iota](https://github.com/openxla/stablehlo/blob/main/docs/spec.md#iota)\n    op, but the result shape is specified dynamically via `output_shape`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dynamic_iota\n\n    Example:\n    ```mlir\n    %0 = mhlo.dynamic_iota %arg0, dim = 0 : (tensor<1xindex>) -> tensor<4xi32>\n    ```",
+    "summary": "Create linear increasing values from 0 to length -1.",
+    "description": "Produces an HLO Tensor of the specified shape, with an incremental set of\n    values along the specified dimension starting at 0.\n\n    Requires:\n    - The output length of the tensor result.",
     "inputs": [
-      { "name": "output_shape", "type": "MHLO_DimensionTensor" }
+      { "name": "output_shape", "type": "HLO_DimensionTensor" }
     ],
     "outputs": [
-      { "name": "result", "type": "MHLO_Tensor" }
+      { "name": "result", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "iota_dimension", "type": "ConfinedAttr" }
+      { "name": "iota_dimension", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.dynamic_pad",
-    "summary": "DynamicPad operation",
+    "summary": "Dynamic Pad operator",
     "description": "Dynamically Pads the `operand`, with amount of padding added at\n    low-end/high-end/interior is passed through input tensors.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "padding_value", "type": "MHLO_Tensor" },
-      { "name": "edge_padding_low", "type": "MHLO_DimensionTensor" },
-      { "name": "edge_padding_high", "type": "MHLO_DimensionTensor" },
-      { "name": "interior_padding", "type": "MHLO_DimensionTensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "padding_value", "type": "HLO_Tensor" },
+      { "name": "edge_padding_low", "type": "HLO_DimensionTensor" },
+      { "name": "edge_padding_high", "type": "HLO_DimensionTensor" },
+      { "name": "interior_padding", "type": "HLO_DimensionTensor" }
     ],
     "outputs": [
-      { "name": "result", "type": "MHLO_Tensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+      { "name": "result", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.dynamic_reshape",
-    "summary": "DynamicReshape operation",
-    "description": "This operation is functionally identical to\n    [reshape](https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reshape)\n    op, but the result shape is specified dynamically via `output_shape`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dynamic_reshape\n\n    Example:\n    ```mlir\n    %output_shape = mhlo.constant dense<[3, 2]> : tensor<2xi64>\n    %result = mhlo.dynamic_reshape %operand, %output_shape : (tensor<2x3xi64>, tensor<2xi64>) -> tensor<3x2xi64>\n    ```",
+    "summary": "Reshape a tensor to a given, possibly dynamic, shape.",
+    "description": "Reshapes `operand` to `output_shape`.\n\n    Requires:\n    - The length of `output_shape` is equal to the rank of `result`.\n    - The number of elements in `operand` (that is, the product of extents of\n      its shape) is equal to the number of elements in `output_shape` (that is,\n      the product of values in `output_shape`).",
     "inputs": [
-      { "name": "operand", "type": "MHLO_AnyTensor" },
-      { "name": "output_shape", "type": "MHLO_DimensionTensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "output_shape", "type": "HLO_DimensionTensor" }
     ],
     "outputs": [
-      { "name": "result", "type": "MHLO_AnyTensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+      { "name": "result", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.dynamic_slice",
@@ -4210,12 +4147,38 @@
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
   },
   {
-    "name": "mhlo.einsum",
-    "summary": "Einsum operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/3.\n\n    Informally, this operation does the same thing as TF's einsum:\n    https://www.tensorflow.org/api_docs/python/tf/einsum\n\n    Example:\n    ```mlir\n    %result = \"mhlo.einsum\"(%lhs, %rhs) {\n      einsum_config = \"ab,bc->ac\"\n    } : (tensor<4x16xf32>, tensor<16x4xf32>) -> tensor<4x4xf32>\n    ```",
+    "name": "mhlo.dynamic-slice",
+    "summary": "Dynamic Slice operator",
+    "description": "Extracts a sub-array from the input array at dynamic start_indices.\n\n    See https://www.tensorflow.org/xla/operation_semantics#dynamicslice.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "start_indices", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "HLO_Tensor" }
+    ],
+    "attributes": [
+      { "name": "slice_sizes", "type": "I64ElementsAttr" }
+    ]
+  },
+  {
+    "name": "mhlo.dynamic-update-slice",
+    "summary": "Dynamic Update Slice operator",
+    "description": "DynamicUpdateSlice generates a result which is the value of the input array\n    operand, with a slice update overwritten at start_indices.\n\n    See https://www.tensorflow.org/xla/operation_semantics#dynamicupdateslice.",
+    "inputs": [
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "update", "type": "HLO_Tensor" },
+      { "name": "start_indices", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "HLO_Tensor" }
+    ]
+  },
+  {
+    "name": "mhlo.einsum",
+    "inputs": [
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "einsum_config", "type": "StrAttr" }
@@ -4235,136 +4198,109 @@
   },
   {
     "name": "mhlo.exponential",
-    "summary": "Exp operation",
-    "description": "Performs element-wise exponential operation on `operand` tensor and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#exponential\n\n    Example:\n    ```mlir\n    %result = mhlo.exponential %operand : tensor<2x2xf64>\n    ```",
+    "summary": "Exponential operator",
+    "description": "Returns `e^(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.exponential_minus_one",
-    "summary": "Expm1 operation",
-    "description": "Performs element-wise exponential minus one operation on `operand` tensor\n    and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#exponential_minus_one\n\n    Example:\n    ```mlir\n    %result = mhlo.exponential_minus_one %operand : tensor<2xf32>\n    ```",
+    "summary": "Exponential minus one operator",
+    "description": "Returns `e^(operand) - 1` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.fft",
-    "summary": "Fft operation",
-    "description": "Performs the forward and inverse Fourier transforms for real and complex\n    inputs/outputs.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#fft\n\n    Example:\n    ```mlir\n    %result = mhlo.fft %operand, type = FFT, length = [4] : (tensor<4xcomplex<f32>>) -> tensor<4xcomplex<f32>>\n    ```",
+    "summary": "Fast fourier transform operator",
+    "description": "Returns the fast-fourier-transform of the input array.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#fft.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "fft_type", "type": "MHLO_FftTypeAttr" },
+      { "name": "fft_type", "type": "HLO_FftTypeAttr" },
       { "name": "fft_length", "type": "I64ElementsAttr" }
     ]
   },
   {
     "name": "mhlo.floor",
-    "summary": "Floor operation",
-    "description": "Performs element-wise floor of `operand` tensor and produces a `result`\n    tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#floor\n\n    Example:\n    ```mlir\n    %result = mhlo.floor %operand : tensor<2xf32>\n    ```",
+    "summary": "Floor operator",
+    "description": "Returns `Floor(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.fusion",
-    "summary": "Fusion operation",
-    "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation consists of a group of basic ops (represented as\n    a region attached to it). It serves as a hint to the backend that it is\n    beneficial to emit the contained ops into a single loop nest or kernel.",
+    "summary": "Fusion operator",
+    "description": "Models the fusion instruction.\n\n    A fusion op is consists of a group of basic ops (represented as a region\n    attached to it). It serves as a hint to the backend that it is beneficial\n    to emit the contained ops into a single loop nest or kernel.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" }
+      { "name": "operands", "type": "Variadic" }
     ],
     "outputs": [
       { "name": "results", "type": "Variadic" }
     ],
     "attributes": [
-      { "name": "fusion_kind", "type": "OptionalAttr" },
-      { "name": "output_operand_aliases", "type": "DefaultValuedOptionalAttr" }
+      { "name": "fusion_kind", "type": "OptionalAttr" }
     ]
   },
   {
     "name": "mhlo.gather",
-    "summary": "Gather operation",
-    "description": "Gathers slices from `operand` tensor from offsets specified in\n    `start_indices` and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#gather\n\n    Example:\n    ```mlir\n    %result = \"mhlo.gather\"(%operand, %start_indices) {\n      dimension_numbers = #stablehlo.gather<\n        offset_dims = [3, 4],\n        collapsed_slice_dims = [1],\n        operand_batching_dims = [0],\n        start_indices_batching_dims = [1],\n        start_index_map = [2, 1],\n        index_vector_dim = 3>,\n      slice_sizes = dense<[0, 2, 2]> : tensor<3xi64>,\n      indices_are_sorted = false\n    } : (tensor<2x3x4x2xi64>, tensor<2x2x3x2xi64>) -> tensor<2x2x3x2x2xi64>\n    ```",
+    "summary": "Gather operator",
+    "description": "Stitches together several slices of `operand` from offsets specified in\n    `start_indices` (each slice at a potentially different runtime offset).\n\n    See https://www.tensorflow.org/xla/operation_semantics#gather.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "start_indices", "type": "MHLO_IntTensor" },
-      { "name": "dimension_numbers", "type": "MHLO_GatherDimensionNumbers" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "start_indices", "type": "HLO_IntTensor" },
+      { "name": "dimension_numbers", "type": "GatherDimensionNumbers" }
     ],
     "attributes": [
       { "name": "slice_sizes", "type": "I64ElementsAttr" },
-      { "name": "indices_are_sorted", "type": "DefaultValuedOptionalAttr" }
+      { "name": "indices_are_sorted", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.get_dimension_size",
-    "summary": "GetDimensionSize operation",
-    "description": "Produces the size of the given `dimension` of the `operand`.\n\n    See\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#get_dimension_size\n\n    Example:\n    ```mlir\n    %result = mhlo.get_dimension_size %operand, dim = 1 : (tensor<2x3xf32>) -> tensor<i32>\n    ```",
+    "summary": "GetDimensionSize operator",
+    "description": "Returns the size of the given dimension of the operand.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#getdimensionsize.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "dimension", "type": "ConfinedAttr" }
+      { "name": "dimension", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.get_tuple_element",
-    "summary": "GetTupleElement operation",
-    "description": "Extracts element at `index` position of the `operand` tuple and produces a\n    `result`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#get_tuple_element\n\n    Example:\n    ```mlir\n    %result = mhlo.get_tuple_element %operand[0] : (tuple<tensor<2xf32>, tuple<tensor<i32>>>) -> tensor<2xf32>\n    ```",
-    "inputs": [
-      { "name": "operand", "type": "MHLO_Tuple" }
-    ],
+    "summary": "GetTupleElement operator",
+    "description": "Returns a member of a tuple specified by an index.\n\n    See https://www.tensorflow.org/xla/operation_semantics#gettupleelement.",
     "attributes": [
-      { "name": "index", "type": "ConfinedAttr" }
-    ],
-    "assemblyFormat": "$operand `[` $index `]` attr-dict `:` functional-type(operands, results)"
+      { "name": "index", "type": "I32Attr" }
+    ]
   },
   {
     "name": "mhlo.if",
-    "summary": "If operation",
-    "description": "Produces the output from executing exactly one branch from `true_branch` or\n    `false_branch` depending on the value of `pred`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#if\n\n    Example:\n    %result = \"mhlo.if\"(%pred) ({\n      \"mhlo.return\"(%result_true_branch) : (tensor<i32>) -> ()\n    }, {\n      \"mhlo.return\"(%result_false_branch) : (tensor<i32>) -> ()\n    }) : (tensor<i1>) -> tensor<i32>",
+    "summary": "If operator",
+    "description": "Returns the result of executing either a true or false function depending on\n    the result of a condition function.\n\n    See https://www.tensorflow.org/xla/operation_semantics#conditional.",
     "inputs": [
-      { "name": "pred", "type": "MHLO_PredTensor" }
+      { "name": "pred", "type": "HLO_PredTensor" }
     ]
   },
   {
     "name": "mhlo.imag",
-    "summary": "Imag operation",
-    "description": "Extracts the imaginary part, element-wise, from the `operand` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#imag\n\n    Example:\n    ```mlir\n    %result = mhlo.imag %operand : (tensor<2xcomplex<f32>>) -> tensor<2xf32>\n    ```",
+    "summary": "Imag operator",
+    "description": "Returns `Imag(operand)` element-wise.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.infeed",
-    "summary": "Infeed operation",
-    "description": "Reads data from the infeed and produces `results`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#infeed\n\n    Example:\n    ```mlir\n    %results:2 = \"mhlo.infeed\"(%token) {\n      infeed_config = \"\"\n    } : (!mhlo.token) -> (tensor<3x3x3xi32>, !mhlo.token)\n    ```",
+    "summary": "Infeed operator",
+    "description": "Reads a single data item from the implicit Infeed streaming interface of\n    the device, interpreting the data as the given shape, and returns a XlaOp\n    of the data. Multiple Infeed operations are allowed in a computation, but\n    there must be a total order among the Infeed operations.\n\n    Attributes:\n      layout:  Array attribute. Same shape as the output of the infeed, except\n               that every tensor is replaced by a minor_to_major array for the\n               tensor's layout.\n\n    See https://www.tensorflow.org/xla/operation_semantics#infeed.",
     "inputs": [
-      { "name": "token", "type": "MHLO_Token" }
+      { "name": "token", "type": "HLO_Token" }
     ],
     "attributes": [
       { "name": "infeed_config", "type": "DefaultValuedStrAttr" },
@@ -4373,78 +4309,56 @@
   },
   {
     "name": "mhlo.iota",
-    "summary": "Iota operation",
-    "description": "Fills an `output` tensor with values in increasing order starting from zero\n    along the `iota_dimension` dimension.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#iota\n\n    Example:\n    ```mlir\n    %output = mhlo.iota dim = 0 : tensor<4x5xi32>\n    ```",
+    "summary": "Iota operator",
+    "description": "Creates a rank 1 array of values starting at zero and incrementing by one.",
     "outputs": [
-      { "name": "output", "type": "MHLO_StaticShapeIntFpOrComplexTensor" }
+      { "name": "output", "type": "HLO_IntFpOrComplexTensor" }
     ],
     "attributes": [
-      { "name": "iota_dimension", "type": "ConfinedAttr" }
+      { "name": "iota_dimension", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.is_finite",
-    "summary": "IsFinite operation",
-    "description": "Performs element-wise check whether the value in `x` is finite (i.e. is\n    neither +Inf, -Inf, nor NaN) and produces a `y` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#is_finite\n\n    Example:\n    ```mlir\n    %y = mhlo.is_finite %x : (tensor<7xf32>) -> tensor<7xi1>\n    ```",
+    "summary": "IsFinite operator",
+    "description": "Tests whether each element of operand is finite, i.e., is not positive or\n    negative infinity, and is not NaN. Returns a tensor of 1-bit integers with\n    the same shape as the input, where each element is nonzero (i.e. true) if\n    and only if the corresponding input element is finite.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "x", "type": "MHLO_FpTensor" }
+      { "name": "x", "type": "HLO_FpTensor" }
     ],
     "outputs": [
-      { "name": "y", "type": "MHLO_PredTensor" }
-    ],
-    "assemblyFormat": "$x attr-dict `:` functional-type(operands, results)"
+      { "name": "y", "type": "HLO_PredTensor" }
+    ]
   },
   {
     "name": "mhlo.log",
-    "summary": "Log operation",
-    "description": "Performs element-wise logarithm operation on `operand` tensor and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#log\n\n    Example:\n    ```mlir\n    %result = mhlo.log %operand : tensor<2x2xf64>\n    ```",
+    "summary": "Logarithm operator",
+    "description": "Returns `log(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.log_plus_one",
-    "summary": "Log1p operation",
-    "description": "Performs element-wise logarithm plus one operation on `operand` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#log_plus_one\n\n    Example:\n    ```mlir\n    %result = mhlo.log_plus_one %operand : tensor<6xf32>\n    ```",
+    "summary": "Log1p operator",
+    "description": "Returns `log(operand+1)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.logistic",
-    "summary": "Logistic operation",
-    "description": "Performs element-wise logistic operation on `operand` tensor and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#logistic\n\n    Example:\n    ```mlir\n    %result = mhlo.logistic %operand : tensor<2x2xf32>\n    ```",
+    "summary": "Logistic operator",
+    "description": "Returns `logistic(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.map",
-    "summary": "Map operation",
-    "description": "Applies a map function `computation` to `inputs` along the `dimensions` and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#map\n\n    Example:\n    ```mlir\n    %result = \"mhlo.map\"(%input0, %input1) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = mhlo.multiply %arg0, %arg1 : tensor<i32>\n        mhlo.return %0 : tensor<i32>\n    }) {\n      dimensions = dense<[0, 1]> : tensor<2xi64>\n    } : (tensor<2x2xi32>, tensor<2x2xi32>) -> tensor<2x2xi32>\n    ```",
+    "summary": "Map operator",
+    "description": "Applies a scalar function over the given operands arrays, producing an array\n  of the same dimensions where each element is the result of the mapped function\n  applied to the corresponding elements in the input arrays.\n\n  The mapped function is an arbitrary computation with the restriction that it\n  has N inputs of scalar type T and a single output with type S. The output has\n  the same dimensions as the operands except that the element type T is replaced\n  with S.\n\n  See https://www.tensorflow.org/xla/operation_semantics#map.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" }
+      { "name": "operands", "type": "Variadic" }
     ],
     "attributes": [
       { "name": "dimensions", "type": "I64ElementsAttr" }
@@ -4452,29 +4366,21 @@
   },
   {
     "name": "mhlo.maximum",
-    "summary": "Max operation",
-    "description": "Performs element-wise max operation on tensors `lhs` and `rhs` and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#maximum\n\n    Example:\n    ```mlir\n    %result = mhlo.maximum %lhs, %rhs : tensor<4xf32>\n    ```",
+    "summary": "Maximum operator",
+    "description": "Returns `max(lhs, rhs)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.minimum",
-    "summary": "Min operation",
-    "description": "Performs element-wise min operation on tensors `lhs` and `rhs` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#minimum\n\n    Example:\n    ```mlir\n    %result = mhlo.minimum %lhs, %rhs : tensor<4xf32>\n    ```",
+    "summary": "Minimum operator",
+    "description": "Returns `min(lhs, rhs)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.minimum_broadcast_shapes",
@@ -4490,73 +4396,53 @@
   },
   {
     "name": "mhlo.multiply",
-    "summary": "Mul operation",
-    "description": "Performs element-wise product of two tensors `lhs` and `rhs` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#multiply\n\n    Example:\n    ```mlir\n    %result = mhlo.multiply %lhs, %rhs : tensor<2xi32>\n    ```",
+    "summary": "Multiplication operator",
+    "description": "Returns `lhs * rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.negate",
-    "summary": "Neg operation",
-    "description": "Performs element-wise negation of `operand` tensor and produces a `result`\n    tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#negate\n\n    Example:\n    ```mlir\n    %result = mhlo.negate %operand : tensor<2x3xi32>\n    ```",
+    "summary": "Negation operator",
+    "description": "Returns `-operand` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.not",
-    "summary": "Not operation",
-    "description": "Performs element-wise NOT of tensor `operand` of type integer and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#not\n\n    Example:\n    ```mlir\n    %result = mhlo.not %operand : tensor<5x3x1xi1>\n    ```",
+    "summary": "Not operator",
+    "description": "Returns `!operand` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.optimization_barrier",
-    "summary": "OptimizationBarrier operation",
-    "description": "Ensures that the operations that produce the `operand` are executed before any\n    operations that depend on the `result` and prevents compiler transformations\n    from moving operations across the barrier. Other than that, the operation is\n    an identity, i.e. `result` = `operand`.\n\n    See\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#optimization_barrier\n\n    Example:\n    ```mlir\n    %result0, %result1 = mhlo.optimization_barrier %operand0, %operand1 : tensor<f32>, tensor<f32>\n    ```",
+    "summary": "The `hlo.optimization_barrier` op blocks optimizations.",
+    "description": "Blocks any optimization pass from moving computations across the barrier.\n\n    Ensures that all inputs are evaluated before any operators that depend on the barrier's outputs.\n    See\n    https://www.tensorflow.org/xla/operation_semantics#optimizationbarrier",
     "inputs": [
-      { "name": "operand", "type": "Variadic" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "Variadic" }
-    ],
-    "assemblyFormat": "attr-dict ($operand^ `:` custom<PairwiseOpType>(type($operand), type($result))):(`(` `)`)?"
+      { "name": "arg", "type": "Variadic" }
+    ]
   },
   {
     "name": "mhlo.or",
-    "summary": "Or operation",
-    "description": "Performs element-wise OR of two tensors `lhs` and `rhs` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#or\n\n    Example:\n    ```mlir\n    %result = mhlo.or %lhs, %rhs : tensor<2xi1>\n    ```",
+    "summary": "Logical or",
+    "description": "Returns `logical_or(lhs, rhs)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_PredOrIntTensor" },
-      { "name": "rhs", "type": "MHLO_PredOrIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_PredOrIntTensor" },
+      { "name": "rhs", "type": "HLO_PredOrIntTensor" }
+    ]
   },
   {
     "name": "mhlo.outfeed",
-    "summary": "Outfeed operation",
-    "description": "Writes `inputs` to the outfeed and produces a `result` token.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#outfeed\n\n    Example:\n    ```mlir\n    %result = \"mhlo.outfeed\"(%input0, %token) {\n      outfeed_config = \"\"\n    } : (tensor<3x3x3xi32>, !mhlo.token) -> !mhlo.token\n    ```",
+    "summary": "Outfeed operator",
+    "description": "Generates outgoing data transfers for the given data. It takes data and a\n    token type operand and produces a token type value. Tokens are used for\n    ordering side-effecting operations.\n\n    See https://www.tensorflow.org/xla/operation_semantics#outfeed.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" },
-      { "name": "token", "type": "MHLO_Token" }
+      { "name": "operand", "type": "HLO_TensorOrTuple" },
+      { "name": "token", "type": "HLO_Token" }
     ],
     "attributes": [
       { "name": "outfeed_config", "type": "DefaultValuedStrAttr" }
@@ -4564,11 +4450,11 @@
   },
   {
     "name": "mhlo.pad",
-    "summary": "Pad operation",
-    "description": "Expands `operand` by padding around the tensor as well as between the\n    elements of the tensor with the given `padding_value`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#pad\n\n    Example:\n    ```mlir\n    %0 = mhlo.pad %arg0, %arg1, low = [0, 1], high = [2, 1], interior = [1, 2]\n      : (tensor<2x3xi32>, tensor<i32>) -> tensor<5x9xi32>\n    ```",
+    "summary": "Pad operator",
+    "description": "Pads the `operand` according to TBD.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "padding_value", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "padding_value", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "edge_padding_low", "type": "I64ElementsAttr" },
@@ -4584,28 +4470,31 @@
   },
   {
     "name": "mhlo.popcnt",
-    "summary": "PopulationCount operation",
-    "description": "Performs element-wise count of the number of bits set in the `operand`\n    tensor and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#popcnt\n\n    Example:\n    ```mlir\n    %result = mhlo.popcnt %operand : tensor<4xi8>\n    ```",
+    "summary": "PopulationCount operator",
+    "description": "Returns the number of bits set in each operand element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.power",
-    "summary": "Pow operation",
-    "description": "Performs element-wise exponentiation of `lhs` tensor by `rhs` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#power\n\n    Example:\n    ```mlir\n    %result = mhlo.power %lhs, %rhs : tensor<6xf32>\n    ```",
+    "summary": "Power operator",
+    "description": "Returns `lhs ^ rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
+  },
+  {
+    "name": "mhlo.print",
+    "summary": "Print operation",
+    "description": "PrintOp is used to print tensor, which can be used to debug.",
+    "inputs": [
+      { "name": "input", "type": "HLO_Tensor" }
     ],
     "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "output", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.ragged_dot",
@@ -4626,48 +4515,42 @@
   },
   {
     "name": "mhlo.real",
-    "summary": "Real operation",
-    "description": "Extracts the real part, element-wise, from the `operand` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#real\n\n    Example:\n    ```mlir\n    %result = mhlo.real %operand : (tensor<2xcomplex<f32>>) -> tensor<2xf32>\n    ```",
+    "summary": "Real operator",
+    "description": "Returns `Real(operand)` element-wise.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.real_dynamic_slice",
-    "summary": "RealDynamicSlice operation",
-    "description": "This operation is a work in progress, so it is not yet included in\n    the specification: https://github.com/openxla/stablehlo/issues/8.\n\n    Informally, this operation does the same thing as SliceOp except\n    that `start_indices`, `limit_indices` and `strides` are specified dynamically:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#slice\n\n    Example:\n    ```mlir\n    %result = mhlo.real_dynamic_slice %operand,\n                %start_indices, %limit_indices, %strides\n           : (tensor<256x?xf32>, tensor<2xindex>, tensor<2xindex>, tensor<2xindex>) -> tensor<256x?xf32>\n    ```",
+    "summary": "Real Dynamic Slice operator",
+    "description": "The dynamic shape version of SliceOp. Extracts a sub-array from the input\n    array according to start_indices, limit_indices and strides. Expect\n    start_indices/limit_indices/strides to be statically shaped and matching\n    the rank of the input.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "start_indices", "type": "MHLO_DimensionTensor" },
-      { "name": "limit_indices", "type": "MHLO_DimensionTensor" },
-      { "name": "strides", "type": "MHLO_DimensionTensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "start_indices", "type": "HLO_DimensionTensor" },
+      { "name": "limit_indices", "type": "HLO_DimensionTensor" },
+      { "name": "strides", "type": "HLO_DimensionTensor" }
     ],
     "outputs": [
-      { "name": "result", "type": "MHLO_Tensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+      { "name": "result", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.recv",
-    "summary": "Recv operation",
-    "description": "Receives data from a channel with `channel_id` and produces `results`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#recv\n\n    Example:\n    ```mlir\n    %results:2 = \"mhlo.recv\"(%token) {\n      // channel_id = 5 : i64,\n      // channel_type = #stablehlo<channel_type DEVICE_TO_DEVICE>,\n      channel_handle = #mhlo.channel_handle<handle = 5, type = 1>,\n      is_host_transfer = false,\n      source_target_pairs = dense<[[0, 1], [1, 2]]> : tensor<2x2xi64>\n    } : (!mhlo.token) -> (tensor<3x4xi32>, !mhlo.token)\n    ```",
+    "summary": "Recv operator",
+    "description": "Receives data of the given shape from a Send instruction in another\n    computation that shares the same channel handle. Returns a tuple containing\n    value for the received data and a token. Recv operation represents\n    synchronous communication. However, the instruction is internally decomposed\n    into 2 HLO instructions (Recv and RecvDone) to enable asynchronous data\n    transfers.\n\n    See https://www.tensorflow.org/xla/operation_semantics#recv.",
     "inputs": [
-      { "name": "token", "type": "MHLO_Token" },
-      { "name": "channel_handle", "type": "MHLO_ChannelHandle" }
+      { "name": "token", "type": "HLO_Token" },
+      { "name": "channel_handle", "type": "ChannelHandle" }
     ],
     "attributes": [
-      { "name": "is_host_transfer", "type": "DefaultValuedOptionalAttr" },
-      { "name": "source_target_pairs", "type": "OptionalAttr" }
+      { "name": "is_host_transfer", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.reduce",
-    "summary": "Reduce operation",
-    "description": "Applies a reduction function `body` to `inputs` and `init_values` along the\n    `dimensions` and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reduce\n\n    Example:\n    ```mlir\n    %result = \"mhlo.reduce\"(%input, %init_value) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.add\"(%arg0, %arg1) : (tensor<i32>, tensor<i32>) -> tensor<i32>\n        \"mhlo.return\"(%0) : (tensor<i32>) -> ()\n    }) {\n      dimensions = dense<1> : tensor<1xi64>\n    } : (tensor<1x6xi32>, tensor<i32>) -> tensor<1xi32>\n    ```",
+    "summary": "Reduce operator",
+    "description": "Returns the result of executing a reduction function on one or more arrays\n    in parallel.\n\n    See https://www.tensorflow.org/xla/operation_semantics#reduce.",
     "inputs": [
       { "name": "inputs", "type": "Variadic" },
       { "name": "init_values", "type": "Variadic" }
@@ -4678,38 +4561,36 @@
   },
   {
     "name": "mhlo.reduce_precision",
-    "summary": "ReducePrecision operation",
-    "description": "Performs element-wise conversion of `operand` to another floating-point type\n    that uses `exponent_bits` and `mantissa_bits` and back to the original\n    floating-point type and produces an `output` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reduce_precision\n\n    Example:\n    ```mlir\n    %output = mhlo.reduce_precision %operand, format = e5m2 : tensor<6xf32>\n    ```",
+    "summary": "Reduce precision operator",
+    "description": "Models the effect of converting floating - point values to a lower -\n    precision format(such as IEEE - FP16) and back to the original\n    format. The number of exponent and mantissa bits in the lower -\n    precision format can be specified arbitrarily,\n    although all bit sizes may not be supported on all hardware\n    implementations.\n\n    See https://www.tensorflow.org/xla/operation_semantics#reduceprecision.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpTensor" }
+      { "name": "operand", "type": "HLO_FpTensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "MHLO_FpTensor" }
+      { "name": "output", "type": "HLO_FpTensor" }
     ],
     "attributes": [
-      { "name": "exponent_bits", "type": "ConfinedAttr" },
-      { "name": "mantissa_bits", "type": "ConfinedAttr" }
-    ],
-    "assemblyFormat": "$operand `,` `format` `=` custom<ExponentMantissa>($exponent_bits, $mantissa_bits)\n      attr-dict `:` custom<SameOperandsAndResultType>(type($operand), type($output))"
+      { "name": "exponent_bits", "type": "I32Attr" },
+      { "name": "mantissa_bits", "type": "I32Attr" }
+    ]
   },
   {
     "name": "mhlo.reduce_scatter",
-    "summary": "ReduceScatter operation",
-    "description": "Within each process group in the process grid, performs reduction, using\n     `computations`, over the values of the `operand` tensor from each process,\n     splits the reduction result along `scatter_dimension` into parts, and\n     scatters the split parts between the processes to produce the `result`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reduce_scatter\n\n    Example:\n    ```mlir\n    %result = \"mhlo.reduce_scatter\"(%operand) ({\n      ^bb0(%arg0: tensor<f32>, %arg1: tensor<f32>):\n      %0 = mhlo.add %arg0, %arg1 : tensor<f32>\n      mhlo.return %0 : tensor<f32>\n    }) {\n      scatter_dimension = 1 : i64,\n      replica_groups = dense<[[0, 1]]> : tensor<1x2xi64>,\n      // channel_id = 0\n      channel_handle = #mhlo.channel_handle<handle = 0, type = 0>\n      // use_global_device_ids = false\n    } : (tensor<2x4xf32>) -> tensor<2x2xf32>\n    ```",
+    "summary": "ReduceScatter operator",
+    "description": "Performs all_reduce followed by a scatter.\n\n     See https://www.tensorflow.org/xla/operation_semantics#reducescatter",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
-      { "name": "scatter_dimension", "type": "ConfinedAttr" },
+      { "name": "scatter_dimension", "type": "I64Attr" },
       { "name": "replica_groups", "type": "I64ElementsAttr" },
-      { "name": "channel_handle", "type": "OptionalAttr" },
-      { "name": "use_global_device_ids", "type": "UnitAttr" }
+      { "name": "channel_handle", "type": "OptionalAttr" }
     ]
   },
   {
     "name": "mhlo.reduce_window",
-    "summary": "ReduceWindow operation",
-    "description": "Applies a reduction function `body` to windows of `inputs` and `init_values`\n    and produces `results`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reduce_window\n\n    Example:\n    ```mlir\n    %result = \"mhlo.reduce_window\"(%input, %init_value) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = mhlo.add %arg0, %arg1 : tensor<i32>\n        mhlo.return %0 : tensor<i32>\n    }) {\n      window_dimensions = dense<[2, 1]> : tensor<2xi64>,\n      window_strides = dense<[4, 1]> : tensor<2xi64>,\n      base_dilations = dense<[2, 1]> : tensor<2xi64>,\n      window_dilations = dense<[3, 1]> : tensor<2xi64>,\n      padding = dense<[[2, 1], [0, 0]]> : tensor<2x2xi64>\n    } : (tensor<3x2xi32>, tensor<i32>) -> tensor<2x2xi32>\n    ```",
+    "summary": "ReduceWindow operator",
+    "description": "Returns the result of executing a reduction function over all elements in\n    each window of one or more arrays in parallel.\n\n    See https://www.tensorflow.org/xla/operation_semantics#reducewindow.",
     "inputs": [
       { "name": "inputs", "type": "Variadic" },
       { "name": "init_values", "type": "Variadic" }
@@ -4724,46 +4605,39 @@
   },
   {
     "name": "mhlo.remainder",
-    "summary": "Rem operation",
-    "description": "Performs element-wise remainder of dividend `lhs` and divisor `rhs` tensors\n    and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#remainder\n\n    Example:\n    ```mlir\n    %result = mhlo.remainder %lhs, %rhs : tensor<4xi64>\n    ```",
+    "summary": "Remainder operator",
+    "description": "Returns `lhs % rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.replica_id",
-    "summary": "ReplicaId operation",
-    "description": "Produces `replica_id` of the current process.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#replica_id\n\n    Example:\n    ```mlir\n    %result = mhlo.replica_id : tensor<ui32>\n    ```",
-    "assemblyFormat": "attr-dict `:` type(results)"
+    "summary": "ReplicaId operator",
+    "description": "Returns the unique ID (int32 scalar) of the replica.\n\n    The unique ID of each replica is an unsigned integer in the interval [0, N),\n    where N is the number of replicas. Since all the replicas are running the\n    same program, a ReplicaId() call in the program will return a different\n    value on each replica.\n\n    See https://www.tensorflow.org/xla/operation_semantics#replicaid."
   },
   {
     "name": "mhlo.reshape",
-    "summary": "Reshape operation",
-    "description": "Performs reshape of `operand` tensor to a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reshape\n\n    Example:\n    ```mlir\n    %result = mhlo.reshape %operand : (tensor<2xf32>) -> tensor<1x2xf32>\n    ```",
+    "summary": "Reshape operator",
+    "description": "Reshapes the dimensions of `operand` into a new configuration.\n\n    See https://www.tensorflow.org/xla/operation_semantics#reshape.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_AnyTensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+      { "name": "operand", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.return",
-    "summary": "This operation is a work in progress, so it is not yet included in\n    the specification: https://github.com/openxla/stablehlo/issues/425.\n\n    Informally, this operation serves as a terminator for regions defined by\n    the StableHLO ops. Non-StableHLO ops, e.g. `func.func`, have their own\n    terminators, e.g. `func.return`.\n\n    Example:\n    ```mlir\n    %result = \"mhlo.reduce\"(%input, %init_value) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.add\"(%arg0, %arg1) : (tensor<i32>, tensor<i32>) -> tensor<i32>\n        \"mhlo.return\"(%0) : (tensor<i32>) -> ()\n    }) {\n      dimensions = dense<1> : tensor<1xi64>\n    } : (tensor<1x6xi32>, tensor<i32>) -> tensor<1xi32>\n    ```",
+    "summary": "The `hlo.return` operation terminates a region and returns values.",
     "inputs": [
       { "name": "results", "type": "Variadic" }
-    ],
-    "assemblyFormat": "$results attr-dict (`:` type($results)^)?"
+    ]
   },
   {
     "name": "mhlo.reverse",
-    "summary": "Reverse operation",
-    "description": "Reverses the order of elements in the `operand` along the specified\n    `dimensions` and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#reverse\n\n    Example:\n    ```mlir\n    %result = mhlo.reverse %operand, dims = [1] : tensor<3x2xi32>\n    ```",
+    "summary": "Reverse operator",
+    "description": "Reverses the specified dimensions of `operand` according to the given\n    `dimensions`.\n\n    See https://www.tensorflow.org/xla/operation_semantics#rev_reverse.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "dimensions", "type": "I64ElementsAttr" }
@@ -4787,30 +4661,42 @@
   },
   {
     "name": "mhlo.rng_bit_generator",
-    "summary": "RngBitGenerator operation",
-    "description": "Returns an `output` filled with uniform random data and an updated output\n    state `output_state` given an initial state `initial_state` using the\n    pseudorandom number generator algorithm `rng_algorithm`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#rng_bit_generator\n\n    Example:\n    ```mlir\n    %output_state, %output = mhlo.rng_bit_generator %initial_state, algorithm = THREE_FRY : (tensor<2xui64>) -> (tensor<2xui64>, tensor<2x2xui64>)\n    ```",
+    "summary": "Uniform random number generator operator",
+    "description": "Returns an output with a given shape filled with uniform random bits using\n    the specified algorithm (or backend default) and returns an updated state\n    (with the same shape as initial state) and the generated random data.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#rngbitgenerator.",
     "inputs": [
-      { "name": "initial_state", "type": "MHLO_IntOrFpTensor" }
-    ],
-    "outputs": [
-      { "name": "output_state", "type": "MHLO_IntOrFpTensor" },
-      { "name": "output", "type": "MHLO_StaticShapeIntOrFpTensor" }
+      { "name": "initial_state", "type": "HLO_IntOrFpTensor" }
     ],
     "attributes": [
-      { "name": "rng_algorithm", "type": "MHLO_RngAlgorithmAttr" }
+      { "name": "rng_algorithm", "type": "I32Attr" }
+    ]
+  },
+  {
+    "name": "mhlo.rng_normal",
+    "summary": "RNG with normal distribution.",
+    "description": "Constructs an output of a given shape with random numbers generated\n    following the normal distribution with parameters `mu` and `sigma`. The\n    parameters and output shape have to have a floating point elemental type.\n    The parameters furthermore have to be scalar valued.\n\n    See https://www.tensorflow.org/xla/operation_semantics#rngnormal.",
+    "inputs": [
+      { "name": "mu", "type": "HLO_FpTensor" },
+      { "name": "sigma", "type": "HLO_FpTensor" },
+      { "name": "shape", "type": "HLO_DimensionTensor" }
+    ]
+  },
+  {
+    "name": "mhlo.rng_uniform",
+    "summary": "RNG with uniform distribution.",
+    "description": "Constructs an output of a given shape with random numbers generated\n    following the uniform distribution over the interval `[a,b)`. The parameters\n    and output element type have to be a boolean type, an integral type or a\n    floating point types, and the types have to be consistent.\n\n    See https://www.tensorflow.org/xla/operation_semantics#rnguniform.",
+    "inputs": [
+      { "name": "a", "type": "HLO_PredIntOrFpTensor" },
+      { "name": "b", "type": "HLO_PredIntOrFpTensor" },
+      { "name": "shape", "type": "HLO_DimensionTensor" }
     ]
   },
   {
     "name": "mhlo.round_nearest_afz",
-    "summary": "Round operation",
-    "description": "Performs element-wise rounding towards the nearest integer, breaking ties\n    away from zero, on the `operand` tensor and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#round_nearest_afz\n\n    Example:\n    ```mlir\n    %result = mhlo.round_nearest_afz %operand : tensor<5xf32>\n    ```",
+    "summary": "Round operator",
+    "description": "Returns `Round(operand)` element-wise, rounding to nearest integer with\n    half-way cases rounding away from zero.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.round_nearest_even",
@@ -4826,56 +4712,45 @@
   },
   {
     "name": "mhlo.rsqrt",
-    "summary": "Rsqrt operation",
-    "description": "Performs element-wise reciprocal square root operation on `operand` tensor\n    and produces a `result` tensor, implementing the `rSqrt` operation from the\n    IEEE-754 specification.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#rsqrt\n\n    Example:\n    ```mlir\n    %result = mhlo.rsqrt %operand : tensor<2x2xf32>\n    ```",
+    "summary": "Reciprocal Square-root operator",
+    "description": "Returns `1.0 / sqrt(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.scatter",
-    "summary": "Scatter operation",
-    "description": "Produces `results` tensors which are equal to `inputs` tensors except that\n    several slices specified by `scatter_indices` are updated with the values\n    `updates` using `update_computation`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#scatter\n\n   Example:\n   ```mlir\n   %result = \"mhlo.scatter\"(%input, %scatter_indices, %update) ({\n     ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n       %0 = mhlo.add %arg0, %arg1 : tensor<i32>\n       mhlo.return %0 : tensor<i32>\n   }) {\n     scatter_dimension_numbers = #mhlo.scatter<\n       update_window_dims = [3, 4],\n       inserted_window_dims = [1],\n       input_batching_dims = [0],\n       scatter_indices_batching_dims = [1],\n       scatter_dims_to_operand_dims = [2, 1],\n       index_vector_dim = 3>,\n     indices_are_sorted = false,\n     unique_indices = false\n   } : (tensor<2x3x4x2xi64>, tensor<2x2x3x2xi64>, tensor<2x2x3x2x2xi64>) -> tensor<2x3x4x2xi64>\n   ```",
+    "summary": "Scatter operator",
+    "description": "Generates a result which is the value of the input array `operand`,\n    with several slices (at indices specified by `scatter_indices`)\n    updated with the values in `updates` using `update_computation`.\n\n    See https://www.tensorflow.org/xla/operation_semantics#scatter.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" },
-      { "name": "scatter_indices", "type": "RankedTensorOf" },
-      { "name": "updates", "type": "Variadic" },
-      { "name": "scatter_dimension_numbers", "type": "MHLO_ScatterDimensionNumbers" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "scatter_indices", "type": "HLO_Tensor" },
+      { "name": "updates", "type": "HLO_Tensor" },
+      { "name": "scatter_dimension_numbers", "type": "ScatterDimensionNumbers" }
     ],
     "attributes": [
-      { "name": "indices_are_sorted", "type": "DefaultValuedOptionalAttr" },
-      { "name": "unique_indices", "type": "DefaultValuedOptionalAttr" }
+      { "name": "indices_are_sorted", "type": "DefaultValuedAttr" },
+      { "name": "unique_indices", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.select",
-    "summary": "Select operation",
-    "description": "Produces a `result` tensor where each element is selected from `on_true` or\n    `on_false` tensor based on the value of the corresponding element of `pred`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#select\n\n    Example:\n    ```mlir\n    %result = mhlo.select %pred, %on_true, %on_false : tensor<2x2xi1>, tensor<2x2xi32>\n    ```",
+    "summary": "Select operator",
+    "description": "Constructs an output tensor from the elements of `on_true` and `on_false`\n    based on the values of `pred`. All three operands must be of the same shape\n    with the exception of `pred`, which may also be a scalar in which case it is\n    broadcasted.\n\n    See https://www.tensorflow.org/xla/operation_semantics#select.",
     "inputs": [
-      { "name": "pred", "type": "MHLO_PredTensor" },
-      { "name": "on_true", "type": "MHLO_Tensor" },
-      { "name": "on_false", "type": "MHLO_Tensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_Tensor" }
-    ],
-    "assemblyFormat": "operands attr-dict `:`\n      custom<SelectOpType>(type($pred), type($on_true), type($on_false), type($result))"
+      { "name": "pred", "type": "HLO_PredTensor" },
+      { "name": "on_true", "type": "HLO_Tensor" },
+      { "name": "on_false", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.select_and_scatter",
-    "summary": "SelectAndScatter operation",
-    "description": "Scatters the values from the `source` tensor using `scatter` based on the\n    outcome of `reduce_window` of the `input` tensor using `select` and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#select_and_scatter\n\n    Example:\n    ```mlir\n    %result = \"mhlo.select_and_scatter\"(%operand, %source, %init_value) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.compare\"(%arg0, %arg1) {\n          comparison_direction = #stablehlo<comparison_direction GE>\n        } : (tensor<i32>, tensor<i32>) -> tensor<i1>\n        \"mhlo.return\"(%0) : (tensor<i1>) -> ()\n    }, {\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.add\"(%arg0, %arg1) : (tensor<i32>, tensor<i32>) -> tensor<i32>\n        \"mhlo.return\"(%0) : (tensor<i32>) -> ()\n    }) {\n      window_dimensions = dense<[3, 1]> : tensor<2xi64>,\n      window_strides = dense<[2, 1]> : tensor<2xi64>,\n      padding = dense<[[0, 1], [0, 0]]> : tensor<2x2xi64>\n    } : (tensor<4x2xi32>, tensor<2x2xi32>, tensor<i32>) -> tensor<4x2xi32>\n    ```",
+    "summary": "SelectAndScatter operator",
+    "description": "Runs a windowed selection `select` function over `operand` with shape\n    `window_dimensions` and stride `window_strides`. This will produce an amount\n    of selected locations whose shape matches `source`. These are then scattered\n    to the output which is initialized with `init_value`.\n    Multiple scattered elements which land in the same output location are\n    combined using the `scatter` function.\n\n    See https://www.tensorflow.org/xla/operation_semantics#selectandscatter.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "source", "type": "MHLO_Tensor" },
-      { "name": "init_value", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" },
+      { "name": "source", "type": "HLO_Tensor" },
+      { "name": "init_value", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "window_dimensions", "type": "OptionalAttr" },
@@ -4885,95 +4760,71 @@
   },
   {
     "name": "mhlo.send",
-    "summary": "Send operation",
-    "description": "Sends `inputs` to a channel `channel_id` and produces a `result` token.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#send\n\n    Example:\n    ```mlir\n    %result = \"mhlo.send\"(%operand, %token) {\n      // channel_id = 5 : i64,\n      // channel_type = #stablehlo<channel_type DEVICE_TO_DEVICE>,\n      channel_handle = #mhlo.channel_handle<handle = 5, type = 1>,\n      is_host_transfer = false,\n      source_target_pairs = dense<[[0, 1], [1, 2]]> : tensor<2x2xi64>\n    } : (tensor<3x4xi32>, !mhlo.token) -> !mhlo.token\n    ```",
+    "summary": "Send operator",
+    "description": "Sends the given operand data to a Recv instruction in another computation\n    that shares the same channel handle. Does not return any data. Similar to\n    the Recv operation, Send operation represents synchronous communication,\n    and is internally decomposed into 2 HLO instructions (Send and SendDone) to\n    enable asynchronous data transfers.\n\n    See https://www.tensorflow.org/xla/operation_semantics#send.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" },
-      { "name": "token", "type": "MHLO_Token" },
-      { "name": "channel_handle", "type": "MHLO_ChannelHandle" }
+      { "name": "operand", "type": "HLO_TensorOrTuple" },
+      { "name": "token", "type": "HLO_Token" },
+      { "name": "channel_handle", "type": "ChannelHandle" }
     ],
     "attributes": [
-      { "name": "is_host_transfer", "type": "DefaultValuedOptionalAttr" },
-      { "name": "source_target_pairs", "type": "OptionalAttr" }
+      { "name": "is_host_transfer", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.set_dimension_size",
-    "summary": "SetDimensionSize operation",
-    "description": "This operation is a work in progress, so it is not yet included in\n    the specification: https://github.com/openxla/stablehlo/issues/8.\n\n    Informally, this operation does the same thing as XLA's SetDimensionSize:\n    https://www.tensorflow.org/xla/operation_semantics#setdimensionsize\n\n    Example:\n    ```mlir\n    %0 = mhlo.set_dimension_size %arg0, %arg1, dim = 1 : (tensor<4x2xf32>, tensor<i32>) -> tensor<4x2xf32>\n    ```",
+    "summary": "SetDimensionSize operator",
+    "description": "Sets the dynamic size of operand's given dimension. Pass through the operand\n    as result, with dynamic dimension tracked by the compiler. Padded values\n    will be ignored by downstream reduction ops.\n\n    See https://www.tensorflow.org/xla/operation_semantics#setdimensionsize.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
+      { "name": "operand", "type": "HLO_Tensor" },
       { "name": "size", "type": "I32Tensor" }
     ],
     "attributes": [
-      { "name": "dimension", "type": "ConfinedAttr" }
+      { "name": "dimension", "type": "I64Attr" }
     ]
   },
   {
     "name": "mhlo.shift_left",
-    "summary": "ShiftLeft operation",
-    "description": "Performs element-wise left-shift operation on the `lhs` tensor by `rhs`\n    number of bits and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#shift_left\n\n    Example:\n    ```mlir\n    %result = mhlo.shift_left %lhs, %rhs : tensor<6xi8>\n    ```",
+    "summary": "Shift Left operator",
+    "description": "Returns `lhs << rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.shift_right_arithmetic",
-    "summary": "ShiftRightArithmetic operation",
-    "description": "Performs element-wise arithmetic right-shift operation on the `lhs` tensor\n    by `rhs` number of bits and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#shift_right_arithmetic\n\n    Example:\n    ```mlir\n    %result = mhlo.shift_right_arithmetic %lhs, %rhs : tensor<6xi8>\n    ```",
+    "summary": "Shift right arithmetic operator",
+    "description": "Returns arithmetic `lhs >> rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.shift_right_logical",
-    "summary": "ShiftRightLogical operation",
-    "description": "Performs element-wise logical right-shift operation on the `lhs` tensor by\n    `rhs` number of bits and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#shift_right_logical\n\n    Example:\n    ```mlir\n    %result = mhlo.shift_right_logical %lhs, %rhs : tensor<6xi8>\n    ```",
+    "summary": "Shift right logical operator",
+    "description": "Returns logical `lhs >> rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.sign",
-    "summary": "Sign operation",
-    "description": "Returns the sign of the `operand` element-wise and produces a `result`\n    tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#sign\n\n    Example:\n    ```mlir\n    %result = mhlo.sign %operand : tensor<7xf32>\n    ```",
+    "summary": "Sign operator",
+    "description": "Returns `sign(operand)` element-wise, where\n\n    ```\n    sign(x) = -1  : x < 0\n            = -0  : x = -0\n            = NaN : x = NaN\n            = +0  : x = +0\n            = 1   : x > 0\n    ```\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.sine",
-    "summary": "Sine operation",
-    "description": "Performs element-wise sine operation on `operand` tensor and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#sine\n\n    Example:\n    ```mlir\n    %result = mhlo.sine %operand : tensor<2xf32>\n    ```",
+    "summary": "Sin operator",
+    "description": "Returns `Sin(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.sinh",
@@ -4989,10 +4840,8 @@
   },
   {
     "name": "mhlo.slice",
-    "summary": "Slice operation",
-    "description": "Extracts a slice from the `operand` using statically-computed starting\n    indices and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#slice\n\n    Example:\n    ```mlir\n    %result = \"mhlo.slice\" (%operand) {\n      start_indices = dense<[1, 2]> : tensor<2xi64>,\n      limit_indices = dense<[3, 4]> : tensor<2xi64>,\n      strides = dense<1> : tensor<2xi64>\n    } : (tensor<3x4xi64>) -> tensor<2x2xi64>\n    ```",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "start_indices", "type": "I64ElementsAttr" },
@@ -5002,30 +4851,23 @@
   },
   {
     "name": "mhlo.sort",
-    "summary": "Sort operation",
-    "description": "Sorts a variadic number of tensors in `inputs` together, according to a\n    custom `comparator`, along the given `dimension` and produces a variadic\n    number of tensors as `results`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#sort\n\n    Example:\n    ```mlir\n    %result0, %result1 = \"mhlo.sort\"(%input0, %input1) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>, %arg2: tensor<i32>, %arg3: tensor<i32>):\n        %predicate = \"mhlo.compare\"(%arg0, %arg1) {\n          comparison_direction = #stablehlo<comparison_direction GT>\n          } : (tensor<i32>, tensor<i32>) -> tensor<i1>\n        \"mhlo.return\"(%predicate) : (tensor<i1>) -> ()\n    }) {\n      dimension = 0 : i64,\n      is_stable = true\n    } : (tensor<2x3xi32>, tensor<2x3xi32>) -> (tensor<2x3xi32>, tensor<2x3xi32>)\n    ```",
+    "summary": "Sort operator",
+    "description": "Sorts the given `operands` at the given `dimension` with the given\n    `comparator`.\n\n    See https://www.tensorflow.org/xla/operation_semantics#sort.",
     "inputs": [
-      { "name": "inputs", "type": "Variadic" }
+      { "name": "operands", "type": "Variadic" }
     ],
     "attributes": [
-      { "name": "dimension", "type": "DefaultValuedOptionalAttr" },
-      { "name": "is_stable", "type": "DefaultValuedOptionalAttr" }
+      { "name": "dimension", "type": "DefaultValuedAttr" },
+      { "name": "is_stable", "type": "DefaultValuedAttr" }
     ]
   },
   {
     "name": "mhlo.sqrt",
-    "summary": "Sqrt operation",
-    "description": "Performs element-wise square root operation on `operand` tensor and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#sqrt\n\n    Example:\n    ```mlir\n    %result = mhlo.sqrt %operand : tensor<2x2xf32>\n    ```",
+    "summary": "Square-root operator",
+    "description": "Returns `sqrt(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.stochastic_convert",
@@ -5041,16 +4883,12 @@
   },
   {
     "name": "mhlo.subtract",
-    "summary": "Subtract operation",
-    "description": "Performs element-wise subtraction of two tensors `lhs` and `rhs` and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#subtract\n\n    Example:\n    ```mlir\n    %result = mhlo.subtract %lhs, %rhs : tensor<2xi32>\n    ```",
+    "summary": "Subtraction operator",
+    "description": "Returns `lhs - rhs` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "OperandType" },
-      { "name": "rhs", "type": "OperandType" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_Tensor" },
+      { "name": "rhs", "type": "HLO_Tensor" }
+    ]
   },
   {
     "name": "mhlo.tan",
@@ -5069,18 +4907,11 @@
   },
   {
     "name": "mhlo.tanh",
-    "summary": "Tanh operation",
-    "description": "Performs element-wise hyperbolic tangent operation on `operand` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#tanh\n\n    Example:\n    ```mlir\n    %result = mhlo.tanh %operand : tensor<2xf32>\n    ```",
+    "summary": "Tanh operator",
+    "description": "Returns `tanh(operand)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_unary_functions.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
-    ],
-    "attributes": [
-      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr" }
-    ],
-    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+      { "name": "operand", "type": "TensorType" }
+    ]
   },
   {
     "name": "mhlo.topk",
@@ -5101,11 +4932,9 @@
   },
   {
     "name": "mhlo.torch_index_select",
-    "summary": "TorchIndexSelect operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/3.\n\n    Informally, this operation does the same thing as PyTorch's index_select,\n    augmented with support for batch dimensions:\n    https://pytorch.org/docs/stable/generated/torch.index_select.html.\n\n    The `batch_dims` attribute specifies the number of major batch dimensions\n    (0 or more) that act like a multidimensional loop over both the operand and\n    the index.\n\n    Example:\n    ```mlir\n    %result = \"mhlo.torch_index_select\"(%operand, %index) {\n      dim = 2 : i64,\n      batch_dims = 1 : i64\n    } : (tensor<8x128x3072x64xf32>, tensor<8x16x1024xi32>) -> tensor<8x128x16x1024x64xf32>\n    ```",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" },
-      { "name": "index", "type": "MHLO_Tensor" }
+      { "name": "input", "type": "HLO_Tensor" },
+      { "name": "index", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "dim", "type": "I64Attr" },
@@ -5114,22 +4943,21 @@
   },
   {
     "name": "mhlo.trace",
-    "summary": "Trace operation",
-    "description": "This operation is on its way out of StableHLO, so it is not included in\n    the specification: https://github.com/openxla/stablehlo/issues/604.\n\n    It is not used by JAX, PyTorch or TensorFlow, so it looks like we should've\n    classified it as \"Private to XLA\" and not included it in StableHLO in the\n    first place. With that in mind, its semantics will not be documented here.\n\n    Example:\n    ```mlir\n    mhlo.trace %arg0, \"In test code.\" : tensor<5x1x5xi32>\n    ```",
+    "summary": "Trace operator",
+    "description": "Emits a logging message `tag` with the `operand`.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "tag", "type": "StrAttr" }
-    ],
-    "assemblyFormat": "$operand `,` $tag attr-dict `:` type($operand)"
+    ]
   },
   {
     "name": "mhlo.transpose",
-    "summary": "Transpose operation",
-    "description": "Permutes the dimensions of `operand` tensor using `permutation` and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#transpose\n\n    Example:\n    ```mlir\n    %0 = mhlo.transpose %arg0, dims = [2, 1, 0] : (tensor<1x2x3xi32>) -> tensor<3x2x1xi32>\n    ```",
+    "summary": "Transpose operator",
+    "description": "Permutes the dimensions of `operand` according to the given `permutation`.\n\n    `res_dimensions[i] = operand_dimensions[permutation[i]]`\n\n    See https://www.tensorflow.org/xla/operation_semantics#transpose.",
     "inputs": [
-      { "name": "operand", "type": "MHLO_Tensor" }
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
     "attributes": [
       { "name": "permutation", "type": "I64ElementsAttr" }
@@ -5137,30 +4965,35 @@
   },
   {
     "name": "mhlo.triangular_solve",
-    "summary": "TriangularSolve operation",
-    "description": "Solves batches of systems of linear equations with lower or upper triangular\n    coefficient matrices.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#triangular_solve\n\n    Example:\n    ```mlir\n    %result = \"mhlo.triangular_solve\"(%a, %b) {\n      left_side = true,\n      lower = true,\n      unit_diagonal = false,\n      transpose_a = #stablehlo<transpose NO_TRANSPOSE>\n    } : (tensor<3x3xf32>, tensor<3x3xf32>) -> tensor<3x3xf32>\n    ```",
+    "summary": "TriangularSolve operator",
+    "description": "Solves systems of linear equations with lower or upper triangular\n    coefficient matrices by forward- or back-substitution. Broadcasting along\n    leading dimensions, this routine solves one of the matrix systems\n    op(a) * x = b, or x * op(a) = b, for the variable x, given a and b, where\n    op(a) is either op(a) = a, or op(a) = Transpose(a), or\n    op(a) = Conj(Transpose(a)).\n\n    Input data is read only from the lower/upper triangle of a, depending on the\n    value of lower. Values from the other triangle are ignored. Output data is\n    returned in the same triangle; the values in the other triangle are\n    implementation-defined and may be anything.\n\n    If the rank of a and b are greater than 2, they are treated as batches of\n    matrices, where all except the minor 2 dimensions are batch dimensions. a\n    and b must have equal batch dimensions.\n\n    See https://www.tensorflow.org/xla/operation_semantics#triangularsolve.",
     "inputs": [
-      { "name": "a", "type": "MHLO_FpOrComplexTensor" },
-      { "name": "b", "type": "MHLO_FpOrComplexTensor" }
+      { "name": "a", "type": "HLO_FpOrComplexTensor" },
+      { "name": "b", "type": "HLO_FpOrComplexTensor" }
     ],
     "attributes": [
       { "name": "left_side", "type": "BoolAttr" },
       { "name": "lower", "type": "BoolAttr" },
       { "name": "unit_diagonal", "type": "BoolAttr" },
-      { "name": "transpose_a", "type": "MHLO_TransposeAttr" }
+      { "name": "transpose_a", "type": "HLO_TransposeAttr" }
     ]
   },
   {
     "name": "mhlo.tuple",
-    "summary": "Tuple operation",
-    "description": "Produces a `result` tuple from values `val`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#tuple\n\n    Example:\n    ```mlir\n    %result = mhlo.tuple %val0, %val1 : tuple<tensor<2xf32>, tuple<tensor<i32>>>\n    ```",
+    "summary": "XLA's tuple op",
+    "description": "Groups a set of tensor inputs into a single tuple object.\n\n     See https://www.tensorflow.org/xla/operation_semantics#tuple.",
     "inputs": [
       { "name": "val", "type": "Variadic" }
+    ]
+  },
+  {
+    "name": "mhlo.unary_einsum",
+    "inputs": [
+      { "name": "operand", "type": "HLO_Tensor" }
     ],
-    "outputs": [
-      { "name": "result", "type": "MHLO_Tuple" }
-    ],
-    "assemblyFormat": "$val attr-dict `:` custom<TupleOpType>(type($val), type($result))"
+    "attributes": [
+      { "name": "einsum_config", "type": "StrAttr" }
+    ]
   },
   {
     "name": "mhlo.uniform_dequantize",
@@ -5188,10 +5021,10 @@
   },
   {
     "name": "mhlo.while",
-    "summary": "While operation",
-    "description": "Produces the output from executing `body` function 0 or more times while the\n    `cond` function outputs `true`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#while\n\n    Example:\n    ```mlir\n    %results0, %results1 = \"mhlo.while\"(%operand0, %operand1) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.compare\"(%arg0, %arg1) {\n          comparison_direction = #stablehlo<comparison_direction LT>\n        } : (tensor<i32>, tensor<i32>) -> tensor<i1>\n        \"mhlo.return\"(%0) : (tensor<i1>) -> ()\n    }, {\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.add\"(%arg0, %constant0) : (tensor<i32>, tensor<i32>) -> tensor<i32>\n        \"mhlo.return\"(%0, %arg1) : (tensor<i32>, tensor<i32>) -> ()\n    }) : (tensor<i32>, tensor<i32>) -> (tensor<i32>, tensor<i32>)\n    ```",
+    "summary": "While operator",
+    "description": "Returns the result of executing a body function until the cond body returns\n    true.\n\n    See https://www.tensorflow.org/xla/operation_semantics#while.",
     "inputs": [
-      { "name": "operand", "type": "Variadic" }
+      { "name": "arg", "type": "Variadic" }
     ]
   },
   {
@@ -5205,16 +5038,12 @@
   },
   {
     "name": "mhlo.xor",
-    "summary": "Xor operation",
-    "description": "Performs element-wise XOR of two tensors `lhs` and `rhs` and produces a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#xor\n\n    Example:\n    ```mlir\n    %result = mhlo.xor %lhs, %rhs : tensor<2xi32>\n    ```",
+    "summary": "Logical xor",
+    "description": "Returns `logical_xor(lhs, rhs)` element-wise.\n\n    See\n    https://www.tensorflow.org/xla/operation_semantics#element-wise_binary_arithmetic_operations.",
     "inputs": [
-      { "name": "lhs", "type": "MHLO_PredOrIntTensor" },
-      { "name": "rhs", "type": "MHLO_PredOrIntTensor" }
-    ],
-    "outputs": [
-      { "name": "result", "type": "ResultType" }
-    ],
-    "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
+      { "name": "lhs", "type": "HLO_PredOrIntTensor" },
+      { "name": "rhs", "type": "HLO_PredOrIntTensor" }
+    ]
   },
   {
     "name": "onnx.Abs",
@@ -37221,20 +37050,6 @@
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
   },
   {
-    "name": "tosa.fully_connected",
-    "summary": "Fully connected layer operation (deprecated in TOSA v1.0, use matmul instead)",
-    "description": "Performs a fully connected layer operation. This operation was removed from the TOSA specification in v1.0 in favor of expressing it as a combination of matmul, transpose, and add operations. This entry is preserved for compatibility with older TOSA files.",
-    "inputs": [
-      { "name": "input", "type": "Tosa_Tensor" },
-      { "name": "weight", "type": "Tosa_Tensor" },
-      { "name": "bias", "type": "Tosa_Tensor" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tosa_Tensor" }
-    ],
-    "category": "Layer"
-  },
-  {
     "name": "tosa.gather",
     "summary": "Gather operation.",
     "description": "Generate a tensor for which each element in the output is a subtensor of the\n    values tensor based on the indices. N is the number of batches, W the number\n    of indices in each batch, K the range of each index and C the number data\n    channels for each index.",
@@ -37403,6 +37218,23 @@
     ],
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)",
     "category": "Layer"
+  },
+  {
+    "name": "tosa.matmul_t_block_scaled",
+    "summary": "Performs two dimensional matrix multiplications using block scaled tensors.",
+    "description": "Performs two dimensional matrix multiplications using block scaled tensors. The block\n    dimension is always the the last dimension of the tensor, so the result is effectively\n    a matrix multiply of A by the transposed B matrix. If the N dimension of input B is of\n    size 1, the B matrix will be broadcast.",
+    "inputs": [
+      { "name": "a_data", "type": "Tosa_MXFPDataTensor3D" },
+      { "name": "a_scale", "type": "Tosa_MXFPScaleTensor3D" },
+      { "name": "b_data", "type": "Tosa_MXFPDataTensor3D" },
+      { "name": "b_scale", "type": "Tosa_MXFPScaleTensor3D" }
+    ],
+    "outputs": [
+      { "name": "output_data", "type": "Tosa_Tensor3D" }
+    ],
+    "attributes": [
+      { "name": "block_size", "type": "Tosa_BlockSizeAttr" }
+    ]
   },
   {
     "name": "tosa.max_pool2d",
