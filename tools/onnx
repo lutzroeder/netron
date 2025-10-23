@@ -3,6 +3,9 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+env_dir=./third_party/env/onnx
+src_dir=./third_party/source/onnx
+
 case "${OSTYPE}" in
     msys*) python="winpty python";;
     *) python="python";;
@@ -20,17 +23,20 @@ venv() {
 
 clean() {
     echo "onnx clean"
-    rm -rf "./third_party/env/onnx"
-    rm -rf "./third_party/source/onnx"
+    rm -rf "${env_dir}"
+    rm -rf "${src_dir}"
     rm -rf "./third_party/source/onnxruntime"
 }
 
 sync() {
     echo "onnx sync"
-    if [ ! -d "./third_party/source/onnx" ]; then
-        git clone --quiet --recursive https://github.com/onnx/onnx.git "./third_party/source/onnx"
+    if [ ! -d "${src_dir}" ]; then
+        git clone --quiet --depth=1 --branch main --single-branch https://github.com/onnx/onnx.git "${src_dir}"
+    else
+        git -C "${src_dir}" fetch --quiet --depth=1 origin main
+        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${src_dir}" gc --quiet --prune=all
     fi
-    pushd "./third_party/source/onnx" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
