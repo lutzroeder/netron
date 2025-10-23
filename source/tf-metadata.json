@@ -34295,10 +34295,12 @@
       },
       {
         "name": "input_min",
+        "description": "If `axis` is specified, the shape of the minimum input tensor\nmust be rank 1.",
         "typeAttr": "T"
       },
       {
         "name": "input_max",
+        "description": "If `axis` is specified, the shape of the maximum input tensor\nmust be rank 1.",
         "typeAttr": "T"
       }
     ],
@@ -57052,6 +57054,7 @@
       {
         "name": "container",
         "type": "string",
+        "description": "The name of `container` should start with `'.'` or `letter` or `digit`,\nwith ['-', '.', '/'] or `letter` or `digit` follows several times.",
         "default": ""
       },
       {
@@ -61613,11 +61616,12 @@
       {
         "name": "display_name",
         "type": "string",
-        "description": "A human-readable name for the threads that may be visible in some\nvisualizations.\nthreadpool."
+        "description": "A human-readable name for the threads that may be visible in some\nvisualizations."
       },
       {
         "name": "container",
         "type": "string",
+        "description": "The name of `container` should start with `'.'` or `letter` or `digit`,\nwith ['-', '.', '/'] or `letter` or `digit` follows several times.",
         "default": ""
       },
       {
@@ -61629,7 +61633,6 @@
     "outputs": [
       {
         "name": "handle",
-        "description": "A resource that can be consumed by one or more ExperimentalThreadPoolDataset\nops.",
         "type": 20
       }
     ]
