@@ -3,13 +3,15 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+env_dir=./third_party/env/tensorflow
+src_dir=./third_party/source/tensorflow
+
 case "${OSTYPE}" in
     msys*) python="winpty python";;
     *) python="python";;
 esac
 
 venv() {
-    env_dir=./third_party/env/tensorflow
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -20,17 +22,20 @@ venv() {
 
 clean() {
     echo "tf clean"
-    rm -rf "./third_party/env/tensorflow"
-    rm -rf "./third_party/source/tensorflow"
+    rm -rf "${env_dir}"
+    rm -rf "${src_dir}"
     rm -rf "./third_party/source/tflite-support"
 }
 
 sync() {
     echo "tf sync"
-    if [ ! -d "./third_party/source/tensorflow" ]; then
-        git clone --quiet https://github.com/tensorflow/tensorflow.git "./third_party/source/tensorflow"
+    if [ ! -d "${src_dir}" ]; then
+        git clone --quiet --depth=1 --branch master --single-branch https://github.com/tensorflow/tensorflow.git "${src_dir}"
+    else
+        git -C "${src_dir}" fetch --quiet --depth=1 origin master
+        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${src_dir}" gc --quiet --prune=all
     fi
-    git -C "./third_party/source/tensorflow" pull --quiet --prune
     mkdir -p "./third_party/source/tflite-support/tensorflow_lite_support/metadata"
     curl --silent --show-error --location --output "./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs" "https://github.com/tensorflow/tflite-support/raw/master/tensorflow_lite_support/metadata/metadata_schema.fbs"
 }
@@ -46,7 +51,7 @@ install() {
 schema() {
     echo "tf schema"
     [[ $(grep -U $'\x0D' ./source/tf-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --binary --text --json --root tf --out ./source/tf-proto.js --path ./third_party/source/tensorflow --path ./third_party/source/tensorflow/third_party/xla tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto tensorflow/core/protobuf/config.proto tensorflow/core/util/memmapped_file_system.proto tensorflow/core/protobuf/fingerprint.proto
+    node ./tools/protoc.js --binary --text --json --root tf --out ./source/tf-proto.js --path ${src_dir} --path ${src_dir}/third_party/xla tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto tensorflow/core/protobuf/config.proto tensorflow/core/util/memmapped_file_system.proto tensorflow/core/protobuf/fingerprint.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-proto.js ./source/tf-proto.js
     fi
@@ -54,13 +59,13 @@ schema() {
     [[ $(grep -U $'\x0D' ./source/tflite-schema.js) ]] && crlf=1
     temp1=$(mktemp -d)
     temp2=$(mktemp -d)
-    node ./tools/flatc.js --text --root tflite --out ./source/tflite-schema.js ./third_party/source/tensorflow/tensorflow/compiler/mlir/lite/schema/schema.fbs ./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs
+    node ./tools/flatc.js --text --root tflite --out ./source/tflite-schema.js ${src_dir}/tensorflow/compiler/mlir/lite/schema/schema.fbs ./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tflite-schema.js ./source/tflite-schema.js
     fi
     echo "keras schema"
     [[ $(grep -U $'\x0D' ./source/keras-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --binary --text --root tf --out ./source/keras-proto.js --path ./third_party/source/tensorflow --path ./third_party/source/tensorflow/third_party/xla/third_party/tsl tensorflow/python/keras/protobuf/saved_metadata.proto
+    node ./tools/protoc.js --binary --text --root tf --out ./source/keras-proto.js --path ${src_dir} --path ${src_dir}/third_party/xla/third_party/tsl tensorflow/python/keras/protobuf/saved_metadata.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/keras-proto.js ./source/keras-proto.js
     fi

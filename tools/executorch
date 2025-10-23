@@ -3,6 +3,8 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+src_dir=./third_party/source/executorch
+
 case "${OSTYPE}" in
     msys*) python="winpty python";;
     *) python="python";;
@@ -10,22 +12,27 @@ esac
 
 clean() {
     echo "executorch clean"
-    rm -rf "./third_party/source/executorch"
+    rm -rf "${src_dir}"
 }
 
 sync() {
     echo "executorch sync"
-    [ -d "./third_party/source/executorch" ] || git clone --quiet https://github.com/pytorch/executorch.git "./third_party/source/executorch"
-    git -C "./third_party/source/executorch" pull --quiet --prune
-    # mkdir -p "./third_party/source/executorch/schema"
-    # curl --silent --show-error --location --output "./third_party/source/executorch/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
-    # curl --silent --show-error --location --output "./third_party/source/executorch/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
+    if [ ! -d "${src_dir}" ]; then
+        git clone --quiet --depth=1 --branch main --single-branch https://github.com/pytorch/executorch.git "${src_dir}"
+    else
+        git -C "${src_dir}" fetch --quiet --depth=1 origin main
+        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${src_dir}" gc --quiet --prune=all
+    fi
+    # mkdir -p "${src_dir}/schema"
+    # curl --silent --show-error --location --output "${src_dir}/schema/scalar_type.fbs" "https://github.com/pytorch/executorch/raw/main/schema/scalar_type.fbs"
+    # curl --silent --show-error --location --output "${src_dir}/schema/program.fbs" "https://github.com/pytorch/executorch/raw/main/schema/program.fbs"
 }
 
 schema() {
     echo "executorch schema"
     [[ $(grep -U $'\x0D' ./source/executorch-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --out ./source/executorch-schema.js ./third_party/source/executorch/schema/program.fbs ./third_party/source/executorch/backends/xnnpack/serialization/schema.fbs ./third_party/source/executorch/backends/vulkan/serialization/schema.fbs
+    node ./tools/flatc.js --out ./source/executorch-schema.js ${src_dir}/schema/program.fbs ${src_dir}/backends/xnnpack/serialization/schema.fbs ${src_dir}/backends/vulkan/serialization/schema.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/executorch-schema.js ./source/executorch-schema.js
     fi

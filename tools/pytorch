@@ -3,13 +3,15 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+env_dir=./third_party/env/pytorch
+src_dir=./third_party/source/pytorch
+
 case "${OSTYPE}" in
     msys*) python="winpty python";;
     *) python="python";;
 esac
 
 venv() {
-    env_dir=./third_party/env/pytorch
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -20,14 +22,19 @@ venv() {
 
 clean() {
     echo "pytorch clean"
+    rm -rf "${src_dir}"
     rm -rf "./third_party/source/caffe2"
-    rm -rf "./third_party/source/pytorch"
 }
 
 sync() {
     echo "pytorch sync"
-    [ -d "./third_party/source/pytorch" ] || git clone --quiet https://github.com/pytorch/pytorch.git "./third_party/source/pytorch"
-    git -C "./third_party/source/pytorch" pull --quiet --prune
+    if [ ! -d "${src_dir}" ]; then
+        git clone --quiet --depth=1 --branch main --single-branch https://github.com/pytorch/pytorch.git "${src_dir}"
+    else
+        git -C "${src_dir}" fetch --quiet --depth=1 origin main
+        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${src_dir}" gc --quiet --prune=all
+    fi
     mkdir -p "./third_party/source/caffe2/proto"
     curl --silent --show-error --location --output "./third_party/source/caffe2/proto/caffe2.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/caffe2.proto"
     curl --silent --show-error --location --output "./third_party/source/caffe2/proto/torch.proto" "https://github.com/pytorch/pytorch/raw/5e69e11d098a2cfccc8a59377c431e9c71cab9a8/caffe2/proto/torch.proto"

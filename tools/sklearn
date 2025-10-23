@@ -3,13 +3,16 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+env_dir=./third_party/env/scikit-learn
+src_dir=./third_party/source/scikit-learn
+
 case "${OSTYPE}" in
     msys*) python="winpty python";;
     *) python="python";;
 esac
 
 venv() {
-    env_dir=./third_party/env/scikit-learn
+    env_dir=${env_dir}
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -20,18 +23,19 @@ venv() {
 
 clean() {
     echo "sklearn clean"
-    rm -rf "./third_party/env/scikit-learn"
-    rm -rf "./third_party/source/scikit-learn"
+    rm -rf "${env_dir}"
+    rm -rf "${src_dir}"
 }
 
 sync() {
     echo "sklearn sync"
-    [ -d "./third_party/source/scikit-learn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/source/scikit-learn"
-    pushd "./third_party/source/scikit-learn" > /dev/null
-    git pull --quiet --prune
-    git submodule sync --quiet
-    git submodule update --quiet --init --recursive
-    popd > /dev/null
+    if [ ! -d "${src_dir}" ]; then
+        git clone --quiet --depth=1 --branch main --single-branch https://github.com/scikit-learn/scikit-learn.git "${src_dir}"
+    else
+        git -C "${src_dir}" fetch --quiet --depth=1 origin main
+        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${src_dir}" gc --quiet --prune=all
+    fi
 }
 
 install() {

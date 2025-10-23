@@ -3,20 +3,21 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+src_dir="./third_party/source/llama.cpp"
+
 clean() {
     echo "ggml clean"
-    rm -rf "./third_party/source/llama.cpp"
+    rm -rf "${src_dir}"
 }
 
 sync() {
     echo "ggml sync"
-    dir="./third_party/source/llama.cpp"
-    if [ ! -d "${dir}" ]; then
-        git clone --quiet https://github.com/ggerganov/llama.cpp.git "${dir}"
+    if [ ! -d "${src_dir}" ]; then
+        git clone --quiet --depth=1 --branch master --single-branch https://github.com/ggerganov/llama.cpp.git "${src_dir}"
     else
-        pushd "${dir}" > /dev/null
-        git pull --quiet --prune
-        popd > /dev/null
+        git -C "${src_dir}" fetch --quiet --depth=1 origin master
+        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${src_dir}" gc --quiet --prune=all
     fi
 }
 
