@@ -296,6 +296,7 @@ circle.Tensor = class Tensor {
 };
 
 circle.BuiltinOperator = {
+    ATTENTION: -9,
     RUN_MODEL: -8,
     ROPE: -7,
     RMS_NORM: -6,
@@ -645,6 +646,7 @@ circle.BuiltinOptions = class {
             case 124: return circle.BitcastOptions.decode(reader, position);
             case 125: return circle.BitwiseXorOptions.decode(reader, position);
             case 126: return circle.RightShiftOptions.decode(reader, position);
+            case 247: return circle.AttentionOptions.decode(reader, position);
             case 248: return circle.RunModelOptions.decode(reader, position);
             case 249: return circle.RoPEOptions.decode(reader, position);
             case 250: return circle.RmsNormOptions.decode(reader, position);
@@ -784,6 +786,7 @@ circle.BuiltinOptions = class {
             case 'BitcastOptions': return circle.BitcastOptions.decodeText(reader, json);
             case 'BitwiseXorOptions': return circle.BitwiseXorOptions.decodeText(reader, json);
             case 'RightShiftOptions': return circle.RightShiftOptions.decodeText(reader, json);
+            case 'AttentionOptions': return circle.AttentionOptions.decodeText(reader, json);
             case 'RunModelOptions': return circle.RunModelOptions.decodeText(reader, json);
             case 'RoPEOptions': return circle.RoPEOptions.decodeText(reader, json);
             case 'RmsNormOptions': return circle.RmsNormOptions.decodeText(reader, json);
@@ -3407,6 +3410,19 @@ circle.RunModelOptions = class RunModelOptions {
         const $ = new circle.RunModelOptions();
         $.location = reader.value(json.location, null);
         $.signature = reader.value(json.signature, null);
+        return $;
+    }
+};
+
+circle.AttentionOptions = class AttentionOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new circle.AttentionOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new circle.AttentionOptions();
         return $;
     }
 };
