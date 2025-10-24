@@ -198,6 +198,9 @@ const clean = async () => {
     await rm('node_modules');
     await rm('package-lock.json');
     await rm('yarn.lock');
+    if (read('purge')) {
+        await rm('third_party');
+    }
 };
 
 const install = async () => {
@@ -235,11 +238,6 @@ const install = async () => {
 const start = async () => {
     await install();
     await exec('npx electron .');
-};
-
-const purge = async () => {
-    await clean();
-    await rm('third_party');
 };
 
 const build = async (target) => {
@@ -712,7 +710,6 @@ const main = async () => {
         switch (task) {
             case 'start': await start(); break;
             case 'clean': await clean(); break;
-            case 'purge': await purge(); break;
             case 'install': await install(); break;
             case 'build': await build(); break;
             case 'publish': await publish(); break;

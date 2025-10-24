@@ -17,7 +17,6 @@
         "start": "node package.js start",
         "server": "python package.py build start",
         "clean": "node package.js clean",
-        "purge": "node package.js purge",
         "install": "node package.js install",
         "lint": "node package.js lint",
         "build": "node package.js build",
