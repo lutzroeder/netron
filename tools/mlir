@@ -27,13 +27,13 @@ sync() {
         if [ ! -d "${dir}" ]; then
             if [ -n "${root}" ]; then
                 git clone --quiet --depth=1 --branch "${branch}" --single-branch --filter=blob:none --sparse "${url}" "${dir}"
-                git -C "${dir}" sparse-checkout set "${root}"
+                git -C "${dir}" sparse-checkout set "${root}" >/dev/null 2>&1
             else
                 git clone --quiet --depth=1 --branch "${branch}" --single-branch "${url}" "${dir}"
             fi
         else
             if [ -n "${root}" ]; then
-                git -C "${dir}" sparse-checkout set "${root}"
+                git -C "${dir}" sparse-checkout set "${root}" >/dev/null 2>&1
             fi
             git -C "${dir}" fetch --quiet --depth=1 origin "${branch}"
             git -C "${dir}" reset --quiet --hard FETCH_HEAD

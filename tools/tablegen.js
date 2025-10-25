@@ -357,16 +357,17 @@ tablegen.Record = class {
         return this.fields.has(name);
     }
 
-    resolveField(name) {
-        const field = this.fields.get(name);
-        if (field) {
-            return field;
-        }
-        if (this.parser) {
+    resolveField(name, visited = new Set()) {
+        if (!visited.has(this.name)) {
+            visited.add(this.name);
+            const field = this.fields.get(name);
+            if (field) {
+                return field;
+            }
             for (const parent of this.parents) {
                 const parentRecord = this.parser.classes.get(parent.name);
                 if (parentRecord) {
-                    const parentField = parentRecord.resolveField(name);
+                    const parentField = parentRecord.resolveField(name, visited);
                     if (parentField) {
                         return parentField;
                     }
@@ -394,9 +395,7 @@ tablegen.Record = class {
         }
         if (field.value.type === 'def' && typeof field.value.value === 'string') {
             const defName = field.value.value;
-            if (this.parser) {
-                return this.parser.defs.get(defName) || this.parser.classes.get(defName);
-            }
+            return this.parser.defs.get(defName) || this.parser.classes.get(defName);
         }
         return null;
     }

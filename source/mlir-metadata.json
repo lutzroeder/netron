@@ -194,6 +194,383 @@
     "assemblyFormat": "attr-dict ($operands^ `:` type($operands))?"
   },
   {
+    "name": "arith.addf",
+    "summary": "floating point addition operation",
+    "description": "The `addf` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be a floating point\n    scalar type, a vector whose element type is a floating point type, or a\n    floating point tensor.\n\n    Example:\n\n    ```mlir\n    // Scalar addition.\n    %a = arith.addf %b, %c : f64\n\n    // SIMD vector addition, e.g. for Intel SSE.\n    %f = arith.addf %g, %h : vector<4xf32>\n\n    // Tensor addition.\n    %x = arith.addf %y, %z : tensor<4x?xbf16>\n    ```\n\n    TODO: In the distant future, this will accept optional attributes for fast\n    math, contraction, rounding mode, and other controls.",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.addi",
+    "summary": "integer addition operation",
+    "description": "Performs N-bit addition on the operands. The operands are interpreted as\n    unsigned bitvectors. The result is represented by a bitvector containing the\n    mathematical value of the addition modulo 2^n, where `n` is the bitwidth.\n    Because `arith` integers use a two's complement representation, this operation\n    is applicable on both signed and unsigned integer operands.\n\n    The `addi` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be an integer scalar type,\n    a vector whose element type is integer, or a tensor of integers.\n\n    This op supports `nuw`/`nsw` overflow flags which stands for\n    \"No Unsigned Wrap\" and \"No Signed Wrap\", respectively. If the `nuw` and/or\n    `nsw` flags are present, and an unsigned/signed overflow occurs\n    (respectively), the result is poison.\n\n    Example:\n\n    ```mlir\n    // Scalar addition.\n    %a = arith.addi %b, %c : i64\n\n    // Scalar addition with overflow flags.\n    %a = arith.addi %b, %c overflow<nsw, nuw> : i64\n\n    // SIMD vector element-wise addition.\n    %f = arith.addi %g, %h : vector<4xi32>\n\n    // Tensor element-wise addition.\n    %x = arith.addi %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`overflow` `` $overflowFlags^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.addui_extended",
+    "summary": "extended unsigned integer addition operation returning sum and overflow bit",
+    "description": "Performs (N+1)-bit addition on zero-extended operands. Returns two results:\n    the N-bit sum (same type as both operands), and the overflow bit\n    (boolean-like), where `1` indicates unsigned addition overflow, while `0`\n    indicates no overflow.\n\n    Example:\n\n    ```mlir\n    // Scalar addition.\n    %sum, %overflow = arith.addui_extended %b, %c : i64, i1\n\n    // Vector element-wise addition.\n    %d:2 = arith.addui_extended %e, %f : vector<4xi32>, vector<4xi1>\n\n    // Tensor element-wise addition.\n    %x:2 = arith.addui_extended %y, %z : tensor<4x?xi8>, tensor<4x?xi1>\n    ```",
+    "inputs": [
+      { "name": "lhs", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "rhs", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "outputs": [
+      { "name": "sum", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "overflow", "type": "BoolLike" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($sum) `,` type($overflow)"
+  },
+  {
+    "name": "arith.andi",
+    "summary": "integer binary and",
+    "description": "The `andi` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be an integer scalar\n    type, a vector whose element type is integer, or a tensor of integers. It\n    has no standard attributes.\n\n    Example:\n\n    ```mlir\n    // Scalar integer bitwise and.\n    %a = arith.andi %b, %c : i64\n\n    // SIMD vector element-wise bitwise integer and.\n    %f = arith.andi %g, %h : vector<4xi32>\n\n    // Tensor element-wise bitwise integer and.\n    %x = arith.andi %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.bitcast",
+    "summary": "bitcast between values of equal bit width",
+    "description": "Bitcast an integer or floating point value to an integer or floating point\n    value of equal bit width. When operating on vectors, casts elementwise.\n\n    Note that this implements a logical bitcast independent of target\n    endianness. This allows constant folding without target information and is\n    consitent with the bitcast constant folders in LLVM (see\n    https://github.com/llvm/llvm-project/blob/18c19414eb/llvm/lib/IR/ConstantFold.cpp#L168)\n    For targets where the source and target type have the same endianness (which\n    is the standard), this cast will also change no bits at runtime, but it may\n    still require an operation, for example if the machine has different\n    floating point and integer register files. For targets that have a different\n    endianness for the source and target types (e.g. float is big-endian and\n    integer is little-endian) a proper lowering would add operations to swap the\n    order of words in addition to the bitcast.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.ceildivsi",
+    "summary": "signed ceil integer division operation",
+    "description": "Signed integer division. Rounds towards positive infinity, i.e. `7 / -2 = -3`.\n\n    Divison by zero, or signed division overflow (minimum value divided by -1)\n    is undefined behavior. When applied to `vector` and `tensor` values, the\n    behavior is undefined if _any_ of its elements are divided by zero or has a\n    signed division overflow.\n\n    Example:\n\n    ```mlir\n    // Scalar signed integer division.\n    %a = arith.ceildivsi %b, %c : i64\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.ceildivui",
+    "summary": "unsigned ceil integer division operation",
+    "description": "Unsigned integer division. Rounds towards positive infinity. Treats the\n    leading bit as the most significant, i.e. for `i16` given two's complement\n    representation, `6 / -2 = 6 / (2^16 - 2) = 1`.\n\n    Division by zero is undefined behavior. When applied to `vector` and\n    `tensor` values, the behavior is undefined if _any_ elements are divided by\n    zero.\n\n    Example:\n\n    ```mlir\n    // Scalar unsigned integer division.\n    %a = arith.ceildivui %b, %c : i64\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.cmpf",
+    "summary": "floating-point comparison operation",
+    "description": "The `cmpf` operation compares its two operands according to the float\n    comparison rules and the predicate specified by the respective attribute.\n    The predicate defines the type of comparison: (un)orderedness, (in)equality\n    and signed less/greater than (or equal to) as well as predicates that are\n    always true or false.  The operands must have the same type, and this type\n    must be a float type, or a vector or tensor thereof.  The result is an i1,\n    or a vector/tensor thereof having the same shape as the inputs. Unlike cmpi,\n    the operands are always treated as signed. The u prefix indicates\n    *unordered* comparison, not unsigned comparison, so \"une\" means unordered or\n    not equal. For the sake of readability by humans, custom assembly form for\n    the operation uses a string-typed attribute for the predicate.  The value of\n    this attribute corresponds to lower-cased name of the predicate constant,\n    e.g., \"one\" means \"ordered not equal\".  The string representation of the\n    attribute is merely a syntactic sugar and is converted to an integer\n    attribute by the parser.\n\n    Example:\n\n    ```mlir\n    %r1 = arith.cmpf oeq, %0, %1 : f32\n    %r2 = arith.cmpf ult, %0, %1 : tensor<42x42xf64>\n    %r3 = \"arith.cmpf\"(%0, %1) {predicate: 0} : (f8, f8) -> i1\n    ```",
+    "inputs": [
+      { "name": "lhs", "type": "FloatLike" },
+      { "name": "rhs", "type": "FloatLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "BoolLike" }
+    ],
+    "attributes": [
+      { "name": "predicate", "type": "Arith_CmpFPredicateAttr" },
+      { "name": "fastmath", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$predicate `,` $lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($lhs)"
+  },
+  {
+    "name": "arith.cmpi",
+    "summary": "integer comparison operation",
+    "description": "The `cmpi` operation is a generic comparison for integer-like types. Its two\n    arguments can be integers, vectors or tensors thereof as long as their types\n    match. The operation produces an i1 for the former case, a vector or a\n    tensor of i1 with the same shape as inputs in the other cases.\n\n    Its first argument is an attribute that defines which type of comparison is\n    performed. The following comparisons are supported:\n\n    -   equal (mnemonic: `\"eq\"`; integer value: `0`)\n    -   not equal (mnemonic: `\"ne\"`; integer value: `1`)\n    -   signed less than (mnemonic: `\"slt\"`; integer value: `2`)\n    -   signed less than or equal (mnemonic: `\"sle\"`; integer value: `3`)\n    -   signed greater than (mnemonic: `\"sgt\"`; integer value: `4`)\n    -   signed greater than or equal (mnemonic: `\"sge\"`; integer value: `5`)\n    -   unsigned less than (mnemonic: `\"ult\"`; integer value: `6`)\n    -   unsigned less than or equal (mnemonic: `\"ule\"`; integer value: `7`)\n    -   unsigned greater than (mnemonic: `\"ugt\"`; integer value: `8`)\n    -   unsigned greater than or equal (mnemonic: `\"uge\"`; integer value: `9`)\n\n    The result is `1` if the comparison is true and `0` otherwise. For vector or\n    tensor operands, the comparison is performed elementwise and the element of\n    the result indicates whether the comparison is true for the operand elements\n    with the same indices as those of the result.\n\n    Note: while the custom assembly form uses strings, the actual underlying\n    attribute has integer type (or rather enum class in C++ code) as seen from\n    the generic assembly form. String literals are used to improve readability\n    of the IR by humans.\n\n    This operation only applies to integer-like operands, but not floats. The\n    main reason being that comparison operations have diverging sets of\n    attributes: integers require sign specification while floats require various\n    floating point-related particularities, e.g., `-ffast-math` behavior,\n    IEEE754 compliance, etc\n    ([rationale](../Rationale/Rationale.md#splitting-floating-point-vs-integer-operations)).\n    The type of comparison is specified as attribute to avoid introducing ten\n    similar operations, taking into account that they are often implemented\n    using the same operation downstream\n    ([rationale](../Rationale/Rationale.md#specifying-comparison-kind-as-attribute)). The\n    separation between signed and unsigned order comparisons is necessary\n    because of integers being signless. The comparison operation must know how\n    to interpret values with the foremost bit being set: negatives in two's\n    complement or large positives\n    ([rationale](../Rationale/Rationale.md#specifying-sign-in-integer-comparison-operations)).\n\n    Example:\n\n    ```mlir\n    // Custom form of scalar \"signed less than\" comparison.\n    %x = arith.cmpi slt, %lhs, %rhs : i32\n\n    // Generic form of the same operation.\n    %x = \"arith.cmpi\"(%lhs, %rhs) {predicate = 2 : i64} : (i32, i32) -> i1\n\n    // Custom form of vector equality comparison.\n    %x = arith.cmpi eq, %lhs, %rhs : vector<4xi64>\n\n    // Generic form of the same operation.\n    %x = \"arith.cmpi\"(%lhs, %rhs) {predicate = 0 : i64}\n        : (vector<4xi64>, vector<4xi64>) -> vector<4xi1>\n    ```",
+    "inputs": [
+      { "name": "lhs", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "rhs", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "BoolLike" }
+    ],
+    "attributes": [
+      { "name": "predicate", "type": "Arith_CmpIPredicateAttr" }
+    ],
+    "assemblyFormat": "$predicate `,` $lhs `,` $rhs attr-dict `:` type($lhs)"
+  },
+  {
+    "name": "arith.constant",
+    "summary": "integer or floating point constant",
+    "description": "The `constant` operation produces an SSA value equal to some integer or\n    floating-point constant specified by an attribute. This is the way MLIR\n    forms simple integer and floating point constants.\n\n    Example:\n\n    ```\n    // Integer constant\n    %1 = arith.constant 42 : i32\n\n    // Equivalent generic form\n    %1 = \"arith.constant\"() {value = 42 : i32} : () -> i32\n    ```",
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "attributes": [
+      { "name": "value", "type": "TypedAttrInterface" }
+    ],
+    "assemblyFormat": "attr-dict $value"
+  },
+  {
+    "name": "arith.divf",
+    "summary": "floating point division operation",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.divsi",
+    "summary": "signed integer division operation",
+    "description": "Signed integer division. Rounds towards zero. Treats the leading bit as\n    sign, i.e. `6 / -2 = -3`.\n\n    Divison by zero, or signed division overflow (minimum value divided by -1)\n    is undefined behavior. When applied to `vector` and `tensor` values, the\n    behavior is undefined if _any_ of its elements are divided by zero or has a\n    signed division overflow.\n\n    Example:\n\n    ```mlir\n    // Scalar signed integer division.\n    %a = arith.divsi %b, %c : i64\n\n    // SIMD vector element-wise division.\n    %f = arith.divsi %g, %h : vector<4xi32>\n\n    // Tensor element-wise integer division.\n    %x = arith.divsi %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.divui",
+    "summary": "unsigned integer division operation",
+    "description": "Unsigned integer division. Rounds towards zero. Treats the leading bit as\n    the most significant, i.e. for `i16` given two's complement representation,\n    `6 / -2 = 6 / (2^16 - 2) = 0`.\n\n    Division by zero is undefined behavior. When applied to `vector` and\n    `tensor` values, the behavior is undefined if _any_ elements are divided by\n    zero.\n\n    Example:\n\n    ```mlir\n    // Scalar unsigned integer division.\n    %a = arith.divui %b, %c : i64\n\n    // SIMD vector element-wise division.\n    %f = arith.divui %g, %h : vector<4xi32>\n\n    // Tensor element-wise integer division.\n    %x = arith.divui %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.extf",
+    "summary": "cast from floating-point to wider floating-point",
+    "description": "Cast a floating-point value to a larger floating-point-typed value.\n    The destination type must to be strictly wider than the source type.\n    When operating on vectors, casts elementwise.",
+    "inputs": [
+      { "name": "in", "type": "FloatLike" }
+    ],
+    "outputs": [
+      { "name": "out", "type": "FloatLike" }
+    ],
+    "attributes": [
+      { "name": "fastmath", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$in (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.extsi",
+    "summary": "integer sign extension operation",
+    "description": "The integer sign extension operation takes an integer input of\n    width M and an integer destination type of width N. The destination\n    bit-width must be larger than the input bit-width (N > M).\n    The top-most (N - M) bits of the output are filled with copies\n    of the most-significant bit of the input.\n\n    Example:\n\n    ```mlir\n    %1 = arith.constant 5 : i3      // %1 is 0b101\n    %2 = arith.extsi %1 : i3 to i6  // %2 is 0b111101\n    %3 = arith.constant 2 : i3      // %3 is 0b010\n    %4 = arith.extsi %3 : i3 to i6  // %4 is 0b000010\n\n    %5 = arith.extsi %0 : vector<2 x i32> to vector<2 x i64>\n    ```",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.extui",
+    "summary": "integer zero extension operation",
+    "description": "The integer zero extension operation takes an integer input of\n    width M and an integer destination type of width N. The destination\n    bit-width must be larger than the input bit-width (N > M).\n    The top-most (N - M) bits of the output are filled with zeros.\n\n    Example:\n\n    ```mlir\n      %1 = arith.constant 5 : i3      // %1 is 0b101\n      %2 = arith.extui %1 : i3 to i6  // %2 is 0b000101\n      %3 = arith.constant 2 : i3      // %3 is 0b010\n      %4 = arith.extui %3 : i3 to i6  // %4 is 0b000010\n\n      %5 = arith.extui %0 : vector<2 x i32> to vector<2 x i64>\n    ```",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.floordivsi",
+    "summary": "signed floor integer division operation",
+    "description": "Signed integer division. Rounds towards negative infinity, i.e. `5 / -2 = -3`.\n\n    Divison by zero, or signed division overflow (minimum value divided by -1)\n    is undefined behavior. When applied to `vector` and `tensor` values, the\n    behavior is undefined if _any_ of its elements are divided by zero or has a\n    signed division overflow.\n\n    Example:\n\n    ```mlir\n    // Scalar signed integer division.\n    %a = arith.floordivsi %b, %c : i64\n\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.fptosi",
+    "summary": "cast from floating-point type to integer type",
+    "description": "Cast from a value interpreted as floating-point to the nearest (rounding\n    towards zero) signed integer value. When operating on vectors, casts\n    elementwise.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.fptoui",
+    "summary": "cast from floating-point type to integer type",
+    "description": "Cast from a value interpreted as floating-point to the nearest (rounding\n    towards zero) unsigned integer value. When operating on vectors, casts\n    elementwise.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.index_cast",
+    "summary": "cast between index and integer types",
+    "description": "Casts between scalar or vector integers and corresponding 'index' scalar or\n    vectors. Index is an integer of platform-specific bit width. If casting to\n    a wider integer, the value is sign-extended. If casting to a narrower\n    integer, the value is truncated.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.index_castui",
+    "summary": "unsigned cast between index and integer types",
+    "description": "Casts between scalar or vector integers and corresponding 'index' scalar or\n    vectors. Index is an integer of platform-specific bit width. If casting to\n    a wider integer, the value is zero-extended. If casting to a narrower\n    integer, the value is truncated.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.maximumf",
+    "summary": "floating-point maximum operation",
+    "description": "Returns the maximum of the two arguments, treating -0.0 as less than +0.0.\n    If one of the arguments is NaN, then the result is also NaN.\n\n    Example:\n\n    ```mlir\n    // Scalar floating-point maximum.\n    %a = arith.maximumf %b, %c : f64\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.maxnumf",
+    "summary": "floating-point maximum operation",
+    "description": "Returns the maximum of the two arguments.\n    If the arguments are -0.0 and +0.0, then the result is either of them.\n    If one of the arguments is NaN, then the result is the other argument.\n\n    Example:\n\n    ```mlir\n    // Scalar floating-point maximum.\n    %a = arith.maxnumf %b, %c : f64\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.maxsi",
+    "summary": "signed integer maximum operation",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.maxui",
+    "summary": "unsigned integer maximum operation",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.minimumf",
+    "summary": "floating-point minimum operation",
+    "description": "Returns the minimum of the two arguments, treating -0.0 as less than +0.0.\n    If one of the arguments is NaN, then the result is also NaN.\n\n    Example:\n\n    ```mlir\n    // Scalar floating-point minimum.\n    %a = arith.minimumf %b, %c : f64\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.minnumf",
+    "summary": "floating-point minimum operation",
+    "description": "Returns the minimum of the two arguments.\n    If the arguments are -0.0 and +0.0, then the result is either of them.\n    If one of the arguments is NaN, then the result is the other argument.\n\n    Example:\n\n    ```mlir\n    // Scalar floating-point minimum.\n    %a = arith.minnumf %b, %c : f64\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.minsi",
+    "summary": "signed integer minimum operation",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.minui",
+    "summary": "unsigned integer minimum operation",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.mulf",
+    "summary": "floating point multiplication operation",
+    "description": "The `mulf` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be a floating point\n    scalar type, a vector whose element type is a floating point type, or a\n    floating point tensor.\n\n    Example:\n\n    ```mlir\n    // Scalar multiplication.\n    %a = arith.mulf %b, %c : f64\n\n    // SIMD pointwise vector multiplication, e.g. for Intel SSE.\n    %f = arith.mulf %g, %h : vector<4xf32>\n\n    // Tensor pointwise multiplication.\n    %x = arith.mulf %y, %z : tensor<4x?xbf16>\n    ```\n\n    TODO: In the distant future, this will accept optional attributes for fast\n    math, contraction, rounding mode, and other controls.",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.muli",
+    "summary": "Integer multiplication operation.",
+    "description": "Performs N-bit multiplication on the operands. The operands are interpreted as\n    unsigned bitvectors. The result is represented by a bitvector containing the\n    mathematical value of the multiplication modulo 2^n, where `n` is the bitwidth.\n    Because `arith` integers use a two's complement representation, this operation is\n    applicable on both signed and unsigned integer operands.\n\n    The `muli` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be an integer scalar type,\n    a vector whose element type is integer, or a tensor of integers.\n\n    This op supports `nuw`/`nsw` overflow flags which stands for\n    \"No Unsigned Wrap\" and \"No Signed Wrap\", respectively. If the `nuw` and/or\n    `nsw` flags are present, and an unsigned/signed overflow occurs\n    (respectively), the result is poison.\n\n    Example:\n\n    ```mlir\n    // Scalar multiplication.\n    %a = arith.muli %b, %c : i64\n\n    // Scalar multiplication with overflow flags.\n    %a = arith.muli %b, %c overflow<nsw, nuw> : i64\n\n    // SIMD vector element-wise multiplication.\n    %f = arith.muli %g, %h : vector<4xi32>\n\n    // Tensor element-wise multiplication.\n    %x = arith.muli %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`overflow` `` $overflowFlags^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.mulsi_extended",
+    "summary": "extended signed integer multiplication operation",
+    "description": "Performs (2*N)-bit multiplication on sign-extended operands. Returns two\n    N-bit results: the low and the high halves of the product. The low half has\n    the same value as the result of regular multiplication `arith.muli` with\n    the same operands.\n\n    Example:\n\n    ```mlir\n    // Scalar multiplication.\n    %low, %high = arith.mulsi_extended %a, %b : i32\n\n    // Vector element-wise multiplication.\n    %c:2 = arith.mulsi_extended %d, %e : vector<4xi32>\n\n    // Tensor element-wise multiplication.\n    %x:2 = arith.mulsi_extended %y, %z : tensor<4x?xi8>\n    ```",
+    "inputs": [
+      { "name": "lhs", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "rhs", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "outputs": [
+      { "name": "low", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "high", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($lhs)"
+  },
+  {
+    "name": "arith.mului_extended",
+    "summary": "extended unsigned integer multiplication operation",
+    "description": "Performs (2*N)-bit multiplication on zero-extended operands. Returns two\n    N-bit results: the low and the high halves of the product. The low half has\n    the same value as the result of regular multiplication `arith.muli` with\n    the same operands.\n\n    Example:\n\n    ```mlir\n    // Scalar multiplication.\n    %low, %high = arith.mului_extended %a, %b : i32\n\n    // Vector element-wise multiplication.\n    %c:2 = arith.mului_extended %d, %e : vector<4xi32>\n\n    // Tensor element-wise multiplication.\n    %x:2 = arith.mului_extended %y, %z : tensor<4x?xi8>\n    ```",
+    "inputs": [
+      { "name": "lhs", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "rhs", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "outputs": [
+      { "name": "low", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "high", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($lhs)"
+  },
+  {
+    "name": "arith.negf",
+    "summary": "floating point negation",
+    "description": "The `negf` operation computes the negation of a given value. It takes one\n    operand and returns one result of the same type. This type may be a float\n    scalar type, a vector whose element type is float, or a tensor of floats.\n    It has no standard attributes.\n\n    Example:\n\n    ```mlir\n    // Scalar negation value.\n    %a = arith.negf %b : f64\n\n    // SIMD vector element-wise negation value.\n    %f = arith.negf %g : vector<4xf32>\n\n    // Tensor element-wise negation value.\n    %x = arith.negf %y : tensor<4x?xf8>\n    ```",
+    "assemblyFormat": "$operand (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.ori",
+    "summary": "integer binary or",
+    "description": "The `ori` operation takes two operands and returns one result, each of these\n    is required to be the same type. This type may be an integer scalar type, a\n    vector whose element type is integer, or a tensor of integers. It has no\n    standard attributes.\n\n    Example:\n\n    ```mlir\n    // Scalar integer bitwise or.\n    %a = arith.ori %b, %c : i64\n\n    // SIMD vector element-wise bitwise integer or.\n    %f = arith.ori %g, %h : vector<4xi32>\n\n    // Tensor element-wise bitwise integer or.\n    %x = arith.ori %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.remf",
+    "summary": "floating point division remainder operation",
+    "description": "Returns the floating point division remainder.\n    The remainder has the same sign as the dividend (lhs operand).",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.remsi",
+    "summary": "signed integer division remainder operation",
+    "description": "Signed integer division remainder. Treats the leading bit as sign, i.e. `6 %\n    -2 = 0`.\n\n    Division by zero is undefined behavior. When applied to `vector` and\n    `tensor` values, the behavior is undefined if _any_ elements are divided by\n    zero.\n\n    Example:\n\n    ```mlir\n    // Scalar signed integer division remainder.\n    %a = arith.remsi %b, %c : i64\n\n    // SIMD vector element-wise division remainder.\n    %f = arith.remsi %g, %h : vector<4xi32>\n\n    // Tensor element-wise integer division remainder.\n    %x = arith.remsi %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.remui",
+    "summary": "unsigned integer division remainder operation",
+    "description": "Unsigned integer division remainder. Treats the leading bit as the most\n    significant, i.e. for `i16`, `6 % -2 = 6 % (2^16 - 2) = 6`.\n\n    Division by zero is undefined behavior. When applied to `vector` and\n    `tensor` values, the behavior is undefined if _any_ elements are divided by\n    zero.\n\n    Example:\n\n    ```mlir\n    // Scalar unsigned integer division remainder.\n    %a = arith.remui %b, %c : i64\n\n    // SIMD vector element-wise division remainder.\n    %f = arith.remui %g, %h : vector<4xi32>\n\n    // Tensor element-wise integer division remainder.\n    %x = arith.remui %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.scaling_extf",
+    "summary": "Upcasts input floats using provided scales values following OCP MXFP Spec",
+    "description": "This operation upcasts input floating-point values using provided scale\n    values. It expects both scales and the input operand to be of the same shape,\n    making the operation elementwise. Scales are usually calculated per block\n    following the OCP MXFP spec as described in https://arxiv.org/abs/2310.10537.\n\n    If scales are calculated per block where blockSize != 1, then scales may\n    require broadcasting to make this operation elementwise. For example, let's\n    say the input is of shape `<dim1 x dim2 x ... dimN>`. Given blockSize != 1 and\n    assuming quantization happens on the last axis, the input can be reshaped to\n    `<dim1 x dim2 x ... (dimN/blockSize) x blockSize>`. Scales will be calculated\n    per block on the last axis. Therefore, scales will be of shape\n    `<dim1 x dim2 x ... (dimN/blockSize) x 1>`. Scales could also be of some other\n    shape as long as it is broadcast compatible with the input, e.g.,\n    `<1 x 1 x ... (dimN/blockSize) x 1>`.\n\n    In this example, before calling into `arith.scaling_extf`, scales must be\n    broadcasted to `<dim1 x dim2 x dim3 ... (dimN/blockSize) x blockSize>`. Note\n    that there could be multiple quantization axes. Internally,\n    `arith.scaling_extf` would perform the following:\n\n    ```mlir\n    // Cast scale to result type.\n    %0 = arith.truncf %1 : f32 to f8E8M0FNU\n    %1 = arith.extf %0 : f8E8M0FNU to f16\n\n    // Cast input to result type.\n    %2 = arith.extf %3 : f4E2M1FN to f16\n\n    // Perform scaling\n    %3 = arith.mulf %2, %1 : f16\n    ```\n    It propagates NaN values. Therefore, if either scale or the input element\n    contains NaN, then the output element value will also be a NaN.\n\n    Example:\n\n    ```mlir\n    // Upcast from f4E2M1FN to f32.\n    %a = arith.scaling_extf %b, %c : f4E2M1FN, f8E8M0FNU to f32\n\n    // Element-wise upcast with broadcast (blockSize = 32).\n    %f = vector.broadcast %g : vector<1xf8E8M0FNU> to vector<32xf8E8M0FNU>\n    %h = arith.scaling_extf %i, %f : vector<32xf4E2M1FN>, vector<32xf8E8M0FNU> to vector<32xbf16>\n    ```",
+    "assemblyFormat": "$in `,` $scale (`fastmath` `` $fastmath^)? attr-dict `:`\n      type($in) `,` type($scale) `to` type($out)"
+  },
+  {
+    "name": "arith.scaling_truncf",
+    "summary": "Downcasts input floating point values using provided scales values following OCP MXFP Spec",
+    "description": "This operation downcasts input using the provided scale values. It expects\n    both scales and the input operand to be of the same shape and, therefore,\n    makes the operation elementwise. Scales are usually calculated per block\n    following the OCP MXFP spec as described in https://arxiv.org/abs/2310.10537.\n    Users are required to normalize and clamp the scales as necessary before calling\n    passing them to this operation.  OCP MXFP spec also does the flushing of denorms\n    on the input operand, which should be handled during lowering by passing appropriate\n    fastMath flag to this operation.\n\n    If scales are calculated per block where blockSize != 1, scales may require\n    broadcasting to make this operation elementwise. For example, let's say the\n    input is of shape `<dim1 x dim2 x ... dimN>`. Given blockSize != 1 and\n    assuming quantization happens on the last axis, the input can be reshaped to\n    `<dim1 x dim2 x ... (dimN/blockSize) x blockSize>`. Scales will be calculated\n    per block on the last axis. Therefore, scales will be of shape\n    `<dim1 x dim2 x ... (dimN/blockSize) x 1>`. Scales could also be of some other\n    shape as long as it is broadcast compatible with the input, e.g.,\n    `<1 x 1 x ... (dimN/blockSize) x 1>`.\n\n    In this example, before calling into `arith.scaling_truncf`, scales must be\n    broadcasted to `<dim1 x dim2 x dim3 ... (dimN/blockSize) x blockSize>`. Note\n    that there could be multiple quantization axes. Internally,\n    `arith.scaling_truncf` would perform the following:\n\n    ```mlir\n    // Cast scale to input type.\n    %0 = arith.truncf %1 : f32 to f8E8M0FNU\n    %1 = arith.extf %0 : f8E8M0FNU to f16\n\n    // Perform scaling.\n    %3 = arith.divf %2, %1 : f16\n\n    // Cast to result type.\n    %4 = arith.truncf %3 : f16 to f4E2M1FN\n    ```\n\n    Example:\n\n    ```mlir\n    // Downcast from f32 to f4E2M1FN.\n    %a = arith.scaling_truncf %b, %c : f32, f8E8M0FNU to f4E2M1FN\n\n    // Element-wise downcast with broadcast (blockSize = 32).\n    %f = vector.broadcast %g : vector<1xf8E8M0FNU> to vector<32xf8E8M0FNU>\n    %h = arith.scaling_truncf %i, %f : vector<32xbf16>, vector<32xf8E8M0FNU> to vector<32xf4E2M1FN>\n    ```",
+    "assemblyFormat": "$in `,` $scale ($roundingmode^)? (`fastmath` `` $fastmath^)? attr-dict `:`\n      type($in) `,` type($scale) `to` type($out)"
+  },
+  {
+    "name": "arith.select",
+    "summary": "select operation",
+    "description": "The `arith.select` operation chooses one value based on a binary condition\n    supplied as its first operand.\n\n    If the value of the first operand (the condition) is `1`, then the second\n    operand is returned, and the third operand is ignored, even if it was poison.\n\n    If the value of the first operand (the condition) is `0`, then the third\n    operand is returned, and the second operand is ignored, even if it was poison.\n\n    If the value of the first operand (the condition) is poison, then the\n    operation returns poison.\n\n    The operation applies to vectors and tensors elementwise given the _shape_\n    of all operands is identical. The choice is made for each element\n    individually based on the value at the same position as the element in the\n    condition operand. If an i1 is provided as the condition, the entire vector\n    or tensor is chosen.\n\n    Example:\n\n    ```mlir\n    // Custom form of scalar selection.\n    %x = arith.select %cond, %true, %false : i32\n\n    // Generic form of the same operation.\n    %x = \"arith.select\"(%cond, %true, %false) : (i1, i32, i32) -> i32\n\n    // Element-wise vector selection.\n    %vx = arith.select %vcond, %vtrue, %vfalse : vector<42xi1>, vector<42xf32>\n\n    // Full vector selection.\n    %vx = arith.select %cond, %vtrue, %vfalse : vector<42xf32>\n    ```",
+    "inputs": [
+      { "name": "condition", "type": "BoolLike" },
+      { "name": "true_value", "type": "AnyType" },
+      { "name": "false_value", "type": "AnyType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ]
+  },
+  {
+    "name": "arith.shli",
+    "summary": "integer left-shift",
+    "description": "The `shli` operation shifts the integer value of the first operand to the left\n    by the integer value of the second operand. The second operand is interpreted as\n    unsigned. The low order bits are filled with zeros. If the value of the second\n    operand is greater or equal than the bitwidth of the first operand, then the\n    operation returns poison.\n\n    This op supports `nuw`/`nsw` overflow flags which stands for\n    \"No Unsigned Wrap\" and \"No Signed Wrap\", respectively. If the `nuw` and/or\n    `nsw` flags are present, and an unsigned/signed overflow occurs\n    (respectively), the result is poison.\n\n    Example:\n\n    ```mlir\n    %1 = arith.constant 5 : i8  // %1 is 0b00000101\n    %2 = arith.constant 3 : i8\n    %3 = arith.shli %1, %2 : i8 // %3 is 0b00101000\n    %4 = arith.shli %1, %2 overflow<nsw, nuw> : i8\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`overflow` `` $overflowFlags^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.shrsi",
+    "summary": "signed integer right-shift",
+    "description": "The `shrsi` operation shifts an integer value of the first operand to the right\n    by the value of the second operand. The first operand is interpreted as signed,\n    and the second operand is interpreter as unsigned. The high order bits in the\n    output are filled with copies of the most-significant bit of the shifted value\n    (which means that the sign of the value is preserved). If the value of the second\n    operand is greater or equal than bitwidth of the first operand, then the operation\n    returns poison.\n\n    Example:\n\n    ```mlir\n    %1 = arith.constant 160 : i8               // %1 is 0b10100000\n    %2 = arith.constant 3 : i8\n    %3 = arith.shrsi %1, %2 : (i8, i8) -> i8   // %3 is 0b11110100\n    %4 = arith.constant 96 : i8                   // %4 is 0b01100000\n    %5 = arith.shrsi %4, %2 : (i8, i8) -> i8   // %5 is 0b00001100\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.shrui",
+    "summary": "unsigned integer right-shift",
+    "description": "The `shrui` operation shifts an integer value of the first operand to the right\n    by the value of the second operand. The first operand is interpreted as unsigned,\n    and the second operand is interpreted as unsigned. The high order bits are always\n    filled with zeros. If the value of the second operand is greater or equal than the\n    bitwidth of the first operand, then the operation returns poison.\n\n    Example:\n\n    ```mlir\n    %1 = arith.constant 160 : i8               // %1 is 0b10100000\n    %2 = arith.constant 3 : i8\n    %3 = arith.shrui %1, %2 : (i8, i8) -> i8   // %3 is 0b00010100\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.sitofp",
+    "summary": "cast from integer type to floating-point",
+    "description": "Cast from a value interpreted as a signed integer to the corresponding\n    floating-point value. If the value cannot be exactly represented, it is\n    rounded using the default rounding mode. When operating on vectors, casts\n    elementwise.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.subf",
+    "summary": "floating point subtraction operation",
+    "description": "The `subf` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be a floating point\n    scalar type, a vector whose element type is a floating point type, or a\n    floating point tensor.\n\n    Example:\n\n    ```mlir\n    // Scalar subtraction.\n    %a = arith.subf %b, %c : f64\n\n    // SIMD vector subtraction, e.g. for Intel SSE.\n    %f = arith.subf %g, %h : vector<4xf32>\n\n    // Tensor subtraction.\n    %x = arith.subf %y, %z : tensor<4x?xbf16>\n    ```\n\n    TODO: In the distant future, this will accept optional attributes for fast\n    math, contraction, rounding mode, and other controls.",
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.subi",
+    "summary": "Integer subtraction operation.",
+    "description": "Performs N-bit subtraction on the operands. The operands are interpreted as unsigned\n    bitvectors. The result is represented by a bitvector containing the mathematical\n    value of the subtraction modulo 2^n, where `n` is the bitwidth. Because `arith`\n    integers use a two's complement representation, this operation is applicable on\n    both signed and unsigned integer operands.\n\n    The `subi` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be an integer scalar type,\n    a vector whose element type is integer, or a tensor of integers.\n\n    This op supports `nuw`/`nsw` overflow flags which stands for\n    \"No Unsigned Wrap\" and \"No Signed Wrap\", respectively. If the `nuw` and/or\n    `nsw` flags are present, and an unsigned/signed overflow occurs\n    (respectively), the result is poison.\n\n    Example:\n\n    ```mlir\n    // Scalar subtraction.\n    %a = arith.subi %b, %c : i64\n\n    // Scalar subtraction with overflow flags.\n    %a = arith.subi %b, %c overflow<nsw, nuw> : i64\n\n    // SIMD vector element-wise subtraction.\n    %f = arith.subi %g, %h : vector<4xi32>\n\n    // Tensor element-wise subtraction.\n    %x = arith.subi %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs (`overflow` `` $overflowFlags^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.truncf",
+    "summary": "cast from floating-point to narrower floating-point",
+    "description": "Truncate a floating-point value to a smaller floating-point-typed value.\n    The destination type must be strictly narrower than the source type.\n    If the value cannot be exactly represented, it is rounded using the\n    provided rounding mode or the default one if no rounding mode is provided.\n    When operating on vectors, casts elementwise.",
+    "assemblyFormat": "$in ($roundingmode^)?\n                          (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.trunci",
+    "summary": "integer truncation operation",
+    "description": "The integer truncation operation takes an integer input of\n    width M and an integer destination type of width N. The destination\n    bit-width must be smaller than the input bit-width (N < M).\n    The top-most (N - M) bits of the input are discarded.\n\n    This op supports `nuw`/`nsw` overflow flags which stands for \"No Unsigned\n    Wrap\" and \"No Signed Wrap\", respectively. If the nuw keyword is present,\n    and any of the truncated bits are non-zero, the result is a poison value.\n    If the nsw keyword is present, and any of the truncated bits are not the\n    same as the top bit of the truncation result, the result is a poison value.\n\n    Example:\n\n    ```mlir\n      // Scalar truncation.\n      %1 = arith.constant 21 : i5     // %1 is 0b10101\n      %2 = arith.trunci %1 : i5 to i4 // %2 is 0b0101\n      %3 = arith.trunci %1 : i5 to i3 // %3 is 0b101\n\n      // Vector truncation.\n      %4 = arith.trunci %0 : vector<2 x i32> to vector<2 x i16>\n\n      // Scalar truncation with overflow flags.\n      %5 = arith.trunci %a overflow<nsw, nuw> : i32 to i16\n    ```",
+    "inputs": [
+      { "name": "in", "type": "SignlessFixedWidthIntegerLike" }
+    ],
+    "outputs": [
+      { "name": "out", "type": "SignlessFixedWidthIntegerLike" }
+    ],
+    "attributes": [
+      { "name": "overflowFlags", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$in (`overflow` `` $overflowFlags^)? attr-dict\n    `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.uitofp",
+    "summary": "cast from unsigned integer type to floating-point",
+    "description": "Cast from a value interpreted as unsigned integer to the corresponding\n    floating-point value. If the value cannot be exactly represented, it is\n    rounded using the default rounding mode. When operating on vectors, casts\n    elementwise.",
+    "assemblyFormat": "$in attr-dict `:` type($in) `to` type($out)"
+  },
+  {
+    "name": "arith.xori",
+    "summary": "integer binary xor",
+    "description": "The `xori` operation takes two operands and returns one result, each of\n    these is required to be the same type. This type may be an integer scalar\n    type, a vector whose element type is integer, or a tensor of integers. It\n    has no standard attributes.\n\n    Example:\n\n    ```mlir\n    // Scalar integer bitwise xor.\n    %a = arith.xori %b, %c : i64\n\n    // SIMD vector element-wise bitwise integer xor.\n    %f = arith.xori %g, %h : vector<4xi32>\n\n    // Tensor element-wise bitwise integer xor.\n    %x = arith.xori %y, %z : tensor<4x?xi8>\n    ```",
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($result)"
+  },
+  {
     "name": "builtin.module",
     "summary": "A top level container operation",
     "description": "A `module` represents a top-level container operation. It contains a single\n    [graph region](../LangRef.md#control-flow-and-ssacfg-regions) containing a single block\n    which can contain any operations and does not have a terminator. Operations\n    within this region cannot implicitly capture values defined outside the module,\n    i.e. Modules are [IsolatedFromAbove](../Traits#isolatedfromabove). Modules have\n    an optional [symbol name](../SymbolsAndSymbolTables.md) which can be used to refer\n    to them in operations.\n\n    Example:\n\n    ```mlir\n    module {\n      func.func @foo()\n    }\n    ```",
@@ -214,6 +591,77 @@
       { "name": "outputs", "type": "Variadic" }
     ],
     "assemblyFormat": "($inputs^ `:` type($inputs))? `to` type($outputs) attr-dict"
+  },
+  {
+    "name": "cf.assert",
+    "summary": "Assert operation with message attribute",
+    "description": "Assert operation at runtime with single boolean operand and an error\n    message attribute.\n    If the argument is `true` this operation has no effect. Otherwise, the\n    program execution will abort. The provided error message may be used by a\n    runtime to propagate the error to the user.\n\n    Example:\n\n    ```mlir\n    cf.assert %b, \"Expected ... to be true\"\n    ```",
+    "inputs": [
+      { "name": "arg", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "msg", "type": "StrAttr" }
+    ],
+    "assemblyFormat": "$arg `,` $msg attr-dict"
+  },
+  {
+    "name": "cf.br",
+    "summary": "Branch operation",
+    "description": "The `cf.br` operation represents a direct branch operation to a given\n    block. The operands of this operation are forwarded to the successor block,\n    and the number and type of the operands must match the arguments of the\n    target block.\n\n    Example:\n\n    ```mlir\n    ^bb2:\n      %2 = call @someFn()\n      cf.br ^bb3(%2 : tensor<*xf32>)\n    ^bb3(%3: tensor<*xf32>):\n    ```",
+    "inputs": [
+      { "name": "destOperands", "type": "Variadic" }
+    ],
+    "successors": [
+      {
+        "name": "dest"
+      }
+    ],
+    "assemblyFormat": "$dest (`(` $destOperands^ `:` type($destOperands) `)`)? attr-dict"
+  },
+  {
+    "name": "cf.cond_br",
+    "summary": "Conditional branch operation",
+    "description": "The `cf.cond_br` terminator operation represents a conditional branch on a\n    boolean (1-bit integer) value. If the bit is set, then the first destination\n    is jumped to; if it is false, the second destination is chosen. The count\n    and types of operands must align with the arguments in the corresponding\n    target blocks.\n\n    The MLIR conditional branch operation is not allowed to target the entry\n    block for a region. The two destinations of the conditional branch operation\n    are allowed to be the same.\n\n    The following example illustrates a function with a conditional branch\n    operation that targets the same block.\n\n    Example:\n\n    ```mlir\n    func.func @select(%a: i32, %b: i32, %flag: i1) -> i32 {\n      // Both targets are the same, operands differ\n      cf.cond_br %flag, ^bb1(%a : i32), ^bb1(%b : i32)\n\n    ^bb1(%x : i32) :\n      return %x : i32\n    }\n    ```",
+    "inputs": [
+      { "name": "condition", "type": "I1" },
+      { "name": "trueDestOperands", "type": "Variadic" },
+      { "name": "falseDestOperands", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "branch_weights", "type": "OptionalAttr" }
+    ],
+    "successors": [
+      {
+        "name": "trueDest"
+      },
+      {
+        "name": "falseDest"
+      }
+    ],
+    "assemblyFormat": "$condition (`weights` `(` $branch_weights^ `)` )? `,`\n    $trueDest (`(` $trueDestOperands^ `:` type($trueDestOperands) `)`)? `,`\n    $falseDest (`(` $falseDestOperands^ `:` type($falseDestOperands) `)`)?\n    attr-dict"
+  },
+  {
+    "name": "cf.switch",
+    "summary": "Switch operation",
+    "description": "The `cf.switch` terminator operation represents a switch on a signless integer\n    value. If the flag matches one of the specified cases, then the\n    corresponding destination is jumped to. If the flag does not match any of\n    the cases, the default destination is jumped to. The count and types of\n    operands must align with the arguments in the corresponding target blocks.\n\n    Example:\n\n    ```mlir\n    cf.switch %flag : i32, [\n      default: ^bb1(%a : i32),\n      42: ^bb1(%b : i32),\n      43: ^bb3(%c : i32)\n    ]\n    ```",
+    "inputs": [
+      { "name": "flag", "type": "AnyInteger" },
+      { "name": "defaultOperands", "type": "Variadic" },
+      { "name": "caseOperands", "type": "VariadicOfVariadic" }
+    ],
+    "attributes": [
+      { "name": "case_values", "type": "OptionalAttr" },
+      { "name": "case_operand_segments", "type": "DenseI32ArrayAttr" }
+    ],
+    "successors": [
+      {
+        "name": "defaultDestination"
+      },
+      {
+        "name": "caseDestinations"
+      }
+    ],
+    "assemblyFormat": "$flag `:` type($flag) `,` `[` `\\n`\n      custom<SwitchOpCases>(ref(type($flag)),$defaultDestination,\n                            $defaultOperands,\n                            type($defaultOperands),\n                            $case_values,\n                            $caseDestinations,\n                            $caseOperands,\n                            type($caseOperands))\n   `]`\n    attr-dict"
   },
   {
     "name": "chlo._asin_acos_kernel",
@@ -2308,6 +2756,25 @@
       { "name": "access", "type": "HAL_MemoryAccessBitfieldAttr" }
     ],
     "assemblyFormat": "`device` `(` $device `:` type($device) `)`\n    `affinity` `(` $queue_affinity `)`\n    `access` `(` $access `)`\n    `buffer` `(` $buffer `:` type($buffer) `)`\n    `` `[` $offset `for` $length `]`\n    `flags` `(` $flags `)`\n    `:` type($result)\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "hal.ex.shared_device",
+    "summary": "Returns the shared device instance.",
+    "description": "Deprecated operation that returns the shared device instance.",
+    "outputs": [
+      { "name": "result", "type": "HAL_Device" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($result)"
+  },
+  {
+    "name": "hal.ex.submit_and_wait",
+    "summary": "Submits a command buffer and waits for completion.",
+    "description": "Deprecated operation that submits a command buffer to the device and waits for its completion.",
+    "inputs": [
+      { "name": "device", "type": "HAL_Device" },
+      { "name": "command_buffer", "type": "HAL_CommandBuffer" }
+    ],
+    "assemblyFormat": "$device `,` $command_buffer attr-dict"
   },
   {
     "name": "hal.executable",
@@ -9307,6 +9774,11 @@
     "inputs": [
       { "name": "targetOperands", "type": "Variadic" }
     ],
+    "successors": [
+      {
+        "name": "target"
+      }
+    ],
     "assemblyFormat": "$target (`(` $targetOperands^ `:` type($targetOperands) `)`)? attr-dict"
   },
   {
@@ -9320,6 +9792,14 @@
     ],
     "attributes": [
       { "name": "branch_weights", "type": "OptionalAttr" }
+    ],
+    "successors": [
+      {
+        "name": "trueTarget"
+      },
+      {
+        "name": "falseTarget"
+      }
     ]
   },
   {
@@ -10832,7 +11312,8 @@
     "attributes": [
       { "name": "epsilon", "type": "F32Attr" },
       { "name": "feature_index", "type": "ConfinedAttr" }
-    ]
+    ],
+    "category": "Normalization"
   },
   {
     "name": "stablehlo.batch_norm_training",
@@ -36793,6 +37274,36 @@
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "tosa.cast_from_block_scaled",
+    "summary": "Apply scales from a scale tensor to the values in a value tensor",
+    "description": "Apply the scales from a scale tensor to the values in a value tensor, casting\n    the result to the output type. The block dimension must be the last dimension\n    of the tensor.",
+    "inputs": [
+      { "name": "input_data", "type": "Tosa_MXFPDataTensorAtLeast1D" },
+      { "name": "input_scale", "type": "Tosa_MXFPScaleTensorAtLeast1D" }
+    ],
+    "outputs": [
+      { "name": "output_data", "type": "Tosa_TensorAtLeast1D" }
+    ],
+    "attributes": [
+      { "name": "block_size", "type": "Tosa_BlockSizeAttr" }
+    ]
+  },
+  {
+    "name": "tosa.cast_to_block_scaled",
+    "summary": "Calculate scale tensor values per block, output to separate scale and data tensors.",
+    "description": "Calculate a scale value per block of input values and use that to calculate\n    scaled data values from an input tensor. The output tensors are cast to the\n    specified scale and value types. The block dimension will be the last dimension\n    of the tensor.",
+    "inputs": [
+      { "name": "input_data", "type": "Tosa_TensorAtLeast1D" }
+    ],
+    "outputs": [
+      { "name": "output_data", "type": "Tosa_MXFPDataTensorAtLeast1D" },
+      { "name": "output_scale", "type": "Tosa_MXFPScaleTensorAtLeast1D" }
+    ],
+    "attributes": [
+      { "name": "block_size", "type": "Tosa_BlockSizeAttr" }
+    ]
+  },
+  {
     "name": "tosa.ceil",
     "summary": "Elementwise ceil operator.",
     "description": "Elementwise ceiling operation.",
@@ -37752,6 +38263,597 @@
       { "name": "inputs", "type": "Variadic" }
     ],
     "assemblyFormat": "$inputs attr-dict `:` type($inputs)"
+  },
+  {
+    "name": "util.align",
+    "summary": "Aligns up to a power-of-two alignment if required.",
+    "description": "Aligns |value| up to the given power-of-two |alignment| if required.",
+    "inputs": [
+      { "name": "value", "type": "SignlessIntegerOrIndexLike" },
+      { "name": "alignment", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "SignlessIntegerOrIndexLike" }
+    ],
+    "assemblyFormat": "$value `,` $alignment attr-dict `:` type($result)"
+  },
+  {
+    "name": "util.assume.int",
+    "summary": "Memorializes assumptions about index/integer values.",
+    "description": "This op is used to memorialize the result of some integer analysis or\n    outside knowledge across a boundary beyond which such information can\n    not be easily recovered. Assumptions are made per op/result pair.\n\n    Assumptions are tied to operands as rows of permutations of an\n    `#util.assume.int` per operand. The number of permutations is the rank.\n    Typically multiple permutations record a specific subset of assumptions\n    broken down per call-site in some way that is meaningful to the receiver.\n    Implementations can use this information to specialize on each\n    permutation if it is meaninful to do so (i.e. vs unioning across them).\n    In such cases, there will typically be one such op at the top of a\n    function or scope which passes all covered operands through it.",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "assumptions", "type": "Util_MultiValueIntAssumptionAttrList" }
+    ]
+  },
+  {
+    "name": "util.buffer.alloc",
+    "summary": "Allocates a buffer with undefined contents.",
+    "description": "Allocates a buffer with undefined contents. Consumers of the allocated\n    result must assume nothing of the contents.",
+    "inputs": [
+      { "name": "storage_size", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_BufferType" }
+    ],
+    "attributes": [
+      { "name": "alignment", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "`uninitialized`\n    attr-dict\n    `:`\n    type($result) `` `{` $storage_size `}`"
+  },
+  {
+    "name": "util.buffer.compare",
+    "summary": "Compares a range of two buffers.",
+    "description": "Returns true if the two ranges are bitwise equivalent, somewhat like memcmp.",
+    "inputs": [
+      { "name": "lhs", "type": "Util_BufferType" },
+      { "name": "lhs_size", "type": "Util_Size" },
+      { "name": "lhs_offset", "type": "Util_Offset" },
+      { "name": "rhs", "type": "Util_BufferType" },
+      { "name": "rhs_size", "type": "Util_Size" },
+      { "name": "rhs_offset", "type": "Util_Offset" },
+      { "name": "length", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I1" }
+    ],
+    "assemblyFormat": "$lhs `[` $lhs_offset `]` `,`\n    $rhs `[` $rhs_offset `]` `,`\n    $length `:`\n    type($lhs) `` `{` $lhs_size `}` `,`\n    type($rhs) `` `{` $rhs_size `}`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.constant",
+    "summary": "Constant host-side byte buffer.",
+    "description": "Defines a compile-time byte buffer based on the given attribute value.\n    The attribute will be serialized into the canonical IREE format for the\n    chosen host target.",
+    "outputs": [
+      { "name": "result", "type": "Util_BufferType" }
+    ],
+    "attributes": [
+      { "name": "name", "type": "OptionalAttr" },
+      { "name": "value", "type": "Util_AnySerializableAttr" },
+      { "name": "alignment", "type": "OptionalAttr" },
+      { "name": "mime_type", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "($name^)? attr-dict `:` type($result) `=` $value"
+  },
+  {
+    "name": "util.buffer.copy",
+    "summary": "Copies a range of bytes between buffers.",
+    "description": "Copies a range of bytes as with memcpy (no overlapping).",
+    "inputs": [
+      { "name": "source", "type": "Util_BufferType" },
+      { "name": "source_size", "type": "Util_Size" },
+      { "name": "source_offset", "type": "Util_Offset" },
+      { "name": "target", "type": "Util_BufferType" },
+      { "name": "target_size", "type": "Util_Size" },
+      { "name": "target_offset", "type": "Util_Offset" },
+      { "name": "length", "type": "Util_Size" }
+    ],
+    "assemblyFormat": "$source `[` $source_offset `]` `,`\n    $target `[` $target_offset `]` `,`\n    $length `:`\n    type($source) `` `{` $source_size `}` `->`\n    type($target) `` `{` $target_size `}`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.dealloc",
+    "summary": "Deallocates a buffer.",
+    "description": "Hints that the buffer contents can be discarded. Buffers are reference\n    counted and other owners may keep it live beyond the dealloc.",
+    "inputs": [
+      { "name": "operand", "type": "Util_BufferType" },
+      { "name": "operand_size", "type": "Util_Size" }
+    ],
+    "assemblyFormat": "$operand `:` type($operand) `{` $operand_size `}`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.fill",
+    "summary": "Fills a range of bytes with a value.",
+    "description": "Fills the contents of the buffer in the given byte range with a pattern.\n    The offset and length must match the natural alignment of the pattern type.",
+    "inputs": [
+      { "name": "pattern", "type": "Util_FillPattern" },
+      { "name": "target", "type": "Util_BufferType" },
+      { "name": "target_size", "type": "Util_Size" },
+      { "name": "target_offset", "type": "Util_Offset" },
+      { "name": "length", "type": "Util_Size" }
+    ],
+    "assemblyFormat": "$pattern `,`\n    $target `[` $target_offset `for` $length `]` `:`\n    type($pattern) `->`\n    type($target) `` `{` $target_size `}`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.hash",
+    "summary": "Computes the hash of a byte range of a buffer.",
+    "description": "Computes the SipHash-2-4 of a value at a byte offset with the given length.\n    This always uses a seed of `0x0001020304...0e0f` and produces a single 64\n    bit value.",
+    "inputs": [
+      { "name": "source", "type": "Util_BufferType" },
+      { "name": "source_size", "type": "Util_Size" },
+      { "name": "source_offset", "type": "Util_Offset" },
+      { "name": "length", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I64" }
+    ],
+    "assemblyFormat": "$source `[` $source_offset `for` $length `]`\n    `:` type($source) `` `{` $source_size `}` `->` type($result)\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.load",
+    "summary": "Loads a value from a buffer.",
+    "description": "Loads a value at a byte offset. Must be aligned to the natural size of the\n    result type.",
+    "inputs": [
+      { "name": "source", "type": "Util_BufferType" },
+      { "name": "source_size", "type": "Util_Size" },
+      { "name": "source_offset", "type": "Util_Offset" },
+      { "name": "length", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_Primitive" }
+    ],
+    "assemblyFormat": "$source `[` $source_offset `for` $length `]`\n    `:` type($source) `` `{` $source_size `}` `->` type($result)\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.size",
+    "summary": "Returns the total buffer storage size in bytes.",
+    "description": "Returns the total length of the buffer in bytes from its base offset.",
+    "inputs": [
+      { "name": "operand", "type": "Util_BufferType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_Size" }
+    ],
+    "assemblyFormat": "$operand\n    `:` type($operand)\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.slice",
+    "summary": "Clones a subregion of a buffer.",
+    "description": "Returns a copy of the contents from the source buffer.",
+    "inputs": [
+      { "name": "source", "type": "Util_BufferType" },
+      { "name": "source_size", "type": "Util_Size" },
+      { "name": "source_offset", "type": "Util_Offset" },
+      { "name": "result_size", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_BufferType" }
+    ],
+    "attributes": [
+      { "name": "alignment", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$source `[` $source_offset `]` attr-dict `:`\n    type($source) `` `{` $source_size `}` `->`\n    type($result) `` `{` $result_size `}`"
+  },
+  {
+    "name": "util.buffer.storage",
+    "summary": "Returns the underlying buffer storage range.",
+    "description": "Returns the buffer storage as a memref that must be offset and restricted to\n    the returned range. The memref may be of any type and the user is\n    responsible for ensuring that the reinterpret_cast-like behavior makes sense\n    for the data they are accessing.",
+    "inputs": [
+      { "name": "operand", "type": "Util_BufferType" },
+      { "name": "operand_size", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyMemRef" },
+      { "name": "offset", "type": "Util_Offset" }
+    ],
+    "assemblyFormat": "$operand\n    `:` type($operand) `` `{` $operand_size `}` `->` `(` type($result) `,` type($offset) `)`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.store",
+    "summary": "Stores a value into a buffer.",
+    "description": "Stores a value at a byte offset. Must be aligned to the natural size of the\n    source type.",
+    "inputs": [
+      { "name": "source", "type": "Util_Primitive" },
+      { "name": "target", "type": "Util_BufferType" },
+      { "name": "target_size", "type": "Util_Size" },
+      { "name": "target_offset", "type": "Util_Offset" },
+      { "name": "length", "type": "Util_Size" }
+    ],
+    "assemblyFormat": "$source `,`\n    $target `[` $target_offset `for` $length `]`\n    `:` type($source) `->` type($target) `` `{` $target_size `}`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.buffer.subspan",
+    "summary": "Returns a reference to a subrange of a buffer.",
+    "description": "Returns a logical view into an underlying source buffer. This induces\n    aliasing and multiple SSA values may allow access to the same underlying\n    buffer storage.\n\n    Subspans are a compiler-only concept and are propagated by an analysis pass\n    to result in absolute offsets on accesses any place the subrange would have\n    been used.",
+    "inputs": [
+      { "name": "source", "type": "Util_BufferType" },
+      { "name": "source_size", "type": "Util_Size" },
+      { "name": "source_offset", "type": "Util_Offset" },
+      { "name": "result_size", "type": "Util_Size" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_BufferType" }
+    ],
+    "assemblyFormat": "$source `[` $source_offset `]` `:`\n    type($source) `` `{` $source_size `}` `->`\n    type($result) `` `{` $result_size `}`\n    attr-dict-with-keyword"
+  },
+  {
+    "name": "util.call",
+    "summary": "Function call operation.",
+    "description": "Represents a direct call to a function that is within the same symbol scope\n    as the call. The operands and result types of the call must match the\n    specified function type.\n\n    Calls support tied operands which indicate that specific results alias\n    a specific operand. The operand and result types are allowed to differ if\n    a cast is performed within the callee.\n\n    Example:\n    ```mlir\n    util.func @fn(%arg0: i32, %arg1: tensor<f32>) -> (f32, %arg1 as tensor<i32>)\n    ...\n    %0 = util.call @fn(%0, %1) : (i32, tensor<f32>) -> (f32, %1 as tensor<i32>)\n    ```",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "callee", "type": "FlatSymbolRefAttr" },
+      { "name": "tied_operands", "type": "OptionalAttr" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$callee `(` $operands `)`\n    attr-dict `:`\n    custom<OperandTypeList>(type($operands))\n    `->`\n    custom<TiedFunctionResultList>(ref($operands),\n                                   ref(type($operands)),\n                                   type($results),\n                                   $tied_operands)"
+  },
+  {
+    "name": "util.cast",
+    "summary": "Casts one util type to another ala static_cast/dynamic_cast.",
+    "description": "Performs a type cast between object types known to the util dialect.",
+    "inputs": [
+      { "name": "operand", "type": "AnyType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "assemblyFormat": "$operand attr-dict `:` type($operand) `to` type($result)"
+  },
+  {
+    "name": "util.cmp.eq",
+    "summary": "Compares two values for equality.",
+    "description": "Compares two operands for equality. This is intended for comparing IREE\n    reference types (like !util.buffer) that cannot be used with std.cmpi.",
+    "inputs": [
+      { "name": "lhs", "type": "AnyType" },
+      { "name": "rhs", "type": "AnyType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I1" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` type($lhs)"
+  },
+  {
+    "name": "util.cmp.ne",
+    "summary": "Compares two values for inequality.",
+    "description": "Compares two operands for inequality. This is intended for comparing IREE\n    reference types (like !util.buffer) that cannot be used with std.cmpi.",
+    "inputs": [
+      { "name": "lhs", "type": "AnyType" },
+      { "name": "rhs", "type": "AnyType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I1" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` type($lhs)"
+  },
+  {
+    "name": "util.func",
+    "summary": "Function operation containing a CFG region.",
+    "description": "An operation declaring a callable function.\n\n    An external function declaration (used when referring to a function declared\n    in some other module) has no body.",
+    "attributes": [
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "function_type", "type": "TypeAttrOf" },
+      { "name": "tied_operands", "type": "OptionalAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" },
+      { "name": "inlining_policy", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "util.global",
+    "summary": "Stateful global variable declaration.",
+    "description": "Declares a global variable that maintains its value across invocations.\n    The value is tied to the execution context of the module and different\n    contexts will have different variable storage.\n\n    Globals can be initialized with an `initial_value` attribute that specifies\n    their value at module initialization time. This initial value is evaluated\n    in module definition order: a global with an initial value is considered\n    initialized at its definition point in the module, not when first accessed.\n\n    During module initialization:\n    * Globals with `initial_value` attributes conceptually have their value\n      materialized and stored before any subsequent initialization points\n    * Initialization order follows module definition order exactly\n    * Globals are visible to initializers but only after their definition point\n\n    Example:\n    ```mlir\n    // A is initialized to 1 at this point in module initialization.\n    util.global @A = 1 : i32\n\n    // This initializer can read A (it's defined above).\n    util.initializer {\n      %a = util.global.load @A : i32  // Loads 1\n    }\n\n    // B is initialized to 2 here, after the above initializer runs.\n    util.global @B = 2 : i32\n    ```\n\n    Globals marked as mutable can be modified by stores anywhere in the program.\n    Immutable globals have strict initialization rules:\n    * Can only be initialized once - either by `initial_value` or by stores\n      in initializers, never both.\n    * Stores to immutable globals are only allowed in:\n      - `util.initializer` ops directly\n      - Functions that are only called from initializers (initializer-only)\n    * Stores from externally-reachable functions are forbidden.\n    * Initialization must respect module order - initializers can only\n      access globals defined before them.\n\n    Stores to immutable globals inside control flow regions (scf.if, scf.for,\n    scf.while, etc) in initializer-only functions will generate warnings as\n    they may indicate complex initialization patterns that could be fragile:\n    ```mlir\n    util.func private @init_func() {\n      scf.if %cond {\n        // Warning: conditional store in initializer-only function\n        util.global.store %val, @immutable_global : i32\n      }\n    }\n    ```\n    While such patterns are allowed they should be used with caution as the\n    initialization behavior depends on runtime control flow and the compiler\n    may disable optimizations on those globals.",
+    "attributes": [
+      { "name": "sym_visibility", "type": "OptionalAttr" },
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "type", "type": "TypeAttr" },
+      { "name": "is_mutable", "type": "UnitAttr" },
+      { "name": "initial_value", "type": "OptionalAttr" },
+      { "name": "inlining_policy", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    custom<TypeOrAttr>($type, $initial_value)"
+  },
+  {
+    "name": "util.global.address",
+    "summary": "Returns an address reference to a global.",
+    "description": "Returns the address of a global as a typed reference. Can be used with the\n    global load and store indirect ops.",
+    "outputs": [
+      { "name": "result", "type": "Util_AnyGlobalPtr" }
+    ],
+    "attributes": [
+      { "name": "global", "type": "Util_GlobalRefAttr" },
+      { "name": "is_immutable", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "(`immutable` $is_immutable^)?\n    $global attr-dict `:` qualified(type($result))"
+  },
+  {
+    "name": "util.global.load",
+    "summary": "Loads a value from a global variable.",
+    "description": "Returns a global variable value. |is_immutable| is a reflection of the\n    mutability of the loaded global to minimize the need to traverse symbol\n    tables.",
+    "inputs": [
+      { "name": "global", "type": "Arg" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "attributes": [
+      { "name": "is_immutable", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "(`immutable` $is_immutable^)?\n    $global attr-dict `:` type($result)"
+  },
+  {
+    "name": "util.global.load.indirect",
+    "summary": "Loads a value from a global variable.",
+    "description": "Returns a copy of the global variable value.",
+    "inputs": [
+      { "name": "global", "type": "Arg" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "attributes": [
+      { "name": "is_immutable", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "(`immutable` $is_immutable^)?\n    $global attr-dict `:` qualified(type($global)) `->` type($result)"
+  },
+  {
+    "name": "util.global.store",
+    "summary": "Stores a value into a global variable.",
+    "description": "Stores a copy of the value into a global variable.",
+    "inputs": [
+      { "name": "value", "type": "AnyType" },
+      { "name": "global", "type": "Arg" }
+    ],
+    "assemblyFormat": "$value `,` $global attr-dict `:` type($value)"
+  },
+  {
+    "name": "util.global.store.indirect",
+    "summary": "Stores a value into a global variable.",
+    "description": "Stores a copy of the value into a global variable.",
+    "inputs": [
+      { "name": "value", "type": "AnyType" },
+      { "name": "global", "type": "Arg" }
+    ],
+    "assemblyFormat": "$value `,` $global attr-dict `:` type($value) `->` qualified(type($global))"
+  },
+  {
+    "name": "util.initializer",
+    "summary": "Global initialization function.",
+    "description": "A function that is called in definition order upon module initialization.\n    Must not load any globals that are defined or initialized after it in the\n    module.\n\n    Module initialization follows a strict execution order to ensure\n    correctness:\n    * Initialization points: two types of operations define initialization:\n      - `util.initializer` ops: explicit initialization functions\n      - `util.global` ops with initial values: implicit initialization via\n        attributes\n    * Execution order: initialization proceeds in exact module definition order:\n      - Operations execute sequentially from top to bottom\n      - Each `util.global` with an initial value conceptually materializes its\n        value and stores it before the next initialization point\n      - Each `util.initializer` executes its entire body before proceeding\n    * Dependency rules:\n      - Initializers may only access globals defined before them in module order\n      - Globals with initial values are considered \"initialized\" at their\n        definition point, not when first accessed\n      - Function calls within initializers observe the current initialization\n        state when the call is made\n    * Transformation guarantees:\n      - Combining passes preserve exact initialization order\n      - Globals with initial values may be converted to explicit initialization\n        while maintaining their position in the initialization sequence\n      - The final initialization state must be identical to sequential execution\n\n    Example execution:\n    ```mlir\n    util.global @A = 1 : i32           // A = 1\n    util.initializer { ... }           // Executes with A = 1\n    util.global @B = 2 : i32           // B = 2\n    util.initializer {\n      %a = util.global.load @A : i32   // Loads 1\n      %b = util.global.load @B : i32   // Loads 2\n    }\n    ```",
+    "attributes": [
+      { "name": "function_type", "type": "TypeAttrOf" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "util.list.construct",
+    "summary": "Constructs a list with the given initial values.",
+    "description": "Creates a new list with the given values added in order. The list will be\n    allocated with an initial capacity equal to the number of values. This is a\n    pseudo-operation that expands to a list create, resize, and a series of\n    sets.",
+    "inputs": [
+      { "name": "values", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_AnyListType" }
+    ],
+    "assemblyFormat": "custom<ValueTypeList>($values, type($values))\n    attr-dict `:` qualified(type($result))"
+  },
+  {
+    "name": "util.list.create",
+    "summary": "Creates a new empty list.",
+    "description": "Creates a new empty list with an optional initial capacity.",
+    "inputs": [
+      { "name": "initial_capacity", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_AnyListType" }
+    ],
+    "assemblyFormat": "($initial_capacity^)? attr-dict `:` qualified(type($result))"
+  },
+  {
+    "name": "util.list.get",
+    "summary": "Element accessor.",
+    "description": "Returns the value of the element at the given index. Note that the value\n    may be null if the element is null or the type does not match.",
+    "inputs": [
+      { "name": "list", "type": "Util_AnyListType" },
+      { "name": "index", "type": "Index" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "assemblyFormat": "$list `[` $index `]` attr-dict `:` custom<ListTypeGet>(type($list), type($result))"
+  },
+  {
+    "name": "util.list.resize",
+    "summary": "Resizes the list to a new count in elements.",
+    "description": "Resizes the list to contain `new_size` elements. This will either truncate\n    the list if the existing size is greater than `new_size` or extend the list\n    with the default list value of the element type.",
+    "inputs": [
+      { "name": "list", "type": "Util_AnyListType" },
+      { "name": "new_size", "type": "Index" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` qualified(type($list))"
+  },
+  {
+    "name": "util.list.set",
+    "summary": "Element mutator.",
+    "description": "Sets the element at the given index to the new value.",
+    "inputs": [
+      { "name": "list", "type": "Util_AnyListType" },
+      { "name": "index", "type": "Index" },
+      { "name": "value", "type": "AnyType" }
+    ],
+    "assemblyFormat": "$list `[` $index `]` `,` $value attr-dict `:` custom<ListTypeSet>(type($list), type($value))"
+  },
+  {
+    "name": "util.list.size",
+    "summary": "The size of the list in elements.",
+    "description": "Returns the current size of the list in elements.",
+    "inputs": [
+      { "name": "list", "type": "Util_AnyListType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Index" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` qualified(type($list))"
+  },
+  {
+    "name": "util.null",
+    "summary": "Returns a null type value.",
+    "description": "Defines an SSA value that is lowered into dialects supporting\n    null/undefined/optional/etc values.",
+    "outputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($result)"
+  },
+  {
+    "name": "util.numeric.optional_narrow",
+    "summary": "memorializes an optional numeric narrowing that is valid.",
+    "description": "Serves as a placeholder for points in the computation where an optional\n    numeric narrowing can be performed without loss of information. Such ops\n    can guide optimization passes wishing to perform precision reduction.\n\n    In addition to the operand and result type, this op takes an additional\n    `semantic_type` attribute representing the semantic target type which can\n    be:\n      * FloatType\n      * Signed IntegerType\n      * Unsigned IntegerType\n\n    Note that this `semantic_type` must be a sign-carrying integer if using an\n    integer type and cannot be IndexType (i.e. it can be used to indicate a\n    possible narrowing of an IndexType to a specific integer).\n\n    If the operand is a TensorType, then the result must be a TensorType. The\n    `semantic_type` constrains the element type.\n\n    Optionally, the minimum and maximum integer values (for integer semantic\n    types) are tracked if known.",
+    "inputs": [
+      { "name": "operand", "type": "AnyTypeOf" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "AnyTypeOf" }
+    ],
+    "attributes": [
+      { "name": "semantic_type", "type": "TypeAttr" },
+      { "name": "min_value", "type": "OptionalAttr" },
+      { "name": "max_value", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$operand `:` type($operand) `as` $semantic_type attr-dict"
+  },
+  {
+    "name": "util.optimization_barrier",
+    "summary": "Prevents compiler optimizations across a value.",
+    "description": "Wraps any operands in an unoptimizable identity to prevent its results from\n    being folded. It will be dropped during the final step in compilation and\n    has no effect at runtime.",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "assemblyFormat": "attr-dict\n    ($operands^ `:` type($operands))?"
+  },
+  {
+    "name": "util.range.extents",
+    "summary": "Returns the min/max of a union of a set of ranges.",
+    "description": "Computes min(offsets) and max(offsets + lengths). Though it's possible to\n    express this with standard arithmetic this op enables more semantically\n    meaningful folding/optimizations.",
+    "inputs": [
+      { "name": "offsets", "type": "Variadic" },
+      { "name": "lengths", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "min", "type": "Util_Range" },
+      { "name": "max", "type": "Util_Range" }
+    ],
+    "assemblyFormat": "custom<RangeList>($offsets, $lengths) attr-dict `:` type($min)"
+  },
+  {
+    "name": "util.range.max",
+    "summary": "Returns the max of all values.",
+    "description": "Computes the max of a variadic list of operands. Though it's possible to\n    express this with standard arithmetic this op enables more semantically\n    meaningful folding/optimizations.",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_Range" }
+    ],
+    "assemblyFormat": "$operands attr-dict `:` type($result)"
+  },
+  {
+    "name": "util.range.min",
+    "summary": "Returns the min of all values.",
+    "description": "Computes the min of a variadic list of operands. Though it's possible to\n    express this with standard arithmetic this op enables more semantically\n    meaningful folding/optimizations.",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_Range" }
+    ],
+    "assemblyFormat": "$operands attr-dict `:` type($result)"
+  },
+  {
+    "name": "util.return",
+    "summary": "Return from a util.initializer.",
+    "description": "Returns control from an initializer function.",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "assemblyFormat": "attr-dict\n    ($operands^ `:` type($operands))?"
+  },
+  {
+    "name": "util.scf.unreachable",
+    "summary": "Non-terminator unreachable for use in SCF regions.",
+    "description": "Marks a point as unreachable within SCF regions. Unlike `util.unreachable`\n    this is not a terminator and must be followed by appropriate region\n    terminators (e.g. `scf.yield`).\n\n    When not in an SCF region (e.g. `util.func`) this op canonicalizes to an\n    `util.unreachable` terminator that preserves the intended behavior.\n\n    Note that this op has side effects to prevent code motion: reaching this op\n    at runtime is observable indirectly (by way of what ops _don't_ execute). At\n    minimum presence of the op indicates all following ops in the same region\n    are unreachable and depending on the parent op may indicate the entire\n    parent op is unreachable. The behavior is roughly equivalent to having\n    lowered SCF to CFG and used `util.unreachable`.\n\n    Example:\n    ```mlir\n    scf.while (...) {\n      ...\n      scf.condition(%true) ...\n    } do {\n      ...\n      util.scf.unreachable \"infinite loop body\"\n      scf.yield  // Required terminator with poison values\n    }\n    ```",
+    "attributes": [
+      { "name": "message", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "($message^)? attr-dict"
+  },
+  {
+    "name": "util.sizeof",
+    "summary": "Returns the size in bytes of a datatype.",
+    "description": "Most datatypes have a static size at all layers of the compilation stack.\n    However, those that only have a size for certain lowering flows can be\n    challenging. This op represents such sizes in a way that can be specialized\n    later.\n\n    Returns the size in bytes, rounded up to the next whole byte of the\n    specified type. This op will fold to a constant index value for IntegerType\n    and FloatType. All others are not folded.",
+    "outputs": [
+      { "name": "size", "type": "Index" }
+    ],
+    "attributes": [
+      { "name": "sizedType", "type": "TypeAttr" }
+    ],
+    "assemblyFormat": "$sizedType attr-dict-with-keyword"
+  },
+  {
+    "name": "util.status.check_ok",
+    "summary": "Raises a global failure if a status is not 'ok'.",
+    "description": "When the status is not 'ok' this signals a runtime failure that causes the\n    entire active invocation - and possibly *all* in-flight and pending\n    invocations - to fail with the given status. The status will be propagated\n    back via the available runtime error handling mechanisms such as semaphores\n    or synchronous invocation results.\n\n    As the IREE execution model is deeply pipelined it's possible that failures\n    have a latency between when they are emitted and when the application can\n    observe the failure. It's also possible that other work that is in-flight\n    or pending when the failure occurs will complete.",
+    "inputs": [
+      { "name": "status", "type": "Util_Status" }
+    ],
+    "attributes": [
+      { "name": "message", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$status (`,` $message^)? attr-dict"
+  },
+  {
+    "name": "util.switch",
+    "summary": "Primitive switch operation.",
+    "description": "Returns the value with the given `index` in `values` or `default_value` if\n    the index is out of bounds.\n\n    ```mlir\n    // Switch %index to cases of %c100/%c200/%c300 if index==0, ==1, ==2.\n    // If %index is out of range (<0 or >2) then default to %c5.\n    %0 = util.switch %index[%c100, %c200, %c300] else %c5 : i32\n    ```",
+    "inputs": [
+      { "name": "index", "type": "Index" },
+      { "name": "default_value", "type": "Util_Primitive" },
+      { "name": "values", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Util_Primitive" }
+    ],
+    "assemblyFormat": "type($default_value) `from`\n    custom<TypedValueList>(ref(type($default_value)), $values, type($values))\n    `at` $index\n    `else` $default_value\n    attr-dict\n    `:` type($result)"
+  },
+  {
+    "name": "util.unfoldable_constant",
+    "summary": "A constant that cannot be folded by the compiler.",
+    "description": "Similar to a std.constant, but is declared as having a side effect and has\n    no folder. This is really just syntactic sugar as it is canonicalized to a\n    std.constant wrapped in an util.optimization_barrier.",
+    "attributes": [
+      { "name": "value", "type": "AnyAttr" }
+    ]
+  },
+  {
+    "name": "util.unreachable",
+    "summary": "Unreachable assertion op.",
+    "description": "Signals to the compiler that the parent block should not be reachable.\n    This may be converted into a runtime assertion, though ideally they are\n    stripped during translation.\n\n    ```mlir\n    ^bb0:\n      %true = arith.constant true\n      cond_br %true, ^bb2, ^bb1\n    ^bb1:\n      // Indicates that this branch should never be taken.\n      util.unreachable \"shouldn't be here\"\n    ^bb2:\n      ...\n\n    ```",
+    "attributes": [
+      { "name": "message", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "($message^)? attr-dict"
   },
   {
     "name": "vector.bitcast",

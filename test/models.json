@@ -3280,8 +3280,45 @@
   },
   {
     "type":     "mlir",
+    "target":   "codegen.toy.mlir",
+    "source":   "https://github.com/user-attachments/files/17878028/codegen.toy.mlir.zip[codegen.toy.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "conv-conversion.mlir",
+    "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
+    "format":   "MLIR",
+    "error":    "Expected token of type ':', but got '^bb2' at 11144:1.",
+    "tags":     "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "conv_gpu_gridwise_gemm.mlir",
+    "source":   "https://github.com/user-attachments/files/23027327/conv_gpu_gridwise_gemm.mlir.zip[conv_gpu_gridwise_gemm.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "ctlz.mlir",
+    "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "dogs_vs_cats.stablehlo.mlir",
     "source":   "https://github.com/user-attachments/files/22517931/dogs_vs_cats.stablehlo.mlir.zip[dogs_vs_cats.stablehlo.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "embedding_bm1684x_f16_tpu.mlir",
+    "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3296,42 +3333,6 @@
     "type":     "mlir",
     "target":   "examples.mnist_xla.mlir",
     "source":   "https://github.com/lutzroeder/netron/files/10672271/examples.mnist_xla.mlir.zip[examples.mnist_xla.mlir]",
-    "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "codegen.toy.mlir",
-    "source":   "https://github.com/user-attachments/files/17878028/codegen.toy.mlir.zip[codegen.toy.mlir]",
-    "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "ctlz.mlir",
-    "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
-    "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "conv-conversion.mlir",
-    "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
-    "format":   "MLIR",
-    "error":    "Unexpected value ',' at 6072:171.",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "conv_gpu_gridwise_gemm.mlir",
-    "source":   "https://github.com/user-attachments/files/23027327/conv_gpu_gridwise_gemm.mlir.zip[conv_gpu_gridwise_gemm.mlir]",
-    "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "embedding_bm1684x_f16_tpu.mlir",
-    "source":   "https://github.com/user-attachments/files/15525787/embedding_bm1684x_f16_tpu.mlir.txt",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },

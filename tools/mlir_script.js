@@ -108,6 +108,8 @@ const main = async () => {
         'mlir/IR/BuiltinTypes.td',
         'mlir/Dialect/Affine/IR/AffineOps.td',
         'mlir/Dialect/Affine/IR/AffineOps.td',
+        'mlir/Dialect/Arith/IR/ArithOps.td',
+        'mlir/Dialect/ControlFlow/IR/ControlFlowOps.td',
         'mlir/Dialect/Func/IR/FuncOps.td',
         'mlir/Dialect/Linalg/IR/LinalgOps.td',
         'mlir/Dialect/MemRef/IR/MemRefOps.td',
@@ -137,6 +139,7 @@ const main = async () => {
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
+        'iree/compiler/Dialect/Util/IR/UtilOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -170,9 +173,9 @@ const main = async () => {
         if (description && description.value) {
             metadata.description = description.value.value;
         }
-        const argsField = def.resolveField('arguments');
-        if (argsField && argsField.value && argsField.value.type === 'dag') {
-            const dag = argsField.value.value;
+        const args = def.resolveField('arguments');
+        if (args && args.value && args.value.type === 'dag') {
+            const dag = args.value.value;
             if (dag.operator === 'ins') {
                 metadata.inputs = [];
                 metadata.attributes = [];
@@ -201,35 +204,39 @@ const main = async () => {
                 }
             }
         }
-        const resultsField = def.resolveField('results');
-        if (resultsField && resultsField.value && resultsField.value.type === 'dag') {
-            const dag = resultsField.value.value;
+        const results = def.resolveField('results');
+        if (results && results.value && results.value.type === 'dag') {
+            const dag = results.value.value;
             if (dag.operator === 'outs') {
                 metadata.outputs = [];
                 for (const operand of dag.operands) {
                     if (!operand.value || !operand.name) {
                         continue;
                     }
-                    let typeName = '';
-                    if (operand.value.type === 'def') {
-                        typeName = operand.value.value;
-                    } else {
-                        typeName = String(operand.value.value);
+                    if (operand.value.type !== 'def') {
+                        throw new Error('Unexpected result operand value type');
                     }
-                    metadata.outputs.push({
-                        name: operand.name,
-                        type: typeName
-                    });
+                    const type = operand.value.value;
+                    metadata.outputs.push({ name: operand.name, type });
                 }
             }
         }
-        const assemblyFormatField = def.resolveField('assemblyFormat');
-        if (assemblyFormatField && assemblyFormatField.value) {
-            metadata.assemblyFormat = assemblyFormatField.value.value;
+        const successors = def.resolveField('successors');
+        if (successors && successors.value && successors.value.type === 'dag') {
+            const dag = successors.value.value;
+            if (dag.operator === 'successor') {
+                metadata.successors = [];
+                for (const operand of dag.operands) {
+                    if (!operand.name) {
+                        continue;
+                    }
+                    metadata.successors.push({ name: operand.name });
+                }
+            }
         }
-        const regionsField = def.resolveField('regions');
-        if (regionsField) {
-            metadata.hasRegions = true;
+        const assemblyFormat = def.resolveField('assemblyFormat');
+        if (assemblyFormat && assemblyFormat.value) {
+            metadata.assemblyFormat = assemblyFormat.value.value;
         }
         const operation = {};
         if (metadata.name) {
@@ -262,6 +269,9 @@ const main = async () => {
         if (metadata.attributes && metadata.attributes.length > 0) {
             operation.attributes = metadata.attributes;
         }
+        if (metadata.successors && metadata.successors.length > 0) {
+            operation.successors = metadata.successors;
+        }
         if (metadata.assemblyFormat) {
             let format = metadata.assemblyFormat.trim();
             format = format.replace(/^\[\{\s*|\s*\}\]$/g, '');
@@ -282,6 +292,8 @@ const main = async () => {
                     operation.category = 'Activation';
                 } else if (['convolution', 'Conv', 'matmul', 'batch_matmul', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].includes(name)) {
                     operation.category = 'Layer';
+                } else if (['batch_norm_inference'].includes(name)) {
+                    operation.category = 'Normalization';
                 }
             }
             operations.set(operationName, operation);
