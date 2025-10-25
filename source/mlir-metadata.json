@@ -9410,6 +9410,144 @@
     "assemblyFormat": "$input attr-dict `:` type($input) `to` type($result)"
   },
   {
+    "name": "scf.condition",
+    "summary": "loop continuation condition",
+    "description": "This operation accepts the continuation (i.e., inverse of exit) condition\n    of the `scf.while` construct. If its first argument is true, the \"after\"\n    region of `scf.while` is executed, with the remaining arguments forwarded\n    to the entry block of the region. Otherwise, the loop terminates.",
+    "inputs": [
+      { "name": "condition", "type": "I1" },
+      { "name": "args", "type": "Variadic" }
+    ],
+    "assemblyFormat": "`(` $condition `)` attr-dict ($args^ `:` type($args))?"
+  },
+  {
+    "name": "scf.execute_region",
+    "summary": "operation that executes its region exactly once",
+    "description": "The `scf.execute_region` operation is used to allow multiple blocks within SCF\n    and other operations which can hold only one block.  The `scf.execute_region`\n    operation executes the region held exactly once and cannot have any operands.\n    As such, its region has no arguments. All SSA values that dominate the op can\n    be accessed inside the op. The op's region can have multiple blocks and the\n    blocks can have multiple distinct terminators. Values returned from this op's\n    region define the op's results.\n    The optional 'no_inline' flag can be set to request the ExecuteRegionOp to be\n    preserved as much as possible and not being inlined in the parent block until\n    an explicit lowering step.\n\n    Example:\n\n    ```mlir\n    scf.for %i = 0 to 128 step %c1 {\n      %y = scf.execute_region -> i32 {\n        %x = load %A[%i] : memref<128xi32>\n        scf.yield %x : i32\n      }\n    }\n\n    // the same as above but with no_inline attribute\n    scf.for %i = 0 to 128 step %c1 {\n      %y = scf.execute_region -> i32 no_inline {\n        %x = load %A[%i] : memref<128xi32>\n        scf.yield %x : i32\n      }\n    }\n\n    affine.for %i = 0 to 100 {\n      \"foo\"() : () -> ()\n      %v = scf.execute_region -> i64 {\n        cf.cond_br %cond, ^bb1, ^bb2\n\n      ^bb1:\n        %c1 = arith.constant 1 : i64\n        cf.br ^bb3(%c1 : i64)\n\n      ^bb2:\n        %c2 = arith.constant 2 : i64\n        cf.br ^bb3(%c2 : i64)\n\n      ^bb3(%x : i64):\n        scf.yield %x : i64\n      }\n      \"bar\"(%v) : (i64) -> ()\n    }\n    ```",
+    "attributes": [
+      { "name": "no_inline", "type": "UnitAttr" }
+    ]
+  },
+  {
+    "name": "scf.for",
+    "summary": "for operation",
+    "description": "The `scf.for` operation represents a loop taking 3 SSA value as operands\n    that represent the lower bound, upper bound and step respectively. The\n    operation defines an SSA value for its induction variable. It has one\n    region capturing the loop body. The induction variable is represented as an\n    argument of this region. This SSA value is a signless integer or index.\n    The step is a value of same type but required to be positive, the lower and\n    upper bounds can be also negative or zero. The lower and upper bounds\n    specify a half-open range: the iteration is executed iff the comparison of\n    induction variable value is less than the upper bound and bigger or equal\n    to the lower bound.\n\n    By default, the integer comparison is signed. If the `unsignedCmp` unit\n    attribute is specified, the integer comparison is unsigned.\n\n    The body region must contain exactly one block that terminates with\n    `scf.yield`. Calling ForOp::build will create such a region and insert\n    the terminator implicitly if none is defined, so will the parsing even in\n    cases when it is absent from the custom format. For example:\n\n    ```mlir\n    // Index case.\n    scf.for %iv = %lb to %ub step %step {\n      ... // body\n    }\n    ...\n    // Unsigned integer case.\n    scf.for unsigned %iv_32 = %lb_32 to %ub_32 step %step_32 : i32 {\n      ... // body\n    }\n    ```\n\n    `scf.for` can also operate on loop-carried variables and returns the final\n    values after loop termination. The initial values of the variables are\n    passed as additional SSA operands to the `scf.for` following the 3 loop\n    control SSA values mentioned above (lower bound, upper bound and step). The\n    operation region has an argument for the induction variable, followed by\n    one argument for each loop-carried variable, representing the value of the\n    variable at the current iteration.\n\n    The region must terminate with a `scf.yield` that passes the current\n    values of all loop-carried variables to the next iteration, or to the\n    `scf.for` result, if at the last iteration. The static type of a\n    loop-carried variable may not change with iterations; its runtime type is\n    allowed to change. Note, that when the loop-carried variables are present,\n    calling ForOp::build will not insert the terminator implicitly. The caller\n    must insert `scf.yield` in that case.\n\n    `scf.for` results hold the final values after the last iteration.\n    For example, to sum-reduce a memref:\n\n    ```mlir\n    func.func @reduce(%buffer: memref<1024xf32>, %lb: index,\n                      %ub: index, %step: index) -> (f32) {\n      // Initial sum set to 0.\n      %sum_0 = arith.constant 0.0 : f32\n      // iter_args binds initial values to the loop's region arguments.\n      %sum = scf.for %iv = %lb to %ub step %step\n          iter_args(%sum_iter = %sum_0) -> (f32) {\n        %t = load %buffer[%iv] : memref<1024xf32>\n        %sum_next = arith.addf %sum_iter, %t : f32\n        // Yield current iteration sum to next iteration %sum_iter or to %sum\n        // if final iteration.\n        scf.yield %sum_next : f32\n      }\n      return %sum : f32\n    }\n    ```\n\n    If the `scf.for` defines any values, a yield must be explicitly present.\n    The number and types of the `scf.for` results must match the initial\n    values in the `iter_args` binding and the yield operands.\n\n    Another example with a nested `scf.if` (see `scf.if` for details) to\n    perform conditional reduction:\n\n    ```mlir\n    func.func @conditional_reduce(%buffer: memref<1024xf32>, %lb: index,\n                                  %ub: index, %step: index) -> (f32) {\n      %sum_0 = arith.constant 0.0 : f32\n      %c0 = arith.constant 0.0 : f32\n      %sum = scf.for %iv = %lb to %ub step %step\n          iter_args(%sum_iter = %sum_0) -> (f32) {\n        %t = load %buffer[%iv] : memref<1024xf32>\n        %cond = arith.cmpf \"ugt\", %t, %c0 : f32\n        %sum_next = scf.if %cond -> (f32) {\n          %new_sum = arith.addf %sum_iter, %t : f32\n          scf.yield %new_sum : f32\n        } else {\n          scf.yield %sum_iter : f32\n        }\n        scf.yield %sum_next : f32\n      }\n      return %sum : f32\n    }\n    ```",
+    "inputs": [
+      { "name": "lowerBound", "type": "AnySignlessIntegerOrIndex" },
+      { "name": "upperBound", "type": "AnySignlessIntegerOrIndex" },
+      { "name": "step", "type": "AnySignlessIntegerOrIndex" },
+      { "name": "initArgs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "unsignedCmp", "type": "UnitAttr" }
+    ]
+  },
+  {
+    "name": "scf.forall",
+    "summary": "evaluate a block multiple times in parallel",
+    "description": "`scf.forall` is a target-independent multi-dimensional parallel\n    region application operation. It has exactly one block that represents the\n    parallel body and it takes index operands that specify lower bounds, upper\n    bounds and steps.\n\n    The op also takes a variadic number of tensor operands (`shared_outs`).\n    The future buffers corresponding to these tensors are shared among all\n    threads. Shared tensors should be accessed via their corresponding block\n    arguments. If multiple threads write to a shared buffer in a racy\n    fashion, these writes will execute in some unspecified order. Tensors that\n    are not shared can be used inside the body (i.e., the op is not isolated\n    from above); however, if a use of such a tensor bufferizes to a memory\n    write, the tensor is privatized, i.e., a thread-local copy of the tensor is\n    used. This ensures that memory side effects of a thread are not visible to\n    other threads (or in the parent body), apart from explicitly shared tensors.\n\n    The name \"thread\" conveys the fact that the parallel execution is mapped\n    (i.e. distributed) to a set of virtual threads of execution, one function\n    application per thread. Further lowerings are responsible for specifying\n    how this is materialized on concrete hardware resources.\n\n    An optional `mapping` is an attribute array that specifies processing units\n    with their dimension, how it remaps 1-1 to a set of concrete processing\n    element resources (e.g. a CUDA grid dimension or a level of concrete nested\n    async parallelism). It is expressed via any attribute that implements the\n    device mapping interface. It is the reponsibility of the lowering mechanism\n    to interpret the `mapping` attributes in the context of the concrete target\n    the op is lowered to, or to ignore it when the specification is ill-formed\n    or unsupported for a particular target.\n\n    The only allowed terminator is `scf.forall.in_parallel`.\n    `scf.forall` returns one value per `shared_out` operand. The\n    actions of the `scf.forall.in_parallel` terminators specify how to combine the\n    partial results of all parallel invocations into a full value, in some\n    unspecified order. The \"destination\" of each such op must be a `shared_out`\n    block argument of the `scf.forall` op.\n\n    The actions involved in constructing the return values are further described\n    by `tensor.parallel_insert_slice`.\n\n    `scf.forall` acts as an implicit synchronization point.\n\n    When the parallel function body has side effects, their order is unspecified\n    across threads.\n\n    `scf.forall` can be printed in two different ways depending on\n    whether the loop is normalized or not. The loop is 'normalized' when all\n    lower bounds are equal to zero and steps are equal to one. In that case,\n    `lowerBound` and `step` operands will be omitted during printing.\n\n    Normalized loop example:\n\n    ```mlir\n    //\n    // Sequential context.\n    //\n    %matmul_and_pointwise:2 = scf.forall (%thread_id_1, %thread_id_2) in\n        (%num_threads_1, %numthread_id_2) shared_outs(%o1 = %C, %o2 = %pointwise)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context, each thread with id = (%thread_id_1, %thread_id_2)\n      // runs its version of the code.\n      //\n      %sA = tensor.extract_slice %A[f((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sB = tensor.extract_slice %B[g((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sC = tensor.extract_slice %o1[h((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sD = linalg.matmul\n        ins(%sA, %sB : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%sC : tensor<?x?xT>)\n\n      %spointwise = subtensor %o2[i((%thread_id_1, %thread_id_2))]:\n        tensor<?xT> to tensor<?xT>\n      %sE = linalg.add ins(%spointwise : tensor<?xT>) outs(%sD : tensor<?xT>)\n\n      scf.forall.in_parallel {\n        tensor.parallel_insert_slice %sD into %o1[h((%thread_id_1, %thread_id_2))]:\n          tensor<?x?xT> into tensor<?x?xT>\n\n        tensor.parallel_insert_slice %spointwise into %o2[i((%thread_id_1, %thread_id_2))]:\n          tensor<?xT> into tensor<?xT>\n      }\n    }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Loop with loop bounds example:\n\n    ```mlir\n    //\n    // Sequential context.\n    //\n    %pointwise = scf.forall (%i, %j) = (0, 0) to (%dim1, %dim2)\n      step (%tileSize1, %tileSize2) shared_outs(%o1 = %out)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context.\n      //\n      %sA = tensor.extract_slice %A[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n      %sB = tensor.extract_slice %B[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n      %sC = tensor.extract_slice %o[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n\n      %add = linalg.map {\"arith.addf\"}\n        ins(%sA, %sB : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%sC : tensor<?x?xT>)\n\n      scf.forall.in_parallel {\n        tensor.parallel_insert_slice %add into\n          %o[%i, %j][%tileSize1, %tileSize2][1, 1]\n          : tensor<?x?xT> into tensor<?x?xT>\n      }\n    }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Example with mapping attribute:\n\n    ```mlir\n    //\n    // Sequential context. Here `mapping` is expressed as GPU thread mapping\n    // attributes\n    //\n    %matmul_and_pointwise:2 = scf.forall (%thread_id_1, %thread_id_2) in\n        (%num_threads_1, %numthread_id_2) shared_outs(...)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context, each thread with id = **(%thread_id_2, %thread_id_1)**\n      // runs its version of the code.\n      //\n       scf.forall.in_parallel {\n         ...\n      }\n    } { mapping = [#gpu.thread<y>, #gpu.thread<x>] }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Example with privatized tensors:\n\n    ```mlir\n    %t0 = ...\n    %t1 = ...\n    %r = scf.forall ... shared_outs(%o = t0) -> tensor<?xf32> {\n      // %t0 and %t1 are privatized. %t0 is definitely copied for each thread\n      // because the scf.forall op's %t0 use bufferizes to a memory\n      // write. In the absence of other conflicts, %t1 is copied only if there\n      // are uses of %t1 in the body that bufferize to a memory read and to a\n      // memory write.\n      \"some_use\"(%t0)\n      \"some_use\"(%t1)\n    }\n    ```",
+    "inputs": [
+      { "name": "dynamicLowerBound", "type": "Variadic" },
+      { "name": "dynamicUpperBound", "type": "Variadic" },
+      { "name": "dynamicStep", "type": "Variadic" },
+      { "name": "outputs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "staticLowerBound", "type": "DenseI64ArrayAttr" },
+      { "name": "staticUpperBound", "type": "DenseI64ArrayAttr" },
+      { "name": "staticStep", "type": "DenseI64ArrayAttr" },
+      { "name": "mapping", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "scf.forall.in_parallel",
+    "summary": "terminates a `forall` block",
+    "description": "The `scf.forall.in_parallel` is a designated terminator for\n    the `scf.forall` operation.\n\n    It has a single region with a single block that contains a flat list of ops.\n    Each such op participates in the aggregate formation of a single result of\n    the enclosing `scf.forall`.\n    The result number corresponds to the position of the op in the terminator."
+  },
+  {
+    "name": "scf.if",
+    "summary": "if-then-else operation",
+    "description": "The `scf.if` operation represents an if-then-else construct for\n    conditionally executing two regions of code. The operand to an if operation\n    is a boolean value. For example:\n\n    ```mlir\n    scf.if %b  {\n      ...\n    } else {\n      ...\n    }\n    ```\n\n    `scf.if` may also produce results. Which values are returned depends on\n    which execution path is taken.\n\n    Example:\n\n    ```mlir\n    %x, %y = scf.if %b -> (f32, f32) {\n      %x_true = ...\n      %y_true = ...\n      scf.yield %x_true, %y_true : f32, f32\n    } else {\n      %x_false = ...\n      %y_false = ...\n      scf.yield %x_false, %y_false : f32, f32\n    }\n    ```\n\n    The \"then\" region has exactly 1 block. The \"else\" region may have 0 or 1\n    block. In case the `scf.if` produces results, the \"else\" region must also\n    have exactly 1 block.\n\n    The blocks are always terminated with `scf.yield`. If `scf.if` defines no\n    values, the `scf.yield` can be left out, and will be inserted implicitly.\n    Otherwise, it must be explicit.\n\n    Example:\n\n    ```mlir\n    scf.if %b  {\n      ...\n    }\n    ```\n\n    The types of the yielded values must match the result types of the\n    `scf.if`.",
+    "inputs": [
+      { "name": "condition", "type": "I1" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ]
+  },
+  {
+    "name": "scf.index_switch",
+    "summary": "switch-case operation on an index argument",
+    "description": "The `scf.index_switch` is a control-flow operation that branches to one of\n    the given regions based on the values of the argument and the cases. The\n    argument is always of type `index`.\n\n    The operation always has a \"default\" region and any number of case regions\n    denoted by integer constants. Control-flow transfers to the case region\n    whose constant value equals the value of the argument. If the argument does\n    not equal any of the case values, control-flow transfer to the \"default\"\n    region.\n\n    Example:\n\n    ```mlir\n    %0 = scf.index_switch %arg0 : index -> i32\n    case 2 {\n      %1 = arith.constant 10 : i32\n      scf.yield %1 : i32\n    }\n    case 5 {\n      %2 = arith.constant 20 : i32\n      scf.yield %2 : i32\n    }\n    default {\n      %3 = arith.constant 30 : i32\n      scf.yield %3 : i32\n    }\n    ```",
+    "inputs": [
+      { "name": "arg", "type": "Index" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "cases", "type": "DenseI64ArrayAttr" }
+    ],
+    "assemblyFormat": "$arg attr-dict (`->` type($results)^)?\n    custom<SwitchCases>($cases, $caseRegions) `\\n`\n    `` `default` $defaultRegion"
+  },
+  {
+    "name": "scf.parallel",
+    "summary": "parallel for operation",
+    "description": "The `scf.parallel` operation represents a loop nest taking 4 groups of SSA\n    values as operands that represent the lower bounds, upper bounds, steps and\n    initial values, respectively. The operation defines a variadic number of\n    SSA values for its induction variables. It has one region capturing the\n    loop body. The induction variables are represented as an argument of this\n    region. These SSA values always have type index, which is the size of the\n    machine word. The steps are values of type index, required to be positive.\n    The lower and upper bounds specify a half-open range: the range includes\n    the lower bound but does not include the upper bound. The initial values\n    have the same types as results of `scf.parallel`. If there are no results,\n    the keyword `init` can be omitted.\n\n    Semantically we require that the iteration space can be iterated in any\n    order, and the loop body can be executed in parallel. If there are data\n    races, the behavior is undefined.\n\n    The parallel loop operation supports reduction of values produced by\n    individual iterations into a single result. This is modeled using the\n    `scf.reduce` terminator operation (see `scf.reduce` for details). The i-th\n    result of an `scf.parallel` operation is associated with the i-th initial\n    value operand, the i-th operand of the `scf.reduce` operation (the value to\n    be reduced) and the i-th region of the `scf.reduce` operation (the reduction\n    function). Consequently, we require that the number of results of an\n    `scf.parallel` op matches the number of initial values and the the number of\n    reductions in the `scf.reduce` terminator.\n\n    The body region must contain exactly one block that terminates with a\n    `scf.reduce` operation. If an `scf.parallel` op has no reductions, the\n    terminator has no operands and no regions. The `scf.parallel` parser will\n    automatically insert the terminator for ops that have no reductions if it is\n    absent.\n\n    Example:\n\n    ```mlir\n    %init = arith.constant 0.0 : f32\n    %r:2 = scf.parallel (%iv) = (%lb) to (%ub) step (%step) init (%init, %init)\n        -> f32, f32 {\n      %elem_to_reduce1 = load %buffer1[%iv] : memref<100xf32>\n      %elem_to_reduce2 = load %buffer2[%iv] : memref<100xf32>\n      scf.reduce(%elem_to_reduce1, %elem_to_reduce2 : f32, f32) {\n        ^bb0(%lhs : f32, %rhs: f32):\n          %res = arith.addf %lhs, %rhs : f32\n          scf.reduce.return %res : f32\n      }, {\n        ^bb0(%lhs : f32, %rhs: f32):\n          %res = arith.mulf %lhs, %rhs : f32\n          scf.reduce.return %res : f32\n      }\n    }\n    ```",
+    "inputs": [
+      { "name": "lowerBound", "type": "Variadic" },
+      { "name": "upperBound", "type": "Variadic" },
+      { "name": "step", "type": "Variadic" },
+      { "name": "initVals", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ]
+  },
+  {
+    "name": "scf.reduce",
+    "summary": "reduce operation for scf.parallel",
+    "description": "The `scf.reduce` operation is the terminator for `scf.parallel` operations. It can model\n    an arbitrary number of reductions. It has one region per reduction. Each\n    region has one block with two arguments which have the same type as the\n    corresponding operand of `scf.reduce`. The operands of the op are the values\n    that should be reduce; one value per reduction.\n\n    The i-th reduction (i.e., the i-th region and the i-th operand) corresponds\n    the i-th initial value and the i-th result of the enclosing `scf.parallel`\n    op.\n\n    The `scf.reduce` operation contains regions whose entry blocks expect two\n    arguments of the same type as the corresponding operand. As the iteration\n    order of the enclosing parallel loop and hence reduction order is\n    unspecified, the results of the reductions may be non-deterministic unless\n    the reductions are associative and commutative.\n\n    The result of a reduction region (`scf.reduce.return` operand) must have the\n    same type as the corresponding `scf.reduce` operand and the corresponding\n    `scf.parallel` initial value.\n\n    Example:\n\n    ```mlir\n    %operand = arith.constant 1.0 : f32\n    scf.reduce(%operand : f32) {\n      ^bb0(%lhs : f32, %rhs: f32):\n        %res = arith.addf %lhs, %rhs : f32\n        scf.reduce.return %res : f32\n    }\n    ```",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "assemblyFormat": "(`(` $operands^ `:` type($operands) `)`)? $reductions attr-dict"
+  },
+  {
+    "name": "scf.reduce.return",
+    "summary": "terminator for reduce operation",
+    "description": "The `scf.reduce.return` operation is a special terminator operation for the block inside\n    `scf.reduce` regions. It terminates the region. It should have the same\n    operand type as the corresponding operand of the enclosing `scf.reduce` op.\n\n    Example:\n\n    ```mlir\n    scf.reduce.return %res : f32\n    ```",
+    "inputs": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "assemblyFormat": "$result attr-dict `:` type($result)"
+  },
+  {
+    "name": "scf.while",
+    "summary": "a generic 'while' loop",
+    "description": "This operation represents a generic \"while\"/\"do-while\" loop that keeps\n    iterating as long as a condition is satisfied. There is no restriction on\n    the complexity of the condition. It consists of two regions (with single\n    block each): \"before\" region and \"after\" region. The names of regions\n    indicates whether they execute before or after the condition check.\n    Therefore, if the main loop payload is located in the \"before\" region, the\n    operation is a \"do-while\" loop. Otherwise, it is a \"while\" loop.\n\n    The \"before\" region terminates with a special operation, `scf.condition`,\n    that accepts as its first operand an `i1` value indicating whether to\n    proceed to the \"after\" region (value is `true`) or not. The two regions\n    communicate by means of region arguments. Initially, the \"before\" region\n    accepts as arguments the operands of the `scf.while` operation and uses them\n    to evaluate the condition. It forwards the trailing, non-condition operands\n    of the `scf.condition` terminator either to the \"after\" region if the\n    control flow is transferred there or to results of the `scf.while` operation\n    otherwise. The \"after\" region takes as arguments the values produced by the\n    \"before\" region and uses `scf.yield` to supply new arguments for the\n    \"before\" region, into which it transfers the control flow unconditionally.\n\n    A simple \"while\" loop can be represented as follows.\n\n    ```mlir\n    %res = scf.while (%arg1 = %init1) : (f32) -> f32 {\n      // \"Before\" region.\n      // In a \"while\" loop, this region computes the condition.\n      %condition = call @evaluate_condition(%arg1) : (f32) -> i1\n\n      // Forward the argument (as result or \"after\" region argument).\n      scf.condition(%condition) %arg1 : f32\n\n    } do {\n    ^bb0(%arg2: f32):\n      // \"After\" region.\n      // In a \"while\" loop, this region is the loop body.\n      %next = call @payload(%arg2) : (f32) -> f32\n\n      // Forward the new value to the \"before\" region.\n      // The operand types must match the types of the `scf.while` operands.\n      scf.yield %next : f32\n    }\n    ```\n\n    A simple \"do-while\" loop can be represented by reducing the \"after\" block\n    to a simple forwarder.\n\n    ```mlir\n    %res = scf.while (%arg1 = %init1) : (f32) -> f32 {\n      // \"Before\" region.\n      // In a \"do-while\" loop, this region contains the loop body.\n      %next = call @payload(%arg1) : (f32) -> f32\n\n      // And also evaluates the condition.\n      %condition = call @evaluate_condition(%arg1) : (f32) -> i1\n\n      // Loop through the \"after\" region.\n      scf.condition(%condition) %next : f32\n\n    } do {\n    ^bb0(%arg2: f32):\n      // \"After\" region.\n      // Forwards the values back to \"before\" region unmodified.\n      scf.yield %arg2 : f32\n    }\n    ```\n\n    Note that the types of region arguments need not to match with each other.\n    The op expects the operand types to match with argument types of the\n    \"before\" region; the result types to match with the trailing operand types\n    of the terminator of the \"before\" region, and with the argument types of the\n    \"after\" region. The following scheme can be used to share the results of\n    some operations executed in the \"before\" region with the \"after\" region,\n    avoiding the need to recompute them.\n\n    ```mlir\n    %res = scf.while (%arg1 = %init1) : (f32) -> i64 {\n      // One can perform some computations, e.g., necessary to evaluate the\n      // condition, in the \"before\" region and forward their results to the\n      // \"after\" region.\n      %shared = call @shared_compute(%arg1) : (f32) -> i64\n\n      // Evaluate the condition.\n      %condition = call @evaluate_condition(%arg1, %shared) : (f32, i64) -> i1\n\n      // Forward the result of the shared computation to the \"after\" region.\n      // The types must match the arguments of the \"after\" region as well as\n      // those of the `scf.while` results.\n      scf.condition(%condition) %shared : i64\n\n    } do {\n    ^bb0(%arg2: i64) {\n      // Use the partial result to compute the rest of the payload in the\n      // \"after\" region.\n      %res = call @payload(%arg2) : (i64) -> f32\n\n      // Forward the new value to the \"before\" region.\n      // The operand types must match the types of the `scf.while` operands.\n      scf.yield %res : f32\n    }\n    ```\n\n    The custom syntax for this operation is as follows.\n\n    ```\n    op ::= `scf.while` assignments `:` function-type region `do` region\n           `attributes` attribute-dict\n    initializer ::= /* empty */ | `(` assignment-list `)`\n    assignment-list ::= assignment | assignment `,` assignment-list\n    assignment ::= ssa-value `=` ssa-value\n    ```",
+    "inputs": [
+      { "name": "inits", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "results", "type": "Variadic" }
+    ]
+  },
+  {
+    "name": "scf.yield",
+    "summary": "loop yield and termination operation",
+    "description": "The `scf.yield` operation yields an SSA value from the SCF dialect op region and\n    terminates the regions. The semantics of how the values are yielded is\n    defined by the parent operation.\n    If `scf.yield` has any operands, the operands must match the parent\n    operation's results.\n    If the parent operation defines no values, then the `scf.yield` may be\n    left out in the custom syntax and the builders will insert one implicitly.\n    Otherwise, it has to be present in the syntax to indicate which values are\n    yielded.",
+    "inputs": [
+      { "name": "results", "type": "Variadic" }
+    ],
+    "assemblyFormat": "attr-dict ($results^ `:` type($results))?"
+  },
+  {
     "name": "spirv.AtomicAnd",
     "summary": "Perform the following steps atomically with respect to any other atomic\n    accesses within Scope to the same location:",
     "description": "1) load through Pointer to get an Original Value,\n\n    2) get a New Value by the bitwise AND of Original Value and Value, and\n\n    3) store the New Value back through Pointer.\n\n    The instruction’s result is the Original Value.\n\n    Result Type must be an integer type scalar.\n\n     The type of Value must be the same as Result Type.  The type of the\n    value pointed to by Pointer must be the same as Result Type.\n\n    Memory must be a valid memory Scope.\n\n    <!-- End of AutoGen section -->\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.AtomicAnd <Device> <None> %pointer, %value :\n                       !spirv.ptr<i32, StorageBuffer>\n    ```",
@@ -38263,6 +38401,131 @@
       { "name": "inputs", "type": "Variadic" }
     ],
     "assemblyFormat": "$inputs attr-dict `:` type($inputs)"
+  },
+  {
+    "name": "toy.add",
+    "summary": "element-wise addition operation",
+    "description": "The \"add\" operation performs element-wise addition between two tensors.\n    The shapes of the tensor operands are expected to match.",
+    "inputs": [
+      { "name": "lhs", "type": "F64Tensor" },
+      { "name": "rhs", "type": "F64Tensor" }
+    ]
+  },
+  {
+    "name": "toy.cast",
+    "summary": "shape cast operation",
+    "description": "The \"cast\" operation converts a tensor from one type to an equivalent type\n    without changing any data elements. The source and destination types must\n    both be tensor types with the same element type. If both are ranked, then\n    shape is required to match. The operation is invalid if converting to a\n    mismatching constant dimension.",
+    "inputs": [
+      { "name": "input", "type": "F64Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "F64Tensor" }
+    ],
+    "assemblyFormat": "$input attr-dict `:` type($input) `to` type($output)"
+  },
+  {
+    "name": "toy.constant",
+    "summary": "constant",
+    "description": "Constant operation turns a literal into an SSA value. The data is attached\n    to the operation as an attribute. For example:\n\n    ```mlir\n      %0 = toy.constant dense<[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]>\n                        : tensor<2x3xf64>\n    ```",
+    "attributes": [
+      { "name": "value", "type": "F64ElementsAttr" }
+    ]
+  },
+  {
+    "name": "toy.func",
+    "summary": "user defined function operation",
+    "description": "The \"toy.func\" operation represents a user defined function. These are\n    callable SSA-region operations that contain toy computations.\n\n    Example:\n\n    ```mlir\n    toy.func @main() {\n      %0 = toy.constant dense<5.500000e+00> : tensor<f64>\n      %1 = toy.reshape(%0 : tensor<f64>) to tensor<2x2xf64>\n      toy.print %1 : tensor<2x2xf64>\n      toy.return\n    }\n    ```",
+    "attributes": [
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "function_type", "type": "TypeAttrOf" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "toy.generic_call",
+    "summary": "generic call operation",
+    "description": "Generic calls represent calls to a user defined function that needs to\n    be specialized for the shape of its arguments. The callee name is attached\n    as a symbol reference via an attribute. The arguments list must match the\n    arguments expected by the callee. For example:\n\n    ```mlir\n     %4 = toy.generic_call @my_func(%1, %3)\n           : (tensor<2x3xf64>, tensor<2x3xf64>) -> tensor<*xf64>\n    ```\n\n    This is only valid if a function named \"my_func\" exists and takes two\n    arguments.",
+    "inputs": [
+      { "name": "inputs", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "callee", "type": "FlatSymbolRefAttr" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$callee `(` $inputs `)` attr-dict `:` functional-type($inputs, results)"
+  },
+  {
+    "name": "toy.mul",
+    "summary": "element-wise multiplication operation",
+    "description": "The \"mul\" operation performs element-wise multiplication between two\n    tensors. The shapes of the tensor operands are expected to match.",
+    "inputs": [
+      { "name": "lhs", "type": "F64Tensor" },
+      { "name": "rhs", "type": "F64Tensor" }
+    ]
+  },
+  {
+    "name": "toy.print",
+    "summary": "print operation",
+    "description": "The \"print\" builtin operation prints a given input tensor, and produces\n    no results.",
+    "inputs": [
+      { "name": "input", "type": "AnyTypeOf" }
+    ],
+    "assemblyFormat": "$input attr-dict `:` type($input)"
+  },
+  {
+    "name": "toy.reshape",
+    "summary": "tensor reshape operation",
+    "description": "Reshape operation is transforming its input tensor into a new tensor with\n    the same number of elements but different shapes. For example:\n\n    ```mlir\n       %0 = toy.reshape (%arg1 : tensor<10xf64>) to tensor<5x2xf64>\n    ```",
+    "inputs": [
+      { "name": "input", "type": "F64Tensor" }
+    ],
+    "assemblyFormat": "`(` $input `:` type($input) `)` attr-dict `to` type(results)"
+  },
+  {
+    "name": "toy.return",
+    "summary": "return operation",
+    "description": "The \"return\" operation represents a return operation within a function.\n    The operation takes an optional operand and produces no results.\n    The operand type must match the signature of the function that contains\n    the operation. For example:\n\n    ```mlir\n      toy.func @foo() -> tensor<2xf64> {\n        ...\n        toy.return %0 : tensor<2xf64>\n      }\n    ```",
+    "inputs": [
+      { "name": "input", "type": "Variadic" }
+    ],
+    "assemblyFormat": "($input^ `:` type($input))? attr-dict"
+  },
+  {
+    "name": "toy.struct_access",
+    "summary": "struct access",
+    "description": "Access the Nth element of a value returning a struct type.",
+    "inputs": [
+      { "name": "input", "type": "Toy_StructType" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Toy_Type" }
+    ],
+    "attributes": [
+      { "name": "index", "type": "I64Attr" }
+    ],
+    "assemblyFormat": "$input `[` $index `]` attr-dict `:` type($input) `->` type($output)"
+  },
+  {
+    "name": "toy.struct_constant",
+    "summary": "struct constant",
+    "description": "Constant operation turns a literal struct value into an SSA value. The data\n    is attached to the operation as an attribute. The struct constant is encoded\n    as an array of other constant values. For example:\n\n    ```mlir\n      %0 = toy.struct_constant [\n        dense<[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]> : tensor<2x3xf64>\n      ] : !toy.struct<tensor<*xf64>>\n    ```",
+    "outputs": [
+      { "name": "output", "type": "Toy_StructType" }
+    ],
+    "attributes": [
+      { "name": "value", "type": "ArrayAttr" }
+    ],
+    "assemblyFormat": "$value attr-dict `:` type($output)"
+  },
+  {
+    "name": "toy.transpose",
+    "summary": "transpose operation",
+    "inputs": [
+      { "name": "input", "type": "F64Tensor" }
+    ],
+    "assemblyFormat": "`(` $input `:` type($input) `)` attr-dict `to` type(results)"
   },
   {
     "name": "util.align",

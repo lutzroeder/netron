@@ -838,6 +838,7 @@ mlir.Parser = class {
         this._dialects.set('affine', new mlir.AffineDialect(operations));
         this._dialects.set('arith', new mlir.ArithDialect(operations));
         this._dialects.set('cf', new mlir.CFDialect(operations));
+        this._dialects.set('scf', new mlir.SCFDialect(operations));
         this._dialects.set('func', new mlir.FuncDialect(operations));
         this._dialects.set('memref', new mlir.MemRefDialect(operations));
         this._dialects.set('vector', new mlir.VectorDialect(operations));
@@ -853,6 +854,7 @@ mlir.Parser = class {
         this._dialects.set('tfl', new mlir.TFLDialect(operations));
         this._dialects.set('irdl', new mlir.IRDLDialect(operations));
         this._dialects.set('spv', new mlir.SPIRVDialect(operations));
+        this._dialects.set('toy', new mlir.ToyDialect(operations));
     }
 
     async read() {
@@ -1041,15 +1043,6 @@ mlir.Parser = class {
         if (op.name.endsWith('.call') || op.name.endsWith('.generic_call')) {
             this.parseSymbolName('callee', op.attributes);
         }
-        if (op.name.endsWith('.contract')) {
-            if (this._match('id')) {
-                const list = [];
-                do {
-                    list.push(this._read());
-                } while (this._eat(',') && this._match('id'));
-                op.attributes.push({ name: 'predicate', value: list });
-            }
-        }
         if (op.name.endsWith('.func')) {
             this.parseOptionalVisibilityKeyword(op.attributes);
             this.parseSymbolName('sym_name', op.attributes);
@@ -1090,67 +1083,12 @@ mlir.Parser = class {
             op.regions.push(region);
             return op;
         }
-        // IRDL operations: irdl.dialect, irdl.operation, irdl.type, irdl.attribute
-        if (op.name === 'irdl.dialect' || op.name === 'irdl.operation' ||
-            op.name === 'irdl.type' || op.name === 'irdl.attribute') {
-            // Parse @symbol_name
-            op.sym_name = this.parseOptionalSymbolName();
-            this.parseOptionalAttrDictWithKeyword(op.attributes);
-            const region = {};
-            this.parseRegion(region);
-            op.regions.push(region);
-            return op;
-        }
         if (this._match('}')) {
-            return op;
-        }
-        if (op.name === 'torch.constant.none') {
             return op;
         }
         // (%a, %b)
         // condition: start with `(%`, `%`, or `()`
         op.operands = this._parseArguments();
-        if (op.name.endsWith('.for')) {
-            this._read('=');
-            // Lower bound can be: number, %var, or #map(...)
-            if (this._match('#')) {
-                this._parseValue();
-            } else {
-                this._read();  // Read number or %var
-            }
-            this._read('id', 'to');
-            // Upper bound can be: number, %var, #map(...), or id #map(...)
-            if (this._match('#')) {
-                // Just #map(...) without a preceding id
-                this._parseValue();
-            } else if (this._match('id') && !this._match('id', 'step') && !this._match('id', 'iter_args')) {
-                this._read('id');
-                // Check if it's a function application like min #map(%arg)
-                if (this._match('#')) {
-                    // Read the map reference and its arguments
-                    this._parseValue();
-                }
-            } else if (this._match('%') || this._match('int') || this._match('float')) {
-                this._read();
-            }
-            if (this._eat('id', 'step')) {
-                this._read();
-            }
-            if (this._eat('id', 'iter_args')) {
-                this._skipSymbolBetween('(', ')');
-            }
-            if (this._eat('->') || this._eat('id', 'to')) {
-                if (op.results.length > 0) {
-                    this._parseArgumentTypes(op.results);
-                } else {
-                    op.results = this._parseArguments();
-                }
-            }
-            const region = {};
-            this.parseRegion(region);
-            op.regions.push(region);
-            return op;
-        }
         // Parse successor blocks (for branch operations)
         // Successors are block labels starting with ^
         if (this._match('^')) {
@@ -1203,7 +1141,6 @@ mlir.Parser = class {
                 }
             }
         }
-
         // successor-list (indices)?
         // condition: start with `[`, end with `]`
         // Some operations like tensor.extract_slice have multiple consecutive bracket groups
@@ -1276,20 +1213,12 @@ mlir.Parser = class {
             // Parse operand types (or function-style type signature)
             this._parseArgumentTypes(op.operands);
         }
-        // -> f32  or  into composite-type (for SPIRV CompositeInsert/Extract)
+        // -> f32  or  to type (for cast/conversion operations across multiple dialects)
         if (this._eat('->') || this._eat('id', 'to')) {
             if (op.results.length > 0) {
                 this._parseArgumentTypes(op.results);
             } else {
                 op.results = this._parseArguments();
-            }
-        } else if (this._eat('id', 'into')) {
-            // into composite-type (for spv.CompositeInsert)
-            const resultType = this._parseType();
-            if (op.results.length > 0) {
-                op.results[0].type = resultType;
-            } else {
-                op.results.push({ type: resultType });
             }
         }
         if (this._match('{')) {
@@ -3100,6 +3029,10 @@ mlir.AffineDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         const name = opName.replace(/^"|"$/g, '');
+        // Special handling for affine.for - similar to scf.for but with affine expressions
+        if (name === 'affine.for') {
+            return this._parseForOp(parser, op);
+        }
         // Special handling for affine.if - has condition before region
         if (name === 'affine.if') {
             // affine.if #set(...) { region }
@@ -3136,6 +3069,75 @@ mlir.AffineDialect = class extends mlir.Dialect {
             return this._parseLoadOp(parser, op);
         }
         return super.parseOperation(parser, name, op);
+    }
+
+    _parseForOp(parser, op) {
+        // affine.for %i = lowerBound to upperBound [step constant] { region }
+        // Parse induction variable
+        if (!parser._match('%')) {
+            return false;
+        }
+        const inductionVar = parser._read('%');
+        // Parse '='
+        if (!parser._eat('=')) {
+            return false;
+        }
+        // Parse lower bound (can be constant, SSA value, or affine expression)
+        this._parseAffineBound(parser, op, 'lowerBound');
+        // Parse 'to' keyword
+        if (!parser._eat('id', 'to')) {
+            return false;
+        }
+        // Parse upper bound
+        this._parseAffineBound(parser, op, 'upperBound');
+        // Parse optional 'step' keyword and value
+        if (parser._eat('id', 'step')) {
+            if (parser._match('int')) {
+                const step = parser._read('int');
+                op.attributes.push({ name: 'step', value: step });
+            }
+        }
+        // Parse region
+        if (parser._match('{')) {
+            const region = {};
+            parser.parseRegion(region);
+            // Set the induction variable as the first block argument
+            if (region.blocks && region.blocks.length > 0) {
+                if (!region.blocks[0].arguments) {
+                    region.blocks[0].arguments = [];
+                }
+                if (region.blocks[0].arguments.length > 0) {
+                    region.blocks[0].arguments[0] = { value: inductionVar };
+                } else {
+                    region.blocks[0].arguments.push({ value: inductionVar });
+                }
+            }
+            op.regions.push(region);
+        }
+        return true;
+    }
+
+    _parseAffineBound(parser, op, boundName) {
+        // Parse affine bound: can be int, SSA value, or affine expression
+        // Examples: 0, %N, min #map(%arg), max #map(), #map(%args)
+        if (parser._match('int')) {
+            const value = parser._read('int');
+            op.attributes.push({ name: boundName, value });
+        } else if (parser._eat('id', 'min') || parser._eat('id', 'max')) {
+            // min/max affine expression
+            const expr = parser._parseValue();
+            if (expr) {
+                op.attributes.push({ name: boundName, value: expr });
+            }
+        } else if (parser._match('#')) {
+            // Affine map reference
+            const expr = parser._parseValue();
+            if (expr) {
+                op.attributes.push({ name: boundName, value: expr });
+            }
+        } else if (parser._match('%')) {
+            op.operands.push({ value: parser._read('%') });
+        }
     }
 
     _parseStoreOp(parser, op) {
@@ -3667,7 +3669,7 @@ mlir.FlowDialect = class extends mlir.Dialect {
         if (parser._eat(':')) {
             parser._parseArgumentTypes(op.operands);
         }
-        if (parser._eat('->') || parser._eat('id', 'to')) {
+        if (parser._eat('->')) {
             if (op.results.length > 0) {
                 parser._parseArgumentTypes(op.results);
             } else {
@@ -3925,6 +3927,14 @@ mlir.QuantDialect = class extends mlir.Dialect {
     constructor(operations) {
         operations = operations.filter((op) => op.name && op.name.startsWith('quant.'));
         super('quant', operations);
+    }
+};
+
+mlir.ToyDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        operations = operations.filter((op) => op.name && op.name.startsWith('toy.'));
+        super('toy', operations);
     }
 };
 
@@ -4191,6 +4201,36 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             }
             return true;
         }
+        // spirv.CompositeInsert with 'into' keyword
+        // Format: spirv.CompositeInsert %object, %composite[indices] : object-type into composite-type
+        if (name === 'spirv.CompositeInsert' || name === 'spv.CompositeInsert') {
+            // Parse operands (object and composite)
+            op.operands = parser._parseArguments();
+            // Parse indices as attributes
+            if (parser._match('[')) {
+                parser._read('[');
+                const indices = [];
+                while (!parser._eat(']')) {
+                    const index = parser._read();
+                    if (parser._eat(':')) {
+                        parser._read(); // Skip type (e.g., i32)
+                    }
+                    indices.push(index);
+                    parser._eat(',');
+                }
+                op.attributes.push({ name: 'indices', value: indices });
+            }
+            // Parse operand types after ':'
+            if (parser._eat(':')) {
+                parser._parseArgumentTypes(op.operands);
+            }
+            // Parse result type after 'into'
+            if (parser._eat('id', 'into')) {
+                const resultType = parser._parseType();
+                op.results = [{ type: resultType }];
+            }
+            return true;
+        }
         return super.parseOperation(parser, opName, op);
     }
 };
@@ -4208,6 +4248,263 @@ mlir.ArithDialect = class extends mlir.Dialect {
     constructor(operations) {
         operations = operations.filter((op) => op.name && op.name.startsWith('arith.'));
         super('arith', operations);
+    }
+};
+
+mlir.SCFDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        operations = operations.filter((op) => op.name && op.name.startsWith('scf.'));
+        super('scf', operations);
+    }
+
+    parseOperation(parser, opName, op) {
+        const name = opName.replace(/^"|"$/g, '');
+        if (name === 'scf.for') {
+            return this._parseForOp(parser, op);
+        }
+        if (name === 'scf.if') {
+            return this._parseIfOp(parser, op);
+        }
+        if (name === 'scf.while') {
+            return this._parseWhileOp(parser, op);
+        }
+        return super.parseOperation(parser, opName, op);
+    }
+
+    _parseForOp(parser, op) {
+        // scf.for [unsigned] %inductionVar = %lb to %ub step %step [iter_args(...)] [: type] { region }
+        // Check for optional "unsigned" keyword
+        if (parser._eat('id', 'unsigned')) {
+            op.attributes.push({ name: 'unsignedCmp', value: true });
+        }
+        // Parse induction variable: %inductionVar
+        if (!parser._match('%')) {
+            return false;
+        }
+        const inductionVar = parser._read('%');
+        // Parse '='
+        if (!parser._eat('=')) {
+            return false;
+        }
+        // Parse lower bound: %lb
+        if (parser._match('%')) {
+            op.operands.push({ value: parser._read('%') });
+        } else {
+            return false;
+        }
+        // Parse 'to' keyword
+        if (!parser._eat('id', 'to')) {
+            return false;
+        }
+        // Parse upper bound: %ub
+        if (parser._match('%')) {
+            op.operands.push({ value: parser._read('%') });
+        } else {
+            return false;
+        }
+        // Parse 'step' keyword
+        if (!parser._eat('id', 'step')) {
+            return false;
+        }
+        // Parse step: %step
+        if (parser._match('%')) {
+            op.operands.push({ value: parser._read('%') });
+        } else {
+            return false;
+        }
+        // Parse optional iter_args
+        if (parser._eat('id', 'iter_args')) {
+            // iter_args(%arg = %init, ...) -> (type, ...)
+            if (parser._eat('(')) {
+                while (!parser._eat(')')) {
+                    // Parse %arg = %init
+                    if (parser._match('%')) {
+                        parser._read('%'); // Skip the loop-carried variable name
+                    }
+                    if (parser._eat('=')) {
+                        if (parser._match('%')) {
+                            op.operands.push({ value: parser._read('%') });
+                        } else {
+                            // Handle non-SSA values (constants, etc.)
+                            const value = parser._parseValue();
+                            if (value) {
+                                op.operands.push(value);
+                            }
+                        }
+                    }
+                    parser._eat(',');
+                }
+            }
+            // Parse optional -> (result types)
+            if (parser._eat('->')) {
+                // Parse result types
+                const resultTypes = [];
+                if (parser._eat('(')) {
+                    while (!parser._eat(')')) {
+                        const resultType = parser._parseType();
+                        resultTypes.push(resultType);
+                        parser._eat(',');
+                    }
+                } else {
+                    const resultType = parser._parseType();
+                    resultTypes.push(resultType);
+                }
+                // Set types on existing results (from result list before '=')
+                // or create new results if none exist
+                if (op.results.length > 0) {
+                    for (let i = 0; i < resultTypes.length && i < op.results.length; i++) {
+                        op.results[i].type = resultTypes[i];
+                    }
+                } else {
+                    for (const type of resultTypes) {
+                        op.results.push({ type });
+                    }
+                }
+            }
+        }
+        // Parse optional type: : type
+        if (parser._eat(':')) {
+            parser._parseType(); // Parse and discard the induction variable type
+        }
+        // Parse region: { ... }
+        if (parser._match('{')) {
+            const region = {};
+            parser.parseRegion(region);
+            // Set the induction variable as the first block argument
+            if (region.blocks && region.blocks.length > 0) {
+                if (!region.blocks[0].arguments) {
+                    region.blocks[0].arguments = [];
+                }
+                if (region.blocks[0].arguments.length > 0) {
+                    region.blocks[0].arguments[0] = { value: inductionVar };
+                } else {
+                    region.blocks[0].arguments.push({ value: inductionVar });
+                }
+            }
+            op.regions.push(region);
+        }
+        return true;
+    }
+
+    _parseIfOp(parser, op) {
+        // scf.if %condition [-> (result_types)] { ... } [else { ... }]
+        // Parse condition
+        if (parser._match('%')) {
+            op.operands.push({ value: parser._read('%') });
+        } else {
+            return false;
+        }
+        // Parse optional result types
+        if (parser._eat('->')) {
+            const resultTypes = [];
+            if (parser._eat('(')) {
+                while (!parser._eat(')')) {
+                    const resultType = parser._parseType();
+                    resultTypes.push(resultType);
+                    parser._eat(',');
+                }
+            } else {
+                const resultType = parser._parseType();
+                resultTypes.push(resultType);
+            }
+            // Set types on existing results or create new ones
+            if (op.results.length > 0) {
+                for (let i = 0; i < resultTypes.length && i < op.results.length; i++) {
+                    op.results[i].type = resultTypes[i];
+                }
+            } else {
+                for (const type of resultTypes) {
+                    op.results.push({ type });
+                }
+            }
+        }
+        // Parse then region
+        if (parser._match('{')) {
+            const region = {};
+            parser.parseRegion(region);
+            op.regions.push(region);
+        } else {
+            return false;
+        }
+        // Parse optional else region
+        if (parser._eat('id', 'else')) {
+            if (parser._match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+        }
+        return true;
+    }
+
+    _parseWhileOp(parser, op) {
+        // scf.while (%arg = %init, ...) : (type, ...) -> (type, ...) { before region } do { after region }
+        // Parse operands in parentheses
+        if (parser._eat('(')) {
+            while (!parser._eat(')')) {
+                if (parser._match('%')) {
+                    parser._read('%'); // Skip variable name
+                }
+                if (parser._eat('=')) {
+                    if (parser._match('%')) {
+                        op.operands.push({ value: parser._read('%') });
+                    } else {
+                        const value = parser._parseValue();
+                        if (value) {
+                            op.operands.push(value);
+                        }
+                    }
+                }
+                parser._eat(',');
+            }
+        }
+        // Parse types
+        if (parser._eat(':')) {
+            // Parse operand types
+            if (parser._eat('(')) {
+                while (!parser._eat(')')) {
+                    parser._parseType();
+                    parser._eat(',');
+                }
+            }
+            // Parse optional result types
+            if (parser._eat('->')) {
+                const resultTypes = [];
+                if (parser._eat('(')) {
+                    while (!parser._eat(')')) {
+                        const resultType = parser._parseType();
+                        resultTypes.push(resultType);
+                        parser._eat(',');
+                    }
+                }
+                // Set types on existing results or create new ones
+                if (op.results.length > 0) {
+                    for (let i = 0; i < resultTypes.length && i < op.results.length; i++) {
+                        op.results[i].type = resultTypes[i];
+                    }
+                } else {
+                    for (const type of resultTypes) {
+                        op.results.push({ type });
+                    }
+                }
+            }
+        }
+        // Parse before region
+        if (parser._match('{')) {
+            const region = {};
+            parser.parseRegion(region);
+            op.regions.push(region);
+        }
+        // Parse 'do' keyword and after region
+        if (parser._eat('id', 'do')) {
+            if (parser._match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+        }
+        return true;
     }
 };
 

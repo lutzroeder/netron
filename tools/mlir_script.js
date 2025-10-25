@@ -90,6 +90,7 @@ const main = async () => {
     const source = path.join(dirname, '..', 'third_party', 'source');
     const paths = [
         path.join(source, 'llvm-project', 'mlir', 'include'),
+        path.join(source, 'llvm-project', 'mlir', 'examples', 'toy', 'Ch7', 'include'),
         path.join(source, 'stablehlo'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
@@ -111,6 +112,7 @@ const main = async () => {
         'mlir/Dialect/Arith/IR/ArithOps.td',
         'mlir/Dialect/ControlFlow/IR/ControlFlowOps.td',
         'mlir/Dialect/Func/IR/FuncOps.td',
+        'mlir/Dialect/SCF/IR/SCFOps.td',
         'mlir/Dialect/Linalg/IR/LinalgOps.td',
         'mlir/Dialect/MemRef/IR/MemRefOps.td',
         'mlir/Dialect/Quant/IR/QuantOps.td',
@@ -128,6 +130,7 @@ const main = async () => {
         'mlir/Dialect/SPIRV/IR/SPIRVAtomicOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVBarrierOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVGroupOps.td',
+        'toy/Ops.td',
         'stablehlo/dialect/StablehloOps.td',
         'stablehlo/dialect/ChloOps.td',
         'src/Dialect/ONNX/ONNX.td',
