@@ -143,13 +143,19 @@ tablegen.Tokenizer = class {
             if (c === '/' && this.peek(1) === '*') {
                 this._next();
                 this._next();
-                while (this._position < this._text.length) {
-                    if (this.peek() === '*' && this.peek(1) === '/') {
+                let depth = 1;
+                while (this._position < this._text.length && depth > 0) {
+                    if (this.peek() === '/' && this.peek(1) === '*') {
                         this._next();
                         this._next();
-                        break;
+                        depth++;
+                    } else if (this.peek() === '*' && this.peek(1) === '/') {
+                        this._next();
+                        this._next();
+                        depth--;
+                    } else {
+                        this._next();
                     }
-                    this._next();
                 }
                 continue;
             }

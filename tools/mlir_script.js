@@ -87,15 +87,21 @@ const access = async (path) => {
 
 const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-    const source = path.join(dirname, '..', 'third_party', 'source');
+    const source = path.join(dirname, '..', 'third_party', 'source', 'mlir');
     const paths = [
         path.join(source, 'llvm-project', 'mlir', 'include'),
+        path.join(source, 'llvm-project', 'mlir', 'examples', 'toy', 'Ch7', 'include'),
         path.join(source, 'stablehlo'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
-        path.join(source, 'tensorflow'),
         path.join(source, 'mlir-hlo', 'include'),
-        path.join(source, 'iree', 'compiler', 'src')
+        path.join(source, 'iree', 'compiler', 'src'),
+        path.join(source, 'FlashTensor', 'include'),
+        path.join(source, 'tpu-mlir', 'include'),
+        path.join(source, 'tensorflow'),
+        path.join(source, 'plaidml'),
+        path.join(source, 'mlir-dace', 'include'),
+        path.join(source, 'lltz', 'mlir', 'dialect', 'include', 'Michelson'),
     ];
     const dialects = [
         'mlir/IR/BuiltinAttributeInterfaces.td',
@@ -111,8 +117,11 @@ const main = async () => {
         'mlir/Dialect/Arith/IR/ArithOps.td',
         'mlir/Dialect/ControlFlow/IR/ControlFlowOps.td',
         'mlir/Dialect/Func/IR/FuncOps.td',
+        'mlir/Dialect/GPU/IR/GPUOps.td',
+        'mlir/Dialect/SCF/IR/SCFOps.td',
         'mlir/Dialect/Linalg/IR/LinalgOps.td',
         'mlir/Dialect/MemRef/IR/MemRefOps.td',
+        'mlir/Dialect/Bufferization/IR/BufferizationOps.td',
         'mlir/Dialect/Quant/IR/QuantOps.td',
         'mlir/Dialect/Tensor/IR/TensorOps.td',
         'mlir/Dialect/Tosa/IR/TosaOps.td',
@@ -128,18 +137,28 @@ const main = async () => {
         'mlir/Dialect/SPIRV/IR/SPIRVAtomicOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVBarrierOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVGroupOps.td',
+        'toy/Ops.td',
         'stablehlo/dialect/StablehloOps.td',
         'stablehlo/dialect/ChloOps.td',
         'src/Dialect/ONNX/ONNX.td',
         'src/Dialect/ONNX/ONNXOps.td.inc',
         'src/Dialect/ONNX/AdditionalONNXOps.td',
+        'src/Dialect/Krnl/Krnl.td',
         'torch-mlir/Dialect/Torch/IR/TorchOps.td',
+        'torch-mlir/Dialect/TorchConversion/IR/TorchConversionOps.td',
         'tensorflow/compiler/mlir/lite/ir/tfl_ops.td',
         'tensorflow/compiler/mlir/tensorflow/ir/tf_ops.td',
+        'tensorflow/compiler/mlir/tensorflow/ir/tf_saved_model_ops.td',
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
         'iree/compiler/Dialect/Util/IR/UtilOps.td',
+        'asuka/Dialect/Asuka/IR/AsukaOps.td',
+        'tpu_mlir/Dialect/Top/IR/TopOps.td',
+        'tpu_mlir/Dialect/Tpu/IR/TpuOps.td',
+        'pmlc/dialect/tile/ir/ops.td',
+        'SDFG/Dialect/Ops.td',
+        'MichelsonOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -281,7 +300,7 @@ const main = async () => {
         }
         if (Object.keys(operation).length > 1) {
             if (!operation.category) {
-                const name = operation.name.replace(/^(stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch)\./, '');
+                const name = operation.name.replace(/^(stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch|gpu)\./, '');
                 if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].includes(name)) {
                     operation.category = 'Shape';
                 } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].includes(name)) {

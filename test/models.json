@@ -3290,7 +3290,7 @@
     "target":   "conv-conversion.mlir",
     "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type ':', but got '^bb2' at 11144:1.",
+    "error":    "Expected token of type '=', but got ':' at 2418:39.",
     "tags":     "skip-render",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3306,6 +3306,7 @@
     "target":   "ctlz.mlir",
     "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
     "format":   "MLIR",
+    "error":    "Expected token of type '=', but got ':' at 10:24.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3397,8 +3398,8 @@
     "type":     "mlir",
     "target":   "sample.mlir",
     "source":   "https://github.com/user-attachments/files/17792073/sample.mlir.zip[sample.mlir]",
-    "format":   "MLIR",
     "error":    "Unexpected operation name '>' at 4:58.",
+    "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
