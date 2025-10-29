@@ -3280,6 +3280,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "broadcast_to_dynamic.mlir",
+    "source":   "https://github.com/user-attachments/files/23221752/broadcast_to_dynamic.mlir.zip[broadcast_to_dynamic.mlir]",
+    "assert":   "model.modules[0].nodes[4].inputs.length == 0",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "codegen.toy.mlir",
     "source":   "https://github.com/user-attachments/files/17878028/codegen.toy.mlir.zip[codegen.toy.mlir]",
     "format":   "MLIR",
@@ -3290,7 +3298,7 @@
     "target":   "conv-conversion.mlir",
     "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type '=', but got ':' at 2418:39.",
+    "error":    "Unsupported custom operation 'scf.constant' at 3042:24.",
     "tags":     "skip-render",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3306,7 +3314,6 @@
     "target":   "ctlz.mlir",
     "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
     "format":   "MLIR",
-    "error":    "Expected token of type '=', but got ':' at 10:24.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

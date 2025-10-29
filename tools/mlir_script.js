@@ -123,9 +123,15 @@ const main = async () => {
         'mlir/Dialect/MemRef/IR/MemRefOps.td',
         'mlir/Dialect/Bufferization/IR/BufferizationOps.td',
         'mlir/Dialect/Quant/IR/QuantOps.td',
+        'mlir/Dialect/Shape/IR/ShapeOps.td',
+        'mlir/Dialect/SparseTensor/IR/SparseTensorOps.td',
         'mlir/Dialect/Tensor/IR/TensorOps.td',
         'mlir/Dialect/Tosa/IR/TosaOps.td',
         'mlir/Dialect/Vector/IR/VectorOps.td',
+        'mlir/Dialect/X86Vector/X86Vector.td',
+        'mlir/Dialect/XeGPU/IR/XeGPUOps.td',
+        'mlir/Dialect/Transform/IR/TransformOps.td',
+        'mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/Dialect/IRDL/IR/IRDLOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVStructureOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVControlFlowOps.td',
@@ -140,6 +146,8 @@ const main = async () => {
         'toy/Ops.td',
         'stablehlo/dialect/StablehloOps.td',
         'stablehlo/dialect/ChloOps.td',
+        'stablehlo/dialect/VhloOps.td',
+        'stablehlo/reference/InterpreterOps.td',
         'src/Dialect/ONNX/ONNX.td',
         'src/Dialect/ONNX/ONNXOps.td.inc',
         'src/Dialect/ONNX/AdditionalONNXOps.td',
@@ -152,6 +160,9 @@ const main = async () => {
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
+        'iree/compiler/Dialect/Stream/IR/StreamOps.td',
+        'iree/compiler/Codegen/Dialect/VectorExt/IR/VectorExtOps.td',
+        'iree/compiler/Dialect/LinalgExt/IR/LinalgExtOps.td',
         'iree/compiler/Dialect/Util/IR/UtilOps.td',
         'asuka/Dialect/Asuka/IR/AsukaOps.td',
         'tpu_mlir/Dialect/Top/IR/TopOps.td',
@@ -300,16 +311,16 @@ const main = async () => {
         }
         if (Object.keys(operation).length > 1) {
             if (!operation.category) {
-                const name = operation.name.replace(/^(stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch|gpu)\./, '');
-                if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].includes(name)) {
+                const name = operation.name.replace(/^(stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch\.aten|gpu)\./, '');
+                if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].indexOf(name) !== -1) {
                     operation.category = 'Shape';
-                } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].includes(name)) {
+                } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].indexOf(name) !== -1) {
                     operation.category = 'Transform';
-                } else if (['slice', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter'].includes(name)) {
+                } else if (['slice', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter', 'concatenate'].indexOf(name) !== -1) {
                     operation.category = 'Tensor';
-                } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu'].includes(name)) {
+                } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu'].indexOf(name) !== -1) {
                     operation.category = 'Activation';
-                } else if (['convolution', 'Conv', 'matmul', 'batch_matmul', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].includes(name)) {
+                } else if (['convolution', 'Conv', 'matmul', 'batch_matmul', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].indexOf(name) !== -1) {
                     operation.category = 'Layer';
                 } else if (['batch_norm_inference'].includes(name)) {
                     operation.category = 'Normalization';
