@@ -26,7 +26,7 @@ view.View = class {
         this._find = null;
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         this._modelFactoryService.import();
-        this._worker = this._host.environment('measure') ? null : new view.Worker(this._host);
+        this._worker = this._host.environment('serial') ? null : new view.Worker(this._host);
     }
 
     async start() {

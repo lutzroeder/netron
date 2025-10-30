@@ -51,6 +51,7 @@ export class Target {
         this.tags = new Set(this.tags);
         this.folder = item.type ? path.normalize(dirname('..', 'third_party' , 'test', item.type)) : process.cwd();
         this.assert = !this.assert || Array.isArray(this.assert) ? this.assert : [this.assert];
+        this.serial = false;
     }
 
     on(event, callback) {
@@ -75,10 +76,7 @@ export class Target {
             this.measures.set('name', this.name);
         }
         await zip.Archive.import();
-        const environment = {
-            zoom: 'none',
-            measure: this.measures ? true : false
-        };
+        const environment = { zoom: 'none', serial: this.serial };
         this.host = await new mock.Host(environment);
         this.view = new view.View(this.host);
         this.view.options.attributes = true;

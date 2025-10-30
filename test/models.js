@@ -28,12 +28,16 @@ const access = async (path) => {
     }
 };
 
-const exit = (error) => {
+const error = (e) => {
     /* eslint-disable no-console */
-    console.error(`${error.name}: ${error.message}`);
-    if (error.cause) {
-        console.error(`  ${error.cause.name}: ${error.cause.message}`);
+    console.error(`${e.name}: ${e.message}`);
+    if (e.cause) {
+        console.error(`  ${e.cause.name}: ${e.cause.message}`);
     }
+};
+
+const exit = (e) => {
+    error(e);
     /* eslint-enable no-console */
     process.exit(1);
 };
@@ -265,13 +269,26 @@ class Worker {
 
 const main = async () => {
     try {
-        const args = { inputs: [], measure: false, profile: false };
+        const args = { inputs: [], measure: false, profile: false, continue: false, serial: false };
         if (process.argv.length > 2) {
             for (const arg of process.argv.slice(2)) {
                 switch (arg) {
-                    case 'measure': args.measure = true; break;
-                    case 'profile': args.profile = true; break;
-                    default: args.inputs.push(arg); break;
+                    case 'measure':  args.measure = true;  args.serial = true; break;
+                    case 'profile':  args.profile = true;  args.serial = true; break;
+                    case 'continue': args.continue = true; args.serial = true; break;
+                    default: {
+                        // eslint-disable-next-line no-await-in-loop
+                        const exists = await access(arg);
+                        if (exists || !/[*?[\]]/.test(arg)) {
+                            args.inputs.push(arg);
+                        } else {
+                            const iterator = fs.glob(arg, { cwd: process.cwd() });
+                            // eslint-disable-next-line no-await-in-loop
+                            const files = await Array.fromAsync(iterator);
+                            args.inputs.push(...files);
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -280,7 +297,7 @@ const main = async () => {
         const patterns = paths ? [] : args.inputs;
         const targets = paths ? args.inputs.map((path) => ({ target: path, tags: 'quantization,validation' })) : await configuration();
         const queue = new Queue(targets, patterns);
-        const threads = args.measure || inspector.url() ? 1 : undefined;
+        const threads = args.serial || inspector.url() ? 1 : undefined;
         const logger = new Logger(threads);
         let measures = null;
         if (args.measure) {
@@ -303,16 +320,31 @@ const main = async () => {
         }
         if (threads === 1) {
             const worker = await import('./worker.js');
+            const total = queue.length;
+            let success = 0;
             for (let item = queue.pop(); item; item = queue.pop()) {
                 const target = new worker.Target(item);
                 target.measures = measures ? new Map() : null;
+                target.serial = args.serial;
                 target.on('status', (sender, message) => logger.update('', message));
                 /* eslint-disable no-await-in-loop */
-                await target.execute();
+                try {
+                    await target.execute();
+                    success += 1;
+                } catch (e) {
+                    if (args.continue) {
+                        error(e);
+                    } else {
+                        exit(e);
+                    }
+                }
                 if (target.measures) {
                     await measures.add(target.measures);
                 }
                 /* eslint-enable no-await-in-loop */
+            }
+            if (args.continue) {
+                write(`  ${success} / ${total} =  ${success * 100 / total}%\n`);
             }
         } else {
             const threads = Math.min(10, Math.round(0.7 * os.cpus().length), queue.length);
