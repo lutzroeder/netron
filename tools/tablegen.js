@@ -207,31 +207,45 @@ tablegen.Tokenizer = class {
         this._next(); // [
         this._next(); // {
 
-        // Track nested [{ }] blocks
         let depth = 1;
+        let lineStart = true;
+        let lineContent = '';
         while (this._position < this._text.length && depth > 0) {
             const c = this.peek();
             const next = this.peek(1);
 
-            // Check for nested [{ to increase depth
             if (c === '[' && next === '{') {
-                depth++;
+                const trimmedLine = lineContent.trim();
+                if (lineStart || trimmedLine === '' || /^(let|def|class)\s/.test(trimmedLine)) {
+                    depth++;
+                }
                 value += c;
                 this._next();
                 value += next;
                 this._next();
+                lineContent += c + next;
             } else if (c === '}' && next === ']') {
                 depth--;
                 if (depth === 0) {
-                    this._next(); // consume }
-                    this._next(); // consume ]
+                    this._next();
+                    this._next();
                     break;
                 }
                 value += c;
                 this._next();
                 value += next;
                 this._next();
+                lineContent += c + next;
             } else {
+                if (c === '\n') {
+                    lineStart = true;
+                    lineContent = '';
+                } else if (c !== ' ' && c !== '\t') {
+                    lineStart = false;
+                }
+                if (c !== '\n') {
+                    lineContent += c;
+                }
                 value += c;
                 this._next();
             }

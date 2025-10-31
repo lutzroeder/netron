@@ -94,6 +94,7 @@ const main = async () => {
         path.join(source, 'stablehlo'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
+        path.join(source, 'triton', 'include'),
         path.join(source, 'mlir-hlo', 'include'),
         path.join(source, 'iree', 'compiler', 'src'),
         path.join(source, 'FlashTensor', 'include'),
@@ -199,6 +200,10 @@ const main = async () => {
         'pmlc/dialect/stdx/ir/ops.td',
         'SDFG/Dialect/Ops.td',
         'MichelsonOps.td',
+        'triton/Dialect/Triton/IR/TritonOps.td',
+        'triton/Dialect/TritonGPU/IR/TritonGPUOps.td',
+        'triton/Dialect/Gluon/IR/GluonOps.td',
+        'triton/Dialect/TritonNvidiaGPU/IR/TritonNvidiaGPUOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();

@@ -8,14 +8,15 @@ entries=(
     "https://github.com/openxla/stablehlo.git|main|./third_party/source/mlir/stablehlo|stablehlo"
     "https://github.com/onnx/onnx-mlir.git|main|./third_party/source/mlir/onnx-mlir|"
     "https://github.com/llvm/torch-mlir.git|main|./third_party/source/mlir/torch-mlir|"
+    "https://github.com/triton-lang/triton|main|./third_party/source/mlir/triton|"
+    "https://github.com/tensorflow/tensorflow.git|master|./third_party/source/mlir/tensorflow|tensorflow/compiler/mlir"
     "https://github.com/tensorflow/mlir-hlo.git|main|./third_party/source/mlir/mlir-hlo|"
     "https://github.com/iree-org/iree.git|main|./third_party/source/mlir/iree|compiler"
-    "https://github.com/monellz/FlashTensor|main|./third_party/source/mlir/FlashTensor|"
+    "https://github.com/monellz/FlashTensor.git|main|./third_party/source/mlir/FlashTensor|"
     "https://github.com/plaidml/plaidml.git|plaidml-v1|./third_party/source/mlir/plaidml|pmlc"
-    "https://github.com/sophgo/tpu-mlir|master|./third_party/source/mlir/tpu-mlir|include"
-    "https://github.com/spcl/mlir-dace|main|./third_party/source/mlir/mlir-dace|"
-    "https://github.com/woxjro/lltz|master|./third_party/source/mlir/lltz|"
-    "https://github.com/tensorflow/tensorflow.git|master|./third_party/source/mlir/tensorflow|tensorflow/compiler/mlir"
+    "https://github.com/sophgo/tpu-mlir.git|master|./third_party/source/mlir/tpu-mlir|include"
+    "https://github.com/spcl/mlir-dace.git|main|./third_party/source/mlir/mlir-dace|"
+    "https://github.com/woxjro/lltz.git|master|./third_party/source/mlir/lltz|"
 )
 
 clean() {
@@ -32,7 +33,7 @@ sync() {
         IFS='|' read -r url branch dir root <<< "${entry}"
         if [ ! -d "${dir}" ]; then
             if [ -n "${root}" ]; then
-                git clone --quiet --depth=1 --branch "${branch}" --single-branch --filter=blob:none --sparse "${url}" "${dir}"
+                git clone --quiet --depth=1 --branch "${branch}" --single-branch --filter=blob:none --sparse "${url}" "${dir}" >/dev/null 2>&1
                 git -C "${dir}" sparse-checkout set "${root}" >/dev/null 2>&1
             else
                 git clone --quiet --depth=1 --branch "${branch}" --single-branch "${url}" "${dir}"
@@ -42,7 +43,7 @@ sync() {
                 git -C "${dir}" sparse-checkout set "${root}" >/dev/null 2>&1
             fi
             git -C "${dir}" fetch --quiet --depth=1 origin "${branch}"
-            git -C "${dir}" reset --quiet --hard FETCH_HEAD
+            git -C "${dir}" reset --quiet --hard FETCH_HEAD >/dev/null 2>&1
             git -C "${dir}" gc --quiet --prune=all
         fi
     done

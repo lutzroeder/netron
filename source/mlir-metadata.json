@@ -3795,6 +3795,17 @@
     "assemblyFormat": "attr-dict ($operands^ `:` type($operands))?"
   },
   {
+    "name": "gluon.set_auto_layout",
+    "summary": "set auto encoding to a concrete encoding type",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
     "name": "gpu.all_reduce",
     "summary": "Reduce values among workgroup.",
     "description": "The `all_reduce` op reduces the value of every work item across a local\n    workgroup. The result is equal for all work items of a workgroup.\n\n    For example, both\n\n    ```mlir\n    %1 = gpu.all_reduce add %0 {} : (f32) -> (f32)\n    %2 = gpu.all_reduce %0 {\n    ^bb(%lhs : f32, %rhs : f32):\n      %sum = arith.addf %lhs, %rhs : f32\n      \"gpu.yield\"(%sum) : (f32) -> ()\n    } : (f32) -> (f32)\n    ```\n\n    compute the sum of each work item's %0 value. The first version specifies\n    the accumulation as operation, whereas the second version specifies the\n    accumulation as code region. The reduction operation must be one of:\n    *  Integer types: `add`, `mul`, `minui`, `minsi`, `maxui`, `maxsi`, `and`,\n       `or`, `xor`\n    *  Floating point types: `add`, `mul`, `minnumf`, `maxnumf`, `minimumf`,\n       `maximumf`\n\n    If `uniform` flag is set either none or all work items of a workgroup\n    need to execute this op in convergence.",
@@ -57233,6 +57244,1335 @@
       { "name": "operands", "type": "Arg" }
     ],
     "assemblyFormat": "operands attr-dict (`:` type($operands)^)?"
+  },
+  {
+    "name": "tt.addptr",
+    "inputs": [
+      { "name": "ptr", "type": "TT_PtrLike" },
+      { "name": "offset", "type": "TT_IntLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_PtrLike" }
+    ],
+    "assemblyFormat": "$ptr `,` $offset attr-dict `:` type($result) `,` type($offset)"
+  },
+  {
+    "name": "tt.advance",
+    "summary": "Advance a tensor pointer by offsets",
+    "inputs": [
+      { "name": "ptr", "type": "TT_TensorPtr" },
+      { "name": "offsets", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_TensorPtr" }
+    ],
+    "assemblyFormat": "$ptr `,` `[` $offsets `]` attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.assert",
+    "summary": "Device-side assert, as in CUDA for correctness checking",
+    "description": "`tt.assert` takes a condition tensor and a message string.\n    If the condition is false, the message is printed, and the program is aborted.",
+    "inputs": [
+      { "name": "condition", "type": "AnyTypeOf" }
+    ],
+    "attributes": [
+      { "name": "message", "type": "StrAttr" }
+    ],
+    "assemblyFormat": "$condition `,` $message attr-dict `:` type($condition)"
+  },
+  {
+    "name": "tt.atomic_cas",
+    "summary": "atomic cas",
+    "description": "compare $cmp with data $old at location $ptr,\n\n        if $old == $cmp, store $val to $ptr,\n\n        else store $old to $ptr,\n\n        return $old",
+    "inputs": [
+      { "name": "ptr", "type": "Arg" },
+      { "name": "cmp", "type": "TT_Type" },
+      { "name": "val", "type": "TT_Type" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Type" }
+    ],
+    "attributes": [
+      { "name": "sem", "type": "TT_MemSemanticAttr" },
+      { "name": "scope", "type": "TT_MemSyncScopeAttr" }
+    ],
+    "assemblyFormat": "$sem `,` $scope `,` $ptr `,` $cmp `,` $val attr-dict `:`\n      functional-type(operands, $result)"
+  },
+  {
+    "name": "tt.atomic_rmw",
+    "summary": "atomic rmw",
+    "description": "load data at $ptr, do $rmw_op with $val, and store result to $ptr.\n\n        return old value at $ptr",
+    "inputs": [
+      { "name": "ptr", "type": "Arg" },
+      { "name": "val", "type": "TT_Type" },
+      { "name": "mask", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Type" }
+    ],
+    "attributes": [
+      { "name": "atomic_rmw_op", "type": "TT_AtomicRMWAttr" },
+      { "name": "sem", "type": "TT_MemSemanticAttr" },
+      { "name": "scope", "type": "TT_MemSyncScopeAttr" }
+    ],
+    "assemblyFormat": "$atomic_rmw_op `,` $sem `,` $scope `,` $ptr `,` $val (`,` $mask^)?  attr-dict `:`\n      functional-type(operands, $result)"
+  },
+  {
+    "name": "tt.bitcast",
+    "summary": "Cast between types of the same bitwidth",
+    "inputs": [
+      { "name": "src", "type": "TT_Type" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Type" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.broadcast",
+    "summary": "broadcast a tensor",
+    "description": "For a given tensor, broadcast changes one or more dimensions with size 1\n      to a new size, e.g. tensor<1x32x1xf32> -> tensor<2x32x4xf32>.  You cannot\n      change the size of a non-1 dimension.",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.call",
+    "summary": "call operation",
+    "description": "The `tt.call` operation represents a direct call to a function that is\n    within the same symbol scope as the call. The operands and result types of\n    the call must match the specified function type. The callee is encoded as a\n    symbol reference attribute named \"callee\".\n\n    Example:\n\n    ```mlir\n    %2 = tt.call @my_add(%0, %1) : (f32, f32) -> f32\n    ```",
+    "inputs": [
+      { "name": "operands", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "callee", "type": "FlatSymbolRefAttr" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$callee `(` $operands `)` attr-dict `:` functional-type($operands, results)"
+  },
+  {
+    "name": "tt.cat",
+    "summary": "concatenate 2 tensors",
+    "inputs": [
+      { "name": "lhs", "type": "TT_Tensor" },
+      { "name": "rhs", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($lhs) `->` type($result)"
+  },
+  {
+    "name": "tt.clampf",
+    "summary": "Clamp operation for floating point types",
+    "description": "Clamp operation for floating point types.\n\n        The operation takes three arguments: x, min, and max. It returns a tensor of the same shape as x with its values clamped to the range [min, max].",
+    "inputs": [
+      { "name": "x", "type": "TT_FloatLike" },
+      { "name": "min", "type": "TT_FloatLike" },
+      { "name": "max", "type": "TT_FloatLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_FloatLike" }
+    ],
+    "attributes": [
+      { "name": "propagateNan", "type": "TT_PropagateNanAttr" }
+    ],
+    "assemblyFormat": "$x `,` $min `,` $max `,` `propagateNan` `=` $propagateNan attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.descriptor_gather",
+    "summary": "gather multiple rows from a descriptor into a single tensor",
+    "description": "The `tt.descriptor_gather` op will be lowered to NVIDIA TMA\n    gather operations on targets that support it.\n\n    `desc_ptr` is a pointer to the TMA descriptor allocated in global memory.\n    The descriptor block must have 1 row and the indices must be a 1D tensor.\n    Accordingly, the result is a 2D tensor multiple rows.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "x_offsets", "type": "RankedTensorOf" },
+      { "name": "y_offset", "type": "I32" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$desc `[` $x_offsets `,` $y_offset `]`\n    attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "tt.descriptor_load",
+    "summary": "Load from descriptor",
+    "description": "This operation will be lowered to Nvidia TMA load operation on targets supporting it.\n    `desc` is a tensor descriptor object.\n    The destination tensor type and shape must match the descriptor otherwise the result is undefined.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "indices", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "cache", "type": "DefaultValuedAttr" },
+      { "name": "evict", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$desc `[` $indices `]`\n    oilist(\n      `cacheModifier` `=` $cache |\n      `evictionPolicy` `=` $evict\n    )\n    attr-dict `:` qualified(type($desc)) `->` type($result)"
+  },
+  {
+    "name": "tt.descriptor_reduce",
+    "summary": "performs a reducing store operation based on a descriptor",
+    "description": "This operation will be lowered to Nvidia TMA store operation on targets supporting it.\n    `desc` is a tensor descriptor object.\n    The shape and types of `src` must match the descriptor otherwise the result is undefined.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "src", "type": "TT_Tensor" },
+      { "name": "indices", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "kind", "type": "TT_DescriptorReduceKindAttr" }
+    ],
+    "assemblyFormat": "$kind `,` $desc `[` $indices `]` `,` $src\n    attr-dict `:` qualified(type($desc)) `,` type($src)"
+  },
+  {
+    "name": "tt.descriptor_scatter",
+    "summary": "scatter multiple rows to a descriptor from a single tensor",
+    "description": "The `tt.descriptor_scatter` op will be lowered to NVIDIA TMA\n    scatter operations on targets that support it.\n\n    `desc_ptr` is a pointer to the TMA descriptor allocated in global memory.\n    The descriptor block must have 1 row and the indices must be a 1D tensor.\n    Accordingly, the result is a 2D tensor multiple rows.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "x_offsets", "type": "RankedTensorOf" },
+      { "name": "y_offset", "type": "I32" },
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$desc `[` $x_offsets `,` $y_offset `]` `,` $src\n    attr-dict `:` type(operands)"
+  },
+  {
+    "name": "tt.descriptor_store",
+    "summary": "store value based on descriptor",
+    "description": "This operation will be lowered to Nvidia TMA store operation on targets supporting it.\n    `desc` is a tensor descriptor object.\n    The shape and types of `src` must match the descriptor otherwise the result is undefined.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "src", "type": "TT_Tensor" },
+      { "name": "indices", "type": "Variadic" }
+    ],
+    "assemblyFormat": "$desc `[` $indices `]` `,` $src\n    attr-dict `:` qualified(type($desc)) `,` type($src)"
+  },
+  {
+    "name": "tt.dot",
+    "summary": "dot",
+    "description": "$d = matrix_multiply($a, $b) + $c. $inputPrecision describes how to exercise the TC\n        when the inputs are f32. It can be one of: tf32, tf32x3, ieee, bf16x3, bf16x6.\n        tf32: use TC with tf32 ops.\n        tf32x3: implement the 3xTF32 trick. For more info see the pass in F32DotTC.cpp\n        bf16x3: implement the 3xBF16 trick. For more info see the pass in F32DotTC.cpp\n        bf16x6: implement the 6xBF16 trick. For more info see the pass in F32DotTC.cpp\n        ieee: don't use TC, implement dot in software.\n        If the GPU does not have Tensor cores or the inputs are not f32, this flag is ignored.",
+    "inputs": [
+      { "name": "a", "type": "TT_FpIntTensor" },
+      { "name": "b", "type": "TT_FpIntTensor" },
+      { "name": "c", "type": "TT_FpIntTensor" }
+    ],
+    "outputs": [
+      { "name": "d", "type": "TT_FpIntTensor" }
+    ],
+    "attributes": [
+      { "name": "inputPrecision", "type": "DefaultValuedAttr" },
+      { "name": "maxNumImpreciseAcc", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$a`,` $b`,` $c (`,` `inputPrecision` `=` $inputPrecision^)? attr-dict `:`\n      type($a) `*` type($b) `->` type($d)"
+  },
+  {
+    "name": "tt.dot_scaled",
+    "summary": "dot_scaled",
+    "description": "$d = matrix_multiply(scale($a, $a_scale), scale($b, $b_scale)) + $c.\n        Where scale(x, s) is a function that applies the scale per block following microscaling spec.",
+    "inputs": [
+      { "name": "a", "type": "RankedTensorOf" },
+      { "name": "b", "type": "RankedTensorOf" },
+      { "name": "c", "type": "TT_FloatTensor" },
+      { "name": "a_scale", "type": "Optional" },
+      { "name": "b_scale", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "d", "type": "TT_FloatTensor" }
+    ],
+    "attributes": [
+      { "name": "a_elem_type", "type": "TT_ScaleDotElemTypeAttr" },
+      { "name": "b_elem_type", "type": "TT_ScaleDotElemTypeAttr" },
+      { "name": "fastMath", "type": "BoolAttr" },
+      { "name": "lhs_k_pack", "type": "DefaultValuedAttr" },
+      { "name": "rhs_k_pack", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$a (`scale` $a_scale^)? `,` $b (`scale` $b_scale^)? `,` $c\n      `lhs` `=` $a_elem_type `rhs` `=` $b_elem_type attr-dict\n      `:` type($a) (`,` type($a_scale)^)? `*` type($b) (`,` type($b_scale)^)? `->` type($d)"
+  },
+  {
+    "name": "tt.elementwise_inline_asm",
+    "summary": "inline assembly applying an elementwise operation to a group of packed elements.",
+    "description": "Runs an inline asm block to generate one or more tensors.\n\n    The asm block is given `packed_element` elements at a time.  Exactly which\n    elems it receives is unspecified.",
+    "inputs": [
+      { "name": "args", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "asm_string", "type": "StrAttr" },
+      { "name": "constraints", "type": "StrAttr" },
+      { "name": "pure", "type": "BoolAttr" },
+      { "name": "packed_element", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$asm_string attr-dict ($args^ `:` type($args))? `->` type($result)"
+  },
+  {
+    "name": "tt.expand_dims",
+    "summary": "expand_dims",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.extern_elementwise",
+    "description": "call an external function $symbol implemented in $libpath/$libname with $args\n        return $libpath/$libname:$symbol($args...)",
+    "inputs": [
+      { "name": "srcs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Type" }
+    ],
+    "attributes": [
+      { "name": "libname", "type": "StrAttr" },
+      { "name": "libpath", "type": "StrAttr" },
+      { "name": "symbol", "type": "StrAttr" },
+      { "name": "pure", "type": "BoolAttr" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` functional-type(operands, $result)"
+  },
+  {
+    "name": "tt.fp_to_fp",
+    "summary": "Floating point casting for custom types",
+    "description": "Floating point casting for custom types (F8), and non-default rounding modes.\n\n        F8 <-> FP16, BF16, FP32, FP64",
+    "inputs": [
+      { "name": "src", "type": "TT_FloatLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_FloatLike" }
+    ],
+    "attributes": [
+      { "name": "rounding", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "$src attr-dict  (`,` `rounding` `=` $rounding^)? `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.func",
+    "summary": "An operation with a name containing a single `SSACFG` region",
+    "description": "Operations within the function cannot implicitly capture values defined\n    outside of the function, i.e. Functions are `IsolatedFromAbove`. All\n    external references must use function arguments or attributes that establish\n    a symbolic connection (e.g. symbols referenced by name via a string\n    attribute like SymbolRefAttr). An external function declaration (used when\n    referring to a function declared in some other module) has no body. While\n    the MLIR textual form provides a nice inline syntax for function arguments,\n    they are internally represented as “block arguments” to the first block in\n    the region.\n\n    Only dialect attribute names may be specified in the attribute dictionaries\n    for function arguments, results, or the function itself.\n\n    Example:\n\n    ```mlir\n    // External function definitions.\n    tt.func @abort()\n    tt.func @scribble(i32, i64, memref<? x 128 x f32, #layout_map0>) -> f64\n\n    // A function that returns its argument twice:\n    tt.func @count(%x: i64) -> (i64, i64)\n      attributes {fruit: \"banana\"} {\n      return %x, %x: i64, i64\n    }\n\n    // A function with an argument attribute\n    tt.func @example_fn_arg(%x: i32 {swift.self = unit})\n\n    // A function with a result attribute\n    tt.func @example_fn_result() -> (f64 {dialectName.attrName = 0 : i64})\n\n    // A function with an attribute\n    tt.func @example_fn_attr() attributes {dialectName.attrName = false}\n    ```",
+    "attributes": [
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "function_type", "type": "TypeAttrOf" },
+      { "name": "sym_visibility", "type": "OptionalAttr" },
+      { "name": "arg_attrs", "type": "OptionalAttr" },
+      { "name": "res_attrs", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "tt.gather",
+    "summary": "local gather operation",
+    "description": "Gather elements from the input tensor using the indices tensor along a\n    single specified axis. The output tensor has the same shape as the indices\n    tensor. The input and indices tensors must have the same number of\n    dimension, and each dimension of the indices tensor that is not the gather\n    dimension cannot be greater than the corresponding dimension in the input\n    tensor.\n\n    The `efficient_layout` attribute is set when the compiler has determined an\n    optimized layout for the operation, indicating that it should not be\n    changed.",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" },
+      { "name": "indices", "type": "TT_IntTensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "I32Attr" },
+      { "name": "efficient_layout", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$src `[` $indices `]` attr-dict `:`\n    functional-type(operands, results)"
+  },
+  {
+    "name": "tt.get_num_programs",
+    "inputs": [
+      { "name": "axis", "type": "TT_ProgramDim" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I32" }
+    ],
+    "assemblyFormat": "$axis attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.get_program_id",
+    "inputs": [
+      { "name": "axis", "type": "TT_ProgramDim" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I32" }
+    ],
+    "assemblyFormat": "$axis attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.histogram",
+    "summary": "return a histogram of the inputs.",
+    "description": "Return the histogram of the input tensor. The number of bins is equal to\n    the dimension of the output tensor. Each bins has a width of 1 and bins\n    start at 0.",
+    "inputs": [
+      { "name": "src", "type": "TT_IntTensor" },
+      { "name": "mask", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_IntTensor" }
+    ],
+    "assemblyFormat": "$src (`,` $mask^)? attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.int_to_ptr",
+    "summary": "Cast int64 to pointer",
+    "inputs": [
+      { "name": "src", "type": "TT_I64Like" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_PtrLike" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.join",
+    "summary": "join two tensors along a new, minor dimension",
+    "description": "For example, if the two input tensors are 4x8xf32, returns a tensor of\n        shape 4x8x2xf32.\n\n        Because Triton tensors always have a power-of-two number of elements,\n        the two input tensors must have the same shape.",
+    "inputs": [
+      { "name": "lhs", "type": "TT_Tensor" },
+      { "name": "rhs", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs attr-dict `:` type($lhs) `->` type($result)"
+  },
+  {
+    "name": "tt.load",
+    "summary": "Load from a tensor of pointers or from a tensor pointer",
+    "inputs": [
+      { "name": "ptr", "type": "AnyTypeOf" },
+      { "name": "mask", "type": "Optional" },
+      { "name": "other", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Type" }
+    ],
+    "attributes": [
+      { "name": "boundaryCheck", "type": "DefaultValuedAttr" },
+      { "name": "padding", "type": "OptionalAttr" },
+      { "name": "cache", "type": "DefaultValuedAttr" },
+      { "name": "evict", "type": "DefaultValuedAttr" },
+      { "name": "isVolatile", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$ptr (`,` $mask^)? (`,` $other^)?\n      oilist(\n        `cacheModifier` `=` $cache |\n        `evictionPolicy` `=` $evict\n      )\n      attr-dict `:` type($ptr)"
+  },
+  {
+    "name": "tt.make_range",
+    "summary": "make range",
+    "description": "Returns an 1D int32 tensor.\n\n        Values span from $start to $end (exclusive), with step = 1",
+    "outputs": [
+      { "name": "result", "type": "TT_IntTensor" }
+    ],
+    "attributes": [
+      { "name": "start", "type": "I32Attr" },
+      { "name": "end", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.make_tensor_descriptor",
+    "summary": "Make a tensor descriptor type with meta information of the parent tensor and block size",
+    "description": "`tt.make_tensor_descriptor` takes both meta information of the parent tensor and the block size,\n      and returns a descriptor object which can be used to load/store from the tensor in global memory.",
+    "inputs": [
+      { "name": "base", "type": "TT_Ptr" },
+      { "name": "shape", "type": "Variadic" },
+      { "name": "strides", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_TensorDescType" }
+    ],
+    "attributes": [
+      { "name": "padding", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$base `,` `[` $shape `]` `,` `[` $strides `]` attr-dict `:` type($base) `,` type($result)"
+  },
+  {
+    "name": "tt.make_tensor_ptr",
+    "summary": "Make a tensor pointer type with meta information of the parent tensor and the block specified",
+    "description": "`tt.make_tensor_ptr` takes both meta information of the parent tensor and the block tensor, then it returns a\n      pointer to the block tensor, e.g. returns a type of `tt.ptr<tensor<8x8xf16>>`.",
+    "inputs": [
+      { "name": "base", "type": "TT_Ptr" },
+      { "name": "shape", "type": "Variadic" },
+      { "name": "strides", "type": "Variadic" },
+      { "name": "offsets", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_TensorPtr" }
+    ],
+    "attributes": [
+      { "name": "order", "type": "DenseI32ArrayAttr" }
+    ],
+    "assemblyFormat": "$base `,` `[` $shape `]` `,` `[` $strides `]` `,` `[` $offsets `]` attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.map_elementwise",
+    "summary": "Map a scalar subregion over a tensor",
+    "inputs": [
+      { "name": "srcs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "pack", "type": "I32Attr" }
+    ]
+  },
+  {
+    "name": "tt.map_elementwise.return",
+    "summary": "terminator for map elementwise operator",
+    "inputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "assemblyFormat": "attr-dict ($result^ `:` type($result))?"
+  },
+  {
+    "name": "tt.mulhiui",
+    "summary": "Most significant N bits of the 2N-bit product of two integers",
+    "description": "Most significant N bits of the 2N-bit product of two integers.",
+    "inputs": [
+      { "name": "x", "type": "TT_IntLike" },
+      { "name": "y", "type": "TT_IntLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_IntLike" }
+    ],
+    "assemblyFormat": "$x `,` $y attr-dict `:` type($x)"
+  },
+  {
+    "name": "tt.precise_divf",
+    "summary": "Precise div for floating point types",
+    "description": "Precise div for floating point types.",
+    "inputs": [
+      { "name": "x", "type": "TT_FloatLike" },
+      { "name": "y", "type": "TT_FloatLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_FloatLike" }
+    ],
+    "assemblyFormat": "$x `,` $y attr-dict `:` type($x)"
+  },
+  {
+    "name": "tt.precise_sqrt",
+    "summary": "Precise sqrt for floating point types",
+    "description": "Precise sqrt for floating point types.",
+    "inputs": [
+      { "name": "x", "type": "TT_FloatLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_FloatLike" }
+    ],
+    "assemblyFormat": "$x attr-dict `:` type($x)"
+  },
+  {
+    "name": "tt.print",
+    "summary": "Device-side print, as in CUDA for debugging",
+    "description": "`tt.print` takes a literal string prefix and an arbitrary number of scalar or tensor arguments that should be printed.\n    format are generated automatically from the arguments.",
+    "inputs": [
+      { "name": "args", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "prefix", "type": "StrAttr" },
+      { "name": "hex", "type": "BoolAttr" },
+      { "name": "isSigned", "type": "DenseI32ArrayAttr" }
+    ],
+    "assemblyFormat": "$prefix attr-dict (`:` $args^ `:` type($args))?"
+  },
+  {
+    "name": "tt.ptr_to_int",
+    "summary": "Cast pointer to int64",
+    "inputs": [
+      { "name": "src", "type": "TT_PtrLike" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_I64Like" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.reduce",
+    "summary": "Reduction using generic combination algorithm",
+    "inputs": [
+      { "name": "srcs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "I32Attr" }
+    ]
+  },
+  {
+    "name": "tt.reduce.return",
+    "summary": "terminator for reduce operator",
+    "inputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "assemblyFormat": "$result attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.reshape",
+    "summary": "reinterpret a tensor to a different shape. It may change elements order if the attribute is set.",
+    "description": "reinterpret a tensor to a different shape.\n\n        If allow_reorder is set the compiler is free to change the order of\n        elements to generate more efficient code.\n\n        If efficient_layout is set, this is a hint that the destination layout should be kept for performance reason.\n        The compiler is still free to change it for better performance.",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "allow_reorder", "type": "UnitAttr" },
+      { "name": "efficient_layout", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$src (`allow_reorder` $allow_reorder^)? (`efficient_layout` $efficient_layout^)? attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.return",
+    "summary": "Function return operation",
+    "description": "The `tt.return` operation represents a return operation within a function.\n    The operation takes variable number of operands and produces no results.\n    The operand number and types must match the signature of the function\n    that contains the operation.\n\n    Example:\n\n    ```mlir\n    tt.func @foo() : (i32, f8) {\n      ...\n      tt.return %0, %1 : i32, f8\n    }\n    ```",
+    "inputs": [
+      { "name": "srcs", "type": "Variadic" }
+    ],
+    "assemblyFormat": "attr-dict ($srcs^ `:` type($srcs))?"
+  },
+  {
+    "name": "tt.scan",
+    "summary": "Associative scan using generic combination algorithm",
+    "inputs": [
+      { "name": "srcs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "I32Attr" },
+      { "name": "reverse", "type": "BoolAttr" }
+    ]
+  },
+  {
+    "name": "tt.scan.return",
+    "summary": "terminator for scan operator",
+    "inputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "assemblyFormat": "$result attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.splat",
+    "summary": "splat",
+    "inputs": [
+      { "name": "src", "type": "TT_Type" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.split",
+    "summary": "splits a tensor into two, along its last dimension",
+    "description": "The input must be a tensor whose last dimension has size 2.  Returns two\n        tensors, src[..., 0] and src[..., 1].\n\n        For example, if the input shape is 4x8x2xf32, returns two tensors of\n        shape 4x8xf32.",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "outLHS", "type": "TT_Tensor" },
+      { "name": "outRHS", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($outLHS)"
+  },
+  {
+    "name": "tt.store",
+    "summary": "Store by a tensor of pointers or by a tensor pointer",
+    "inputs": [
+      { "name": "ptr", "type": "Arg" },
+      { "name": "value", "type": "TT_Type" },
+      { "name": "mask", "type": "Optional" }
+    ],
+    "attributes": [
+      { "name": "boundaryCheck", "type": "DefaultValuedAttr" },
+      { "name": "cache", "type": "DefaultValuedAttr" },
+      { "name": "evict", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$ptr `,` $value (`,` $mask^)?\n      oilist(`cacheModifier` `=` $cache | `evictionPolicy` `=` $evict)\n      attr-dict `:` type($ptr)"
+  },
+  {
+    "name": "tt.trans",
+    "summary": "rearrange the dimensions of a tensor",
+    "description": "For example, given a tensor x with shape [1,2,4], transpose(x) with\n      order=[2,0,1] rearranges the tensor to have shape [4,1,2].\n\n      Although this op is called \"trans\", it implements both tl.trans() and\n      tl.permute().  (\"permute\" might be a better name, but it's called \"trans\"\n      because originally it only supported 2D tensors.)\n\n      ## Implementation note on encodings:\n\n      In the TritonGPU dialect (and probably others), an encoding is chosen for\n      this op's output so it's a nop from the perspective of code generation.\n\n      For example, suppose tensor x has an encoding such that GPU thread [i,j,k]\n      has a register containing element [i,j,k] of the tensor.  Now we transpose\n      x with order [2,1,0], i.e. we reverse the order of its dimensions.  In\n      TritonGPU, we will choose a layout for the output of the transpose so that\n      GPU thread [i,j,k] has element [k,j,i] of transpose(x).  But this is the\n      same element it had before!  All we've done is \"rename\" the element that\n      thread [i,j,k] has.\n\n      The \"real\" transpose -- i.e. moving data between GPU threads -- occurs in\n      convertLayout ops that appear before and/or after the operation.\n\n      We do this so that you can chain multiple data-movement ops (e.g.\n      transpose+reshape+concat) without going to shared memory after each one.",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "order", "type": "DenseI32ArrayAttr" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "tt.unsplat",
+    "summary": "convert a tensor with a single element to a scalar",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Type" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src)"
+  },
+  {
+    "name": "ttg.async_commit_group",
+    "summary": "async commit group",
+    "inputs": [
+      { "name": "inputTokens", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "asyncToken", "type": "TTG_AsyncToken" }
+    ],
+    "assemblyFormat": "(`tokens` $inputTokens^)? attr-dict"
+  },
+  {
+    "name": "ttg.async_copy_global_to_local",
+    "summary": "copy data from global memory to local memory asynchronously",
+    "description": "This operation copies data from global memory to local memory asynchronously.\n    This is analogue to tt.load except the data are copied to local memory pointed\n    to by the memory descriptor instead of a distributed tensor. The rest of the\n    operands are the same as tt.load.",
+    "inputs": [
+      { "name": "src", "type": "Arg" },
+      { "name": "result", "type": "Arg" },
+      { "name": "mask", "type": "Optional" },
+      { "name": "other", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "token", "type": "TTG_AsyncToken" }
+    ],
+    "attributes": [
+      { "name": "cache", "type": "DefaultValuedAttr" },
+      { "name": "evict", "type": "DefaultValuedAttr" },
+      { "name": "isVolatile", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$src `,` $result (`mask` $mask^)? (`other` $other^)?\n    oilist(`cacheModifier` `=` $cache | `evictionPolicy` `=` $evict)\n    attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "ttg.async_wait",
+    "summary": "async wait",
+    "inputs": [
+      { "name": "asyncToken", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "retToken", "type": "TTG_AsyncToken" }
+    ],
+    "attributes": [
+      { "name": "num", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "($asyncToken^)? attr-dict"
+  },
+  {
+    "name": "ttg.convert_layout",
+    "summary": "convert layout",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "ttg.fp4_to_fp",
+    "summary": "Upcast fp4 (e2m1) to fp",
+    "description": "Upcast fp4 (e2m1) represented packed as i8s to fp.\n\n    The lower 4 bits of the i8s represent the first fp4 element, and the upper 4 bits\n    the second fp4 element.\n\n    The `axis` attribute specifies the axis along which the fp4 elements are packed.",
+    "inputs": [
+      { "name": "src", "type": "RankedTensorOf" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_FloatTensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+  },
+  {
+    "name": "ttg.global_scratch_alloc",
+    "summary": "allocate a global memory buffer",
+    "description": "This operation allocates a buffer in global memory that is private to the current program.",
+    "outputs": [
+      { "name": "result", "type": "Arg" }
+    ],
+    "attributes": [
+      { "name": "nbytes", "type": "I32Attr" },
+      { "name": "alignment", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "attr-dict `:` qualified(type($result))"
+  },
+  {
+    "name": "ttg.local_alloc",
+    "summary": "allocate tensor",
+    "description": "This operation allocates buffer in shared memory and return a descriptor\n    containing the address and a view of the buffer.\n\n    Explicitly deallocating a buffer is optional; see local_dealloc.\n\n    The `src` operand is an optional initializer for the allocated buffer. It\n    must have the element type as the buffer. If `src` is not specified, the\n    returned buffer must be mutable.",
+    "inputs": [
+      { "name": "src", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "alignment", "type": "OptionalAttr" }
+    ],
+    "assemblyFormat": "($src^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "ttg.local_barrier",
+    "summary": "Synchronizes execution and shared memory reads/writes for all threads in a CTA.",
+    "description": "The `local_barrier` op synchronizes the execution and all operations\n    between shared memory and registers for all threads in a CTA.\n    It is used to coordinate communication between the threads of the CTA.\n\n    This operation waits until all threads in the CTA have reached a `local_barrier`\n    and operations between shared memory and registers made by these threads prior\n    to the op are visible to all threads in the CTA.\n\n    Data hazards between threads accessing the same memory can be avoided by synchronizing the\n    CTA in-between these accesses with a `local_barrier`.\n\n    A `local_barrier` operation does not provide syncronization guarantees on global memory.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "ttg.local_dealloc",
+    "summary": "dealloc buffer",
+    "description": "This operation deallocates a buffer explicitly. Using the buffer after this\n    operation is undefined.\n\n    This operation is optional.  If you don't explicitly dealloc a buffer, the\n    compiler assumes it's deallocated at the first point that post-dominates all\n    uses of the alloc.\n\n    Because we assume a memdesc is dead at the first point that post-dominates\n    its uses, ops that wait for an async operation on a memdesc to complete\n    (such as ttng.warp_group_dot_wait) should also take the memdesc as an\n    operand.",
+    "inputs": [
+      { "name": "src", "type": "Arg" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` qualified(type($src))"
+  },
+  {
+    "name": "ttg.local_load",
+    "summary": "Load a buffer from local memory into a distributed tensor",
+    "description": "Load a tensor from the local memory descriptor into a distributed tensor.",
+    "inputs": [
+      { "name": "src", "type": "Arg" },
+      { "name": "token", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "$src (`token` $token^)? attr-dict `:` qualified(type($src)) `->` type($result)"
+  },
+  {
+    "name": "ttg.local_store",
+    "summary": "Store a distributed tensor into a buffer in local memory",
+    "description": "Store a distributed tensor into a buffer in local memory.",
+    "inputs": [
+      { "name": "src", "type": "TT_Tensor" },
+      { "name": "dst", "type": "Arg" }
+    ],
+    "assemblyFormat": "$src `,` $dst attr-dict `:` type($src) `->` qualified(type($dst))"
+  },
+  {
+    "name": "ttg.mask",
+    "summary": "mask op for pipelining",
+    "inputs": [
+      { "name": "pred", "type": "I1" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "Variadic" }
+    ]
+  },
+  {
+    "name": "ttg.mask.return",
+    "summary": "terminator for mask operator",
+    "inputs": [
+      { "name": "result", "type": "Variadic" }
+    ],
+    "assemblyFormat": "$result attr-dict `:` type($result)"
+  },
+  {
+    "name": "ttg.memdesc_index",
+    "summary": "take a subview of the descriptor.",
+    "description": "This operation returns a new descriptor pointing to the `i`-th element of the\n    input descriptor along the 0-th dimension.\n\n    It doesn't affect the underlying memory.\n\n    For example, suppose that\n     - the input shape is 2x4x16xf16,\n     - the output shape is 4x16xf16, and\n     - index = 1.\n    Then the output descriptor is equivalent to input[1], where input is the logical tensor.",
+    "inputs": [
+      { "name": "src", "type": "TTG_MemDescType" },
+      { "name": "index", "type": "I32" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "assemblyFormat": "$src `[` $index `]` attr-dict `:` qualified(type($src)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttg.memdesc_reinterpret",
+    "summary": "reinterpret a memory descriptor as a different type and shape",
+    "description": "The `ttg.memdesc_reinterpret` operation reinterprets a memory descriptor\n    as one with a different shape and element type. Because memory descriptors\n    lack strides, this operation is only valid if the original memory descriptor\n    is contiguous.",
+    "inputs": [
+      { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` qualified(type($src)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttg.memdesc_reshape",
+    "summary": "creates a descriptor for the new shape",
+    "description": "This operation returns a new descriptor representing a reshaped view of the underlying buffer.\n    This doesn't affect the memory.",
+    "inputs": [
+      { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` qualified(type($src)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttg.memdesc_subslice",
+    "summary": "take a subview of the descriptor.",
+    "description": "This operation returns a new descriptor representing a subview of the logical tensor.\n    It doesn't affect the underlying memory.\n\n    For example, suppose that\n     - the input shape is 32x16xf16,\n     - the output shape is 8x16xf16, and\n     - offsets = [2, 1].\n    Then in Python syntax, the subview covers input[2:8+2, 1:16+1] where input is\n    the logical tensor.\n\n    The offsets must be larger or equal to the tile of the tensor (or zero).",
+    "inputs": [
+      { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "offsets", "type": "DenseI32ArrayAttr" }
+    ],
+    "assemblyFormat": "$src `[` custom<Offsets>($offsets) `]` attr-dict `:` qualified(type($src))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "ttg.memdesc_trans",
+    "summary": "transpose the descriptor",
+    "description": "This operation returns a new descriptor\n    representing a transposed view of the buffer.",
+    "inputs": [
+      { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "order", "type": "DenseI32ArrayAttr" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` qualified(type($src)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttg.predicate_stage",
+    "summary": "pipeliner stage predicate",
+    "inputs": [
+      { "name": "iv", "type": "AnySignlessIntegerOrIndex" },
+      { "name": "ub", "type": "AnySignlessIntegerOrIndex" },
+      { "name": "step", "type": "AnySignlessIntegerOrIndex" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "maxStage", "type": "I32Attr" },
+      { "name": "stage", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$iv `,` $ub `,` $step `maxStage` $maxStage `stage` $stage attr-dict `:` type($iv) `->` type($result)"
+  },
+  {
+    "name": "ttg.warp_return",
+    "summary": "implicit terminator from partition regions",
+    "description": "The `ttg.warp_return` operation is the implicit terminator that ends the\n    partition regions of a `ttg.warp_specialize` op. It has no operands as these\n    regions cannot return anything.\n\n    TODO: Support returning uniform values from partition regions.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "ttg.warp_specialize",
+    "summary": "asynchronously execute code on multiple warpgroups",
+    "description": "The `ttg.warp_specialize` op represents executing different code\n    simultaneously on different warp groups. A warp group is a group of\n    power-of-2 warps, which can be a different number of warps than in the\n    enclosing region.\n\n    The \"default\" region of the op represents the code executed by the currently\n    executing warp group. This region is allowed to implicitly capture. The op\n    contains a number of \"partition\" regions that are isolated from above. They\n    must be isolated because these regions represent different layout domains,\n    as the number of warps is different.\n\n    Semantically, execution of each region starts simultaneously for each warp\n    group, and all warp groups are joined at the end of the op.\n\n    Example:\n\n    ```mlir\n    %0 = ttg.warp_specialize(%a, %b)\n    default {\n      %out = some_operation(%a) // implicit capture of `%a`\n      ttg.warp_yield %out : i32\n    }\n    partition0(%arg0: i32, %arg1: i32) num_warps(8) {\n      some_async_dispatch(%arg0, %arg1)\n      ttg.warp_return\n    }\n    partition1(%arg0: i32, %arg1: i32) num_warps(1) {\n      some_async_dispatch(%arg0, %arg1)\n      ttg.warp_return\n    } : (i32, i32) -> i32\n    ```",
+    "inputs": [
+      { "name": "explicitCaptures", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "defaultPassthrough", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "partitionNumWarps", "type": "DenseI32ArrayAttr" },
+      { "name": "warpGroupStartIds", "type": "OptionalAttr" },
+      { "name": "requestedRegisters", "type": "OptionalAttr" },
+      { "name": "actualRegisters", "type": "OptionalAttr" }
+    ]
+  },
+  {
+    "name": "ttg.warp_specialize.partitions",
+    "summary": "container op for `ttg.warp_specialize`",
+    "description": "Because MLIR requires entire operations be isolated from above, this op\n    contains the actual isolated from above regions of `ttg.warp_specialize`."
+  },
+  {
+    "name": "ttg.warp_yield",
+    "summary": "yield from the default region of `ttg.warp_specialize`",
+    "description": "The `ttg.warp_yield` operation is the terminator for the \"default\" region of\n    a `ttg.warp_specialize` operation. The operands are passed transparently as\n    the SSA results of the `ttg.warp_specialize` operation.\n\n    Example:\n\n    ```mlir\n    ttg.warp_yield %a, %b : i32, tensor<32xbf16, #blocked>\n    ```",
+    "inputs": [
+      { "name": "values", "type": "Variadic" }
+    ],
+    "assemblyFormat": "($values^)? attr-dict (`:` type($values)^)?"
+  },
+  {
+    "name": "ttng.arrive_barrier",
+    "summary": "perform the arrive operation on an mbarrier",
+    "description": "The `ttng.arrive_barrier` operation performs the \"arrive\" operation on an\n    mbarrier object in shared memory. The operation requires a `count` attribute\n    of at least 1, and decreasing the pending arrival count of the mbarrier by\n    the specific count.\n\n    The operation accepts an optional predicate.\n\n    Example:\n\n    ```mlir\n    ttng.arrive_barrier %barrier, 2 : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1, %pred : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ```",
+    "inputs": [
+      { "name": "alloc", "type": "Arg" },
+      { "name": "pred", "type": "Optional" }
+    ],
+    "attributes": [
+      { "name": "count", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$alloc `,` $count (`,` $pred^)? attr-dict `:` qualified(type($alloc))"
+  },
+  {
+    "name": "ttng.async_copy_mbarrier_arrive",
+    "summary": "arrive on mbarrier once all previously issued copies are completed",
+    "inputs": [
+      { "name": "barrier", "type": "Arg" }
+    ],
+    "attributes": [
+      { "name": "noIncrement", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$barrier attr-dict `:` qualified(type($barrier))"
+  },
+  {
+    "name": "ttng.async_tma_copy_global_to_local",
+    "summary": "copy data based on descriptor from global memory to local memory asynchronously",
+    "description": "This operation copies data from global memory to local memory\n    asynchronously.  This is analogue to tt.load except the data are copied to\n    local memory pointed by the memory descriptor instead of a distributed\n    tensor. The data copied depends on the global memory descriptor pointed to\n    by `desc`.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "coord", "type": "Variadic" },
+      { "name": "barrier", "type": "Arg" },
+      { "name": "result", "type": "Arg" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "cache", "type": "DefaultValuedAttr" },
+      { "name": "evict", "type": "DefaultValuedAttr" },
+      { "name": "isVolatile", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$desc `[` $coord `]` $result `,` $barrier `,` $pred\n    oilist(`cacheModifier` `=` $cache | `evictionPolicy` `=` $evict)\n    attr-dict `:` qualified(type($desc)) `,` qualified(type($barrier)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttng.async_tma_copy_local_to_global",
+    "summary": "copy data based on descriptor from local memory to global memory asynchronously",
+    "description": "This operation copies data from local memory to global memory\n    asynchronously.  This is analogue to tt.store except the data are copied from\n    local memory pointed by the memory descriptor instead of a distributed\n    tensor. The data copied depends on the global memory descriptor pointed to\n    by `desc`.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "coord", "type": "Variadic" },
+      { "name": "src", "type": "Arg" }
+    ],
+    "assemblyFormat": "$desc `[` $coord `]` $src\n    attr-dict `:` qualified(type($desc)) `,` qualified(type($src))"
+  },
+  {
+    "name": "ttng.async_tma_gather",
+    "summary": "gather data based on descriptor from global memory to local memory asynchronously",
+    "description": "This operation gathers multiple rows of data from global memory matrix to\n    local memory asynchronously.  This is similar to\n    async_tma_copy_global_to_local except that each row is indexed independently.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "x_offsets", "type": "RankedTensorOf" },
+      { "name": "y_offset", "type": "I32" },
+      { "name": "barrier", "type": "Arg" },
+      { "name": "result", "type": "Arg" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "assemblyFormat": "$desc `[` $x_offsets `,` $y_offset `]` $result `,` $barrier `,` $pred\n    attr-dict `:` type(operands)"
+  },
+  {
+    "name": "ttng.async_tma_reduce",
+    "summary": "reduce result in gmem based on a TMA descriptor",
+    "description": "This operation copies data from local memory to global memory\n    asynchronously, and atomically performs the specified reduction kind.\n    Atomicity is at the granularity of individual elements, and only relaxed\n    semantics are implied.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "coord", "type": "Variadic" },
+      { "name": "src", "type": "Arg" }
+    ],
+    "attributes": [
+      { "name": "kind", "type": "TT_DescriptorReduceKindAttr" }
+    ],
+    "assemblyFormat": "$kind `,` $desc `[` $coord `]` $src\n    attr-dict `:` qualified(type($desc)) `,` qualified(type($src))"
+  },
+  {
+    "name": "ttng.async_tma_scatter",
+    "summary": "scatter data from local memory into global memory based on a descriptor asynchronously",
+    "description": "The `ttng.async_tma_scatter` operation scatters multiple separately-indexed\n    rows of data from local memory into global memory asynchronously. The\n    operation scatters a 2D tensor in shared memory, laid out by core tensor\n    tiles nvmma_shared layout into separately indexed rows in global\n    memory at a given `y` offset.",
+    "inputs": [
+      { "name": "desc", "type": "Arg" },
+      { "name": "x_offsets", "type": "RankedTensorOf" },
+      { "name": "y_offset", "type": "I32" },
+      { "name": "src", "type": "Arg" }
+    ],
+    "assemblyFormat": "$desc `[` $x_offsets `,` $y_offset `]` $src\n    attr-dict `:` type(operands)"
+  },
+  {
+    "name": "ttng.async_tma_store_wait",
+    "summary": "wait until all the inputs are read.",
+    "description": "Wait until all the read operations are done from the associated store operations.\n    This is needed before the shared memory can be written to.",
+    "attributes": [
+      { "name": "pendings", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "ttng.barrier_expect",
+    "summary": "Signal a barrier of an expected number of bytes to be copied.",
+    "description": "This signal the barrier that `size` bytes are expected to be copied. The\n    associated barrier wait will block until the expected number of bytes are copied.",
+    "inputs": [
+      { "name": "alloc", "type": "Arg" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "size", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$alloc `,` $size attr-dict `,` $pred `:` qualified(type($alloc))"
+  },
+  {
+    "name": "ttng.cluster_arrive",
+    "attributes": [
+      { "name": "relaxed", "type": "I1Attr" }
+    ],
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "ttng.cluster_wait",
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "ttng.fence_async_shared",
+    "summary": "fence proxy async",
+    "attributes": [
+      { "name": "bCluster", "type": "BoolAttr" }
+    ],
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "ttng.init_barrier",
+    "summary": "Initialize a barrier in the given shared memory allocation.",
+    "description": "Initializes a shared memory allocation with mbarrier information.\n      `alloc` is a descriptor to the shared memory allocation. `count` is the\n      number of arrives expected by the barrier.\n\n      This lowers to PTX mbarrier.init.shared::cta.b64.",
+    "inputs": [
+      { "name": "alloc", "type": "Arg" }
+    ],
+    "attributes": [
+      { "name": "count", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$alloc `,` $count attr-dict `:` qualified(type($alloc))"
+  },
+  {
+    "name": "ttng.inval_barrier",
+    "summary": "Invalidate a barrier allocation.",
+    "description": "Invalidate a barrier allocation so that it can be re-used. According to PTX\n    spec this has to be done before any reuse of the memory used by mbarrier.\n\n    https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-inval",
+    "inputs": [
+      { "name": "alloc", "type": "Arg" }
+    ],
+    "assemblyFormat": "$alloc attr-dict `:` qualified(type($alloc))"
+  },
+  {
+    "name": "ttng.reinterpret_tensor_descriptor",
+    "summary": "Reinterpret a pointer as a tensor descriptor",
+    "description": "This Op exists to help the transition from untyped raw TMA objects to typed Tensor descriptor objects.\n     Ideally, we can remove this once the APIs are fully fleshed out.",
+    "inputs": [
+      { "name": "rawDesc", "type": "TT_Ptr" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_TensorDescType" }
+    ],
+    "assemblyFormat": "$rawDesc attr-dict `:` qualified(type($rawDesc))  `to` qualified(type($result))"
+  },
+  {
+    "name": "ttng.tc_gen5_commit",
+    "summary": "make an mbarrier track completion of all prior async tcgen5 ops",
+    "description": "The `ttng.tc_gen5_commit` is an asynchronous operation that makes the\n    mbarrier object track the completion of all prior asynchronous tcgen5\n    operations. Upon completion of all asynchronous operations, the mbarrier\n    arrive operation is performed on the mbarrier with a count of 1.\n\n    If `two_ctas` is set, then the mbarrier tracks all prior operations\n    initiated with `two_ctas` set as well. Otherwise, it tracks all prior\n    operations initiated without `two_ctas`.\n\n    Note that the completion mechanisms are guaranteed to occur sequentially in\n    the order the commit operations were issued. This means, for example:\n\n    ```mlir\n    ttng.tmem_copy\n    ttng.tc_gen5_mma\n    ttng.tc_gen5_commit %barrierA\n    ttng.tc_gen5_commit %barrierB\n    ```\n\n    `%barrierA` tracks the completion of the previous TMEM copy and MMA\n    operations, but since the commit groups are sequential, the arrive-on\n    operation on `%barrierA` is guaranteed to be performed before the arrive-on\n    operation on `%barrierB`, even though its commit group is empty.",
+    "inputs": [
+      { "name": "barrier", "type": "Arg" },
+      { "name": "pred", "type": "Optional" }
+    ],
+    "attributes": [
+      { "name": "two_ctas", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$barrier (`,` $pred^)? attr-dict `:` qualified(type($barrier))"
+  },
+  {
+    "name": "ttng.tc_gen5_mma",
+    "summary": "block level op mapping to tensorcore gen5 mma",
+    "description": "$d += matrix_multiply($a, $b).\n    if is_async is false, the op executes synchronously. The barrier operands must not be present in that case.\n    Otherwise, if a barrier is given, the op will trigger a commit/arrive on it. The result will be safe to read after a barrier wait.\n    If $two_ctas is set the op will execute a matmul across two contiguous CTAs, it will read the data distributed across the two CTAs.\n    and syncronize both CTAs if the op is synchronous.\n\n    This operation takes and produces an optional token to indicate TMEM read\n    and write on its accumulator operand. When the tokens are present, they can\n    be used to check aliasing and modref on the accumulator memory.",
+    "inputs": [
+      { "name": "a", "type": "TTG_MemDescType" },
+      { "name": "b", "type": "TTG_MemDescType" },
+      { "name": "d", "type": "TTG_MemDescType" },
+      { "name": "acc_dep", "type": "Optional" },
+      { "name": "useD", "type": "I1" },
+      { "name": "pred", "type": "I1" },
+      { "name": "barriers", "type": "Variadic" },
+      { "name": "barrier_preds", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "token", "type": "Optional" }
+    ],
+    "attributes": [
+      { "name": "is_async", "type": "UnitAttr" },
+      { "name": "two_ctas", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$a `,` $b `,` $d `` custom<Token>($acc_dep, type($token)) `,` $useD`,`\n    $pred `` custom<BarriersAndPreds>($barriers, $barrier_preds)\n    attr-dict `:` qualified(type($a)) `,` qualified(type($b)) `,`\n    qualified(type($d)) (`,` qualified(type($barriers))^)?"
+  },
+  {
+    "name": "ttng.tc_gen5_mma_scaled",
+    "summary": "block level op mapping to tensorcore gen5 mma",
+    "description": "$d += matrix_multiply(scale($lhs, $lhs_scale), scale(rlhs, $rhs_scale))\n    if is_async is false, the op executes synchronously. The barrier operands must not be present in that case.\n    Otherwise, if a barrier is given, the op will trigger a commit/arrive on it.\n    The result will be safe to read after a barrier wait.\n\n    This operation takes and produces an optional token to indicate TMEM read\n    and write on its accumulator operand. When the tokens are present, they can\n    be used to check aliasing and modref on the accumulator memory.",
+    "inputs": [
+      { "name": "a", "type": "TTG_MemDescType" },
+      { "name": "b", "type": "TTG_MemDescType" },
+      { "name": "d", "type": "TTG_MemDescType" },
+      { "name": "acc_dep", "type": "Optional" },
+      { "name": "a_scale", "type": "TTG_MemDescType" },
+      { "name": "b_scale", "type": "TTG_MemDescType" },
+      { "name": "useD", "type": "I1" },
+      { "name": "pred", "type": "I1" },
+      { "name": "barriers", "type": "Variadic" },
+      { "name": "barrier_preds", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "token", "type": "Optional" }
+    ],
+    "attributes": [
+      { "name": "a_type", "type": "TT_ScaleDotElemTypeAttr" },
+      { "name": "b_type", "type": "TT_ScaleDotElemTypeAttr" },
+      { "name": "is_async", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$a `,` $b `,` $d `` custom<Token>($acc_dep, type($token)) `,` $a_scale `,`\n    $b_scale `,` $useD `,` $pred `lhs` `=` $a_type `rhs` `=` $b_type\n    `` custom<BarriersAndPreds>($barriers, $barrier_preds)\n    attr-dict `:` qualified(type($a)) `,` qualified(type($b)) `,`\n    qualified(type($d)) `,` qualified(type($a_scale)) `,`\n    qualified(type($b_scale)) (`,` qualified(type($barriers))^)?"
+  },
+  {
+    "name": "ttng.tensormap_create",
+    "summary": "Create a new TMA descriptor on device",
+    "inputs": [
+      { "name": "desc_ptr", "type": "TT_PtrType" },
+      { "name": "global_address", "type": "TT_PtrType" },
+      { "name": "box_dim", "type": "Variadic" },
+      { "name": "global_dim", "type": "Variadic" },
+      { "name": "global_stride", "type": "Variadic" },
+      { "name": "element_stride", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "elem_type", "type": "ConfinedAttr" },
+      { "name": "interleave_layout", "type": "ConfinedAttr" },
+      { "name": "swizzle_mode", "type": "ConfinedAttr" },
+      { "name": "fill_mode", "type": "ConfinedAttr" }
+    ],
+    "assemblyFormat": "$desc_ptr `,` $global_address `,`\n    `[` $box_dim `]` `,`\n    `[` $global_dim `]` `,`\n    `[` $global_stride `]` `,`\n    `[` $element_stride `]`\n    attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "ttng.tensormap_fenceproxy_acquire",
+    "summary": "Acquire fence on a tensormap object",
+    "inputs": [
+      { "name": "desc_ptr", "type": "TT_PtrType" }
+    ],
+    "assemblyFormat": "$desc_ptr attr-dict `:` qualified(type($desc_ptr))"
+  },
+  {
+    "name": "ttng.tmem_alloc",
+    "summary": "allocate tensor memory",
+    "description": "This operation allocates buffer in tensor memory and return a descriptor\n    containing the address and a view of the buffer.\n    This is similar to ttg.local_alloc except the buffer is allocated in tensor memory.\n\n    Explicitly deallocating a buffer is optional; see local_dealloc.",
+    "inputs": [
+      { "name": "src", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" },
+      { "name": "token", "type": "Optional" }
+    ],
+    "assemblyFormat": "($src^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "ttng.tmem_copy",
+    "summary": "Initiate an asynchronous copy operation from shared memory to the Tensor Memory.",
+    "description": "2D blocks stored contiguously in SMEM are copied into TMEM as specified by the destination address.\n    The completion of the copy can be observed by waiting on the optional barrier. If this op is used\n    together with an MMA op, one barrier can be used to wait for both copy and MMA. We do not need to wait\n    for the completion of the copy before MMA, since tcgen05.cp followed by tcgen05.mma is guaranteed to\n    execute in that order.\n\n    This op lowers to the PTX instruction tcgen05.cp. This supports writing either to scales tmem layout as well as default tmem layout.\n    Currently the semantic is different when writing to tmem scale layout.\n\n    In case of default layout the copy doesn't change the logical elements between the source and destination memdesc.\n\n    In case of scale layout:\n    Each 32x128b block in SMEM is duplicated over 4 warps and stored into 128 rows\n    and 4 columns of TMEM. The primary use case of this op is to copy blocked scales from SMEM to TMEM.\n\n    The shape of the input SMEM can be flexibily chosen depending on use cases. In the simplest case (e.g. unit test),\n    the source SMEM can be of shape (32 x num_blocks, 16), and the destination TMEM should be of shape (128, 16 x num_blocks),\n    for copying 8 bit values. For scaled GEMM, rep_m x rep_k copies of a 32x128b block need to be stored in SMEM, where\n    rep_m = BLOCK_M / 128, rep_k = BLOCK_K / scale_vec_size / 4, and scale_vec_size = 32 for MXFP.\n    Conceptually, the SMEM is organized in a high-dimensional layout, (rep_m, rep_k, 32, 4, 4B).\n    Some of axes can be flattened into one, to reduce the rank of the load. For example, the following patterns are supported:\n     * (rep_m, rep_k * 32 x 4 x 4B), 2D scale load with cp.async\n     * (rep_m, rep_k, 32, 16B), 4D scale load with TMA\n     * (rep_m, rep_k, 32, 4, 4B), 5D scale load with cp.async\n    Since rep_m blocks are not contiguous in SMEM, this axis cannot be flattened into inner ones.\n\n    In Triton, the TMEM memdesc for blocked scales must be of the following form:\n    * Its shape must be (BLOCK_MN, BLOCK_K / scale_vec_size), representing the logical shape of blocked scales.\n    * It must be attached with `tensor_memory_scales_encoding` to indicate the chunk-based layout and its duplication over 4 warps.\n\n    In contrast, the src SMEM must be in the explicit chunk-based layout as described above. So the IR might look like this:\n\n    %0 = ttng.tmem_alloc : () -> !ttg.memdesc<128x4xi8, #tmem_scales, #ttng.tensor_memory>\n    ttng.tmem_copy %1, %0 : (!ttg.memdesc<1x1x32x4x4xi8, #shared1, #smem>, !ttg.memdesc<128x4xi8, #tmem_scales, #ttng.tensor_memory>) -> ()\n\n    We interpret the semantics of this copy operation as follows. The chunk-based layout in SMEM implies that\n    the logical shape (BLOCK_MN, BLOCK_K / scale_vec_size) in TMEM is the result of certain reshape and transpose operations.\n    In practice, to take an advantage of the native scale layout and the TMEM copy op,  users need to do\n    `scales5D.trans(0, 3, 2, 1, 4).reshape(BLOCK_M, BLOCK_K // scale_vec_size)` before feeding scales into dot_scaled.\n    When we use tmem_copy in the IR, such reshape and transpose operations are removed. But the change in the logical shape they have caused on\n    registers is now understood to be incorporated into tmem_copy itself. Ideally, we would lift reshape / transpose done on registers onto\n    the SMEM memdesc, making tmem_copy a straightforward 2D copy operation: (BLOCK_MN, BLOCK_K / scale_vec_size) -> (BLOCK_MN, BLOCK_K / scale_vec_size).\n    In the absence of such operations on memdesc, we resort to implicitly encoding the reshape/transpose semantics in tmem_copy.",
+    "inputs": [
+      { "name": "src", "type": "Arg" },
+      { "name": "dst", "type": "Arg" },
+      { "name": "barrier", "type": "Optional" }
+    ],
+    "assemblyFormat": "$src `,` $dst (`,` $barrier^)? attr-dict `:` qualified(type(operands))"
+  },
+  {
+    "name": "ttng.tmem_load",
+    "summary": "Load a buffer from tensor memory into a distributed tensor",
+    "description": "This is similar to ttg.local_load except the result layout is restricted to only few possibility.\n    Therefore we cannot combine this op with any convert layout like local_load.\n\n    This operation takes and produces an optional token to indicate TMEM read\n    on its source operand. When the tokens are present, they can\n    be used to check aliasing and modref on the TMEM buffer.",
+    "inputs": [
+      { "name": "src", "type": "Arg" },
+      { "name": "dep", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TT_Tensor" },
+      { "name": "token", "type": "Optional" }
+    ],
+    "assemblyFormat": "$src `` custom<Token>($dep, type($token))\n    attr-dict `:` qualified(type($src)) `->` type($result)"
+  },
+  {
+    "name": "ttng.tmem_store",
+    "summary": "Store a distributed tensor into a buffer in tensor memory",
+    "description": "This is similar to ttg.local_store except the source layout is restricted to only few possibility.\n\n    This operation takes and produces an optional token to indicate TMEM write\n    on its source operand. When the tokens are present, they can\n    be used to check aliasing and modref on the TMEM buffer.",
+    "inputs": [
+      { "name": "dst", "type": "Arg" },
+      { "name": "dep", "type": "Optional" },
+      { "name": "src", "type": "TT_Tensor" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "outputs": [
+      { "name": "token", "type": "Optional" }
+    ],
+    "assemblyFormat": "$src `,` $dst `` custom<Token>($dep, type($token)) `,` $pred\n    attr-dict `:` type($src) `->` qualified(type($dst))"
+  },
+  {
+    "name": "ttng.tmem_subslice",
+    "summary": "Take a subslice of a tensor memory allocation",
+    "description": "This operation takes a subslice of a tensor memory allocation and returns a new descriptor\n    containing the address and a view of the subslice.\n    This is similar to ttg.memdesc_subslice except we can only slice along the inner dimension\n    of a 2D memdesc as this is the only one we can do for TMem.",
+    "inputs": [
+      { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "outputs": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "N", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` qualified(type($src)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttng.wait_barrier",
+    "summary": "wait until the mbarrier phase completes.",
+    "description": "Blocks the program progress until the mbarrier object in `alloc` completes\n    its current phase.\n\n    This lowers a waitloop using PTX instruction\n    mbarrier.try_wait.parity.shared.b64.\n\n    Accepts optional list of memory. If present, it is assumed that any of the\n    dependencies may be accessed until the barrier completes.\n\n    The barrier behavior is described here:\n    https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-asynchronous-copy-completion-mechanisms",
+    "inputs": [
+      { "name": "alloc", "type": "Arg" },
+      { "name": "phase", "type": "I32" },
+      { "name": "pred", "type": "Optional" },
+      { "name": "deps", "type": "Variadic" }
+    ],
+    "assemblyFormat": "$alloc `,` $phase (`,` $pred^)? (`deps` $deps^)?\n    attr-dict `:` qualified(type($alloc)) (`,` type($deps)^)?"
+  },
+  {
+    "name": "ttng.warp_group_dot",
+    "summary": "warp group dot",
+    "description": "$d = matrix_multiply($a, $b) + $c. For docs on InputPrecisionAttr, see TT_DotOp",
+    "inputs": [
+      { "name": "a", "type": "TTG_TensorOrMemDesc" },
+      { "name": "b", "type": "TTG_MemDescType" },
+      { "name": "c", "type": "TT_FpIntTensor" },
+      { "name": "useC", "type": "Optional" }
+    ],
+    "outputs": [
+      { "name": "d", "type": "TT_FpIntTensor" }
+    ],
+    "attributes": [
+      { "name": "inputPrecision", "type": "DefaultValuedAttr" },
+      { "name": "maxNumImpreciseAcc", "type": "DefaultValuedAttr" },
+      { "name": "isAsync", "type": "DefaultValuedAttr" }
+    ],
+    "assemblyFormat": "$a`,` $b`,` $c (`,` $useC^)? attr-dict\n    `:` type($a) `*` qualified(type($b)) `->` type($d)"
+  },
+  {
+    "name": "ttng.warp_group_dot_wait",
+    "summary": "warp group dot wait",
+    "description": "Waits until there are $pendings or fewer outstanding async dot operations.\n\n    $inputs must be the tensors corresponding to the async dot ops that we're\n    waiting on.  For example, if there are N pending async dot ops and we call\n    `warp_group_dot_wait 1`, then $inputs must be the result of the first dot op.",
+    "inputs": [
+      { "name": "inputs", "type": "Variadic" }
+    ],
+    "outputs": [
+      { "name": "outputs", "type": "Variadic" }
+    ],
+    "attributes": [
+      { "name": "pendings", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$inputs attr-dict `:` type($inputs)"
   },
   {
     "name": "ub.poison",

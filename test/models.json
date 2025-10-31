@@ -3311,6 +3311,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "conversion.mlir",
+    "source":   "https://github.com/user-attachments/files/23268419/conversion.mlir.zip[conversion.mlir]",
+    "assert":   "model.modules[0].nodes[10].inputs.length == 0",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "ctlz.mlir",
     "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
     "format":   "MLIR",
