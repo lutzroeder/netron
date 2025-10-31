@@ -2625,7 +2625,6 @@ MNN.OpType = {
     ConvInt8: 513,
     Int8ToFloat: 514,
     DepthwiseConvInt8: 515,
-    PoolInt8: 516,
     FloatToInt8: 517,
     EltwiseInt8: 518,
     While: 600,
