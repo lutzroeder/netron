@@ -7056,6 +7056,7 @@ python.Execution = class {
         this.registerFunction('torch.utils.data._utils.collate.default_collate');
         torch.utils.data.dataloader.default_collate = torch.utils.data._utils.collate.default_collate;
         this.registerType('torch.utils.data.dataset.Subset', class {});
+        this.registerType('torch.utils.data.dataset.Dataset', class {});
         this.registerType('torch.utils.data.dataset.ConcatDataset', class {});
         this.registerType('torch.utils.data.dataset.TensorDataset', class {});
         this.registerType('torch.utils.data.sampler.BatchSampler', class {});
@@ -20293,6 +20294,7 @@ python.Execution = class {
         });
         this.registerType('torchao.dtypes.affine_quantized_tensor.AffineQuantizedTensor', class extends torchao.utils.TorchAOBaseTensor {});
         this.registerType('torchao.dtypes.utils.Layout', class {});
+        this.registerType('torchao.dtypes.uintx.plain_layout.PlainAQTTensorImpl', class {});
         this.registerType('torchao.dtypes.floatx.float8_layout.Float8Layout', class extends torchao.dtypes.utils.Layout {});
         this.registerType('torchao.dtypes.utils.AQTTensorImpl', class extends torchao.utils.TorchAOBaseTensor {});
         this.registerType('torchao.dtypes.utils.PlainLayout', class extends torchao.dtypes.utils.Layout {});
