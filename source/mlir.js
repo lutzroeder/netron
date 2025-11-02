@@ -796,7 +796,7 @@ mlir.Parser = class {
         this._dialects.set('flow', new mlir.FlowDialect(operations));
         this._dialects.set('stream', new mlir.StreamDialect(operations));
         this._dialects.set('iree_vector_ext', new mlir.Dialect('iree_vector_ext', operations));
-        this._dialects.set('iree_tensor_ext', new mlir.Dialect('iree_tensor_ext', operations));
+        this._dialects.set('iree_tensor_ext', new mlir.IREETensorExtDialect(operations));
         this._dialects.set('linalg', new mlir.LinalgDialect(operations));
         this._dialects.set('iree_linalg_ext', new mlir.Dialect('iree_linalg_ext', operations));
         this._dialects.set('quant', new mlir.QuantDialect(operations));
@@ -4680,8 +4680,6 @@ mlir.TorchDialect = class extends mlir.Dialect {
     }
 
     parseType(parser, dialectType) {
-        // Parse torch dialect types
-        // Simple types without parameters: !torch.int, !torch.bool, !torch.none, etc.
         const simpleTypes = [
             'int', 'float', 'bool', 'str', 'none', 'Device', 'Generator',
             'qint8', 'quint8', 'qint16', 'qint32', 'quint4x2', 'quint2x4',
@@ -4692,13 +4690,17 @@ mlir.TorchDialect = class extends mlir.Dialect {
                 return dialectType;
             }
         }
-        // Complex types with angle brackets: !torch.vtensor<...>, !torch.list<...>, etc.
-        // These need angle bracket content to be parsed
+        if (dialectType.startsWith('!torch.nn.Module')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
         if (dialectType.startsWith('!torch.vtensor') || dialectType.startsWith('!torch.tensor') ||
             dialectType.startsWith('!torch.list') || dialectType.startsWith('!torch.tuple') ||
             dialectType.startsWith('!torch.union') || dialectType.startsWith('!torch.optional') ||
             dialectType.startsWith('!torch.dict')) {
-            // The type name has been read, now consume the angle brackets
             if (parser.match('<')) {
                 const content = parser.skip('<', '>');
                 return dialectType + content;
@@ -5026,6 +5028,23 @@ mlir.UtilDialect = class extends mlir.Dialect {
         super('util', operations);
     }
 
+    parseType(parser, dialectType) {
+        const simpleTypes = ['buffer', 'list', 'object'];
+        for (const simpleType of simpleTypes) {
+            if (dialectType === `!util.${simpleType}`) {
+                return dialectType;
+            }
+        }
+        if (dialectType.startsWith('!util.ptr')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
+        return null;
+    }
+
     parseOperation(parser, opName, op) {
         const name = opName.replace(/^"|"$/g, '');
         // Handle util.global with visibility and symbol
@@ -5344,6 +5363,41 @@ mlir.StreamDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('stream', operations);
+    }
+
+    parseType(parser, dialectType) {
+        const simpleTypes = ['binding', 'timepoint', 'file'];
+        for (const simpleType of simpleTypes) {
+            if (dialectType === `!stream.${simpleType}`) {
+                return dialectType;
+            }
+        }
+        if (dialectType.startsWith('!stream.resource')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
+        return null;
+    }
+};
+
+mlir.IREETensorExtDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        super('iree_tensor_ext', operations);
+    }
+
+    parseType(parser, dialectType) {
+        if (dialectType.startsWith('!iree_tensor_ext.dispatch.tensor')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
+        return null;
     }
 };
 
@@ -5768,6 +5822,24 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('spirv', operations);
+    }
+
+    parseType(parser, dialectType) {
+        const simpleTypes = ['sampler', 'sampled_image', 'matrix', 'image', 'rtarray'];
+        for (const simpleType of simpleTypes) {
+            if (dialectType === `!spirv.${simpleType}`) {
+                return dialectType;
+            }
+        }
+        if (dialectType.startsWith('!spirv.ptr') || dialectType.startsWith('!spirv.array') ||
+            dialectType.startsWith('!spirv.struct') || dialectType.startsWith('!spirv.coopmatrix')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
+        return null;
     }
 
     parseOperation(parser, opName, op) {
@@ -6289,17 +6361,27 @@ mlir.ArithDialect = class extends mlir.Dialect {
     }
 
     _parseSelectOp(parser, op) {
-        // arith.select <condition>, <true_value>, <false_value> : <result_type>
-        // Parse condition operand
         op.operands = parser.parseArguments();
-        // Parse type signature: : <result_type>
         if (parser.accept(':')) {
-            const type = parser.parseType();
-            // Set type on result
-            if (op.results.length > 0) {
-                op.results[0].type = type;
+            const condType = parser.parseType();
+            if (parser.accept(',')) {
+                const resultType = parser.parseType();
+                if (op.operands.length > 0) {
+                    op.operands[0].type = condType;
+                }
+                if (op.operands.length > 1) {
+                    op.operands[1].type = resultType;
+                    op.operands[2].type = resultType;
+                }
+                if (op.results.length > 0) {
+                    op.results[0].type = resultType;
+                } else {
+                    op.results.push({ type: resultType });
+                }
+            } else if (op.results.length > 0) {
+                op.results[0].type = condType;
             } else {
-                op.results.push({ type });
+                op.results.push({ type: condType });
             }
         }
         return true;
@@ -7296,6 +7378,13 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
         super('tf_executor', operations);
     }
 
+    parseType(parser, dialectType) {
+        if (dialectType === '!tf_executor.control' || dialectType === '!tf_executor.token') {
+            return dialectType;
+        }
+        return null;
+    }
+
     parseOperation(parser, opName, op) {
         const name = opName.replace(/^"|"$/g, '');
         if (name === 'tf_executor.graph') {
@@ -7369,6 +7458,23 @@ mlir.TFRTDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('tfrt', operations);
+    }
+
+    parseType(parser, dialectType) {
+        const simpleTypes = ['chain', 'string', 'dist_context'];
+        for (const simpleType of simpleTypes) {
+            if (dialectType === `!tfrt.${simpleType}`) {
+                return dialectType;
+            }
+        }
+        if (dialectType.startsWith('!tfrt.tensor')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
+        return null;
     }
 };
 

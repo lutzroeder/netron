@@ -342,7 +342,7 @@ flatc.Parser = class {
 
     include() {
         const includes = [];
-        while (!this._tokenizer.match('eof') && this._tokenizer.eat('id', 'include')) {
+        while (!this._tokenizer.match('eof') && this._tokenizer.accept('id', 'include')) {
             includes.push(this._tokenizer.string());
             this._tokenizer.expect(';');
         }
@@ -352,40 +352,40 @@ flatc.Parser = class {
     parse() {
         const attributes = [];
         while (!this._tokenizer.match('eof')) {
-            if (this._tokenizer.eat('id', 'namespace')) {
+            if (this._tokenizer.accept('id', 'namespace')) {
                 let name = this._tokenizer.identifier();
-                while (this._tokenizer.eat('.')) {
+                while (this._tokenizer.accept('.')) {
                     name += `.${this._tokenizer.identifier()}`;
                 }
                 this._tokenizer.expect(';');
                 this._context = this._root.defineNamespace(name);
                 continue;
             }
-            if (this._tokenizer.eat('id', 'table')) {
+            if (this._tokenizer.accept('id', 'table')) {
                 const name = this._tokenizer.identifier();
                 const table = new flatc.Table(this._context, name);
                 this._parseMetadata(table.metadata);
                 this._tokenizer.expect('{');
-                while (!this._tokenizer.eat('}')) {
+                while (!this._tokenizer.accept('}')) {
                     const field = this._parseField(table);
                     table.fields.set(field.name, field);
                     this._tokenizer.expect(';');
                 }
                 continue;
             }
-            if (this._tokenizer.eat('id', 'struct')) {
+            if (this._tokenizer.accept('id', 'struct')) {
                 const name = this._tokenizer.identifier();
                 const struct = new flatc.Struct(this._context, name);
                 this._parseMetadata(struct.metadata);
                 this._tokenizer.expect('{');
-                while (!this._tokenizer.eat('}')) {
+                while (!this._tokenizer.accept('}')) {
                     const field = this._parseField(struct);
                     struct.fields.set(field.name, field);
                     this._tokenizer.expect(';');
                 }
                 continue;
             }
-            if (this._tokenizer.eat('id', 'enum')) {
+            if (this._tokenizer.accept('id', 'enum')) {
                 const name = this._tokenizer.identifier();
                 this._tokenizer.expect(':');
                 const base = this._parseTypeReference();
@@ -395,59 +395,59 @@ flatc.Parser = class {
                 const type = new flatc.Enum(this._context, name, base);
                 this._parseMetadata(type.metadata);
                 this._tokenizer.expect('{');
-                while (!this._tokenizer.eat('}')) {
+                while (!this._tokenizer.accept('}')) {
                     const key = this._tokenizer.identifier();
-                    const value = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
+                    const value = this._tokenizer.accept('=') ? this._tokenizer.integer() : undefined;
                     type.values.set(key, value);
                     this._parseMetadata(new Map());
-                    if (this._tokenizer.eat(',')) {
+                    if (this._tokenizer.accept(',')) {
                         continue;
                     }
                 }
                 continue;
             }
-            if (this._tokenizer.eat('id', 'union')) {
+            if (this._tokenizer.accept('id', 'union')) {
                 const name = this._tokenizer.identifier();
                 const union = new flatc.Union(this._context, name);
                 this._parseMetadata(union.metadata);
                 this._tokenizer.expect('{');
-                while (!this._tokenizer.eat('}')) {
+                while (!this._tokenizer.accept('}')) {
                     const name = this._tokenizer.identifier();
-                    const type = this._tokenizer.eat(':') ? this._tokenizer.identifier() : null;
-                    const index = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
+                    const type = this._tokenizer.accept(':') ? this._tokenizer.identifier() : null;
+                    const index = this._tokenizer.accept('=') ? this._tokenizer.integer() : undefined;
                     union.values.push({ name, type, index });
                     this._parseMetadata(new Map());
-                    if (this._tokenizer.eat(',')) {
+                    if (this._tokenizer.accept(',')) {
                         continue;
                     }
                 }
                 continue;
             }
-            if (this._tokenizer.eat('id', 'rpc_service')) {
+            if (this._tokenizer.accept('id', 'rpc_service')) {
                 throw new flatc.Error(`Unsupported keyword 'rpc_service' ${this._tokenizer.location()}`);
             }
-            if (this._tokenizer.eat('id', 'root_type')) {
+            if (this._tokenizer.accept('id', 'root_type')) {
                 const root_type = this._tokenizer.identifier();
                 this._root_type = this._root_type || root_type;
-                this._tokenizer.eat(';');
+                this._tokenizer.accept(';');
                 continue;
             }
-            if (this._tokenizer.eat('id', 'file_extension')) {
+            if (this._tokenizer.accept('id', 'file_extension')) {
                 const value = this._tokenizer.string();
                 this._file_extension = value;
-                this._tokenizer.eat(';');
+                this._tokenizer.accept(';');
                 continue;
             }
-            if (this._tokenizer.eat('id', 'file_identifier')) {
+            if (this._tokenizer.accept('id', 'file_identifier')) {
                 const value = this._tokenizer.string();
                 if (value.length !== 4) {
                     throw new flatc.Error(`'file_identifier' must be exactly 4 characters ${this._tokenizer.location()}`);
                 }
                 this._file_identifier = value;
-                this._tokenizer.eat(';');
+                this._tokenizer.accept(';');
                 continue;
             }
-            if (this._tokenizer.eat('id', 'attribute')) {
+            if (this._tokenizer.accept('id', 'attribute')) {
                 const token = this._tokenizer.read();
                 switch (token.type) {
                     case 'string':
@@ -462,7 +462,7 @@ flatc.Parser = class {
                 this._tokenizer.expect(';');
                 continue;
             }
-            if (this._tokenizer.eat('{')) {
+            if (this._tokenizer.accept('{')) {
                 throw new flatc.Error(`Unsupported object ${this._tokenizer.location()}`);
             }
             throw new flatc.Error(`Unexpected token '${this._tokenizer.peek().token}' ${this._tokenizer.location()}`);
@@ -480,7 +480,7 @@ flatc.Parser = class {
         if (token.type === '[') {
             const identifier = this._tokenizer.read();
             if (identifier.type === 'id') {
-                if (this._tokenizer.eat(':')) {
+                if (this._tokenizer.accept(':')) {
                     const length = this._parseScalar(); // array length
                     this._tokenizer.expect(']');
                     return new flatc.TypeReference(identifier.token, true, length);
@@ -496,19 +496,19 @@ flatc.Parser = class {
         const name = this._tokenizer.identifier();
         this._tokenizer.expect(':');
         const type = this._parseTypeReference();
-        const defaultValue = this._tokenizer.eat('=') ? this._parseScalar() : undefined;
+        const defaultValue = this._tokenizer.accept('=') ? this._parseScalar() : undefined;
         const field = new flatc.Field(parent, name, type, defaultValue);
         this._parseMetadata(field.metadata);
         return field;
     }
 
     _parseMetadata(metadata) {
-        if (this._tokenizer.eat('(')) {
-            while (!this._tokenizer.eat(')')) {
+        if (this._tokenizer.accept('(')) {
+            while (!this._tokenizer.accept(')')) {
                 const key = this._tokenizer.identifier();
-                const value = this._tokenizer.eat(':') ? this._parseSingleValue() : undefined;
+                const value = this._tokenizer.accept(':') ? this._parseSingleValue() : undefined;
                 metadata.set(key, value);
-                if (this._tokenizer.eat(',')) {
+                if (this._tokenizer.accept(',')) {
                     continue;
                 }
             }
@@ -588,7 +588,7 @@ flatc.Tokenizer = class {
         return false;
     }
 
-    eat(type, value) {
+    accept(type, value) {
         const token = this.peek();
         if (token.type === type && (!value || token.token === value)) {
             this.read();
