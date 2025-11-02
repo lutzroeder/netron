@@ -558,12 +558,12 @@ protoc.Parser = class {
         if (obj) {
             obj.file = this._file;
         }
-        if (this._tokenizer.eat("{")) {
+        if (this._tokenizer.accept("{")) {
             let token = '';
             while ((token = this._tokenizer.next()) !== "}") {
                 ifCallback(token);
             }
-            this._tokenizer.eat(";");
+            this._tokenizer.accept(";");
         } else {
             if (elseCallback) {
                 elseCallback();
@@ -790,7 +790,7 @@ protoc.Parser = class {
     }
 
     _parseOption(parent, token) {
-        const custom = this._tokenizer.eat("(");
+        const custom = this._tokenizer.accept("(");
         token = this._tokenizer.next();
         if (!protoc.Parser._isTypeReference(token)) {
             throw this._parseError(token, 'name');
@@ -810,8 +810,8 @@ protoc.Parser = class {
     }
 
     _parseOptionValue(parent, name) {
-        if (this._tokenizer.eat('{')) {
-            while (!this._tokenizer.eat('}')) {
+        if (this._tokenizer.accept('{')) {
+            while (!this._tokenizer.accept('}')) {
                 const token = this._tokenizer.next();
                 if (!protoc.Parser._isName(token)) {
                     throw this._parseError(token, 'name');
@@ -826,7 +826,7 @@ protoc.Parser = class {
                         parent.options.set(`${name}.${token}`, this._readValue());
                     }
                 }
-                this._tokenizer.eat(',');
+                this._tokenizer.accept(',');
             }
         } else {
             parent.options.set(name, this._readValue());
@@ -834,11 +834,11 @@ protoc.Parser = class {
     }
 
     _parseInlineOptions(parent) {
-        if (this._tokenizer.eat('[')) {
+        if (this._tokenizer.accept('[')) {
             do {
                 this._parseOption(parent, 'option');
             }
-            while (this._tokenizer.eat(','));
+            while (this._tokenizer.accept(','));
             this._tokenizer.expect(']');
         }
         return parent;
@@ -892,11 +892,11 @@ protoc.Parser = class {
                 target.push(this._readString());
             } else {
                 const start = this._parseId(this._tokenizer.next());
-                const end = this._tokenizer.eat('to') ? this._parseId(this._tokenizer.next()) : start;
+                const end = this._tokenizer.accept('to') ? this._parseId(this._tokenizer.next()) : start;
                 target.push([start, end]);
             }
         }
-        while (this._tokenizer.eat(','));
+        while (this._tokenizer.accept(','));
         this._tokenizer.expect(';');
     }
 
@@ -1075,7 +1075,7 @@ protoc.Tokenizer = class {
         this.next();
     }
 
-    eat(value) {
+    accept(value) {
         const token = this.peek();
         if (token === value) {
             this.next();
