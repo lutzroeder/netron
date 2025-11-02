@@ -419,6 +419,101 @@ tablegen.Record = class {
         }
         return null;
     }
+
+    evaluateValue(value) {
+        if (!value) {
+            return null;
+        }
+        switch (value.type) {
+            case 'string':
+                return value.value.replace(/^"|"$/g, '');
+            case 'code':
+                return value.value;
+            case 'int':
+                return parseInt(value.value, 10);
+            case 'bit':
+                return value.value === 'true' || value.value === '1';
+            case 'list':
+                return value.value.map((v) => this.evaluateValue(v));
+            case 'concat': {
+                const parts = value.value.map((v) => this.evaluateValue(v)).filter((v) => v !== null && v !== undefined && v !== '');
+                return parts.join('');
+            }
+            case 'def': {
+                const defName = typeof value.value === 'string' ? value.value : value.value.value;
+                const field = this.resolveField(defName);
+                if (field && field.value) {
+                    return this.evaluateValue(field.value);
+                }
+                const def = this.parser.defs.get(defName) || this.parser.classes.get(defName);
+                return def ? defName : null;
+            }
+            case 'bang': {
+                const { op, args } = value.value;
+                switch (op) {
+                    case 'if': {
+                        if (args.length < 2) {
+                            return null;
+                        }
+                        const condition = this.evaluateValue(args[0]);
+                        if (condition) {
+                            return args.length > 1 ? this.evaluateValue(args[1]) : null;
+                        }
+                        return args.length > 2 ? this.evaluateValue(args[2]) : null;
+                    }
+                    case 'empty': {
+                        if (args.length < 1) {
+                            return true;
+                        }
+                        const val = this.evaluateValue(args[0]);
+                        if (Array.isArray(val)) {
+                            return val.length === 0;
+                        }
+                        if (typeof val === 'string') {
+                            return val.length === 0;
+                        }
+                        return val === null || val === undefined;
+                    }
+                    case 'interleave': {
+                        if (args.length < 2) {
+                            return '';
+                        }
+                        const list = this.evaluateValue(args[0]);
+                        const separator = this.evaluateValue(args[1]);
+                        if (!Array.isArray(list)) {
+                            return '';
+                        }
+                        return list.filter((x) => x !== null && x !== '').join(separator || '');
+                    }
+                    case 'not':
+                        if (args.length < 1) {
+                            return true;
+                        }
+                        return !this.evaluateValue(args[0]);
+                    case 'or':
+                        for (const arg of args) {
+                            if (this.evaluateValue(arg)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    case 'and':
+                        for (const arg of args) {
+                            if (!this.evaluateValue(arg)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    default:
+                        return null;
+                }
+            }
+            case 'uninitialized':
+                return null;
+            default:
+                return null;
+        }
+    }
 };
 
 tablegen.Reader = class {
@@ -763,20 +858,21 @@ tablegen.Reader = class {
     }
 
     _parseValue() {
-        let value = this._parsePrimaryValue();
-        while (this._match('#') || (value && value.type === 'string' && this._match('string'))) {
+        const values = [];
+        values.push(this._parsePrimaryValue());
+
+        while (this._match('#') || (values[values.length - 1] && values[values.length - 1].type === 'string' && this._match('string'))) {
             if (this._match('#')) {
                 this._read();
             }
-            const right = this._parsePrimaryValue();
-            if (value && value.type === 'string' && right && right.type === 'string') {
-                value = new tablegen.Value('string', value.value + right.value);
-            } else {
-                value = right;
-            }
+            values.push(this._parsePrimaryValue());
         }
 
-        return value;
+        if (values.length === 1) {
+            return values[0];
+        }
+
+        return new tablegen.Value('concat', values);
     }
 
     _parsePrimaryValue() {
@@ -805,7 +901,7 @@ tablegen.Reader = class {
             this._expect(']');
             // Skip optional type annotation: []<Type>
             if (this._match('<')) {
-                this._skipBalanced('<', '>');
+                this._skip('<', '>');
             }
             return new tablegen.Value('list', items);
         }
@@ -816,14 +912,14 @@ tablegen.Reader = class {
             }
             const operands = [];
             while (!this._match(')') && !this._match('eof')) {
+                if (this._eat(',')) {
+                    continue;
+                }
                 const value = this._parseValue();
                 let name = null;
-                if (this._eat(':')) {
-                    if (this._eat('$')) {
-                        // Allow keywords as identifiers in this context
-                        if (this._match('id') || this._isKeyword(this._tokenizer.current().type)) {
-                            name = this._read();
-                        }
+                if (this._eat(':') && this._eat('$')) {
+                    if (this._match('id') || this._isKeyword(this._tokenizer.current().type)) {
+                        name = this._read();
                     }
                 }
                 const operand = { value, name };
@@ -861,7 +957,7 @@ tablegen.Reader = class {
                 throw new tablegen.Error(`Expected operator after '!' but got '${this._tokenizer.current().type}' at ${this._tokenizer.location()}`);
             }
             if (this._match('<')) {
-                this._skipBalanced('<', '>');
+                this._skip('<', '>');
             }
             const args = [];
             if (this._eat('(')) {
@@ -890,7 +986,7 @@ tablegen.Reader = class {
         if (this._match('id')) {
             let value = this._read();
             if (this._match('<')) {
-                this._skipBalanced('<', '>');
+                this._skip('<', '>');
             }
             if (this._eat('.')) {
                 const field = this._expect('id');
@@ -941,7 +1037,7 @@ tablegen.Reader = class {
         return keywords.includes(tokenType);
     }
 
-    _skipBalanced(open, close) {
+    _skip(open, close) {
         if (!this._match(open)) {
             return;
         }

@@ -90,11 +90,15 @@ const main = async () => {
     const source = path.join(dirname, '..', 'third_party', 'source', 'mlir');
     const paths = [
         path.join(source, 'llvm-project', 'mlir', 'include'),
+        path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmNeon'),
+        path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSME', 'IR'),
+        path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSVE', 'IR'),
         path.join(source, 'llvm-project', 'mlir', 'examples', 'toy', 'Ch7', 'include'),
         path.join(source, 'stablehlo'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
         path.join(source, 'triton', 'include'),
+        path.join(source, 'triton', 'third_party'),
         path.join(source, 'mlir-hlo', 'include'),
         path.join(source, 'iree', 'compiler', 'src'),
         path.join(source, 'FlashTensor', 'include'),
@@ -136,6 +140,10 @@ const main = async () => {
         'mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/Dialect/IRDL/IR/IRDLOps.td',
         'mlir/Dialect/LLVMIR/LLVMOps.td',
+        'mlir/Dialect/OpenMP/OpenMPOps.td',
+        'mlir/Dialect/ArmSME/IR/ArmSMEOps.td',
+        'mlir/Dialect/ArmNeon/ArmNeon.td',
+        'mlir/Dialect/ArmSVE/IR/ArmSVE.td',
         'mlir/Dialect/Math/IR/MathOps.td',
         'mlir/Dialect/MLProgram/IR/MLProgramOps.td',
         'mlir/Dialect/SPIRV/IR/SPIRVStructureOps.td',
@@ -181,7 +189,6 @@ const main = async () => {
         'tensorflow/compiler/mlir/tensorflow/ir/tf_executor_ops.td',
         'tensorflow/compiler/mlir/tools/kernel_gen/ir/tf_framework_ops.td',
         'tensorflow/compiler/mlir/tfr/ir/tfr_ops.td',
-        'tensorflow/compiler/mlir/tfrt/ir/tfrt_fallback.td',
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
@@ -204,6 +211,7 @@ const main = async () => {
         'triton/Dialect/TritonGPU/IR/TritonGPUOps.td',
         'triton/Dialect/Gluon/IR/GluonOps.td',
         'triton/Dialect/TritonNvidiaGPU/IR/TritonNvidiaGPUOps.td',
+        'proton/Dialect/include/Dialect/Proton/IR/ProtonOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -231,11 +239,17 @@ const main = async () => {
         };
         const summary = def.resolveField('summary');
         if (summary && summary.value) {
-            metadata.summary = summary.value.value;
+            const evaluatedSummary = def.evaluateValue(summary.value);
+            if (evaluatedSummary) {
+                metadata.summary = evaluatedSummary;
+            }
         }
         const description = def.resolveField('description');
         if (description && description.value) {
-            metadata.description = description.value.value;
+            const evaluatedDesc = def.evaluateValue(description.value);
+            if (evaluatedDesc) {
+                metadata.description = evaluatedDesc;
+            }
         }
         const args = def.resolveField('arguments');
         if (args && args.value && args.value.type === 'dag') {
@@ -300,7 +314,10 @@ const main = async () => {
         }
         const assemblyFormat = def.resolveField('assemblyFormat');
         if (assemblyFormat && assemblyFormat.value) {
-            metadata.assemblyFormat = assemblyFormat.value.value;
+            const evaluatedFormat = def.evaluateValue(assemblyFormat.value);
+            if (evaluatedFormat && typeof evaluatedFormat === 'string') {
+                metadata.assemblyFormat = evaluatedFormat;
+            }
         }
         const operation = {};
         if (metadata.name) {
@@ -336,9 +353,8 @@ const main = async () => {
         if (metadata.successors && metadata.successors.length > 0) {
             operation.successors = metadata.successors;
         }
-        if (metadata.assemblyFormat) {
-            let format = metadata.assemblyFormat.trim();
-            format = format.replace(/^\[\{\s*|\s*\}\]$/g, '');
+        if (metadata.assemblyFormat && typeof metadata.assemblyFormat === 'string') {
+            const format = metadata.assemblyFormat.trim().replace(/^\[\{\s*|\s*\}\]$/g, '');
             if (format) {
                 operation.assemblyFormat = format;
             }
