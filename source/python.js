@@ -689,10 +689,10 @@ python.Execution = class {
                         body.push(statement);
                         continue;
                     }
-                    if (this._tokenizer.eat('\n') || this._tokenizer.eat(';') || this._tokenizer.peek().type === 'eof') {
+                    if (this._tokenizer.accept('\n') || this._tokenizer.accept(';') || this._tokenizer.peek().type === 'eof') {
                         continue;
                     }
-                    if (this._tokenizer.eat('indent') && this._tokenizer.peek().type === 'eof') {
+                    if (this._tokenizer.accept('indent') && this._tokenizer.peek().type === 'eof') {
                         continue;
                     }
                     throw new python.Error(`Unsupported statement ${this._location()}`);
@@ -710,10 +710,10 @@ python.Execution = class {
             _parseSuite() {
                 const body = [];
                 let statement = null;
-                if (this._tokenizer.eat('\n')) {
-                    if (this._tokenizer.eat('indent')) {
-                        while (!this._tokenizer.eat('eof') && !this._tokenizer.eat('dedent')) {
-                            if (this._tokenizer.eat(';')) {
+                if (this._tokenizer.accept('\n')) {
+                    if (this._tokenizer.accept('indent')) {
+                        while (!this._tokenizer.accept('eof') && !this._tokenizer.accept('dedent')) {
+                            if (this._tokenizer.accept(';')) {
                                 continue;
                             }
                             statement = this._parseStatement();
@@ -721,7 +721,7 @@ python.Execution = class {
                                 body.push(statement);
                                 continue;
                             }
-                            if (this._tokenizer.eat('\n')) {
+                            if (this._tokenizer.accept('\n')) {
                                 continue;
                             }
                             if (this._tokenizer.match('dedent') || this._tokenizer.match('eof')) {
@@ -730,9 +730,9 @@ python.Execution = class {
                             throw new python.Error(`Empty statement ${this._location()}`);
                         }
                     }
-                } else if (!this._tokenizer.eat('eof')) {
+                } else if (!this._tokenizer.accept('eof')) {
                     while (!this._tokenizer.match('\n') && !this._tokenizer.match('eof') && !this._tokenizer.match('dedent')) {
-                        if (this._tokenizer.eat(';')) {
+                        if (this._tokenizer.accept(';')) {
                             continue;
                         }
                         statement = this._parseStatement();
@@ -742,7 +742,7 @@ python.Execution = class {
                         }
                         throw new python.Error(`Empty statement ${this._location()}`);
                     }
-                    this._tokenizer.eat('\n');
+                    this._tokenizer.accept('\n');
                 }
                 return body;
             }
@@ -765,12 +765,12 @@ python.Execution = class {
                 if (this._eat('id', 'raise')) {
                     let exc = this._parseExpression(-1, ['from']);
                     let cause = null;
-                    if (this._tokenizer.eat('id', 'from')) {
+                    if (this._tokenizer.accept('id', 'from')) {
                         cause = this._parseExpression();
-                    } else if (this._tokenizer.eat(',')) {
+                    } else if (this._tokenizer.accept(',')) {
                         exc = [exc];
                         exc.push(this._parseExpression());
-                        if (this._tokenizer.eat(',')) {
+                        if (this._tokenizer.accept(',')) {
                             exc.push(this._parseExpression());
                         }
                     }
@@ -780,7 +780,7 @@ python.Execution = class {
                 if (this._eat('id', 'assert')) {
                     const test = this._parseExpression(-1, [',']);
                     let msg = null;
-                    if (this._tokenizer.eat(',')) {
+                    if (this._tokenizer.accept(',')) {
                         msg = this._parseExpression();
                     }
                     node = new ast.Assert(test, msg);
@@ -792,7 +792,7 @@ python.Execution = class {
                         const name = this._parseName(true);
                         names.push(name.id);
                     }
-                    while (this._tokenizer.eat(','));
+                    while (this._tokenizer.accept(','));
                     const node = new ast.Global(names);
                     return this._mark(node, position);
                 }
@@ -802,7 +802,7 @@ python.Execution = class {
                         const name = this._parseName(true);
                         names.push(name.id);
                     }
-                    while (this._tokenizer.eat(','));
+                    while (this._tokenizer.accept(','));
                     const node = new ast.Nonlocal(names);
                     return this._mark(node, position);
                 }
@@ -811,13 +811,13 @@ python.Execution = class {
                     do {
                         const name = this._parseDottedName();
                         let asname = null;
-                        if (this._tokenizer.eat('id', 'as')) {
+                        if (this._tokenizer.accept('id', 'as')) {
                             asname = this._parseName(true).id;
                         }
                         const node = new ast.alias(name, asname);
                         names.push(node);
                     }
-                    while (this._tokenizer.eat(','));
+                    while (this._tokenizer.accept(','));
                     const node = new ast.Import(names);
                     return this._mark(node, position);
                 }
@@ -831,17 +831,17 @@ python.Execution = class {
                     const module = this._parseDottedName();
                     this._tokenizer.expect('id', 'import');
                     const names = [];
-                    const close = this._tokenizer.eat('(');
+                    const close = this._tokenizer.accept('(');
                     do {
                         const name = this._parseName(true).id;
                         let asname = null;
-                        if (this._tokenizer.eat('id', 'as')) {
+                        if (this._tokenizer.accept('id', 'as')) {
                             asname = this._parseName(true).id;
                         }
                         const node = new ast.alias(name, asname);
                         names.push(node);
                     }
-                    while (this._tokenizer.eat(','));
+                    while (this._tokenizer.accept(','));
                     if (close) {
                         this._tokenizer.expect(')');
                     }
@@ -853,9 +853,9 @@ python.Execution = class {
                 if (this._eat('id', 'class')) {
                     const name = this._parseName(true);
                     const bases = [];
-                    if (this._tokenizer.eat('(')) {
-                        while (!this._tokenizer.eat(')')) {
-                            if (this._tokenizer.eat('\n')) {
+                    if (this._tokenizer.accept('(')) {
+                        while (!this._tokenizer.accept(')')) {
+                            if (this._tokenizer.accept('\n')) {
                                 continue;
                             }
                             const expression = this._parseExpression(-1, [], false);
@@ -863,8 +863,8 @@ python.Execution = class {
                                 throw new python.Error(`Expected expression ${this._location()}`);
                             }
                             bases.push(expression);
-                            if (!this._tokenizer.eat(',')) {
-                                this._tokenizer.eat('\n');
+                            if (!this._tokenizer.accept(',')) {
+                                this._tokenizer.accept('\n');
                                 this._tokenizer.expect(')');
                                 break;
                             }
@@ -887,7 +887,7 @@ python.Execution = class {
                     this._tokenizer.expect('(');
                     const args = this._parseArguments(')');
                     let returns = null;
-                    if (this._tokenizer.eat('->')) {
+                    if (this._tokenizer.accept('->')) {
                         returns = this._parseType();
                     }
                     this._tokenizer.expect(':');
@@ -912,16 +912,16 @@ python.Execution = class {
                     const body = this._parseSuite();
                     const node = new ast.If(test, body);
                     let current = node;
-                    this._tokenizer.eat('\n');
-                    while (this._tokenizer.eat('id', 'elif')) {
+                    this._tokenizer.accept('\n');
+                    while (this._tokenizer.accept('id', 'elif')) {
                         const test = this._parseExpression();
                         this._tokenizer.expect(':');
                         const body = this._parseSuite();
                         current.orelse = new ast.If(test, body);
                         current = current.orelse;
-                        this._tokenizer.eat('\n');
+                        this._tokenizer.accept('\n');
                     }
-                    if (this._tokenizer.eat('id', 'else')) {
+                    if (this._tokenizer.accept('id', 'else')) {
                         this._tokenizer.expect(':');
                         current.orelse = this._parseSuite();
                     }
@@ -932,7 +932,7 @@ python.Execution = class {
                     this._tokenizer.expect(':');
                     const body = this._parseSuite();
                     let orelse = null;
-                    if (this._tokenizer.eat('id', 'else')) {
+                    if (this._tokenizer.accept('id', 'else')) {
                         this._tokenizer.expect(':');
                         orelse = this._parseSuite();
                     }
@@ -945,7 +945,7 @@ python.Execution = class {
                 }
                 if (this._eat('id', 'for')) {
                     let target = this._parseExpression(-1, ['in']);
-                    while (this._tokenizer.eat(',')) {
+                    while (this._tokenizer.accept(',')) {
                         if (target instanceof ast.Tuple === false) {
                             target = new ast.Tuple([target]);
                         }
@@ -957,7 +957,7 @@ python.Execution = class {
                     }
                     this._tokenizer.expect('id', 'in');
                     let iter = this._parseExpression();
-                    while (this._tokenizer.eat(',')) {
+                    while (this._tokenizer.accept(',')) {
                         if (iter.type !== 'tuple') {
                             iter = new ast.Tuple([iter]);
                         }
@@ -970,7 +970,7 @@ python.Execution = class {
                     this._tokenizer.expect(':');
                     const body = this._parseSuite();
                     let orelse = null;
-                    if (this._tokenizer.eat('id', 'else')) {
+                    if (this._tokenizer.accept('id', 'else')) {
                         this._tokenizer.expect(':');
                         orelse = this._parseSuite();
                     }
@@ -982,13 +982,13 @@ python.Execution = class {
                     do {
                         const context_expr = this._parseExpression();
                         let optional_vars = null;
-                        if (this._tokenizer.eat('id', 'as')) {
+                        if (this._tokenizer.accept('id', 'as')) {
                             optional_vars = this._parseExpression();
                         }
                         const node = new ast.withitem(context_expr, optional_vars);
                         items.push(node);
                     }
-                    while (this._tokenizer.eat(','));
+                    while (this._tokenizer.accept(','));
                     this._tokenizer.expect(':');
                     const body = this._parseSuite();
                     const node = new ast.With(items, body, null);
@@ -1006,7 +1006,7 @@ python.Execution = class {
                     while (this._tokenizer.match('id', 'except')) {
                         this._tokenizer.expect('id', 'except');
                         const type = this._parseExpression();
-                        const name = this._tokenizer.eat('id', 'as') ? this._parseExpression() : null;
+                        const name = this._tokenizer.accept('id', 'as') ? this._parseExpression() : null;
                         this._tokenizer.expect(':');
                         const body = this._parseSuite();
                         const except = new ast.ExceptHandler(type, name, body);
@@ -1027,11 +1027,11 @@ python.Execution = class {
                 }
                 const expr = this._parseExpression(-1, [], true);
                 if (expr) {
-                    if (expr instanceof ast.Name && this._tokenizer.eat(':')) {
+                    if (expr instanceof ast.Name && this._tokenizer.accept(':')) {
                         const position = this._position();
                         const annotation = this._parseExpression(-1, ['=']);
                         let value = null;
-                        if (this._tokenizer.eat('=')) {
+                        if (this._tokenizer.accept('=')) {
                             value = this._parseExpression();
                         }
                         node = new ast.AnnAssign(expr, annotation, value, expr instanceof ast.Name);
@@ -1086,9 +1086,9 @@ python.Execution = class {
                     if (precedence) {
                         if (precedence >= minPrecedence) {
                             this._tokenizer.read();
-                            if (token.value === 'not' && this._tokenizer.eat('id', 'in')) {
+                            if (token.value === 'not' && this._tokenizer.accept('id', 'in')) {
                                 token.value = 'not in';
-                            } else if (token.value === 'is' && this._tokenizer.eat('id', 'not')) {
+                            } else if (token.value === 'is' && this._tokenizer.accept('id', 'not')) {
                                 token.value = 'is not';
                             }
                             if (stack.length > 0) {
@@ -1154,7 +1154,7 @@ python.Execution = class {
                             continue;
                         }
                     }
-                    if (this._tokenizer.eat(':=')) {
+                    if (this._tokenizer.accept(':=')) {
                         const target = stack.pop();
                         const value = this._parseExpression(-1, terminal, tuple !== false);
                         const node = new ast.NamedExpr(target, value);
@@ -1162,7 +1162,7 @@ python.Execution = class {
                         stack.push(node);
                         continue;
                     }
-                    if (this._tokenizer.eat('=')) {
+                    if (this._tokenizer.accept('=')) {
                         const position = this._position();
                         const targets = stack.pop();
                         const value = this._parseExpression(-1, terminal, tuple !== false);
@@ -1238,7 +1238,7 @@ python.Execution = class {
                         continue;
                     }
                     if (this._eat('id', 'yield')) {
-                        if (this._tokenizer.eat('id', 'from')) {
+                        if (this._tokenizer.accept('id', 'from')) {
                             const value = this._parseExpression(-1, [], true);
                             node = new ast.YieldFrom(value);
                             stack.push(node);
@@ -1247,7 +1247,7 @@ python.Execution = class {
                             do {
                                 value.push(this._parseExpression(-1, [], false));
                             }
-                            while (this._tokenizer.eat(','));
+                            while (this._tokenizer.accept(','));
                             node = new ast.Yield(value);
                             stack.push(node);
                         }
@@ -1274,8 +1274,8 @@ python.Execution = class {
                         const keywords = [];
                         this._tokenizer.expect('(');
                         let tuple = false;
-                        while (!this._tokenizer.eat(')')) {
-                            if (this._tokenizer.eat('\n')) {
+                        while (!this._tokenizer.accept(')')) {
+                            if (this._tokenizer.accept('\n')) {
                                 continue;
                             }
                             const position = this._position();
@@ -1294,10 +1294,10 @@ python.Execution = class {
                             } else {
                                 args.push(expr);
                             }
-                            if (this._tokenizer.eat(',')) {
+                            if (this._tokenizer.accept(',')) {
                                 tuple = true;
                             } else {
-                                this._tokenizer.eat('\n');
+                                this._tokenizer.accept('\n');
                                 this._tokenizer.expect(')');
                                 break;
                             }
@@ -1338,12 +1338,12 @@ python.Execution = class {
                         const values = [];
                         this._tokenizer.expect('{');
                         let dict = true;
-                        while (!this._tokenizer.eat('}')) {
+                        while (!this._tokenizer.accept('}')) {
                             const item = this._parseExpression(-1, [], false);
                             if (item === null) {
                                 throw new python.Error(`Expected expression ${this._location()}`);
                             }
-                            if (!this._tokenizer.eat(':')) {
+                            if (!this._tokenizer.accept(':')) {
                                 dict = false;
                             }
                             if (dict) {
@@ -1359,7 +1359,7 @@ python.Execution = class {
                                     this._tokenizer.expect('id', 'in');
                                     const iter = this._parseExpression(-1, ['for', 'if'], true);
                                     const ifs = [];
-                                    while (this._tokenizer.eat('id', 'if')) {
+                                    while (this._tokenizer.accept('id', 'if')) {
                                         ifs.push(this._parseExpression(-1, ['for', 'if']));
                                     }
                                     const comprehension = new ast.comprehension(target, iter, ifs /*, async */);
@@ -1372,9 +1372,9 @@ python.Execution = class {
                             } else {
                                 elts.push(item);
                             }
-                            this._tokenizer.eat(',');
-                            this._tokenizer.eat('\n');
-                            if (this._tokenizer.eat('}')) {
+                            this._tokenizer.accept(',');
+                            this._tokenizer.accept('\n');
+                            if (this._tokenizer.accept('}')) {
                                 break;
                             }
                         }
@@ -1448,7 +1448,7 @@ python.Execution = class {
                         stack.push(name);
                         continue;
                     }
-                    if (tuple === true && stack.length === 1 && this._tokenizer.eat(',')) {
+                    if (tuple === true && stack.length === 1 && this._tokenizer.accept(',')) {
                         if (stack[0] instanceof ast.Tuple) {
                             [node] = stack;
                         } else {
@@ -1484,12 +1484,12 @@ python.Execution = class {
             }
             _decorator() {
                 const list = [];
-                while (this._tokenizer.eat('@')) {
+                while (this._tokenizer.accept('@')) {
                     const value = this._parseExpression();
                     if (!value || (value instanceof ast.Call === false && value instanceof ast.Name === false && value instanceof ast.Attribute === false)) {
                         throw new python.Error(`Invalid decorator ${this._location()}`);
                     }
-                    this._tokenizer.eat('\n');
+                    this._tokenizer.accept('\n');
                     list.push(value);
                 }
                 return list;
@@ -1503,7 +1503,7 @@ python.Execution = class {
                     this._tokenizer.expect('id', 'in');
                     const iter = this._parseExpression(-1, ['for', 'if'], true);
                     const ifs = [];
-                    while (this._tokenizer.eat('id', 'if')) {
+                    while (this._tokenizer.accept('id', 'if')) {
                         ifs.push(this._parseExpression(-1, ['for', 'if']));
                     }
                     const comprehension = new ast.comprehension(target, iter, ifs, is_async);
@@ -1528,7 +1528,7 @@ python.Execution = class {
                         throw new python.Error(`Expected expression ${this._location()}`);
                     }
                     elts.push(expr);
-                    while (this._tokenizer.eat(',')) {
+                    while (this._tokenizer.accept(',')) {
                         if (this._tokenizer.match(']')) {
                             break;
                         }
@@ -1549,7 +1549,7 @@ python.Execution = class {
                 let valid = false;
                 this._tokenizer.expect('[');
                 while (true) {
-                    if (this._tokenizer.eat(':')) {
+                    if (this._tokenizer.accept(':')) {
                         index++;
                         valid = true;
                     } else if (index > 2 || this._tokenizer.match(',') || this._tokenizer.match(']')) {
@@ -1559,7 +1559,7 @@ python.Execution = class {
                         elts.push(index === 0 ? slice[0] : new ast.Slice(slice[0], slice[1], slice[2]));
                         slice = [null, null, null];
                         index = 0;
-                        if (this._tokenizer.eat(']')) {
+                        if (this._tokenizer.accept(']')) {
                             break;
                         }
                         this._tokenizer.expect(',');
@@ -1596,7 +1596,7 @@ python.Execution = class {
                     const name = this._parseName(true);
                     list.push(name.id);
                 }
-                while (this._tokenizer.eat('.'));
+                while (this._tokenizer.accept('.'));
                 return list.join('.');
             }
             _parseLiteral() {
@@ -1610,13 +1610,13 @@ python.Execution = class {
             _parseTypeArguments() {
                 const list = [];
                 this._tokenizer.expect('[');
-                while (!this._tokenizer.eat(']')) {
+                while (!this._tokenizer.accept(']')) {
                     const type = this._parseType();
                     if (type === null) {
                         throw new python.Error(`Expected type ${this._location()}`);
                     }
                     list.push(type);
-                    if (!this._tokenizer.eat(',')) {
+                    if (!this._tokenizer.accept(',')) {
                         this._tokenizer.expect(']');
                         break;
                     }
@@ -1649,26 +1649,26 @@ python.Execution = class {
                 const read = (required) => {
                     const name = this._parseName(required);
                     if (name) {
-                        const annotation = terminal !== ':' && this._tokenizer.eat(':') ? this._parseType() : null;
+                        const annotation = terminal !== ':' && this._tokenizer.accept(':') ? this._parseType() : null;
                         return new ast.arg(name.id, annotation, null);
                     }
                     return null;
                 };
-                while (!this._tokenizer.eat(terminal)) {
-                    this._tokenizer.eat('\n');
-                    if (this._tokenizer.eat('/')) {
+                while (!this._tokenizer.accept(terminal)) {
+                    this._tokenizer.accept('\n');
+                    if (this._tokenizer.accept('/')) {
                         if (is_slash || is_vararg || is_kwarg) {
                             throw new python.Error(`Invalid '/' in arguments ${this._location()}`);
                         }
                         is_slash = true;
-                    } else if (this._tokenizer.eat('*')) {
+                    } else if (this._tokenizer.accept('*')) {
                         if (is_vararg) {
                             throw new python.Error(`Multiple '*' arguments ${this._location()}`);
                         }
                         is_vararg = true;
                         const arg = read(false);
                         vararg = arg ? arg : vararg;
-                    } else if (this._tokenizer.eat('**')) {
+                    } else if (this._tokenizer.accept('**')) {
                         if (is_kwarg) {
                             throw new python.Error(`Multiple '**' arguments ${this._location()}`);
                         }
@@ -1680,7 +1680,7 @@ python.Execution = class {
                             this._tokenizer.expect(terminal);
                             break;
                         }
-                        const default_value = this._tokenizer.eat('=') ? this._parseExpression() : null;
+                        const default_value = this._tokenizer.accept('=') ? this._parseExpression() : null;
                         if (!is_vararg && !is_kwarg) {
                             if (is_slash) {
                                 args.push(arg);
@@ -1697,8 +1697,8 @@ python.Execution = class {
                             throw new python.Error(`Argument after '**' parameter ${this._location()}`);
                         }
                     }
-                    this._tokenizer.eat('\n');
-                    if (!this._tokenizer.eat(',')) {
+                    this._tokenizer.accept('\n');
+                    if (!this._tokenizer.accept(',')) {
                         this._tokenizer.expect(terminal);
                         break;
                     }
@@ -1788,7 +1788,7 @@ python.Execution = class {
                 }
                 return false;
             }
-            eat(type, value) {
+            accept(type, value) {
                 const token = this.peek();
                 if (token.type === type && (!value || token.value === value)) {
                     this.read();
