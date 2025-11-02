@@ -3000,8 +3000,6 @@ mlir.Dialect = class {
                     parser.expect(null, directive.value);
                     break;
                 case 'operand_ref': {
-                    // Parse operand/attribute reference like $lhs, $rhs, or $value
-                    // Check if this is an attribute reference
                     const refName = directive.name;
                     let isAttribute = false;
                     let isVariadic = false;
@@ -3015,21 +3013,18 @@ mlir.Dialect = class {
                     if (!isSuccessor && parser.match('^')) {
                         isSuccessor = true;
                     }
-                    // Check if this is an attribute
                     if (!isSuccessor && opInfo.metadata && opInfo.metadata.attributes) {
                         const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
                         if (attrInfo) {
                             isAttribute = true;
                         }
                     }
-                    // Check if this is a Variadic operand
                     if (!isAttribute && !isSuccessor && opInfo.metadata && opInfo.metadata.inputs) {
                         const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
                         if (inputInfo && inputInfo.type === 'Variadic') {
                             isVariadic = true;
                         }
                     }
-                    // Handle successors: parse block labels like ^bb1
                     if (isSuccessor) {
                         if (parser.match('^')) {
                             if (!op.successors) {
@@ -3037,11 +3032,8 @@ mlir.Dialect = class {
                             }
                             const successor = {};
                             successor.label = parser.expect('^');
-                            // Parse successor arguments with types if present
-                            // Format: ^label(%val1, %val2, ... : type1, type2, ...)
                             if (parser.accept('(')) {
                                 successor.arguments = [];
-                                // Parse all values first
                                 while (!parser.match(':') && !parser.match(')')) {
                                     if (parser.match('%')) {
                                         const arg = {};
@@ -3052,7 +3044,6 @@ mlir.Dialect = class {
                                         break;
                                     }
                                 }
-                                // Parse types if present
                                 if (parser.accept(':')) {
                                     let idx = 0;
                                     while (idx < successor.arguments.length && !parser.match(')')) {
@@ -3069,8 +3060,6 @@ mlir.Dialect = class {
                     } else if (isAttribute) {
                         const attrValue = parser.parseValue();
                         if (attrValue) {
-                            // Check for optional type annotation after constant values (e.g., 0.0 : f64, dense<...> : tensor<...>)
-                            // Parse the type annotation for typed attributes
                             if ((attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense') &&
                                 parser.accept(':')) {
                                 parser.parseType();
@@ -3080,8 +3069,6 @@ mlir.Dialect = class {
                             op.attributes.push({ name: refName, value: attrValue.value });
                         }
                     } else if (isVariadic) {
-                        // For Variadic operands, parse comma-separated list
-                        // Parse comma-separated operands until we hit a delimiter
                         while (!parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match(':')) {
                             if (parser.match('%')) {
                                 const input = {};
@@ -3090,7 +3077,6 @@ mlir.Dialect = class {
                             } else {
                                 break;
                             }
-                            // Skip optional comma
                             parser.accept(',');
                         }
                     } else if (parser.match('%')) {
@@ -3098,18 +3084,14 @@ mlir.Dialect = class {
                         input.value = parser.expect();
                         op.operands.push(input);
                     } else if ((refName === 'region' || refName === 'regions' || refName.endsWith('Region') || refName.endsWith('Regions')) && parser.match('{')) {
-                        // Parse region reference like $region or $bodyRegion
                         const region = {};
                         parser.parseRegion(region);
                         op.regions.push(region);
                     } else if (parser.match('{')) {
-                        // If we see '{' but haven't identified this as an attribute/operand/successor,
-                        // it's likely a region that wasn't explicitly named "region"
                         const region = {};
                         parser.parseRegion(region);
                         op.regions.push(region);
                     } else if (parser.match('@')) {
-                        // Symbol reference like @my_func - add as attribute instead of operand
                         const value = parser.expect('@');
                         if (directive.name) {
                             op.attributes.push({ name: directive.name, value });
@@ -3204,7 +3186,6 @@ mlir.Dialect = class {
                     parser.parseAttributeDict(op.attributes);
                     break;
                 case 'regions':
-                    // Parse regions
                     while (parser.match('{')) {
                         const region = {};
                         parser.parseRegion(region);
@@ -3212,17 +3193,12 @@ mlir.Dialect = class {
                     }
                     break;
                 case 'successors':
-                    // Skip successors for now
                     if (parser.match('[')) {
                         parser.skip('[', ']');
                     }
                     break;
                 case 'functional_type': {
-                    // functional-type(operands, results) parses: (input_types) -> (result_types)
-                    // Note: ':' before functional-type should be handled by a separate literal directive
-                    // Parse input types: (type1, type2, ...)
                     parser.parseArgumentTypes(op.operands);
-                    // Parse arrow and result types
                     if (parser.accept('->') || parser.accept('id', 'to')) {
                         if (op.results.length > 0) {
                             parser.parseArgumentTypes(op.results);
@@ -3284,9 +3260,6 @@ mlir.Dialect = class {
                     const [firstElem] = directive.elements;
                     if (firstElem) {
                         if (firstElem.type === 'literal') {
-                            // Check if literal matches current token
-                            // Single-char literals like '(', '{', etc. are token kinds
-                            // Multi-char literals like 'ins', 'outs' are identifier/keyword values
                             if (firstElem.value.length === 1 && /[(){}[\],:<>]/.test(firstElem.value)) {
                                 shouldParse = parser.match(firstElem.value);
                             } else {
@@ -3300,9 +3273,7 @@ mlir.Dialect = class {
                     }
 
                     if (shouldParse) {
-                        // Parse all elements in the group
                         for (const elem of directive.elements) {
-                            // Recursively handle each element by switching on its type
                             switch (elem.type) {
                                 case 'literal':
                                     parser.expect(null, elem.value);
@@ -3341,19 +3312,15 @@ mlir.Dialect = class {
                                     break;
                                 }
                                 case 'operands': {
-                                    // Parse operands directive
                                     op.operands = parser.parseArguments();
                                     break;
                                 }
                                 case 'type': {
-                                    // Parse type for operands/results
                                     if (elem.args && elem.args.length > 0) {
                                         const [arg] = elem.args;
                                         if (arg.startsWith('$')) {
                                             const varName = arg.substring(1);
-                                            // Check if it's an operand or result
                                             if (varName === 'result' || varName === 'results') {
-                                                // Need to check metadata to determine if this is an input or output
                                                 let isInput = false;
                                                 if (opInfo.metadata && opInfo.metadata.inputs) {
                                                     isInput = opInfo.metadata.inputs.some((inp) => inp.name === varName);
@@ -3364,10 +3331,8 @@ mlir.Dialect = class {
                                                     parser.parseArgumentTypes(op.results);
                                                 }
                                             } else if (varName === 'operands') {
-                                                // Parse types for all operands
                                                 parser.parseArgumentTypes(op.operands);
                                             } else {
-                                                // Parse type for specific operand
                                                 const type = parser.parseType();
                                                 if (op.operands.length > 0) {
                                                     op.operands[op.operands.length - 1].type = type;
@@ -3378,10 +3343,8 @@ mlir.Dialect = class {
                                     break;
                                 }
                                 case 'results': {
-                                    // Parse Variadic results/operands
-                                    // Just consume tokens for now to test if parsing itself is the issue
                                     while (parser.match('%')) {
-                                        parser.expect(); // Just consume the token
+                                        parser.expect();
                                         parser.accept(',');
                                     }
                                     break;
@@ -3427,7 +3390,6 @@ mlir.Dialect = class {
                             }
                         }
                     }
-                    // If shouldParse is false, we skip the entire group
                     break;
                 }
                 default: {
@@ -3438,46 +3400,31 @@ mlir.Dialect = class {
         return true;
     }
 
-    // Custom Type Parsers - return type information
-
     _parseSameOperandsAndResultType(parser, args) {
-        // Parse: single type that applies to all operands and results
-        // Handles operations where all operands and results have the same type
-        //
-        // Args format: [type($lhs), type($rhs), ..., type($result)]
-        // We parse ONE type and DON'T consume commas between args
-        // The args tell us which operands/results to assign the type to, but we don't parse multiple types
         const type = parser.parseType();
         return { kind: 'SameOperandsAndResultType', type, args };
     }
 
     _parseVariadicSameOperandsAndResultType(parser, /*, args */) {
-        // Like SameOperandsAndResultType but for variadic operands
         const type = parser.parseType();
         return { kind: 'VariadicSameOperandsAndResultType', type };
     }
 
     _parseComplexOpType(parser, /*, args */) {
-        // Parse: complex_type or (type1, type2) -> complex_type
-        // For complex operations where operands are real/imag components
         const type = parser.parseType();
         return { kind: 'ComplexOpType', type };
     }
 
     _parseSelectOpType(parser, /*, args */) {
-        // Parse: pred_type, result_type OR (pred, on_true, on_false) -> result_type
         const firstType = parser.parseType();
         if (parser.accept(',')) {
-            // Two types: pred_type, result_type
             const secondType = parser.parseType();
             return { kind: 'SelectOpType', predType: firstType, resultType: secondType };
         }
-        // Function type
         return { kind: 'SelectOpType', functionType: firstType };
     }
 
     _parseTupleOpType(parser, /*, args */) {
-        // Parse tuple operation types
         const type = parser.parseType();
         return { kind: 'TupleOpType', type };
     }
@@ -3501,7 +3448,6 @@ mlir.Dialect = class {
     }
 
     _parseConvolutionDimensions(parser, /*, args */) {
-        // Parse: [b, f, 0, 1]x[0, 1, i, o]->[b, f, 0, 1]
         const result = {
             kind: 'ConvolutionDimensions',
             input: [],
@@ -3509,7 +3455,6 @@ mlir.Dialect = class {
             output: []
         };
 
-        // Parse input dimensions: [b, f, 0, 1]
         if (parser.accept('[')) {
             while (!parser.match(']')) {
                 if (parser.match('int') || parser.match('number')) {
@@ -3517,7 +3462,6 @@ mlir.Dialect = class {
                 } else if (parser.match('id')) {
                     result.input.push(parser.expect('id'));
                 } else {
-                    // Unexpected token - break to avoid infinite loop
                     break;
                 }
                 parser.accept(',');
@@ -3525,9 +3469,7 @@ mlir.Dialect = class {
             parser.accept(']');
         }
 
-        // Parse 'x'
         if (parser.accept('id', 'x')) {
-            // Parse kernel dimensions: [0, 1, i, o]
             if (parser.accept('[')) {
                 while (!parser.match(']')) {
                     if (parser.match('int') || parser.match('number')) {
@@ -3535,7 +3477,6 @@ mlir.Dialect = class {
                     } else if (parser.match('id')) {
                         result.kernel.push(parser.expect('id'));
                     } else {
-                        // Unexpected token - break to avoid infinite loop
                         break;
                     }
                     parser.accept(',');
@@ -3544,9 +3485,7 @@ mlir.Dialect = class {
             }
         }
 
-        // Parse '->'
         if (parser.accept('->')) {
-            // Parse output dimensions: [b, f, 0, 1]
             if (parser.accept('[')) {
                 while (!parser.match(']')) {
                     if (parser.match('int') || parser.match('number')) {
@@ -3554,7 +3493,6 @@ mlir.Dialect = class {
                     } else if (parser.match('id')) {
                         result.output.push(parser.expect('id'));
                     } else {
-                        // Unexpected token - break to avoid infinite loop
                         break;
                     }
                     parser.accept(',');
@@ -3567,7 +3505,6 @@ mlir.Dialect = class {
     }
 
     _parseDotDimensionNumbers(parser /*, args */) {
-        // Parse: contracting_dims = [0, 1] x [1, 0], batch_dims = [2] x [2]
         const result = {
             kind: 'DotDimensionNumbers',
             lhs_batching_dimensions: [],
@@ -3576,36 +3513,28 @@ mlir.Dialect = class {
             rhs_contracting_dimensions: []
         };
 
-        // Grammar: [batching_dims = [...] x [...] `,`] contracting_dims = [...] x [...]
-        // Note: batching_dims MUST have trailing comma if present, contracting_dims must NOT
-
         const parsePair = () => {
             const first = [];
             const second = [];
-            // Parse first array
             if (parser.accept('[')) {
                 while (!parser.match(']')) {
                     if (parser.match('int')) {
                         first.push(parseInt(parser.expect('int'), 10));
                         parser.accept(',');
                     } else {
-                        // Skip non-integer token and advance to avoid infinite loop
                         parser.expect();
                         parser.accept(',');
                     }
                 }
                 parser.accept(']');
             }
-            // Parse 'x'
             if (parser.accept('id', 'x')) {
-                // Parse second array
                 if (parser.accept('[')) {
                     while (!parser.match(']')) {
                         if (parser.match('int')) {
                             second.push(parseInt(parser.expect('int'), 10));
                             parser.accept(',');
                         } else {
-                            // Skip non-integer token and advance to avoid infinite loop
                             parser.expect();
                             parser.accept(',');
                         }
@@ -3616,41 +3545,34 @@ mlir.Dialect = class {
             return { first, second };
         };
 
-        // Optional: batching_dims = [...] x [...],
         if (parser.match('id', 'batching_dims') || parser.match('id', 'batch_dims')) {
             parser.expect('id');
             parser.accept('=');
             const pair = parsePair();
             result.lhs_batching_dimensions = pair.first;
             result.rhs_batching_dimensions = pair.second;
-            parser.accept(','); // Required comma after batching_dims
+            parser.accept(',');
         }
 
-        // Required: contracting_dims = [...] x [...]
         if (parser.match('id', 'contracting_dims')) {
             parser.expect('id');
             parser.accept('=');
             const pair = parsePair();
             result.lhs_contracting_dimensions = pair.first;
             result.rhs_contracting_dimensions = pair.second;
-            // Do NOT consume trailing comma - it belongs to the next parser
         }
 
         return result;
     }
 
     _parsePrecisionConfig(parser /*, args */) {
-        // Parse: precision = [DEFAULT, DEFAULT]
-        // Grammar: [`precision` `=` `[` precision_list `]`]
-        // Note: This is for stablehlo.dot - simpler than PrecisionConfigAndAlgorithm
         const result = {
             kind: 'PrecisionConfig',
             precision: []
         };
 
-        // Check if precision keyword is present
         if (!parser.match('id', 'precision')) {
-            return result; // No precision config
+            return result;
         }
 
         parser.expect('id', 'precision');
@@ -3661,7 +3583,6 @@ mlir.Dialect = class {
                 result.precision.push(parser.expect('id'));
                 parser.accept(',');
             } else {
-                // Skip unexpected token to avoid infinite loop
                 parser.expect();
                 parser.accept(',');
             }
@@ -3672,20 +3593,16 @@ mlir.Dialect = class {
     }
 
     _parsePrecisionConfigAndAlgorithm(parser /*, args */) {
-        // Parse: precision = [DEFAULT, DEFAULT], algorithm = {...}
-        // Grammar: [`,` (precision | algorithm) [`,` algorithm]]
         const result = {
             kind: 'PrecisionConfigAndAlgorithm',
             precision: [],
             algorithm: null
         };
 
-        // Optional leading comma
         if (!parser.accept(',')) {
-            return result; // No comma means no precision/algorithm config
+            return result;
         }
 
-        // Try parsing "algorithm = ..." first
         if (parser.match('id', 'algorithm')) {
             parser.expect('id');
             parser.accept('=');
@@ -3693,7 +3610,6 @@ mlir.Dialect = class {
             return result;
         }
 
-        // Parse "precision = [...]"
         if (parser.match('id', 'precision')) {
             parser.expect('id');
             parser.accept('=');
@@ -3703,7 +3619,6 @@ mlir.Dialect = class {
                         result.precision.push(parser.expect('id'));
                         parser.accept(',');
                     } else {
-                        // Skip unexpected token and advance to avoid infinite loop
                         parser.expect();
                         parser.accept(',');
                     }
@@ -3711,7 +3626,6 @@ mlir.Dialect = class {
                 parser.accept(']');
             }
 
-            // Optional ", algorithm = ..."
             if (parser.accept(',')) {
                 if (parser.match('id', 'algorithm')) {
                     parser.expect('id');
@@ -3725,7 +3639,6 @@ mlir.Dialect = class {
     }
 
     _parseWindowAttributes(parser, /*, args */) {
-        // Parse: stride = [2, 2], pad = [[0, 0], [0, 0]], lhs_dilate = [1, 1], etc.
         const result = {
             kind: 'WindowAttributes',
             stride: [],
@@ -3744,14 +3657,12 @@ mlir.Dialect = class {
                         if (parser.accept('[')) {
                             while (!parser.match(']')) {
                                 if (parser.match('[')) {
-                                    // Nested array like [[0, 0], [1, 1]]
                                     arr.push(parseArray());
                                 } else if (parser.match('int') || parser.match('number')) {
                                     arr.push(parseInt(parser.expect(), 10));
                                 } else if (parser.match('id')) {
                                     arr.push(parser.expect('id'));
                                 } else {
-                                    // Unexpected token - break to avoid infinite loop
                                     break;
                                 }
                                 parser.accept(',');
@@ -3773,7 +3684,6 @@ mlir.Dialect = class {
     }
 
     _parseSliceRanges(parser, /*, args */) {
-        // Parse: [start:limit:stride, start:limit:stride, ...]
         const result = {
             kind: 'SliceRanges',
             start_indices: [],
@@ -3783,16 +3693,13 @@ mlir.Dialect = class {
 
         if (parser.accept('[')) {
             while (!parser.match(']')) {
-                // Parse start
                 if (parser.match('int')) {
                     result.start_indices.push(parseInt(parser.expect('int'), 10));
                 }
                 parser.accept(':');
-                // Parse limit
                 if (parser.match('int')) {
                     result.limit_indices.push(parseInt(parser.expect('int'), 10));
                 }
-                // Parse stride (optional, defaults to 1)
                 if (parser.accept(':')) {
                     if (parser.match('int')) {
                         result.strides.push(parseInt(parser.expect('int'), 10));
@@ -3809,7 +3716,6 @@ mlir.Dialect = class {
     }
 
     _parseCustomCallTarget(parser, /*, args */) {
-        // Parse: symbol_name (e.g., @my_custom_function)
         if (parser.match('@')) {
             const target = parser.expect('@');
             return { kind: 'CustomCallTarget', target };
@@ -3821,8 +3727,6 @@ mlir.Dialect = class {
     }
 
     _parseDynamicIndexList(parser, /*, args */) {
-        // Parse: [index1, index2, ...] or empty
-        // Used for vector.insert, vector.extract, etc.
         const result = {
             kind: 'DynamicIndexList',
             indices: []
@@ -3833,7 +3737,6 @@ mlir.Dialect = class {
                 if (parser.match('int') || parser.match('number')) {
                     result.indices.push(parseInt(parser.expect(), 10));
                 } else if (parser.match('%')) {
-                    // Dynamic index
                     result.indices.push(parser.expect('%'));
                 } else {
                     break;
@@ -3847,8 +3750,6 @@ mlir.Dialect = class {
     }
 
     _parseVariadicOperandWithAttribute(parser, /*, args */) {
-        // Parse variadic operands with optional attributes
-        // Example: %operand1, %operand2 {attr = value}, %operand3
         const result = {
             kind: 'VariadicOperandWithAttribute',
             operands: []
@@ -4388,36 +4289,27 @@ mlir.AffineDialect = class extends mlir.Dialect {
     }
 
     _parseForOp(parser, op) {
-        // affine.for %i = lowerBound to upperBound [step constant] { region }
-        // Parse induction variable
         if (!parser.match('%')) {
             return false;
         }
         const inductionVar = parser.expect('%');
-        // Parse '='
         if (!parser.accept('=')) {
             return false;
         }
-        // Parse lower bound (can be constant, SSA value, or affine expression)
         this._parseAffineBound(parser, op, 'lowerBound');
-        // Parse 'to' keyword
         if (!parser.accept('id', 'to')) {
             return false;
         }
-        // Parse upper bound
         this._parseAffineBound(parser, op, 'upperBound');
-        // Parse optional 'step' keyword and value
         if (parser.accept('id', 'step')) {
             if (parser.match('int')) {
                 const step = parser.expect('int');
                 op.attributes.push({ name: 'step', value: step });
             }
         }
-        // Parse region
         if (parser.match('{')) {
             const region = {};
             parser.parseRegion(region);
-            // Set the induction variable as the first block argument
             if (region.blocks && region.blocks.length > 0) {
                 if (!region.blocks[0].arguments) {
                     region.blocks[0].arguments = [];
@@ -4719,7 +4611,6 @@ mlir.TorchDialect = class extends mlir.Dialect {
             }
             return true;
         }
-
         if (name === 'torch.operator') {
             if (parser.match('string')) {
                 const operatorName = parser.expect('string');
@@ -4728,12 +4619,53 @@ mlir.TorchDialect = class extends mlir.Dialect {
             parser.parseGenericOperationAfterOpName(op);
             return true;
         }
-
+        if (name === 'torch.prim.SetAttr') {
+            if (parser.match('%')) {
+                const obj = parser.expect('%');
+                op.operands.push({ value: obj });
+            }
+            if (parser.match('[')) {
+                parser.expect('[');
+                const attr = parser.expect('string');
+                op.attributes.push({ name: 'name', value: attr });
+                parser.expect(']');
+            }
+            if (parser.accept('=')) {
+                if (parser.match('%')) {
+                    const value = parser.expect('%');
+                    op.operands.push({ value });
+                }
+            }
+            if (parser.accept(':')) {
+                parser.parseArgumentTypes(op.operands);
+            }
+            op.loc = parser.parseLocation();
+            return true;
+        }
+        if (name === 'torch.prim.GetAttr') {
+            if (parser.match('%')) {
+                const obj = parser.expect('%');
+                op.operands.push({ value: obj });
+            }
+            if (parser.match('[')) {
+                parser.expect('[');
+                const attr = parser.expect('string');
+                op.attributes.push({ name: 'name', value: attr });
+                parser.expect(']');
+            }
+            if (parser.accept(':')) {
+                parser.parseArgumentTypes(op.operands);
+            }
+            if (parser.accept('->')) {
+                parser.parseArgumentTypes(op.results);
+            }
+            op.loc = parser.parseLocation();
+            return true;
+        }
         if (name.startsWith('torch.aten.') || name.startsWith('torch.prim.')) {
             parser.parseGenericOperationAfterOpName(op);
             return true;
         }
-
         return super.parseOperation(parser, opName, op);
     }
 };
@@ -4759,7 +4691,6 @@ mlir.HALDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         const name = opName.replace(/^"|"$/g, '');
-
         if (name === 'hal.tensor.cast') {
             op.operands = parser.parseArguments();
             if (parser.accept(':')) {
@@ -4773,7 +4704,6 @@ mlir.HALDialect = class extends mlir.Dialect {
             }
             return true;
         }
-
         if (name === 'hal.constant') {
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             const value = parser.parseValue();
@@ -4783,11 +4713,7 @@ mlir.HALDialect = class extends mlir.Dialect {
             }
             return true;
         }
-
-        // Handle hal.device.switch with attribute-based case matching FIRST (before generic hal.device handler)
-        // Format: hal.device.switch<%device : !hal.device> #hal.device.match.xxx<...> { ... }
         if (name === 'hal.device.switch') {
-            // Parse <%operand : type> if present
             if (parser.accept('<')) {
                 while (!parser.accept('>')) {
                     const operand = parser.expect('%');
@@ -4801,23 +4727,18 @@ mlir.HALDialect = class extends mlir.Dialect {
                     parser.accept(',');
                 }
             }
-            // Parse result type if present (-> type or : type)
             if (parser.accept('->') || parser.accept(':')) {
                 const resultType = parser.parseType();
                 op.results = [{ type: resultType }];
             }
-            // Parse case regions: #attribute { region }, #attribute { region }, ...
             while (parser.match('#')) {
                 const region = {};
-                // Parse the case attribute
                 const caseAttr = parser.parseAttributeValue();
                 region.caseAttribute = caseAttr;
-                // Parse the region
                 if (parser.match('{')) {
                     parser.parseRegion(region);
                 }
                 op.regions.push(region);
-                // Consume optional comma between cases
                 parser.accept(',');
             }
             return true;
@@ -4991,7 +4912,6 @@ mlir.HALDialect = class extends mlir.Dialect {
                 const symbol = parser.expect('@');
                 op.attributes.push({ name: 'sym_name', value: symbol });
             }
-            // Parse comma-separated named parameters
             while (parser.accept(',')) {
                 if (parser.match('id')) {
                     parser.expect('id');
@@ -5310,17 +5230,13 @@ mlir.FlowDialect = class extends mlir.Dialect {
     _parseTensorLoadStoreOp(parser, op) {
         // Parse: load %arg2, offsets = [...] : type -> type
         //    or: store %26, %arg4, offsets = [...] : type -> type
-        // Parse operands: one or more % values separated by commas
         while (parser.match('%')) {
             const value = parser.expect('%');
             op.operands.push({ value });
-            // If next is not a comma, break
             if (!parser.accept(',')) {
                 break;
             }
-            // If after comma, next is not %, break (we've hit named parameters)
             if (!parser.match('%')) {
-                // We have a comma followed by non-%, so continue to named parameters
                 break;
             }
         }
@@ -5688,7 +5604,6 @@ mlir.ONNXDialect = class extends mlir.Dialect {
             return true;
         }
 
-        // For all other ONNX operations, use default parsing
         return super.parseOperation(parser, opName, op);
     }
 };
@@ -5722,7 +5637,6 @@ mlir.MhloDialect = class extends mlir.Dialect {
             return true;
         }
 
-        // For all other MHLO operations, use default parsing
         return super.parseOperation(parser, opName, op);
     }
 };
@@ -5828,6 +5742,10 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
         const simpleTypes = ['sampler', 'sampled_image', 'matrix', 'image', 'rtarray'];
         for (const simpleType of simpleTypes) {
             if (dialectType === `!spirv.${simpleType}`) {
+                if (parser.match('<')) {
+                    const content = parser.skip('<', '>');
+                    return dialectType + content;
+                }
                 return dialectType;
             }
         }
@@ -5951,7 +5869,6 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                 const executionModel = parser.expect('string');
                 op.attributes.push({ name: 'execution_model', value: executionModel });
             }
-            // Parse comma-separated symbol references
             op.operands = [];
             while (parser.match('@')) {
                 const symbol = parser.expect('@');
@@ -6108,7 +6025,6 @@ mlir.AsukaDialect = class extends mlir.Dialect {
             if (parser.accept('=')) {
                 let attrValue = null;
                 if (parser.match('[')) {
-                    // Parse array attribute
                     attrValue = parser.parseValue();
                     // Check for 'x' operator (used in batch_dims = [0] x [])
                     if (parser.match('id') && parser.token.value === 'x') {
@@ -6117,11 +6033,10 @@ mlir.AsukaDialect = class extends mlir.Dialect {
                         attrValue = { kind: 'pair', first: attrValue, second: secondValue };
                     }
                 } else {
-                    // Parse scalar or other value
                     attrValue = parser.parseValue();
                 }
                 op.attributes.push({ name: attrName, value: attrValue });
-                parser.accept(','); // optional comma between attributes
+                parser.accept(',');
             }
         }
 
@@ -6315,34 +6230,23 @@ mlir.ArithDialect = class extends mlir.Dialect {
         const predicate = parser.match('string') ? parser.expect('string') : parser.expect('id');
         op.attributes.push({ name: 'predicate', value: predicate });
 
-        // Parse comma
         if (!parser.accept(',')) {
             return false;
         }
-
-        // Parse lhs operand
         if (!parser.match('%')) {
             return false;
         }
         op.operands.push({ value: parser.expect('%') });
-
-        // Parse comma
         if (!parser.accept(',')) {
             return false;
         }
-
-        // Parse rhs operand
         if (!parser.match('%')) {
             return false;
         }
         op.operands.push({ value: parser.expect('%') });
-
-        // Parse optional attribute dict
         if (parser.match('{')) {
             parser.parseAttributeDict(op.attributes);
         }
-
-        // Parse type signature: : <type>
         if (parser.accept(':')) {
             const type = parser.parseType();
             op.operands[0].type = type;
@@ -6356,7 +6260,6 @@ mlir.ArithDialect = class extends mlir.Dialect {
                 op.results[0].type = 'i1';
             }
         }
-
         return true;
     }
 
@@ -6472,7 +6375,6 @@ mlir.BufferizationDialect = class extends mlir.Dialect {
     _parseMaterializeInDestinationOp(parser, op) {
         // Assembly format: $source `in` (`restrict` $restrict^)? (`writable` $writable^)? $dest
         //                  attr-dict `:` functional-type(operands, results)
-
         // Parse source operand
         if (!parser.match('%')) {
             return false;
@@ -8356,8 +8258,6 @@ mlir.TransformDialect = class extends mlir.Dialect {
         // or: transform.test.move_value_defns %v1, %v2 before %op3 : types
         const keywords = ['before', 'after', 'into'];
         let foundKeyword = false;
-
-        // Parse operands and keywords
         while (parser.match('%') || (parser.match('id') && !foundKeyword)) {
             if (parser.match('%')) {
                 const value = parser.expect('%');
