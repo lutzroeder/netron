@@ -5793,6 +5793,7 @@
     "target":   "draft_export.pt2",
     "source":   "https://github.com/user-attachments/files/22877643/draft_export.pt2.zip[draft_export.pt2]",
     "format":   "PyTorch Export v8.14",
+    "assert":   "model.modules[0].nodes[0].inputs[1].value[0].initializer.values.length == 400",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {

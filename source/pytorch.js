@@ -1436,26 +1436,49 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
                     const [, model_name] = match;
                     /* eslint-disable no-await-in-loop */
                     const model = await this.context.fetch(`models/${model_name}.json`);
-                    const constants = await this._fetch(`data/constants/${model_name}.pt`);
-                    const sample_inputs = await this._fetch(`data/sample_inputs/${model_name}.pt`);
-                    const weights = await this._fetch(`data/weights/${model_name}.pt`);
                     const exported_program = await model.read('json');
-                    /* eslint-enable no-await-in-loop */
                     exported_programs.set(model_name, exported_program);
                     f.set(`models/${model_name}.json`, exported_program);
-                    f.set(`data/weights/${model_name}.pt`, weights);
-                    f.set(`data/constants/${model_name}.pt`, constants);
+                    const sample_inputs = await this._fetch(`data/sample_inputs/${model_name}.pt`, 'zip');
                     f.set(`data/sample_inputs/${model_name}.pt`, sample_inputs);
+                    const weights_config = await this._fetch(`data/weights/${model_name}_weights_config.json`, 'json');
+                    if (weights_config) {
+                        f.set(`data/weights/${model_name}_weights_config.json`, weights_config);
+                        for (const payload_meta of Object.values(weights_config.config)) {
+                            const weight_data = await this._fetch(`data/weights/${payload_meta.path_name}`, 'binary');
+                            if (weight_data) {
+                                f.set(`data/weights/${payload_meta.path_name}`, weight_data);
+                            }
+                        }
+                    } else {
+                        const weights = await this._fetch(`data/weights/${model_name}.pt`, 'zip');
+                        f.set(`data/weights/${model_name}.pt`, weights);
+                    }
+                    const constants_config = await this._fetch(`data/constants/${model_name}_constants_config.json`, 'json');
+                    if (constants_config) {
+                        f.set(`data/constants/${model_name}_constants_config.json`, constants_config);
+                        for (const payload_meta of Object.values(constants_config.config)) {
+                            // eslint-enable no-await-in-loop
+                            const constant_data = await this._fetch(`data/constants/${payload_meta.path_name}`, 'binary');
+                            if (constant_data) {
+                                f.set(`data/constants/${payload_meta.path_name}`, constant_data);
+                            }
+                        }
+                    } else {
+                        const constants = await this._fetch(`data/constants/${model_name}.pt`);
+                        f.set(`data/constants/${model_name}.pt`, constants);
+                    }
+                    /* eslint-enable no-await-in-loop */
                 }
             }
-            const byteorder = await this._text('byteorder') || 'little';
+            const byteorder = await this._fetch('byteorder', 'text') || 'little';
             f.set('byteorder', byteorder);
         } else {
-            this.version = await this._text('version');
+            this.version = await this._fetch('version', 'text') || '';
             this.version = this.version.split('\n').shift().trim();
-            const weights = await this._fetch('serialized_state_dict.pt') || await this._fetch('serialized_state_dict.json');
-            const constants = await this._fetch('serialized_constants.pt') || await this._fetch('serialized_constants.json');
-            const sample_inputs = await this._fetch('serialized_example_inputs.pt');
+            const weights = await this._fetch('serialized_state_dict.pt', 'zip') || await this._fetch('serialized_state_dict.json', 'zip');
+            const constants = await this._fetch('serialized_constants.pt', 'zip') || await this._fetch('serialized_constants.json', 'zip');
+            const sample_inputs = await this._fetch('serialized_example_inputs.pt', 'zip');
             f.set('models/model.json', this.exported_program);
             f.set('data/weights/model.pt', weights);
             f.set('data/constants/model.pt', constants);
@@ -1505,31 +1528,37 @@ pytorch.Container.ExportedProgram = class extends pytorch.Container {
         this.modules = pt2_contents.exported_programs;
     }
 
-    async _fetch(name) {
+    async _fetch(name, type) {
         try {
             const context = await this.context.fetch(name);
             if (context) {
-                return await context.peek('zip');
-            }
-        } catch {
-            // continue regardless of error
-        }
-        return null;
-    }
-
-    async _text(name) {
-        try {
-            const content = await this.context.fetch(name);
-            if (content) {
-                const reader = await content.read('text');
-                if (reader) {
-                    return reader.read();
+                switch (type) {
+                    case 'zip':
+                        return await context.peek('zip');
+                    case 'json':
+                        return await context.read('json');
+                    case 'text': {
+                        const reader = await context.read('text');
+                        if (reader) {
+                            return reader.read();
+                        }
+                        break;
+                    }
+                    case 'binary': {
+                        if (context && context.stream) {
+                            return context.stream.peek();
+                        }
+                        break;
+                    }
+                    default: {
+                        throw new pytorch.Error(`Unsupported context type '${type}.`);
+                    }
                 }
             }
         } catch {
             // continue regardless of error
         }
-        return '';
+        return null;
     }
 };
 
