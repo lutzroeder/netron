@@ -10323,7 +10323,7 @@ python.Execution = class {
             }
             expect(kind) {
                 if (this.cur().kind !== kind) {
-                    throw new python.Error(`Unexpected '${this.kind}' instead of '${kind}'.`);
+                    throw new python.Error(`Unexpected '${this.cur().kind}' instead of '${kind}'.`);
                 }
                 return this.next();
             }

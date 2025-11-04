@@ -3720,7 +3720,9 @@ view.TensorSidebar = class extends view.ObjectSidebar {
                 const dataType = type.dataType;
                 this.addProperty('type', `${dataType}`, 'code');
                 const shape = type.shape && Array.isArray(type.shape.dimensions) ? type.shape.dimensions.toString(', ') : '?';
-                this.addProperty('shape', `${shape || '&nbsp;'}`, 'code');
+                if (shape) {
+                    this.addProperty('shape', shape, 'code');
+                }
                 const denotation = type.denotation;
                 if (denotation) {
                     this.addProperty('denotation', denotation, 'code');

@@ -77,7 +77,7 @@ known_legacy_schema_definitions = [
     "cadence::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor", # noqa E501
     "detectron2::roi_align_rotated_forward(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio) -> Tensor", # noqa E501
-    "dim_order_ops::_clone_dim_order.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!)", # noqa E501
+    "dim_order_ops::_clone_dim_order.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_empty_dim_order.out(int[] size, *, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_to_dim_order_copy.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)",
