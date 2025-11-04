@@ -5369,10 +5369,10 @@
     "name": "aten::rand_like(Tensor self, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
-    "name": "aten::rand_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::rand_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
-    "name": "aten::rand_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+    "name": "aten::rand_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::rand_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
@@ -5405,25 +5405,37 @@
     "name": "aten::randint_like(Tensor self, SymInt high, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
-    "name": "aten::randint_like.low_dtype(Tensor self, SymInt low, SymInt high, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
-  },
-  {
-    "name": "aten::randint_like.out(Tensor self, SymInt high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
     "name": "aten::randint_like.Tensor(Tensor self, Tensor high, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
-    "name": "aten::randint_like.Tensor_out(Tensor self, Tensor high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "aten::randint_like.low_dtype_out(Tensor self, SymInt low, SymInt high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::randint_like.low_dtype(Tensor self, SymInt low, SymInt high, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
     "name": "aten::randint_like.generator(Tensor self, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
+    "name": "aten::randint_like.Tensor_generator(Tensor self, Tensor high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::randint_like.low_generator_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+  },
+  {
+    "name": "aten::randint_like.out(Tensor self, SymInt high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::randint_like.generator_out(Tensor self, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randint_like.Tensor_out(Tensor self, Tensor high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randint_like.Tensor_generator_out(Tensor self, Tensor high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randint_like.low_dtype_out(Tensor self, SymInt low, SymInt high, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::randint_like.low_generator_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
@@ -5459,10 +5471,10 @@
     "name": "aten::randn_like(Tensor self, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
-    "name": "aten::randn_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::randn_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
   },
   {
-    "name": "aten::randn_like.generator(Tensor self, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor"
+    "name": "aten::randn_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::randn_like.generator_out(Tensor self, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
@@ -6658,14 +6670,14 @@
     "name": "aten::transpose_copy.int_out(Tensor self, int dim0, int dim1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::tril(Tensor self, int diagonal=0) -> Tensor",
+    "name": "aten::tril(Tensor self, SymInt diagonal=0) -> Tensor",
     "category": "Layer"
   },
   {
-    "name": "aten::tril.out(Tensor self, int diagonal=0, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::tril.out(Tensor self, SymInt diagonal=0, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::tril_(Tensor(a!) self, int diagonal=0) -> Tensor(a!)"
+    "name": "aten::tril_(Tensor(a!) self, SymInt diagonal=0) -> Tensor(a!)"
   },
   {
     "name": "aten::tril_indices(int row, int col, int offset=0, *, ScalarType? dtype=4, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor",
@@ -6675,13 +6687,13 @@
     "name": "aten::tril_indices.out(int row, int col, int offset=0, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::triu(Tensor self, int diagonal=0) -> Tensor"
+    "name": "aten::triu(Tensor self, SymInt diagonal=0) -> Tensor"
   },
   {
-    "name": "aten::triu.out(Tensor self, int diagonal=0, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::triu.out(Tensor self, SymInt diagonal=0, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::triu_(Tensor(a!) self, int diagonal=0) -> Tensor(a!)"
+    "name": "aten::triu_(Tensor(a!) self, SymInt diagonal=0) -> Tensor(a!)"
   },
   {
     "name": "aten::triu_indices(int row, int col, int offset=0, *, ScalarType? dtype=4, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
@@ -8421,12 +8433,6 @@
     "name": "quantized_decomposed::dequantize_per_channel_group(Tensor input, Tensor scales, Tensor? zero_points, int quant_min, int quant_max, ScalarType dtype, int group_size, ScalarType output_dtype) -> Tensor"
   },
   {
-    "name": "quantized_decomposed::dequantize_per_tensor.Tensor_out(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
-    "name": "quantized_decomposed::dequantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
-  },
-  {
     "name": "quantized_decomposed::dequantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
   },
   {
@@ -8434,6 +8440,12 @@
   },
   {
     "name": "quantized_decomposed::dequantize_per_tensor.tensor2(Tensor input, Tensor scale, Tensor zero_point, Tensor quant_min, Tensor quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_tensor.Tensor_out(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::dequantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "quantized_decomposed::dequantize_per_token(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype, ScalarType output_dtype) -> Tensor"
