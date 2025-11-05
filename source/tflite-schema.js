@@ -246,6 +246,7 @@ tflite.Tensor = class Tensor {
         $.shape_signature = reader.array(position, 18, Int32Array);
         $.has_rank = reader.bool_(position, 20, false);
         $.variant_tensors = reader.tables(position, 22, tflite.VariantSubType);
+        $.external_buffer = reader.uint32_(position, 24, 0);
         return $;
     }
 
@@ -261,6 +262,7 @@ tflite.Tensor = class Tensor {
         $.shape_signature = reader.array(json.shape_signature, Int32Array);
         $.has_rank = reader.value(json.has_rank, false);
         $.variant_tensors = reader.objects(json.variant_tensors, tflite.VariantSubType);
+        $.external_buffer = reader.value(json.external_buffer, 0);
         return $;
     }
 };
@@ -3379,6 +3381,44 @@ tflite.Buffer = class Buffer {
     }
 };
 
+tflite.ExternalBufferGroup = class ExternalBufferGroup {
+
+    static decode(reader, position) {
+        const $ = new tflite.ExternalBufferGroup();
+        $.name = reader.string_(position, 4, null);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.ExternalBufferGroup();
+        $.name = reader.value(json.name, null);
+        return $;
+    }
+};
+
+tflite.ExternalBuffer = class ExternalBuffer {
+
+    static decode(reader, position) {
+        const $ = new tflite.ExternalBuffer();
+        $.id = reader.uint32_(position, 4, 0);
+        $.group = reader.uint32_(position, 6, 0);
+        $.offset = reader.uint64_(position, 8, 0n);
+        $.length = reader.uint64_(position, 10, 0n);
+        $.packing = reader.string_(position, 12, null);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new tflite.ExternalBuffer();
+        $.id = reader.value(json.id, 0);
+        $.group = reader.value(json.group, 0);
+        $.offset = reader.uint64(json.offset, 0n);
+        $.length = reader.uint64(json.length, 0n);
+        $.packing = reader.value(json.packing, null);
+        return $;
+    }
+};
+
 tflite.Metadata = class Metadata {
 
     static decode(reader, position) {
@@ -3460,6 +3500,8 @@ tflite.Model = class Model {
         $.metadata_buffer = reader.array(position, 14, Int32Array);
         $.metadata = reader.tables(position, 16, tflite.Metadata);
         $.signature_defs = reader.tables(position, 18, tflite.SignatureDef);
+        $.external_buffer_groups = reader.tables(position, 20, tflite.ExternalBufferGroup);
+        $.external_buffers = reader.tables(position, 22, tflite.ExternalBuffer);
         return $;
     }
 
@@ -3473,6 +3515,8 @@ tflite.Model = class Model {
         $.metadata_buffer = reader.array(json.metadata_buffer, Int32Array);
         $.metadata = reader.objects(json.metadata, tflite.Metadata);
         $.signature_defs = reader.objects(json.signature_defs, tflite.SignatureDef);
+        $.external_buffer_groups = reader.objects(json.external_buffer_groups, tflite.ExternalBufferGroup);
+        $.external_buffers = reader.objects(json.external_buffers, tflite.ExternalBuffer);
         return $;
     }
 };
