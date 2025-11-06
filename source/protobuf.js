@@ -732,7 +732,6 @@ protobuf.TextReader = class {
     reset() {
         this._decoder.position = 0;
         this._position = 0;
-        this._token = undefined;
         this._depth = 0;
         this._arrayDepth = 0;
         this._token = '';
