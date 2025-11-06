@@ -2048,6 +2048,10 @@ mlir.Parser = class {
             value.value = this.expect();
             return value;
         }
+        if (this.match('<')) {
+            value.value = this.skip('<', '>');
+            return value;
+        }
         if (this.match('id', 'affine_map') || this.match('id', 'affine_set')) {
             const name = this.expect();
             const args = this.skip('<', '>');
@@ -3419,6 +3423,9 @@ mlir.Dialect = class {
                                             isAttribute = true;
                                         }
                                     }
+                                    if (!isAttribute && elem.anchor) {
+                                        isAttribute = true;
+                                    }
                                     if (!isAttribute && opInfo.metadata && opInfo.metadata.inputs) {
                                         const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
                                         if (inputInfo && inputInfo.type === 'Variadic') {
@@ -3426,8 +3433,29 @@ mlir.Dialect = class {
                                         }
                                     }
                                     if (isAttribute) {
-                                        const value = parser.parseValue();
-                                        op.attributes.push({ name: refName, value: value.value === undefined ? value : value.value });
+                                        let attrValue = null;
+                                        if (elem.anchor && parser.match('<')) {
+                                            parser.expect('<');
+                                            const flags = [];
+                                            while (!parser.match('>')) {
+                                                if (parser.match('id')) {
+                                                    flags.push(parser.expect('id'));
+                                                } else if (parser.match('int')) {
+                                                    flags.push(parser.expect('int'));
+                                                } else if (parser.match('string')) {
+                                                    flags.push(parser.expect('string'));
+                                                } else {
+                                                    break;
+                                                }
+                                                parser.accept(',');
+                                            }
+                                            parser.expect('>');
+                                            attrValue = flags.length === 1 ? flags[0] : flags.join(',');
+                                        } else {
+                                            const value = parser.parseValue();
+                                            attrValue = value.value === undefined ? value : value.value;
+                                        }
+                                        op.attributes.push({ name: refName, value: attrValue });
                                     } else if (isVariadic) {
                                         while (parser.match('%')) {
                                             const operand = parser.parseValue();
@@ -5758,6 +5786,19 @@ mlir.LinalgDialect = class extends mlir.Dialect {
             }
             if (!parser.accept(')')) {
                 return false;
+            }
+        }
+
+        // Parse bare attribute assignments (e.g., dimensions = [1])
+        while (parser.match('id') && !parser.match('id', 'to') && !parser.match('id', 'attributes')) {
+            const savedToken = parser._token;
+            const attrName = parser.expect('id');
+            if (parser.accept('=')) {
+                const attrValue = parser.parseValue();
+                op.attributes.push({ name: attrName, value: attrValue.value });
+            } else {
+                parser._token = savedToken;
+                break;
             }
         }
 
