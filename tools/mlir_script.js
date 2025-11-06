@@ -251,7 +251,18 @@ const main = async () => {
                 metadata.description = evaluatedDesc;
             }
         }
-        const args = def.resolveField('arguments');
+        let args = def.resolveField('arguments');
+        if (!args || !args.value || args.value.type !== 'dag' || (args.value.value && args.value.value.operands && args.value.value.operands.length === 0)) {
+            for (const parent of def.parents) {
+                if (parent.name === 'Arguments' && parent.args && parent.args.length > 0) {
+                    const [dagValue] = parent.args;
+                    if (dagValue && dagValue.type === 'dag') {
+                        args = { value: dagValue };
+                    }
+                    break;
+                }
+            }
+        }
         if (args && args.value && args.value.type === 'dag') {
             const dag = args.value.value;
             if (dag.operator === 'ins') {
@@ -282,7 +293,19 @@ const main = async () => {
                 }
             }
         }
-        const results = def.resolveField('results');
+        let results = def.resolveField('results');
+        if (!results || !results.value || results.value.type !== 'dag' || (results.value.value && results.value.value.operands && results.value.value.operands.length === 0)) {
+            for (const parent of def.parents) {
+                if (parent.name === 'Results' && parent.args && parent.args.length > 0) {
+                    const [dagValue] = parent.args;
+                    if (dagValue && dagValue.type === 'dag') {
+                        results = { value: dagValue };
+                    }
+                    break;
+                }
+            }
+        }
+
         if (results && results.value && results.value.type === 'dag') {
             const dag = results.value.value;
             if (dag.operator === 'outs') {

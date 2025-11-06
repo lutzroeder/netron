@@ -815,45 +815,64 @@ tablegen.Reader = class {
         }
         const type = new tablegen.Type(typeName);
         if (this._eat('<')) {
-            let depth = 1;
-            const argsTokens = [];
-            while (depth > 0 && !this._match('eof')) {
-                if (this._eat('<')) {
-                    argsTokens.push(this._tokenizer.current());
-                    depth++;
-                } else if (this._eat('>')) {
-                    depth--;
-                    if (depth === 0) {
-                        break;
-                    }
-                    argsTokens.push(this._tokenizer.current());
-                } else {
-                    argsTokens.push(this._tokenizer.current());
-                    this._read();
-                }
-            }
-            type.args = this._parseTemplateArgList(argsTokens);
+            type.args = this._parseTemplateArgList();
         }
         return type;
     }
 
-    _parseTemplateArgList(tokens) {
+    _parseTemplateArgList() {
+        // Parse template arguments directly from token stream
+        // Supports both positional (arg1, arg2) and named (name=value) arguments
         const args = [];
-        let current = '';
-        for (const token of tokens) {
-            if (token.type === ',') {
-                if (current.trim()) {
-                    args.push(current.trim());
+        while (!this._match('>') && !this._match('eof')) {
+            // Check if this is a named argument: id = value
+            if (this._match('id')) {
+                const name = this._read();
+                if (this._match('=')) {
+                    // Named argument
+                    this._read(); // Consume '='
+                    const value = this._parseValue();
+                    args.push({ name, value });
+                } else {
+                    // Positional argument that starts with an id
+                    // Reconstruct the value - id might be part of concat, field access, etc.
+                    let value = new tablegen.Value('def', name);
+                    // Handle < > for template instantiation
+                    if (this._match('<')) {
+                        this._skip('<', '>');
+                    }
+                    // Handle field access
+                    if (this._eat('.')) {
+                        const field = this._expect('id');
+                        value = new tablegen.Value('def', `${name}.${field}`);
+                    }
+                    // Handle :: suffix
+                    if (this._eat('::')) {
+                        const suffix = this._expect('id');
+                        value = new tablegen.Value('def', `${name}::${suffix}`);
+                    }
+                    // Handle # concatenation
+                    if (this._match('#')) {
+                        const values = [value];
+                        while (this._match('#')) {
+                            this._read();
+                            values.push(this._parsePrimaryValue());
+                        }
+                        value = new tablegen.Value('concat', values);
+                    }
+                    args.push(value);
                 }
-                current = '';
             } else {
-                current += token.value === null ? token.type : token.value;
+                // Positional argument that doesn't start with an id
+                const value = this._parseValue();
+                args.push(value);
+            }
+
+            if (!this._eat(',')) {
+                break;
             }
         }
-        current = current.trim();
-        if (current) {
-            args.push(current);
-        }
+        this._expect('>');
         return args;
     }
 
@@ -983,7 +1002,7 @@ tablegen.Reader = class {
             }
             return new tablegen.Value('bang', { op, args, field });
         }
-        if (this._match('id')) {
+        if (this._match('id') || this._isKeyword(this._tokenizer.current().type)) {
             let value = this._read();
             if (this._match('<')) {
                 this._skip('<', '>');
