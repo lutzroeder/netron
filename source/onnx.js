@@ -532,6 +532,7 @@ onnx.Tensor = class {
                                 this._encoding = '<';
                             }
                             break;
+                        case onnx.DataType.FLOAT8E8M0:
                         case onnx.DataType.FLOAT4E2M1:
                         case onnx.DataType.FLOAT8E4M3FN:
                         case onnx.DataType.FLOAT8E4M3FNUZ:
@@ -542,8 +543,10 @@ onnx.Tensor = class {
                                 this._encoding = '<';
                             }
                             break;
-                        case onnx.DataType.UINT4:
+                        case onnx.DataType.INT2:
                         case onnx.DataType.INT4:
+                        case onnx.DataType.UINT2:
+                        case onnx.DataType.UINT4:
                             if (tensor.int32_data && tensor.int32_data.length > 0) {
                                 this._data = new Uint8Array(Array.from(tensor.int32_data));
                                 this._encoding = '<';
@@ -1273,7 +1276,10 @@ onnx.DataType = {
     FLOAT8E5M2FNUZ: 20,
     UINT4: 21,
     INT4: 22,
-    FLOAT4E2M1: 23
+    FLOAT4E2M1: 23,
+    FLOAT8E8M0: 24,
+    UINT2: 25,
+    INT2: 26
 };
 
 onnx.AttributeType = {
