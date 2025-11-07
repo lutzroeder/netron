@@ -8498,9 +8498,6 @@
     "name": "quantized_decomposed::quantize_per_channel_group(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype, int group_size) -> Tensor"
   },
   {
-    "name": "quantized_decomposed::quantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
-  },
-  {
     "name": "quantized_decomposed::quantize_per_tensor.tensor(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
   },
   {
@@ -8508,6 +8505,9 @@
   },
   {
     "name": "quantized_decomposed::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "quantized_decomposed::quantize_per_tensor(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
   },
   {
     "name": "quantized_decomposed::quantize_per_token(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
