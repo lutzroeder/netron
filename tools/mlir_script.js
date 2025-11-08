@@ -30,32 +30,57 @@ class Operator {
         return this.dialectName && this.opName ? `${this.dialectName}.${this.opName}` : null;
     }
 
+    _extractValue(arg) {
+        // Handle both old string format and new Value object format
+        if (typeof arg === 'string') {
+            return arg;
+        }
+        if (arg && typeof arg === 'object') {
+            // Handle named argument: { name, value }
+            if (arg.value !== undefined && arg.name !== undefined) {
+                return this._extractValue(arg.value);
+            }
+            // Handle Value object: { type, value }
+            if (arg.type === 'string' && typeof arg.value === 'string') {
+                return arg.value.replace(/^"|"$/g, '');
+            }
+            if (arg.type === 'def' && typeof arg.value === 'string') {
+                return arg.value;
+            }
+        }
+        return null;
+    }
+
     _findOpParent(parentClass, parentArgs, substitutions) {
         const subs = { ...substitutions };
         if (parentClass.templateArgs && parentArgs) {
             for (let i = 0; i < Math.min(parentClass.templateArgs.length, parentArgs.length); i++) {
                 const paramName = parentClass.templateArgs[i].name;
                 const argValue = parentArgs[i];
-                subs[paramName] = (typeof argValue === 'string' && substitutions[argValue])
-                    ? substitutions[argValue] : argValue;
+                const extractedValue = this._extractValue(argValue);
+                subs[paramName] = (extractedValue && substitutions[extractedValue])
+                    ? substitutions[extractedValue] : argValue;
             }
         }
         if (parentClass.name === 'Op' && parentArgs.length >= 2) {
             let [dialectArg, mnemonicArg] = parentArgs;
-            if (typeof dialectArg === 'string' && subs[dialectArg]) {
-                dialectArg = subs[dialectArg];
+            const dialectKey = this._extractValue(dialectArg);
+            if (dialectKey && subs[dialectKey]) {
+                dialectArg = subs[dialectKey];
             }
-            if (typeof mnemonicArg === 'string' && subs[mnemonicArg]) {
-                mnemonicArg = subs[mnemonicArg];
+            const mnemonicKey = this._extractValue(mnemonicArg);
+            if (mnemonicKey && subs[mnemonicKey]) {
+                mnemonicArg = subs[mnemonicKey];
             }
             let dialectName = null;
-            if (typeof dialectArg === 'string') {
-                const dialectDef = this.def.parser.defs.get(dialectArg) || this.def.parser.classes.get(dialectArg);
+            const dialectStr = this._extractValue(dialectArg);
+            if (dialectStr) {
+                const dialectDef = this.def.parser.defs.get(dialectStr) || this.def.parser.classes.get(dialectStr);
                 if (dialectDef) {
                     dialectName = dialectDef.getValueAsString('name');
                 }
             }
-            const mnemonic = typeof mnemonicArg === 'string' ? mnemonicArg.replace(/^"|"$/g, '') : null;
+            const mnemonic = this._extractValue(mnemonicArg);
             if (dialectName && mnemonic) {
                 return { dialect: dialectName, mnemonic };
             }
@@ -63,9 +88,10 @@ class Operator {
         for (const grandparent of parentClass.parents) {
             const grandparentClass = this.def.parser.classes.get(grandparent.name);
             if (grandparentClass) {
-                const resolvedArgs = grandparent.args.map((arg) =>
-                    (typeof arg === 'string' && subs[arg]) ? subs[arg] : arg
-                );
+                const resolvedArgs = grandparent.args.map((arg) => {
+                    const extracted = this._extractValue(arg);
+                    return (extracted && subs[extracted]) ? subs[extracted] : arg;
+                });
                 const result = this._findOpParent(grandparentClass, resolvedArgs, subs);
                 if (result) {
                     return result;
@@ -140,7 +166,7 @@ const main = async () => {
         'mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/Dialect/IRDL/IR/IRDLOps.td',
         'mlir/Dialect/LLVMIR/LLVMOps.td',
-        'mlir/Dialect/OpenMP/OpenMPOps.td',
+        // 'mlir/Dialect/OpenMP/OpenMPOps.td', // Requires llvm/include/llvm/Frontend/OpenMP/OMP.td for OmpCommon.td generation
         'mlir/Dialect/ArmSME/IR/ArmSMEOps.td',
         'mlir/Dialect/ArmNeon/ArmNeon.td',
         'mlir/Dialect/ArmSVE/IR/ArmSVE.td',
@@ -233,24 +259,9 @@ const main = async () => {
         if (!operationName) {
             continue;
         }
-        const metadata = {
-            name: operationName,
-            dialect: op.getDialectName()
+        const operation = {
+            name: operationName
         };
-        const summary = def.resolveField('summary');
-        if (summary && summary.value) {
-            const evaluatedSummary = def.evaluateValue(summary.value);
-            if (evaluatedSummary) {
-                metadata.summary = evaluatedSummary;
-            }
-        }
-        const description = def.resolveField('description');
-        if (description && description.value) {
-            const evaluatedDesc = def.evaluateValue(description.value);
-            if (evaluatedDesc) {
-                metadata.description = evaluatedDesc;
-            }
-        }
         let args = def.resolveField('arguments');
         if (!args || !args.value || args.value.type !== 'dag' || (args.value.value && args.value.value.operands && args.value.value.operands.length === 0)) {
             for (const parent of def.parents) {
@@ -263,11 +274,49 @@ const main = async () => {
                 }
             }
         }
+        const name = operation.name.replace(/^(asuka|stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch\.aten|gpu)\./, '');
+        if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].indexOf(name) !== -1) {
+            operation.category = 'Shape';
+        } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].indexOf(name) !== -1) {
+            operation.category = 'Transform';
+        } else if (['slice', 'split', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter', 'concatenate'].indexOf(name) !== -1) {
+            operation.category = 'Tensor';
+        } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu'].indexOf(name) !== -1) {
+            operation.category = 'Activation';
+        } else if (['convolution', 'Conv', 'matmul', 'batch_matmul', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].indexOf(name) !== -1) {
+            operation.category = 'Layer';
+        } else if (['batch_norm_inference'].includes(name)) {
+            operation.category = 'Normalization';
+        }
+        const summary = def.resolveField('summary');
+        if (summary && summary.value) {
+            const value = def.evaluateValue(summary.value);
+            if (value) {
+                let summary = value.trim();
+                summary = summary.replace(/^"|"$/g, '');
+                if (summary) {
+                    operation.summary = summary;
+                }
+            }
+        }
+        const description = def.resolveField('description');
+        if (description && description.value) {
+            const value = def.evaluateValue(description.value);
+            if (value) {
+                let desc = value.trim();
+                desc = desc.replace(/^\[\{\s*|\s*\}\]$/g, '');
+                desc = desc.trim();
+                if (desc) {
+                    operation.description = desc;
+                }
+            }
+        }
+        const attributes = [];
+        const inputs = [];
+        const outputs = [];
         if (args && args.value && args.value.type === 'dag') {
             const dag = args.value.value;
             if (dag.operator === 'ins') {
-                metadata.inputs = [];
-                metadata.attributes = [];
                 for (const operand of dag.operands) {
                     if (!operand.value || !operand.name) {
                         continue;
@@ -280,12 +329,12 @@ const main = async () => {
                         typeName = String(operand.value.value);
                     }
                     if (typeName.includes('Attr')) {
-                        metadata.attributes.push({
+                        attributes.push({
                             name: operand.name,
                             type: typeName
                         });
                     } else {
-                        metadata.inputs.push({
+                        inputs.push({
                             name: operand.name,
                             type: typeName
                         });
@@ -305,11 +354,9 @@ const main = async () => {
                 }
             }
         }
-
         if (results && results.value && results.value.type === 'dag') {
             const dag = results.value.value;
             if (dag.operator === 'outs') {
-                metadata.outputs = [];
                 for (const operand of dag.operands) {
                     if (!operand.value || !operand.name) {
                         continue;
@@ -318,87 +365,49 @@ const main = async () => {
                         throw new Error('Unexpected result operand value type');
                     }
                     const type = operand.value.value;
-                    metadata.outputs.push({ name: operand.name, type });
+                    outputs.push({ name: operand.name, type });
                 }
             }
+        }
+        if (inputs.length > 0) {
+            operation.inputs = inputs;
+        }
+        if (outputs.length > 0) {
+            operation.outputs = outputs;
+        }
+        if (attributes.length > 0) {
+            operation.attributes = attributes;
         }
         const successors = def.resolveField('successors');
         if (successors && successors.value && successors.value.type === 'dag') {
             const dag = successors.value.value;
             if (dag.operator === 'successor') {
-                metadata.successors = [];
+                const successors = [];
                 for (const operand of dag.operands) {
-                    if (!operand.name) {
-                        continue;
+                    if (operand.name) {
+                        successors.push({ name: operand.name });
                     }
-                    metadata.successors.push({ name: operand.name });
+                }
+                if (successors.length > 0) {
+                    operation.successors = successors;
                 }
             }
         }
         const assemblyFormat = def.resolveField('assemblyFormat');
         if (assemblyFormat && assemblyFormat.value) {
-            const evaluatedFormat = def.evaluateValue(assemblyFormat.value);
-            if (evaluatedFormat && typeof evaluatedFormat === 'string') {
-                metadata.assemblyFormat = evaluatedFormat;
-            }
-        }
-        const operation = {};
-        if (metadata.name) {
-            operation.name = metadata.name;
-        }
-        if (metadata.category) {
-            operation.category = metadata.category;
-        }
-        if (metadata.summary) {
-            let summary = metadata.summary.trim();
-            summary = summary.replace(/^"|"$/g, '');
-            if (summary) {
-                operation.summary = summary;
-            }
-        }
-        if (metadata.description) {
-            let desc = metadata.description.trim();
-            desc = desc.replace(/^\[\{\s*|\s*\}\]$/g, '');
-            desc = desc.trim();
-            if (desc) {
-                operation.description = desc;
-            }
-        }
-        if (metadata.inputs && metadata.inputs.length > 0) {
-            operation.inputs = metadata.inputs;
-        }
-        if (metadata.outputs && metadata.outputs.length > 0) {
-            operation.outputs = metadata.outputs;
-        }
-        if (metadata.attributes && metadata.attributes.length > 0) {
-            operation.attributes = metadata.attributes;
-        }
-        if (metadata.successors && metadata.successors.length > 0) {
-            operation.successors = metadata.successors;
-        }
-        if (metadata.assemblyFormat && typeof metadata.assemblyFormat === 'string') {
-            const format = metadata.assemblyFormat.trim().replace(/^\[\{\s*|\s*\}\]$/g, '');
-            if (format) {
-                operation.assemblyFormat = format;
-            }
-        }
-        if (Object.keys(operation).length > 1) {
-            if (!operation.category) {
-                const name = operation.name.replace(/^(asuka|stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch\.aten|gpu)\./, '');
-                if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].indexOf(name) !== -1) {
-                    operation.category = 'Shape';
-                } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].indexOf(name) !== -1) {
-                    operation.category = 'Transform';
-                } else if (['slice', 'split', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter', 'concatenate'].indexOf(name) !== -1) {
-                    operation.category = 'Tensor';
-                } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu'].indexOf(name) !== -1) {
-                    operation.category = 'Activation';
-                } else if (['convolution', 'Conv', 'matmul', 'batch_matmul', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].indexOf(name) !== -1) {
-                    operation.category = 'Layer';
-                } else if (['batch_norm_inference'].includes(name)) {
-                    operation.category = 'Normalization';
+            const value = def.evaluateValue(assemblyFormat.value);
+            if (value) {
+                const format = value.trim().replace(/^\[\{\s*|\s*\}\]$/g, '');
+                if (format) {
+                    operation.assemblyFormat = format;
                 }
             }
+        }
+        const hasCustomAssemblyFormat = def.resolveField('hasCustomAssemblyFormat');
+        if (hasCustomAssemblyFormat && hasCustomAssemblyFormat.value) {
+            operation.hasCustomAssemblyFormat = def.evaluateValue(hasCustomAssemblyFormat.value);
+        }
+        if (Object.keys(operation).length > 1) {
             operations.set(operationName, operation);
         }
     }
