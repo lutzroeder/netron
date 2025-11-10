@@ -23783,7 +23783,7 @@
       {
         "name": "output_dtype",
         "type": "type",
-        "description": "Dtype of output. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`.",
+        "description": "Dtype of the output tensor.\n\nNote on supported input-output type combinations:\n* For floating-point types, the output has the same dtype as the input.\n* For 8-bit and 16-bit integer inputs, the output is a 32-bit float.\n* For 32-bit and 64-bit integer inputs, the output is a 64-bit float.\n\nUsing unsupported dtype pairs (for example, input=float64 with output=float32)\nwill result in a \"Could not find device for node\" error. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`.",
         "default": {
           "type": "type",
           "value": 1
