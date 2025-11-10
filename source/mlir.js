@@ -3126,8 +3126,10 @@ mlir.Dialect = class {
         if (!this.hasAssemblyFormat(opName) && this.hasCustomAssemblyFormat(opName)) {
             throw new mlir.Error(`Operation '${name}' has a custom assembly format but no parser is implemented.`);
         }
-        opInfo.usedAssemblyFormat = true;
-        for (const directive of opInfo.directives) {
+        const directives = opInfo.directives || [];
+        for (let i = 0; i < directives.length; i++) {
+            const directive = directives[i];
+            opInfo.usedAssemblyFormat = true;
             switch (directive.type) {
                 case 'literal':
                     parser.expect(null, directive.value);
@@ -3193,14 +3195,19 @@ mlir.Dialect = class {
                     } else if (isAttribute) {
                         const attrValue = parser.parseValue();
                         if (attrValue) {
-                            // Check if there's a type annotation (`: type`) after the attribute value
-                            // This handles typed attributes like AnyAttr, TypedAttrInterface, etc.
-                            if ((attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense') &&
-                                parser.accept(':')) {
+                            let nextIsColonLiteral = false;
+                            for (let j = i + 1; j < opInfo.directives.length; j++) {
+                                const nextDir = directives[j];
+                                if (nextDir.type !== 'attr_dict') {
+                                    if (nextDir.type === 'literal' && nextDir.value === ':') {
+                                        nextIsColonLiteral = true;
+                                    }
+                                    break; // Only check the next non-attr-dict directive
+                                }
+                            }
+                            if (!nextIsColonLiteral && (attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense') && parser.accept(':')) {
                                 attrValue.attrType = parser.parseType();
                             }
-                            // For attributes, we only store the value, not the internal "type" field
-                            // The type field here is just metadata about how the value was parsed (e.g., 'dense')
                             op.attributes.push({ name: refName, value: attrValue.value });
                         }
                     } else if (isVariadic) {
@@ -3424,6 +3431,10 @@ mlir.Dialect = class {
                                         op.results.push({ type: result.resultTypes[i] });
                                     }
                                 }
+                            }
+                        } else if (result.kind === 'VariadicOperandWithAttribute' && result.operands) {
+                            for (const operand of result.operands) {
+                                op.operands.push(operand);
                             }
                         }
                     }
@@ -4007,31 +4018,20 @@ mlir.Dialect = class {
             kind: 'VariadicOperandWithAttribute',
             operands: []
         };
-
-        while (parser.match('%') || parser.match('id')) {
+        while (parser.match('%')) {
             const operand = {
-                value: null,
+                value: parser.expect('%'),
                 attributes: []
             };
-
-            if (parser.match('%')) {
-                operand.value = parser.expect('%');
-            } else {
-                operand.value = parser.expect('id');
-            }
-
             // Check for inline attributes
             if (parser.match('{')) {
                 parser.parseAttributeDict(operand.attributes);
             }
-
             result.operands.push(operand);
-
             if (!parser.accept(',')) {
                 break;
             }
         }
-
         return result;
     }
 
@@ -4113,21 +4113,6 @@ mlir.StableHLODialect = class extends mlir.Dialect {
                 if (parser.accept(':')) {
                     parser.parseArgumentTypes(op.results);
                 }
-            }
-            return true;
-        }
-        if (name === 'stablehlo.concatenate') {
-            op.operands = parser.parseArguments();
-            if (parser.accept('id', 'dim')) {
-                parser.accept('=');
-                const dimValue = parser.parseAttributeValue();
-                op.attributes.push({ name: 'dimension', value: dimValue });
-            }
-            if (parser.accept(':')) {
-                parser.parseArgumentTypes(op.operands);
-            }
-            if (parser.accept('->')) {
-                parser.parseArgumentTypes(op.results);
             }
             return true;
         }
@@ -6438,51 +6423,63 @@ mlir.AsukaDialect = class extends mlir.Dialect {
     }
 
     parseOperation(parser, opName, op) {
-        // const name = opName.replace(/^"|"$/g, '');
-        // Asuka operations have special syntax with inline attributes:
-        // asuka.dot %arg0, %arg1, batch_dims = [...] x [...], reduce_dims = [...] x [...] : (...) -> (...)
-        // asuka.split %arg, dim = N : (...) -> (...)
-        // asuka.softmax %arg, dim = N : (...) -> (...)
-        // asuka.add %arg0, %arg1 : (...) -> (...)
+        const name = opName.replace(/^"|"$/g, '');
 
-        // Parse operands
-        op.operands = parser.parseArguments();
-
-        // Parse inline named attributes (like batch_dims, reduce_dims, dim)
-        // These come after operands but before the type signature ':'
-        while (parser.match('id') && !parser.match(':') && !parser.match('{')) {
-            const attrName = parser.expect('id');
-            if (parser.accept('=')) {
-                let attrValue = null;
-                if (parser.match('[')) {
-                    attrValue = parser.parseValue();
-                    // Check for 'x' operator (used in batch_dims = [0] x [])
-                    if (parser.match('id') && parser.token.value === 'x') {
-                        parser.expect('id'); // consume 'x'
-                        const secondValue = parser.parseValue();
-                        attrValue = { kind: 'pair', first: attrValue, second: secondValue };
+        // Asuka operations use inline attribute syntax that requires custom parsing.
+        // The attributes appear between operands and the type signature without braces,
+        // which differs from standard MLIR attr-dict syntax.
+        //
+        // Examples:
+        //   asuka.dot %lhs, %rhs, batch_dims = [0] x [], reduce_dims = [2] x [0] : (...)  -> (...)
+        //     - Uses 'x' operator to pair dimension arrays (non-standard syntax)
+        //     - batch_dims/reduce_dims not declared in metadata but present in MLIR files
+        //
+        //   asuka.split %operand, dim = 2 : (tensor<...>) -> (tensor<...>, tensor<...>)
+        //     - dim attribute is inline, not in {...} braces
+        //
+        //   asuka.softmax %operand, dim = 3 : (tensor<...>) -> (tensor<...>)
+        //     - dim attribute is inline, not in {...} braces
+        //
+        //   asuka.add %lhs, %rhs : (tensor<...>, tensor<...>) -> (tensor<...>)
+        //     - Standard binary op with inline type signature
+        const needsCustomParsing = new Set(['asuka.dot', 'asuka.add', 'asuka.split', 'asuka.softmax']);
+        if (needsCustomParsing.has(name)) {
+            // Parse operands (e.g., %lhs, %rhs)
+            op.operands = parser.parseArguments();
+            // Parse inline attributes (e.g., batch_dims = [...], dim = 2)
+            while (parser.match('id') && !parser.match(':') && !parser.match('{')) {
+                const attrName = parser.expect('id');
+                if (parser.accept('=')) {
+                    let attrValue = null;
+                    if (parser.match('[')) {
+                        attrValue = parser.parseValue();
+                        // Handle 'x' operator for dimension pairing (asuka.dot specific)
+                        if (parser.match('id') && parser.token.value === 'x') {
+                            parser.expect('id'); // consume 'x'
+                            const secondValue = parser.parseValue();
+                            attrValue = { kind: 'pair', first: attrValue, second: secondValue };
+                        }
+                    } else {
+                        attrValue = parser.parseValue();
                     }
-                } else {
-                    attrValue = parser.parseValue();
+                    op.attributes.push({ name: attrName, value: attrValue });
+                    parser.accept(',');
                 }
-                op.attributes.push({ name: attrName, value: attrValue });
-                parser.accept(',');
             }
-        }
-
-        // Parse type signature if present
-        if (parser.accept(':')) {
-            parser.parseArgumentTypes(op.operands);
-        }
-        if (parser.accept('->')) {
-            if (op.results.length > 0) {
-                parser.parseArgumentTypes(op.results);
-            } else {
-                op.results = parser.parseArguments();
+            // Parse type signature: (operand_types...) -> (result_types...)
+            if (parser.accept(':')) {
+                parser.parseArgumentTypes(op.operands);
             }
+            if (parser.accept('->')) {
+                if (op.results.length > 0) {
+                    parser.parseArgumentTypes(op.results);
+                } else {
+                    op.results = parser.parseArguments();
+                }
+            }
+            return true;
         }
-
-        return true;
+        return super.parseOperation(parser, opName, op);
     }
 };
 
@@ -8270,63 +8267,6 @@ mlir.ToyDialect = class extends mlir.Dialect {
                         op.results[0].type = type;
                     }
                 }
-            }
-            return true;
-        }
-        if (name === 'toy.transpose' || name === 'toy.reshape') {
-            if (parser.accept('(')) {
-                op.operands = parser.parseArguments();
-                if (parser.accept(':')) {
-                    parser.parseArgumentTypes(op.operands);
-                }
-                parser.accept(')');
-            }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.accept('id', 'to')) {
-                parser.parseArgumentTypes(op.results);
-            }
-            return true;
-        }
-        if (name === 'toy.return') {
-            if (!parser.match('id', 'attributes') && parser.match('%')) {
-                op.operands = parser.parseArguments();
-                if (parser.accept(':')) {
-                    parser.parseArgumentTypes(op.operands);
-                }
-            }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            return true;
-        }
-        if (name === 'toy.generic_call') {
-            parser.parseSymbolName('callee', op.attributes);
-            if (parser.accept('(')) {
-                op.operands = parser.parseArguments();
-                parser.accept(')');
-            }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.accept(':')) {
-                const type = parser.parseType();
-                if (type.startsWith('(') && type.includes('->')) {
-                    const parts = type.match(/\((.*?)\)\s*->\s*(.+)/);
-                    if (parts) {
-                        const inputTypes = parts[1].split(',').map((t) => t.trim());
-                        for (let i = 0; i < op.operands.length && i < inputTypes.length; i++) {
-                            op.operands[i].type = inputTypes[i];
-                        }
-                        // Add result type to existing result (which already has SSA name)
-                        if (op.results.length > 0) {
-                            op.results[0].type = parts[2].trim();
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        if (name === 'toy.print') {
-            op.operands = parser.parseArguments();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.accept(':')) {
-                parser.parseArgumentTypes(op.operands);
             }
             return true;
         }
