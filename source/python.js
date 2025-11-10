@@ -176,6 +176,7 @@ python.Execution = class {
         this.register('torch.nn.parameter');
         this.register('torch.ops');
         this.register('torch._ops');
+        this.register('torch.ops.higher_order');
         this.register('torch.ops.torchvision');
         this.register('torch.ops.torchaudio');
         this.register('torch.ops._caffe2');
@@ -4545,7 +4546,13 @@ python.Execution = class {
             return false;
         });
         this.registerFunction('builtins.isinstance', (obj, type) => {
-            return obj.__class__ ? builtins.issubclass(obj.__class__, type) : false;
+            if (obj && type && obj instanceof type) {
+                return true;
+            }
+            if (obj && obj.__class__) {
+                return builtins.issubclass(obj.__class__, type);
+            }
+            return false;
         });
         this.registerFunction('builtins.hasattr', (obj, name) => {
             if (obj instanceof Map && obj.__contains__) {
@@ -5450,6 +5457,12 @@ python.Execution = class {
             }
             _get_name() {
                 return this.__class__.__name__;
+            }
+            add_module(name, module) {
+                this._modules.set(name, module);
+            }
+            register_module(name, module) {
+                this.add_module(name, module);
             }
         });
         torch.nn.Module = torch.nn.modules.module.Module;
@@ -9196,6 +9209,36 @@ python.Execution = class {
             }
 
         });
+        this.registerType('torch._higher_order_ops.wrap.WrapWithAutocast', class extends torch._ops.HigherOrderOperator {
+            constructor(name) {
+                super(name, false);
+            }
+        });
+        torch.ops.higher_order.wrap_with_autocast = new torch._higher_order_ops.wrap.WrapWithAutocast('wrap_with_autocast');
+        this.registerType('torch._higher_order_ops.wrap.WrapWithSetGradEnabled', class extends torch._ops.HigherOrderOperator {
+            constructor(name) {
+                super(name, false);
+            }
+        });
+        torch.ops.higher_order.wrap_with_set_grad_enabled = new torch._higher_order_ops.wrap.WrapWithSetGradEnabled('wrap_with_set_grad_enabled');
+        this.registerType('torch._higher_order_ops.wrap.Wrap', class extends torch._ops.HigherOrderOperator {
+            constructor(name) {
+                super(name, false);
+            }
+        });
+        torch.ops.higher_order.wrap = new torch._higher_order_ops.wrap.Wrap('wrap');
+        this.registerType('torch._higher_order_ops.wrap.WrapActivationCheckpoint', class extends torch._ops.HigherOrderOperator {
+            constructor(name) {
+                super(name, false);
+            }
+        });
+        torch.ops.higher_order.wrap_activation_checkpoint = new torch._higher_order_ops.wrap.WrapActivationCheckpoint('wrap_activation_checkpoint', false);
+        this.registerType('torch._higher_order_ops.wrap.TagActivationCheckpoint', class extends torch._ops.HigherOrderOperator {
+            constructor(name) {
+                super(name, false);
+            }
+        });
+        torch.ops.higher_order.tag_activation_checkpoint = new torch._higher_order_ops.wrap.TagActivationCheckpoint('tag_activation_checkpoint', false);
         this.registerType('torch.Type', class {
             constructor(kind, annotation_str) {
                 this._kind = kind;
@@ -18455,6 +18498,9 @@ python.Execution = class {
         });
         this.registerType('torch.export.exported_program.ModuleCallEntry', class {});
         this.registerType('torch.export.exported_program.ModuleCallSignature', class {});
+        this.registerFunction('torch.export.exported_program._create_graph_module_for_export', (root, graph) => {
+            return new torch.fx.graph_module.GraphModule(root, graph);
+        });
         this.registerFunction('torch.export.unflatten', (module, flat_args_adapter) => {
             module = torch.export._remove_effect_tokens(module);
             return new torch.export.UnflattenedModule(module, flat_args_adapter);
@@ -19082,10 +19128,36 @@ python.Execution = class {
         });
         this.registerType('torch._export.serde.serialize.GraphModuleDeserializer', class {
             constructor() {
-                this.serialized_name_to_node = new Map();
-                this.serialized_name_to_meta = new Map();
+                this.serialized_name_to_node = new builtins.dict();
+                this.serialized_name_to_meta = new builtins.dict(); // torch._export.serde.serialize.LazyMap
                 this.graph = new torch.fx.Graph();
                 this.module = new torch.nn.Module();
+            }
+            save_graph_module() {
+                const Context = class {
+                    constructor(self) {
+                        this.self = self;
+                    }
+                    __enter__() {
+                        this.saved = [
+                            this.self.graph,
+                            this.self.module,
+                            this.self.serialized_name_to_node,
+                            this.self.serialized_name_to_meta,
+                            this.self.unbacked_symbols,
+                        ];
+                        this.self.graph = new torch.fx.graph.Graph();
+                        this.self.module = new torch.nn.modules.module.Module();
+                        this.self.serialized_name_to_node = new builtins.dict();
+                        this.self.serialized_name_to_meta = new builtins.dict(); // torch._export.serde.serialize.LazyMap
+                        this.self.unbacked_symbols = new Set();
+                    }
+                    __exit__(/* exc_type, exc_value, traceback */) {
+                        const self = this.self;
+                        [self.graph, self.module, self.serialized_name_to_node, self.serialized_name_to_meta, self.unbacked_symbols] = this.saved;
+                    }
+                };
+                return new Context(this);
             }
             deserialize_graph_output(output) {
                 if (output.type === 'as_tensor') {
@@ -19185,17 +19257,20 @@ python.Execution = class {
                     fx_node = this.graph.create_node('call_function', target, args, null, name);
                     this.deserialize_sym_op_outputs(serialized_node, fx_node);
                 } else if (builtins.isinstance(target, torch._ops.HigherOrderOperator)) {
-                    // assert(len(serialized_node.outputs) === 1 && serialized_node.outputs[0].type in ('as_tensors', 'as_tensor')), 'Only single tensor output or list of tensor output is supported for higher order operators.')
-                    const [output] = serialized_node.outputs;
-                    const name = output.type === 'as_tensor' ? output.value.name : null;
-                    const args = serialized_node.inputs.map((input) => this.deserialize_input(input.arg));
-                    fx_node = this.graph.create_node('call_function', target, args, {}, name);
-                    if (output.as_tensor !== null) {
-                        this.sync_fx_node(name, fx_node);
+                    const [args, kwargs] = this.deserialize_hoo_inputs(serialized_node.inputs);
+                    const metadata = this.deserialize_metadata(serialized_node.metadata);
+                    for (const x of [...args, ...kwargs.values()]) {
+                        if (builtins.isinstance(x, torch.fx.Node) && x.op === 'get_attr') {
+                            x.meta.update(metadata);
+                        }
                     }
-                    if (output.as_tensors !== null) {
-                        this.deserialize_multiple_outputs(serialized_node, fx_node);
-                    }
+                    const name = serialized_node.outputs.length === 1 &&
+                        builtins.hasattr(serialized_node.outputs[0], 'as_tensor') &&
+                        builtins.getattr(serialized_node, 'is_hop_single_tensor_return', true) ?
+                        serialized_node.outputs[0].as_tensor.name : null;
+                    fx_node = this.graph.create_node('call_function', target, args, kwargs, name);
+                    this.deserialize_outputs(serialized_node, fx_node);
+                    fx_node.meta.update(metadata);
                 } else if (builtins.isinstance(target, torch._ops.OpOverload)) {
                     const name = this._is_single_tensor_return(target) ? serialized_node.outputs[0].as_tensor.name : null;
                     const [args, kwargs] = this.deserialize_inputs(target, serialized_node);
@@ -19389,6 +19464,18 @@ python.Execution = class {
                 }
                 return [args, kwargs];
             }
+            deserialize_hoo_inputs(inputs) {
+                const args = [];
+                const kwargs = new builtins.dict();
+                for (const input_ of inputs) {
+                    if (input_.name === '') {
+                        args.push(this.deserialize_input(input_.arg));
+                    } else {
+                        kwargs.set(input_.name, this.deserialize_input(input_.arg));
+                    }
+                }
+                return [new builtins.tuple(args), kwargs];
+            }
             deserialize_input(inp) {
                 const value = inp.value;
                 const typ_ = inp.type;
@@ -19403,16 +19490,14 @@ python.Execution = class {
                 } else if (typ_ === 'as_layout') {
                     return torch._export.serde.serialize._SERIALIZE_TO_TORCH_LAYOUT[inp.as_layout];
                 } else if (typ_ === 'as_graph') {
-                    /* assert isinstance(value, GraphArgument)
-                    with this.save_graph_module():
-                        this.deserialize_graph(value.graph)
-                        submodule = ep._create_graph_module_for_export(this.module, this.graph)
-                    this.module.register_module(value.name, submodule)
-                    return this.graph.create_node(
-                        'get_attr',
-                        value.name,
-                        name=value.name,
-                    )*/
+                    // throw new python.Error('GraphArgument deserialization is not implemented.');
+                    const context = this.save_graph_module();
+                    context.__enter__();
+                    this.deserialize_graph(value.graph);
+                    const submodule = torch.export.exported_program._create_graph_module_for_export(this.module, this.graph);
+                    context.__exit__(null, null, null);
+                    this.module.register_module(value.name, submodule);
+                    return this.graph.create_node('get_attr', value.name, null, null, value.name);
                 } else if (typ_ === 'as_device') {
                     return this.deserialize_device(inp.as_device);
                 } else if (typ_ === 'as_int') {

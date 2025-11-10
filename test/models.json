@@ -7143,8 +7143,8 @@
     "type":     "pytorch",
     "target":   "wrap_with_autocast.pt2",
     "source":   "https://github.com/user-attachments/files/20875084/wrap_with_autocast.pt2.zip[wrap_with_autocast.pt2]",
-    "format":   "PyTorch Export v1.6",
-    "error":    "Unsupported node target type 'torch.ops.higher_order.wrap_with_autocast'.",
+    "format":   "PyTorch Export v8.8",
+    "error":    "Unsupported node operation 'get_attr'.",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
