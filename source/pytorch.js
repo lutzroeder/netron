@@ -547,7 +547,8 @@ pytorch.Node = class {
             const blocks = node.blocks();
             for (let i = 0; i < blocks.length; i++) {
                 const block = blocks[i];
-                if (block.nodes().length > 2) {
+                const nodes = Array.from(block.nodes());
+                if (nodes.length > 0) {
                     const name = `block${i.toString()}`;
                     const graph = { name: '', nodes: [] }; // new pytorch.Graph(execution, metadata, null, name, blocks[i]);
                     const argument = new pytorch.Argument(name, graph, 'graph');

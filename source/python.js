@@ -5689,7 +5689,7 @@ python.Execution = class {
                 let marked = false;
                 let anyMarked = false;
                 do {
-                    marked = this.mark(node.blocks()[0]);
+                    marked = this.mark(node.blocks().at(0));
                     anyMarked = anyMarked || marked;
                 } while (marked);
                 return anyMarked;
@@ -5961,7 +5961,7 @@ python.Execution = class {
                 return false;
             }
             for (let i = 0; i < lhs.blocks().length; i++) {
-                if (lhs.blocks()[i] !== rhs.blocks()[i]) {
+                if (lhs.blocks().at(i) !== rhs.blocks().at(i)) {
                     return false;
                 }
             }
@@ -6204,15 +6204,15 @@ python.Execution = class {
                 const input_bool = torch._C.constant_as(n.input(), 'toBool');
                 torch._C.AT_ASSERT(input_bool !== null);
                 const block_index = input_bool ? 0 : 1;
-                this.ConstantPropagation(n.blocks()[block_index]);
-                this.inlineIfBody(n.blocks()[block_index]);
+                this.ConstantPropagation(n.blocks().at(block_index));
+                this.inlineIfBody(n.blocks().at(block_index));
                 this._made_change = true;
             }
             replaceAndRemoveIfOutput(n, i, replacement) {
                 n.outputs()[i].replaceAllUsesWith(replacement);
                 n.eraseOutput(i);
-                n.blocks()[0].eraseOutput(i);
-                n.blocks()[1].eraseOutput(i);
+                n.blocks().at(0).eraseOutput(i);
+                n.blocks().at(1).eraseOutput(i);
             }
             removeExtraIfOutputs(n) {
                 torch._C.TORCH_CHECK(n.kind() === 'prim::If');
@@ -12464,7 +12464,7 @@ python.Execution = class {
                 }
                 out.write('\n');
                 for (let i = 0; i < this.blocks().length; i++) {
-                    const b = this.blocks()[i];
+                    const b = this.blocks().at(i);
                     torch._C.indent(out, level + 1);
                     out.write(`block${i}(`);
                     torch._C.const_value_list_with_types(out, b.inputs());
@@ -17600,7 +17600,7 @@ python.Execution = class {
                             break;
                         }
                         case 'prim::ComprehensionScope': {
-                            this.addControlFlowLoadStores(n.blocks()[0]);
+                            this.addControlFlowLoadStores(n.blocks().at(0));
                             break;
                         }
                         default: {
@@ -17624,19 +17624,19 @@ python.Execution = class {
                 for (const n of block.nodes()) {
                     switch (n.kind()) {
                         case 'prim::If': {
-                            this.assignExitContinuations(n.blocks()[0]);
-                            this.assignExitContinuations(n.blocks()[1]);
+                            this.assignExitContinuations(n.blocks().at(0));
+                            this.assignExitContinuations(n.blocks().at(1));
                             break;
                         }
                         case 'prim::Closure': {
                             const closure_block = new torch._C.LoopContinuations();
-                            closure_block.run(n.blocks()[0]);
+                            closure_block.run(n.blocks().at(0));
                             break;
                         }
                         case 'prim::Loop': {
                             const prev_loop = this._curr_loop;
                             this._curr_loop = n;
-                            this.assignExitContinuations(n.blocks()[0]);
+                            this.assignExitContinuations(n.blocks().at(0));
                             this._curr_loop = prev_loop;
                             break;
                         }
@@ -17689,7 +17689,7 @@ python.Execution = class {
                 this._node = node;
             }
             bodyBlock() {
-                return this._node.blocks()[0];
+                return this._node.blocks().at(0);
             }
             nextCond() {
                 return this.bodyBlock().outputs()[0];
@@ -17985,7 +17985,7 @@ python.Execution = class {
                             break;
                         }
                         case 'prim::Closure': {
-                            this.transformExits(node.blocks()[0]);
+                            this.transformExits(node.blocks().at(0));
                             break;
                         }
                         case 'prim::Loop': {
