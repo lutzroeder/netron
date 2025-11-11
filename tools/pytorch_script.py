@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import sys
+import warnings
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
@@ -351,7 +352,8 @@ def _all_schemas():
     __import__("torchaudio")
     logging.getLogger("torchao").setLevel(logging.ERROR)
     logging.getLogger("torch.distributed.elastic.multiprocessing").setLevel(logging.ERROR)
-    __import__("torchao")
+    with warnings.catch_warnings(action="ignore"):
+        __import__("torchao")
     logging.getLogger("torchao").setLevel(logging.NOTSET)
     logging.getLogger("torch.distributed.elastic.multiprocessing").setLevel(logging.NOTSET)
     return list(torch._C._jit_get_all_schemas())
