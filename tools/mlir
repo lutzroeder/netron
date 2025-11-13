@@ -17,6 +17,7 @@ entries=(
     "https://github.com/sophgo/tpu-mlir.git|master|./third_party/source/mlir/tpu-mlir|include"
     "https://github.com/spcl/mlir-dace.git|main|./third_party/source/mlir/mlir-dace|"
     "https://github.com/woxjro/lltz.git|master|./third_party/source/mlir/lltz|"
+    "https://github.com/pengmai/lagrad.git|main|./third_party/source/mlir/lagrad|include"
 )
 
 clean() {

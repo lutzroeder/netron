@@ -115,7 +115,7 @@ mlir.Graph = class {
         const function_type = attr.function_type;
         for (let i = 0; i < function_type.inputs.length; i++) {
             const input = function_type.inputs[i];
-            const name = input.name || i.toString();
+            const name = input.value || i.toString();
             const type = mlir.Utility.valueType(input.type);
             const valueName = input.value || input.name || `%arg${i}`;
             const value = new mlir.Value(valueName, type, '', null);
@@ -124,7 +124,7 @@ mlir.Graph = class {
         }
         for (let i = 0; i < function_type.results.length; i++) {
             const output = function_type.results[i];
-            const name = output.name || i.toString();
+            const name = output.value || i.toString();
             const type = mlir.Utility.valueType(output.type);
             const valueName = output.value || output.name || `%result${i}`;
             const value = new mlir.Value(valueName, type, '', null);
@@ -502,7 +502,8 @@ mlir.Tokenizer = class {
                 case ']':
                 case '<':
                 case '?':
-                case '*': {
+                case '*':
+                case '|': {
                     const value = this._read();
                     return new mlir.Token(value, value);
                 }
@@ -859,6 +860,7 @@ mlir.Parser = class {
         this._dialects.set('shard', new mlir.Dialect('shard', operations));
         this._dialects.set('amx', new mlir.Dialect('amx', operations));
         this._dialects.set('smt', new mlir.Dialect('smt', operations));
+        this._dialects.set('lagrad', new mlir.Dialect('lagrad', operations));
         this._dialects.set('iree_codegen', new mlir.Dialect('iree_codegen', operations));
         this._dialects.set('iree_encoding', new mlir.Dialect('iree_encoding', operations));
         this._dialects.set('test', new mlir.TestDialect(operations));
@@ -929,6 +931,10 @@ mlir.Parser = class {
         this._redirect = new Map([
             ['builtin.constant', 'arith.constant'],
             ['builtin.return', 'func.return'],
+            ['builtin.select', 'arith.select'],
+            ['scf.select', 'arith.select'],
+            ['scf.call', 'func.call'],
+            ['linalg.select', 'arith.select'],
             ['builtin.view', 'memref.view'],
             ['builtin.dealloc', 'memref.dealloc'],
             ['builtin.addi', 'arith.addi'],
@@ -1640,8 +1646,7 @@ mlir.Parser = class {
                 }
             }
             inputs.push(input);
-            const comma = this.accept(',');
-            if (comma && (this.match(')') || this.match('->') || this.match('{') || this.match('}') || this.match('=') || this.match('^') || (this.match(':') && !open))) {
+            if (!this.accept(',') && !this.match('id')) {
                 break;
             }
         }
@@ -1649,16 +1654,6 @@ mlir.Parser = class {
             this.expect(')');
         }
         return inputs;
-    }
-
-    _peek(kind, value) {
-        const saved = this._token;
-        const savedPos = this._tokenizer._position;
-        this._token = this._tokenizer.read();
-        const result = this.match(kind, value);
-        this._token = saved;
-        this._tokenizer._position = savedPos;
-        return result;
     }
 
     parseElementTypeFromPrefix(prefix, dimensions) {
@@ -1873,7 +1868,7 @@ mlir.Parser = class {
         this.expect('>');
 
         let memorySpaceBraces = '';
-        if (this.match('{') && this._peek('%')) {
+        if (this.match('{')) {
             memorySpaceBraces = this.skip('{', '}');
         }
 
@@ -3392,6 +3387,9 @@ mlir.Dialect = class {
                         const region = {};
                         parser.parseRegion(region);
                         op.regions.push(region);
+                        if (!parser.accept(',')) {
+                            break;
+                        }
                     }
                     break;
                 case 'successors':
@@ -3530,8 +3528,10 @@ mlir.Dialect = class {
                                 if (isFirstAttribute) {
                                     // For symbol attributes like sym_name, check for '@'
                                     // For other attributes, check if there's a value present
-                                    if (firstElem.name === 'sym_name' || firstElem.name === 'sym_visibility') {
+                                    if (firstElem.name === 'sym_name') {
                                         shouldParse = parser.match('@');
+                                    } else if (firstElem.name === 'sym_visibility') {
+                                        shouldParse = parser.match('@') || parser.match('string') || parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested');
                                     } else {
                                         shouldParse = parser.match('id') || parser.match('int') || parser.match('float') || parser.match('[') || parser.match('@');
                                     }
@@ -3613,6 +3613,10 @@ mlir.Dialect = class {
                                     } else if (parser.match('%') || parser.match('@') || parser.match('#') || parser.match('[')) {
                                         const operand = parser.parseValue();
                                         op.operands.push(operand);
+                                        while (parser.accept(',') && parser.match('%')) {
+                                            const nextOperand = parser.parseValue();
+                                            op.operands.push(nextOperand);
+                                        }
                                     }
                                     break;
                                 }
@@ -4109,6 +4113,10 @@ mlir.Dialect = class {
     _parseSymbolVisibility(parser /*, args */) {
         if (parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested')) {
             const visibility = parser.expect('id');
+            return { kind: 'SymbolVisibility', visibility };
+        }
+        if (parser.match('string')) {
+            const visibility = parser.expect('string');
             return { kind: 'SymbolVisibility', visibility };
         }
         return { kind: 'SymbolVisibility', visibility: null };
@@ -4611,32 +4619,6 @@ mlir.MemRefDialect = class extends mlir.Dialect {
     }
 
     parseOperation(parser, opName, op) {
-        if (opName === 'memref.global') {
-            if (parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested') || parser.match('id', 'private_extern') || parser.match('id', 'public_extern')) {
-                const visibility = parser.expect('id');
-                op.attributes.push({ name: 'sym_visibility', value: visibility });
-            }
-            if (parser.match('id', 'constant')) {
-                const constant = parser.expect('id');
-                op.attributes.push({ name: 'constant', value: constant });
-            }
-            parser.parseSymbolName('sym_name', op.attributes);
-            if (parser.accept('(')) {
-                const initialValue = parser.parseAttributeValue();
-                op.attributes.push({ name: 'initial_value', value: initialValue });
-                parser.accept(')');
-            } else if (parser.accept('=')) {
-                const initialValue = parser.parseAttributeValue();
-                op.attributes.push({ name: 'initial_value', value: initialValue });
-            } else if (parser.match('id', 'uninitialized')) {
-                parser.expect('id', 'uninitialized');
-            }
-            if (parser.accept(':')) {
-                const type = parser.parseType();
-                op.attributes.push({ name: 'type', value: type });
-            }
-            return true;
-        }
         if (opName === 'memref.tensor_load') {
             op.operands = parser.parseArguments();
             if (parser.accept(':')) {
@@ -4791,7 +4773,9 @@ mlir.VectorDialect = class extends mlir.Dialect {
 
     _parseTransferOp(parser, op) {
         // Parse: vector.transfer_read %source[%i, %j, ...], %padding {attrs} : memref_type, vector_type
+        //    or: vector.transfer_read %source[%i, %j, ...], %padding, %mask {attrs} : memref_type, vector_type
         //    or: vector.transfer_write %value, %dest[%i, %j, ...] {attrs} : vector_type, memref_type
+        //    or: vector.transfer_write %value, %dest[%i, %j, ...], %mask {attrs} : vector_type, memref_type
 
         // First operand: source/value
         const first = parser.expect('%');
@@ -4813,6 +4797,12 @@ mlir.VectorDialect = class extends mlir.Dialect {
         // If indices didn't follow first operand, they follow second operand
         if (!hasIndicesAfterFirst && parser.match('[')) {
             parser.skip('[', ']');
+        }
+
+        // Optional mask parameter (third operand)
+        if (parser.accept(',')) {
+            const mask = parser.expect('%');
+            op.operands.push({ value: mask });
         }
 
         // Optional attribute dictionary
@@ -5202,6 +5192,7 @@ mlir.UtilDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('util', operations);
+        this.registerCustomParser('ShapedTiedResult', this._parseShapedTiedResult.bind(this));
     }
 
     parseType(parser, dialectType) {
@@ -5226,6 +5217,33 @@ mlir.UtilDialect = class extends mlir.Dialect {
             return dialectType;
         }
         return null;
+    }
+
+    _parseShapedTiedResult(parser) {
+        // Parse: %arg0 as tensor<?x?xf32>{%d0, %d1}
+        //    or: tensor<?x?xf32>{%d0, %d1}
+        let tiedOperand = null;
+        if (parser.match('%')) {
+            tiedOperand = parser.expect('%');
+            if (!parser.accept('id', 'as')) {
+                throw new mlir.Error(`Expected 'as' after tied operand ${parser.location()}`);
+            }
+        }
+        const resultType = parser.parseType();
+        const dims = [];
+        if (parser.accept('{')) {
+            while (!parser.match('}')) {
+                if (parser.match('%')) {
+                    const dim = parser.expect('%');
+                    dims.push(dim);
+                    parser.accept(',');
+                } else {
+                    break;
+                }
+            }
+            parser.expect('}');
+        }
+        return { kind: 'ShapedTiedResult', tiedOperand, resultType, dims };
     }
 
     parseOperation(parser, opName, op) {
@@ -5324,6 +5342,7 @@ mlir.FlowDialect = class extends mlir.Dialect {
         super('flow', operations);
         this.registerCustomParser('DispatchEntryPoints', this._parseDispatchEntryPoints.bind(this));
         this.registerCustomParser('ShapedFunctionType', this._parseShapedFunctionType.bind(this));
+        this.registerCustomParser('ShapedTiedResult', this._parseShapedTiedResult.bind(this));
     }
 
     parseType(parser, dialectType) {
@@ -5554,6 +5573,43 @@ mlir.FlowDialect = class extends mlir.Dialect {
         return { kind: 'ShapedFunctionType', operandTypes, resultTypes };
     }
 
+    _parseShapedTiedResult(parser) {
+        // Parse: %arg0 as tensor<?x?xf32>{%d0, %d1}
+        //    or: tensor<?x?xf32>{%d0, %d1}
+        // Based on IREE's parseShapedTiedResult in UtilOps.cpp
+
+        let tiedOperand = null;
+
+        // Optionally parse a tied operand
+        if (parser.match('%')) {
+            tiedOperand = parser.expect('%');
+            // Expect "as" keyword
+            if (!parser.accept('id', 'as')) {
+                throw new mlir.Error(`Expected 'as' after tied operand ${parser.location()}`);
+            }
+        }
+
+        // Parse the result type (first arg should be type($result))
+        const resultType = parser.parseType();
+
+        // Parse dynamic dimensions in braces if present (second arg should be $target_dims)
+        const dims = [];
+        if (parser.accept('{')) {
+            while (!parser.match('}')) {
+                if (parser.match('%')) {
+                    const dim = parser.expect('%');
+                    dims.push(dim);
+                    parser.accept(',');
+                } else {
+                    break;
+                }
+            }
+            parser.expect('}');
+        }
+
+        return { kind: 'ShapedTiedResult', tiedOperand, resultType, dims };
+    }
+
     _parseTensorLoadStoreOp(parser, op) {
         // Parse: load %arg2, offsets = [...] : type -> type
         //    or: store %26, %arg4, offsets = [...] : type -> type
@@ -5606,6 +5662,7 @@ mlir.StreamDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('stream', operations);
+        this.registerCustomParser('ShapedTiedResult', this._parseShapedTiedResult.bind(this));
     }
 
     parseType(parser, dialectType) {
@@ -5623,6 +5680,33 @@ mlir.StreamDialect = class extends mlir.Dialect {
             return dialectType;
         }
         return null;
+    }
+
+    _parseShapedTiedResult(parser) {
+        // Parse: %arg0 as tensor<?x?xf32>{%d0, %d1}
+        //    or: tensor<?x?xf32>{%d0, %d1}
+        let tiedOperand = null;
+        if (parser.match('%')) {
+            tiedOperand = parser.expect('%');
+            if (!parser.accept('id', 'as')) {
+                throw new mlir.Error(`Expected 'as' after tied operand ${parser.location()}`);
+            }
+        }
+        const resultType = parser.parseType();
+        const dims = [];
+        if (parser.accept('{')) {
+            while (!parser.match('}')) {
+                if (parser.match('%')) {
+                    const dim = parser.expect('%');
+                    dims.push(dim);
+                    parser.accept(',');
+                } else {
+                    break;
+                }
+            }
+            parser.expect('}');
+        }
+        return { kind: 'ShapedTiedResult', tiedOperand, resultType, dims };
     }
 
     parseOperation(parser, opName, op) {
@@ -6730,6 +6814,49 @@ mlir.BufferizationDialect = class extends mlir.Dialect {
     }
 
     parseOperation(parser, opName, op) {
+        if (opName === 'bufferization.alloc_tensor') {
+            if (!parser.accept('(')) {
+                return false;
+            }
+            while (!parser.match(')')) {
+                if (parser.match('%')) {
+                    const operand = {};
+                    operand.value = parser.expect('%');
+                    op.operands.push(operand);
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+            parser.expect(')');
+            if (parser.accept('id', 'copy')) {
+                parser.expect('(');
+                const copyOperand = {};
+                copyOperand.value = parser.expect('%');
+                copyOperand.name = 'copy';
+                op.operands.push(copyOperand);
+                parser.expect(')');
+            }
+            if (parser.accept('id', 'size_hint')) {
+                parser.expect('=');
+                const sizeHintOperand = {};
+                sizeHintOperand.value = parser.expect('%');
+                sizeHintOperand.name = 'size_hint';
+                op.operands.push(sizeHintOperand);
+            }
+            parser.parseOptionalAttrDict(op.attributes);
+            if (parser.accept(':')) {
+                const type = parser.parseType();
+                if (op.results.length === 0) {
+                    op.results.push({ type });
+                } else {
+                    op.results[0].type = type;
+                }
+            }
+            return true;
+        }
         return super.parseOperation(parser, opName, op);
     }
 };
@@ -6749,9 +6876,6 @@ mlir.SCFDialect = class extends mlir.Dialect {
         }
         if (opName === 'scf.while') {
             return this._parseWhileOp(parser, op);
-        }
-        if (opName === 'scf.condition') {
-            // return this._parseConditionOp(parser, op);
         }
         if (opName === 'scf.forall') {
             return this._parseForallOp(parser, op);
@@ -6994,47 +7118,6 @@ mlir.SCFDialect = class extends mlir.Dialect {
                 parser.parseRegion(region);
                 op.regions.push(region);
             }
-        }
-        return true;
-    }
-
-    _parseConditionOp(parser, op) {
-        // scf.condition(%condition) [%args, ...] [: type, ...]
-        // Assembly format: `(` $condition `)` attr-dict ($args^ `:` type($args))?
-        // Parse condition in parentheses
-        if (!parser.accept('(')) {
-            return false;
-        }
-        if (parser.match('%')) {
-            op.operands.push({ value: parser.expect('%') });
-        } else {
-            return false;
-        }
-        if (!parser.accept(')')) {
-            return false;
-        }
-        // Parse optional attributes
-        if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
-        }
-        // Parse optional variadic arguments before colon
-        while (parser.match('%')) {
-            op.operands.push({ value: parser.expect('%') });
-            if (!parser.accept(',')) {
-                break;
-            }
-        }
-        // Parse optional types after colon
-        if (parser.accept(':')) {
-            // Skip the first operand (condition) when assigning types
-            let idx = 1;
-            do {
-                const type = parser.parseType();
-                if (idx < op.operands.length) {
-                    op.operands[idx].type = type;
-                }
-                idx++;
-            } while (parser.accept(','));
         }
         return true;
     }
@@ -7621,46 +7704,142 @@ mlir.GpuDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'gpu.func') {
-            return this._parseFuncOp(parser, op);
+            parser.parseOptionalVisibilityKeyword(op.attributes);
+            parser.parseSymbolName('sym_name', op.attributes);
+            const type = {};
+            type.inputs = parser.parseFunctionArgumentList();
+            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            type.results = [];
+            if (parser.accept('->')) {
+                for (const result of parser.parseFunctionResultList()) {
+                    type.results.push(result);
+                }
+            }
+            op.attributes.push({ name: 'function_type', value: type });
+            if (parser.match('id', 'kernel')) {
+                parser.expect();
+                op.attributes.push({ name: 'gpu.kernel', value: true });
+            }
+            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            if (parser.match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+            if (op.regions.length > 0) {
+                const region = op.regions[op.regions.length - 1];
+                if (region.blocks.length > 0) {
+                    const block = region.blocks[region.blocks.length - 1];
+                    if (block.operations.length > 0) {
+                        const lastOp = block.operations[block.operations.length - 1];
+                        type.results = lastOp.operands;
+                        block.operations.pop();
+                    }
+                }
+            }
+            return true;
+        }
+        if (opName === 'gpu.launch') {
+            if (parser.accept('[')) {
+                while (!parser.match(']')) {
+                    if (parser.match('%')) {
+                        const dep = {};
+                        dep.value = parser.expect('%');
+                        op.operands.push(dep);
+                        if (!parser.accept(',')) {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                parser.expect(']');
+            }
+            if (parser.accept('id', 'clusters')) {
+                this._parseSizeAssignment(parser, op);
+                parser.expect('id', 'in');
+                this._parseSizeAssignment(parser, op);
+            }
+            parser.expect('id', 'blocks');
+            this._parseSizeAssignment(parser, op);
+            parser.expect('id', 'in');
+            this._parseSizeAssignment(parser, op);
+            parser.expect('id', 'threads');
+            this._parseSizeAssignment(parser, op);
+            parser.expect('id', 'in');
+            this._parseSizeAssignment(parser, op);
+            if (parser.accept('id', 'dynamic_shared_memory_size')) {
+                const operand = {};
+                operand.value = parser.expect('%');
+                operand.name = 'dynamic_shared_memory_size';
+                op.operands.push(operand);
+            }
+            if (parser.accept('id', 'module')) {
+                parser.expect('(');
+                const moduleSymbol = parser.expect('@');
+                op.attributes.push({ name: 'module', value: moduleSymbol });
+                parser.expect(')');
+            }
+            if (parser.accept('id', 'function')) {
+                parser.expect('(');
+                const funcSymbol = parser.expect('@');
+                op.attributes.push({ name: 'function', value: funcSymbol });
+                parser.expect(')');
+            }
+            if (parser.accept('id', 'workgroup')) {
+                parser.expect('(');
+                while (!parser.match(')')) {
+                    parser.expect('%');
+                    parser.expect(':');
+                    parser.parseType();
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                parser.expect(')');
+            }
+            if (parser.accept('id', 'private')) {
+                parser.expect('(');
+                while (!parser.match(')')) {
+                    parser.expect('%');
+                    parser.expect(':');
+                    parser.parseType();
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                parser.expect(')');
+            }
+            if (parser.match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+            parser.parseOptionalAttrDict(op.attributes);
+            return true;
         }
         return super.parseOperation(parser, opName, op);
     }
 
-    _parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            for (const result of parser.parseFunctionResultList()) {
-                type.results.push(result);
-            }
-        }
-        op.attributes.push({ name: 'function_type', value: type });
-        if (parser.match('id', 'kernel')) {
-            parser.expect();
-            op.attributes.push({ name: 'gpu.kernel', value: true });
-        }
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        if (op.regions.length > 0) {
-            const region = op.regions[op.regions.length - 1];
-            if (region.blocks.length > 0) {
-                const block = region.blocks[region.blocks.length - 1];
-                if (block.operations.length > 0) {
-                    const lastOp = block.operations[block.operations.length - 1];
-                    type.results = lastOp.operands;
-                    block.operations.pop();
+    _parseSizeAssignment(parser, op) {
+        // Parse: (%id, %id, %id) or (%id = %val, %id = %val, %id = %val)
+        parser.expect('(');
+        while (!parser.match(')')) {
+            if (parser.match('%')) {
+                parser.expect('%');
+                if (parser.accept('=')) {
+                    const operand = {};
+                    operand.value = parser.expect('%');
+                    op.operands.push(operand);
                 }
+                if (!parser.accept(',')) {
+                    break;
+                }
+            } else {
+                break;
             }
         }
-        return true;
+        parser.expect(')');
     }
 
     _parseLaunchFuncOperands(parser /*, args */) {
@@ -8636,7 +8815,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'sdfg.copy' || opName === 'sdir.copy') {
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDict(op.attributes);
             op.operands = parser.parseArguments();
             if (parser.accept('->')) {
                 const dst = parser.parseArguments();
@@ -8674,7 +8853,10 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'sdir.get_access') {
-            op.operands = parser.parseArguments();
+            if (parser.match('%')) {
+                const value = parser.expect();
+                op.operands.push({ value });
+            }
             return true;
         }
         if (opName === 'sdir.call') {
@@ -8973,31 +9155,13 @@ mlir.TransformDialect = class extends mlir.Dialect {
         if (opName === 'transform.named_sequence') {
             return this._parseNamedSequenceOp(parser, op);
         }
-        if (opName === 'transform.structured.match') {
-            return this._parseStructuredMatchOp(parser, op);
-        }
-        if (opName === 'transform.get_result') {
-            return this._parseGetResultOp(parser, op);
-        }
-        if (opName === 'transform.func.cast_and_call') {
-            return this._parseFuncCastAndCallOp(parser, op);
-        }
-        if (opName === 'transform.func.replace_func_signature') {
-            return this._parseReplaceFuncSignatureOp(parser, op);
-        }
-        if (opName === 'transform.func.deduplicate_func_args') {
-            return this._parseDeduplicateFuncArgsOp(parser, op);
-        }
         if (opName.startsWith('transform.test.')) {
             const parsed = this._parseTestOp(parser, op);
             if (parsed === false) {
-                // _parseTestOp returned false, try parent's parsing
                 const hasSchema = super.parseOperation(parser, opName, op);
                 if (hasSchema) {
                     return true;
                 }
-                // No schema found - for transform.test operations, just parse location
-                // Don't use parseGenericOperationAfterOpName as it's too greedy
                 parser.parseOptionalAttrDict(op.attributes);
                 return true;
             }
@@ -9028,183 +9192,6 @@ mlir.TransformDialect = class extends mlir.Dialect {
             parser.parseRegion(region);
             op.regions.push(region);
         }
-        return true;
-    }
-
-    _parseStructuredMatchOp(parser, op) {
-        // Parse: ops{["foo"]} in %arg0 : (!transform.any_op) -> !transform.any_op
-        // or: ops{["foo", "bar"]} in %arg0 : (!transform.any_op) -> !transform.any_op
-        if (parser.accept('id', 'ops')) {
-            if (parser.accept('{')) {
-                const opsArray = parser.parseValue();
-                op.attributes.push({ name: 'ops', value: opsArray.value });
-                parser.expect('}');
-            }
-        }
-        if (parser.accept('id', 'in')) {
-            // Parse operands after 'in' keyword
-            while (parser.match('%')) {
-                const value = parser.expect('%');
-                op.operands.push({ value });
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-        }
-        if (parser.accept(':')) {
-            // Parse function type: (input_types) -> result_type
-            if (parser.accept('(')) {
-                const inputTypes = [];
-                while (!parser.match(')')) {
-                    inputTypes.push(parser.parseType());
-                    parser.accept(',');
-                }
-                parser.expect(')');
-                // Apply input types to operands
-                for (let i = 0; i < Math.min(inputTypes.length, op.operands.length); i++) {
-                    op.operands[i].type = inputTypes[i];
-                }
-            }
-            if (parser.accept('->')) {
-                const resultType = parser.parseType();
-                op.results.push({ type: resultType });
-            }
-        }
-        parser.parseOptionalAttrDict(op.attributes);
-        return true;
-    }
-
-    _parseFuncCastAndCallOp(parser, op) {
-        if (parser.match('@')) {
-            const funcName = parser.expect('@');
-            op.attributes.push({ name: 'function_name', value: funcName });
-        }
-        if (parser.match('%') && !parser.match('id', 'before') && !parser.match('id', 'after')) {
-            const funcHandle = parser.expect('%');
-            op.operands.push({ value: funcHandle, name: 'function' });
-        }
-        if (parser.accept('(')) {
-            while (!parser.match(')')) {
-                const value = parser.expect('%');
-                op.operands.push({ value, name: 'inputs' });
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-            parser.expect(')');
-        }
-        if (parser.accept('->')) {
-            while (!parser.match('id') && parser.match('%')) {
-                const value = parser.expect('%');
-                op.operands.push({ value, name: 'outputs' });
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-        }
-        if (parser.accept('id', 'after')) {
-            op.attributes.push({ name: 'insert_after', value: true });
-        } else {
-            parser.accept('id', 'before');
-        }
-        if (parser.match('%')) {
-            const insertionPoint = parser.expect('%');
-            op.operands.push({ value: insertionPoint, name: 'insertion_point' });
-        }
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        parser.parseOptionalAttrDict(op.attributes);
-        if (parser.accept(':')) {
-            parser.parseArgumentTypes(op.operands);
-            if (parser.accept('->')) {
-                parser.parseArgumentTypes(op.results);
-            }
-        }
-        return true;
-    }
-
-    _parseReplaceFuncSignatureOp(parser, op) {
-        if (parser.match('@')) {
-            const funcName = parser.expect('@');
-            op.attributes.push({ name: 'function_name', value: funcName });
-        }
-        if (parser.accept('id', 'args_interchange')) {
-            parser.expect('=');
-            const argsInterchange = parser.parseValue();
-            op.attributes.push({ name: 'args_interchange', value: argsInterchange.value });
-        }
-        if (parser.accept('id', 'results_interchange')) {
-            parser.expect('=');
-            const resultsInterchange = parser.parseValue();
-            op.attributes.push({ name: 'results_interchange', value: resultsInterchange.value });
-        }
-        if (parser.accept('id', 'at')) {
-            const module = parser.expect('%');
-            op.operands.push({ value: module, name: 'module' });
-        }
-        parser.parseOptionalAttrDict(op.attributes);
-        if (parser.accept(':')) {
-            parser.parseArgumentTypes(op.operands);
-            if (parser.accept('->')) {
-                parser.parseArgumentTypes(op.results);
-            }
-        }
-        return true;
-    }
-
-    _parseDeduplicateFuncArgsOp(parser, op) {
-        if (parser.match('@')) {
-            const funcName = parser.expect('@');
-            op.attributes.push({ name: 'function_name', value: funcName });
-        }
-        if (parser.accept('id', 'at')) {
-            const module = parser.expect('%');
-            op.operands.push({ value: module, name: 'module' });
-        }
-        parser.parseOptionalAttrDict(op.attributes);
-        if (parser.accept(':')) {
-            parser.parseArgumentTypes(op.operands);
-            if (parser.accept('->')) {
-                parser.parseArgumentTypes(op.results);
-            }
-        }
-        return true;
-    }
-
-    _parseGetResultOp(parser, op) {
-        // Parse: transform.get_result %op[0] : (!transform.any_op) -> !transform.any_value
-        if (parser.match('%')) {
-            const value = parser.expect('%');
-            op.operands.push({ value });
-        }
-        // Parse result index [N]
-        if (parser.accept('[')) {
-            const index = parser.expect('int');
-            op.attributes.push({ name: 'result_number', value: parseInt(index, 10) });
-            parser.expect(']');
-        }
-        // Parse type signature
-        if (parser.accept(':')) {
-            if (parser.accept('(')) {
-                const inputTypes = [];
-                while (!parser.match(')')) {
-                    inputTypes.push(parser.parseType());
-                    parser.accept(',');
-                }
-                parser.expect(')');
-                for (let i = 0; i < Math.min(inputTypes.length, op.operands.length); i++) {
-                    op.operands[i].type = inputTypes[i];
-                }
-            }
-            if (parser.accept('->')) {
-                const resultType = parser.parseType();
-                op.results.push({ type: resultType });
-            }
-        }
-        parser.parseOptionalAttrDict(op.attributes);
         return true;
     }
 

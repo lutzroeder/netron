@@ -3507,7 +3507,6 @@
     "target":   "wcr.mlir",
     "source":   "https://github.com/user-attachments/files/17788767/wcr.mlir.zip[wcr.mlir]",
     "format":   "MLIR",
-    "error":    "Unexpected operation name '=' at 9:8.",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
