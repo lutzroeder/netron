@@ -133,6 +133,7 @@ const main = async () => {
         path.join(source, 'plaidml'),
         path.join(source, 'mlir-dace', 'include'),
         path.join(source, 'lltz', 'mlir', 'dialect', 'include', 'Michelson'),
+        path.join(source, 'lagrad', 'include', 'LAGrad'),
     ];
     const dialects = [
         'mlir/IR/BuiltinAttributeInterfaces.td',
@@ -164,6 +165,21 @@ const main = async () => {
         'mlir/Dialect/X86Vector/X86Vector.td',
         'mlir/Dialect/XeGPU/IR/XeGPUOps.td',
         'mlir/Dialect/Transform/IR/TransformOps.td',
+        'mlir/Dialect/Linalg/TransformOps/LinalgTransformOps.td',
+        'mlir/Dialect/SCF/TransformOps/SCFTransformOps.td',
+        'mlir/Dialect/Bufferization/TransformOps/BufferizationTransformOps.td',
+        'mlir/Dialect/GPU/TransformOps/GPUTransformOps.td',
+        'mlir/Dialect/NVGPU/TransformOps/NVGPUTransformOps.td',
+        'mlir/Dialect/Affine/TransformOps/AffineTransformOps.td',
+        'mlir/Dialect/SparseTensor/TransformOps/SparseTensorTransformOps.td',
+        'mlir/Dialect/Tensor/TransformOps/TensorTransformOps.td',
+        'mlir/Dialect/Vector/TransformOps/VectorTransformOps.td',
+        'mlir/Dialect/MemRef/TransformOps/MemRefTransformOps.td',
+        'mlir/Dialect/Func/TransformOps/FuncTransformOps.td',
+        'mlir/Dialect/ArmNeon/TransformOps/ArmNeonVectorTransformOps.td',
+        'mlir/Dialect/ArmSVE/TransformOps/ArmSVEVectorTransformOps.td',
+        'mlir/Dialect/XeGPU/TransformOps/XeGPUTransformOps.td',
+        'mlir/Dialect/DLTI/TransformOps/DLTITransformOps.td',
         'mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/Dialect/IRDL/IR/IRDLOps.td',
         'mlir/Dialect/LLVMIR/LLVMOps.td',
@@ -241,6 +257,7 @@ const main = async () => {
         'triton/Dialect/Gluon/IR/GluonOps.td',
         'triton/Dialect/TritonNvidiaGPU/IR/TritonNvidiaGPUOps.td',
         'proton/Dialect/include/Dialect/Proton/IR/ProtonOps.td',
+        'LAGradOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -409,6 +426,10 @@ const main = async () => {
         const hasCustomAssemblyFormat = def.resolveField('hasCustomAssemblyFormat');
         if (hasCustomAssemblyFormat && hasCustomAssemblyFormat.value) {
             operation.hasCustomAssemblyFormat = def.evaluateValue(hasCustomAssemblyFormat.value);
+        }
+        const parser = def.resolveField('parser');
+        if (parser && parser.value) {
+            operation.parser = 1;
         }
         if (Object.keys(operation).length > 1) {
             operations.set(operationName, operation);
