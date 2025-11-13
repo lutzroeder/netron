@@ -3661,6 +3661,7 @@ python.Execution = class {
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
+        this.registerType('sklearn.metrics._scorer._Scorer', class {});
         this.registerType('sklearn.mixture._bayesian_mixture.BayesianGaussianMixture', class {});
         this.registerType('sklearn.mixture._gaussian_mixture.GaussianMixture', class {});
         this.registerType('sklearn.model_selection._search.GridSearchCV', class {});
