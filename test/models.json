@@ -7864,6 +7864,14 @@
   },
   {
     "type":     "tf",
+    "target":   "example_with_colon_in_name.pbtxt",
+    "source":   "https://github.com/user-attachments/files/23551439/example_with_colon_in_name.pbtxt.zip[example_with_colon_in_name.pbtxt]",
+    "format":   "TensorFlow Graph",
+    "assert":   "model.modules[0].nodes[0].outputs.length == 1",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
+  },
+  {
+    "type":     "tf",
     "target":   "exDeepFM-criteo.meta",
     "source":   "https://raw.githubusercontent.com/Leavingseason/xDeepFM/master/exdeepfm/checkpoint/epoch_0.meta",
     "format":   "TensorFlow MetaGraph",

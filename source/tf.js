@@ -1770,11 +1770,22 @@ tf.Context = class {
             node.output = [];
         }
         const node_output = (input) => {
-            const parts = input.split(':', 3);
-            let [name] = parts;
-            const index = parts.length === 1 ? 0 : parseInt(parts.pop(), 10);
+            let name = input;
+            let index = 0;
             const control = name.startsWith('^');
-            name = control ? name.substring(1) : name;
+            if (control) {
+                name = name.substring(1);
+            }
+            const colon = name.lastIndexOf(':');
+            if (colon !== -1) {
+                const suffix = name.substring(colon + 1);
+                const candidate = name.substring(0, colon);
+                const value = parseInt(suffix, 10);
+                if (!isNaN(value) && nodes.has(candidate) && !nodes.has(name)) {
+                    index = value;
+                    name = candidate;
+                }
+            }
             const from = nodes.get(name);
             if (from) {
                 for (let i = from.output.length; i <= index; i++) {
