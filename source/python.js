@@ -3566,6 +3566,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._gb.GradientBoostingRegressor', class {});
         this.registerType('sklearn.ensemble._hist_gradient_boosting.binning._BinMapper', class {});
         this.registerType('sklearn.ensemble._hist_gradient_boosting.gradient_boosting.HistGradientBoostingRegressor', class {});
+        this.registerType('sklearn.ensemble._hist_gradient_boosting.gradient_boosting.HistGradientBoostingClassifier', class {});
         this.registerType('sklearn.ensemble._hist_gradient_boosting.loss.LeastSquares', class {});
         this.registerType('sklearn.ensemble._hist_gradient_boosting.predictor.TreePredictor', class {});
         this.registerType('sklearn.ensemble._iforest.IsolationForest', class {});
