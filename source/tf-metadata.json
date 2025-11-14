@@ -9035,7 +9035,7 @@
       {
         "name": "Tout",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`.",
+        "description": "Need to be `tf.float32` when the type of `x` is `tf.complex64`.\nNeed to be `tf.float64` when the type of `x` is `tf.complex128`. Must be one of the following: `float32`, `float64`.",
         "default": {
           "type": "type",
           "value": 1
@@ -22684,7 +22684,7 @@
       {
         "name": "Tout",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`.",
+        "description": "Need to be `tf.float32` when the type of `x` is `tf.complex64`.\nNeed to be `tf.float64` when the type of `x` is `tf.complex128`. Must be one of the following: `float32`, `float64`.",
         "default": {
           "type": "type",
           "value": 1
