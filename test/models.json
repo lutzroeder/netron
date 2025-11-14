@@ -6305,6 +6305,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "mylib_custom_relu.pt2",
+    "source":   "https://github.com/user-attachments/files/23542222/mylib_custom_relu.pt2.zip[mylib_custom_relu.pt2]",
+    "format":   "PyTorch Export v8.14",
+    "error":    "Unknown type name 'torch.ops.mylib.custom_relu.default'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "netron_issue_313_v1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
     "format":   "TorchScript v1.0",

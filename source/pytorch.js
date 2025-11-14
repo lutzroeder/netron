@@ -573,6 +573,14 @@ pytorch.Node = class {
                     name = target.name();
                 } else if (builtins.isinstance(target, builtins.function)) {
                     name = target.__name__;
+                } else if (typeof target === 'string') {
+                    // Handle unresolved operators
+                    const match = target.match(/^torch\.ops\.([^.]+)\.(.+)$/);
+                    if (!match) {
+                        throw new pytorch.Error(`Unsupported target '${target}'.`);
+                    }
+                    const [, namespace, opname] = match;
+                    name = `${namespace}::${opname}`;
                 } else {
                     throw new pytorch.Error(`Unsupported target '${target}'.`);
                 }

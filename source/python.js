@@ -19277,6 +19277,16 @@ python.Execution = class {
                     const [args, kwargs] = this.deserialize_inputs(target, serialized_node);
                     fx_node = this.graph.create_node('call_function', target, args, kwargs, name);
                     this.deserialize_outputs(serialized_node, fx_node);
+                } else if (typeof target === 'string') {
+                    // Handle unresolved operators
+                    execution.emit('resolve', target);
+                    if (target.match(/^torch\.ops\.(aten|prim|quantized)\./)) {
+                        throw new python.Error(`Unsupported node target type '${target}'.`);
+                    }
+                    const [args, kwargs] = this.deserialize_hoo_inputs(serialized_node.inputs);
+                    const name = serialized_node.outputs.length === 1 && builtins.hasattr(serialized_node.outputs[0], 'as_tensor') ? serialized_node.outputs[0].as_tensor.name : null;
+                    fx_node = this.graph.create_node('call_function', target, args, kwargs, name);
+                    this.deserialize_outputs(serialized_node, fx_node);
                 } else {
                     throw new python.Error(`Unsupported node target type '${target}'.`);
                 }
