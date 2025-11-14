@@ -5501,6 +5501,18 @@
     "name": "aten::randperm.generator_out(SymInt n, *, Generator? generator, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::range.step(Scalar start, Scalar end, Scalar step=1, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+  },
+  {
+    "name": "aten::range(Scalar start, Scalar end, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+  },
+  {
+    "name": "aten::range.out(Scalar start, Scalar end, Scalar step=1, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::range.out_(Scalar start, Scalar end, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::real(Tensor(a) self) -> Tensor(a)"
   },
   {
