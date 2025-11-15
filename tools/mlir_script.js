@@ -75,7 +75,7 @@ class Operator {
             let dialectName = null;
             const dialectStr = this._extractValue(dialectArg);
             if (dialectStr) {
-                const dialectDef = this.def.parser.defs.get(dialectStr) || this.def.parser.classes.get(dialectStr);
+                const dialectDef = this.def.parser.getDef(dialectStr) || this.def.parser.getClass(dialectStr);
                 if (dialectDef) {
                     dialectName = dialectDef.getValueAsString('name');
                 }
@@ -154,6 +154,7 @@ const main = async () => {
         'mlir/Dialect/GPU/IR/GPUOps.td',
         'mlir/Dialect/SCF/IR/SCFOps.td',
         'mlir/Dialect/Linalg/IR/LinalgOps.td',
+        // 'mlir/Dialect/Linalg/IR/LinalgStructuredOps.td', // File not found 'mlir/Dialect/Linalg/IR/LinalgNamedStructuredOps.yamlgen.td'
         'mlir/Dialect/Linalg/IR/LinalgRelayoutOps.td',
         'mlir/Dialect/MemRef/IR/MemRefOps.td',
         'mlir/Dialect/Bufferization/IR/BufferizationOps.td',
@@ -184,7 +185,7 @@ const main = async () => {
         'mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/Dialect/IRDL/IR/IRDLOps.td',
         'mlir/Dialect/LLVMIR/LLVMOps.td',
-        // 'mlir/Dialect/OpenMP/OpenMPOps.td', // Requires llvm/include/llvm/Frontend/OpenMP/OMP.td for OmpCommon.td generation
+        // 'mlir/Dialect/OpenMP/OpenMPOps.td', // File not found 'mlir/Dialect/OpenMP/OmpCommon.td'
         'mlir/Dialect/ArmSME/IR/ArmSMEOps.td',
         'mlir/Dialect/ArmNeon/ArmNeon.td',
         'mlir/Dialect/ArmSVE/IR/ArmSVE.td',
@@ -275,7 +276,8 @@ const main = async () => {
     }
     const parser = new tablegen.Reader();
     await parser.parse(dialects, paths);
-    for (const [, def] of parser.defs) {
+    // Iterate over all defs from TableGen
+    for (const def of parser.defs) {
         const op = new Operator(def);
         const operationName = op.getOperationName();
         if (!operationName) {
@@ -285,6 +287,14 @@ const main = async () => {
             name: operationName
         };
         let args = def.resolveField('arguments');
+        // If the field value needs evaluation (e.g., it's a computed field), evaluate it
+        if (args && args.value && (args.value.type === 'id' || args.value.type === 'bang')) {
+            const evaluated = def.evaluateValue(args.value);
+            if (evaluated && typeof evaluated === 'object' && evaluated.operator) {
+                // The evaluation returned a DAG directly
+                args = { value: new tablegen.Value('dag', evaluated) };
+            }
+        }
         if (!args || !args.value || args.value.type !== 'dag' || (args.value.value && args.value.value.operands && args.value.value.operands.length === 0)) {
             for (const parent of def.parents) {
                 if (parent.name === 'Arguments' && parent.args && parent.args.length > 0) {
@@ -433,6 +443,38 @@ const main = async () => {
         if (parser && parser.value) {
             operation.parser = 1;
         }
+        // Extract defaultDialect from OpAsmOpInterface
+        for (const parent of def.parents) {
+            const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
+            for (const traitsArg of possibleTraitArgs) {
+                if (traitsArg && traitsArg.type === 'list' && traitsArg.value) {
+                    for (const trait of traitsArg.value) {
+                        const traitName = trait.type === 'def' ? trait.value : null;
+                        const traitDag = trait.type === 'dag' && trait.value?.operator ? trait.value.operator : null;
+                        if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
+                            const extraClass = def.resolveField('extraClassDeclaration');
+                            if (extraClass && extraClass.value) {
+                                const code = def.evaluateValue(extraClass.value);
+                                if (code && typeof code === 'string') {
+                                    const match = code.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
+                                    if (match) {
+                                        [, operation.defaultDialect] = match;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (operation.defaultDialect) {
+                        break;
+                    }
+                }
+            }
+            if (operation.defaultDialect) {
+                break;
+            }
+        }
+        // Only add operation if it has meaningful data beyond just the name
         if (Object.keys(operation).length > 1) {
             operations.set(operationName, operation);
         }
