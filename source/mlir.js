@@ -927,6 +927,8 @@ mlir.Parser = class {
         this._dialects.set('gluon', new mlir.GluonDialect(operations));
         this._dialects.set('ttng', new mlir.TritonNvidiaGPUDialect(operations));
         this._dialects.set('nvidia_gpu', this._dialects.get('ttng'));
+        this._dialects.set('amdg', new mlir.TritonAMDGPUDialect(operations));
+        this._dialects.set('amd_gpu', this._dialects.get('amdg'));
         this._dialects.set('michelson', new mlir.MichelsonDialect(operations));
         this._redirect = new Map([
             ['builtin.constant', 'arith.constant'],
@@ -1285,12 +1287,6 @@ mlir.Parser = class {
     parseCustomOperation(results) {
         const opNameInfo = this.parseCustomOperationName();
         const op = { name: opNameInfo, results, attributes: [], operands: [], regions: [] };
-        if (op.name.startsWith('triton_gpu.')) {
-            op.name = op.name.replace('triton_gpu.', 'ttg.');
-        }
-        if (op.name.startsWith('nvidia_gpu.')) {
-            op.name = op.name.replace('nvidia_gpu.', 'ttng.');
-        }
         if (this._redirect.has(op.name)) {
             op.name = this._redirect.get(op.name);
         }
@@ -2851,9 +2847,7 @@ mlir.AssemblyFormatParser = class {
         this._skipWhitespace();
         while (this._pos < this._format.length) {
             const directive = this._parseDirective();
-            if (directive) {
-                directives.push(directive);
-            }
+            directives.push(directive);
             this._skipWhitespace();
         }
         return directives;
@@ -2861,8 +2855,10 @@ mlir.AssemblyFormatParser = class {
 
     _parseDirective() {
         const ch = this._format[this._pos];
+        if (!ch || this._pos >= this._format.length) {
+            throw new mlir.Error(`Unexpected end of format string at position ${this._pos}`);
+        }
         // Optional group: (...)?
-        // Check if this is the start of an optional group by looking ahead for `?` after matching `)`
         if (ch === '(') {
             // Look ahead to see if this is an optional group
             const savedPos = this._pos;
@@ -2881,32 +2877,17 @@ mlir.AssemblyFormatParser = class {
             // Check if there's a '?' after the ')'
             tempPos = this._skipWhitespaceAt(tempPos);
             const isOptional = tempPos < this._format.length && this._format[tempPos] === '?';
-
             if (isOptional) {
                 // This is an optional group - parse it as a single directive
                 const elements = [];
                 let anchorElement = null;
                 this._skipWhitespace();
-                let loopCount = 0;
-                const maxLoops = 100;
                 while (this._pos < this._format.length && this._format[this._pos] !== ')') {
-                    if (loopCount++ > maxLoops) {
-                        throw new Error(`Infinite loop detected in optional group parsing at position ${this._pos}`);
-                    }
-                    const startPos = this._pos;
                     const elem = this._parseDirective();
-                    if (elem) {
-                        // Check if this element has an anchor marker
-                        if (elem.anchor) {
-                            anchorElement = elem.name || elem.type;
-                        }
-                        elements.push(elem);
+                    if (elem.anchor) {
+                        anchorElement = elem.name || elem.type;
                     }
-                    // Safety check: ensure we're making progress
-                    if (this._pos === startPos) {
-                        // If we didn't advance, skip one character to prevent infinite loop
-                        this._pos++;
-                    }
+                    elements.push(elem);
                     this._skipWhitespace();
                 }
                 this._pos++; // skip ')'
@@ -2914,7 +2895,38 @@ mlir.AssemblyFormatParser = class {
                 this._pos++; // skip '?'
                 return { type: 'optional_group', elements, anchor: anchorElement };
             }
-            // Not an optional group, restore position and treat '(' as literal
+            const colonPos = this._skipWhitespaceAt(tempPos);
+            if (colonPos < this._format.length && this._format[colonPos] === ':') {
+                this._skipWhitespace();
+                const firstAlt = [];
+                while (this._pos < this._format.length && this._format[this._pos] !== ')') {
+                    const elem = this._parseDirective();
+                    firstAlt.push(elem);
+                    this._skipWhitespace();
+                }
+                this._pos++; // skip ')'
+                this._skipWhitespace();
+                this._pos++; // skip ':'
+                this._skipWhitespace();
+                const secondAlt = [];
+                let isSecondOptional = false;
+                if (this._pos < this._format.length && this._format[this._pos] === '(') {
+                    this._pos++; // skip '('
+                    this._skipWhitespace();
+                    while (this._pos < this._format.length && this._format[this._pos] !== ')') {
+                        const elem = this._parseDirective();
+                        secondAlt.push(elem);
+                        this._skipWhitespace();
+                    }
+                    this._pos++; // skip ')'
+                    this._skipWhitespace();
+                    if (this._pos < this._format.length && this._format[this._pos] === '?') {
+                        isSecondOptional = true;
+                        this._pos++; // skip '?'
+                    }
+                }
+                return { type: 'conditional_alternative', firstAlt, secondAlt, secondOptional: isSecondOptional };
+            }
             this._pos = savedPos;
         }
         // Literal: `keyword`
@@ -2924,7 +2936,7 @@ mlir.AssemblyFormatParser = class {
             this._pos++; // skip closing `
             // MLIR reference: Empty literals (`` or ` `) are whitespace, not literals
             if (value.length === 0 || value === ' ' || value === '\\n') {
-                return null; // Skip whitespace elements
+                return { type: 'whitespace', value }; // Return whitespace as a directive
             }
             return { type: 'literal', value };
         }
@@ -2966,12 +2978,22 @@ mlir.AssemblyFormatParser = class {
         if (remaining.startsWith('type(')) {
             this._pos += 'type'.length;
             const args = this._parseParenList();
-            return { type: 'type', args };
+            let hasAnchor = false;
+            if (this._pos < this._format.length && this._format[this._pos] === '^') {
+                hasAnchor = true;
+                this._pos++; // consume '^'
+            }
+            return { type: 'type', args, anchor: hasAnchor };
         }
         if (remaining.startsWith('qualified(')) {
             this._pos += 'qualified'.length;
             const args = this._parseParenList();
-            return { type: 'qualified', args };
+            let hasAnchor = false;
+            if (this._pos < this._format.length && this._format[this._pos] === '^') {
+                hasAnchor = true;
+                this._pos++; // consume '^'
+            }
+            return { type: 'qualified', args, anchor: hasAnchor };
         }
         if (remaining.startsWith('attr-dict-with-keyword')) {
             this._pos += 'attr-dict-with-keyword'.length;
@@ -2980,6 +3002,43 @@ mlir.AssemblyFormatParser = class {
         if (remaining.startsWith('attr-dict')) {
             this._pos += 'attr-dict'.length;
             return { type: 'attr_dict' };
+        }
+        if (remaining.startsWith('prop-dict')) {
+            this._pos += 'prop-dict'.length;
+            return { type: 'prop_dict' };
+        }
+        if (remaining.startsWith('params')) {
+            this._pos += 'params'.length;
+            return { type: 'params' };
+        }
+        if (remaining.startsWith('struct(')) {
+            this._pos += 'struct('.length;
+            const args = [];
+            // Parse struct arguments - simplified for now
+            while (this._pos < this._format.length && this._format[this._pos] !== ')') {
+                this._skipWhitespace();
+                if (this._format[this._pos] === ')') {
+                    break;
+                }
+                const arg = this._parseDirective();
+                args.push(arg);
+                this._skipWhitespace();
+                if (this._format[this._pos] === ',') {
+                    this._pos++;
+                }
+            }
+            this._pos++; // skip ')'
+            return { type: 'struct', args };
+        }
+        if (remaining.startsWith('ref(')) {
+            this._pos += 'ref('.length;
+            const arg = this._parseDirective();
+            this._skipWhitespace();
+            if (this._format[this._pos] !== ')') {
+                throw new mlir.Error(`Expected ')' after ref argument at position ${this._pos}`);
+            }
+            this._pos++; // skip ')'
+            return { type: 'ref', arg };
         }
         if (remaining.startsWith('operands')) {
             this._pos += 'operands'.length;
@@ -3000,17 +3059,32 @@ mlir.AssemblyFormatParser = class {
         if (remaining.startsWith('functional-type')) {
             this._pos += 'functional-type'.length;
             const args = this._parseParenList();
-            return { type: 'functional_type', args };
+            let hasAnchor = false;
+            if (this._pos < this._format.length && this._format[this._pos] === '^') {
+                hasAnchor = true;
+                this._pos++; // consume '^'
+            }
+            return { type: 'functional_type', args, anchor: hasAnchor };
         }
         if (remaining.startsWith('custom<')) {
             this._pos += 'custom<'.length;
             const parser = this._parseUntil('>');
             this._pos++; // consume '>'
             const args = this._parseParenList();
-            return { type: 'custom', parser, args };
+            let hasAnchor = false;
+            if (this._pos < this._format.length && this._format[this._pos] === '^') {
+                hasAnchor = true;
+                this._pos++; // consume '^'
+            }
+            return { type: 'custom', parser, args, anchor: hasAnchor };
         }
-        if (remaining.startsWith('oilist(')) {
-            this._pos += 'oilist('.length;
+        if (remaining.startsWith('oilist')) {
+            this._pos += 'oilist'.length;
+            this._skipWhitespace();
+            if (this._format[this._pos] !== '(') {
+                throw new mlir.Error(`Expected '(' after 'oilist' at position ${this._pos}`);
+            }
+            this._pos++; // skip '('
             let content = '';
             let depth = 1;
             while (this._pos < this._format.length && depth > 0) {
@@ -3036,8 +3110,14 @@ mlir.AssemblyFormatParser = class {
             this._pos++;
             return { type: 'literal', value: ch };
         }
-        this._pos++;
-        return null;
+        // Standalone '^' should not appear in format strings - it's only used as an anchor marker after variables
+        if (ch === '^') {
+            const context = this._format.substring(Math.max(0, this._pos - 30), Math.min(this._format.length, this._pos + 20));
+            throw new mlir.Error(`Unexpected '^' character at position ${this._pos}. '^' can only be used as an anchor marker after variables. Context: ...${context}...`);
+        }
+        // Unrecognized character in format string - this is an error
+        const context = this._format.substring(Math.max(0, this._pos - 10), Math.min(this._format.length, this._pos + 10));
+        throw new mlir.Error(`Unrecognized character '${ch}' in assembly format at position ${this._pos}. Context: ...${context}...`);
     }
 
     _parseIdentifier() {
@@ -3140,6 +3220,7 @@ mlir.Dialect = class {
         this.registerCustomParser('CustomCallTarget', this._parseCustomCallTarget.bind(this));
         this.registerCustomParser('VariadicOperandWithAttribute', this._parseVariadicOperandWithAttribute.bind(this));
         this.registerCustomParser('DynamicIndexList', this._parseDynamicIndexList.bind(this));
+        this.registerCustomParser('PackedOrDynamicIndexList', this._parseDynamicIndexList.bind(this));
         this.registerCustomParser('Offsets', this._parseOffsets.bind(this));
         this.registerCustomParser('SymbolVisibility', this._parseSymbolVisibility.bind(this));
         this.registerCustomParser('SymbolAlias', this._parseSymbolAlias.bind(this));
@@ -3201,6 +3282,9 @@ mlir.Dialect = class {
             const directive = directives[i];
             opInfo.hasParseOperation = false;
             switch (directive.type) {
+                case 'whitespace':
+                    // Skip whitespace directives - they're just formatting hints
+                    break;
                 case 'literal':
                     parser.expect(null, directive.value);
                     break;
@@ -3522,6 +3606,84 @@ mlir.Dialect = class {
                     break;
                 }
                 case 'oilist': {
+                    const clauses = directive.content.split('|').map((c) => c.trim());
+                    const parsedClauses = [];
+                    for (const clauseStr of clauses) {
+                        const clauseParser = new mlir.AssemblyFormatParser({ assemblyFormat: clauseStr });
+                        const elements = clauseParser.parse();
+                        parsedClauses.push({ elements, parsed: false });
+                    }
+                    let progress = true;
+                    while (progress) {
+                        progress = false;
+                        for (const clause of parsedClauses) {
+                            if (clause.parsed) {
+                                continue;
+                            }
+                            if (clause.elements.length === 0) {
+                                continue;
+                            }
+                            const [firstElem] = clause.elements;
+                            let matches = false;
+                            if (firstElem.type === 'literal') {
+                                if (firstElem.value.length === 1 && /[(){}[\],:<>=]/.test(firstElem.value)) {
+                                    matches = parser.match(firstElem.value);
+                                } else {
+                                    matches = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
+                                }
+                            }
+                            if (matches) {
+                                for (let j = 0; j < directives.length; j++) {
+                                    if (j === i) {
+                                        for (const elem of clause.elements) {
+                                            switch (elem.type) {
+                                                case 'literal':
+                                                    parser.expect(null, elem.value);
+                                                    break;
+                                                case 'operand_ref': {
+                                                    // Parse the operand or attribute directly
+                                                    const refName = elem.name;
+                                                    let isAttribute = false;
+                                                    if (opInfo.metadata && opInfo.metadata.attributes) {
+                                                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
+                                                        if (attrInfo) {
+                                                            isAttribute = true;
+                                                        }
+                                                    }
+                                                    if (isAttribute) {
+                                                        const attrValue = parser.parseValue();
+                                                        op.attributes.push({ name: refName, value: attrValue.value === undefined ? attrValue : attrValue.value });
+                                                    } else if (parser.match('%') || parser.match('@')) {
+                                                        const operand = parser.parseValue();
+                                                        op.operands.push(operand);
+                                                    }
+                                                    break;
+                                                }
+                                                case 'custom': {
+                                                    const fn = this._customParsers.get(elem.parser);
+                                                    if (fn) {
+                                                        const result = fn(parser, elem.args);
+                                                        if (result && result.kind === 'DynamicIndexList' && result.indices) {
+                                                            if (elem.args && elem.args.length > 0) {
+                                                                const argName = elem.args[0].replace(/^\$/, '');
+                                                                op.attributes.push({ name: argName, value: result.indices });
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                clause.parsed = true;
+                                progress = true;
+                            }
+                        }
+                    }
                     break;
                 }
                 case 'optional_group': {
@@ -3602,8 +3764,14 @@ mlir.Dialect = class {
                                         }
                                     }
                                     if (isAttribute) {
+                                        // Check if this is a UnitAttr (boolean attribute indicated by keyword presence)
+                                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
+                                        const isUnitAttr = attrInfo && attrInfo.type === 'UnitAttr';
                                         let attrValue = null;
-                                        if (elem.anchor && parser.match('<')) {
+                                        if (isUnitAttr && elem.anchor) {
+                                            // UnitAttr with anchor: presence indicates true, no value to parse
+                                            attrValue = true;
+                                        } else if (elem.anchor && parser.match('<')) {
                                             parser.expect('<');
                                             const flags = [];
                                             while (!parser.match('>')) {
@@ -3620,11 +3788,13 @@ mlir.Dialect = class {
                                             }
                                             parser.expect('>');
                                             attrValue = flags.length === 1 ? flags[0] : flags.join(',');
-                                        } else {
+                                        } else if (!isUnitAttr) {
                                             const value = parser.parseValue();
                                             attrValue = value.value === undefined ? value : value.value;
                                         }
-                                        op.attributes.push({ name: refName, value: attrValue });
+                                        if (attrValue !== null) {
+                                            op.attributes.push({ name: refName, value: attrValue });
+                                        }
                                     } else if (isVariadic) {
                                         while (parser.match('%')) {
                                             const operand = parser.parseValue();
@@ -3636,9 +3806,13 @@ mlir.Dialect = class {
                                     } else if (parser.match('%') || parser.match('@') || parser.match('#') || parser.match('[')) {
                                         const operand = parser.parseValue();
                                         op.operands.push(operand);
-                                        while (parser.accept(',') && parser.match('%')) {
-                                            const nextOperand = parser.parseValue();
-                                            op.operands.push(nextOperand);
+                                        // Only consume additional comma-separated operands if this is not an anchored operand
+                                        // (anchored operands are explicitly named in the format and should be parsed individually)
+                                        if (!elem.anchor) {
+                                            while (parser.accept(',') && parser.match('%')) {
+                                                const nextOperand = parser.parseValue();
+                                                op.operands.push(nextOperand);
+                                            }
                                         }
                                     }
                                     break;
@@ -3727,9 +3901,50 @@ mlir.Dialect = class {
                                     }
                                     break;
                                 }
+                                case 'whitespace':
+                                    break;
                                 default: {
                                     throw new mlir.Error(`Unsupported directive type '${elem.type}' ${parser.location()}.`);
                                 }
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'conditional_alternative': {
+                    // Try to match first alternative
+                    const [firstElem] = directive.firstAlt;
+                    let matchedFirst = false;
+                    if (firstElem && firstElem.type === 'literal') {
+                        matchedFirst = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
+                    }
+
+                    if (matchedFirst) {
+                        // Parse first alternative - for now just consume the keyword
+                        for (const elem of directive.firstAlt) {
+                            if (elem.type === 'literal') {
+                                parser.expect(null, elem.value);
+                            }
+                        }
+                    } else if (directive.secondOptional) {
+                        // Second alternative is optional, try to parse it
+                        const [secondElem] = directive.secondAlt;
+                        let matchedSecond = false;
+                        if (secondElem && secondElem.type === 'literal') {
+                            matchedSecond = parser.match('id', secondElem.value) || parser.match('keyword', secondElem.value);
+                        }
+                        if (matchedSecond) {
+                            for (const elem of directive.secondAlt) {
+                                if (elem.type === 'literal') {
+                                    parser.expect(null, elem.value);
+                                }
+                            }
+                        }
+                    } else {
+                        // Second alternative is required, parse it
+                        for (const elem of directive.secondAlt) {
+                            if (elem.type === 'literal') {
+                                parser.expect(null, elem.value);
                             }
                         }
                     }
@@ -4895,6 +5110,20 @@ mlir.TorchDialect = class extends mlir.Dialect {
                 op.attributes.push({ name: 'value', value });
             }
             return true;
+        }
+        if (opName.startsWith('torch.onnx.')) {
+            const operator = this._operations.get(opName);
+            if (operator && operator.metadata && operator.metadata.hasCustomAssemblyFormat) {
+                op.operands = parser.parseArguments();
+                if (parser.accept(':')) {
+                    parser.parseArgumentTypes(op.operands);
+                }
+                if (parser.accept('->')) {
+                    const resultType = parser.parseType();
+                    op.results.push({ type: resultType });
+                }
+                return true;
+            }
         }
         if (opName.startsWith('torch.aten.') || (opName.startsWith('torch.prim.'))) {
             const operator = this._operations.get(opName);
@@ -8474,6 +8703,71 @@ mlir.TFDeviceDialect = class extends mlir.Dialect {
     constructor(operations) {
         super('tf_device', operations);
     }
+
+    parseOperation(parser, opName, op) {
+        if (opName === 'tf_device.replicate') {
+            return this._parseReplicateOp(parser, op);
+        }
+        return super.parseOperation(parser, opName, op);
+    }
+
+    _parseReplicateOp(parser, op) {
+        if (!parser.accept('(')) {
+            parser.parseOptionalAttrDict(op.attributes);
+            if (parser.match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+            return true;
+        }
+        if (parser.match(')')) {
+            parser.expect(')');
+            parser.parseOptionalAttrDict(op.attributes);
+            if (parser.match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+            return true;
+        }
+        do {
+            if (parser.match('[')) {
+                const replicatedInputs = [];
+                parser.expect('[');
+                while (!parser.accept(']')) {
+                    const value = parser.expect('%');
+                    replicatedInputs.push({ value });
+                    if (!parser.accept(',')) {
+                        parser.expect(']');
+                        break;
+                    }
+                }
+                parser.expect('id', 'as');
+                const blockArg = parser.expect('%');
+                parser.expect(':');
+                const type = parser.parseType();
+                op.operands.push({ name: 'replicated_inputs', value: replicatedInputs, blockArg, type });
+            } else if (parser.match('%')) {
+                const value = parser.expect('%');
+                parser.expect('id', 'as');
+                const blockArg = parser.expect('%');
+                parser.expect(':');
+                const type = parser.parseType();
+                op.operands.push({ name: 'packed_inputs', value, blockArg, type });
+            } else {
+                break;
+            }
+        } while (parser.accept(','));
+        parser.expect(')');
+        parser.parseOptionalAttrDict(op.attributes);
+        if (parser.match('{')) {
+            const region = {};
+            parser.parseRegion(region);
+            op.regions.push(region);
+        }
+        return true;
+    }
 };
 
 mlir.TFExecutorDialect = class extends mlir.Dialect {
@@ -8495,6 +8789,35 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
         }
         if (opName === 'tf_executor.island') {
             return this._parseIslandOp(parser, op);
+        }
+        if (opName === 'tf_executor.Switch' || opName === 'tf_executor.Merge') {
+            op.operands = parser.parseArguments();
+            if (parser.accept(':')) {
+                const type = parser.parseType();
+                if (type.startsWith('(') || type.includes('->')) {
+                    const funcType = type;
+                    const match = funcType.match(/^\((.*?)\)\s*->\s*\((.*?)\)$/);
+                    if (match) {
+                        const inputTypes = match[1].split(',').map((t) => t.trim());
+                        const outputTypes = match[2].split(',').map((t) => t.trim());
+                        for (let i = 0; i < op.operands.length && i < inputTypes.length; i++) {
+                            op.operands[i].type = inputTypes[i];
+                        }
+                        for (const outputType of outputTypes) {
+                            op.results.push({ type: outputType });
+                        }
+                    }
+                } else {
+                    for (const operand of op.operands) {
+                        operand.type = type;
+                    }
+                    op.results.push({ type });
+                    op.results.push({ type });
+                    op.results.push({ type: '!tf_executor.control' });
+                }
+            }
+            parser.parseOptionalAttrDict(op.attributes);
+            return true;
         }
         return super.parseOperation(parser, opName, op);
     }
@@ -9485,26 +9808,6 @@ mlir.TritonDialect = class extends mlir.Dialect {
     }
 
     parseOperation(parser, opName, op) {
-        if (opName === 'tt.reshape') {
-            this._operations.get(opName).hasParseOperation = false;
-            op.operands = parser.parseArguments();
-            if (parser.accept('id', 'allow_reorder')) {
-                op.attributes.push({ name: 'allow_reorder', value: true });
-            }
-            if (parser.accept('id', 'efficient_layout')) {
-                op.attributes.push({ name: 'efficient_layout', value: true });
-            }
-            if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
-            }
-            if (parser.accept(':')) {
-                parser.parseArgumentTypes(op.operands);
-            }
-            if (parser.accept('->')) {
-                parser.parseArgumentTypes(op.results);
-            }
-            return true;
-        }
         if (opName === 'tt.func') {
             parser.parseOptionalVisibilityKeyword(op.attributes);
             parser.parseSymbolName('sym_name', op.attributes);
@@ -9644,6 +9947,24 @@ mlir.TritonNvidiaGPUDialect = class extends mlir.Dialect {
 
     parseType(parser, dialectType) {
         if (dialectType.startsWith('!ttng.')) {
+            if (parser.match('<')) {
+                const content = parser.skip('<', '>');
+                return dialectType + content;
+            }
+            return dialectType;
+        }
+        return null;
+    }
+};
+
+mlir.TritonAMDGPUDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        super('amdg', operations);
+    }
+
+    parseType(parser, dialectType) {
+        if (dialectType.startsWith('!amdg.')) {
             if (parser.match('<')) {
                 const content = parser.skip('<', '>');
                 return dialectType + content;

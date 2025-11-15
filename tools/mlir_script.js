@@ -125,6 +125,7 @@ const main = async () => {
         path.join(source, 'torch-mlir', 'include'),
         path.join(source, 'triton', 'include'),
         path.join(source, 'triton', 'third_party'),
+        path.join(source, 'triton', 'third_party', 'amd', 'include', 'Dialect', 'TritonAMDGPU', 'IR'),
         path.join(source, 'mlir-hlo', 'include'),
         path.join(source, 'iree', 'compiler', 'src'),
         path.join(source, 'FlashTensor', 'include'),
@@ -256,6 +257,7 @@ const main = async () => {
         'triton/Dialect/TritonGPU/IR/TritonGPUOps.td',
         'triton/Dialect/Gluon/IR/GluonOps.td',
         'triton/Dialect/TritonNvidiaGPU/IR/TritonNvidiaGPUOps.td',
+        'amd/include/Dialect/TritonAMDGPU/IR/TritonAMDGPUOps.td',
         'proton/Dialect/include/Dialect/Proton/IR/ProtonOps.td',
         'LAGradOps.td',
     ];
