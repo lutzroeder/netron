@@ -5472,6 +5472,499 @@ python.Execution = class {
         this.registerType('torch._C._TensorBase', class extends builtins.object {});
         this.registerType('torch._C._TensorMeta', class extends builtins.type {});
         this.registerType('torch._C._VariableFunctionsClass', class extends builtins.object {});
+        this.registerType('torch._C.SchemaParser', class {
+            constructor(str, allow_typevars) {
+                this.L = new torch._C.Lexer(str);
+                this.type_parser = new torch._C.SchemaTypeParser(this.L, false, allow_typevars);
+            }
+            parseName() {
+                const L = this.L;
+                let name = L.expect('id').text();
+                if (L.nextIf(':')) {
+                    L.expect(':');
+                    name = `${name}::${L.expect('ident').text()}`;
+                }
+                let overload_name = '';
+                if (L.nextIf('.')) {
+                    overload_name = L.expect('ident').text();
+                }
+                // const is_a_valid_overload_name = !((overload_name === "default") || (overload_name.rfind("__", 0) == 0));
+                // TORCH_CHECK(is_a_valid_overload_name, overload_name, " is not a legal overload name for aten operators");
+                return new torch._C.OperatorName(name, overload_name);
+            }
+            parseDeclaration() {
+                const L = this.L;
+                const name = this.parseName();
+                if (L.cur().kind !== '(') {
+                    return name;
+                }
+                throw new python.Error('Not implemented.');
+            }
+            parseExactlyOneDeclaration() {
+                // const L = this.L;
+                const result = this.parseDeclaration();
+                // L.nextIf(TK_NEWLINE);
+                // L.expect(TK_EOF);
+                return result;
+            }
+            parseArgument(idx, is_return, kwarg_only) {
+                const L = this.L;
+                const type_parser = this.type_parser;
+                let [fake_type, real_type, alias_info] = type_parser.parseFakeAndRealType();
+                let N = null;
+                if (L.nextIf('[')) {
+                    fake_type = torch.ListType.create(fake_type);
+                    real_type = torch.ListType.create(real_type);
+                    if (L.cur().kind === '#') {
+                        N = Number(L.cur().text());
+                        L.next();
+                    }
+                    L.expect(']');
+                    let container = type_parser.parseAliasAnnotation();
+                    if (alias_info) {
+                        if (!container) {
+                            container = new torch._C.AliasInfo();
+                            container.is_write = alias_info.is_write;
+                        }
+                        container.addContainedType(alias_info);
+                    }
+                    alias_info = container;
+                    if (L.nextIf('?')) {
+                        fake_type = torch.OptionalType.create(fake_type);
+                        real_type = torch.OptionalType.create(real_type);
+                    }
+                }
+                let name = null;
+                /* eslint-disable no-undef-init */
+                let default_value = undefined;
+                /* eslint-enable no-undef-init */
+                if (is_return) {
+                    kwarg_only = false;
+                    if (L.cur().kind === 'id') {
+                        name = L.next().text();
+                    } else {
+                        name = '';
+                    }
+                } else {
+                    name = L.expect('id').text();
+                    if (L.nextIf('=')) {
+                        default_value = this.parseDefaultValue(fake_type, fake_type.kind(), real_type, N);
+                    }
+                }
+                return new torch.Argument(name, fake_type, real_type, N, default_value, kwarg_only, alias_info);
+            }
+            parseDefaultValue(arg_type, kind, real_type, arg_N) {
+                // auto range = L.cur().range;
+                const L = this.L;
+                const range = null;
+                switch (kind) {
+
+                    case torch._C.TypeKind.StringType:
+                    case torch._C.TypeKind.OptionalType:
+                    case torch._C.TypeKind.NumberType:
+                    case torch._C.TypeKind.IntType:
+                    case torch._C.TypeKind.BoolType:
+                    case torch._C.TypeKind.FloatType:
+                    case torch._C.TypeKind.ComplexType:
+                        return this.parseSingleConstant(arg_type, kind, real_type);
+                    case torch._C.TypeKind.ListType: {
+                        const elem_type = arg_type.containedType(0);
+                        const real_elem_type = real_type.containedType(0);
+                        if (L.cur().kind === 'id') {
+                            return this.parseTensorDefault(range);
+                        } else if (arg_N && L.cur().kind !== '[') {
+                            const v = this.parseSingleConstant(elem_type, elem_type.kind(), real_elem_type);
+                            const repeated = Array(arg_N).fill(v);
+                            // std::vector<IValue> repeated(arg_N, v);
+                            return this.convertToList(elem_type, elem_type.kind(), range, repeated);
+                        }
+                        return this.parseConstantList(elem_type, elem_type.kind(), real_elem_type);
+                    }
+                    case torch._C.TypeKind.DynamicType:
+                        return this.parseDefaultValue(arg_type, arg_type.dynamicKind(), real_type, arg_N);
+                    default:
+                        throw new python.Error(`Unsupported default value kind '${kind}'.`);
+                }
+            }
+            parseSingleConstant(type, kind, real_type) {
+                const L = this.L;
+                if (kind === torch._C.TypeKind.DynamicType) {
+                    return this.parseSingleConstant(type, type.dynamicKind(), real_type);
+                }
+                // const auto& str2dtype = c10::getStringToDtypeMap();
+                if (L.cur().kind === 'id') {
+                    if (L.cur().text() === 'True') {
+                        L.next();
+                        return new torch._C.IValue(true);
+                    }
+                    if (L.cur().text() === 'False') {
+                        L.next();
+                        return new torch._C.IValue(false);
+                    }
+                    if (L.cur().text() === 'None') {
+                        L.next();
+                        return new torch._C.IValue();
+                    }
+                } else if (L.cur().kind === 'string') {
+                    const token = L.next();
+                    return new torch._C.IValue(torch._C.parseStringLiteral(null, token.text()));
+                } else if (L.cur().kind === '#') {
+                    let n = '';
+                    if (L.nextIf('-')) {
+                        n = `-${L.expect('#').text()}`; // # .text();
+                    } else {
+                        n = L.expect('#').text(); // # .text();
+                    }
+                    if (kind === torch._C.TypeKind.ComplexType || n.indexOf('j') !== -1) {
+                        throw new Error("Complex type not implemented.");
+                        /*
+                        const imag = std::stod(n.substr(0, n.size() - 1));
+                        return c10::complex<double>(0, imag);
+                        */
+                    } else if (kind === torch._C.TypeKind.FloatType || n.indexOf('.') !== -1 || n.indexOf('e') !== -1) {
+                        const v = parseFloat(n);
+                        return new torch._C.IValue(v, 'Double');
+                    } else {
+                        const v = parseInt(n, 10);
+                        return new torch._C.IValue(v, 'Int');
+                    }
+                }
+                throw new python.Error('Not implemented.');
+                /*
+                switch (L.cur().kind) {
+                    case TK_TRUE:
+                        L.next();
+                        return true;
+                    case TK_FALSE:
+                        L.next();
+                        return false;
+                    case TK_NONE:
+                        L.next();
+                        return IValue();
+                    case TK_STRINGLITERAL: {
+                        const token = L.next();
+                        return parseStringLiteral(token.range, token.text());
+                    }
+                    case TK_IDENT: {
+                        const tok = L.next();
+                        const text_view = tok.text_view();
+                        // NB: float/complex/long are here for BC purposes. Other dtypes
+                        // are handled via str2dtype.
+                        // Please don't add more cases to this if-else block.
+                        if ("float" == text_view) {
+                            return static_cast<int64_t>("at::kFloat");
+                        } else if ("complex" == text_view) {
+                            return static_cast<int64_t>("at::kComplexFloat");
+                        } else if ("long" == text_view) {
+                            return static_cast<int64_t>("at::kLong");
+                        } else if ("strided" == text_view) {
+                            return static_cast<int64_t>("at::kStrided");
+                        } else if ("Mean" == text_view) {
+                            return static_cast<int64_t>("at::Reduction::Mean");
+                        } else if ("contiguous_format" == text_view) {
+                            return static_cast<int64_t>("c10::MemoryFormat::Contiguous");
+                        } else {
+                            const text = tok.text();
+                            if (isPossiblyOptionalScalarType(real_type) &&
+                                str2dtype.count(text) > 0) {
+                                return static_cast<int64_t>(str2dtype.at(text));
+                            } else {
+                                throw(ErrorReport(L.cur().range) << "invalid numeric default value");
+                            }
+                        }
+                    }
+                    default: {
+                        let n;
+                        if (L.nextIf('-')) {
+                            n = "-" + L.expect(TK_NUMBER).text();
+                        }
+                        else {
+                            n = L.expect(TK_NUMBER).text();
+                        }
+                        if (kind == torch._C.TypeKind.ComplexType || n.find('j') != "std::string::npos") {
+                            throw new python.Error('Complex type not implemented.');
+                            const imag = std::stod(n.substr(0, n.size() - 1));
+                            return c10::complex<double>(0, imag);
+                        } else if (kind == torch._C.TypeKind.FloatType || n.find('.') != "std::string::npos" || n.find('e') != "std::string::npos") {
+                            throw new python.Error('Float type not implemented.');
+                            return std::stod(n);
+                        } else {
+                            throw new python.Error("'torch._C.SchemaParser.parseSingleConstant' not implemented.");
+                            int64_t v = std::stoll(n);
+                            return v;
+                        }
+                    }
+                }
+                */
+            }
+            parseConstantList(type, kind, real_type) {
+                const L = this.L;
+                const tok = L.expect('[');
+                const vs = [];
+                if (L.cur().kind !== ']') {
+                    do {
+                        vs.push(this.parseSingleConstant(type, kind, real_type));
+                    } while (L.nextIf(','));
+                }
+                L.expect(']');
+                return this.convertToList(type, kind, tok.range, vs);
+            }
+            convertToList(type, kind, range, vs) {
+                switch (kind) {
+                    case torch._C.TypeKind.ComplexType:
+                        return new torch._C.IValue(new torch._C.List(torch.ComplexType.get(), vs.map((v) => v)));
+                    case torch._C.TypeKind.FloatType:
+                        return new torch._C.IValue(new torch._C.List(torch.FloatType.get(), vs.map((v) => v)));
+                    case torch._C.TypeKind.IntType:
+                        return new torch._C.IValue(new torch._C.List(torch.IntType.get(), vs.map((v) => v)));
+                    case torch._C.TypeKind.BoolType:
+                        return new torch._C.IValue(new torch._C.List(torch.BoolType.get(), vs.map((v) => v)));
+                    case torch._C.TypeKindDynamicType:
+                        return this.convertToList(type.dynamicKind(), range, vs);
+                    default:
+                        // throw(ErrorReport(range) << "lists are only supported for float, int and complex types");
+                        throw new python.Error('lists are only supported for float, int and complex types');
+                }
+            }
+        });
+        this.registerType('torch.FunctionSchema', class {
+            constructor(name, overload_name, args, returns, is_vararg, is_varret) {
+                const index = name.indexOf('(');
+                if (index === -1) {
+                    this._name = name;
+                    this._overload_name = overload_name || '';
+                    this._arguments = args || [];
+                    this._returns = returns || [];
+                    this._is_vararg = is_vararg || false;
+                    this._is_varret = is_varret || false;
+                } else {
+                    const value = name.substring(0, index).trim();
+                    const dot = value.indexOf('.');
+                    if (dot === -1) {
+                        this._name = value;
+                        this._overload_name = '';
+                    } else {
+                        this._name = value.substring(0, dot);
+                        this._overload_name = value.substring(dot + 1, value.length);
+                    }
+                    this._buffer = name.substring(index, name.length);
+                }
+            }
+            static parse(schema) {
+                return new torch.FunctionSchema(schema);
+            }
+            get name() {
+                return this._name;
+            }
+            get overload_name() {
+                return this._overload_name;
+            }
+            get arguments() {
+                this._parse();
+                return this._arguments;
+            }
+            get returns() {
+                this._parse();
+                return this._returns;
+            }
+            get is_vararg() {
+                this._parse();
+                return this._is_vararg;
+            }
+            get is_varret() {
+                this._parse();
+                return this._is_varret;
+            }
+            argumentIndexWithName(name) {
+                const index = this.arguments.findIndex((arg) => arg.name === name);
+                return index === -1 ? null : index;
+            }
+            _parse() {
+                if (this._buffer) {
+                    const parser = new torch._C.SchemaParser(this._buffer, true /* parseSchemaOrName */);
+                    const L = parser.L;
+                    this._arguments = [];
+                    this._is_vararg = false;
+                    this._kwarg_only = false;
+                    let idx = 0;
+                    L.expect('(');
+                    if (!L.nextIf(')')) {
+                        while (true) {
+                            if (this._is_vararg) {
+                                throw new python.Error("Unexpected 'torch.FunctionSchema._is_vararg'.");
+                            }
+                            if (L.nextIf('*')) {
+                                this._kwarg_only = true;
+                            } else if (L.nextIf('...')) {
+                                this._is_vararg = true;
+                            } else {
+                                const argument = parser.parseArgument(idx++, false, this._kwarg_only);
+                                this._arguments.push(argument);
+                            }
+                            if (!L.nextIf(',')) {
+                                break;
+                            }
+                        }
+                        L.expect(')');
+                    }
+                    L.expect('->');
+                    this._returns = [];
+                    this._is_varret = false;
+                    if (L.nextIf('...')) {
+                        this._is_varret = true;
+                    } else if (L.nextIf('(')) {
+                        if (!L.nextIf(')')) {
+                            while (true) {
+                                if (this._is_varret) {
+                                    throw new python.Error("Unexpected 'torch.FunctionSchema._is_varret'.");
+                                }
+                                if (L.nextIf('...')) {
+                                    this._is_varret = true;
+                                } else {
+                                    const argument = parser.parseArgument(idx++, true, false);
+                                    this._returns.push(argument);
+                                }
+                                if (!L.nextIf(',')) {
+                                    break;
+                                }
+                            }
+                            L.expect(')');
+                        }
+                    } else {
+                        this._returns.push(parser.parseArgument(0, true, false));
+                    }
+                    delete this._buffer;
+                }
+            }
+            __str__() {
+                const list = [this.name];
+                const overload_name = this.overload_name;
+                if (overload_name !== '' && overload_name !== 'default') {
+                    list.push(`.${this.overload_name}`);
+                }
+                list.push('(');
+                let first = true;
+                let kwarg_only = false;
+                for (const argument of this.arguments) {
+                    if (!first) {
+                        list.push(', ');
+                    }
+                    if (argument.kwarg_only && !kwarg_only) {
+                        list.push('*, ');
+                        kwarg_only = true;
+                    }
+                    first = false;
+                    list.push(argument.str());
+                }
+                if (this.is_vararg) {
+                    if (!first) {
+                        list.push(', ');
+                    }
+                    first = true;
+                    list.push('...');
+                }
+                list.push(') -> ');
+                const returns = this.returns;
+                const braces = !this.is_varret &&
+                   (returns.length !== 1 ||
+                    returns[0].name ||
+                    returns[0].real_type instanceof torch.TupleType ||
+                    returns[0].real_type instanceof torch.ListType && returns[0].real_type.getElementType() instanceof torch.TupleType);
+                if (braces) {
+                    list.push('(');
+                }
+                first = true;
+                for (const argument of this.returns) {
+                    if (!first) {
+                        list.push(', ');
+                    }
+                    first = false;
+                    list.push(argument.str());
+                }
+                if (this.is_varret) {
+                    if (!first) {
+                        list.push(', ');
+                    }
+                    first = true;
+                    list.push('...');
+                }
+                if (braces) {
+                    list.push(')');
+                }
+                return list.join('');
+            }
+            aliasAnalysis() {
+                return this._alias_kind || 'CONSERVATIVE';
+            }
+            setAliasAnalysis(v) {
+                this._alias_kind = v;
+            }
+            hasAnyAliasInfo() {
+                for (const arg of this.arguments) {
+                    if (arg.alias_info !== null) {
+                        return true;
+                    }
+                }
+                for (const ret of this.returns) {
+                    if (ret.alias_info !== null) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            is_mutable() {
+                return this.arguments.some((arg) => {
+                    const aliasInfo = arg.alias_info;
+                    return aliasInfo && aliasInfo.is_write;
+                });
+            }
+        });
+        this.registerType('torch._C.SchemaInfo', class {
+            constructor(schema) {
+                this._schema = schema;
+                this._alias_maps_current = false;
+                this._has_init = false;
+            }
+            is_nondeterministic() {
+                if (this._schema.name === 'aten::dropout' && this._schema.overload === '') {
+                    //
+                }
+                torch._C.nondeterministic_op_strings = torch._C.nondeterministic_op_strings || new Set([
+                    'aten::dropout(Tensor input, float p, bool train) -> Tensor',
+                    'aten::_fused_dropout(Tensor self, float p, Generator? generator) -> (Tensor, Tensor)',
+                    'aten::_standard_gamma(Tensor self, Generator? generator) -> Tensor',
+                    'aten::bernoulli(Tensor self, *, Generator? generator) -> Tensor',
+                    'aten::bernoulli(Tensor self, float p, *, Generator? generator) -> Tensor',
+                    'aten::multinomial(Tensor self, int num_samples, bool replacement, *, Generator? generator) -> Tensor',
+                    'aten::native_dropout(Tensor input, float p, bool? train) -> (Tensor, Tensor)',
+                    'aten::normal(Tensor mean, Tensor std, *, Generator? generator) -> Tensor',
+                    'aten::normal(float mean, Tensor std, *, Generator? generator) -> Tensor',
+                    'aten::normal(Tensor mean, float std, *, Generator? generator) -> Tensor',
+                    'aten::poisson(Tensor self, Generator? generator) -> Tensor',
+                    'aten::binomial(Tensor count, Tensor prob, Generator? generator=None) -> Tensor',
+                    'aten::rrelu(Tensor self, Scalar lower, Scalar upper, bool training, Generator? generator) -> Tensor',
+                    'aten::rrelu_with_noise(Tensor self, Tensor noise, Scalar lower, Scalar upper, bool training, Generator? generator) -> Tensor',
+                    'aten::rand(int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
+                    'aten::rand_like(Tensor self, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
+                    'aten::randint(int high, int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
+                    'aten::randint(int low, int high, int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
+                    'aten::randint_like(Tensor self, int high, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
+                    'aten::randint_like(Tensor self, int low, int high, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
+                    'aten::randn(int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
+                    'aten::randn_like(Tensor self, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
+                    'aten::randperm(int n, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor'
+                ]);
+                if (torch._C.nondeterministic_op_strings.has(this._schema.__str__())) {
+                    return true;
+                }
+                /*
+                const auto& op = c10::Dispatcher::singleton().findOp(
+                    c10::OperatorName(schema_.name(), schema_.overload_name()));
+                return op && op->hasTag(at::Tag::nondeterministic_seeded);
+                */
+                return false;
+            }
+        });
         this.registerType('torch._C.OperatorRegistry', class {
             constructor() {
                 this.to_register = [];
@@ -9204,28 +9697,35 @@ python.Execution = class {
                 super();
                 this._name = name;
                 this.__name__ = name;
-                // _higher_order_ops[name] = this;
                 this._ns = 'higher_order';
                 this.__module__ = 'torch.ops.higher_order';
                 this._cacheable = cacheable;
             }
-
+            get namespace() {
+                return this._ns;
+            }
+            get name() {
+                return this._name;
+            }
         });
         this.registerType('torch._higher_order_ops.wrap.WrapWithAutocast', class extends torch._ops.HigherOrderOperator {
             constructor(name) {
                 super(name, false);
+                this._schema = torch.FunctionSchema.parse('higher_order::wrap_with_autocast(str device_type, ScalarType? dtype, bool enabled, bool? cache_enabled, Any wrapped_func, ...) -> Tensor');
             }
         });
         torch.ops.higher_order.wrap_with_autocast = new torch._higher_order_ops.wrap.WrapWithAutocast('wrap_with_autocast');
         this.registerType('torch._higher_order_ops.wrap.WrapWithSetGradEnabled', class extends torch._ops.HigherOrderOperator {
             constructor(name) {
                 super(name, false);
+                this._schema = torch.FunctionSchema.parse('higher_order::wrap_with_set_grad_enabled(bool enable_grad, Any wrapped_func) -> Tensor');
             }
         });
         torch.ops.higher_order.wrap_with_set_grad_enabled = new torch._higher_order_ops.wrap.WrapWithSetGradEnabled('wrap_with_set_grad_enabled');
         this.registerType('torch._higher_order_ops.wrap.Wrap', class extends torch._ops.HigherOrderOperator {
             constructor(name) {
                 super(name, false);
+                this._schema = torch.FunctionSchema.parse('higher_order::wrap(Any func) -> Tensor');
             }
         });
         torch.ops.higher_order.wrap = new torch._higher_order_ops.wrap.Wrap('wrap');
@@ -10716,499 +11216,6 @@ python.Execution = class {
             }
             elementType() {
                 return this.type;
-            }
-        });
-        this.registerType('torch._C.SchemaParser', class {
-            constructor(str, allow_typevars) {
-                this.L = new torch._C.Lexer(str);
-                this.type_parser = new torch._C.SchemaTypeParser(this.L, false, allow_typevars);
-            }
-            parseName() {
-                const L = this.L;
-                let name = L.expect('id').text();
-                if (L.nextIf(':')) {
-                    L.expect(':');
-                    name = `${name}::${L.expect('ident').text()}`;
-                }
-                let overload_name = '';
-                if (L.nextIf('.')) {
-                    overload_name = L.expect('ident').text();
-                }
-                // const is_a_valid_overload_name = !((overload_name === "default") || (overload_name.rfind("__", 0) == 0));
-                // TORCH_CHECK(is_a_valid_overload_name, overload_name, " is not a legal overload name for aten operators");
-                return new torch._C.OperatorName(name, overload_name);
-            }
-            parseDeclaration() {
-                const L = this.L;
-                const name = this.parseName();
-                if (L.cur().kind !== '(') {
-                    return name;
-                }
-                throw new python.Error('Not implemented.');
-            }
-            parseExactlyOneDeclaration() {
-                // const L = this.L;
-                const result = this.parseDeclaration();
-                // L.nextIf(TK_NEWLINE);
-                // L.expect(TK_EOF);
-                return result;
-            }
-            parseArgument(idx, is_return, kwarg_only) {
-                const L = this.L;
-                const type_parser = this.type_parser;
-                let [fake_type, real_type, alias_info] = type_parser.parseFakeAndRealType();
-                let N = null;
-                if (L.nextIf('[')) {
-                    fake_type = torch.ListType.create(fake_type);
-                    real_type = torch.ListType.create(real_type);
-                    if (L.cur().kind === '#') {
-                        N = Number(L.cur().text());
-                        L.next();
-                    }
-                    L.expect(']');
-                    let container = type_parser.parseAliasAnnotation();
-                    if (alias_info) {
-                        if (!container) {
-                            container = new torch._C.AliasInfo();
-                            container.is_write = alias_info.is_write;
-                        }
-                        container.addContainedType(alias_info);
-                    }
-                    alias_info = container;
-                    if (L.nextIf('?')) {
-                        fake_type = torch.OptionalType.create(fake_type);
-                        real_type = torch.OptionalType.create(real_type);
-                    }
-                }
-                let name = null;
-                /* eslint-disable no-undef-init */
-                let default_value = undefined;
-                /* eslint-enable no-undef-init */
-                if (is_return) {
-                    kwarg_only = false;
-                    if (L.cur().kind === 'id') {
-                        name = L.next().text();
-                    } else {
-                        name = '';
-                    }
-                } else {
-                    name = L.expect('id').text();
-                    if (L.nextIf('=')) {
-                        default_value = this.parseDefaultValue(fake_type, fake_type.kind(), real_type, N);
-                    }
-                }
-                return new torch.Argument(name, fake_type, real_type, N, default_value, kwarg_only, alias_info);
-            }
-            parseDefaultValue(arg_type, kind, real_type, arg_N) {
-                // auto range = L.cur().range;
-                const L = this.L;
-                const range = null;
-                switch (kind) {
-
-                    case torch._C.TypeKind.StringType:
-                    case torch._C.TypeKind.OptionalType:
-                    case torch._C.TypeKind.NumberType:
-                    case torch._C.TypeKind.IntType:
-                    case torch._C.TypeKind.BoolType:
-                    case torch._C.TypeKind.FloatType:
-                    case torch._C.TypeKind.ComplexType:
-                        return this.parseSingleConstant(arg_type, kind, real_type);
-                    case torch._C.TypeKind.ListType: {
-                        const elem_type = arg_type.containedType(0);
-                        const real_elem_type = real_type.containedType(0);
-                        if (L.cur().kind === 'id') {
-                            return this.parseTensorDefault(range);
-                        } else if (arg_N && L.cur().kind !== '[') {
-                            const v = this.parseSingleConstant(elem_type, elem_type.kind(), real_elem_type);
-                            const repeated = Array(arg_N).fill(v);
-                            // std::vector<IValue> repeated(arg_N, v);
-                            return this.convertToList(elem_type, elem_type.kind(), range, repeated);
-                        }
-                        return this.parseConstantList(elem_type, elem_type.kind(), real_elem_type);
-                    }
-                    case torch._C.TypeKind.DynamicType:
-                        return this.parseDefaultValue(arg_type, arg_type.dynamicKind(), real_type, arg_N);
-                    default:
-                        throw new python.Error(`Unsupported default value kind '${kind}'.`);
-                }
-            }
-            parseSingleConstant(type, kind, real_type) {
-                const L = this.L;
-                if (kind === torch._C.TypeKind.DynamicType) {
-                    return this.parseSingleConstant(type, type.dynamicKind(), real_type);
-                }
-                // const auto& str2dtype = c10::getStringToDtypeMap();
-                if (L.cur().kind === 'id') {
-                    if (L.cur().text() === 'True') {
-                        L.next();
-                        return new torch._C.IValue(true);
-                    }
-                    if (L.cur().text() === 'False') {
-                        L.next();
-                        return new torch._C.IValue(false);
-                    }
-                    if (L.cur().text() === 'None') {
-                        L.next();
-                        return new torch._C.IValue();
-                    }
-                } else if (L.cur().kind === 'string') {
-                    const token = L.next();
-                    return new torch._C.IValue(torch._C.parseStringLiteral(null, token.text()));
-                } else if (L.cur().kind === '#') {
-                    let n = '';
-                    if (L.nextIf('-')) {
-                        n = `-${L.expect('#').text()}`; // # .text();
-                    } else {
-                        n = L.expect('#').text(); // # .text();
-                    }
-                    if (kind === torch._C.TypeKind.ComplexType || n.indexOf('j') !== -1) {
-                        throw new Error("Complex type not implemented.");
-                        /*
-                        const imag = std::stod(n.substr(0, n.size() - 1));
-                        return c10::complex<double>(0, imag);
-                        */
-                    } else if (kind === torch._C.TypeKind.FloatType || n.indexOf('.') !== -1 || n.indexOf('e') !== -1) {
-                        const v = parseFloat(n);
-                        return new torch._C.IValue(v, 'Double');
-                    } else {
-                        const v = parseInt(n, 10);
-                        return new torch._C.IValue(v, 'Int');
-                    }
-                }
-                throw new python.Error('Not implemented.');
-                /*
-                switch (L.cur().kind) {
-                    case TK_TRUE:
-                        L.next();
-                        return true;
-                    case TK_FALSE:
-                        L.next();
-                        return false;
-                    case TK_NONE:
-                        L.next();
-                        return IValue();
-                    case TK_STRINGLITERAL: {
-                        const token = L.next();
-                        return parseStringLiteral(token.range, token.text());
-                    }
-                    case TK_IDENT: {
-                        const tok = L.next();
-                        const text_view = tok.text_view();
-                        // NB: float/complex/long are here for BC purposes. Other dtypes
-                        // are handled via str2dtype.
-                        // Please don't add more cases to this if-else block.
-                        if ("float" == text_view) {
-                            return static_cast<int64_t>("at::kFloat");
-                        } else if ("complex" == text_view) {
-                            return static_cast<int64_t>("at::kComplexFloat");
-                        } else if ("long" == text_view) {
-                            return static_cast<int64_t>("at::kLong");
-                        } else if ("strided" == text_view) {
-                            return static_cast<int64_t>("at::kStrided");
-                        } else if ("Mean" == text_view) {
-                            return static_cast<int64_t>("at::Reduction::Mean");
-                        } else if ("contiguous_format" == text_view) {
-                            return static_cast<int64_t>("c10::MemoryFormat::Contiguous");
-                        } else {
-                            const text = tok.text();
-                            if (isPossiblyOptionalScalarType(real_type) &&
-                                str2dtype.count(text) > 0) {
-                                return static_cast<int64_t>(str2dtype.at(text));
-                            } else {
-                                throw(ErrorReport(L.cur().range) << "invalid numeric default value");
-                            }
-                        }
-                    }
-                    default: {
-                        let n;
-                        if (L.nextIf('-')) {
-                            n = "-" + L.expect(TK_NUMBER).text();
-                        }
-                        else {
-                            n = L.expect(TK_NUMBER).text();
-                        }
-                        if (kind == torch._C.TypeKind.ComplexType || n.find('j') != "std::string::npos") {
-                            throw new python.Error('Complex type not implemented.');
-                            const imag = std::stod(n.substr(0, n.size() - 1));
-                            return c10::complex<double>(0, imag);
-                        } else if (kind == torch._C.TypeKind.FloatType || n.find('.') != "std::string::npos" || n.find('e') != "std::string::npos") {
-                            throw new python.Error('Float type not implemented.');
-                            return std::stod(n);
-                        } else {
-                            throw new python.Error("'torch._C.SchemaParser.parseSingleConstant' not implemented.");
-                            int64_t v = std::stoll(n);
-                            return v;
-                        }
-                    }
-                }
-                */
-            }
-            parseConstantList(type, kind, real_type) {
-                const L = this.L;
-                const tok = L.expect('[');
-                const vs = [];
-                if (L.cur().kind !== ']') {
-                    do {
-                        vs.push(this.parseSingleConstant(type, kind, real_type));
-                    } while (L.nextIf(','));
-                }
-                L.expect(']');
-                return this.convertToList(type, kind, tok.range, vs);
-            }
-            convertToList(type, kind, range, vs) {
-                switch (kind) {
-                    case torch._C.TypeKind.ComplexType:
-                        return new torch._C.IValue(new torch._C.List(torch.ComplexType.get(), vs.map((v) => v)));
-                    case torch._C.TypeKind.FloatType:
-                        return new torch._C.IValue(new torch._C.List(torch.FloatType.get(), vs.map((v) => v)));
-                    case torch._C.TypeKind.IntType:
-                        return new torch._C.IValue(new torch._C.List(torch.IntType.get(), vs.map((v) => v)));
-                    case torch._C.TypeKind.BoolType:
-                        return new torch._C.IValue(new torch._C.List(torch.BoolType.get(), vs.map((v) => v)));
-                    case torch._C.TypeKindDynamicType:
-                        return this.convertToList(type.dynamicKind(), range, vs);
-                    default:
-                        // throw(ErrorReport(range) << "lists are only supported for float, int and complex types");
-                        throw new python.Error('lists are only supported for float, int and complex types');
-                }
-            }
-        });
-        this.registerType('torch.FunctionSchema', class {
-            constructor(name, overload_name, args, returns, is_vararg, is_varret) {
-                const index = name.indexOf('(');
-                if (index === -1) {
-                    this._name = name;
-                    this._overload_name = overload_name || '';
-                    this._arguments = args || [];
-                    this._returns = returns || [];
-                    this._is_vararg = is_vararg || false;
-                    this._is_varret = is_varret || false;
-                } else {
-                    const value = name.substring(0, index).trim();
-                    const dot = value.indexOf('.');
-                    if (dot === -1) {
-                        this._name = value;
-                        this._overload_name = '';
-                    } else {
-                        this._name = value.substring(0, dot);
-                        this._overload_name = value.substring(dot + 1, value.length);
-                    }
-                    this._buffer = name.substring(index, name.length);
-                }
-            }
-            static parse(schema) {
-                return new torch.FunctionSchema(schema);
-            }
-            get name() {
-                return this._name;
-            }
-            get overload_name() {
-                return this._overload_name;
-            }
-            get arguments() {
-                this._parse();
-                return this._arguments;
-            }
-            get returns() {
-                this._parse();
-                return this._returns;
-            }
-            get is_vararg() {
-                this._parse();
-                return this._is_vararg;
-            }
-            get is_varret() {
-                this._parse();
-                return this._is_varret;
-            }
-            argumentIndexWithName(name) {
-                const index = this.arguments.findIndex((arg) => arg.name === name);
-                return index === -1 ? null : index;
-            }
-            _parse() {
-                if (this._buffer) {
-                    const parser = new torch._C.SchemaParser(this._buffer, true /* parseSchemaOrName */);
-                    const L = parser.L;
-                    this._arguments = [];
-                    this._is_vararg = false;
-                    this._kwarg_only = false;
-                    let idx = 0;
-                    L.expect('(');
-                    if (!L.nextIf(')')) {
-                        while (true) {
-                            if (this._is_vararg) {
-                                throw new python.Error("Unexpected 'torch.FunctionSchema._is_vararg'.");
-                            }
-                            if (L.nextIf('*')) {
-                                this._kwarg_only = true;
-                            } else if (L.nextIf('...')) {
-                                this._is_vararg = true;
-                            } else {
-                                const argument = parser.parseArgument(idx++, false, this._kwarg_only);
-                                this._arguments.push(argument);
-                            }
-                            if (!L.nextIf(',')) {
-                                break;
-                            }
-                        }
-                        L.expect(')');
-                    }
-                    L.expect('->');
-                    this._returns = [];
-                    this._is_varret = false;
-                    if (L.nextIf('...')) {
-                        this._is_varret = true;
-                    } else if (L.nextIf('(')) {
-                        if (!L.nextIf(')')) {
-                            while (true) {
-                                if (this._is_varret) {
-                                    throw new python.Error("Unexpected 'torch.FunctionSchema._is_varret'.");
-                                }
-                                if (L.nextIf('...')) {
-                                    this._is_varret = true;
-                                } else {
-                                    const argument = parser.parseArgument(idx++, true, false);
-                                    this._returns.push(argument);
-                                }
-                                if (!L.nextIf(',')) {
-                                    break;
-                                }
-                            }
-                            L.expect(')');
-                        }
-                    } else {
-                        this._returns.push(parser.parseArgument(0, true, false));
-                    }
-                    delete this._buffer;
-                }
-            }
-            __str__() {
-                const list = [this.name];
-                const overload_name = this.overload_name;
-                if (overload_name !== '' && overload_name !== 'default') {
-                    list.push(`.${this.overload_name}`);
-                }
-                list.push('(');
-                let first = true;
-                let kwarg_only = false;
-                for (const argument of this.arguments) {
-                    if (!first) {
-                        list.push(', ');
-                    }
-                    if (argument.kwarg_only && !kwarg_only) {
-                        list.push('*, ');
-                        kwarg_only = true;
-                    }
-                    first = false;
-                    list.push(argument.str());
-                }
-                if (this.is_vararg) {
-                    if (!first) {
-                        list.push(', ');
-                    }
-                    first = true;
-                    list.push('...');
-                }
-                list.push(') -> ');
-                const returns = this.returns;
-                const braces = !this.is_varret &&
-                   (returns.length !== 1 ||
-                    returns[0].name ||
-                    returns[0].real_type instanceof torch.TupleType ||
-                    returns[0].real_type instanceof torch.ListType && returns[0].real_type.getElementType() instanceof torch.TupleType);
-                if (braces) {
-                    list.push('(');
-                }
-                first = true;
-                for (const argument of this.returns) {
-                    if (!first) {
-                        list.push(', ');
-                    }
-                    first = false;
-                    list.push(argument.str());
-                }
-                if (this.is_varret) {
-                    if (!first) {
-                        list.push(', ');
-                    }
-                    first = true;
-                    list.push('...');
-                }
-                if (braces) {
-                    list.push(')');
-                }
-                return list.join('');
-            }
-            aliasAnalysis() {
-                return this._alias_kind || 'CONSERVATIVE';
-            }
-            setAliasAnalysis(v) {
-                this._alias_kind = v;
-            }
-            hasAnyAliasInfo() {
-                for (const arg of this.arguments) {
-                    if (arg.alias_info !== null) {
-                        return true;
-                    }
-                }
-                for (const ret of this.returns) {
-                    if (ret.alias_info !== null) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            is_mutable() {
-                return this.arguments.some((arg) => {
-                    const aliasInfo = arg.alias_info;
-                    return aliasInfo && aliasInfo.is_write;
-                });
-            }
-        });
-        this.registerType('torch._C.SchemaInfo', class {
-            constructor(schema) {
-                this._schema = schema;
-                this._alias_maps_current = false;
-                this._has_init = false;
-            }
-            is_nondeterministic() {
-                if (this._schema.name === 'aten::dropout' && this._schema.overload === '') {
-                    //
-                }
-                torch._C.nondeterministic_op_strings = torch._C.nondeterministic_op_strings || new Set([
-                    'aten::dropout(Tensor input, float p, bool train) -> Tensor',
-                    'aten::_fused_dropout(Tensor self, float p, Generator? generator) -> (Tensor, Tensor)',
-                    'aten::_standard_gamma(Tensor self, Generator? generator) -> Tensor',
-                    'aten::bernoulli(Tensor self, *, Generator? generator) -> Tensor',
-                    'aten::bernoulli(Tensor self, float p, *, Generator? generator) -> Tensor',
-                    'aten::multinomial(Tensor self, int num_samples, bool replacement, *, Generator? generator) -> Tensor',
-                    'aten::native_dropout(Tensor input, float p, bool? train) -> (Tensor, Tensor)',
-                    'aten::normal(Tensor mean, Tensor std, *, Generator? generator) -> Tensor',
-                    'aten::normal(float mean, Tensor std, *, Generator? generator) -> Tensor',
-                    'aten::normal(Tensor mean, float std, *, Generator? generator) -> Tensor',
-                    'aten::poisson(Tensor self, Generator? generator) -> Tensor',
-                    'aten::binomial(Tensor count, Tensor prob, Generator? generator=None) -> Tensor',
-                    'aten::rrelu(Tensor self, Scalar lower, Scalar upper, bool training, Generator? generator) -> Tensor',
-                    'aten::rrelu_with_noise(Tensor self, Tensor noise, Scalar lower, Scalar upper, bool training, Generator? generator) -> Tensor',
-                    'aten::rand(int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
-                    'aten::rand_like(Tensor self, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
-                    'aten::randint(int high, int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
-                    'aten::randint(int low, int high, int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
-                    'aten::randint_like(Tensor self, int high, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
-                    'aten::randint_like(Tensor self, int low, int high, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
-                    'aten::randn(int[] size, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor',
-                    'aten::randn_like(Tensor self, *, int? dtype=None, int? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor',
-                    'aten::randperm(int n, *, int? dtype, int? layout, Device? device, bool? pin_memory) -> Tensor'
-                ]);
-                if (torch._C.nondeterministic_op_strings.has(this._schema.__str__())) {
-                    return true;
-                }
-                /*
-                const auto& op = c10::Dispatcher::singleton().findOp(
-                    c10::OperatorName(schema_.name(), schema_.overload_name()));
-                return op && op->hasTag(at::Tag::nondeterministic_seeded);
-                */
-                return false;
             }
         });
         this.registerFunction('torch._C.builtin_cast_method_to_scalar_type', () => {

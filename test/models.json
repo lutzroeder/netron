@@ -7160,7 +7160,6 @@
     "target":   "weigths_0000000.pth",
     "source":   "https://github.com/user-attachments/files/16401710/weigths_0000000.pth.zip[weigths_0000000.pth]",
     "format":   "PyTorch v1.6",
-    "error":    "Unsupported node operation 'get_attr'.",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {

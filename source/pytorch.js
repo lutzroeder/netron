@@ -571,6 +571,8 @@ pytorch.Node = class {
                 const target = obj.target;
                 if (target instanceof torch._ops.OpOverload) {
                     name = target.name();
+                } else if (target instanceof torch._ops.HigherOrderOperator) {
+                    name = `${target.namespace}::${target.name}`;
                 } else if (builtins.isinstance(target, builtins.function)) {
                     name = target.__name__;
                 } else if (typeof target === 'string') {
@@ -593,8 +595,16 @@ pytorch.Node = class {
                     this.type.category = schema.category;
                 }
                 let args = obj.args.map((arg, index) => {
-                    const name = schema && Array.isArray(schema.arguments) ? schema.arguments[index].name : '';
-                    return [name, arg];
+                    if (!schema) {
+                        return ['', arg];
+                    }
+                    if (Array.isArray(schema.arguments) && index < schema.arguments.length) {
+                        return [schema.arguments[index].name, arg];
+                    }
+                    if (schema.is_vararg) {
+                        return ['', arg];
+                    }
+                    throw new pytorch.Error('Unsupported schema argument.');
                 });
                 const inputs = new Map((schema ? schema.arguments : []).map((arg) => [arg.name, arg]));
                 args = args.concat(Array.from(obj.kwargs));
@@ -670,6 +680,11 @@ pytorch.Node = class {
                     const argument = new pytorch.Argument('value', [value]);
                     this.outputs.push(argument);
                 }
+            } else if (obj.op === 'get_attr') {
+                this.type = { name: obj.op };
+                this.inputs.push(new pytorch.Argument('name', obj.target, 'string'));
+                const value = values.map(obj);
+                this.outputs.push(new pytorch.Argument('value', [value]));
             } else if (obj.op === 'root') {
                 this.type = { name: obj.op };
             } else {
@@ -1906,6 +1921,7 @@ pytorch.Utility = class {
             case 'Layout': return 'Layout';
             case 'VarType': return type.annotation_str;
             case 'NoneType': return 'None';
+            case 'AnyType': return 'object';
             case 'AnyListType': return 'list';
             case 'AnyTupleType': return 'tuple';
             case 'ClassType': return type.annotation_str;
