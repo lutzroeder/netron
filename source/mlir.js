@@ -1401,13 +1401,48 @@ mlir.Parser = class {
                 } else {
                     break;
                 }
-
                 attribute.name = name;
                 attributes.push(attribute);
                 if (!this.accept(',') && !this.match('}')) {
                     throw new mlir.Error(`Expected ',' or '}' after attribute, but got '${this._token.value}' ${this.location()}`);
                 }
             }
+        }
+    }
+
+    parsePropertyDict(attributes) {
+        if (this.accept('<')) {
+            if (this.accept('{')) {
+                while (!this.accept('}')) {
+                    let name = null;
+                    if (this.match('id') || this.match('string') || this.match('keyword')) {
+                        name = this.expect();
+                    } else if (!this.match('=') && !this.match(':') && !this.match('}')) {
+                        throw new mlir.Error(`Expected property name or '}', but got '${this._token.value}' ${this.location()}`);
+                    }
+                    let attribute = {};
+                    if (this.accept('=') || this.accept(':')) {
+                        attribute = this.parseValue();
+                        if (this.accept(':')) {
+                            attribute.type = this.parseType();
+                        }
+                    } else if (name) {
+                        attribute = { name };
+                        attributes.push(attribute);
+                        this.accept(',');
+                        continue;
+                    } else {
+                        break;
+                    }
+
+                    attribute.name = name;
+                    attributes.push(attribute);
+                    if (!this.accept(',') && !this.match('}')) {
+                        throw new mlir.Error(`Expected ',' or '}' after property, but got '${this._token.value}' ${this.location()}`);
+                    }
+                }
+            }
+            this.expect('>');
         }
     }
 
@@ -1695,7 +1730,6 @@ mlir.Parser = class {
 
             prefix = prefix.substring(i);
         }
-
         // Handle nested types like memref<4xvector<16xf32>> or tensor<20x20xcomplex<f32>>
         if (prefix === 'complex') {
             if (this.accept('<')) {
@@ -1706,7 +1740,6 @@ mlir.Parser = class {
         } else if (prefix === 'tensor' || prefix === 'vector' || prefix === 'memref') {
             if (this.accept('<')) {
                 const nestedDimInfo = this.parseDimensionListRanked();
-
                 let nestedElementType = null;
                 if (nestedDimInfo.elementTypePrefix) {
                     nestedElementType = this.parseElementTypeFromPrefix(nestedDimInfo.elementTypePrefix, nestedDimInfo.dimensions);
@@ -1726,9 +1759,7 @@ mlir.Parser = class {
                 } else {
                     nestedElementType = this.parseType();
                 }
-
                 this.expect('>');
-
                 let nestedTypeStr = `${prefix}<`;
                 if (nestedDimInfo.unranked) {
                     nestedTypeStr += '*x';
@@ -1736,7 +1767,6 @@ mlir.Parser = class {
                     nestedTypeStr += `${nestedDimInfo.dimensions.join('x')}x`;
                 }
                 nestedTypeStr += `${nestedElementType}>`;
-
                 return nestedTypeStr;
             }
         }
@@ -1749,7 +1779,6 @@ mlir.Parser = class {
 
     parseDimensionListRanked() {
         const dimensions = [];
-
         if (this.accept('*')) {
             if (this.match('id')) {
                 const token = this._token.value;
@@ -1760,7 +1789,6 @@ mlir.Parser = class {
             }
             return { unranked: true, dimensions: [], elementTypePrefix: null };
         }
-
         while (true) {
             if (this.accept('[')) {
                 if (this.match('int')) {
@@ -1784,7 +1812,6 @@ mlir.Parser = class {
             } else {
                 break;
             }
-
             if (this.match('id')) {
                 const token = this._token.value;
                 if (token === 'x') {
@@ -3281,6 +3308,543 @@ mlir.Dialect = class {
         return null;
     }
 
+    parseDirective(directive, parser, op, opInfo, directives, i) {
+        switch (directive.type) {
+            case 'whitespace':
+                // Skip whitespace directives - they're just formatting hints
+                break;
+            case 'literal':
+                parser.expect(null, directive.value);
+                break;
+            case 'operand_ref': {
+                const refName = directive.name;
+                let isAttribute = false;
+                let isVariadic = false;
+                let isSuccessor = false;
+                if (opInfo.metadata && opInfo.metadata.successors) {
+                    const successorInfo = opInfo.metadata.successors.find((succ) => succ.name === refName);
+                    if (successorInfo) {
+                        isSuccessor = true;
+                    }
+                }
+                if (!isSuccessor && parser.match('^')) {
+                    isSuccessor = true;
+                }
+                if (!isSuccessor && opInfo.metadata && opInfo.metadata.attributes) {
+                    const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
+                    if (attrInfo) {
+                        isAttribute = true;
+                    }
+                }
+                if (!isAttribute && !isSuccessor && opInfo.metadata && opInfo.metadata.inputs) {
+                    const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
+                    if (inputInfo && inputInfo.type === 'Variadic') {
+                        isVariadic = true;
+                    }
+                }
+                if (isSuccessor) {
+                    if (parser.match('^')) {
+                        if (!op.successors) {
+                            op.successors = [];
+                        }
+                        const successor = {};
+                        successor.label = parser.expect('^');
+                        if (parser.accept('(')) {
+                            successor.arguments = [];
+                            while (!parser.match(':') && !parser.match(')')) {
+                                if (parser.match('%')) {
+                                    const arg = {};
+                                    arg.value = parser.expect('%');
+                                    successor.arguments.push(arg);
+                                    parser.accept(',');
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (parser.accept(':')) {
+                                let idx = 0;
+                                while (idx < successor.arguments.length && !parser.match(')')) {
+                                    const type = parser.parseType();
+                                    successor.arguments[idx].type = type;
+                                    idx++;
+                                    parser.accept(',');
+                                }
+                            }
+                            parser.accept(')');
+                        }
+                        op.successors.push(successor);
+                    }
+                } else if (isAttribute) {
+                    const attrValue = parser.match('#') ? parser.parseAttributeValue() : parser.parseValue();
+                    if (attrValue) {
+                        let nextIsColonLiteral = false;
+                        for (let j = i + 1; j < opInfo.directives.length; j++) {
+                            const nextDir = directives[j];
+                            if (nextDir.type !== 'attr_dict') {
+                                if (nextDir.type === 'literal' && nextDir.value === ':') {
+                                    nextIsColonLiteral = true;
+                                }
+                                break; // Only check the next non-attr-dict directive
+                            }
+                        }
+                        if (!nextIsColonLiteral && (attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense' || attrValue.type === 'sparse' || attrValue.name) && parser.accept(':')) {
+                            attrValue.attrType = parser.parseType();
+                        }
+                        op.attributes.push({ name: refName, value: attrValue.value });
+                    }
+                } else if (isVariadic) {
+                    while (!parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match(':') && !parser.match('{') && !parser.match('=')) {
+                        if (parser.match('%')) {
+                            const input = {};
+                            input.value = parser.expect();
+                            op.operands.push(input);
+                            if (!parser.accept(',')) {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                } else if (parser.match('%')) {
+                    const input = {};
+                    input.value = parser.expect();
+                    op.operands.push(input);
+                } else if ((refName === 'region' || refName === 'regions' || refName.endsWith('Region') || refName.endsWith('Regions') || refName === 'reductions') && parser.match('{')) {
+                    do {
+                        const region = {};
+                        parser.parseRegion(region);
+                        op.regions.push(region);
+                    } while (parser.accept(',') && parser.match('{'));
+                } else if (parser.match('{')) {
+                    const region = {};
+                    parser.parseRegion(region);
+                    op.regions.push(region);
+                } else if (parser.match('@')) {
+                    const value = parser.expect('@');
+                    if (directive.name) {
+                        op.attributes.push({ name: directive.name, value });
+                    } else {
+                        op.attributes.push({ name: 'callee', value });
+                    }
+                } else if (parser.match('id') && !(refName === 'region' || refName === 'regions' || refName.endsWith('Region') || refName.endsWith('Regions'))) {
+                    const input = {};
+                    input.value = parser.expect('id');
+                    op.operands.push(input);
+                } else if (parser.match('int')) {
+                    const input = {};
+                    input.value = parser.expect('int');
+                    op.operands.push(input);
+                } else if (!parser.match(':') && !parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match('eof')) {
+                    // Try to parse as a general value, but not if we're at a delimiter
+                    const input = parser.parseValue();
+                    if (input) {
+                        op.operands.push(input);
+                    }
+                }
+                break;
+            }
+            case 'operands':
+                op.operands = parser.parseArguments();
+                break;
+            case 'results':
+                op.results = parser.parseArguments();
+                break;
+            case 'type':
+            case 'qualified':
+                if (directive.args && directive.args.length > 0) {
+                    const arg = directive.args[0] === 'type' && directive.args.length > 1 ? directive.args[1] : directive.args[0];
+                    if (arg === 'results' || arg === '$results') {
+                        const opMetadata = opInfo.metadata;
+                        const hasVariadicResult = opMetadata && opMetadata.outputs && (opMetadata.outputs.length > 1 || (opMetadata.outputs.length === 1 && (opMetadata.outputs[0].type === 'Variadic' || opMetadata.outputs[0].isVariadic)));
+                        if (hasVariadicResult) {
+                            parser.parseArgumentTypes(op.results);
+                        } else {
+                            const type = parser.parseType();
+                            if (op.results.length === 0) {
+                                op.results.push({ type });
+                            } else {
+                                op.results[0].type = type;
+                            }
+                        }
+                    } else if (arg === 'operands' || arg === '$operands') {
+                        parser.parseArgumentTypes(op.operands);
+                    } else {
+                        const opMetadata = opInfo.metadata;
+                        let isResult = false;
+                        let isVariadic = false;
+                        if (opMetadata && opMetadata.outputs) {
+                            for (const output of opMetadata.outputs) {
+                                if (output.name === arg || `$${output.name}` === arg) {
+                                    isResult = true;
+                                    isVariadic = output.type === 'Variadic' || output.isVariadic || false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!isResult && opMetadata && opMetadata.inputs) {
+                            for (const input of opMetadata.inputs) {
+                                if (input.name === arg || `$${input.name}` === arg) {
+                                    isVariadic = input.type === 'Variadic' || input.isVariadic || false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isResult) {
+                            if (isVariadic) {
+                                parser.parseArgumentTypes(op.results);
+                            } else {
+                                const type = parser.parseType();
+                                if (op.results.length === 0) {
+                                    op.results.push({ type });
+                                } else {
+                                    op.results[0].type = type;
+                                }
+                            }
+                        } else if (isVariadic) {
+                            parser.parseArgumentTypes(op.operands);
+                        } else if (op.operands.length > 0) {
+                            op.operands[op.operands.length - 1].type = parser.parseType();
+                        } else {
+                            parser.parseType();
+                        }
+                    }
+                } else {
+                    parser.parseArgumentTypes(op.operands);
+                }
+                break;
+            case 'attr_dict_with_keyword':
+                if (parser.match('id') && parser._token.value === 'attributes') {
+                    parser.expect('id');
+                    parser.parseAttributeDict(op.attributes);
+                }
+                break;
+            case 'attr_dict':
+                parser.parseAttributeDict(op.attributes);
+                break;
+            case 'prop_dict':
+                if (parser.match('<')) {
+                    parser.parsePropertyDict(op.attributes);
+                }
+                break;
+            case 'regions':
+                while (parser.match('{')) {
+                    const region = {};
+                    parser.parseRegion(region);
+                    op.regions.push(region);
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                break;
+            case 'successors':
+                if (parser.match('[')) {
+                    parser.skip('[', ']');
+                }
+                break;
+            case 'functional_type': {
+                parser.parseArgumentTypes(op.operands);
+                if (parser.accept('->') || parser.accept('id', 'to')) {
+                    if (op.results.length > 0) {
+                        parser.parseArgumentTypes(op.results);
+                    } else {
+                        op.results = parser.parseArguments();
+                    }
+                }
+                break;
+            }
+            case 'custom': {
+                if (!this._customParsers.has(directive.parser)) {
+                    break;
+                }
+                const func = this._customParsers.get(directive.parser);
+                func(parser, op, directive.args);
+                break;
+            }
+            case 'oilist': {
+                const clauses = directive.content.split('|').map((c) => c.trim());
+                const parsedClauses = [];
+                for (const clauseStr of clauses) {
+                    const clauseParser = new mlir.AssemblyFormatParser({ assemblyFormat: clauseStr });
+                    const elements = clauseParser.parse();
+                    parsedClauses.push({ elements, parsed: false });
+                }
+                let progress = true;
+                while (progress) {
+                    progress = false;
+                    for (const clause of parsedClauses) {
+                        if (clause.parsed) {
+                            continue;
+                        }
+                        if (clause.elements.length === 0) {
+                            continue;
+                        }
+                        const [firstElem] = clause.elements;
+                        let matches = false;
+                        if (firstElem.type === 'literal') {
+                            if (firstElem.value.length === 1 && /[(){}[\],:<>=]/.test(firstElem.value)) {
+                                matches = parser.match(firstElem.value);
+                            } else {
+                                matches = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
+                            }
+                        }
+                        if (matches) {
+                            for (const elem of clause.elements) {
+                                this.parseDirective(elem, parser, op, opInfo, directives, i);
+                            }
+                            clause.parsed = true;
+                            progress = true;
+                        }
+                    }
+                }
+                break;
+            }
+            case 'optional_group': {
+                let shouldParse = false;
+                const firstElem = directive.elements.find((elem) => elem.type !== 'whitespace');
+                if (firstElem) {
+                    if (firstElem.type === 'literal') {
+                        if (firstElem.value.length === 1 && /[(){}[\],:<>=]/.test(firstElem.value)) {
+                            shouldParse = parser.match(firstElem.value);
+                        } else if (firstElem.value === '->') {
+                            shouldParse = parser.match('->');
+                        } else if (firstElem.value === 'overflow' || firstElem.value === 'fastmath') {
+                            shouldParse = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
+                        } else {
+                            shouldParse = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
+                        }
+                    } else if (firstElem.type === 'operand_ref') {
+                        if (firstElem.name === 'overflowFlags' || directive.elements.some((e) => e.name === 'overflowFlags')) {
+                            shouldParse = parser.match('id', 'overflow');
+                        } else if (firstElem.name === 'fastmath' || directive.elements.some((e) => e.name === 'fastmath')) {
+                            shouldParse = parser.match('id', 'fastmath');
+                        } else {
+                            // Check if this is an attribute or an operand
+                            let isFirstAttribute = false;
+                            if (opInfo.metadata && opInfo.metadata.attributes) {
+                                const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
+                                if (attrInfo) {
+                                    isFirstAttribute = true;
+                                }
+                            }
+                            if (isFirstAttribute) {
+                                // For symbol attributes like sym_name, check for '@'
+                                // For other attributes, check if there's a value present
+                                if (firstElem.name === 'sym_name') {
+                                    shouldParse = parser.match('@');
+                                } else if (firstElem.name === 'sym_visibility') {
+                                    shouldParse = parser.match('@') || parser.match('string') || parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested');
+                                } else {
+                                    shouldParse = parser.match('id') || parser.match('int') || parser.match('float') || parser.match('[') || parser.match('@');
+                                }
+                            } else {
+                                // For operands, check for %
+                                shouldParse = parser.match('%');
+                            }
+                        }
+                    } else if (firstElem.type === 'operands') {
+                        shouldParse = parser.match('(') || parser.match('%');
+                    }
+                }
+                if (shouldParse) {
+                    for (const elem of directive.elements) {
+                        switch (elem.type) {
+                            case 'literal':
+                                parser.expect(null, elem.value);
+                                break;
+                            case 'operand_ref': {
+                                const refName = elem.name;
+                                if (refName === 'overflowFlags' || refName === 'fastmath') {
+                                    parser.expect('<');
+                                    const flags = [];
+                                    while (!parser.match('>')) {
+                                        flags.push(parser.expect('id'));
+                                        parser.accept(',');
+                                    }
+                                    parser.expect('>');
+                                    op.attributes.push({ name: refName, value: flags.join(', ') });
+                                    break;
+                                }
+                                let isAttribute = false;
+                                let isVariadic = false;
+                                if (opInfo.metadata && opInfo.metadata.attributes) {
+                                    const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
+                                    if (attrInfo) {
+                                        isAttribute = true;
+                                    }
+                                }
+                                if (!isAttribute && opInfo.metadata && opInfo.metadata.inputs) {
+                                    const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
+                                    if (inputInfo && (inputInfo.type === 'Variadic' || inputInfo.isVariadic ||
+                                            (typeof inputInfo.type === 'string' && inputInfo.type.includes('DynamicDims')))) {
+                                        isVariadic = true;
+                                    }
+                                }
+                                if (isAttribute) {
+                                    // Check if this is a UnitAttr (boolean attribute indicated by keyword presence)
+                                    const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
+                                    const isUnitAttr = attrInfo && attrInfo.type === 'UnitAttr';
+                                    let attrValue = null;
+                                    if (isUnitAttr && elem.anchor) {
+                                        // UnitAttr with anchor: presence indicates true, no value to parse
+                                        attrValue = true;
+                                    } else if (elem.anchor && parser.match('<')) {
+                                        parser.expect('<');
+                                        const flags = [];
+                                        while (!parser.match('>')) {
+                                            if (parser.match('id')) {
+                                                flags.push(parser.expect('id'));
+                                            } else if (parser.match('int')) {
+                                                flags.push(parser.expect('int'));
+                                            } else if (parser.match('string')) {
+                                                flags.push(parser.expect('string'));
+                                            } else {
+                                                break;
+                                            }
+                                            parser.accept(',');
+                                        }
+                                        parser.expect('>');
+                                        attrValue = flags.length === 1 ? flags[0] : flags.join(',');
+                                    } else if (!isUnitAttr) {
+                                        const value = parser.parseValue();
+                                        attrValue = value.value === undefined ? value : value.value;
+                                    }
+                                    if (attrValue !== null) {
+                                        op.attributes.push({ name: refName, value: attrValue });
+                                    }
+                                } else if (isVariadic) {
+                                    while (parser.match('%')) {
+                                        const operand = parser.parseValue();
+                                        op.operands.push(operand);
+                                        if (!parser.accept(',')) {
+                                            break;
+                                        }
+                                    }
+                                } else if (parser.match('%') || parser.match('@') || parser.match('#') || parser.match('[')) {
+                                    const operand = parser.parseValue();
+                                    op.operands.push(operand);
+                                    // Only consume additional comma-separated operands if this is not an anchored operand
+                                    // (anchored operands are explicitly named in the format and should be parsed individually)
+                                    if (!elem.anchor) {
+                                        while (parser.accept(',') && parser.match('%')) {
+                                            const nextOperand = parser.parseValue();
+                                            op.operands.push(nextOperand);
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case 'operands': {
+                                op.operands = parser.parseArguments();
+                                break;
+                            }
+                            case 'type': {
+                                if (elem.args && elem.args.length > 0) {
+                                    const [arg] = elem.args;
+                                    if (arg.startsWith('$')) {
+                                        const varName = arg.substring(1);
+                                        if (varName === 'result' || varName === 'results') {
+                                            let isInput = false;
+                                            if (opInfo.metadata && opInfo.metadata.inputs) {
+                                                isInput = opInfo.metadata.inputs.some((inp) => inp.name === varName);
+                                            }
+                                            if (isInput) {
+                                                parser.parseArgumentTypes(op.operands);
+                                            } else {
+                                                parser.parseArgumentTypes(op.results);
+                                            }
+                                        } else if (varName === 'operands') {
+                                            parser.parseArgumentTypes(op.operands);
+                                        } else {
+                                            let isVariadic = false;
+                                            if (opInfo.metadata && opInfo.metadata.inputs) {
+                                                const input = opInfo.metadata.inputs.find((inp) => inp.name === varName);
+                                                if (input && input.type === 'Variadic') {
+                                                    isVariadic = true;
+                                                }
+                                            }
+                                            if (isVariadic) {
+                                                parser.parseArgumentTypes(op.operands);
+                                            } else {
+                                                const type = parser.parseType();
+                                                if (op.operands.length > 0) {
+                                                    op.operands[op.operands.length - 1].type = type;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case 'results': {
+                                while (parser.match('%')) {
+                                    parser.expect();
+                                    parser.accept(',');
+                                }
+                                break;
+                            }
+                            case 'custom': {
+                                const fn = this._customParsers.get(elem.parser);
+                                if (!fn) {
+                                    throw new mlir.Error(`Custom parser '${elem.parser}' not implemented.`);
+                                }
+                                fn(parser, op, elem.args);
+                                break;
+                            }
+                            case 'whitespace':
+                                break;
+                            default: {
+                                throw new mlir.Error(`Unsupported directive type '${elem.type}' ${parser.location()}.`);
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            case 'conditional_alternative': {
+                // Try to match first alternative
+                const [firstElem] = directive.firstAlt;
+                let matchedFirst = false;
+                if (firstElem && firstElem.type === 'literal') {
+                    matchedFirst = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
+                }
+
+                if (matchedFirst) {
+                    // Parse first alternative - for now just consume the keyword
+                    for (const elem of directive.firstAlt) {
+                        if (elem.type === 'literal') {
+                            parser.expect(null, elem.value);
+                        }
+                    }
+                } else if (directive.secondOptional) {
+                    // Second alternative is optional, try to parse it
+                    const [secondElem] = directive.secondAlt;
+                    let matchedSecond = false;
+                    if (secondElem && secondElem.type === 'literal') {
+                        matchedSecond = parser.match('id', secondElem.value) || parser.match('keyword', secondElem.value);
+                    }
+                    if (matchedSecond) {
+                        for (const elem of directive.secondAlt) {
+                            if (elem.type === 'literal') {
+                                parser.expect(null, elem.value);
+                            }
+                        }
+                    }
+                } else {
+                    // Second alternative is required, parse it
+                    for (const elem of directive.secondAlt) {
+                        if (elem.type === 'literal') {
+                            parser.expect(null, elem.value);
+                        }
+                    }
+                }
+                break;
+            }
+            default: {
+                throw new mlir.Error(`Unsupported directive type '${directive.type}' ${parser.location()}.`);
+            }
+        }
+    }
+
     parseOperation(parser, opName, op) {
         const opInfo = this.getOperation(opName);
         if (!opInfo) {
@@ -3291,600 +3855,8 @@ mlir.Dialect = class {
         }
         const directives = opInfo.directives || [];
         for (let i = 0; i < directives.length; i++) {
-            const directive = directives[i];
             opInfo.hasParseOperation = false;
-            switch (directive.type) {
-                case 'whitespace':
-                    // Skip whitespace directives - they're just formatting hints
-                    break;
-                case 'literal':
-                    parser.expect(null, directive.value);
-                    break;
-                case 'operand_ref': {
-                    const refName = directive.name;
-                    let isAttribute = false;
-                    let isVariadic = false;
-                    let isSuccessor = false;
-                    if (opInfo.metadata && opInfo.metadata.successors) {
-                        const successorInfo = opInfo.metadata.successors.find((succ) => succ.name === refName);
-                        if (successorInfo) {
-                            isSuccessor = true;
-                        }
-                    }
-                    if (!isSuccessor && parser.match('^')) {
-                        isSuccessor = true;
-                    }
-                    if (!isSuccessor && opInfo.metadata && opInfo.metadata.attributes) {
-                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
-                        if (attrInfo) {
-                            isAttribute = true;
-                        }
-                    }
-                    if (!isAttribute && !isSuccessor && opInfo.metadata && opInfo.metadata.inputs) {
-                        const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
-                        if (inputInfo && inputInfo.type === 'Variadic') {
-                            isVariadic = true;
-                        }
-                    }
-                    if (isSuccessor) {
-                        if (parser.match('^')) {
-                            if (!op.successors) {
-                                op.successors = [];
-                            }
-                            const successor = {};
-                            successor.label = parser.expect('^');
-                            if (parser.accept('(')) {
-                                successor.arguments = [];
-                                while (!parser.match(':') && !parser.match(')')) {
-                                    if (parser.match('%')) {
-                                        const arg = {};
-                                        arg.value = parser.expect('%');
-                                        successor.arguments.push(arg);
-                                        parser.accept(',');
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                if (parser.accept(':')) {
-                                    let idx = 0;
-                                    while (idx < successor.arguments.length && !parser.match(')')) {
-                                        const type = parser.parseType();
-                                        successor.arguments[idx].type = type;
-                                        idx++;
-                                        parser.accept(',');
-                                    }
-                                }
-                                parser.accept(')');
-                            }
-                            op.successors.push(successor);
-                        }
-                    } else if (isAttribute) {
-                        const attrValue = parser.match('#') ? parser.parseAttributeValue() : parser.parseValue();
-                        if (attrValue) {
-                            let nextIsColonLiteral = false;
-                            for (let j = i + 1; j < opInfo.directives.length; j++) {
-                                const nextDir = directives[j];
-                                if (nextDir.type !== 'attr_dict') {
-                                    if (nextDir.type === 'literal' && nextDir.value === ':') {
-                                        nextIsColonLiteral = true;
-                                    }
-                                    break; // Only check the next non-attr-dict directive
-                                }
-                            }
-                            if (!nextIsColonLiteral && (attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense' || attrValue.type === 'sparse' || attrValue.name) && parser.accept(':')) {
-                                attrValue.attrType = parser.parseType();
-                            }
-                            op.attributes.push({ name: refName, value: attrValue.value });
-                        }
-                    } else if (isVariadic) {
-                        while (!parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match(':')) {
-                            if (parser.match('%')) {
-                                const input = {};
-                                input.value = parser.expect();
-                                op.operands.push(input);
-                            } else {
-                                break;
-                            }
-                            parser.accept(',');
-                        }
-                    } else if (parser.match('%')) {
-                        const input = {};
-                        input.value = parser.expect();
-                        op.operands.push(input);
-                    } else if ((refName === 'region' || refName === 'regions' || refName.endsWith('Region') || refName.endsWith('Regions') || refName === 'reductions') && parser.match('{')) {
-                        do {
-                            const region = {};
-                            parser.parseRegion(region);
-                            op.regions.push(region);
-                        } while (parser.accept(',') && parser.match('{'));
-                    } else if (parser.match('{')) {
-                        const region = {};
-                        parser.parseRegion(region);
-                        op.regions.push(region);
-                    } else if (parser.match('@')) {
-                        const value = parser.expect('@');
-                        if (directive.name) {
-                            op.attributes.push({ name: directive.name, value });
-                        } else {
-                            op.attributes.push({ name: 'callee', value });
-                        }
-                    } else if (parser.match('id') && !(refName === 'region' || refName === 'regions' || refName.endsWith('Region') || refName.endsWith('Regions'))) {
-                        const input = {};
-                        input.value = parser.expect('id');
-                        op.operands.push(input);
-                    } else if (parser.match('int')) {
-                        const input = {};
-                        input.value = parser.expect('int');
-                        op.operands.push(input);
-                    } else if (!parser.match(':') && !parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match('eof')) {
-                        // Try to parse as a general value, but not if we're at a delimiter
-                        const input = parser.parseValue();
-                        if (input) {
-                            op.operands.push(input);
-                        }
-                    }
-                    break;
-                }
-                case 'operands':
-                    op.operands = parser.parseArguments();
-                    break;
-                case 'results':
-                    op.results = parser.parseArguments();
-                    break;
-                case 'type':
-                case 'qualified':
-                    if (directive.args && directive.args.length > 0) {
-                        const arg = directive.args[0] === 'type' && directive.args.length > 1 ? directive.args[1] : directive.args[0];
-                        if (arg === 'results' || arg === '$results') {
-                            const opMetadata = opInfo.metadata;
-                            const hasVariadicResult = opMetadata && opMetadata.outputs && (opMetadata.outputs.length > 1 || (opMetadata.outputs.length === 1 && (opMetadata.outputs[0].type === 'Variadic' || opMetadata.outputs[0].isVariadic)));
-                            if (hasVariadicResult) {
-                                parser.parseArgumentTypes(op.results);
-                            } else {
-                                const type = parser.parseType();
-                                if (op.results.length === 0) {
-                                    op.results.push({ type });
-                                } else {
-                                    op.results[0].type = type;
-                                }
-                            }
-                        } else if (arg === 'operands' || arg === '$operands') {
-                            parser.parseArgumentTypes(op.operands);
-                        } else {
-                            const opMetadata = opInfo.metadata;
-                            let isResult = false;
-                            let isVariadic = false;
-                            if (opMetadata && opMetadata.outputs) {
-                                for (const output of opMetadata.outputs) {
-                                    if (output.name === arg || `$${output.name}` === arg) {
-                                        isResult = true;
-                                        isVariadic = output.type === 'Variadic' || output.isVariadic || false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!isResult && opMetadata && opMetadata.inputs) {
-                                for (const input of opMetadata.inputs) {
-                                    if (input.name === arg || `$${input.name}` === arg) {
-                                        isVariadic = input.type === 'Variadic' || input.isVariadic || false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (isResult) {
-                                if (isVariadic) {
-                                    parser.parseArgumentTypes(op.results);
-                                } else {
-                                    const type = parser.parseType();
-                                    if (op.results.length === 0) {
-                                        op.results.push({ type });
-                                    } else {
-                                        op.results[0].type = type;
-                                    }
-                                }
-                            } else if (isVariadic) {
-                                parser.parseArgumentTypes(op.operands);
-                            } else if (op.operands.length > 0) {
-                                op.operands[op.operands.length - 1].type = parser.parseType();
-                            } else {
-                                parser.parseType();
-                            }
-                        }
-                    } else {
-                        parser.parseArgumentTypes(op.operands);
-                    }
-                    break;
-                case 'attr_dict_with_keyword':
-                    if (parser.match('id') && parser._token.value === 'attributes') {
-                        parser.expect('id');
-                        parser.parseAttributeDict(op.attributes);
-                    }
-                    break;
-                case 'attr_dict':
-                    parser.parseAttributeDict(op.attributes);
-                    break;
-                case 'regions':
-                    while (parser.match('{')) {
-                        const region = {};
-                        parser.parseRegion(region);
-                        op.regions.push(region);
-                        if (!parser.accept(',')) {
-                            break;
-                        }
-                    }
-                    break;
-                case 'successors':
-                    if (parser.match('[')) {
-                        parser.skip('[', ']');
-                    }
-                    break;
-                case 'functional_type': {
-                    parser.parseArgumentTypes(op.operands);
-                    if (parser.accept('->') || parser.accept('id', 'to')) {
-                        if (op.results.length > 0) {
-                            parser.parseArgumentTypes(op.results);
-                        } else {
-                            op.results = parser.parseArguments();
-                        }
-                    }
-                    break;
-                }
-                case 'custom': {
-                    if (!this._customParsers.has(directive.parser)) {
-                        throw new Error(`Custom parser '${directive.parser}' is not registered.`);
-                    }
-                    const func = this._customParsers.get(directive.parser);
-                    func(parser, op, directive.args);
-                    break;
-                }
-                case 'oilist': {
-                    const clauses = directive.content.split('|').map((c) => c.trim());
-                    const parsedClauses = [];
-                    for (const clauseStr of clauses) {
-                        const clauseParser = new mlir.AssemblyFormatParser({ assemblyFormat: clauseStr });
-                        const elements = clauseParser.parse();
-                        parsedClauses.push({ elements, parsed: false });
-                    }
-                    let progress = true;
-                    while (progress) {
-                        progress = false;
-                        for (const clause of parsedClauses) {
-                            if (clause.parsed) {
-                                continue;
-                            }
-                            if (clause.elements.length === 0) {
-                                continue;
-                            }
-                            const [firstElem] = clause.elements;
-                            let matches = false;
-                            if (firstElem.type === 'literal') {
-                                if (firstElem.value.length === 1 && /[(){}[\],:<>=]/.test(firstElem.value)) {
-                                    matches = parser.match(firstElem.value);
-                                } else {
-                                    matches = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
-                                }
-                            }
-                            if (matches) {
-                                for (let j = 0; j < directives.length; j++) {
-                                    if (j === i) {
-                                        for (const elem of clause.elements) {
-                                            switch (elem.type) {
-                                                case 'literal':
-                                                    parser.expect(null, elem.value);
-                                                    break;
-                                                case 'operand_ref': {
-                                                    // Parse the operand or attribute directly
-                                                    const refName = elem.name;
-                                                    let isAttribute = false;
-                                                    if (opInfo.metadata && opInfo.metadata.attributes) {
-                                                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
-                                                        if (attrInfo) {
-                                                            isAttribute = true;
-                                                        }
-                                                    }
-                                                    if (isAttribute) {
-                                                        const attrValue = parser.parseValue();
-                                                        op.attributes.push({ name: refName, value: attrValue.value === undefined ? attrValue : attrValue.value });
-                                                    } else if (parser.match('%') || parser.match('@')) {
-                                                        const operand = parser.parseValue();
-                                                        op.operands.push(operand);
-                                                    }
-                                                    break;
-                                                }
-                                                case 'custom': {
-                                                    const fn = this._customParsers.get(elem.parser);
-                                                    if (fn) {
-                                                        // Call custom parser - it modifies op directly
-                                                        fn(parser, op, elem.args);
-                                                    }
-                                                    break;
-                                                }
-                                                default:
-                                                    break;
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                                clause.parsed = true;
-                                progress = true;
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'optional_group': {
-                    let shouldParse = false;
-                    const [firstElem] = directive.elements;
-                    if (firstElem) {
-                        if (firstElem.type === 'literal') {
-                            if (firstElem.value.length === 1 && /[(){}[\],:<>=]/.test(firstElem.value)) {
-                                shouldParse = parser.match(firstElem.value);
-                            } else if (firstElem.value === '->') {
-                                shouldParse = parser.match('->');
-                            } else if (firstElem.value === 'overflow' || firstElem.value === 'fastmath') {
-                                shouldParse = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
-                            } else {
-                                shouldParse = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
-                            }
-                        } else if (firstElem.type === 'operand_ref') {
-                            if (firstElem.name === 'overflowFlags' || directive.elements.some((e) => e.name === 'overflowFlags')) {
-                                shouldParse = parser.match('id', 'overflow');
-                            } else if (firstElem.name === 'fastmath' || directive.elements.some((e) => e.name === 'fastmath')) {
-                                shouldParse = parser.match('id', 'fastmath');
-                            } else {
-                                // Check if this is an attribute or an operand
-                                let isFirstAttribute = false;
-                                if (opInfo.metadata && opInfo.metadata.attributes) {
-                                    const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
-                                    if (attrInfo) {
-                                        isFirstAttribute = true;
-                                    }
-                                }
-                                if (isFirstAttribute) {
-                                    // For symbol attributes like sym_name, check for '@'
-                                    // For other attributes, check if there's a value present
-                                    if (firstElem.name === 'sym_name') {
-                                        shouldParse = parser.match('@');
-                                    } else if (firstElem.name === 'sym_visibility') {
-                                        shouldParse = parser.match('@') || parser.match('string') || parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested');
-                                    } else {
-                                        shouldParse = parser.match('id') || parser.match('int') || parser.match('float') || parser.match('[') || parser.match('@');
-                                    }
-                                } else {
-                                    // For operands, check for %
-                                    shouldParse = parser.match('%');
-                                }
-                            }
-                        } else if (firstElem.type === 'operands') {
-                            shouldParse = parser.match('(') || parser.match('%');
-                        }
-                    }
-                    if (shouldParse) {
-                        for (const elem of directive.elements) {
-                            switch (elem.type) {
-                                case 'literal':
-                                    parser.expect(null, elem.value);
-                                    break;
-                                case 'operand_ref': {
-                                    const refName = elem.name;
-                                    if (refName === 'overflowFlags' || refName === 'fastmath') {
-                                        parser.expect('<');
-                                        const flags = [];
-                                        while (!parser.match('>')) {
-                                            flags.push(parser.expect('id'));
-                                            parser.accept(',');
-                                        }
-                                        parser.expect('>');
-                                        op.attributes.push({ name: refName, value: flags.join(', ') });
-                                        break;
-                                    }
-                                    let isAttribute = false;
-                                    let isVariadic = false;
-                                    if (opInfo.metadata && opInfo.metadata.attributes) {
-                                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
-                                        if (attrInfo) {
-                                            isAttribute = true;
-                                        }
-                                    }
-                                    if (!isAttribute && opInfo.metadata && opInfo.metadata.inputs) {
-                                        const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
-                                        if (inputInfo && (inputInfo.type === 'Variadic' || inputInfo.isVariadic ||
-                                            (typeof inputInfo.type === 'string' && inputInfo.type.includes('DynamicDims')))) {
-                                            isVariadic = true;
-                                        }
-                                    }
-                                    if (isAttribute) {
-                                        // Check if this is a UnitAttr (boolean attribute indicated by keyword presence)
-                                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
-                                        const isUnitAttr = attrInfo && attrInfo.type === 'UnitAttr';
-                                        let attrValue = null;
-                                        if (isUnitAttr && elem.anchor) {
-                                            // UnitAttr with anchor: presence indicates true, no value to parse
-                                            attrValue = true;
-                                        } else if (elem.anchor && parser.match('<')) {
-                                            parser.expect('<');
-                                            const flags = [];
-                                            while (!parser.match('>')) {
-                                                if (parser.match('id')) {
-                                                    flags.push(parser.expect('id'));
-                                                } else if (parser.match('int')) {
-                                                    flags.push(parser.expect('int'));
-                                                } else if (parser.match('string')) {
-                                                    flags.push(parser.expect('string'));
-                                                } else {
-                                                    break;
-                                                }
-                                                parser.accept(',');
-                                            }
-                                            parser.expect('>');
-                                            attrValue = flags.length === 1 ? flags[0] : flags.join(',');
-                                        } else if (!isUnitAttr) {
-                                            const value = parser.parseValue();
-                                            attrValue = value.value === undefined ? value : value.value;
-                                        }
-                                        if (attrValue !== null) {
-                                            op.attributes.push({ name: refName, value: attrValue });
-                                        }
-                                    } else if (isVariadic) {
-                                        while (parser.match('%')) {
-                                            const operand = parser.parseValue();
-                                            op.operands.push(operand);
-                                            if (!parser.accept(',')) {
-                                                break;
-                                            }
-                                        }
-                                    } else if (parser.match('%') || parser.match('@') || parser.match('#') || parser.match('[')) {
-                                        const operand = parser.parseValue();
-                                        op.operands.push(operand);
-                                        // Only consume additional comma-separated operands if this is not an anchored operand
-                                        // (anchored operands are explicitly named in the format and should be parsed individually)
-                                        if (!elem.anchor) {
-                                            while (parser.accept(',') && parser.match('%')) {
-                                                const nextOperand = parser.parseValue();
-                                                op.operands.push(nextOperand);
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                                case 'operands': {
-                                    op.operands = parser.parseArguments();
-                                    break;
-                                }
-                                case 'type': {
-                                    if (elem.args && elem.args.length > 0) {
-                                        const [arg] = elem.args;
-                                        if (arg.startsWith('$')) {
-                                            const varName = arg.substring(1);
-                                            if (varName === 'result' || varName === 'results') {
-                                                let isInput = false;
-                                                if (opInfo.metadata && opInfo.metadata.inputs) {
-                                                    isInput = opInfo.metadata.inputs.some((inp) => inp.name === varName);
-                                                }
-                                                if (isInput) {
-                                                    parser.parseArgumentTypes(op.operands);
-                                                } else {
-                                                    parser.parseArgumentTypes(op.results);
-                                                }
-                                            } else if (varName === 'operands') {
-                                                parser.parseArgumentTypes(op.operands);
-                                            } else {
-                                                let isVariadic = false;
-                                                if (opInfo.metadata && opInfo.metadata.inputs) {
-                                                    const input = opInfo.metadata.inputs.find((inp) => inp.name === varName);
-                                                    if (input && input.type === 'Variadic') {
-                                                        isVariadic = true;
-                                                    }
-                                                }
-                                                if (isVariadic) {
-                                                    parser.parseArgumentTypes(op.operands);
-                                                } else {
-                                                    const type = parser.parseType();
-                                                    if (op.operands.length > 0) {
-                                                        op.operands[op.operands.length - 1].type = type;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                                case 'results': {
-                                    while (parser.match('%')) {
-                                        parser.expect();
-                                        parser.accept(',');
-                                    }
-                                    break;
-                                }
-                                case 'custom': {
-                                    const fn = this._customParsers.get(elem.parser);
-                                    if (!fn) {
-                                        break;
-                                    }
-                                    const result = fn(parser, elem.args);
-                                    if (result && result.kind === 'SameOperandsAndResultType' && result.type) {
-                                        for (const operand of op.operands) {
-                                            if (!operand.type) {
-                                                operand.type = result.type;
-                                            }
-                                        }
-                                        for (const res of op.results) {
-                                            if (!res.type) {
-                                                res.type = result.type;
-                                            }
-                                        }
-                                    } else if (result && result.kind === 'PairwiseOpType') {
-                                        if (result.operandTypes && op.operands.length > 0) {
-                                            for (let i = 0; i < Math.min(result.operandTypes.length, op.operands.length); i++) {
-                                                if (!op.operands[i].type) {
-                                                    op.operands[i].type = result.operandTypes[i];
-                                                }
-                                            }
-                                        }
-                                        if (result.resultTypes && op.results.length > 0) {
-                                            for (let i = 0; i < Math.min(result.resultTypes.length, op.results.length); i++) {
-                                                if (!op.results[i].type) {
-                                                    op.results[i].type = result.resultTypes[i];
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                                case 'whitespace':
-                                    break;
-                                default: {
-                                    throw new mlir.Error(`Unsupported directive type '${elem.type}' ${parser.location()}.`);
-                                }
-                            }
-                        }
-                    }
-                    break;
-                }
-                case 'conditional_alternative': {
-                    // Try to match first alternative
-                    const [firstElem] = directive.firstAlt;
-                    let matchedFirst = false;
-                    if (firstElem && firstElem.type === 'literal') {
-                        matchedFirst = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
-                    }
-
-                    if (matchedFirst) {
-                        // Parse first alternative - for now just consume the keyword
-                        for (const elem of directive.firstAlt) {
-                            if (elem.type === 'literal') {
-                                parser.expect(null, elem.value);
-                            }
-                        }
-                    } else if (directive.secondOptional) {
-                        // Second alternative is optional, try to parse it
-                        const [secondElem] = directive.secondAlt;
-                        let matchedSecond = false;
-                        if (secondElem && secondElem.type === 'literal') {
-                            matchedSecond = parser.match('id', secondElem.value) || parser.match('keyword', secondElem.value);
-                        }
-                        if (matchedSecond) {
-                            for (const elem of directive.secondAlt) {
-                                if (elem.type === 'literal') {
-                                    parser.expect(null, elem.value);
-                                }
-                            }
-                        }
-                    } else {
-                        // Second alternative is required, parse it
-                        for (const elem of directive.secondAlt) {
-                            if (elem.type === 'literal') {
-                                parser.expect(null, elem.value);
-                            }
-                        }
-                    }
-                    break;
-                }
-                default: {
-                    throw new mlir.Error(`Unsupported directive type '${directive.type}' ${parser.location()}.`);
-                }
-            }
+            this.parseDirective(directives[i], parser, op, opInfo, directives, i);
         }
         return true;
     }
@@ -5636,15 +5608,16 @@ mlir.HALDialect = class extends mlir.IREEDialect {
             if (parser.accept('->')) {
                 parser.parseFunctionResultList();
             }
-            // Parse attributes dict if present
             if (parser.accept('id', 'attributes')) {
                 parser.parseAttributeDict(op.attributes);
             }
-            // Parse region if present
             if (parser.match('{')) {
                 const region = {};
                 parser.parseRegion(region);
                 op.regions.push(region);
+            }
+            if (parser.accept('id', 'attributes')) {
+                parser.parseAttributeDict(op.attributes);
             }
             return true;
         }
@@ -5756,6 +5729,9 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
             return true;
         }
         if (opName === 'util.initializer') {
+            if (parser.accept('id', 'attributes')) {
+                parser.parseAttributeDict(op.attributes);
+            }
             if (parser.match('{')) {
                 const region = {};
                 parser.parseRegion(region);
@@ -6056,6 +6032,10 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
             } else {
                 op.results = parser.parseArguments();
             }
+        }
+        // Parse optional attributes before =
+        if (parser.accept('id', 'attributes')) {
+            parser.parseAttributeDict(op.attributes);
         }
         // Parse region with arguments: = (%arg2: type, %arg3: type) { ... }
         if (parser.accept('=')) {
@@ -7252,6 +7232,10 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             if (parser.accept('id', 'requires')) {
                 const vce = parser.parseAttributeValue();
                 op.attributes.push({ name: 'vce_triple', value: vce });
+            }
+            // Parse optional 'attributes' keyword followed by attribute dict
+            if (parser.accept('id', 'attributes')) {
+                parser.parseAttributeDict(op.attributes);
             }
             // Parse region
             if (parser.match('{')) {
@@ -9812,6 +9796,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'sdfg.consume') {
+            parser.parseOptionalAttrDict(op.attributes);
             if (parser.match('(')) {
                 op.operands = parser.parseArguments();
             }
