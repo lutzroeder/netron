@@ -2161,6 +2161,14 @@
   },
   {
     "type":     "executorch",
+    "target":   "stories260k_hybrid_llama_qnn.pte",
+    "source":   "https://github.com/user-attachments/files/23569374/stories260k_hybrid_llama_qnn.pte.zip[stories260k_hybrid_llama_qnn.pte]",
+    "format":   "ExecuTorch v0",
+    "error":    "QNN backend not implemented.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
     "target":   "style_transfer_candy_coreml.pte",
     "source":   "https://github.com/user-attachments/files/18469498/style_transfer_candy_coreml.pte.zip[style_transfer_candy_coreml.pte]",
     "format":   "ExecuTorch v0",

@@ -5,6 +5,7 @@ const executorch = {};
 const coreml = {};
 const vulkan = {};
 const xnnpack = {};
+const qnn = {};
 
 import * as base from './base.js';
 import * as python from './python.js';
@@ -399,6 +400,10 @@ executorch.Reader = class {
                             }
                             case 'VulkanBackend': {
                                 delegate.backend = vulkan.Reader.open(data, this);
+                                break;
+                            }
+                            case 'QnnBackend': {
+                                delegate.backend = qnn.Reader.open(data, this);
                                 break;
                             }
                             default: {
@@ -1085,6 +1090,32 @@ coreml.Context = class {
         this.type = type;
         this.value = value;
         return type;
+    }
+};
+
+qnn.Reader = class {
+
+    static open(data, target) {
+        if (data.length >= 20) {
+            const reader = base.BinaryReader.open(data);
+            const magic = reader.uint32();
+            if (magic === 0x5678ABCD) {
+                return new qnn.Reader(reader, target);
+            }
+        }
+        return null;
+    }
+
+    constructor(reader, target) {
+        this.reader = reader;
+        this.target = target;
+        this.signature = reader.uint64();
+        this.size = reader.uint64();
+    }
+
+    async read() {
+        // https://github.com/pytorch/executorch/blob/main/backends/qualcomm/runtime/backends/QnnCustomProtocol.h
+        throw new executorch.Error('QNN backend not implemented.');
     }
 };
 
