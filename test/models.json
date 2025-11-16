@@ -3314,7 +3314,6 @@
     "target":   "conv-conversion.mlir",
     "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
     "format":   "MLIR",
-    "error":    "Unsupported custom operation 'spv.Load' at 6008:21.",
     "tags":     "skip-render",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
