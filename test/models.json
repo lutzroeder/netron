@@ -2128,7 +2128,15 @@
     "source":   "https://github.com/user-attachments/files/18462557/mobilenet_v2.pte.zip[mobilenet_v2.pte]",
     "format":   "ExecuTorch v0",
     "tags":     "validation",
-    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
+    "target":   "ModuleLinear-no-constant-segment.pte",
+    "source":   "https://github.com/user-attachments/files/23569372/ModuleLinear-no-constant-segment.pte.zip[ModuleLinear-no-constant-segment.pte]",
+    "format":   "ExecuTorch v0",
+    "tags":     "validation",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   {
     "type":     "executorch",
@@ -7144,6 +7152,7 @@
     "target":   "weigths_0000000.pth",
     "source":   "https://github.com/user-attachments/files/16401710/weigths_0000000.pth.zip[weigths_0000000.pth]",
     "format":   "PyTorch v1.6",
+    "error":    "Unsupported node operation 'get_attr'.",
     "link":     "https://github.com/lutzroeder/netron/issues/543"
   },
   {
@@ -7151,7 +7160,6 @@
     "target":   "wrap_with_autocast.pt2",
     "source":   "https://github.com/user-attachments/files/20875084/wrap_with_autocast.pt2.zip[wrap_with_autocast.pt2]",
     "format":   "PyTorch Export v8.8",
-    "error":    "Unsupported node operation 'get_attr'.",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {

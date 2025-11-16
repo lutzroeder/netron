@@ -298,8 +298,13 @@ executorch.Tensor = class {
         const program = target.program;
         if (tensor.extra_tensor_info) {
             throw new executorch.Error('Extra tensor info not implemented.');
-        } else if (program.constant_buffers) {
-            throw new executorch.Error('Constant buffers not implemented.');
+        } else if (Array.isArray(program.constant_buffer) && program.constant_buffer.length > 0) {
+            if (data_buffer_idx >= program.constant_buffer.length) {
+                throw new executorch.Error(`Constant buffer index out of range.`);
+            }
+            const buffer = program.constant_buffer[data_buffer_idx];
+            this.values = buffer.storage;
+            this.encoding = '<';
         } else if (tensor.allocation_info === null) {
             const constant_segment = program.constant_segment;
             const data_segment = program.segments[constant_segment.segment_index];
