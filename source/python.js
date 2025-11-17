@@ -3540,6 +3540,7 @@ python.Execution = class {
         this.registerType('sklearn.compose._column_transformer.make_column_selector', class {});
         this.registerType('sklearn.compose._target.TransformedTargetRegressor', class {});
         this.registerType('sklearn.cross_decomposition._pls.PLSRegression', class {});
+        this.registerType('sklearn.cross_decomposition._pls.CCA', class {});
         this.registerType('sklearn.decomposition._fastica.FastICA', class {});
         this.registerType('sklearn.decomposition._incremental_pca.IncrementalPCA', class {});
         this.registerType('sklearn.decomposition._pca.PCA', class {});
@@ -3588,6 +3589,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble.weight_boosting.AdaBoostClassifier', class {});
         this.registerType('sklearn.feature_extraction._dict_vectorizer.DictVectorizer', class {});
         this.registerType('sklearn.feature_extraction._hashing.FeatureHasher', class {});
+        this.registerType('sklearn.feature_extraction._hash.FeatureHasher', class {});
         this.registerType('sklearn.feature_extraction.text.CountVectorizer', class {});
         this.registerType('sklearn.feature_extraction.text.HashingVectorizer', class {});
         this.registerType('sklearn.feature_extraction.text.TfidfTransformer', class {});
