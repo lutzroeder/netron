@@ -64,13 +64,11 @@ class Operator {
         }
         if (parentClass.name === 'Op' && parentArgs.length >= 2) {
             let [dialectArg, mnemonicArg] = parentArgs;
-            const dialectKey = this._extractValue(dialectArg);
-            if (dialectKey && subs[dialectKey]) {
-                dialectArg = subs[dialectKey];
+            if (dialectArg && dialectArg.type === 'def' && dialectArg.value && subs[dialectArg.value]) {
+                dialectArg = subs[dialectArg.value];
             }
-            const mnemonicKey = this._extractValue(mnemonicArg);
-            if (mnemonicKey && subs[mnemonicKey]) {
-                mnemonicArg = subs[mnemonicKey];
+            if (mnemonicArg && mnemonicArg.type === 'def' && mnemonicArg.value && subs[mnemonicArg.value]) {
+                mnemonicArg = subs[mnemonicArg.value];
             }
             let dialectName = null;
             const dialectStr = this._extractValue(dialectArg);
@@ -473,6 +471,28 @@ const main = async () => {
                         const traitName = trait.type === 'def' ? trait.value : null;
                         const traitDag = trait.type === 'dag' && trait.value?.operator ? trait.value.operator : null;
                         if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
+                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value?.operands) {
+                                const methods = trait.value.operands.find((operand) => {
+                                    if (operand.type === 'list' && operand.value) {
+                                        return operand.value.some((method) => {
+                                            let methodName = null;
+                                            if (typeof method === 'string') {
+                                                methodName = method;
+                                            } else if (method.type === 'string') {
+                                                methodName = method.value;
+                                            }
+                                            return methodName === 'getDefaultDialect';
+                                        });
+                                    }
+                                    return false;
+                                });
+                                if (methods) {
+                                    const parts = operationName.split('.');
+                                    const [dialectName] = parts;
+                                    operation.defaultDialect = dialectName;
+                                    break;
+                                }
+                            }
                             const extraClass = def.resolveField('extraClassDeclaration');
                             if (extraClass && extraClass.value) {
                                 const code = def.evaluateValue(extraClass.value);
