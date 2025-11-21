@@ -608,6 +608,7 @@ fb_xnnpack.XNodeUnion = class {
             case 43: return fb_xnnpack.XNNTanh.decode(reader, position);
             case 44: return fb_xnnpack.XNNExp.decode(reader, position);
             case 45: return fb_xnnpack.XNNSin.decode(reader, position);
+            case 46: return fb_xnnpack.XNNCopy.decode(reader, position);
             default: return undefined;
         }
     }
@@ -1225,6 +1226,15 @@ fb_xnnpack.XNNSin = class XNNSin {
 
     static decode(reader, position) {
         const $ = new fb_xnnpack.XNNSin();
+        fb_xnnpack._XNNNode1x1.decode(reader, position, $);
+        return $;
+    }
+};
+
+fb_xnnpack.XNNCopy = class XNNCopy {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack.XNNCopy();
         fb_xnnpack._XNNNode1x1.decode(reader, position, $);
         return $;
     }
