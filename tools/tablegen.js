@@ -1240,7 +1240,6 @@ tablegen.Reader = class {
                 const value = this._parseValue();
                 args.push(value);
             }
-
             if (!this._eat(',')) {
                 break;
             }
@@ -1267,6 +1266,24 @@ tablegen.Reader = class {
         return new tablegen.Value('concat', values);
     }
 
+    _parseListItem() {
+        if (this._match('id')) {
+            const name = this._read();
+            if (this._eat('<')) {
+                const templateArgs = this._parseTemplateArgList();
+                const operands = templateArgs.map((arg) => {
+                    if (arg && typeof arg === 'object' && arg.name && arg.value) {
+                        return { value: arg.value, name: arg.name };
+                    }
+                    return { value: arg, name: null };
+                });
+                return new tablegen.Value('dag', new tablegen.DAG(name, operands));
+            }
+            return new tablegen.Value('def', name);
+        }
+        return this._parseValue();
+    }
+
     _parsePrimaryValue() {
         if (this._match('string')) {
             const value = this._read();
@@ -1287,11 +1304,10 @@ tablegen.Reader = class {
         if (this._eat('[')) {
             const items = [];
             while (!this._match(']') && !this._match('eof')) {
-                items.push(this._parseValue());
+                items.push(this._parseListItem());
                 this._eat(',');
             }
             this._expect(']');
-            // Skip optional type annotation: []<Type>
             if (this._match('<')) {
                 this._skip('<', '>');
             }
@@ -1323,7 +1339,6 @@ tablegen.Reader = class {
             return new tablegen.Value('dag', dag);
         }
         if (this._eat('{')) {
-            // Anonymous record { field = value, ... }
             const fields = new Map();
             while (!this._match('}') && !this._match('eof')) {
                 const name = this._expect('id');

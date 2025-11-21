@@ -172,6 +172,7 @@ const main = async () => {
         path.join(source, 'tensorflow', 'tensorflow', 'compiler', 'mlir', 'tfrt', 'ir'),
         path.join(source, 'runtime', 'include'),
         path.join(source, 'plaidml'),
+        path.join(source, 'plaidml', 'pmlc', 'dialect', 'pxa', 'ir'),
         path.join(source, 'mlir-dace', 'include'),
         path.join(source, 'lltz', 'mlir', 'dialect', 'include', 'Michelson'),
         path.join(source, 'lagrad', 'include', 'LAGrad'),
@@ -319,6 +320,7 @@ const main = async () => {
         'tpu_mlir/Dialect/Tpu/IR/TpuOps.td',
         'pmlc/dialect/tile/ir/ops.td',
         'pmlc/dialect/stdx/ir/ops.td',
+        // 'pmlc/dialect/pxa/ir/ops.td', // File not found 'mlir/Dialect/Arithmetic/IR/ArithmeticBase.td'
         'SDFG/Dialect/Ops.td',
         'MichelsonOps.td',
         'triton/Dialect/Triton/IR/TritonOps.td',
@@ -526,23 +528,8 @@ const main = async () => {
                         const traitDag = trait.type === 'dag' && trait.value?.operator ? trait.value.operator : null;
                         if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
                             if (traitDag === 'DeclareOpInterfaceMethods' && trait.value?.operands) {
-                                const methods = trait.value.operands.find((operand) => {
-                                    if (operand.type === 'list' && operand.value) {
-                                        return operand.value.some((method) => {
-                                            let methodName = null;
-                                            if (typeof method === 'string') {
-                                                methodName = method;
-                                            } else if (method.type === 'string') {
-                                                methodName = method.value;
-                                            }
-                                            return methodName === 'getDefaultDialect';
-                                        });
-                                    }
-                                    return false;
-                                });
-                                if (methods) {
-                                    const parts = operationName.split('.');
-                                    const [dialectName] = parts;
+                                if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
+                                    const [dialectName] = operationName.split('.');
                                     operation.defaultDialect = dialectName;
                                     break;
                                 }
