@@ -10,6 +10,7 @@ entries=(
     "https://github.com/llvm/torch-mlir.git|main|./third_party/source/mlir/torch-mlir|"
     "https://github.com/triton-lang/triton|main|./third_party/source/mlir/triton|"
     "https://github.com/tensorflow/tensorflow.git|master|./third_party/source/mlir/tensorflow|tensorflow/compiler/mlir"
+    "https://github.com/tensorflow/runtime.git|master|./third_party/source/mlir/runtime|"
     "https://github.com/tensorflow/mlir-hlo.git|main|./third_party/source/mlir/mlir-hlo|"
     "https://github.com/iree-org/iree.git|main|./third_party/source/mlir/iree|compiler"
     "https://github.com/monellz/FlashTensor.git|main|./third_party/source/mlir/FlashTensor|"

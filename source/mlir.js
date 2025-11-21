@@ -897,8 +897,10 @@ mlir.Parser = class {
         this._dialects.set('tf_executor', new mlir.TFExecutorDialect(operations));
         this._dialects.set('tf_framework', new mlir.TFFrameworkDialect(operations));
         this._dialects.set('tfr', new mlir.TFRDialect(operations));
+        this._dialects.set('corert', new mlir.CoreRTDialect(operations));
         this._dialects.set('tfrt', new mlir.TFRTDialect(operations));
         this._dialects.set('tfrt_fallback', new mlir.Dialect('tfrt_fallback', operations));
+        this._dialects.set('tfrt_fallback_async', new mlir.TFRTFallbackAsyncDialect(operations));
         this._dialects.set('tfl', new mlir.TFLDialect(operations));
         this._dialects.set('stdx', new mlir.StdxDialect(operations));
         this._dialects.set('vm', new mlir.VMDialect(operations));
@@ -3912,39 +3914,61 @@ mlir.Dialect = class {
                                 op.operands = parser.parseArguments();
                                 break;
                             }
-                            case 'type': {
+                            case 'type':
+                            case 'qualified': {
                                 if (elem.args && elem.args.length > 0) {
-                                    const [arg] = elem.args;
-                                    if (arg.startsWith('$')) {
-                                        const varName = arg.substring(1);
-                                        if (varName === 'result' || varName === 'results') {
-                                            let isInput = false;
-                                            if (opInfo.metadata && opInfo.metadata.inputs) {
-                                                isInput = opInfo.metadata.inputs.some((inp) => inp.name === varName);
-                                            }
-                                            if (isInput) {
-                                                parser.parseArgumentTypes(op.operands);
-                                            } else {
-                                                parser.parseArgumentTypes(op.results);
-                                            }
-                                        } else if (varName === 'operands') {
+                                    const arg = elem.args[0] === 'type' && elem.args.length > 1 ? elem.args[1] : elem.args[0];
+                                    const varName = arg.startsWith('$') ? arg.substring(1) : arg;
+                                    if (varName === 'result' || varName === 'results') {
+                                        let isInput = false;
+                                        if (opInfo.metadata && opInfo.metadata.inputs) {
+                                            isInput = opInfo.metadata.inputs.some((inp) => inp.name === varName);
+                                        }
+                                        if (isInput) {
                                             parser.parseArgumentTypes(op.operands);
                                         } else {
-                                            let isVariadic = false;
-                                            if (opInfo.metadata && opInfo.metadata.inputs) {
-                                                const input = opInfo.metadata.inputs.find((inp) => inp.name === varName);
-                                                if (input && input.type === 'Variadic') {
-                                                    isVariadic = true;
+                                            parser.parseArgumentTypes(op.results);
+                                        }
+                                    } else if (varName === 'operands') {
+                                        parser.parseArgumentTypes(op.operands);
+                                    } else {
+                                        const opMetadata = opInfo.metadata;
+                                        let isResult = false;
+                                        let isVariadic = false;
+                                        if (opMetadata && opMetadata.outputs) {
+                                            for (const output of opMetadata.outputs) {
+                                                if (output.name === arg || `$${output.name}` === arg) {
+                                                    isResult = true;
+                                                    isVariadic = output.type === 'Variadic' || output.isVariadic || false;
+                                                    break;
                                                 }
                                             }
+                                        }
+                                        if (!isResult && opMetadata && opMetadata.inputs) {
+                                            for (const input of opMetadata.inputs) {
+                                                if (input.name === arg || `$${input.name}` === arg) {
+                                                    isVariadic = input.type === 'Variadic' || input.isVariadic || false;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (isResult) {
                                             if (isVariadic) {
-                                                parser.parseArgumentTypes(op.operands);
+                                                parser.parseArgumentTypes(op.results);
                                             } else {
                                                 const type = parser.parseType();
-                                                if (op.operands.length > 0) {
-                                                    op.operands[op.operands.length - 1].type = type;
+                                                if (op.results.length === 0) {
+                                                    op.results.push({ type });
+                                                } else {
+                                                    op.results[0].type = type;
                                                 }
                                             }
+                                        } else if (isVariadic) {
+                                            parser.parseArgumentTypes(op.operands);
+                                        } else if (op.operands.length > 0) {
+                                            op.operands[op.operands.length - 1].type = parser.parseType();
+                                        } else {
+                                            parser.parseType();
                                         }
                                     }
                                 }
@@ -3963,6 +3987,11 @@ mlir.Dialect = class {
                                     throw new mlir.Error(`Custom parser '${elem.parser}' not implemented.`);
                                 }
                                 fn(parser, op, elem.args);
+                                break;
+                            }
+                            case 'optional_group':
+                            case 'conditional_alternative': {
+                                this.parseDirective(elem, parser, op, opInfo, directive.elements, 0);
                                 break;
                             }
                             case 'whitespace':
@@ -4594,9 +4623,6 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
 
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
-        if (!typeName) {
-            return null;
-        }
         if (typeName === 'token') {
             return new mlir.Type(`!${dialectName}.token`);
         }
@@ -6603,11 +6629,8 @@ mlir.IREETensorExtDialect = class extends mlir.Dialect {
 
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialectName}.${typeName}`;
         if (typeName === 'dispatch.tensor') {
+            let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
                 const content = parser.skip('<', '>');
                 type += content;
@@ -6940,7 +6963,8 @@ mlir.LinalgDialect = class extends mlir.Dialect {
             op.regions.push(region);
         }
         if (parser.accept('->')) {
-            parser.parseArgumentTypes(op.results);
+            const hasParens = parser.match('(');
+            parser.parseArgumentTypes(op.results, hasParens);
         }
         return true;
     }
@@ -7482,9 +7506,6 @@ mlir.QuantDialect = class extends mlir.Dialect {
 
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
-        if (!typeName) {
-            return null;
-        }
         if (typeName === 'uniform' || typeName === 'calibrated') {
             let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
@@ -7508,9 +7529,6 @@ mlir.TosaDialect = class extends mlir.Dialect {
 
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
-        if (!typeName) {
-            return null;
-        }
         if (typeName === 'shape') {
             let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
@@ -7688,10 +7706,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
 
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
-        if (!typeName) {
-            return null;
-        }
-        if (this.typesWithOptionalParams.has(typeName)) {
+        if (typeName && this.typesWithOptionalParams.has(typeName)) {
             let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
                 const content = parser.skip('<', '>');
@@ -8259,26 +8274,25 @@ mlir.AsyncDialect = class extends mlir.Dialect {
 
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialectName}.${typeName}`;
-        if (typeName === 'coro' && parser.match('.')) {
-            parser.expect('.');
-            const subType = parser.expect('id');
-            type += `.${subType}`;
-            return new mlir.Type(type);
-        }
-        const simpleTypes = ['token', 'group'];
-        if (simpleTypes.includes(typeName)) {
-            return new mlir.Type(type);
-        }
-        if (typeName === 'value') {
-            if (parser.match('<')) {
-                const content = parser.skip('<', '>');
-                type += content;
+        if (typeName) {
+            let type = `!${dialectName}.${typeName}`;
+            if (typeName === 'coro' && parser.match('.')) {
+                parser.expect('.');
+                const subType = parser.expect('id');
+                type += `.${subType}`;
+                return new mlir.Type(type);
             }
-            return new mlir.Type(type);
+            const simpleTypes = ['token', 'group'];
+            if (simpleTypes.includes(typeName)) {
+                return new mlir.Type(type);
+            }
+            if (typeName === 'value') {
+                if (parser.match('<')) {
+                    const content = parser.skip('<', '>');
+                    type += content;
+                }
+                return new mlir.Type(type);
+            }
         }
         return null;
     }
@@ -10530,6 +10544,37 @@ mlir.TFRDialect = class extends mlir.Dialect {
     }
 };
 
+mlir.CoreRTDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        super('corert', operations);
+    }
+
+    parseOperation(parser, opName, op) {
+        const opInfo = this.getOperation(opName);
+        if (!opInfo) {
+            return false;
+        }
+        if (opName === 'corert.executeop' || opName === 'corert.executeop.seq') {
+            const opHandler = parser.parseArguments();
+            op.operands.push(...opHandler);
+            const opNameAttr = parser.expect('string');
+            op.attributes.push({ name: 'op_name', value: opNameAttr });
+            const operands = parser.parseArguments();
+            op.operands.push(...operands);
+            if (parser.match('{')) {
+                parser.parseAttributeDict(op.attributes);
+            }
+            if (parser.accept(':')) {
+                const resultCount = parser.expect();
+                op.attributes.push({ name: 'result_count', value: parseInt(resultCount, 10) });
+            }
+            return true;
+        }
+        return super.parseOperation(parser, opName, op);
+    }
+};
+
 mlir.TFRTDialect = class extends mlir.Dialect {
 
     constructor(operations) {
@@ -10554,6 +10599,78 @@ mlir.TFRTDialect = class extends mlir.Dialect {
             return new mlir.Type(type);
         }
         return null;
+    }
+
+    parseOperation(parser, opName, op) {
+        const opInfo = this.getOperation(opName);
+        if (!opInfo) {
+            return false;
+        }
+        if (opInfo.metadata?.assemblyFormat === 'operands attr-dict') {
+            while (parser.match('%')) {
+                op.operands.push({ value: parser.expect() });
+                if (!parser.accept(',')) {
+                    break;
+                }
+            }
+            if (parser.match('{')) {
+                parser.parseAttributeDict(op.attributes);
+            }
+            return true;
+        }
+        if (opName === 'tfrt.return') {
+            if (!parser.match('keyword', 'loc') && !parser.match('eof')) {
+                op.operands = parser.parseArguments();
+                if (parser.accept(':')) {
+                    parser.parseArgumentTypes(op.operands);
+                }
+            }
+            return true;
+        }
+        return super.parseOperation(parser, opName, op);
+    }
+};
+
+mlir.TFRTFallbackAsyncDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        super('tfrt_fallback_async', operations);
+    }
+
+    parseOperation(parser, opName, op) {
+        const opInfo = this.getOperation(opName);
+        if (!opInfo) {
+            return false;
+        }
+        if (opName === 'tfrt_fallback_async.executeop') {
+            while (!parser.match(':') && !parser.match('{')) {
+                if (parser.match('id')) {
+                    const key = parser.expect('id');
+                    if (parser.accept('(')) {
+                        const value = parser.expect();
+                        parser.expect(')');
+                        op.attributes.push({ name: key, value });
+                    }
+                } else if (parser.match('string')) {
+                    const opNameAttr = parser.expect('string');
+                    op.attributes.push({ name: 'op_name', value: opNameAttr });
+                    const operands = parser.parseArguments();
+                    op.operands.push(...operands);
+                    break;
+                } else {
+                    break;
+                }
+            }
+            if (parser.match('{')) {
+                parser.parseAttributeDict(op.attributes);
+            }
+            if (parser.accept(':')) {
+                const resultCount = parser.expect();
+                op.attributes.push({ name: 'result_count', value: parseInt(resultCount, 10) });
+            }
+            return true;
+        }
+        return super.parseOperation(parser, opName, op);
     }
 };
 

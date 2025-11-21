@@ -36,11 +36,9 @@ class Operator {
             return arg;
         }
         if (arg && typeof arg === 'object') {
-            // Handle named argument: { name, value }
             if (arg.value !== undefined && arg.name !== undefined) {
                 return this._extractValue(arg.value);
             }
-            // Handle Value object: { type, value }
             if (arg.type === 'string' && typeof arg.value === 'string') {
                 return arg.value.replace(/^"|"$/g, '');
             }
@@ -51,6 +49,41 @@ class Operator {
         return null;
     }
 
+    _evaluateWithSubstitutions(value, subs, visited = new Set()) {
+        if (!value) {
+            return null;
+        }
+        // Detect cycles
+        const valueKey = JSON.stringify(value);
+        if (visited.has(valueKey)) {
+            return null;
+        }
+        visited.add(valueKey);
+        switch (value.type) {
+            case 'string':
+                return typeof value.value === 'string' ? value.value.replace(/^"|"$/g, '') : value.value;
+            case 'int':
+                return parseInt(value.value, 10);
+            case 'concat': {
+                const parts = value.value.map((v) => this._evaluateWithSubstitutions(v, subs, visited));
+                const filtered = parts.filter((v) => v !== null && v !== undefined && v !== '');
+                const result = filtered.join('');
+                return result;
+            }
+            case 'id':
+            case 'def': {
+                const name = value.value;
+                if (subs[name] && subs[name] !== value) {
+                    return this._evaluateWithSubstitutions(subs[name], subs, visited);
+                }
+                return this.def.evaluateValue(value);
+            }
+            default: {
+                return this.def.evaluateValue(value);
+            }
+        }
+    }
+
     _findOpParent(parentClass, parentArgs, substitutions) {
         const subs = { ...substitutions };
         if (parentClass.templateArgs && parentArgs) {
@@ -58,8 +91,12 @@ class Operator {
                 const paramName = parentClass.templateArgs[i].name;
                 const argValue = parentArgs[i];
                 const extractedValue = this._extractValue(argValue);
-                subs[paramName] = (extractedValue && substitutions[extractedValue])
-                    ? substitutions[extractedValue] : argValue;
+                if (extractedValue && substitutions[extractedValue]) {
+                    subs[paramName] = substitutions[extractedValue];
+                } else {
+                    const evaluated = this._evaluateWithSubstitutions(argValue, substitutions);
+                    subs[paramName] = evaluated === null ? argValue : subs[paramName] = { type: 'string', value: evaluated };
+                }
             }
         }
         if (parentClass.name === 'Op' && parentArgs.length >= 2) {
@@ -78,7 +115,10 @@ class Operator {
                     dialectName = dialectDef.getValueAsString('name');
                 }
             }
-            const mnemonic = this._extractValue(mnemonicArg);
+            let mnemonic = this._extractValue(mnemonicArg);
+            if (!mnemonic && mnemonicArg) {
+                mnemonic = this._evaluateWithSubstitutions(mnemonicArg, subs);
+            }
             if (dialectName && mnemonic) {
                 return { dialect: dialectName, mnemonic };
             }
@@ -129,6 +169,8 @@ const main = async () => {
         path.join(source, 'FlashTensor', 'include'),
         path.join(source, 'tpu-mlir', 'include'),
         path.join(source, 'tensorflow'),
+        path.join(source, 'tensorflow', 'tensorflow', 'compiler', 'mlir', 'tfrt', 'ir'),
+        path.join(source, 'runtime', 'include'),
         path.join(source, 'plaidml'),
         path.join(source, 'mlir-dace', 'include'),
         path.join(source, 'lltz', 'mlir', 'dialect', 'include', 'Michelson'),
@@ -253,6 +295,12 @@ const main = async () => {
         'tensorflow/compiler/mlir/tensorflow/ir/tf_executor_ops.td',
         'tensorflow/compiler/mlir/tools/kernel_gen/ir/tf_framework_ops.td',
         'tensorflow/compiler/mlir/tfr/ir/tfr_ops.td',
+        'tensorflow/compiler/mlir/tfrt/ir/tfrt_fallback.td',
+        'tensorflow/compiler/mlir/tfrt/ir/tfrt_fallback_async.td',
+        'tensorflow/compiler/mlir/tfrt/ir/tfrt_fallback_sync.td',
+        'tensorflow/compiler/mlir/tensorflow/ir/host_runtime/tfrt_ops.td',
+        'tfrt/core_runtime/opdefs/core_runtime.td',
+        'tfrt/basic_kernels/opdefs/basic_kernels.td',
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
@@ -288,7 +336,10 @@ const main = async () => {
         const content = await fs.readFile(file, 'utf-8');
         const json = JSON.parse(content);
         for (const op of json) {
-            if (op.name) {
+            if (op.name.endsWith('.') || op.name.includes('..') || op.name.includes('#')) {
+                throw new Error(`Invalid operation name '${op.name}'.`);
+            }
+            if (op.name && !op.name.endsWith('.')) {
                 operations.set(op.name, op);
             }
         }
@@ -299,8 +350,11 @@ const main = async () => {
     for (const def of parser.defs) {
         const op = new Operator(def);
         const operationName = op.getOperationName();
-        if (!operationName) {
+        if (!operationName || operationName.endsWith('.')) {
             continue;
+        }
+        if (operationName.endsWith('.') || operationName.includes('..') || operationName.includes('#')) {
+            throw new Error(`Invalid operation name '${operationName}'.`);
         }
         const operation = {
             name: operationName
