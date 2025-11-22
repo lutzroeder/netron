@@ -176,6 +176,8 @@ const main = async () => {
         path.join(source, 'mlir-dace', 'include'),
         path.join(source, 'lltz', 'mlir', 'dialect', 'include', 'Michelson'),
         path.join(source, 'lagrad', 'include', 'LAGrad'),
+        path.join(source, 'TensorRT-Incubator', 'mlir-tensorrt', 'tensorrt', 'include'),
+        path.join(source, 'TensorRT-Incubator', 'mlir-tensorrt', 'executor', 'include'),
     ];
     const dialects = [
         'mlir/IR/BuiltinAttributeInterfaces.td',
@@ -276,6 +278,8 @@ const main = async () => {
         'mlir/Dialect/SMT/IR/SMTArrayOps.td',
         'mlir/Dialect/SMT/IR/SMTBitVectorOps.td',
         'mlir/Dialect/SMT/IR/SMTIntOps.td',
+        // 'mlir/Dialect/OpenACC/OpenACCOps.td', // File not found 'mlir/Dialect/OpenACC/AccCommon.td' (requires full LLVM tree to generate)
+        'mlir/Dialect/LLVMIR/XeVMOps.td',
         'toy/Ops.td',
         'stablehlo/dialect/StablehloOps.td',
         'stablehlo/dialect/ChloOps.td',
@@ -300,8 +304,13 @@ const main = async () => {
         'tensorflow/compiler/mlir/tfrt/ir/tfrt_fallback_async.td',
         'tensorflow/compiler/mlir/tfrt/ir/tfrt_fallback_sync.td',
         'tensorflow/compiler/mlir/tensorflow/ir/host_runtime/tfrt_ops.td',
+        'tensorflow/compiler/mlir/tfrt/runtime_fallback/runtime_fallback_ops.td',
+        'tensorflow/compiler/mlir/tfrt/ir/mlrt/mlrt_ops.td',
         'tfrt/core_runtime/opdefs/core_runtime.td',
         'tfrt/basic_kernels/opdefs/basic_kernels.td',
+        'tfrt/test_kernels/opdefs/test_kernels.td',
+        'tfrt/tensor/opdefs/tensor.td',
+        'tfrt/tensor/opdefs/dense_host_tensor.td',
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
@@ -312,6 +321,7 @@ const main = async () => {
         'iree/compiler/Dialect/TensorExt/IR/TensorExtOps.td',
         'iree/compiler/Dialect/Util/IR/UtilOps.td',
         'iree/compiler/Dialect/VM/IR/VMOps.td',
+        'iree/compiler/Dialect/VMVX/IR/VMVXOps.td',
         'iree/compiler/Codegen/Dialect/GPU/IR/IREEGPUOps.td',
         'iree/compiler/Codegen/Dialect/Codegen/IR/IREECodegenOps.td',
         'iree/compiler/Dialect/Encoding/IR/EncodingOps.td',
@@ -330,6 +340,8 @@ const main = async () => {
         'amd/include/Dialect/TritonAMDGPU/IR/TritonAMDGPUOps.td',
         'proton/Dialect/include/Dialect/Proton/IR/ProtonOps.td',
         'LAGradOps.td',
+        'mlir-tensorrt-dialect/TensorRT/IR/TensorRTOps.td',
+        'mlir-executor/Executor/IR/ExecutorOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
