@@ -559,7 +559,8 @@ if (!worker_threads.isMainThread) {
             response.type = 'error';
             response.error = {
                 name: error.name,
-                message: error.message
+                message: error.message,
+                stack: error.stack
             };
             const cause = error.cause;
             if (cause) {

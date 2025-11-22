@@ -31,6 +31,9 @@ const access = async (path) => {
 const error = (e) => {
     /* eslint-disable no-console */
     console.error(`${e.name}: ${e.message}`);
+    if (e.stack) {
+        // console.error(e.stack);
+    }
     if (e.cause) {
         console.error(`  ${e.cause.name}: ${e.cause.message}`);
     }
