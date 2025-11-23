@@ -18,6 +18,14 @@ text.Decoder = class {
             assert(encoding, 'utf-8');
             return new text.Decoder.Utf8(buffer, 3, true);
         }
+        if (length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0xfe && buffer[3] === 0xff) {
+            assert(encoding, 'utf-32');
+            return new text.Decoder.Utf32BE(buffer, 4);
+        }
+        if (length >= 4 && buffer[0] === 0xff && buffer[1] === 0xfe && buffer[2] === 0x00 && buffer[3] === 0x00) {
+            assert(encoding, 'utf-32');
+            return new text.Decoder.Utf32LE(buffer, 4);
+        }
         if (length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
             assert(encoding, 'utf-16');
             return new text.Decoder.Utf16LE(buffer, 2);
@@ -25,14 +33,6 @@ text.Decoder = class {
         if (length >= 2 && buffer[0] === 0xfe && buffer[1] === 0xff) {
             assert(encoding, 'utf-16');
             return new text.Decoder.Utf16BE(buffer, 2);
-        }
-        if (length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0xfe && buffer[3] === 0xff) {
-            assert(encoding, 'utf-32');
-            return new text.Decoder.Utf32LE(buffer, 2);
-        }
-        if (length >= 4 && buffer[0] === 0xff && buffer[1] === 0xfe && buffer[2] === 0x00 && buffer[3] === 0x00) {
-            assert(encoding, 'utf-32');
-            return new text.Decoder.Utf32BE(buffer, 2);
         }
         if (length >= 5 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && buffer[3] === 0x38 && buffer[4] === 0x2D) {
             throw new text.Error("Unsupported UTF-7 encoding.");
@@ -252,11 +252,12 @@ text.Decoder.Utf32LE = class {
 
     decode() {
         if (this.position + 3 < this.length) {
-            const c =
-                (this.buffer[this.position++] << 24) |
-                (this.buffer[this.position++] << 16) |
+            const c = (
+                (this.buffer[this.position++]) |
                 (this.buffer[this.position++] << 8) |
-                (this.buffer[this.position++]);
+                (this.buffer[this.position++] << 16) |
+                (this.buffer[this.position++] << 24)
+            ) >>> 0;
             if (c <= 0x10FFFF) {
                 return String.fromCodePoint(c);
             }
@@ -280,11 +281,12 @@ text.Decoder.Utf32BE = class {
 
     decode() {
         if (this.position + 3 < this.length) {
-            const c =
+            const c = (
                 (this.buffer[this.position++] << 24) |
                 (this.buffer[this.position++] << 16) |
                 (this.buffer[this.position++] << 8) |
-                (this.buffer[this.position++]);
+                (this.buffer[this.position++])
+            ) >>> 0;
             if (c <= 0x10FFFF) {
                 return String.fromCodePoint(c);
             }
