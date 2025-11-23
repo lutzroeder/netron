@@ -1154,6 +1154,12 @@ tablegen.Reader = class {
                        this._match('string') || this._match('list') || this._match('dag') ||
                        this._match('code') || this._match('id')) {
                 const type = this._parseType();
+                // Skip if next token is not an id (handles edge cases in complex nested structures)
+                if (!this._match('id')) {
+                    if (this._match(',') || this._match('>') || this._match(')') || this._match(']')) {
+                        continue;
+                    }
+                }
                 const name = this._expect('id');
                 let value = null;
                 if (this._eat('=')) {
@@ -1267,6 +1273,8 @@ tablegen.Reader = class {
     }
 
     _parseListItem() {
+        // Special handling for dag-like constructs (id followed by <...>)
+        // These need to be parsed as DAGs for trait information
         if (this._match('id')) {
             const name = this._read();
             if (this._eat('<')) {
@@ -1279,7 +1287,24 @@ tablegen.Reader = class {
                 });
                 return new tablegen.Value('dag', new tablegen.DAG(name, operands));
             }
-            return new tablegen.Value('def', name);
+            // Not a template instantiation, but might be an identifier with suffixes
+            // Put the token back conceptually by creating a def value and checking for suffixes
+            let result = new tablegen.Value('def', name);
+            // Check for subscripts, field access, etc.
+            while (this._eat('[')) {
+                const index = this._parseValue();
+                this._expect(']');
+                result = new tablegen.Value('bang', { op: 'subscript', args: [result, index], field: null });
+            }
+            if (this._eat('.')) {
+                const field = this._expect('id');
+                if (result.type === 'def') {
+                    result = new tablegen.Value('def', `${result.value}.${field}`);
+                } else {
+                    result.value.field = field;
+                }
+            }
+            return result;
         }
         return this._parseValue();
     }
@@ -1391,19 +1416,39 @@ tablegen.Reader = class {
             return new tablegen.Value('bang', { op, args, field });
         }
         if (this._match('id') || this._isKeyword(this._tokenizer.current().type)) {
-            let value = this._read();
-            if (this._match('<')) {
-                this._skip('<', '>');
+            const value = this._read();
+            let result = new tablegen.Value('def', value);
+
+            // Handle various suffixes: templates, subscripts, field access, scope resolution
+            while (true) {
+                if (this._match('<')) {
+                    this._skip('<', '>');
+                } else if (this._eat('[')) {
+                    // Array subscripting: x[0]
+                    const index = this._parseValue();
+                    this._expect(']');
+                    result = new tablegen.Value('bang', { op: 'subscript', args: [result, index], field: null });
+                } else if (this._eat('.')) {
+                    // Field access: x.field or x[0].field
+                    const field = this._expect('id');
+                    if (result.type === 'def') {
+                        result = new tablegen.Value('def', `${result.value}.${field}`);
+                    } else {
+                        // For subscript results, add field access
+                        result.value.field = field;
+                    }
+                } else if (this._eat('::')) {
+                    // Scope resolution
+                    const suffix = this._expect('id');
+                    if (result.type === 'def') {
+                        result = new tablegen.Value('def', `${result.value}::${suffix}`);
+                    }
+                    break;
+                } else {
+                    break;
+                }
             }
-            if (this._eat('.')) {
-                const field = this._expect('id');
-                value = `${value}.${field}`;
-            }
-            if (this._eat('::')) {
-                const suffix = this._expect('id');
-                return new tablegen.Value('def', `${value}::${suffix}`);
-            }
-            return new tablegen.Value('def', value);
+            return result;
         }
         if (this._eat('?')) {
             return new tablegen.Value('uninitialized', null);

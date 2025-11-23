@@ -3419,6 +3419,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "optimize_descriptor_encoding.mlir",
+    "source":   "https://github.com/user-attachments/files/23697681/optimize_descriptor_encoding.mlir.zip[optimize_descriptor_encoding.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir",
     "source":   "https://github.com/user-attachments/files/17640926/resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir.zip[resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir]",
     "format":   "MLIR",

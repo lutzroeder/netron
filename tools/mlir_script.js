@@ -119,6 +119,14 @@ class Operator {
             if (!mnemonic && mnemonicArg) {
                 mnemonic = this._evaluateWithSubstitutions(mnemonicArg, subs);
             }
+            // Clean up mnemonic: remove leading/trailing dots, normalize multiple dots
+            if (mnemonic && typeof mnemonic === 'string') {
+                mnemonic = mnemonic.replace(/^\.+|\.+$/g, ''); // Remove leading/trailing dots
+                // Skip if mnemonic is invalid after cleanup
+                if (!mnemonic || mnemonic.includes('..')) {
+                    return null;
+                }
+            }
             if (dialectName && mnemonic) {
                 return { dialect: dialectName, mnemonic };
             }
@@ -154,6 +162,7 @@ const main = async () => {
     const source = path.join(dirname, '..', 'third_party', 'source', 'mlir');
     const paths = [
         path.join(source, 'llvm-project', 'mlir', 'include'),
+        path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Dialect', 'Transform'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmNeon'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSME', 'IR'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSVE', 'IR'),
@@ -216,6 +225,8 @@ const main = async () => {
         'mlir/Dialect/Transform/PDLExtension/PDLExtensionOps.td',
         'mlir/Dialect/Transform/SMTExtension/SMTExtensionOps.td',
         'mlir/Dialect/Transform/TuneExtension/TuneExtensionOps.td',
+        'TestTransformDialectExtension.td',
+        'iree/compiler/Dialect/Util/TransformOps/UtilTransformOps.td',
         'mlir/Dialect/Linalg/TransformOps/LinalgTransformOps.td',
         'mlir/Dialect/Linalg/TransformOps/LinalgMatchOps.td',
         'mlir/Dialect/SCF/TransformOps/SCFTransformOps.td',
@@ -235,6 +246,9 @@ const main = async () => {
         'mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/Dialect/IRDL/IR/IRDLOps.td',
         'mlir/Dialect/LLVMIR/LLVMOps.td',
+        'mlir/Dialect/LLVMIR/LLVMIntrinsicOps.td',
+        'mlir/Dialect/LLVMIR/NVVMOps.td',
+        'mlir/Dialect/LLVMIR/ROCDLOps.td',
         // 'mlir/Dialect/OpenMP/OpenMPOps.td', // File not found 'mlir/Dialect/OpenMP/OmpCommon.td'
         'mlir/Dialect/ArmSME/IR/ArmSMEOps.td',
         'mlir/Dialect/ArmNeon/ArmNeon.td',
@@ -313,6 +327,9 @@ const main = async () => {
         'tfrt/tensor/opdefs/dense_host_tensor.td',
         'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
+        'iree/compiler/Dialect/HAL/IR/HALTypes.td',
+        'iree/compiler/Modules/HAL/Loader/IR/HALLoaderOps.td',
+        'iree/compiler/Modules/HAL/Inline/IR/HALInlineOps.td',
         'iree/compiler/Dialect/Flow/IR/FlowOps.td',
         'iree/compiler/Dialect/Stream/IR/StreamOps.td',
         'iree/compiler/Codegen/Dialect/VectorExt/IR/VectorExtOps.td',
@@ -360,11 +377,10 @@ const main = async () => {
     }
     const parser = new tablegen.Reader();
     await parser.parse(dialects, paths);
-    // Iterate over all defs from TableGen
     for (const def of parser.defs) {
         const op = new Operator(def);
         const operationName = op.getOperationName();
-        if (!operationName || operationName.endsWith('.')) {
+        if (!operationName) {
             continue;
         }
         if (operationName.endsWith('.') || operationName.includes('..') || operationName.includes('#')) {

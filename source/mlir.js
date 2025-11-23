@@ -1197,7 +1197,9 @@ mlir.Parser = class {
             op.loc = this.parseLocation();
             return op;
         }
-        if (!op.operands.length && !this.match('keyword', 'loc') && !this.match('eof')) {
+        // Only parse operands if: 1) they're in parentheses, 2) start with @, 3) start with identifier, or 4) other unambiguous tokens
+        // Don't parse bare % tokens as they might be results of the next operation
+        if (!op.operands.length && !this.match('keyword', 'loc') && !this.match('eof') && !this.match('%')) {
             op.operands = this.parseArguments();
         }
         // Parse successor blocks (for branch operations like cf.br)
@@ -1354,7 +1356,7 @@ mlir.Parser = class {
         // Check if this operation defines a default dialect for its region
         const opInfo = dialect.getOperation(opName);
         if (!opInfo) {
-            // throw new mlir.Error(`Unsupported operation '${op.name}'.`);
+            throw new mlir.Error(`Unsupported operation '${op.name}'.`);
         }
         const defaultDialect = (opInfo && opInfo.metadata && opInfo.metadata.defaultDialect) || '';
         this._state.defaultDialectStack.push(defaultDialect);
@@ -1599,6 +1601,14 @@ mlir.Parser = class {
                         location.line = this.expect('int');
                         if (this.accept(':')) {
                             location.col = this.expect('int');
+                            if (this.accept('id', 'to')) {
+                                if (this.accept(':')) {
+                                    location.endLine = this.expect('int');
+                                    if (this.accept(':')) {
+                                        location.endCol = this.expect('int');
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -2081,6 +2091,14 @@ mlir.Parser = class {
         return new mlir.Type(`tuple<${typeStrs.join(', ')}>`);
     }
 
+    parseCustomTypeWithFallback(typeT) {
+        if (typeT) {
+            const parser = new mlir.DialectAsmParser(this);
+            return typeT(parser);
+        }
+        return this.parseType();
+    }
+
     parseType() {
         if (this.match('(')) {
             return this.parseFunctionType();
@@ -2143,7 +2161,7 @@ mlir.Parser = class {
             if (type) {
                 return type; // Already an mlir.Type object
             }
-            throw new mlir.Error(`Invalid type '${token} ${this.location()}`);
+            throw new mlir.Error(`Invalid type '${token}' ${this.location()}`);
         }
         throw new mlir.Error(`Invalid type '${this._token.value}' ${this.location()}`);
     }
@@ -2915,7 +2933,6 @@ mlir.Utility = class {
             case 'boolean': return 'boolean';
             default:
                 if (value && value.startsWith('!')) {
-                    // Workaround for !quant.uniform
                     return value;
                 }
                 throw new mlir.Error(`Unknown data type '${value}'.`);
@@ -3395,10 +3412,11 @@ mlir.Dialect = class {
     constructor(name, operations) {
         this._name = name;
         this._operations = new Map();
-        this._customParsers = new Map();
-        this.registerCustomParser('DynamicIndexList', this._parseDynamicIndexList.bind(this));
-        this.registerCustomParser('Offsets', this._parseOffsets.bind(this));
-        this.registerCustomParser('SymbolVisibility', this._parseSymbolVisibility.bind(this));
+        this._customDirectives = new Map();
+        this._customTypes = new Map();
+        this.registerCustomDirective('DynamicIndexList', this._parseDynamicIndexList.bind(this));
+        this.registerCustomDirective('Offsets', this._parseOffsets.bind(this));
+        this.registerCustomDirective('SymbolVisibility', this._parseSymbolVisibility.bind(this));
         for (const metadata of operations.get(name) || []) {
             const op = { metadata };
             if (metadata.assemblyFormat) {
@@ -3437,8 +3455,12 @@ mlir.Dialect = class {
         return opInfo ? opInfo.hasParseOperation : false;
     }
 
-    registerCustomParser(name, parserFn) {
-        this._customParsers.set(name, parserFn);
+    registerCustomDirective(name, parserFn) {
+        this._customDirectives.set(name, parserFn);
+    }
+
+    registerCustomType(name, parserFn) {
+        this._customTypes.set(name, parserFn);
     }
 
     parseType(parser, dialectName) {
@@ -3520,7 +3542,7 @@ mlir.Dialect = class {
                         if (directives) {
                             for (let j = i + 1; j < directives.length; j++) {
                                 const nextDir = directives[j];
-                                if (nextDir && nextDir.type !== 'attr_dict' && nextDir.type !== 'whitespace' && nextDir.type !== 'optional_group') {
+                                if (nextDir && nextDir.type !== 'attr_dict' && nextDir.type !== 'whitespace' && nextDir.type !== 'optional_group' && nextDir.type !== 'conditional_alternative') {
                                     if (nextDir.type === 'literal' && nextDir.value === ':') {
                                         nextIsColonLiteral = true;
                                     }
@@ -3528,7 +3550,8 @@ mlir.Dialect = class {
                                 }
                             }
                         }
-                        if (!nextIsColonLiteral && (attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense' || attrValue.type === 'sparse' || attrValue.name) && parser.accept(':')) {
+                        const isAnchor = directive.anchor;
+                        if (!nextIsColonLiteral && !isAnchor && (attrValue.type === 'int64' || attrValue.type === 'float32' || attrValue.type === 'boolean' || attrValue.type === 'dense' || attrValue.type === 'sparse' || attrValue.name) && parser.accept(':')) {
                             attrValue.attrType = parser.parseType();
                         }
                         op.attributes.push({ name: refName, value: attrValue.value });
@@ -3677,7 +3700,9 @@ mlir.Dialect = class {
                             if (isVariadic) {
                                 parser.parseArgumentTypes(op.results);
                             } else {
-                                const type = parser.parseType();
+                                const output = opMetadata.outputs ? opMetadata.outputs.find((output) => output.name === arg.replace('$', '')) : null;
+                                const outputType = output && output.type ? output.type : null;
+                                const type = this._parseCustomTypeWithFallback(parser, outputType);
                                 if (op.results.length === 0) {
                                     op.results.push({ type });
                                 } else {
@@ -3687,7 +3712,11 @@ mlir.Dialect = class {
                         } else if (isVariadic) {
                             parser.parseArgumentTypes(op.operands);
                         } else if (op.operands.length > 0) {
-                            op.operands[op.operands.length - 1].type = parser.parseType();
+                            const operandName = arg.replace('$', '');
+                            const input = opMetadata.inputs ? opMetadata.inputs.find((input) => input.name === operandName) : null;
+                            const inputType = input && input.type ? input.type : null;
+                            const type = this._parseCustomTypeWithFallback(parser, inputType);
+                            op.operands[op.operands.length - 1].type = type;
                         } else {
                             parser.parseType();
                         }
@@ -3750,7 +3779,7 @@ mlir.Dialect = class {
                 break;
             }
             case 'custom': {
-                const fn = this._customParsers.get(directive.parser);
+                const fn = this._customDirectives.get(directive.parser);
                 if (!fn) {
                     throw new mlir.Error(`Custom parser '${directive.parser}' not implemented.`);
                 }
@@ -3893,40 +3922,46 @@ mlir.Dialect = class {
                 break;
             }
             case 'conditional_alternative': {
-                // Try to match first alternative
-                const [firstElem] = directive.firstAlt;
-                let matchedFirst = false;
-                if (firstElem && firstElem.type === 'literal') {
-                    matchedFirst = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
-                }
+                const checkMatch = (elem) => {
+                    if (elem.type === 'literal') {
+                        if (elem.value.length === 1 && /[(){}[\],:<>=]/.test(elem.value)) {
+                            return parser.match(elem.value);
+                        }
+                        return parser.match('id', elem.value) || parser.match('keyword', elem.value);
+                    }
+                    if (elem.type === 'operand_ref') {
+                        return parser.match('%');
+                    }
+                    if (elem.type === 'attribute_ref') {
+                        return parser.match('id') || parser.match('int') || parser.match('float') || parser.match('[') || parser.match('@') || parser.match('#');
+                    }
+                    if (elem.type === 'region_ref') {
+                        return parser.match('{');
+                    }
+                    if (elem.type === 'successor_ref') {
+                        return parser.match('^');
+                    }
+                    return false;
+                };
+
+                const firstElem = directive.firstAlt.find((e) => e.type !== 'whitespace');
+                const matchedFirst = firstElem && checkMatch(firstElem);
 
                 if (matchedFirst) {
-                    // Parse first alternative - for now just consume the keyword
                     for (const elem of directive.firstAlt) {
-                        if (elem.type === 'literal') {
-                            parser.expect(null, elem.value);
-                        }
+                        this.parseDirective(elem, parser, op, opInfo, directive.firstAlt, 0);
                     }
                 } else if (directive.secondOptional) {
-                    // Second alternative is optional, try to parse it
-                    const [secondElem] = directive.secondAlt;
-                    let matchedSecond = false;
-                    if (secondElem && secondElem.type === 'literal') {
-                        matchedSecond = parser.match('id', secondElem.value) || parser.match('keyword', secondElem.value);
-                    }
+                    const secondElem = directive.secondAlt.find((e) => e.type !== 'whitespace');
+                    const matchedSecond = secondElem && checkMatch(secondElem);
                     if (matchedSecond) {
                         for (const elem of directive.secondAlt) {
-                            if (elem.type === 'literal') {
-                                parser.expect(null, elem.value);
-                            }
+                            this.parseDirective(elem, parser, op, opInfo, directive.secondAlt, 0);
                         }
                     }
-                } else {
-                    // Second alternative is required, parse it
+                } else if (directive.secondAlt && directive.secondAlt.length > 0) {
                     for (const elem of directive.secondAlt) {
-                        if (elem.type === 'literal') {
-                            parser.expect(null, elem.value);
-                        }
+                        this.parseDirective(elem, parser, op, opInfo, directive.secondAlt, 0);
                     }
                 }
                 break;
@@ -3951,6 +3986,14 @@ mlir.Dialect = class {
             this.parseDirective(directives[i], parser, op, opInfo, directives, i);
         }
         return true;
+    }
+
+    _parseCustomTypeWithFallback(parser, type) {
+        if (this._customTypes.has(type)) {
+            const typeT = this._customTypes.get(type);
+            return parser.parseCustomTypeWithFallback(typeT);
+        }
+        return parser.parseType();
     }
 
     _parseDynamicIndexList(parser, op, args) {
@@ -4048,20 +4091,20 @@ mlir.HLODialect = class extends mlir.Dialect {
 
     constructor(name, operations) {
         super(name, operations);
-        this.registerCustomParser('SameOperandsAndResultType', this._parseSameOperandsAndResultType.bind(this));
-        this.registerCustomParser('VariadicSameOperandsAndResultType', this._parseVariadicSameOperandsAndResultType.bind(this));
-        this.registerCustomParser('ComplexOpType', this._parseComplexOpType.bind(this));
-        this.registerCustomParser('SelectOpType', this._parseSelectOpType.bind(this));
-        this.registerCustomParser('TupleOpType', this._parseTupleOpType.bind(this));
-        this.registerCustomParser('PairwiseOpType', this._parsePairwiseOpType.bind(this));
-        this.registerCustomParser('ConvolutionDimensions', this._parseConvolutionDimensions.bind(this));
-        this.registerCustomParser('DotDimensionNumbers', this._parseDotDimensionNumbers.bind(this));
-        this.registerCustomParser('PrecisionConfig', this._parsePrecisionConfig.bind(this));
-        this.registerCustomParser('PrecisionConfigAndAlgorithm', this._parsePrecisionConfigAndAlgorithm.bind(this));
-        this.registerCustomParser('WindowAttributes', this._parseWindowAttributes.bind(this));
-        this.registerCustomParser('SliceRanges', this._parseSliceRanges.bind(this));
-        this.registerCustomParser('CustomCallTarget', this._parseCustomCallTarget.bind(this));
-        this.registerCustomParser('VariadicOperandWithAttribute', this._parseVariadicOperandWithAttribute.bind(this));
+        this.registerCustomDirective('SameOperandsAndResultType', this._parseSameOperandsAndResultType.bind(this));
+        this.registerCustomDirective('VariadicSameOperandsAndResultType', this._parseVariadicSameOperandsAndResultType.bind(this));
+        this.registerCustomDirective('ComplexOpType', this._parseComplexOpType.bind(this));
+        this.registerCustomDirective('SelectOpType', this._parseSelectOpType.bind(this));
+        this.registerCustomDirective('TupleOpType', this._parseTupleOpType.bind(this));
+        this.registerCustomDirective('PairwiseOpType', this._parsePairwiseOpType.bind(this));
+        this.registerCustomDirective('ConvolutionDimensions', this._parseConvolutionDimensions.bind(this));
+        this.registerCustomDirective('DotDimensionNumbers', this._parseDotDimensionNumbers.bind(this));
+        this.registerCustomDirective('PrecisionConfig', this._parsePrecisionConfig.bind(this));
+        this.registerCustomDirective('PrecisionConfigAndAlgorithm', this._parsePrecisionConfigAndAlgorithm.bind(this));
+        this.registerCustomDirective('WindowAttributes', this._parseWindowAttributes.bind(this));
+        this.registerCustomDirective('SliceRanges', this._parseSliceRanges.bind(this));
+        this.registerCustomDirective('CustomCallTarget', this._parseCustomCallTarget.bind(this));
+        this.registerCustomDirective('VariadicOperandWithAttribute', this._parseVariadicOperandWithAttribute.bind(this));
     }
 
     _parseSameOperandsAndResultType(parser, op /*, args */) {
@@ -4270,6 +4313,8 @@ mlir.HLODialect = class extends mlir.Dialect {
                                     arr.push(parseArray());
                                 } else if (parser.match('int') || parser.match('number')) {
                                     arr.push(parseInt(parser.expect(), 10));
+                                } else if (parser.match('boolean')) {
+                                    arr.push(parser.expect('boolean'));
                                 } else if (parser.match('id')) {
                                     arr.push(parser.expect('id'));
                                 } else {
@@ -4369,8 +4414,7 @@ mlir.HLODialect = class extends mlir.Dialect {
     }
 
     _parsePrecisionConfig(parser, op /*, args */) {
-        const precision = [];
-
+        parser.accept(',');
         if (!parser.match('id', 'precision')) {
             return;
         }
@@ -4378,6 +4422,7 @@ mlir.HLODialect = class extends mlir.Dialect {
         parser.expect('id', 'precision');
         parser.expect('=');
         parser.expect('[');
+        const precision = [];
         while (!parser.match(']')) {
             if (parser.match('id')) {
                 precision.push(parser.expect('id'));
@@ -4389,7 +4434,6 @@ mlir.HLODialect = class extends mlir.Dialect {
         }
         parser.expect(']');
 
-        // Add as attribute
         if (precision.length > 0) {
             op.attributes.push({ name: 'precision_config', value: precision });
         }
@@ -4507,7 +4551,7 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
 
     constructor(operations) {
         super('stablehlo', operations);
-        this.registerCustomParser('ExponentMantissa', this._parseExponentMantissa.bind(this));
+        this.registerCustomDirective('ExponentMantissa', this._parseExponentMantissa.bind(this));
     }
 
     _parseExponentMantissa(parser, op, args) {
@@ -5140,7 +5184,7 @@ mlir.MemRefDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('memref', operations);
-        this.registerCustomParser('GlobalMemrefOpTypeAndInitialValue', this._parseGlobalMemrefOpTypeAndInitialValue.bind(this));
+        this.registerCustomDirective('GlobalMemrefOpTypeAndInitialValue', this._parseGlobalMemrefOpTypeAndInitialValue.bind(this));
     }
 
     _parseGlobalMemrefOpTypeAndInitialValue(parser, op, args) {
@@ -5484,10 +5528,10 @@ mlir.IREEDialect = class extends mlir.Dialect {
 
     constructor(name, operations) {
         super(name, operations);
-        this.registerCustomParser('DispatchEntryPoints', this._parseDispatchEntryPoints.bind(this));
-        this.registerCustomParser('ShapedTiedResult', this._parseShapedTiedResult.bind(this));
-        this.registerCustomParser('SymbolAlias', this._parseSymbolAlias.bind(this));
-        this.registerCustomParser('WorkgroupCountRegion', this._parseWorkgroupCountRegion.bind(this));
+        this.registerCustomDirective('DispatchEntryPoints', this._parseDispatchEntryPoints.bind(this));
+        this.registerCustomDirective('ShapedTiedResult', this._parseShapedTiedResult.bind(this));
+        this.registerCustomDirective('SymbolAlias', this._parseSymbolAlias.bind(this));
+        this.registerCustomDirective('WorkgroupCountRegion', this._parseWorkgroupCountRegion.bind(this));
     }
 
     _parseDispatchEntryPoints(parser, op, args) {
@@ -5953,10 +5997,10 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
 
     constructor(operations) {
         super('util', operations);
-        this.registerCustomParser('OperandTypeList', this._parseOperandTypeList.bind(this));
-        this.registerCustomParser('TiedFunctionResultList', this._parseTiedFunctionResultList.bind(this));
-        this.registerCustomParser('TypeAlias', this._parseTypeAlias.bind(this));
-        this.registerCustomParser('TypedValueList', this._parseTypedValueList.bind(this));
+        this.registerCustomDirective('OperandTypeList', this._parseOperandTypeList.bind(this));
+        this.registerCustomDirective('TiedFunctionResultList', this._parseTiedFunctionResultList.bind(this));
+        this.registerCustomDirective('TypeAlias', this._parseTypeAlias.bind(this));
+        this.registerCustomDirective('TypedValueList', this._parseTypedValueList.bind(this));
         this.simpleTypes = new Set(['buffer', 'list', 'object', 'ptr']);
     }
 
@@ -6223,7 +6267,7 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
 
     constructor(operations) {
         super('flow', operations);
-        this.registerCustomParser('ShapedFunctionType', this._parseShapedFunctionType.bind(this));
+        this.registerCustomDirective('ShapedFunctionType', this._parseShapedFunctionType.bind(this));
     }
 
     parseType(parser, dialectName) {
@@ -6506,13 +6550,13 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
 
     constructor(operations) {
         super('stream', operations);
-        this.registerCustomParser('DispatchOperands', this._parseDispatchOperands.bind(this));
-        this.registerCustomParser('DispatchResources', this._parseDispatchResources.bind(this));
-        this.registerCustomParser('ShapedFunctionType', this._parseShapedFunctionType.bind(this));
-        this.registerCustomParser('ShapedTypeList', this._parseShapedTypeList.bind(this));
-        this.registerCustomParser('ResourceRegion', this._parseResourceRegion.bind(this));
-        this.registerCustomParser('ParameterLoadOperations', this._parseParameterLoadOperations.bind(this));
-        this.registerCustomParser('EncodedResourceOperands', this._parseEncodedResourceOperands.bind(this));
+        this.registerCustomDirective('DispatchOperands', this._parseDispatchOperands.bind(this));
+        this.registerCustomDirective('DispatchResources', this._parseDispatchResources.bind(this));
+        this.registerCustomDirective('ShapedFunctionType', this._parseShapedFunctionType.bind(this));
+        this.registerCustomDirective('ShapedTypeList', this._parseShapedTypeList.bind(this));
+        this.registerCustomDirective('ResourceRegion', this._parseResourceRegion.bind(this));
+        this.registerCustomDirective('ParameterLoadOperations', this._parseParameterLoadOperations.bind(this));
+        this.registerCustomDirective('EncodedResourceOperands', this._parseEncodedResourceOperands.bind(this));
     }
 
     _parseDispatchResources(parser, op /*, args */) {
@@ -6776,7 +6820,7 @@ mlir.LinalgDialect = class extends mlir.Dialect {
         if (opName === 'linalg.generic') {
             return this._parseGenericOp(parser, op);
         }
-        if (opName === 'linalg.init_tensor') {
+        if (op.name === 'linalg.init_tensor') {
             if (parser.accept('[')) {
                 const dims = [];
                 while (!parser.match(']')) {
@@ -7703,7 +7747,7 @@ mlir.IRDLDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('irdl', operations);
-        this.registerCustomParser('SingleBlockRegion', this._parseSingleBlockRegion.bind(this));
+        this.registerCustomDirective('SingleBlockRegion', this._parseSingleBlockRegion.bind(this));
     }
 
     _parseSingleBlockRegion(/* parser, op, args */) {
@@ -7735,7 +7779,7 @@ mlir.XeGPUDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('xegpu', operations);
-        this.registerCustomParser('OptionalDynamicIndexList', this._parseOptionalDynamicIndexList.bind(this));
+        this.registerCustomDirective('OptionalDynamicIndexList', this._parseOptionalDynamicIndexList.bind(this));
     }
 
     _parseOptionalDynamicIndexList(parser, op, args) {
@@ -7775,7 +7819,7 @@ mlir.ShardDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('shard', operations);
-        this.registerCustomParser('DimensionList', this._parseDimensionList.bind(this));
+        this.registerCustomDirective('DimensionList', this._parseDimensionList.bind(this));
     }
 
     _parseDimensionList(parser, op, args) {
@@ -7832,7 +7876,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
     constructor(operations) {
         super('spirv', operations);
         this.typesWithOptionalParams = new Set(['sampler', 'sampled_image', 'matrix', 'image', 'rtarray', 'ptr', 'array', 'struct', 'coopmatrix']);
-        this.registerCustomParser('ImageOperands', this._parseImageOperands.bind(this));
+        this.registerCustomDirective('ImageOperands', this._parseImageOperands.bind(this));
     }
 
     _parseImageOperands(parser /*, op, args */) {
@@ -8316,7 +8360,7 @@ mlir.CFDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('cf', operations);
-        this.registerCustomParser('SwitchOpCases', this._parseSwitchOpCases.bind(this));
+        this.registerCustomDirective('SwitchOpCases', this._parseSwitchOpCases.bind(this));
     }
 
     _parseSwitchOpCases(parser, op) {
@@ -8406,8 +8450,8 @@ mlir.PDLDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('pdl', operations);
-        this.registerCustomParser('OperationOpAttributes', this._parseOperationOpAttributes.bind(this));
-        this.registerCustomParser('RangeType', this._parseRangeType.bind(this));
+        this.registerCustomDirective('OperationOpAttributes', this._parseOperationOpAttributes.bind(this));
+        this.registerCustomDirective('RangeType', this._parseRangeType.bind(this));
         this._customParse = new Set(['pdl.operation']);
     }
 
@@ -8623,7 +8667,7 @@ mlir.AsyncDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('async', operations);
-        this.registerCustomParser('AwaitResultType', this._parseAwaitResultType.bind(this));
+        this.registerCustomDirective('AwaitResultType', this._parseAwaitResultType.bind(this));
     }
 
     parseType(parser, dialectName) {
@@ -8893,7 +8937,7 @@ mlir.SCFDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('scf', operations);
-        this.registerCustomParser('SwitchCases', this._parseSwitchCases.bind(this));
+        this.registerCustomDirective('SwitchCases', this._parseSwitchCases.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -9563,7 +9607,7 @@ mlir.SparseTensorDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('sparse_tensor', operations);
-        this.registerCustomParser('LevelRange', this._parseLevelRange.bind(this));
+        this.registerCustomDirective('LevelRange', this._parseLevelRange.bind(this));
     }
 
     _parseLevelRange(parser, op, args) {
@@ -9750,11 +9794,11 @@ mlir.GpuDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('gpu', operations);
-        this.registerCustomParser('AllReduceOperation', this._parseAllReduceOperation.bind(this));
-        this.registerCustomParser('LaunchFuncOperands', this._parseLaunchFuncOperands.bind(this));
-        this.registerCustomParser('AsyncDependencies', this._parseAsyncDependencies.bind(this));
-        this.registerCustomParser('LaunchDimType', this._parseLaunchDimType.bind(this));
-        this.registerCustomParser('OffloadingHandler', this._parseOffloadingHandler.bind(this));
+        this.registerCustomDirective('AllReduceOperation', this._parseAllReduceOperation.bind(this));
+        this.registerCustomDirective('LaunchFuncOperands', this._parseLaunchFuncOperands.bind(this));
+        this.registerCustomDirective('AsyncDependencies', this._parseAsyncDependencies.bind(this));
+        this.registerCustomDirective('LaunchDimType', this._parseLaunchDimType.bind(this));
+        this.registerCustomDirective('OffloadingHandler', this._parseOffloadingHandler.bind(this));
     }
 
     _parseAllReduceOperation(parser, op, args) {
@@ -10032,7 +10076,7 @@ mlir.AMDGPUDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('amdgpu', operations);
-        this.registerCustomParser('MNKDimensionList', this._parseMNKDimensionList.bind(this));
+        this.registerCustomDirective('MNKDimensionList', this._parseMNKDimensionList.bind(this));
     }
 
     _parseMNKDimensionList(parser, op, args) {
@@ -10065,17 +10109,17 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('omp', operations);
-        this.registerCustomParser('MapClause', this._parseMapClause.bind(this));
-        this.registerCustomParser('CaptureType', this._parseCaptureType.bind(this));
-        this.registerCustomParser('MembersIndex', this._parseMembersIndex.bind(this));
-        this.registerCustomParser('PrivateReductionRegion', this._parsePrivateReductionRegion.bind(this));
-        this.registerCustomParser('PrivateRegion', this._parsePrivateReductionRegion.bind(this));
-        this.registerCustomParser('InReductionPrivateRegion', this._parsePrivateReductionRegion.bind(this));
-        this.registerCustomParser('InReductionPrivateReductionRegion', this._parsePrivateReductionRegion.bind(this));
-        this.registerCustomParser('TaskReductionRegion', this._parsePrivateReductionRegion.bind(this));
-        this.registerCustomParser('UseDeviceAddrUseDevicePtrRegion', this._parsePrivateReductionRegion.bind(this));
-        this.registerCustomParser('TargetOpRegion', this._parseTargetOpRegion.bind(this));
-        this.registerCustomParser('ClauseAttr', this._parseClauseAttr.bind(this));
+        this.registerCustomDirective('MapClause', this._parseMapClause.bind(this));
+        this.registerCustomDirective('CaptureType', this._parseCaptureType.bind(this));
+        this.registerCustomDirective('MembersIndex', this._parseMembersIndex.bind(this));
+        this.registerCustomDirective('PrivateReductionRegion', this._parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('PrivateRegion', this._parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('InReductionPrivateRegion', this._parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('InReductionPrivateReductionRegion', this._parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('TaskReductionRegion', this._parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('UseDeviceAddrUseDevicePtrRegion', this._parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('TargetOpRegion', this._parseTargetOpRegion.bind(this));
+        this.registerCustomDirective('ClauseAttr', this._parseClauseAttr.bind(this));
     }
 
     _parseClauseAttr(parser /*, op, args */) {
@@ -10340,10 +10384,10 @@ mlir.LLVMDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('llvm', operations);
-        this.registerCustomParser('GEPIndices', this._parseGEPIndices.bind(this));
-        this.registerCustomParser('InsertExtractValueElementType', this._parseInsertExtractValueElementType.bind(this));
-        this.registerCustomParser('LLVMLinkage', this._parseLLVMLinkage.bind(this));
-        this.registerCustomParser('ShuffleType', this._parseShuffleType.bind(this));
+        this.registerCustomDirective('GEPIndices', this._parseGEPIndices.bind(this));
+        this.registerCustomDirective('InsertExtractValueElementType', this._parseInsertExtractValueElementType.bind(this));
+        this.registerCustomDirective('LLVMLinkage', this._parseLLVMLinkage.bind(this));
+        this.registerCustomDirective('ShuffleType', this._parseShuffleType.bind(this));
     }
 
     _parseInsertExtractValueElementType(/* parser, op, args */) {
@@ -12114,11 +12158,11 @@ mlir.TransformDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('transform', operations);
-        this.registerCustomParser('PackedOrDynamicIndexList', this._parseDynamicIndexList.bind(this));
-        this.registerCustomParser('SemiFunctionType', this._parseSemiFunctionType.bind(this));
-        this.registerCustomParser('SequenceOpOperands', this._parseSequenceOpOperands.bind(this));
-        this.registerCustomParser('ForeachMatchSymbols', this._parseForeachMatchSymbols.bind(this));
-        this.registerCustomParser('TransformMatchDims', this._parseTransformMatchDims.bind(this));
+        this.registerCustomDirective('PackedOrDynamicIndexList', this._parseDynamicIndexList.bind(this));
+        this.registerCustomDirective('SemiFunctionType', this._parseSemiFunctionType.bind(this));
+        this.registerCustomDirective('SequenceOpOperands', this._parseSequenceOpOperands.bind(this));
+        this.registerCustomDirective('ForeachMatchSymbols', this._parseForeachMatchSymbols.bind(this));
+        this.registerCustomDirective('TransformMatchDims', this._parseTransformMatchDims.bind(this));
     }
 
     _parseSequenceOpOperands(parser, op /*, args */) {
@@ -12208,63 +12252,7 @@ mlir.TransformDialect = class extends mlir.Dialect {
         if (opName === 'transform.named_sequence') {
             return this._parseNamedSequenceOp(parser, op);
         }
-        if (opName.startsWith('transform.test.')) {
-            const parsed = this._parseTestOp(parser, op);
-            if (parsed === false) {
-                const hasSchema = super.parseOperation(parser, opName, op);
-                if (hasSchema) {
-                    return true;
-                }
-                if (parser.match('%')) {
-                    op.operands = parser.parseArguments();
-                }
-                parser.parseOptionalAttrDict(op.attributes);
-                if (parser.accept(':')) {
-                    if (parser.accept('(')) {
-                        const types = [];
-                        if (!parser.match(')')) {
-                            do {
-                                types.push(parser.parseType());
-                            } while (parser.accept(','));
-                        }
-                        parser.expect(')');
-                        for (let i = 0; i < op.operands.length && i < types.length; i++) {
-                            op.operands[i].type = types[i];
-                        }
-                        if (parser.accept('->')) {
-                            const resultType = parser.parseType();
-                            if (op.results.length > 0) {
-                                op.results[0].type = resultType;
-                            }
-                        }
-                    }
-                }
-                return true;
-            }
-            return true;
-        }
-        const hasSchema = super.parseOperation(parser, opName, op);
-        if (hasSchema) {
-            return true;
-        }
-        // For transform operations without metadata, parse conservatively
-        if (parser.match('%') || parser.match('@')) {
-            op.operands = parser.parseArguments();
-        }
-        parser.parseOptionalAttrDict(op.attributes);
-        if (parser.accept(':')) {
-            parser.parseArgumentTypes(op.operands);
-            if (parser.accept('->')) {
-                parser.parseArgumentTypes(op.results);
-            }
-        }
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        op.loc = parser.parseLocation();
-        return true;
+        return super.parseOperation(parser, opName, op);
     }
 
     _parseNamedSequenceOp(parser, op) {
@@ -12284,65 +12272,6 @@ mlir.TransformDialect = class extends mlir.Dialect {
             parser.parseRegion(region);
             op.regions.push(region);
         }
-        return true;
-    }
-
-    _parseTestOp(parser, op) {
-        const keywords = ['before', 'after', 'into', 'tile_sizes', 'mapping'];
-        if (parser.match('%') || parser.match('keyword') || parser.match('eof')) {
-            return false;
-        }
-        const hasSpecialSyntax = parser.match('(') || parser.match('{') || parser.match(':') || parser.match('[') || parser.match('=');
-        let hasKeyword = false;
-        if (parser.match('id')) {
-            hasKeyword = keywords.includes(parser._token.value);
-        }
-        if (!hasSpecialSyntax && !hasKeyword) {
-            return false;
-        }
-        let foundKeyword = false;
-        while (parser.match('%') || (parser.match('id') && !foundKeyword)) {
-            if (parser.match('%')) {
-                const value = parser.expect('%');
-                op.operands.push({ value });
-                parser.accept(',');
-            } else if (parser.match('id')) {
-                const id = parser._token.value;
-                if (keywords.includes(id)) {
-                    const keyword = parser.expect('id');
-                    op.attributes.push({ name: 'keyword', value: keyword });
-                    foundKeyword = true;
-                } else {
-                    break;
-                }
-            }
-        }
-        if (parser.accept(':')) {
-            if (parser.accept('(')) {
-                let idx = 0;
-                while (!parser.match(')')) {
-                    const type = parser.parseType();
-                    if (idx < op.operands.length) {
-                        op.operands[idx].type = type;
-                    }
-                    idx++;
-                    parser.accept(',');
-                }
-                parser.expect(')');
-                // Parse remaining types after comma
-                while (parser.accept(',')) {
-                    const type = parser.parseType();
-                    if (idx < op.operands.length) {
-                        op.operands[idx].type = type;
-                    }
-                    idx++;
-                }
-            } else {
-                // Standard type list
-                parser.parseArgumentTypes(op.operands);
-            }
-        }
-        parser.parseOptionalAttrDict(op.attributes);
         return true;
     }
 
@@ -12468,6 +12397,9 @@ mlir.TritonDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('tt', operations);
+        this.registerCustomType('TT_TensorPtr', this._parseTensorPtr.bind(this));
+        this.registerCustomType('TT_Ptr', this._parsePtr.bind(this));
+        this.registerCustomType('TT_TensorDescType', this._parseTensorDescType.bind(this));
     }
 
     parseType(parser, dialectName) {
@@ -12519,6 +12451,21 @@ mlir.TritonDialect = class extends mlir.Dialect {
             return true;
         }
         return super.parseOperation(parser, opName, op);
+    }
+
+    _parseTensorPtr(parser) {
+        const content = parser.skip('<', '>');
+        return new mlir.Type(`!tt.ptr${content}`);
+    }
+
+    _parsePtr(parser) {
+        const content = parser.skip('<', '>');
+        return new mlir.Type(`!tt.ptr${content}`);
+    }
+
+    _parseTensorDescType(parser) {
+        const content = parser.skip('<', '>');
+        return new mlir.Type(`!tt.tensor_desc${content}`);
     }
 };
 
@@ -12621,8 +12568,8 @@ mlir.TritonNvidiaGPUDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('ttng', operations);
-        this.registerCustomParser('Token', this._parseToken.bind(this));
-        this.registerCustomParser('BarriersAndPreds', this._parseBarriersAndPreds.bind(this));
+        this.registerCustomDirective('Token', this._parseToken.bind(this));
+        this.registerCustomDirective('BarriersAndPreds', this._parseBarriersAndPreds.bind(this));
     }
 
     _parseToken(parser, op, args) {
