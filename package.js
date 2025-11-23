@@ -635,7 +635,7 @@ const update = async () => {
 
 const pull = async () => {
     await exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
-    const before = await exec('git rev-parse HEAD', 'utf-8');
+    let before = await exec('git rev-parse HEAD', 'utf-8');
     if (before.status !== 0) {
         throw new Error(before.stderr.trim());
     }
@@ -644,13 +644,15 @@ const pull = async () => {
     } catch (error) {
         writeLine(error.message);
     }
-    const after = await exec('git rev-parse HEAD', 'utf-8');
+    let after = await exec('git rev-parse HEAD', 'utf-8');
     if (after.status !== 0) {
         throw new Error(after.stderr.trim());
     }
-    if (before.stdout.trim() !== after.stdout.trim()) {
-        const output = await exec(`git diff --name-only ${before.trim()} ${after.trim()}`, 'utf-8');
-        const files = new Set(output.split('\n'));
+    before = before.stdout.trim();
+    after = after.stdout.trim();
+    if (before !== after) {
+        const output = await exec(`git diff --name-only ${before} ${after}`, 'utf-8');
+        const files = new Set(output.stdout.split('\n'));
         if (files.has('package.json')) {
             await clean();
             await install();
