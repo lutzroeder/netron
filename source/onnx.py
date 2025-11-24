@@ -159,7 +159,7 @@ class _Graph:
             json_node_type = {}
             json_node_type["name"] = op_type
             type_metadata = self.metadata.type(op_type)
-            if type and "category" in type_metadata:
+            if type_metadata and "category" in type_metadata:
                 json_node_type["category"] = type_metadata["category"]
             json_node["type"] = json_node_type
             if node.name:
