@@ -31,7 +31,6 @@ class Operator {
     }
 
     _extractValue(arg) {
-        // Handle both old string format and new Value object format
         if (typeof arg === 'string') {
             return arg;
         }
@@ -53,7 +52,6 @@ class Operator {
         if (!value) {
             return null;
         }
-        // Detect cycles
         const valueKey = JSON.stringify(value);
         if (visited.has(valueKey)) {
             return null;
@@ -119,10 +117,8 @@ class Operator {
             if (!mnemonic && mnemonicArg) {
                 mnemonic = this._evaluateWithSubstitutions(mnemonicArg, subs);
             }
-            // Clean up mnemonic: remove leading/trailing dots, normalize multiple dots
             if (mnemonic && typeof mnemonic === 'string') {
-                mnemonic = mnemonic.replace(/^\.+|\.+$/g, ''); // Remove leading/trailing dots
-                // Skip if mnemonic is invalid after cleanup
+                mnemonic = mnemonic.replace(/^\.+|\.+$/g, '');
                 if (!mnemonic || mnemonic.includes('..')) {
                     return null;
                 }
@@ -292,7 +288,7 @@ const main = async () => {
         'mlir/Dialect/SMT/IR/SMTArrayOps.td',
         'mlir/Dialect/SMT/IR/SMTBitVectorOps.td',
         'mlir/Dialect/SMT/IR/SMTIntOps.td',
-        // 'mlir/Dialect/OpenACC/OpenACCOps.td', // File not found 'mlir/Dialect/OpenACC/AccCommon.td' (requires full LLVM tree to generate)
+        // 'mlir/Dialect/OpenACC/OpenACCOps.td', // File not found 'mlir/Dialect/OpenACC/AccCommon.td'
         'mlir/Dialect/LLVMIR/XeVMOps.td',
         'toy/Ops.td',
         'stablehlo/dialect/StablehloOps.td',
@@ -389,21 +385,20 @@ const main = async () => {
         const operation = {
             name: operationName
         };
-        let args = def.resolveField('arguments');
-        // If the field value needs evaluation (e.g., it's a computed field), evaluate it
-        if (args && args.value && (args.value.type === 'id' || args.value.type === 'bang')) {
-            const evaluated = def.evaluateValue(args.value);
-            if (evaluated && typeof evaluated === 'object' && evaluated.operator) {
-                // The evaluation returned a DAG directly
-                args = { value: new tablegen.Value('dag', evaluated) };
+        if (operations.has(operationName)) {
+            const existing = operations.get(operationName);
+            if (existing.category) {
+                operation.category = existing.category;
             }
         }
-        if (!args || !args.value || args.value.type !== 'dag' || (args.value.value && args.value.value.operands && args.value.value.operands.length === 0)) {
+        let args = def.getValueAsDag('arguments');
+        if (!args || !args.operands || args.operands.length === 0) {
+            // Try to get from parent Arguments class
             for (const parent of def.parents) {
                 if (parent.name === 'Arguments' && parent.args && parent.args.length > 0) {
                     const [dagValue] = parent.args;
                     if (dagValue && dagValue.type === 'dag') {
-                        args = { value: dagValue };
+                        args = dagValue.value;
                     }
                     break;
                 }
@@ -423,83 +418,78 @@ const main = async () => {
         } else if (['batch_norm_inference'].includes(name)) {
             operation.category = 'Normalization';
         }
-        const summary = def.resolveField('summary');
-        if (summary && summary.value) {
-            const value = def.evaluateValue(summary.value);
-            if (value) {
-                let summary = value.trim();
-                summary = summary.replace(/^"|"$/g, '');
-                if (summary) {
-                    operation.summary = summary;
-                }
+        if (def.getValue('summary')) {
+            const summary = def.getValueAsString('summary').trim();
+            if (summary) {
+                operation.summary = summary;
             }
         }
-        const description = def.resolveField('description');
-        if (description && description.value) {
-            const value = def.evaluateValue(description.value);
-            if (value) {
-                let desc = value.trim();
-                desc = desc.replace(/^\[\{\s*|\s*\}\]$/g, '');
-                desc = desc.trim();
-                if (desc) {
-                    operation.description = desc;
-                }
+        if (def.getValue('description')) {
+            const description = def.getValueAsString('description');
+            if (description) {
+                operation.description = description;
             }
         }
+        // Convert TableGen value to constraint string
+        const toConstraintString = (value) => {
+            if (!value) {
+                return null;
+            }
+            if (value.type === 'def') {
+                return value.value;
+            }
+            if (value.type === 'string' || value.type === 'code') {
+                return value.value;
+            }
+            if (value.type === 'int') {
+                return String(value.value);
+            }
+            if (value.type === 'list') {
+                const items = value.value.map((item) => toConstraintString(item)).filter((x) => x !== null);
+                return items.length > 0 ? `[${items.join(', ')}]` : null;
+            }
+            if (value.type === 'dag' && value.value) {
+                const dag = value.value;
+                const args = dag.operands.map((op) => toConstraintString(op.value)).filter((x) => x !== null);
+                if (args.length > 0) {
+                    return `${dag.operator}<${args.join(', ')}>`;
+                }
+                return dag.operator;
+            }
+            return null;
+        };
         const attributes = [];
         const inputs = [];
         const outputs = [];
-        if (args && args.value && args.value.type === 'dag') {
-            const dag = args.value.value;
-            if (dag.operator === 'ins') {
-                for (const operand of dag.operands) {
-                    if (!operand.value || !operand.name) {
-                        continue;
-                    }
-                    let typeName = '';
-                    if (operand.value.type === 'def') {
-                        typeName = operand.value.value;
+        if (args && args.operator === 'ins') {
+            for (const operand of args.operands) {
+                if (operand.value && operand.name) {
+                    const type = toConstraintString(operand.value);
+                    if (type && type.includes('Attr')) {
+                        attributes.push({ name: operand.name, type });
                     } else {
-                        // Try to extract from other value types
-                        typeName = String(operand.value.value);
-                    }
-                    if (typeName.includes('Attr')) {
-                        attributes.push({
-                            name: operand.name,
-                            type: typeName
-                        });
-                    } else {
-                        inputs.push({
-                            name: operand.name,
-                            type: typeName
-                        });
+                        inputs.push({ name: operand.name, type });
                     }
                 }
             }
         }
-        let results = def.resolveField('results');
-        if (!results || !results.value || results.value.type !== 'dag' || (results.value.value && results.value.value.operands && results.value.value.operands.length === 0)) {
+        let results = def.getValueAsDag('results');
+        if (!results || !results.operands || results.operands.length === 0) {
+            // Try to get from parent Results class
             for (const parent of def.parents) {
                 if (parent.name === 'Results' && parent.args && parent.args.length > 0) {
                     const [dagValue] = parent.args;
                     if (dagValue && dagValue.type === 'dag') {
-                        results = { value: dagValue };
+                        results = dagValue.value;
                     }
                     break;
                 }
             }
         }
-        if (results && results.value && results.value.type === 'dag') {
-            const dag = results.value.value;
-            if (dag.operator === 'outs') {
-                for (const operand of dag.operands) {
-                    if (!operand.value || !operand.name) {
-                        continue;
-                    }
-                    if (operand.value.type !== 'def') {
-                        throw new Error('Unexpected result operand value type');
-                    }
-                    const type = operand.value.value;
+        if (results && results.operator === 'outs') {
+            for (const operand of results.operands) {
+                if (operand.value && operand.name) {
+                    const type = toConstraintString(operand.value);
                     outputs.push({ name: operand.name, type });
                 }
             }
@@ -513,38 +503,29 @@ const main = async () => {
         if (attributes.length > 0) {
             operation.attributes = attributes;
         }
-        const successors = def.resolveField('successors');
-        if (successors && successors.value && successors.value.type === 'dag') {
-            const dag = successors.value.value;
-            if (dag.operator === 'successor') {
-                const successors = [];
-                for (const operand of dag.operands) {
-                    if (operand.name) {
-                        successors.push({ name: operand.name });
-                    }
-                }
-                if (successors.length > 0) {
-                    operation.successors = successors;
+        const successors = def.getValueAsDag('successors');
+        if (successors && successors.operator === 'successor') {
+            const list = [];
+            for (const operand of successors.operands) {
+                if (operand.name) {
+                    list.push({ name: operand.name });
                 }
             }
-        }
-        const assemblyFormat = def.resolveField('assemblyFormat');
-        if (assemblyFormat && assemblyFormat.value) {
-            const value = def.evaluateValue(assemblyFormat.value);
-            if (value) {
-                const format = value.trim().replace(/^\[\{\s*|\s*\}\]$/g, '');
-                if (format) {
-                    operation.assemblyFormat = format;
-                }
+            if (list.length > 0) {
+                operation.successors = list;
             }
         }
-        const hasCustomAssemblyFormat = def.resolveField('hasCustomAssemblyFormat');
-        if (hasCustomAssemblyFormat && hasCustomAssemblyFormat.value) {
-            operation.hasCustomAssemblyFormat = def.evaluateValue(hasCustomAssemblyFormat.value);
+        if (def.getValue('assemblyFormat')) {
+            const assemblyFormat = def.getValueAsString('assemblyFormat');
+            if (assemblyFormat) {
+                operation.assemblyFormat = assemblyFormat.trim();
+            }
         }
-        const parser = def.resolveField('parser');
-        if (parser && parser.value) {
-            operation.parser = 1;
+        if (def.getValue('hasCustomAssemblyFormat') && def.getValueAsBit('hasCustomAssemblyFormat')) {
+            operation.hasCustomAssemblyFormat = true;
+        }
+        if (def.getValue('parser')) {
+            operation.parser = def.getValueAsString('parser');
         }
         // Extract defaultDialect from OpAsmOpInterface
         for (const parent of def.parents) {
@@ -562,15 +543,12 @@ const main = async () => {
                                     break;
                                 }
                             }
-                            const extraClass = def.resolveField('extraClassDeclaration');
-                            if (extraClass && extraClass.value) {
-                                const code = def.evaluateValue(extraClass.value);
-                                if (code && typeof code === 'string') {
-                                    const match = code.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
-                                    if (match) {
-                                        [, operation.defaultDialect] = match;
-                                        break;
-                                    }
+                            const extraClass = def.getValueAsString('extraClassDeclaration');
+                            if (extraClass) {
+                                const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
+                                if (match) {
+                                    [, operation.defaultDialect] = match;
+                                    break;
                                 }
                             }
                         }
@@ -584,7 +562,6 @@ const main = async () => {
                 break;
             }
         }
-        // Only add operation if it has meaningful data beyond just the name
         if (Object.keys(operation).length > 1) {
             operations.set(operationName, operation);
         }

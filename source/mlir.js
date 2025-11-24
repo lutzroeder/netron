@@ -3432,7 +3432,96 @@ mlir.Dialect = class {
     }
 
     getOperation(opName) {
-        return this._operations.get(opName);
+        const op = this._operations.get(opName);
+        if (!op) {
+            return null;
+        }
+        const parseTypeString = (typeStr) => {
+            if (!typeStr || typeof typeStr !== 'string') {
+                return { baseType: null, variadic: false, optional: false };
+            }
+            if (typeStr === 'Variadic' || typeStr.startsWith('Variadic<')) {
+                if (typeStr === 'Variadic') {
+                    return { baseType: null, variadic: true, optional: false };
+                }
+                const match = typeStr.match(/^Variadic<(.+)>$/);
+                if (match) {
+                    const inner = parseTypeString(match[1]);
+                    return { baseType: inner.baseType, variadic: true, optional: inner.optional };
+                }
+                return { baseType: null, variadic: true, optional: false };
+            }
+            if (typeStr === 'Optional' || typeStr.startsWith('Optional<')) {
+                if (typeStr === 'Optional') {
+                    return { baseType: null, variadic: false, optional: true };
+                }
+                const match = typeStr.match(/^Optional<(.+)>$/);
+                if (match) {
+                    const inner = parseTypeString(match[1]);
+                    return { baseType: inner.baseType, variadic: inner.variadic, optional: true };
+                }
+                return { baseType: null, variadic: false, optional: true };
+            }
+            if (typeStr.startsWith('Arg<')) {
+                const match = typeStr.match(/^Arg<([^,>]+)/);
+                if (match) {
+                    return parseTypeString(match[1]);
+                }
+            }
+            if (typeStr.startsWith('DefaultValuedAttr<')) {
+                const match = typeStr.match(/^DefaultValuedAttr<([^,]+)/);
+                if (match) {
+                    return parseTypeString(match[1]);
+                }
+            }
+            return { baseType: typeStr, variadic: false, optional: false };
+        };
+
+        // Enhance metadata once on first access
+        if (!op.metadata._enhanced) {
+            const enhanceOperand = (operand) => {
+                if (!operand) {
+                    return;
+                }
+                if (operand.constraint && typeof operand.constraint === 'object') {
+                    operand.variadic = operand.constraint.name === 'Variadic';
+                    operand.optional = operand.constraint.name === 'Optional';
+                    if (operand.constraint.name === 'Variadic' && operand.constraint.args && operand.constraint.args.length > 0) {
+                        const [innerConstraint] = operand.constraint.args;
+                        if (innerConstraint && typeof innerConstraint === 'object' && innerConstraint.name) {
+                            operand.type = innerConstraint.name;
+                        }
+                    } else if (operand.constraint.name === 'Optional' && operand.constraint.args && operand.constraint.args.length > 0) {
+                        const [innerConstraint] = operand.constraint.args;
+                        if (innerConstraint && typeof innerConstraint === 'object' && innerConstraint.name) {
+                            operand.type = innerConstraint.name;
+                        }
+                    } else if (!operand.type) {
+                        operand.type = operand.constraint.name;
+                    }
+                    return;
+                }
+                if (operand.type) {
+                    const info = parseTypeString(operand.type);
+                    operand.variadic = info.variadic;
+                    operand.optional = info.optional;
+                    if (info.baseType !== null && info.baseType !== operand.type) {
+                        operand.type = info.baseType;
+                    }
+                }
+            };
+            if (op.metadata.inputs) {
+                op.metadata.inputs.forEach(enhanceOperand);
+            }
+            if (op.metadata.outputs) {
+                op.metadata.outputs.forEach(enhanceOperand);
+            }
+            if (op.metadata.attributes) {
+                op.metadata.attributes.forEach(enhanceOperand);
+            }
+            op.metadata._enhanced = true;
+        }
+        return op;
     }
 
     hasParser(opName) {
@@ -3577,8 +3666,8 @@ mlir.Dialect = class {
                 let isVariadic = false;
                 if (opInfo.metadata && opInfo.metadata.inputs) {
                     const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
-                    if (inputInfo && (inputInfo.type === 'Variadic' || inputInfo.isVariadic || (typeof inputInfo.type === 'string' && inputInfo.type.includes('DynamicDims')))) {
-                        isVariadic = true;
+                    if (inputInfo) {
+                        isVariadic = inputInfo.variadic || (typeof inputInfo.type === 'string' && inputInfo.type.includes('DynamicDims'));
                     }
                 }
                 // Parse variadic operands
@@ -3661,7 +3750,14 @@ mlir.Dialect = class {
                             parser.parseArgumentTypes(op.operands);
                         } else {
                             // Parse as results (outputs)
-                            const hasVariadicResult = opMetadata && opMetadata.outputs && (opMetadata.outputs.length > 1 || (opMetadata.outputs.length === 1 && (opMetadata.outputs[0].type === 'Variadic' || opMetadata.outputs[0].isVariadic)));
+                            let hasVariadicResult = false;
+                            if (opMetadata && opMetadata.outputs) {
+                                if (opMetadata.outputs.length > 1) {
+                                    hasVariadicResult = true;
+                                } else if (opMetadata.outputs.length === 1) {
+                                    hasVariadicResult = opMetadata.outputs[0].variadic || false;
+                                }
+                            }
                             if (hasVariadicResult) {
                                 parser.parseArgumentTypes(op.results);
                             } else {
@@ -3683,7 +3779,7 @@ mlir.Dialect = class {
                             for (const output of opMetadata.outputs) {
                                 if (output.name === arg || `$${output.name}` === arg) {
                                     isResult = true;
-                                    isVariadic = output.type === 'Variadic' || output.isVariadic || false;
+                                    isVariadic = output.variadic || false;
                                     break;
                                 }
                             }
@@ -3691,7 +3787,7 @@ mlir.Dialect = class {
                         if (!isResult && opMetadata && opMetadata.inputs) {
                             for (const input of opMetadata.inputs) {
                                 if (input.name === arg || `$${input.name}` === arg) {
-                                    isVariadic = input.type === 'Variadic' || input.isVariadic || false;
+                                    isVariadic = input.variadic || false;
                                     break;
                                 }
                             }
@@ -3989,6 +4085,7 @@ mlir.Dialect = class {
     }
 
     _parseCustomTypeWithFallback(parser, type) {
+        // Type is already the base type after enhancement
         if (this._customTypes.has(type)) {
             const typeT = this._customTypes.get(type);
             return parser.parseCustomTypeWithFallback(typeT);
@@ -12473,6 +12570,18 @@ mlir.TritonGPUDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('ttg', operations);
+        // Register custom type parser for MemDescType shorthand notation
+        this.registerCustomType('TTG_MemDescType', this._parseMemDescType.bind(this));
+    }
+
+    _parseMemDescType(parser) {
+        // Handle shorthand MemDescType notation: <dims x elementType, attributes...>
+        // Full notation would be: !ttg.memdesc<dims x elementType, attributes...>
+        if (!parser.match('<')) {
+            return null;
+        }
+        const content = parser.skip('<', '>');
+        return new mlir.Type(`!ttg.memdesc<${content}>`);
     }
 
     parseOperation(parser, opName, op) {

@@ -28,17 +28,22 @@ tablegen.Token = class {
 
 tablegen.Tokenizer = class {
 
-    constructor(text, filename) {
+    constructor(text, file) {
         this._text = text;
-        this._filename = filename;
+        this._file = file;
         this._position = 0;
         this._line = 1;
         this._column = 1;
+        this._keywords = new Set([
+            'assert', 'bit', 'bits', 'class', 'code', 'dag', 'def', 'defm', 'defset', 'defvar',
+            'dump', 'else', 'false', 'field', 'foreach', 'if', 'in', 'include', 'int',
+            'let', 'list', 'multiclass', 'string', 'then', 'true'
+        ]);
         this._token = this._tokenize();
     }
 
     location() {
-        return new tablegen.Location(this._filename, this._line, this._column);
+        return new tablegen.Location(this._file, this._line, this._column);
     }
 
     current() {
@@ -100,7 +105,17 @@ tablegen.Tokenizer = class {
             this._next();
             return new tablegen.Token('<<', '<<', location);
         }
-        if (this._isDigit(c) || (c === '-' && this._isDigit(this.peek(1)))) {
+        if (this._isDigit(c)) {
+            let pos = 1;
+            while (this.peek(pos) && this._isDigit(this.peek(pos))) {
+                pos++;
+            }
+            if (this.peek(pos) && /[a-zA-Z_]/.test(this.peek(pos))) {
+                return this._readIdentifier(location);
+            }
+            return this._readNumber(location);
+        }
+        if (c === '-' && this._isDigit(this.peek(1))) {
             return this._readNumber(location);
         }
         if (this._isIdentifierStart(c)) {
@@ -297,7 +312,6 @@ tablegen.Tokenizer = class {
             value += this.peek();
             this._next();
         }
-        // Handle member access with dots (e.g., ElementwiseMappable.traits)
         while (this.peek() === '.' && this._isIdentifierStart(this.peek(1))) {
             value += this.peek(); // add dot
             this._next();
@@ -306,15 +320,9 @@ tablegen.Tokenizer = class {
                 this._next();
             }
         }
-        const keywords = [
-            'assert', 'bit', 'bits', 'class', 'code', 'dag', 'def', 'defm',
-            'defset', 'defvar', 'dump', 'else', 'false', 'field', 'foreach',
-            'if', 'in', 'include', 'int', 'let', 'list', 'multiclass',
-            'string', 'then', 'true'
-        ];
-        const type = keywords.includes(value) ? value : 'id';
-        const tokenValue = (type === 'true' || type === 'false') ? (value === 'true') : value;
-        return new tablegen.Token(type, tokenValue, location);
+        const type = this._keywords.has(value) ? value : 'id';
+        value = type === 'true' || type === 'false' ? value === 'true' : value;
+        return new tablegen.Token(type, value, location);
     }
 };
 
@@ -338,7 +346,7 @@ tablegen.Type = class {
 
     constructor(name) {
         this.name = name;
-        this.args = []; // template arguments
+        this.args = [];
     }
 
     toString() {
@@ -349,7 +357,7 @@ tablegen.Type = class {
     }
 };
 
-tablegen.Field = class {
+tablegen.RecordVal = class {
 
     constructor(name, type, value) {
         this.name = name;
@@ -370,32 +378,20 @@ tablegen.Record = class {
         this.parser = parser;
     }
 
-    getField(name) {
-        return this.fields.get(name);
+    // Returns the RecordVal for the given field name, or null if not found
+    // Matches C++ Record::getValue() which returns nullptr for missing fields
+    getValue(name) {
+        return this.fields.get(name) || null;
     }
 
-    hasField(name) {
-        return this.fields.has(name);
-    }
-
-    resolveField(name, visited = new Set()) {
-        if (!visited.has(this.name)) {
-            visited.add(this.name);
-            const field = this.fields.get(name);
-            if (field) {
-                return field;
-            }
-            for (const parent of this.parents) {
-                const parentRecord = this.parser.classes.get(parent.name);
-                if (parentRecord) {
-                    const parentField = parentRecord.resolveField(name, visited);
-                    if (parentField) {
-                        return parentField;
-                    }
-                }
-            }
+    // Returns the Init value for the given field name, or throws if not found
+    // Matches C++ Record::getValueInit() which throws PrintFatalError for missing fields
+    getValueInit(fieldName) {
+        const recordVal = this.getValue(fieldName);
+        if (!recordVal || !recordVal.value) {
+            throw new Error(`Record '${this.name}' does not have a field named '${fieldName}'`);
         }
-        return null;
+        return recordVal.value;
     }
 
     // Bind template parameters from parent class instantiation
@@ -432,25 +428,93 @@ tablegen.Record = class {
         }
     }
 
+    // Flatten parent class fields into this record (eager resolution)
+    // This matches the C++ TableGen behavior where parent fields are copied
+    // during record construction, eliminating the need for runtime parent walking
+    flattenParentFields() {
+        const visited = new Set();
+        const parentFields = new Map();
+
+        // Recursively collect fields from all parent classes
+        const collectParentFields = (record) => {
+            if (!record || visited.has(record.name)) {
+                return;
+            }
+            visited.add(record.name);
+
+            // Process parents first (depth-first) so closer parents override
+            for (const parent of record.parents) {
+                const parentClass = this.parser.classes.get(parent.name);
+                if (parentClass) {
+                    collectParentFields(parentClass);
+                }
+            }
+
+            // Add this record's fields to the parent fields map
+            // Later entries override earlier ones
+            for (const [name, field] of record.fields) {
+                parentFields.set(name, field);
+            }
+        };
+
+        // Collect fields from parents (not including this record itself)
+        for (const parent of this.parents) {
+            const parentClass = this.parser.classes.get(parent.name);
+            if (parentClass) {
+                collectParentFields(parentClass);
+            }
+        }
+
+        // Now merge parent fields into this record
+        // Own fields take precedence over parent fields
+        for (const [name, parentField] of parentFields) {
+            if (!this.fields.has(name)) {
+                this.fields.set(name, parentField);
+            }
+        }
+    }
+
+    // Returns evaluated string value, or null if field doesn't exist or wrong type
+    // Unlike C++ getValueAsString which throws, this returns null for convenience
     getValueAsString(fieldName) {
-        const field = this.resolveField(fieldName);
+        const field = this.getValue(fieldName);
         if (!field || !field.value) {
             return null;
         }
-        if (field.value.type === 'string') {
-            return field.value.value.replace(/^"|"$/g, '');
+        const evaluated = this.evaluateValue(field.value);
+        if (typeof evaluated === 'string') {
+            return evaluated;
         }
         return null;
     }
 
-    getValueAsDef(fieldName) {
-        const field = this.resolveField(fieldName);
+    // Returns evaluated bit value, or null if field doesn't exist or wrong type
+    // Unlike C++ getValueAsBit which throws, this returns null for convenience
+    getValueAsBit(fieldName) {
+        const field = this.getValue(fieldName);
         if (!field || !field.value) {
             return null;
         }
-        if (field.value.type === 'def' && typeof field.value.value === 'string') {
-            const defName = field.value.value;
-            return this.parser.getDef(defName) || this.parser.getClass(defName);
+        const evaluated = this.evaluateValue(field.value);
+        if (typeof evaluated === 'boolean') {
+            return evaluated;
+        }
+        if (typeof evaluated === 'number') {
+            return evaluated !== 0;
+        }
+        return null;
+    }
+
+    // Returns evaluated dag value, or null if field doesn't exist or wrong type
+    // Unlike C++ getValueAsDag which throws, this returns null for convenience
+    getValueAsDag(fieldName) {
+        const field = this.getValue(fieldName);
+        if (!field || !field.value) {
+            return null;
+        }
+        const evaluated = this.evaluateValue(field.value);
+        if (evaluated && typeof evaluated === 'object' && evaluated.operator) {
+            return evaluated;
         }
         return null;
     }
@@ -481,7 +545,7 @@ tablegen.Record = class {
                     return this.evaluateValue(this.templateBindings.get(fieldName));
                 }
                 // Otherwise, resolve as a field
-                const field = this.resolveField(fieldName);
+                const field = this.getValue(fieldName);
                 if (field && field.value) {
                     return this.evaluateValue(field.value);
                 }
@@ -501,7 +565,7 @@ tablegen.Record = class {
                         baseValue = this.evaluateValue(this.templateBindings.get(baseName));
                     } else {
                         // Try to resolve as a field
-                        const field = this.resolveField(baseName);
+                        const field = this.getValue(baseName);
                         if (field && field.value) {
                             baseValue = this.evaluateValue(field.value);
                         }
@@ -514,7 +578,7 @@ tablegen.Record = class {
                             // Navigate through the field path
                             let current = def;
                             for (const fieldName of fieldPath) {
-                                const field = current.resolveField(fieldName);
+                                const field = current.getValue(fieldName);
                                 if (!field || !field.value) {
                                     return null;
                                 }
@@ -537,7 +601,7 @@ tablegen.Record = class {
                     return this.evaluateValue(this.templateBindings.get(defName));
                 }
                 // Otherwise, resolve as a field or def
-                const field = this.resolveField(defName);
+                const field = this.getValue(defName);
                 if (field && field.value) {
                     return this.evaluateValue(field.value);
                 }
@@ -644,7 +708,7 @@ tablegen.Record = class {
                                 accValue = accumulator;
                             }
 
-                            this.fields.set(accName, new tablegen.Field(accName, null, accValue));
+                            this.fields.set(accName, new tablegen.RecordVal(accName, null, accValue));
 
                             // Wrap item in a Value so it can be used in expressions
                             let itemValue = item;
@@ -660,7 +724,7 @@ tablegen.Record = class {
                                 itemValue = new tablegen.Value('dag', item);
                             }
                             // If item is already a Value, use it as is
-                            this.fields.set(itemName, new tablegen.Field(itemName, null, itemValue));
+                            this.fields.set(itemName, new tablegen.RecordVal(itemName, null, itemValue));
 
                             // Evaluate the expression
                             accumulator = this.evaluateValue(args[4]);
@@ -714,7 +778,7 @@ tablegen.Record = class {
                                 itemValue = new tablegen.Value('dag', item);
                             }
                             // If item is already a Value, use it as is
-                            this.fields.set(itemName, new tablegen.Field(itemName, null, itemValue));
+                            this.fields.set(itemName, new tablegen.RecordVal(itemName, null, itemValue));
 
                             // Evaluate expression
                             const result = this.evaluateValue(args[2]);
@@ -761,7 +825,7 @@ tablegen.Record = class {
                                 itemValue = new tablegen.Value('dag', item);
                             }
                             // If item is already a Value, use it as is
-                            this.fields.set(itemName, new tablegen.Field(itemName, null, itemValue));
+                            this.fields.set(itemName, new tablegen.RecordVal(itemName, null, itemValue));
 
                             const keep = this.evaluateValue(args[2]);
                             if (keep) {
@@ -1006,6 +1070,8 @@ tablegen.Reader = class {
         }
         // Bind template parameters after parsing is complete
         def.bindTemplateParameters();
+        // Flatten parent fields into this record (eager resolution)
+        def.flattenParentFields();
         if (name) {
             this._defs.set(name, def);
             this.defs.push(def); // Also add to list to preserve duplicates
@@ -1132,7 +1198,7 @@ tablegen.Reader = class {
                 const name = this._expect('id');
                 this._expect('=');
                 const value = this._parseValue();
-                const field = new tablegen.Field(name, null, value);
+                const field = new tablegen.RecordVal(name, null, value);
                 record.fields.set(name, field);
                 this._eat(';');
             } else if (this._match('defvar')) {
@@ -1140,7 +1206,7 @@ tablegen.Reader = class {
                 const name = this._expect('id');
                 this._expect('=');
                 const value = this._parseValue();
-                const field = new tablegen.Field(name, null, value);
+                const field = new tablegen.RecordVal(name, null, value);
                 record.fields.set(name, field);
                 this._eat(';');
             } else if (this._match('assert')) {
@@ -1165,7 +1231,7 @@ tablegen.Reader = class {
                 if (this._eat('=')) {
                     value = this._parseValue();
                 }
-                const field = new tablegen.Field(name, type, value);
+                const field = new tablegen.RecordVal(name, type, value);
                 record.fields.set(name, field);
                 this._eat(';');
             } else {
@@ -1348,7 +1414,8 @@ tablegen.Reader = class {
                 if (this._eat(',')) {
                     continue;
                 }
-                const value = this._parseValue();
+                // Use _parseListItem() to handle template instantiations like Arg<TTG_MemDescType>
+                const value = this._parseListItem();
                 let name = null;
                 if (this._eat(':') && this._eat('$')) {
                     if (this._match('id') || this._isKeyword(this._tokenizer.current().type)) {
@@ -1422,6 +1489,8 @@ tablegen.Reader = class {
             // Handle various suffixes: templates, subscripts, field access, scope resolution
             while (true) {
                 if (this._match('<')) {
+                    // Template arguments are skipped here - they're parsed properly in
+                    // DAG context by _parseListItem() which creates DAG values with template args
                     this._skip('<', '>');
                 } else if (this._eat('[')) {
                     // Array subscripting: x[0]
@@ -1521,5 +1590,3 @@ tablegen.Error = class extends Error {
 };
 
 export const Reader = tablegen.Reader;
-export const Value = tablegen.Value;
-export const DAG = tablegen.DAG;
