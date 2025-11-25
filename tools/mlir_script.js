@@ -8,18 +8,13 @@ class Operator {
 
     constructor(def) {
         this.def = def;
-        let opInfo = null;
-        for (const parent of this.def.parents) {
-            const parentClass = this.def.parser.classes.get(parent.name);
-            if (parentClass) {
-                opInfo = this._findOpParent(parentClass, parent.args, {});
-                if (opInfo) {
-                    break;
-                }
-            }
+        // With template parameter substitution, opDialect and opName fields
+        // from the Op base class now contain the actual substituted values
+        this.opName = def.getValueAsString('opName');
+        const dialectDef = this.def.getValueAsDef('opDialect');
+        if (dialectDef) {
+            this.dialectName = dialectDef.getValueAsString('name');
         }
-        this.dialectName = opInfo?.dialect || null;
-        this.opName = opInfo?.mnemonic || null;
     }
 
     getDialectName() {
@@ -28,119 +23,6 @@ class Operator {
 
     getOperationName() {
         return this.dialectName && this.opName ? `${this.dialectName}.${this.opName}` : null;
-    }
-
-    _extractValue(arg) {
-        if (typeof arg === 'string') {
-            return arg;
-        }
-        if (arg && typeof arg === 'object') {
-            if (arg.value !== undefined && arg.name !== undefined) {
-                return this._extractValue(arg.value);
-            }
-            if (arg.type === 'string' && typeof arg.value === 'string') {
-                return arg.value.replace(/^"|"$/g, '');
-            }
-            if (arg.type === 'def' && typeof arg.value === 'string') {
-                return arg.value;
-            }
-        }
-        return null;
-    }
-
-    _evaluateWithSubstitutions(value, subs, visited = new Set()) {
-        if (!value) {
-            return null;
-        }
-        const valueKey = JSON.stringify(value);
-        if (visited.has(valueKey)) {
-            return null;
-        }
-        visited.add(valueKey);
-        switch (value.type) {
-            case 'string':
-                return typeof value.value === 'string' ? value.value.replace(/^"|"$/g, '') : value.value;
-            case 'int':
-                return parseInt(value.value, 10);
-            case 'concat': {
-                const parts = value.value.map((v) => this._evaluateWithSubstitutions(v, subs, visited));
-                const filtered = parts.filter((v) => v !== null && v !== undefined && v !== '');
-                const result = filtered.join('');
-                return result;
-            }
-            case 'id':
-            case 'def': {
-                const name = value.value;
-                if (subs[name] && subs[name] !== value) {
-                    return this._evaluateWithSubstitutions(subs[name], subs, visited);
-                }
-                return this.def.evaluateValue(value);
-            }
-            default: {
-                return this.def.evaluateValue(value);
-            }
-        }
-    }
-
-    _findOpParent(parentClass, parentArgs, substitutions) {
-        const subs = { ...substitutions };
-        if (parentClass.templateArgs && parentArgs) {
-            for (let i = 0; i < Math.min(parentClass.templateArgs.length, parentArgs.length); i++) {
-                const paramName = parentClass.templateArgs[i].name;
-                const argValue = parentArgs[i];
-                const extractedValue = this._extractValue(argValue);
-                if (extractedValue && substitutions[extractedValue]) {
-                    subs[paramName] = substitutions[extractedValue];
-                } else {
-                    const evaluated = this._evaluateWithSubstitutions(argValue, substitutions);
-                    subs[paramName] = evaluated === null ? argValue : subs[paramName] = { type: 'string', value: evaluated };
-                }
-            }
-        }
-        if (parentClass.name === 'Op' && parentArgs.length >= 2) {
-            let [dialectArg, mnemonicArg] = parentArgs;
-            if (dialectArg && dialectArg.type === 'def' && dialectArg.value && subs[dialectArg.value]) {
-                dialectArg = subs[dialectArg.value];
-            }
-            if (mnemonicArg && mnemonicArg.type === 'def' && mnemonicArg.value && subs[mnemonicArg.value]) {
-                mnemonicArg = subs[mnemonicArg.value];
-            }
-            let dialectName = null;
-            const dialectStr = this._extractValue(dialectArg);
-            if (dialectStr) {
-                const dialectDef = this.def.parser.getDef(dialectStr) || this.def.parser.getClass(dialectStr);
-                if (dialectDef) {
-                    dialectName = dialectDef.getValueAsString('name');
-                }
-            }
-            let mnemonic = this._extractValue(mnemonicArg);
-            if (!mnemonic && mnemonicArg) {
-                mnemonic = this._evaluateWithSubstitutions(mnemonicArg, subs);
-            }
-            if (mnemonic && typeof mnemonic === 'string') {
-                mnemonic = mnemonic.replace(/^\.+|\.+$/g, '');
-                if (!mnemonic || mnemonic.includes('..')) {
-                    return null;
-                }
-            }
-            if (dialectName && mnemonic) {
-                return { dialect: dialectName, mnemonic };
-            }
-        }
-        for (const grandparent of parentClass.parents) {
-            const grandparentClass = this.def.parser.classes.get(grandparent.name);
-            if (grandparentClass) {
-                const resolvedArgs = grandparent.args.map((arg) => {
-                    const extracted = this._extractValue(arg);
-                    return (extracted && subs[extracted]) ? subs[extracted] : arg;
-                });
-                const result = this._findOpParent(grandparentClass, resolvedArgs, subs);
-                if (result) {
-                    return result;
-                }
-            }
-        }
-        return null;
     }
 }
 
@@ -157,6 +39,7 @@ const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
     const source = path.join(dirname, '..', 'third_party', 'source', 'mlir');
     const paths = [
+        source, // Add base source directory for cross-repository includes
         path.join(source, 'llvm-project', 'mlir', 'include'),
         path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Dialect', 'Transform'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmNeon'),
@@ -164,12 +47,12 @@ const main = async () => {
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSVE', 'IR'),
         path.join(source, 'llvm-project', 'mlir', 'examples', 'toy', 'Ch7', 'include'),
         path.join(source, 'stablehlo'),
+        path.join(source, 'xla', 'xla', 'mlir_hlo'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
         path.join(source, 'triton', 'include'),
         path.join(source, 'triton', 'third_party'),
         path.join(source, 'triton', 'third_party', 'amd', 'include', 'Dialect', 'TritonAMDGPU', 'IR'),
-        path.join(source, 'mlir-hlo', 'include'),
         path.join(source, 'iree', 'compiler', 'src'),
         path.join(source, 'FlashTensor', 'include'),
         path.join(source, 'tpu-mlir', 'include'),
@@ -296,6 +179,7 @@ const main = async () => {
         'stablehlo/dialect/VhloOps.td',
         'stablehlo/reference/InterpreterOps.td',
         'stablehlo/tests/CheckOps.td',
+        'mhlo/IR/hlo_ops.td',
         'src/Dialect/ONNX/ONNX.td',
         'src/Dialect/ONNX/ONNXOps.td.inc',
         'src/Dialect/ONNX/AdditionalONNXOps.td',
@@ -321,7 +205,6 @@ const main = async () => {
         'tfrt/test_kernels/opdefs/test_kernels.td',
         'tfrt/tensor/opdefs/tensor.td',
         'tfrt/tensor/opdefs/dense_host_tensor.td',
-        'mlir-hlo/Dialect/mhlo/IR/hlo_ops.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/HAL/IR/HALTypes.td',
         'iree/compiler/Modules/HAL/Loader/IR/HALLoaderOps.td',
@@ -371,6 +254,7 @@ const main = async () => {
             }
         }
     }
+    let count = 0;
     const parser = new tablegen.Reader();
     await parser.parse(dialects, paths);
     for (const def of parser.defs) {
@@ -564,12 +448,16 @@ const main = async () => {
         }
         if (Object.keys(operation).length > 1) {
             operations.set(operationName, operation);
+            count++;
         }
     }
     const sorted = Array.from(operations.values()).sort((a, b) => a.name.localeCompare(b.name));
     const output = JSON.stringify(sorted, null, 2);
     const formatted = output.replace(/\{\s+"name":\s+"([^"]+)",\s+"type":\s+"([^"]+)"\s+\}/g, '{ "name": "$1", "type": "$2" }');
     await fs.writeFile(file, formatted, 'utf-8');
+    if (count < 6300) {
+        throw new Error(`Unexpected operation count '${count}'.`);
+    }
 };
 
 await main();
