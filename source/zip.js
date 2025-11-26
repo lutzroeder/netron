@@ -248,7 +248,7 @@ zip.Entry = class {
                 this._stream = new zip.InflaterStream(this._stream, header.size);
                 break;
             default:
-                this._stream = new new zip.ErrorStream(header.size, 'Invalid ZIP entry compression method.');
+                this._stream = new zip.ErrorStream(header.size, `Invalid ZIP entry compression method '${header.compressionMethod}'.`);
                 break;
         }
     }
