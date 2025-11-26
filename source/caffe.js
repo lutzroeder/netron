@@ -359,7 +359,7 @@ caffe.Node = class {
                 break;
             }
             default: {
-                throw new new caffe.Error(`Unsupported Caffe version '${version}'.`);
+                throw new caffe.Error(`Unsupported Caffe version '${version}'.`);
             }
         }
         this.type = metadata.type(type) || { name: type };
