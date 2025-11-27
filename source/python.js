@@ -5384,6 +5384,176 @@ python.Execution = class {
                 return self.invoke(`types.${args[0]}`, args);
             };
         });
+        this.registerType('sympy.printing.defaults.Printable', class {});
+        this.registerType('sympy.core.basic.Basic', class extends sympy.printing.defaults.Printable {
+            constructor(...args) {
+                super();
+                this._args = args;
+            }
+            get args() {
+                return this._args;
+            }
+        });
+        this.registerType('sympy.core.function.Function', class extends sympy.core.basic.Basic {
+        });
+        this.registerType('sympy.core.expr.Expr', class extends sympy.core.basic.Basic {
+        });
+        this.registerType('sympy.core.operations.AssocOp', class extends sympy.core.expr.Expr /* sympy.core.basic.Basic */ {});
+        this.registerType('sympy.core.power.Pow', class extends sympy.core.expr.Expr {
+            __str__() {
+                return this._args.map((a) => a.__str__()).join('**');
+            }
+        });
+        this.registerType('sympy.core.add.Add', class extends sympy.core.operations.AssocOp {
+            __str__() {
+                return this._args.map((a) => a.__str__()).join(' + ');
+            }
+        });
+        this.registerType('sympy.core.mul.Mul', class extends sympy.core.operations.AssocOp {
+            __str__() {
+                return this._args.map((a) => a.__str__()).join('*');
+            }
+        });
+        this.registerType('sympy.core.numbers.Number', class extends sympy.core.expr.Expr {});
+        this.registerType('sympy.core.numbers.Rational', class extends sympy.core.numbers.Number {});
+        this.registerType('sympy.core.numbers.Integer', class extends sympy.core.numbers.Rational {
+            constructor(value) {
+                super();
+                this.value = value;
+                this.is_Integer = true;
+            }
+            __int__() {
+                return this.value;
+            }
+            __str__() {
+                return this.value.toString();
+            }
+        });
+        this.registerType('sympy.core.symbol.Symbol', class extends sympy.core.expr.Expr {
+            constructor(name) {
+                super();
+                this.name = name;
+            }
+            __int__() {
+                throw new python.Error('Cannot convert symbols to int.');
+            }
+            __str__() {
+                return this.name;
+            }
+        });
+        this.registerType('sympy.core.relational.Relational', class extends sympy.core.expr.Expr {
+            constructor(lhs, rhs, op) {
+                super();
+                this._args = [lhs, rhs];
+                this._op = op;
+            }
+            __str__() {
+                return `${this._args[0].__str__()} ${this._op} ${this._args[1].__str__()}`;
+            }
+        });
+        this.registerType('sympy.core.relational._Inequality', class extends sympy.core.relational.Relational {
+        });
+        this.registerType('sympy.core.relational._Greater', class extends sympy.core.relational._Inequality {
+        });
+        this.registerType('sympy.core.relational.GreaterThan', class extends sympy.core.relational._Greater {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '>=');
+            }
+        });
+        this.registerType('sympy.core.relational._Less', class extends sympy.core.relational._Inequality {
+        });
+        this.registerType('sympy.core.relational.LessThan', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '<=');
+            }
+        });
+        this.registerType('sympy.core.relational.StrictLessThan', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '<');
+            }
+        });
+        this.registerType('sympy.core.relational.StrictGreaterThan', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '>');
+            }
+        });
+        this.registerType('sympy.core.relational.Equality', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '==');
+            }
+        });
+        this.registerType('sympy.functions.elementary.miscellaneous.MinMaxBase', class extends sympy.core.expr.Expr {
+        });
+        this.registerType('sympy.functions.elementary.miscellaneous.Max', class extends sympy.functions.elementary.miscellaneous.MinMaxBase {
+            __str__() {
+                return `Max(${this._args.map((a) => a.__str__()).join(', ')})`;
+            }
+        });
+        this.registerFunction('sympy.core.sympify.sympify', (a /*, locals */) => {
+            if (a instanceof sympy.core.expr.Expr) {
+                return a;
+            }
+            const p = ast.parse(a);
+            const sympify = (node) => {
+                if (node instanceof ast.Call) {
+                    switch (node.func.id) {
+                        case 'Symbol': return new sympy.core.symbol.Symbol(node.args[0].value);
+                        case 'Mul': return new sympy.core.mul.Mul(...node.args.map((arg) => sympify(arg)));
+                        case 'Add': return new sympy.core.add.Add(...node.args.map((arg) => sympify(arg)));
+                        case 'Pow': return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
+                        case 'Max': return new sympy.functions.elementary.miscellaneous.Max(...node.args.map((arg) => sympify(arg)));
+                        case 'Integer': return new sympy.core.numbers.Integer(node.args[0].value);
+                        case 'GreaterThan': return new sympy.core.relational.GreaterThan(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'StrictGreaterThan': return new sympy.core.relational.StrictGreaterThan(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'LessThan': return new sympy.core.relational.LessThan(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'StrictLessThan': return new sympy.core.relational.StrictLessThan(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'Equality': return new sympy.core.relational.Equality(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'FloorDiv': return new torch.utils._sympy.functions.FloorDiv(sympify(node.args[0]), sympify(node.args[1]));
+                        default: throw new python.Error(`Unsupported SymPy function '${node.func.id}'.`);
+                    }
+                }
+                if (node instanceof ast.Name) {
+                    return new sympy.core.symbol.Symbol(node.id);
+                }
+                if (node instanceof ast.Constant) {
+                    if (node.type === 'int') {
+                        return new sympy.core.numbers.Integer(node.value);
+                    }
+                }
+                if (node instanceof ast.BinOp) {
+                    if (node.op instanceof ast.Mult) {
+                        return new sympy.core.mul.Mul(sympify(node.left), sympify(node.right));
+                    }
+                    if (node.op instanceof ast.Pow) {
+                        return new sympy.core.power.Pow(sympify(node.left), sympify(node.right));
+                    }
+                    throw new python.Error(`Unsupported SymPy BinOp op '${node.op.__class__.__name__}'.`);
+                }
+                if (node instanceof ast.Compare) {
+                    const left = sympify(node.left);
+                    const right = sympify(node.comparators[0]);
+                    const [op] = node.ops;
+                    if (op instanceof ast.Gt) {
+                        return new sympy.core.relational.StrictGreaterThan(left, right);
+                    }
+                    if (op instanceof ast.GtE) {
+                        return new sympy.core.relational.GreaterThan(left, right);
+                    }
+                    if (op instanceof ast.Lt) {
+                        return new sympy.core.relational.StrictLessThan(left, right);
+                    }
+                    if (op instanceof ast.LtE) {
+                        return new sympy.core.relational.LessThan(left, right);
+                    }
+                    if (op instanceof ast.Eq) {
+                        return new sympy.core.relational.Equality(left, right);
+                    }
+                    throw new python.Error(`Unsupported comparison operator '${op.__class__.__name__}'.`);
+                }
+                throw new python.Error(`Unsupported SymPy expression '${node.__class__.__name__}'.`);
+            };
+            return sympify(p.body[0].value);
+        });
         this.registerFunction('theano.scalar.basic.same_out');
         this.registerFunction('theano.scalar.basic.same_out_nocomplex');
         this.registerFunction('theano.scalar.basic.upcast_out');
@@ -7534,7 +7704,11 @@ python.Execution = class {
         this.registerType('torch.utils._contextlib._DecoratorContextManager', class {});
         this.registerType('torch.utils._contextlib._NoParamDecoratorContextManager', class extends torch.utils._contextlib._DecoratorContextManager {});
         this.registerType('torch.utils._sympy.symbol.SymT', class extends this.enum.Enum {});
-        this.registerType('torch.utils._sympy.functions.FloorDiv', class {});
+        this.registerType('torch.utils._sympy.functions.FloorDiv', class extends sympy.core.function.Function {
+            __str__() {
+                return this._args.map((a) => a.__str__()).join('//');
+            }
+        });
         this.registerType('torch.utils._sympy.functions.ModularIndexing', class {});
         this.registerType('torch.utils._sympy.functions.Where', class {});
         this.registerType('torch.utils._sympy.functions.PythonMod', class {});
@@ -8033,173 +8207,6 @@ python.Execution = class {
             return name_str.startswith(tuple(prefix_str[p] for p in prefix));
             */
             return false;
-        });
-        this.registerType('sympy.printing.defaults.Printable', class {});
-        this.registerType('sympy.core.basic.Basic', class extends sympy.printing.defaults.Printable {
-            constructor(...args) {
-                super();
-                this._args = args;
-            }
-            get args() {
-                return this._args;
-            }
-        });
-        this.registerType('sympy.core.expr.Expr', class extends sympy.core.basic.Basic {
-        });
-        this.registerType('sympy.core.operations.AssocOp', class extends sympy.core.expr.Expr /* sympy.core.basic.Basic */ {});
-        this.registerType('sympy.core.power.Pow', class extends sympy.core.expr.Expr {
-            __str__() {
-                return this._args.map((a) => a.__str__()).join('**');
-            }
-        });
-        this.registerType('sympy.core.add.Add', class extends sympy.core.operations.AssocOp {
-            __str__() {
-                return this._args.map((a) => a.__str__()).join(' + ');
-            }
-        });
-        this.registerType('sympy.core.mul.Mul', class extends sympy.core.operations.AssocOp {
-            __str__() {
-                return this._args.map((a) => a.__str__()).join('*');
-            }
-        });
-        this.registerType('sympy.core.numbers.Number', class extends sympy.core.expr.Expr {});
-        this.registerType('sympy.core.numbers.Rational', class extends sympy.core.numbers.Number {});
-        this.registerType('sympy.core.numbers.Integer', class extends sympy.core.numbers.Rational {
-            constructor(value) {
-                super();
-                this.value = value;
-                this.is_Integer = true;
-            }
-            __int__() {
-                return this.value;
-            }
-            __str__() {
-                return this.value.toString();
-            }
-        });
-        this.registerType('sympy.core.symbol.Symbol', class extends sympy.core.expr.Expr {
-            constructor(name) {
-                super();
-                this.name = name;
-            }
-            __int__() {
-                throw new python.Error('Cannot convert symbols to int.');
-            }
-            __str__() {
-                return this.name;
-            }
-        });
-        this.registerType('sympy.core.relational.Relational', class extends sympy.core.expr.Expr {
-            constructor(lhs, rhs, op) {
-                super();
-                this._args = [lhs, rhs];
-                this._op = op;
-            }
-            __str__() {
-                return `${this._args[0].__str__()} ${this._op} ${this._args[1].__str__()}`;
-            }
-        });
-        this.registerType('sympy.core.relational._Inequality', class extends sympy.core.relational.Relational {
-        });
-        this.registerType('sympy.core.relational._Greater', class extends sympy.core.relational._Inequality {
-        });
-        this.registerType('sympy.core.relational.GreaterThan', class extends sympy.core.relational._Greater {
-            constructor(lhs, rhs) {
-                super(lhs, rhs, '>=');
-            }
-        });
-        this.registerType('sympy.core.relational._Less', class extends sympy.core.relational._Inequality {
-        });
-        this.registerType('sympy.core.relational.LessThan', class extends sympy.core.relational.Relational {
-            constructor(lhs, rhs) {
-                super(lhs, rhs, '<=');
-            }
-        });
-        this.registerType('sympy.core.relational.StrictLessThan', class extends sympy.core.relational.Relational {
-            constructor(lhs, rhs) {
-                super(lhs, rhs, '<');
-            }
-        });
-        this.registerType('sympy.core.relational.StrictGreaterThan', class extends sympy.core.relational.Relational {
-            constructor(lhs, rhs) {
-                super(lhs, rhs, '>');
-            }
-        });
-        this.registerType('sympy.core.relational.Equality', class extends sympy.core.relational.Relational {
-            constructor(lhs, rhs) {
-                super(lhs, rhs, '==');
-            }
-        });
-        this.registerType('sympy.functions.elementary.miscellaneous.MinMaxBase', class extends sympy.core.expr.Expr {
-        });
-        this.registerType('sympy.functions.elementary.miscellaneous.Max', class extends sympy.functions.elementary.miscellaneous.MinMaxBase {
-            __str__() {
-                return `Max(${this._args.map((a) => a.__str__()).join(', ')})`;
-            }
-        });
-        this.registerFunction('sympy.core.sympify.sympify', (a /*, locals */) => {
-            if (a instanceof sympy.core.expr.Expr) {
-                return a;
-            }
-            const p = ast.parse(a);
-            const sympify = (node) => {
-                if (node instanceof ast.Call) {
-                    switch (node.func.id) {
-                        case 'Symbol': return new sympy.core.symbol.Symbol(node.args[0].value);
-                        case 'Mul': return new sympy.core.mul.Mul(...node.args.map((arg) => sympify(arg)));
-                        case 'Add': return new sympy.core.add.Add(...node.args.map((arg) => sympify(arg)));
-                        case 'Pow': return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
-                        case 'Max': return new sympy.functions.elementary.miscellaneous.Max(...node.args.map((arg) => sympify(arg)));
-                        case 'Integer': return new sympy.core.numbers.Integer(node.args[0].value);
-                        case 'GreaterThan': return new sympy.core.relational.GreaterThan(sympify(node.args[0]), sympify(node.args[1]));
-                        case 'StrictGreaterThan': return new sympy.core.relational.StrictGreaterThan(sympify(node.args[0]), sympify(node.args[1]));
-                        case 'LessThan': return new sympy.core.relational.LessThan(sympify(node.args[0]), sympify(node.args[1]));
-                        case 'StrictLessThan': return new sympy.core.relational.StrictLessThan(sympify(node.args[0]), sympify(node.args[1]));
-                        case 'Equality': return new sympy.core.relational.Equality(sympify(node.args[0]), sympify(node.args[1]));
-                        default: throw new python.Error(`Unsupported SymPy function '${node.func.id}'.`);
-                    }
-                }
-                if (node instanceof ast.Name) {
-                    return new sympy.core.symbol.Symbol(node.id);
-                }
-                if (node instanceof ast.Constant) {
-                    if (node.type === 'int') {
-                        return new sympy.core.numbers.Integer(node.value);
-                    }
-                }
-                if (node instanceof ast.BinOp) {
-                    if (node.op instanceof ast.Mult) {
-                        return new sympy.core.mul.Mul(sympify(node.left), sympify(node.right));
-                    }
-                    if (node.op instanceof ast.Pow) {
-                        return new sympy.core.power.Pow(sympify(node.left), sympify(node.right));
-                    }
-                    throw new python.Error(`Unsupported SymPy BinOp op '${node.op.__class__.__name__}'.`);
-                }
-                if (node instanceof ast.Compare) {
-                    const left = sympify(node.left);
-                    const right = sympify(node.comparators[0]);
-                    const [op] = node.ops;
-                    if (op instanceof ast.Gt) {
-                        return new sympy.core.relational.StrictGreaterThan(left, right);
-                    }
-                    if (op instanceof ast.GtE) {
-                        return new sympy.core.relational.GreaterThan(left, right);
-                    }
-                    if (op instanceof ast.Lt) {
-                        return new sympy.core.relational.StrictLessThan(left, right);
-                    }
-                    if (op instanceof ast.LtE) {
-                        return new sympy.core.relational.LessThan(left, right);
-                    }
-                    if (op instanceof ast.Eq) {
-                        return new sympy.core.relational.Equality(left, right);
-                    }
-                    throw new python.Error(`Unsupported comparison operator '${op.__class__.__name__}'.`);
-                }
-                throw new python.Error(`Unsupported SymPy expression '${node.__class__.__name__}'.`);
-            };
-            return sympify(p.body[0].value);
         });
         this.registerType('torch.fx.proxy.TracerBase', class {
             constructor() {
