@@ -5813,6 +5813,7 @@ mlir.IREEDialect = class extends mlir.Dialect {
         this.registerCustomDirective('DispatchEntryPoints', this._parseDispatchEntryPoints.bind(this));
         this.registerCustomDirective('ShapedTiedResult', this._parseShapedTiedResult.bind(this));
         this.registerCustomDirective('SymbolAlias', this._parseSymbolAlias.bind(this));
+        this.registerCustomDirective('TypeAlias', this._parseTypeAlias.bind(this));
         this.registerCustomDirective('WorkgroupCountRegion', this._parseWorkgroupCountRegion.bind(this));
     }
 
@@ -5905,6 +5906,30 @@ mlir.IREEDialect = class extends mlir.Dialect {
             const aliasArg = args[1].replace(/^\$/, '');
             op.attributes.push({ name: symNameArg, value: symName });
             op.attributes.push({ name: aliasArg, value: alias });
+        }
+    }
+
+    _parseTypeAlias(parser, op, args) {
+        const encodingType = parser.parseType();
+        let storageType = encodingType;
+        if (parser.accept('id', 'as')) {
+            storageType = parser.parseType();
+        }
+        if (args && args.length >= 1) {
+            const encodingAttrName = args[0].replace(/^\$/, '');
+            op.attributes.push({ name: encodingAttrName, value: encodingType });
+        }
+        if (args && args.length >= 2) {
+            const typeMatch = args[1].match(/type\(\$(\w+)\)/);
+            if (typeMatch) {
+                if (op.results.length > 0) {
+                    op.results[0].type = storageType;
+                } else {
+                    op.results.push({ type: storageType });
+                }
+            } else if (op.operands.length > 0) {
+                op.operands[0].type = storageType;
+            }
         }
     }
 
@@ -8219,8 +8244,13 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'spirv.Constant' || opName === 'spv.Constant') {
-            const value = parser.parseAttribute();
-            op.attributes.push({ name: 'value', value });
+            const value = parser.parseValue();
+            if (parser.accept(':')) {
+                const valueType = parser.parseType();
+                op.attributes.push({ name: 'value', value: { ...value, valueType } });
+            } else {
+                op.attributes.push({ name: 'value', value });
+            }
             if (parser.accept(':')) {
                 const type = parser.parseType();
                 op.results.push({ type });
@@ -8541,6 +8571,9 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                 parser.expect(')');
                 op.attributes.push({ name: 'descriptor_set', value: set });
                 op.attributes.push({ name: 'binding', value: binding });
+            }
+            if (parser.match('{')) {
+                parser.parseAttributeDict(op.attributes);
             }
             if (parser.accept(':')) {
                 const type = parser.parseType();
@@ -11994,13 +12027,19 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             if (parser.accept('->')) {
                 if (parser.accept('(')) {
                     while (!parser.accept(')')) {
-                        const type = parser.parseType();
-                        op.results.push({ type });
+                        if (parser.match('id')) {
+                            const name = parser.expect('id');
+                            if (parser.accept(':')) {
+                                const value = parser.expect('%');
+                                op.results.push({ name, value });
+                            }
+                        } else if (parser.match('%') || parser.match(')')) {
+                            break;
+                        } else {
+                            throw new mlir.Error(`Expected named result in sdfg.consume but got '${parser._token.value}' ${parser.location()}`);
+                        }
                         parser.accept(',');
                     }
-                } else {
-                    const type = parser.parseType();
-                    op.results.push({ type });
                 }
             }
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
