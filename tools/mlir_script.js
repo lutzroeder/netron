@@ -220,6 +220,7 @@ const main = async () => {
         'iree/compiler/Dialect/VMVX/IR/VMVXOps.td',
         'iree/compiler/Codegen/Dialect/GPU/IR/IREEGPUOps.td',
         'iree/compiler/Codegen/Dialect/Codegen/IR/IREECodegenOps.td',
+        'iree/compiler/Codegen/Dialect/Codegen/IR/UKernelOps.td',
         'iree/compiler/Dialect/Encoding/IR/EncodingOps.td',
         'asuka/Dialect/Asuka/IR/AsukaOps.td',
         'tpu_mlir/Dialect/Top/IR/TopOps.td',
