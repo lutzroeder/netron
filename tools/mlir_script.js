@@ -1,8 +1,22 @@
 
+import * as child_process from 'child_process';
 import * as fs from 'fs/promises';
+import * as os from 'os';
 import * as path from 'path';
+import * as process from 'process';
+import * as readline from 'readline';
 import * as tablegen from './tablegen.js';
 import * as url from 'url';
+
+const write = (message) => {
+    if (process.stdout.write) {
+        process.stdout.write(message);
+    }
+};
+
+const writeLine = (message) => {
+    write(message + os.EOL);
+};
 
 class Operator {
 
@@ -35,7 +49,123 @@ const access = async (path) => {
     }
 };
 
-const main = async () => {
+const test = async (pattern) => {
+    pattern = pattern || './third_party/source/mlir/**/*.mlir';
+    const errorTotals = new Map();
+    const filesByError = new Map();
+    const fileErrorDetails = new Map();
+    let currentFile = null;
+    const validFiles = new Set();
+    const invalidFiles = new Set([
+        'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
+        'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
+        'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
+        'third_party/source/mlir/torch-mlir/test/Dialect/Torch/verify-backend-contract-error.mlir'
+    ]);
+    return new Promise((resolve, reject) => {
+        const cmd = 'npm';
+        const args = ['run', 'test', 'continue', pattern];
+        const process = child_process.spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+        const stdout = readline.createInterface({ input: process.stdout, crlfDelay: Infinity });
+        const stderr = readline.createInterface({ input: process.stderr, crlfDelay: Infinity });
+        const processLine = (line) => {
+            writeLine(line);
+            const stripped = line.trim();
+            if (!stripped) {
+                return;
+            }
+            if (stripped.startsWith('third_party/')) {
+                currentFile = stripped;
+                if (stripped.toLowerCase().includes('invalid')) {
+                    invalidFiles.add(currentFile);
+                } else {
+                    validFiles.add(currentFile);
+                }
+                return;
+            }
+            if (currentFile && invalidFiles.has(currentFile)) {
+                return;
+            }
+            if (currentFile && !invalidFiles.has(currentFile)) {
+                // Skip summary lines (e.g., "123 / 456 = 78.9%")
+                if (/^\s*\d+\s*\/\s*\d+\s*=\s*[\d.]+%\s*$/.test(stripped)) {
+                    return;
+                }
+                // Normalize error message
+                const key = stripped.split(' at ', 1)[0].trim().replace(/\.$/, '').trim();
+                if (key) {
+                    errorTotals.set(key, (errorTotals.get(key) || 0) + 1);
+                    if (!filesByError.has(key)) {
+                        filesByError.set(key, new Map());
+                    }
+                    const fileCounts = filesByError.get(key);
+                    fileCounts.set(currentFile, (fileCounts.get(currentFile) || 0) + 1);
+                    if (!fileErrorDetails.has(key)) {
+                        fileErrorDetails.set(key, new Map());
+                    }
+                    const details = fileErrorDetails.get(key);
+                    if (!details.has(currentFile)) {
+                        details.set(currentFile, []);
+                    }
+                    details.get(currentFile).push(stripped);
+                }
+            }
+        };
+        stdout.on('line', processLine);
+        stderr.on('line', processLine);
+        process.on('error', (error) => {
+            reject(new Error(`Failed to start process: ${error.message}`));
+        });
+        process.on('close', (/* code */) => {
+            const totalValid = validFiles.size;
+            const totalInvalid = invalidFiles.size;
+            const filesWithErrors = new Set();
+            for (const [, fileCounts] of filesByError) {
+                for (const file of fileCounts.keys()) {
+                    filesWithErrors.add(file);
+                }
+            }
+            const succeeded = totalValid - filesWithErrors.size;
+            writeLine();
+            writeLine('-'.repeat(75));
+            if (errorTotals.size > 0) {
+                const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                for (const [err, cnt] of sortedErrors) {
+                    const fileCounts = filesByError.get(err);
+                    const topFiles = Array.from(fileCounts.entries())
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 100);
+                    writeLine(`${cnt}  |  ${err}`);
+                    for (const [file,] of topFiles) {
+                        writeLine(`  ${file}`);
+                        const details = fileErrorDetails.get(err).get(file);
+                        for (const specificError of details) {
+                            writeLine(`    ${specificError}`);
+                        }
+                    }
+                    writeLine();
+                }
+            }
+            if (totalValid > 0) {
+                const percentage = (succeeded * 100.0) / totalValid;
+                writeLine(`  ${succeeded} / ${totalValid} =  ${percentage.toPrecision(6)}%  - skipped ${totalInvalid} files`);
+            } else {
+                writeLine('  No valid files processed');
+            }
+            writeLine();
+            resolve({
+                succeeded,
+                totalValid,
+                totalInvalid,
+                errorTotals,
+                filesByError,
+                filesWithErrors
+            });
+        });
+    });
+};
+
+const schema = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
     const source = path.join(dirname, '..', 'third_party', 'source', 'mlir');
     const paths = [
@@ -321,7 +451,16 @@ const main = async () => {
                 return null;
             }
             if (value.type === 'def') {
-                return value.value;
+                const defName = value.value;
+                // Check if this is an enum attribute and add enum cases
+                const attrDef = parser.getDef(defName) || parser.getClass(defName);
+                if (attrDef && attrDef.isEnumAttr()) {
+                    const cases = attrDef.getEnumCases();
+                    if (cases && cases.length > 0) {
+                        return `${defName}{${cases.join('|')}}`;
+                    }
+                }
+                return defName;
             }
             if (value.type === 'string' || value.type === 'code') {
                 return value.value;
@@ -350,7 +489,53 @@ const main = async () => {
             for (const operand of args.operands) {
                 if (operand.value && operand.name) {
                     const type = toConstraintString(operand.value);
-                    if (type && type.includes('Attr')) {
+                    // Check if this is an actual attribute constraint by looking up the def
+                    // and checking if it inherits from Attr class (matches LLVM reference)
+                    const checkIsAttr = (record, visited = new Set()) => {
+                        if (!record || visited.has(record.name)) {
+                            return false;
+                        }
+                        visited.add(record.name);
+                        // Check for attribute base classes - both constraint and bytecode encoding types
+                        if (record.name === 'Attr' || record.name === 'AttributeKind' || record.name === 'DialectAttribute') {
+                            return true;
+                        }
+                        for (const parent of record.parents) {
+                            const parentClass = parser.getClass(parent.name);
+                            if (parentClass && checkIsAttr(parentClass, visited)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                    let isAttribute = false;
+                    if (operand.value) {
+                        if (operand.value.type === 'def') {
+                            // Simple def reference like StrAttr
+                            const constraintDef = parser.getDef(operand.value.value) || parser.getClass(operand.value.value);
+                            if (constraintDef) {
+                                isAttribute = checkIsAttr(constraintDef);
+                            }
+                        } else if (operand.value.type === 'dag' && operand.value.value) {
+                            // DAG constraint like OptionalAttr<StrAttr>
+                            const dag = operand.value.value;
+                            // Check the operator (e.g., OptionalAttr, DefaultValuedAttr)
+                            const operatorDef = parser.getDef(dag.operator) || parser.getClass(dag.operator);
+                            if (operatorDef && checkIsAttr(operatorDef)) {
+                                isAttribute = true;
+                            } else if (dag.operands && dag.operands.length > 0) {
+                                // Check the first operand (the wrapped type)
+                                const innerValue = dag.operands[0].value;
+                                if (innerValue && innerValue.type === 'def') {
+                                    const innerDef = parser.getDef(innerValue.value) || parser.getClass(innerValue.value);
+                                    if (innerDef && checkIsAttr(innerDef)) {
+                                        isAttribute = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (isAttribute) {
                         attributes.push({ name: operand.name, type });
                     } else {
                         inputs.push({ name: operand.name, type });
@@ -458,6 +643,22 @@ const main = async () => {
     await fs.writeFile(file, formatted, 'utf-8');
     if (count < 6300) {
         throw new Error(`Unexpected operation count '${count}'.`);
+    }
+};
+
+const main = async () => {
+    const command = process.argv.length >= 3 ? process.argv[2] : 'schema';
+    switch (command) {
+        case 'test': {
+            writeLine(process.argv);
+            await test(process.argv.slice(3).join(' '));
+            break;
+        }
+        case 'schema':
+        default: {
+            await schema();
+            break;
+        }
     }
 };
 

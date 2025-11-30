@@ -614,6 +614,91 @@ tablegen.Record = class {
         return null;
     }
 
+    isEnumAttr() {
+        const enumBaseClasses = [
+            'EnumAttr',  // Wrapper for dialect-specific enums
+            'IntEnumAttr', 'I32EnumAttr', 'I64EnumAttr',
+            'BitEnumAttr', 'I8BitEnumAttr', 'I16BitEnumAttr', 'I32BitEnumAttr', 'I64BitEnumAttr'
+        ];
+        const checkParents = (record, visited = new Set()) => {
+            if (record && !visited.has(record.name)) {
+                visited.add(record.name);
+                if (enumBaseClasses.includes(record.name)) {
+                    return true;
+                }
+                for (const parent of record.parents) {
+                    const parentClass = this.parser.getClass(parent.name);
+                    if (parentClass && checkParents(parentClass, visited)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+        return checkParents(this);
+    }
+
+    // Get enum cases from an enum attribute definition
+    getEnumCases() {
+        if (!this.isEnumAttr()) {
+            return null;
+        }
+        // Pattern 1: EnumAttr<Dialect, EnumInfo, name>
+        // The 2nd argument is a reference to the underlying enum (e.g., GPU_Dimension)
+        for (const parent of this.parents) {
+            if (parent.name === 'EnumAttr' && parent.args && parent.args.length >= 2) {
+                const [,enumInfoArg] = parent.args;
+                if (enumInfoArg && enumInfoArg.type === 'def' && typeof enumInfoArg.value === 'string') {
+                    // Follow the reference to the underlying enum
+                    const underlyingEnum = this.parser.getDef(enumInfoArg.value) || this.parser.getClass(enumInfoArg.value);
+                    if (underlyingEnum) {
+                        return underlyingEnum.getEnumCases();
+                    }
+                }
+            }
+        }
+        // Pattern 2: I64EnumAttr<name, summary, [cases]>
+        // Cases are in the 3rd template argument
+        for (const parent of this.parents) {
+            // The 3rd argument should be the cases list
+            if (parent.args && parent.args.length >= 3) {
+                const [,,casesArg] = parent.args;
+                if (casesArg && casesArg.type === 'list' && Array.isArray(casesArg.value)) {
+                    const cases = [];
+                    for (const caseValue of casesArg.value) {
+                        // Each case can be either a DAG or a def reference
+                        if (caseValue.type === 'dag' && caseValue.value) {
+                            // DAG format: I64EnumAttrCase<"symbol", value, "string">
+                            // The string representation is in the 3rd operand, or 1st if only 2 operands
+                            const operands = caseValue.value.operands;
+                            if (operands && operands.length > 0) {
+                                // Try the 3rd operand first (string), fall back to 1st (symbol)
+                                const strOperand = operands.length >= 3 ? operands[2] : operands[0];
+                                if (strOperand && strOperand.value) {
+                                    const str = this.evaluateValue(strOperand.value);
+                                    if (str && typeof str === 'string') {
+                                        cases.push(str);
+                                    }
+                                }
+                            }
+                        } else if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
+                            // Def reference format
+                            const caseDef = this.parser.getDef(caseValue.value) || this.parser.getClass(caseValue.value);
+                            if (caseDef) {
+                                const str = caseDef.getValueAsString('str');
+                                if (str) {
+                                    cases.push(str);
+                                }
+                            }
+                        }
+                    }
+                    return cases.length > 0 ? cases : null;
+                }
+            }
+        }
+        return null;
+    }
+
     evaluateValue(value) {
         if (!value) {
             return null;
