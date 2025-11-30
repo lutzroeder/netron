@@ -350,7 +350,7 @@ const main = async () => {
                 write(`  ${success} / ${total} =  ${success * 100 / total}%\n`);
             }
         } else {
-            const threads = Math.min(10, Math.round(0.7 * os.cpus().length), queue.length);
+            const threads = Math.max(1, Math.min(10, Math.round(0.7 * os.cpus().length), queue.length));
             const identifiers = [...new Array(threads).keys()].map((value) => value.toString());
             const workers = identifiers.map((identifier) => new Worker(identifier, queue, logger, measures));
             const promises = workers.map((worker) => worker.start());
