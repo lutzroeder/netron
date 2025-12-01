@@ -614,6 +614,189 @@ tablegen.Record = class {
         return null;
     }
 
+    isEnumAttr() {
+        const enumBaseClasses = [
+            'EnumAttr',  // Wrapper for dialect-specific enums
+            'IntEnumAttr', 'I32EnumAttr', 'I64EnumAttr',
+            'BitEnumAttr', 'I8BitEnumAttr', 'I16BitEnumAttr', 'I32BitEnumAttr', 'I64BitEnumAttr'
+        ];
+        const checkParents = (record, visited = new Set()) => {
+            if (record && !visited.has(record.name)) {
+                visited.add(record.name);
+                if (enumBaseClasses.includes(record.name)) {
+                    return true;
+                }
+                for (const parent of record.parents) {
+                    const parentClass = this.parser.getClass(parent.name);
+                    if (parentClass && checkParents(parentClass, visited)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+        return checkParents(this);
+    }
+
+    // Get enum cases from an enum attribute definition
+    getEnumCases() {
+        if (!this.isEnumAttr()) {
+            return null;
+        }
+        // Helper to search for EnumAttr in the parent hierarchy
+        const findEnumAttrParent = (record, visited = new Set()) => {
+            if (!record || visited.has(record.name)) {
+                return null;
+            }
+            visited.add(record.name);
+            for (const parent of record.parents) {
+                if (parent.name === 'EnumAttr') {
+                    return parent;
+                }
+                // Recursively search parent classes
+                const parentClass = this.parser.getClass(parent.name);
+                if (parentClass) {
+                    const found = findEnumAttrParent(parentClass, visited);
+                    if (found) {
+                        return found;
+                    }
+                }
+            }
+            return null;
+        };
+        const enumAttrParent = findEnumAttrParent(this);
+        // Pattern 1a: EnumAttr<Dialect, EnumInfo (as def), name>
+        // The 2nd argument is a reference to the underlying enum (e.g., GPU_Dimension)
+        if (enumAttrParent && enumAttrParent.args && enumAttrParent.args.length >= 2) {
+            const [dialectArg, enumInfoArg] = enumAttrParent.args;
+            if (enumInfoArg && enumInfoArg.type === 'def' && typeof enumInfoArg.value === 'string') {
+                // Get the expected namespace from the dialect
+                let expectedNamespace = null;
+                if (dialectArg && dialectArg.type === 'def') {
+                    const dialectDef = this.parser.getDef(dialectArg.value) || this.parser.getClass(dialectArg.value);
+                    if (dialectDef) {
+                        expectedNamespace = dialectDef.getValueAsString('cppNamespace');
+                    }
+                }
+                // Find the enum with the matching name and namespace
+                // Try all defs with this name in case of conflicts (different namespaces)
+                const enumName = enumInfoArg.value;
+                let underlyingEnum = null;
+                if (expectedNamespace) {
+                    // Normalize namespace for comparison (handle both "vector" and "::mlir::vector" formats)
+                    const normalizeNamespace = (ns) => {
+                        if (!ns) {
+                            return null;
+                        }
+                        // Remove leading :: and extract the last component
+                        const parts = ns.replace(/^::/, '').split('::');
+                        return parts[parts.length - 1];
+                    };
+                    const normalizedExpected = normalizeNamespace(expectedNamespace);
+
+                    // Search through all defs to find one with matching name AND namespace
+                    for (const def of this.parser.defs) {
+                        if (def.name === enumName) {
+                            const defNamespace = def.getValueAsString('cppNamespace');
+                            const normalizedDef = normalizeNamespace(defNamespace);
+                            if (normalizedDef === normalizedExpected) {
+                                underlyingEnum = def;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Fallback to regular lookup if namespace matching fails
+                if (!underlyingEnum) {
+                    underlyingEnum = this.parser.getDef(enumName) || this.parser.getClass(enumName);
+                }
+
+                if (underlyingEnum) {
+                    return underlyingEnum.getEnumCases();
+                }
+            }
+            // Pattern 1b: EnumAttr<Dialect, EnumInfo (as DAG), name>
+            // The 2nd argument is a DAG that instantiates an enum class template
+            // e.g., EnumAttr<SPIRV_Dialect, SPIRV_I32Enum<"Scope", "desc", [cases]>, "scope">
+            if (enumInfoArg && enumInfoArg.type === 'dag' && enumInfoArg.value) {
+                // The DAG operator is the enum class template (e.g., SPIRV_I32Enum)
+                // We need to find the actual cases by looking at this record's parent args
+                // which should have the instantiated template parameters
+                // Search through this record's parents to find one with the cases list
+                for (const parent of this.parents) {
+                    if (parent.args && parent.args.length >= 3) {
+                        // Look for a list argument that contains enum case defs
+                        for (const arg of parent.args) {
+                            if (arg.type === 'list' && Array.isArray(arg.value)) {
+                                // Check if this looks like an enum case list
+                                const [firstItem] = arg.value;
+                                if (firstItem && firstItem.type === 'def') {
+                                    // Try to extract cases from this list
+                                    const cases = [];
+                                    for (const caseValue of arg.value) {
+                                        if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
+                                            const caseDef = this.parser.getDef(caseValue.value) || this.parser.getClass(caseValue.value);
+                                            if (caseDef) {
+                                                const str = caseDef.getValueAsString('str');
+                                                if (str) {
+                                                    cases.push(str);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (cases.length > 0) {
+                                        return cases;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Pattern 2: I64EnumAttr<name, summary, [cases]>
+        // Cases are in the 3rd template argument
+        for (const parent of this.parents) {
+            // The 3rd argument should be the cases list
+            if (parent.args && parent.args.length >= 3) {
+                const [,,casesArg] = parent.args;
+                if (casesArg && casesArg.type === 'list' && Array.isArray(casesArg.value)) {
+                    const cases = [];
+                    for (const caseValue of casesArg.value) {
+                        // Each case can be either a DAG or a def reference
+                        if (caseValue.type === 'dag' && caseValue.value) {
+                            // DAG format: I64EnumAttrCase<"symbol", value, "string">
+                            // The string representation is in the 3rd operand, or 1st if only 2 operands
+                            const operands = caseValue.value.operands;
+                            if (operands && operands.length > 0) {
+                                // Try the 3rd operand first (string), fall back to 1st (symbol)
+                                const strOperand = operands.length >= 3 ? operands[2] : operands[0];
+                                if (strOperand && strOperand.value) {
+                                    const str = this.evaluateValue(strOperand.value);
+                                    if (str && typeof str === 'string') {
+                                        cases.push(str);
+                                    }
+                                }
+                            }
+                        } else if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
+                            // Def reference format
+                            const caseDef = this.parser.getDef(caseValue.value) || this.parser.getClass(caseValue.value);
+                            if (caseDef) {
+                                const str = caseDef.getValueAsString('str');
+                                if (str) {
+                                    cases.push(str);
+                                }
+                            }
+                        }
+                    }
+                    return cases.length > 0 ? cases : null;
+                }
+            }
+        }
+        return null;
+    }
+
     evaluateValue(value) {
         if (!value) {
             return null;
@@ -1693,7 +1876,6 @@ tablegen.Reader = class {
         if (this._match('id') || this._match('keyword')) {
             const value = this._read();
             let result = new tablegen.Value('def', value);
-
             // Handle various suffixes: templates, subscripts, field access, scope resolution
             while (true) {
                 if (this._match('<')) {

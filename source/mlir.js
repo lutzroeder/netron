@@ -1018,7 +1018,6 @@ mlir.Parser = class {
             operations: [],
             definitions: []
         };
-
         while (true) {
             if (this.match('eof')) {
                 break;
@@ -2016,11 +2015,6 @@ mlir.Parser = class {
 
         this.expect('>');
 
-        let memorySpaceBraces = '';
-        if (this.match('{')) {
-            memorySpaceBraces = this.skip('{', '}');
-        }
-
         let typeStr = 'memref<';
         if (dimInfo.unranked) {
             typeStr += '*x';
@@ -2034,7 +2028,6 @@ mlir.Parser = class {
             typeStr += `, ${content}`;
         }
         typeStr += '>';
-        typeStr += memorySpaceBraces;
 
         return new mlir.Type(typeStr);
     }
@@ -2286,21 +2279,38 @@ mlir.Parser = class {
         }
     }
 
-    parseSSAUse(/* allowResultNumber */) {
+    parseSSAUse(allowResultNumber) {
+        allowResultNumber = allowResultNumber === undefined ? true : allowResultNumber;
         const result = {};
+        result.name = this._token.value;
+        result.number = 0;
+        result.location = this.location();
+        this.expect('%');
         if (this.match('#')) {
-            //
+            if (!allowResultNumber) {
+                throw new mlir.Error(`Result number not allowed in argument list ${this.location()}`);
+            }
+            const hashValue = this.expect('#');
+            // Extract the number from the hash identifier (e.g., '#0' -> 0)
+            const numberStr = hashValue.substring(1);
+            const number = parseInt(numberStr, 10);
+            if (isNaN(number)) {
+                throw new mlir.Error(`Invalid SSA value result number ${this.location()}`);
+            }
+            result.number = number;
         }
         return result;
     }
 
-    parseOperand() {
-        return this.parseSSAUse();
+    parseOperand(allowResultNumber) {
+        allowResultNumber = allowResultNumber === undefined ? true : allowResultNumber;
+        return this.parseSSAUse(allowResultNumber);
     }
 
-    parseOptionalOperand() {
+    parseOptionalOperand(allowResultNumber = true) {
+        allowResultNumber = allowResultNumber === undefined ? true : allowResultNumber;
         if (this.match('%')) {
-            return this.parseOperand();
+            return this.parseOperand(allowResultNumber);
         }
         return null;
     }
@@ -2672,6 +2682,15 @@ mlir.Parser = class {
     parseKeyword() {
         if (this._token.kind === 'id') {
             return this.expect('id');
+        }
+        return null;
+    }
+
+    parseOptionalKeyword(values) {
+        if (this._token.kind === 'id') {
+            if (values.some((v) => this._token.value === v)) {
+                return this.expect('id');
+            }
         }
         return null;
     }
@@ -3550,97 +3569,366 @@ mlir.Dialect = class {
         return this._name;
     }
 
-    getOperation(opName) {
-        const op = this._operations.get(opName);
-        if (!op) {
+    _parseConstraint(value) {
+        if (!value || typeof value !== 'string') {
             return null;
         }
-        const parseTypeString = (typeStr) => {
-            if (!typeStr || typeof typeStr !== 'string') {
-                return { baseType: null, variadic: false, optional: false };
+        value = value.trim();
+        if (!value) {
+            return null;
+        }
+
+        // Tokenize
+        const tokenize = (str) => {
+            const tokens = [];
+            let i = 0;
+            while (i < str.length) {
+                const ch = str[i];
+                if (/\s/.test(ch)) {
+                    i++;
+                    continue;
+                }
+                if ('<>={}[](),|'.indexOf(ch) !== -1) {
+                    tokens.push({ type: ch, value: ch, pos: i });
+                    i++;
+                    continue;
+                }
+                if (ch === ':' && i + 1 < str.length && str[i + 1] === ':') {
+                    tokens.push({ type: '::', value: '::', pos: i });
+                    i += 2;
+                    continue;
+                }
+                if (ch === ':') {
+                    i++;
+                    continue;
+                }
+                if (ch === '"' || ch === "'") {
+                    const quote = ch;
+                    let j = i + 1;
+                    while (j < str.length && str[j] !== quote) {
+                        if (str[j] === '\\' && j + 1 < str.length) {
+                            j += 2;
+                        } else {
+                            j++;
+                        }
+                    }
+                    if (j < str.length) {
+                        tokens.push({ type: 'string', value: str.substring(i + 1, j), pos: i });
+                        i = j + 1;
+                    } else {
+                        tokens.push({ type: 'ident', value: str.substring(i), pos: i });
+                        break;
+                    }
+                    continue;
+                }
+                if (/[a-zA-Z_0-9-]/.test(ch)) {
+                    let j = i;
+                    while (j < str.length && /[a-zA-Z_0-9-]/.test(str[j])) {
+                        j++;
+                    }
+                    const ident = str.substring(i, j);
+                    tokens.push({ type: 'ident', value: ident, pos: i });
+                    i = j;
+                    continue;
+                }
+                i++;
             }
-            if (typeStr === 'Variadic' || typeStr.startsWith('Variadic<')) {
-                if (typeStr === 'Variadic') {
-                    return { baseType: null, variadic: true, optional: false };
-                }
-                const match = typeStr.match(/^Variadic<(.+)>$/);
-                if (match) {
-                    const inner = parseTypeString(match[1]);
-                    return { baseType: inner.baseType, variadic: true, optional: inner.optional };
-                }
-                return { baseType: null, variadic: true, optional: false };
-            }
-            if (typeStr === 'Optional' || typeStr.startsWith('Optional<')) {
-                if (typeStr === 'Optional') {
-                    return { baseType: null, variadic: false, optional: true };
-                }
-                const match = typeStr.match(/^Optional<(.+)>$/);
-                if (match) {
-                    const inner = parseTypeString(match[1]);
-                    return { baseType: inner.baseType, variadic: inner.variadic, optional: true };
-                }
-                return { baseType: null, variadic: false, optional: true };
-            }
-            if (typeStr.startsWith('Arg<')) {
-                const match = typeStr.match(/^Arg<([^,>]+)/);
-                if (match) {
-                    return parseTypeString(match[1]);
-                }
-            }
-            if (typeStr.startsWith('DefaultValuedAttr<')) {
-                const match = typeStr.match(/^DefaultValuedAttr<([^,]+)/);
-                if (match) {
-                    return parseTypeString(match[1]);
-                }
-            }
-            return { baseType: typeStr, variadic: false, optional: false };
+            return tokens;
         };
 
-        // Enhance metadata once on first access
-        if (!op.metadata._enhanced) {
-            const enhanceOperand = (operand) => {
-                if (!operand) {
-                    return;
+        // Parse tokens into constraint structure
+        const parseTokens = (tokens, pos) => {
+            if (pos >= tokens.length) {
+                return null;
+            }
+            const token = tokens[pos];
+            if (token.type === '::') {
+                // eslint-disable-next-line no-use-before-define
+                return parseScopedIdentifier(tokens, pos);
+            }
+            if (token.type !== 'ident') {
+                return null;
+            }
+            let name = token.value;
+            let nextPos = pos + 1;
+            while (nextPos < tokens.length && tokens[nextPos].type === '::') {
+                nextPos++;
+                if (nextPos < tokens.length && tokens[nextPos].type === 'ident') {
+                    const value = tokens[nextPos++].value;
+                    name += `::${value}`;
+                } else {
+                    break;
                 }
-                if (operand.constraint && typeof operand.constraint === 'object') {
-                    operand.variadic = operand.constraint.name === 'Variadic';
-                    operand.optional = operand.constraint.name === 'Optional';
-                    if (operand.constraint.name === 'Variadic' && operand.constraint.args && operand.constraint.args.length > 0) {
-                        const [innerConstraint] = operand.constraint.args;
-                        if (innerConstraint && typeof innerConstraint === 'object' && innerConstraint.name) {
-                            operand.type = innerConstraint.name;
-                        }
-                    } else if (operand.constraint.name === 'Optional' && operand.constraint.args && operand.constraint.args.length > 0) {
-                        const [innerConstraint] = operand.constraint.args;
-                        if (innerConstraint && typeof innerConstraint === 'object' && innerConstraint.name) {
-                            operand.type = innerConstraint.name;
-                        }
-                    } else if (!operand.type) {
-                        operand.type = operand.constraint.name;
+            }
+            if (nextPos >= tokens.length) {
+                return { value: { name }, nextPos };
+            }
+            const nextToken = tokens[nextPos];
+            if (nextToken.type === '{') {
+                // eslint-disable-next-line no-use-before-define
+                return parseEnum(tokens, pos, name);
+            }
+            if (nextToken.type === '<') {
+                // eslint-disable-next-line no-use-before-define
+                return parseGeneric(tokens, pos, name);
+            }
+            return { value: { name }, nextPos };
+        };
+        const parseScopedIdentifier = (tokens, pos) => {
+            let name = '';
+            let nextPos = pos;
+            while (nextPos < tokens.length) {
+                if (tokens[nextPos].type === '::') {
+                    name += '::';
+                    nextPos++;
+                } else if (tokens[nextPos].type === 'ident') {
+                    name += tokens[nextPos].value;
+                    nextPos++;
+                } else {
+                    break;
+                }
+            }
+            if (!name) {
+                return null;
+            }
+            if (nextPos < tokens.length) {
+                const nextToken = tokens[nextPos];
+                if (nextToken.type === '{') {
+                    // eslint-disable-next-line no-use-before-define
+                    return parseEnum(tokens, pos, name);
+                }
+                if (nextToken.type === '<') {
+                    // eslint-disable-next-line no-use-before-define
+                    return parseGeneric(tokens, pos, name);
+                }
+            }
+            return { value: { name }, nextPos };
+        };
+
+        const parseEnum = (tokens, startPos, name) => {
+            let pos = startPos;
+            while (pos < tokens.length && (tokens[pos].type === 'ident' || tokens[pos].type === '::')) {
+                pos++;
+            }
+            if (pos >= tokens.length || tokens[pos].type !== '{') {
+                return null;
+            }
+            pos++;
+            const values = [];
+            let currentValue = '';
+            while (pos < tokens.length && tokens[pos].type !== '}') {
+                const token = tokens[pos];
+                if (token.type === '|') {
+                    if (currentValue.trim()) {
+                        values.push(currentValue.trim());
+                        currentValue = '';
                     }
-                    return;
-                }
-                if (operand.type) {
-                    const info = parseTypeString(operand.type);
-                    operand.variadic = info.variadic;
-                    operand.optional = info.optional;
-                    if (info.baseType !== null && info.baseType !== operand.type) {
-                        operand.type = info.baseType;
+                    pos++;
+                } else if (token.type === 'ident') {
+                    if (currentValue) {
+                        currentValue += ' ';
                     }
+                    currentValue += token.value;
+                    pos++;
+                } else if (token.type === '::') {
+                    currentValue += '::';
+                    pos++;
+                } else {
+                    pos++;
                 }
-            };
-            if (op.metadata.inputs) {
-                op.metadata.inputs.forEach(enhanceOperand);
             }
-            if (op.metadata.outputs) {
-                op.metadata.outputs.forEach(enhanceOperand);
+            if (currentValue.trim()) {
+                values.push(currentValue.trim());
             }
-            if (op.metadata.attributes) {
-                op.metadata.attributes.forEach(enhanceOperand);
+            if (pos < tokens.length && tokens[pos].type === '}') {
+                pos++;
             }
-            op.metadata._enhanced = true;
+            return { value: { name, values }, nextPos: pos };
+        };
+
+        const parseGeneric = (tokens, startPos, name) => {
+            let pos = startPos;
+            while (pos < tokens.length && (tokens[pos].type === 'ident' || tokens[pos].type === '::')) {
+                pos++;
+            }
+            if (pos >= tokens.length || tokens[pos].type !== '<') {
+                return null;
+            }
+            pos++;
+            const args = [];
+            let angleDepth = 1;
+            let bracketDepth = 0;
+            let currentArg = [];
+            while (pos < tokens.length && (angleDepth > 0 || bracketDepth > 0)) {
+                const token = tokens[pos];
+                if (token.type === '<') {
+                    angleDepth++;
+                    currentArg.push(token);
+                    pos++;
+                } else if (token.type === '>') {
+                    angleDepth--;
+                    if (angleDepth === 0 && bracketDepth === 0) {
+                        if (currentArg.length > 0) {
+                            // eslint-disable-next-line no-use-before-define
+                            const parsed = parseArgumentTokens(currentArg);
+                            if (parsed !== null) {
+                                args.push(parsed);
+                            }
+                        }
+                        pos++;
+                        break;
+                    } else {
+                        currentArg.push(token);
+                        pos++;
+                    }
+                } else if (token.type === '[') {
+                    bracketDepth++;
+                    currentArg.push(token);
+                    pos++;
+                } else if (token.type === ']') {
+                    bracketDepth--;
+                    currentArg.push(token);
+                    pos++;
+                } else if (token.type === ',' && angleDepth === 1 && bracketDepth === 0) {
+                    if (currentArg.length > 0) {
+                        // eslint-disable-next-line no-use-before-define
+                        const parsed = parseArgumentTokens(currentArg);
+                        if (parsed !== null) {
+                            args.push(parsed);
+                        }
+                        currentArg = [];
+                    }
+                    pos++;
+                } else {
+                    currentArg.push(token);
+                    pos++;
+                }
+            }
+            return { value: { name, args }, nextPos: pos };
+        };
+        const parseArgumentTokens = (tokens) => {
+            if (!tokens || tokens.length === 0) {
+                return null;
+            }
+            tokens = tokens.filter((t) => t.type !== undefined);
+            if (tokens[0].type === '[') {
+                // eslint-disable-next-line no-use-before-define
+                return parseListArgument(tokens);
+            }
+            if (tokens[0].type === 'string') {
+                return tokens[0].value;
+            }
+            if (tokens[0].type === 'ident' || tokens[0].type === '::') {
+                const result = parseTokens(tokens, 0);
+                if (result && result.nextPos === tokens.length) {
+                    return result.value;
+                }
+            }
+            let literal = '';
+            for (const token of tokens) {
+                if (token.type === 'ident' || token.type === 'string') {
+                    if (literal && !/^[,[]\(\):\.]$/.test(literal[literal.length - 1])) {
+                        literal += ' ';
+                    }
+                    literal += token.value;
+                } else if (token.type === '::') {
+                    literal += '::';
+                } else if ('{}[](),.'.indexOf(token.type) !== -1) {
+                    literal += token.value;
+                }
+            }
+            return literal.trim() || null;
+        };
+
+        const parseListArgument = (tokens) => {
+            if (!tokens || tokens.length === 0 || tokens[0].type !== '[') {
+                return null;
+            }
+            let pos = 1;
+            const items = [];
+            let bracketDepth = 1;
+            let angleDepth = 0;
+            let currentItem = [];
+            while (pos < tokens.length && (bracketDepth > 0 || angleDepth > 0)) {
+                const token = tokens[pos];
+                if (token.type === '[') {
+                    bracketDepth++;
+                    currentItem.push(token);
+                    pos++;
+                } else if (token.type === ']') {
+                    bracketDepth--;
+                    if (bracketDepth === 0 && angleDepth === 0) {
+                        if (currentItem.length > 0) {
+                            const parsed = parseArgumentTokens(currentItem);
+                            if (parsed !== null) {
+                                items.push(parsed);
+                            }
+                        }
+                        break;
+                    } else {
+                        currentItem.push(token);
+                        pos++;
+                    }
+                } else if (token.type === '<') {
+                    angleDepth++;
+                    currentItem.push(token);
+                    pos++;
+                } else if (token.type === '>') {
+                    angleDepth--;
+                    currentItem.push(token);
+                    pos++;
+                } else if (token.type === ',' && bracketDepth === 1 && angleDepth === 0) {
+                    if (currentItem.length > 0) {
+                        const parsed = parseArgumentTokens(currentItem);
+                        if (parsed !== null) {
+                            items.push(parsed);
+                        }
+                        currentItem = [];
+                    }
+                    pos++;
+                } else {
+                    currentItem.push(token);
+                    pos++;
+                }
+            }
+            return items;
+        };
+
+        const tokens = tokenize(value);
+        if (!tokens || tokens.length === 0) {
+            return null;
         }
-        return op;
+        const result = parseTokens(tokens, 0);
+        return result ? result.value : null;
+    }
+
+    getOperation(opName) {
+        const op = this._operations.get(opName);
+        if (op && !op.metadata._) {
+            if (Array.isArray(op.metadata.inputs)) {
+                for (const input of op.metadata.inputs) {
+                    if (input && input.type) {
+                        input.type = this._parseConstraint(input.type);
+                    }
+                }
+            }
+            if (Array.isArray(op.metadata.outputs)) {
+                for (const output of op.metadata.outputs) {
+                    if (output && output.type) {
+                        output.type = this._parseConstraint(output.type);
+                    }
+                }
+            }
+            if (Array.isArray(op.metadata.attributes)) {
+                for (const attribute of op.metadata.attributes) {
+                    if (attribute && attribute.type) {
+                        attribute.type = this._parseConstraint(attribute.type);
+                    }
+                }
+            }
+            op.metadata._ = true;
+        }
+        return op || null;
     }
 
     hasParser(opName) {
@@ -3692,6 +3980,18 @@ mlir.Dialect = class {
     }
 
     parseDirective(directive, parser, op, opInfo, directives, i) {
+        const varidic = (type) => {
+            if (type.name === 'Variadic') {
+                return true;
+            }
+            if (Array.isArray(type.args) && type.args.length > 0) {
+                return varidic(type.args[0]);
+            }
+            if (type.name === 'HAL_ShapeDynamicDims') {
+                return true;
+            }
+            return false;
+        };
         switch (directive.type) {
             case 'whitespace':
                 // Skip whitespace directives - they're just formatting hints
@@ -3761,24 +4061,12 @@ mlir.Dialect = class {
             }
             case 'operand_ref': {
                 const refName = directive.name;
-                // Special handling for overflow flags and fastmath attributes
-                if (refName === 'overflowFlags' || refName === 'fastmath') {
-                    parser.expect('<');
-                    const flags = [];
-                    while (!parser.match('>')) {
-                        flags.push(parser.expect('id'));
-                        parser.accept(',');
-                    }
-                    parser.expect('>');
-                    op.attributes.push({ name: refName, value: flags.join(', ') });
-                    break;
-                }
                 // Check if this is a variadic operand
                 let isVariadic = false;
                 if (opInfo.metadata && opInfo.metadata.inputs) {
-                    const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === refName);
-                    if (inputInfo) {
-                        isVariadic = inputInfo.variadic || (typeof inputInfo.type === 'string' && inputInfo.type.includes('DynamicDims'));
+                    const input = opInfo.metadata.inputs.find((inp) => inp.name === refName);
+                    if (input) {
+                        isVariadic = varidic(input.type);
                     }
                 }
                 // Parse variadic operands
@@ -3883,22 +4171,39 @@ mlir.Dialect = class {
                     } else if (arg === 'operands' || arg === '$operands') {
                         parser.parseArgumentTypes(op.operands);
                     } else {
+                        let name = null;
+                        switch (directive.type) {
+                            case 'type':
+                                if (!arg.startsWith('$')) {
+                                    throw new mlir.Error(`Invalid operand directive argument '${arg}'.`);
+                                }
+                                name = arg.substring(1);
+                                break;
+                            case 'qualified':
+                                if (!arg.startsWith('type($') && !arg.endsWith(')')) {
+                                    throw new mlir.Error(`Invalid operand directive argument '${arg}'.`);
+                                }
+                                name = arg.substring(6, arg.length - 1);
+                                break;
+                            default:
+                                throw new mlir.Error(`Unknown directive type argument '${arg}'.`);
+                        }
                         const opMetadata = opInfo.metadata;
                         let isResult = false;
                         let isVariadic = false;
                         if (opMetadata && opMetadata.outputs) {
                             for (const output of opMetadata.outputs) {
-                                if (output.name === arg || `$${output.name}` === arg) {
+                                if (output.name === name) {
                                     isResult = true;
-                                    isVariadic = output.variadic || false;
+                                    isVariadic = varidic(output.type);
                                     break;
                                 }
                             }
                         }
                         if (!isResult && opMetadata && opMetadata.inputs) {
                             for (const input of opMetadata.inputs) {
-                                if (input.name === arg || `$${input.name}` === arg) {
-                                    isVariadic = input.variadic || false;
+                                if (input.name === name) {
+                                    isVariadic = varidic(input.type);
                                     break;
                                 }
                             }
@@ -3907,7 +4212,7 @@ mlir.Dialect = class {
                             if (isVariadic) {
                                 parser.parseArgumentTypes(op.results);
                             } else {
-                                const output = opMetadata.outputs ? opMetadata.outputs.find((output) => output.name === arg.replace('$', '')) : null;
+                                const output = opMetadata.outputs ? opMetadata.outputs.find((output) => output.name === name) : null;
                                 const outputType = output && output.type ? output.type : null;
                                 const type = this._parseCustomTypeWithFallback(parser, outputType);
                                 if (op.results.length === 0) {
@@ -3919,8 +4224,7 @@ mlir.Dialect = class {
                         } else if (isVariadic) {
                             parser.parseArgumentTypes(op.operands);
                         } else if (op.operands.length > 0) {
-                            const operandName = arg.replace('$', '');
-                            const input = opMetadata.inputs ? opMetadata.inputs.find((input) => input.name === operandName) : null;
+                            const input = opMetadata.inputs ? opMetadata.inputs.find((input) => input.name === name) : null;
                             const inputType = input && input.type ? input.type : null;
                             const type = this._parseCustomTypeWithFallback(parser, inputType);
                             op.operands[op.operands.length - 1].type = type;
@@ -4060,7 +4364,6 @@ mlir.Dialect = class {
             }
             case 'optional_group': {
                 let shouldParse = false;
-                let optionalAttrResult = null;
                 const firstElem = directive.elements.find((elem) => elem.type !== 'whitespace');
                 if (firstElem) {
                     if (firstElem.type === 'literal') {
@@ -4079,32 +4382,13 @@ mlir.Dialect = class {
                         const attrInfo = opInfo.metadata && opInfo.metadata.attributes &&
                                         opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
                         const attrType = attrInfo ? attrInfo.type : null;
-
-                        // SymbolNameAttr: use parseOptionalSymbolName (like reference)
-                        // Handle both "SymbolNameAttr" and "OptionalAttr<SymbolNameAttr>"
-                        if (attrType === 'SymbolNameAttr' || attrType === 'OptionalAttr<SymbolNameAttr>') {
-                            const symbolName = parser.parseOptionalSymbolName();
-                            if (symbolName === null) {
-                                shouldParse = false;
-                            } else {
-                                op.attributes.push({ name: firstElem.name, value: symbolName });
-                                shouldParse = true;
-                            }
-                        } else if (firstElem.name === 'sym_visibility') {
-                            // sym_visibility has special parsing rules
-                            shouldParse = parser.match('@') || parser.match('string') || parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested');
+                        const result = this._parseCustomAttributeWithFallback(parser, attrType);
+                        if (result === null) {
+                            shouldParse = false;
                         } else {
-                            // For other attributes, use parseOptionalAttribute
-                            // Reference: calls parseOptionalAttribute, stores in function-level variable
-                            // We add directly to op.attributes to simulate the function-level variable
-                            optionalAttrResult = parser.parseOptionalAttribute();
-                            if (optionalAttrResult === null) {
-                                shouldParse = false;
-                            } else {
-                                const value = optionalAttrResult.value === undefined ? optionalAttrResult : optionalAttrResult.value;
-                                op.attributes.push({ name: firstElem.name, value });
-                                shouldParse = true;
-                            }
+                            const value = result.value === undefined ? result : result.value;
+                            op.attributes.push({ name: firstElem.name, value });
+                            shouldParse = true;
                         }
                     } else if (firstElem.type === 'successor_ref') {
                         // Handle successor variables in optional groups
@@ -4173,10 +4457,8 @@ mlir.Dialect = class {
                     }
                     return false;
                 };
-
                 const firstElem = directive.firstAlt.find((e) => e.type !== 'whitespace');
                 const matchedFirst = firstElem && checkMatch(firstElem);
-
                 if (matchedFirst) {
                     for (const elem of directive.firstAlt) {
                         this.parseDirective(elem, parser, op, opInfo, directive.firstAlt, 0);
@@ -4219,29 +4501,33 @@ mlir.Dialect = class {
     }
 
     _parseCustomTypeWithFallback(parser, type) {
-        if (this._customTypes.has(type)) {
-            const typeT = this._customTypes.get(type);
+        if (type && this._customTypes.has(type.name)) {
+            const typeT = this._customTypes.get(type.name);
             return parser.parseCustomTypeWithFallback(typeT);
         }
         return parser.parseType();
     }
 
     _parseCustomOperandWithFallback(parser, type) {
-        if (this._customTypes.has(type)) {
-            const typeT = this._customTypes.get(type);
+        if (this._customOperands.has(type)) {
+            const typeT = this._customOperands.get(type);
             return parser.parseCustomTypeWithFallback(typeT);
         }
         return parser.parseOperand();
     }
 
     _parseCustomAttributeWithFallback(parser, type) {
-        const index = type.indexOf('<');
-        const baseType = index === -1 ? type : type.substring(0, index);
-        if (this._customAttributes.has(baseType)) {
-            const attrT = this._customAttributes.get(baseType);
+        if (this._customAttributes.has(type.name)) {
+            const attrT = this._customAttributes.get(type.name);
             return parser.parseCustomAttributeWithFallback(attrT, type);
         }
-        return parser.parseAttribute();
+        if (Array.isArray(type.values)) {
+            const value = parser.parseOptionalKeyword(type.values);
+            if (value !== null) {
+                return { value };
+            }
+        }
+        return parser.parseOptionalAttribute();
     }
 
     _parseOptional(parser, type) {
@@ -4255,40 +4541,32 @@ mlir.Dialect = class {
     }
 
     _parseOptionalAttr(parser, type) {
-        const start = type.indexOf('<');
-        const end = type.lastIndexOf('>');
-        if (start === -1 || end === -1 || end <= start + 1) {
-            throw new mlir.Error(`Invalid OptionalAttr type '${type}'.`);
+        if (!Array.isArray(type.args) || type.args.length === 0) {
+            throw new mlir.Error(`Invalid OptionalAttr type.`);
         }
-        const itemType = type.substring(start + 1, end).trim();
-        return this._parseCustomAttributeWithFallback(parser, itemType);
+        const [elementType] = type.args;
+        return this._parseCustomAttributeWithFallback(parser, elementType);
     }
 
     _parseDefaultValuedAttr(parser, type) {
-        const start = type.indexOf('<');
-        const end = type.indexOf(',');
-        if (start === -1 || end === -1 || end <= start + 1) {
-            throw new mlir.Error(`Invalid DefaultValuedAttr type '${type}'.`);
+        if (!Array.isArray(type.args) || type.args.length === 0) {
+            throw new mlir.Error(`Invalid DefaultValuedAttr type.`);
         }
-        const itemType = type.substring(start + 1, end).trim();
-        return this._parseCustomAttributeWithFallback(parser, itemType);
+        const [elementType] = type.args;
+        return this._parseCustomAttributeWithFallback(parser, elementType);
     }
 
     _parseDefaultValuedOptionalAttr(parser, type) {
-        const start = type.indexOf('<');
-        const end = type.indexOf(',');
-        if (start === -1 || end === -1 || end <= start + 1) {
-            throw new mlir.Error(`Invalid DefaultValuedOptionalAttr type '${type}'.`);
+        if (!Array.isArray(type.args) || type.args.length === 0) {
+            throw new mlir.Error(`Invalid DefaultValuedOptionalAttr type.`);
         }
-        const itemType = type.substring(start + 1, end).trim();
-        return this._parseCustomAttributeWithFallback(parser, itemType);
+        const [elementType] = type.args;
+        return this._parseCustomAttributeWithFallback(parser, elementType);
     }
 
     _parseTypeAttrOf(parser, type) {
-        const start = type.indexOf('<');
-        const end = type.indexOf('>');
-        if (start !== -1 && (end === -1 || end <= start + 1)) {
-            throw new mlir.Error(`Invalid TypeAttrOf type '${type}'.`);
+        if (!Array.isArray(type.args) || type.args.length === 0) {
+            throw new mlir.Error(`Invalid TypeAttrOf type.`);
         }
         const parsedType = parser.parseOptionalType();
         if (parsedType) {
@@ -4298,20 +4576,14 @@ mlir.Dialect = class {
     }
 
     _parseAnyAttrOf(parser, type) {
-        const start = type.indexOf('<');
-        const end = type.indexOf('>');
-        if (start === -1 || end === -1 || end <= start + 1) {
-            throw new mlir.Error(`Invalid AnyAttrOf type '${type}'.`);
+        if (!Array.isArray(type.args) || type.args.length === 0) {
+            throw new mlir.Error(`Invalid AnyAttrOf type.`);
         }
-        const args = type.substring(start + 1, end);
-        const listMatch = args.match(/\[(.*?)\]/);
-        if (listMatch) {
-            const types = listMatch[1].split(',').map((t) => t.trim());
-            for (const allowedType of types) {
-                const result = this._parseCustomAttributeWithFallback(parser, allowedType);
-                if (result !== null) {
-                    return result;
-                }
+        const [types] = type.args;
+        for (const allowedType of types) {
+            const result = this._parseCustomAttributeWithFallback(parser, allowedType);
+            if (result !== null) {
+                return result;
             }
         }
         return null;
@@ -4337,8 +4609,11 @@ mlir.Dialect = class {
     }
 
     _parseSymbolNameAttr(parser) {
-        const value = parser.expect('@');
-        return { value: value.substring(1) };
+        if (parser.match('@')) {
+            const value = parser.expect('@');
+            return { value: value.substring(1) };
+        }
+        return null;
     }
 
     _parseDynamicIndexList(parser, op, args) {
@@ -4479,8 +4754,25 @@ mlir.Dialect = class {
             }
             return;
         }
-
         throw new mlir.Error(`Expected ':' or '=' in TypeOrAttr ${parser.location()}`);
+    }
+
+    _parseAngleBracketEnumAttr(parser, type) {
+        if (parser.match('<')) {
+            parser.expect('<');
+            const flags = [];
+            while (!parser.match('>')) {
+                const value = parser.expect('id');
+                if (!type.values.includes(value)) {
+                    throw new mlir.Error(`Invalid enum value '${value}' ${parser.location()}`);
+                }
+                flags.push(value);
+                parser.accept(',');
+            }
+            parser.expect('>');
+            return { value: flags.join(', ') };
+        }
+        return parser.parseOptionalAttribute();
     }
 };
 
@@ -5200,7 +5492,6 @@ mlir.VhloDialect = class extends mlir.Dialect {
     }
 
     parseOperation(parser, opName, op) {
-
         if (opName === 'vhlo.constant_v1') {
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
@@ -6354,6 +6645,10 @@ mlir.HALDialect = class extends mlir.IREEDialect {
             // Parse result type
             if (parser.accept(':')) {
                 parser.parseArgumentTypes(op.results);
+                if (parser.accept('{')) {
+                    parser.parseSSAUse();
+                    parser.expect('}');
+                }
             }
             return true;
         }
@@ -7607,7 +7902,6 @@ mlir.ONNXDialect = class extends mlir.Dialect {
     }
 
     parseOperation(parser, opName, op) {
-
         // onnx.Constant has custom assembly format: dense<...> : type
         // Similar to stablehlo.constant
         if (opName === 'onnx.Constant') {
@@ -9271,6 +9565,9 @@ mlir.ArithDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('arith', operations);
+        // Register custom attribute parsers for attributes with <value> assemblyFormat
+        this.registerCustomAttribute('Arith_FastMathAttr', this._parseAngleBracketEnumAttr.bind(this));
+        this.registerCustomAttribute('Arith_IntegerOverflowAttr', this._parseAngleBracketEnumAttr.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -10509,6 +10806,8 @@ mlir.ArmSMEDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('arm_sme', operations);
+        this.registerCustomAttribute('ArmSME_TypeSizeAttr', this._parseAngleBracketEnumAttr.bind(this));
+        this.registerCustomAttribute('ArmSME_TileSliceLayoutAttr', this._parseAngleBracketEnumAttr.bind(this));
     }
 };
 
