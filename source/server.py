@@ -37,7 +37,7 @@ class _ContentProvider:
             return self.data
         base_dir = os.path.realpath(self.dir)
         filename = os.path.normpath(os.path.realpath(base_dir + "/" + path))
-        if os.path.commonprefix([ base_dir, filename ]) == base_dir:
+        if os.path.commonpath([ base_dir, filename ]) == base_dir:
             if os.path.exists(filename) and not os.path.isdir(filename):
                 with open(filename, "rb") as file:
                     return file.read()
@@ -80,7 +80,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             base_dir = os.path.dirname(os.path.realpath(__file__))
             filename = os.path.normpath(os.path.realpath(base_dir + path))
             extension = os.path.splitext(filename)[1]
-            if os.path.commonprefix([base_dir, filename]) == base_dir and \
+            if os.path.commonpath([base_dir, filename]) == base_dir and \
                 os.path.exists(filename) and not os.path.isdir(filename) and \
                 extension in self.mime_types:
                 content_type = self.mime_types[extension]
