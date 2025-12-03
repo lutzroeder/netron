@@ -6301,6 +6301,7 @@ view.ModelFactoryService = class {
         this.register('./onednn', ['.json']);
         this.register('./espresso', ['.espresso.net', '.espresso.shape', '.espresso.weights'], ['.mlmodelc']);
         this.register('./mlir', ['.mlir', '.mlir.txt', '.mlirbc', '.txt']);
+        this.register('./espdl', ['.espdl'], [], [/^EDL2/]);
         this.register('./sentencepiece', ['.model']);
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./tvm', ['.json', '.params']);
@@ -6860,7 +6861,6 @@ view.ModelFactoryService = class {
                 { name: 'CviModel data', value: /^CviModel/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
                 { name: 'DRTcrypt data', value: /^DRTcrypt/ },
                 { name: 'ELF executable', value: /^\x7FELF/ },
-                { name: 'EDL2 data', value: /^EDL2/ },
                 { name: 'encrypted data', value: /^ENCRYPTED_FILE|EV_ENCRYPTED/ },
                 { name: 'encrypted data', value: /^Salted__/ },
                 { name: 'encrypted data', value: /^KINGSOFTOFFICE/ },

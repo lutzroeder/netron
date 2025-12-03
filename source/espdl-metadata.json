@@ -1,0 +1,466 @@
+[
+  {
+    "name": "Add",
+    "module": "espdl",
+    "version": 1,
+    "description": "Element-wise addition of two tensors.",
+    "inputs": [
+      {
+        "name": "A",
+        "description": "First input tensor"
+      },
+      {
+        "name": "B",
+        "description": "Second input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "C",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "AveragePool",
+    "module": "espdl",
+    "version": 1,
+    "description": "Average pooling operation.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "BatchNormalization",
+    "module": "espdl",
+    "version": 1,
+    "description": "Batch normalization.",
+    "inputs": [
+      {
+        "name": "X",
+        "description": "Input data tensor"
+      },
+      {
+        "name": "scale",
+        "description": "Scale tensor"
+      },
+      {
+        "name": "B",
+        "description": "Bias tensor"
+      },
+      {
+        "name": "mean",
+        "description": "Mean tensor"
+      },
+      {
+        "name": "var",
+        "description": "Variance tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Y",
+        "description": "Output data tensor"
+      },
+      {
+        "name": "mean",
+        "description": "Updated mean tensor (optional)"
+      },
+      {
+        "name": "var",
+        "description": "Updated variance tensor (optional)"
+      },
+      {
+        "name": "saved_mean",
+        "description": "Saved mean tensor (optional)"
+      },
+      {
+        "name": "saved_var",
+        "description": "Saved variance tensor (optional)"
+      }
+    ],
+    "category": "Normalization"
+  },
+  {
+    "name": "Clip",
+    "module": "espdl",
+    "version": 1,
+    "category": "Activation",
+    "description": "Clip operator limits values to a specified range.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Clipped output tensor"
+      }
+    ]
+  },
+  {
+    "name": "Concat",
+    "module": "espdl",
+    "version": 1,
+    "description": "Concatenates tensors along a given axis.",
+    "inputs": [
+      {
+        "name": "inputs",
+        "list": true,
+        "description": "Input tensors to concatenate"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Concatenated output tensor"
+      }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "Conv",
+    "module": "espdl",
+    "version": 1,
+    "description": "Convolution operator. Applies a convolution filter to the input.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input feature map"
+      },
+      {
+        "name": "weight",
+        "description": "Convolution kernel weights"
+      },
+      {
+        "name": "bias",
+        "option": "optional",
+        "description": "Bias values (optional)"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output feature map"
+      }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "Gemm",
+    "module": "espdl",
+    "version": 1,
+    "description": "General matrix multiplication: alpha * A * B + beta * C",
+    "inputs": [
+      {
+        "name": "A",
+        "description": "Input tensor A"
+      },
+      {
+        "name": "B",
+        "description": "Input tensor B"
+      },
+      {
+        "name": "C",
+        "option": "optional",
+        "description": "Input tensor C (optional)"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Y",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "LeakyRelu",
+    "module": "espdl",
+    "version": 1,
+    "category": "Activation",
+    "description": "Leaky Rectified Linear Unit activation function.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ]
+  },
+  {
+    "name": "MaxPool",
+    "module": "espdl",
+    "version": 1,
+    "description": "Max pooling operation.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "Mul",
+    "module": "espdl",
+    "version": 1,
+    "description": "Element-wise multiplication of two tensors.",
+    "inputs": [
+      {
+        "name": "A",
+        "description": "First input tensor"
+      },
+      {
+        "name": "B",
+        "description": "Second input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "C",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "Pad",
+    "module": "espdl",
+    "version": 1,
+    "category": "Tensor",
+    "description": "Pad operator adds padding to tensor dimensions.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      },
+      {
+        "name": "pads",
+        "description": "Padding values"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Padded output tensor"
+      }
+    ]
+  },
+  {
+    "name": "Relu",
+    "module": "espdl",
+    "version": 1,
+    "description": "Rectified Linear Unit activation function.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "RequantizeLinear",
+    "module": "espdl",
+    "version": 1,
+    "category": "Quantization",
+    "description": "Requantize linear quantization operator.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor to requantize"
+      },
+      {
+        "name": "scale",
+        "description": "Scale for requantization"
+      },
+      {
+        "name": "zero_point",
+        "description": "Zero point for requantization"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Requantized output tensor"
+      }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "module": "espdl",
+    "version": 1,
+    "description": "Reshapes a tensor to a new shape.",
+    "inputs": [
+      {
+        "name": "data",
+        "description": "Input tensor"
+      },
+      {
+        "name": "shape",
+        "description": "New shape"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "reshaped",
+        "description": "Reshaped output tensor"
+      }
+    ],
+    "category": "Shape"
+  },
+  {
+    "name": "Resize",
+    "module": "espdl",
+    "version": 1,
+    "category": "Data",
+    "description": "Resize operator for spatial dimensions.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      },
+      {
+        "name": "scales",
+        "description": "Scale factors for each dimension"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Resized output tensor"
+      }
+    ]
+  },
+  {
+    "name": "Sigmoid",
+    "module": "espdl",
+    "version": 1,
+    "description": "Sigmoid activation function.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "Softmax",
+    "module": "espdl",
+    "version": 1,
+    "description": "Softmax activation function.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "Split",
+    "module": "espdl",
+    "version": 1,
+    "description": "Splits a tensor into multiple tensors along a given axis.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor to split"
+      },
+      {
+        "name": "split",
+        "description": "Optional list of split sizes or number of splits"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "outputs",
+        "list": true,
+        "description": "Output tensors"
+      }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "Tanh",
+    "module": "espdl",
+    "version": 1,
+    "description": "Hyperbolic tangent activation function.",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output tensor"
+      }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "Transpose",
+    "module": "espdl",
+    "version": 1,
+    "description": "Transposes the dimensions of a tensor.",
+    "inputs": [
+      {
+        "name": "data",
+        "description": "Input tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "transposed",
+        "description": "Transposed output tensor"
+      }
+    ],
+    "category": "Tensor"
+  }
+]
