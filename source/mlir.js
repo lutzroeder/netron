@@ -447,8 +447,12 @@ mlir.Tokenizer = class {
                     if (/[0-9]/.test(this._peek())) {
                         return this._number();
                     }
-                    // '.' is a valid token (used in type names like !hal.buffer_view)
                     this._read();
+                    if (this._current === '.' && this._next === '.') {
+                        this._read();
+                        this._read();
+                        return this._token('ellipsis', '...');
+                    }
                     return this._token('.', '.');
                 case '-':
                     if (/[0-9]/.test(this._peek())) {
@@ -1051,20 +1055,18 @@ mlir.Parser = class {
         return block;
     }
 
-    parseFunctionArgumentList() {
+    parseFunctionArgumentList(allowVariadic) {
         const inputs = [];
+        let isVariadic = false;
         if (this.accept('(')) {
             while (!this.accept(')')) {
                 if (this.match(')')) {
                     break;
                 }
-                // Check for variadic arguments marker: ...
-                if (this.match('.')) {
-                    this.expect('.');
-                    this.expect('.');
-                    this.expect('.');
-                    inputs.push({ value: '...', type: '...' });
-                    break; // ... must be last
+                if (allowVariadic && this.accept('ellipsis')) {
+                    isVariadic = true;
+                    this.expect(')');
+                    break;
                 }
                 if (this.match('%')) {
                     const input = {};
@@ -1098,43 +1100,56 @@ mlir.Parser = class {
                 }
             }
         }
-        return inputs;
+        return { arguments: inputs, isVariadic };
     }
 
-    parseFunctionResultList() {
-        const outputs = [];
-        if (this.accept('(')) {
-            while (!this.accept(')')) {
-                const output = {};
-                output.value = `%result${outputs.length}`;  // Generate a name
-                output.type = this.parseType();
-                if (this.match('{')) {
-                    output.attributes = [];
-                    this.parseAttributeDict(output.attributes);
-                }
-                outputs.push(output);
-                this.accept(',');
-            }
-        } else {
-            const output = {};
-            output.value = `%result0`;  // Generate a name
-            output.type = this.parseType();
-            outputs.push(output);
+    parseFunctionSignatureWithArguments(allowVariadic) {
+        const argResult = this.parseFunctionArgumentList(allowVariadic);
+        const resultTypes = [];
+        const resultAttrs = [];
+        if (this.accept('->')) {
+            this.parseFunctionResultList(resultTypes, resultAttrs);
         }
-        return outputs;
+        return { arguments: argResult.arguments, isVariadic: argResult.isVariadic, resultTypes, resultAttrs };
     }
 
+    parseFunctionOp(op, allowVariadic) {
+        this.parseOptionalVisibilityKeyword(op.attributes);
+        this.parseSymbolName('sym_name', op.attributes);
+        const sig = this.parseFunctionSignatureWithArguments(allowVariadic);
+        const argTypes = [];
+        for (const arg of sig.arguments) {
+            if (arg.value !== '...') {
+                argTypes.push(arg.type);
+            }
+        }
+        const type = { inputs: argTypes, results: sig.resultTypes };
+        op.attributes.push({ name: 'function_type', value: type });
+        if (sig.resultAttrs.some((a) => a !== null)) {
+            op.attributes.push({ name: 'res_attrs', value: sig.resultAttrs });
+        }
+        const argAttrs = sig.arguments.filter((a) => a.value !== '...').map((a) => a.attributes || null);
+        if (argAttrs.some((a) => a !== null)) {
+            op.attributes.push({ name: 'arg_attrs', value: argAttrs });
+        }
+        this.parseOptionalAttrDictWithKeyword(op.attributes);
+        if (this.match('{')) {
+            const region = {};
+            this.parseRegion(region, sig.arguments);
+            op.regions.push(region);
+        }
+    }
+
+    // Reference: Parser.cpp parseTypeListNoParens
+    // Parse comma-separated type list: type, type, type
     parseTypeList() {
         const types = [];
-        while (!this.match(')') && !this.match('eof')) {
+        do {
             const type = this.parseType();
             if (type) {
                 types.push(type);
             }
-            if (!this.accept(',')) {
-                break;
-            }
-        }
+        } while (this.accept(','));
         return types;
     }
 
@@ -1195,148 +1210,84 @@ mlir.Parser = class {
         return op;
     }
 
+    // Parse comma-separated SSA use list (just names, no types)
+    // Reference: Parser.cpp parseOptionalSSAUseList
+    parseOptionalSSAUseList(results) {
+        if (!this.match('%')) {
+            return;
+        }
+        do {
+            const value = this.expect('%');
+            results.push({ value });
+        } while (this.accept(',') && this.match('%'));
+    }
+
+    // Parse successor list: [^block1, ^block2, ...]
+    // Reference: Parser.cpp parseSuccessors
+    parseSuccessors(successors) {
+        this.expect('[');
+        do {
+            const successor = {};
+            successor.label = this.expect('^');
+            successors.push(successor);
+        } while (this.accept(','));
+        this.expect(']');
+    }
+
+    // Parse generic operation after the op name has been parsed
+    // Reference: Parser.cpp parseGenericOperationAfterOpName
+    // Generic form: "op"(operands) [successors] <properties> (regions) {attrs} : fn-type
     parseGenericOperationAfterOpName(op) {
         op.attributes = op.attributes || [];
         op.operands = op.operands || [];
         op.regions = op.regions || [];
         op.results = op.results || [];
-        if (this.match('}')) {
-            op.loc = this.parseLocation();
-            return op;
-        }
-        // Only parse operands if: 1) they're in parentheses, 2) start with @, 3) start with identifier, or 4) other unambiguous tokens
-        // Don't parse bare % tokens as they might be results of the next operation
-        if (!op.operands.length && !this.match('keyword', 'loc') && !this.match('eof') && !this.match('%')) {
-            op.operands = this.parseArguments();
-        }
-        // Parse successor blocks (for branch operations like cf.br)
-        if (this.match('^')) {
+        // 1. Parse operand list: (operands...)
+        this.expect('(');
+        this.parseOptionalSSAUseList(op.operands);
+        this.expect(')');
+        // 2. Parse successor list: [^block1, ^block2, ...]
+        if (this.match('[')) {
             op.successors = [];
-            while (this.match('^')) {
-                const successor = {};
-                successor.label = this.expect('^');
-                if (this.accept('(')) {
-                    successor.arguments = [];
-                    while (!this.accept(')')) {
-                        if (this.match('%')) {
-                            const value = this.expect('%');
-                            successor.arguments.push({ value });
-                            if (!this.accept(',')) {
-                                break;
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                    const hasTypes = this.accept(':');
-                    if (!hasTypes) {
-                        this.accept(')');
-                    }
-                    if (hasTypes) {
-                        let idx = 0;
-                        while (idx < successor.arguments.length && !this.match(',') && !this.match('[') && !this.match('{') && !this.match('^')) {
-                            const type = this.parseType();
-                            if (successor.arguments[idx]) {
-                                successor.arguments[idx].type = type;
-                            }
-                            idx++;
-                            this.accept(',');
-                        }
-                        this.accept(')');
-                    }
-                }
-                op.successors.push(successor);
-                if (!this.accept(',')) {
-                    break;
-                }
-            }
+            this.parseSuccessors(op.successors);
         }
-        while (this.match('[')) {
-            this.skip('[', ']');
+        // 3. Parse properties: <attr>
+        if (this.accept('<')) {
+            op.properties = this.parseValue();
+            this.expect('>');
         }
-        this.skip('<', '>');
-        let parsedRegionList = false;
-        if (this.match('(')) {
-            // Save token state for potential backtracking (need to copy values since tokens are reused)
-            const savedTokenKind = this._token.kind;
-            const savedTokenValue = this._token.value;
-            const savedTokenText = this._token.text;
-            this.accept('(');
-            if (this.match('{') || this.match('id') || this.match('^')) {
-                parsedRegionList = true;
-            } else {
-                // Backtrack by restoring token state
-                this._token.kind = savedTokenKind;
-                this._token.value = savedTokenValue;
-                this._token.text = savedTokenText;
-            }
-        }
-        if (parsedRegionList) {
-            while (!this.match(')')) {
-                let entryLabel = null;
-                const entryArgs = [];
-                if (this.match('id') && !this.match('{')) {
-                    entryLabel = this.expect('id');
-                    if (this.accept('(')) {
-                        while (!this.accept(')')) {
-                            const value = this.expect('%');
-                            this.expect(':');
-                            const type = this.parseType();
-                            entryArgs.push({ value, type });
-                            this.accept(',');
-                        }
-                    }
-                }
-                if (!this.match('{')) {
-                    throw new mlir.Error(`Expected '{' for region in region-list, but got '${this._token.value}' ${this.location()}`);
-                }
+        // 4. Parse region list: (region1, region2, ...)
+        if (this.accept('(')) {
+            do {
                 const region = {};
                 this.parseRegion(region);
-                if (entryLabel) {
-                    region.entryLabel = entryLabel;
-                    region.entryArgs = entryArgs;
-                }
                 op.regions.push(region);
-                if (!this.accept(',') && !this.match(')')) {
-                    throw new mlir.Error(`Expected ',' or ')' after region in region-list, but got '${this._token.value}' ${this.location()}`);
-                }
-            }
+            } while (this.accept(','));
             this.expect(')');
         }
+        // 5. Parse attributes: {attr = value, ...}
         if (this.match('{')) {
             this.parseAttributeDict(op.attributes);
         }
-        if (this.accept(':')) {
-            this.parseArgumentTypes(op.operands);
+        // 6. Parse function type: : (input_types) -> (result_types)
+        this.expect(':');
+        const fnType = this.parseType();
+        if (!(fnType instanceof mlir.FunctionType)) {
+            throw new mlir.Error(`Expected function type ${this.location()}`);
         }
-        if (this.accept('->') || this.accept('id', 'to')) {
-            const hasParens = this.match('(');
-            this.parseArgumentTypes(op.results, hasParens);
+        // Apply input types to operands
+        for (let i = 0; i < fnType.inputs.length && i < op.operands.length; i++) {
+            op.operands[i].type = fnType.inputs[i].toString();
         }
-        if (this.accept('id', 'attributes')) {
-            if (this.match('{')) {
-                this.parseAttributeDict(op.attributes);
+        // Apply result types to results
+        for (let i = 0; i < fnType.results.length; i++) {
+            if (i < op.results.length) {
+                op.results[i].type = fnType.results[i].toString();
+            } else {
+                op.results.push({ type: fnType.results[i].toString() });
             }
         }
-        if (this.match('{')) {
-            const region = {};
-            this.parseRegion(region);
-            op.regions.push(region);
-            while (this.accept(',') && this.match('{')) {
-                const region = {};
-                this.parseRegion(region);
-                op.regions.push(region);
-            }
-            if (op.name.endsWith('.if') && this.match('id', 'else')) {
-                this.expect('id', 'else');
-                const region = {};
-                this.parseRegion(region);
-                op.regions.push(region);
-            }
-            if (this.match('{')) {
-                this.parseAttributeDict(op.attributes);
-            }
-        }
+        // Parse optional location
         op.loc = this.parseLocation();
         return op;
     }
@@ -2091,7 +2042,11 @@ mlir.Parser = class {
 
     parseCustomTypeWithFallback(typeT) {
         if (typeT) {
-            return typeT(this);
+            const result = typeT(this);
+            if (result) {
+                return result;
+            }
+            // Custom parser returned null, fall back to regular type parsing
         }
         return this.parseType();
     }
@@ -2242,6 +2197,77 @@ mlir.Parser = class {
         return new mlir.FunctionType(inputs, results);
     }
 
+    // Reference: TypeParser.cpp parseFunctionResultTypes
+    // Parse function result types: (type, type) OR single non-function type
+    parseFunctionResultTypes() {
+        const types = [];
+        if (this.accept('(')) {
+            // Parse parenthesized type list
+            if (!this.match(')')) {
+                do {
+                    const type = this.parseType();
+                    if (type) {
+                        types.push(type);
+                    }
+                } while (this.accept(','));
+            }
+            this.expect(')');
+        } else {
+            // Parse single non-function type
+            const type = this.parseNonFunctionType();
+            if (type) {
+                types.push(type);
+            }
+        }
+        return types;
+    }
+
+    // Reference: OpImplementation.h parseColonType
+    // Parse colon followed by single type: : type
+    parseColonType() {
+        this.expect(':');
+        return this.parseType();
+    }
+
+    // Reference: OpImplementation.h parseColonTypeList
+    // Parse colon followed by type list: : type, type, type
+    parseColonTypeList() {
+        this.expect(':');
+        return this.parseTypeList();
+    }
+
+    // Reference: OpImplementation.h parseOptionalColonTypeList
+    // Parse optional colon followed by type list
+    parseOptionalColonTypeList() {
+        if (this.accept(':')) {
+            return this.parseTypeList();
+        }
+        return [];
+    }
+
+    // Reference: OpImplementation.h parseArrowTypeList
+    // Parse arrow followed by type list: -> type, type
+    parseArrowTypeList() {
+        this.expect('->');
+        return this.parseFunctionResultTypes();
+    }
+
+    // Reference: AsmParserImpl.h parseOptionalArrowTypeList
+    // Parse optional arrow followed by function result types
+    parseOptionalArrowTypeList() {
+        if (this.accept('->')) {
+            return this.parseFunctionResultTypes();
+        }
+        return [];
+    }
+
+    // Reference: OpImplementation.h parseOptionalArrow
+    // Parse '->' token if present, returns true if found
+    parseOptionalArrow() {
+        return this.accept('->');
+    }
+
+    // Legacy method for backwards compatibility with dialect code
     parseArgumentTypes(args, parens) {
         parens = parens || false;
         let index = 0;
@@ -2276,6 +2302,67 @@ mlir.Parser = class {
         }
         if (open) {
             this.expect(')');
+        }
+    }
+
+    // Matches call_interface_impl::parseFunctionSignature from CallInterfaces.cpp
+    // Parses: (type {attr}, type {attr}, ...) -> (type {attr}, ...)
+    // Returns { argTypes: [...], argAttrs: [...], resultTypes: [...], resultAttrs: [...] }
+    parseFunctionSignature(argOperands) {
+        const argTypes = [];
+        const argAttrs = [];
+        const resultTypes = [];
+        const resultAttrs = [];
+        this.expect('(');
+        if (!this.match(')')) {
+            this.parseTypeAndAttrList(argTypes, argAttrs, argOperands);
+        }
+        this.expect(')');
+        if (this.accept('->')) {
+            this.parseFunctionResultList(resultTypes, resultAttrs);
+        }
+        return { argTypes, argAttrs, resultTypes, resultAttrs };
+    }
+
+    // Matches parseTypeAndAttrList from CallInterfaces.cpp
+    // Parses: type {attr}, type {attr}, ...
+    parseTypeAndAttrList(types, attrs, operands) {
+        let index = 0;
+        do {
+            const type = this.parseType();
+            types.push(type);
+            // Parse optional attribute dict after each type
+            if (this.match('{')) {
+                const attrList = [];
+                this.parseAttributeDict(attrList);
+                attrs.push(attrList);
+                // Associate attrs with operand if available
+                if (operands && index < operands.length) {
+                    operands[index].attributes = attrList;
+                }
+            } else {
+                attrs.push(null);
+            }
+            index++;
+        } while (this.accept(','));
+    }
+
+    // Matches call_interface_impl::parseFunctionResultList from CallInterfaces.cpp
+    // Parses: type or (type {attr}, type {attr}, ...)
+    parseFunctionResultList(types, attrs) {
+        // Try to parse with parens first
+        if (this.accept('(')) {
+            // Special case for empty parens ()
+            if (this.accept(')')) {
+                return;
+            }
+            this.parseTypeAndAttrList(types, attrs);
+            this.expect(')');
+        } else {
+            // Single type without parens (cannot have attributes in this case per reference impl)
+            const type = this.parseType();
+            types.push(type);
+            attrs.push(null);
         }
     }
 
@@ -2693,6 +2780,10 @@ mlir.Parser = class {
             }
         }
         return null;
+    }
+
+    getToken() {
+        return this._token;
     }
 
     match(kind, value) {
@@ -4265,25 +4356,20 @@ mlir.Dialect = class {
                 }
                 break;
             case 'functional_type': {
-                parser.parseArgumentTypes(op.operands);
-                if (parser.accept('->') || parser.accept('id', 'to')) {
-                    if (parser.match('(')) {
-                        // Parenthesized result types: parse multiple types
-                        if (op.results.length > 0) {
-                            parser.parseArgumentTypes(op.results, true);
-                        } else {
-                            op.results = parser.parseArguments();
-                        }
+                const type = parser.parseFunctionType();
+                if (type instanceof mlir.FunctionType === false) {
+                    throw new mlir.Error('Invalid functional-type function type.');
+                }
+                for (let i = 0; i < type.inputs.length && i < op.operands.length; i++) {
+                    if (!op.operands[i].type) {
+                        op.operands[i].type = type.inputs[i].toString();
+                    }
+                }
+                for (let i = 0; i < type.results.length; i++) {
+                    if (i < op.results.length) {
+                        op.results[i].type = op.results[i].type || type.results[i].toString();
                     } else {
-                        // Single unparenthesized result type: parse exactly one type
-                        const type = parser.parseType();
-                        if (type) {
-                            if (op.results.length > 0) {
-                                op.results[0].type = type.toString();
-                            } else {
-                                op.results.push({ type: type.toString() });
-                            }
-                        }
+                        op.results.push({ type: type.results[i].toString() });
                     }
                 }
                 break;
@@ -4371,8 +4457,6 @@ mlir.Dialect = class {
                             shouldParse = parser.match(firstElem.value);
                         } else if (firstElem.value === '->') {
                             shouldParse = parser.match('->');
-                        } else if (firstElem.value === 'overflow' || firstElem.value === 'fastmath') {
-                            shouldParse = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
                         } else {
                             shouldParse = parser.match('id', firstElem.value) || parser.match('keyword', firstElem.value);
                         }
@@ -4398,38 +4482,50 @@ mlir.Dialect = class {
                         shouldParse = parser.match('{');
                     } else if (firstElem.type === 'operand_ref') {
                         // Handle operand variables in optional groups
-                        if (firstElem.name === 'overflowFlags' || directive.elements.some((e) => e.name === 'overflowFlags')) {
-                            shouldParse = parser.match('id', 'overflow');
-                        } else if (firstElem.name === 'fastmath' || directive.elements.some((e) => e.name === 'fastmath')) {
-                            shouldParse = parser.match('id', 'fastmath');
-                        } else {
-                            // Check if this is a keyword/enum input rather than an SSA value
-                            let isKeywordInput = false;
-                            if (opInfo.metadata && opInfo.metadata.inputs) {
-                                const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === firstElem.name);
-                                if (inputInfo) {
-                                    const inputType = inputInfo.type;
-                                    if (typeof inputType === 'string' &&
-                                        (inputType.includes('Prop') || inputType.endsWith('Predicate') ||
-                                         inputType.includes('Flags') || inputType.includes('Enum'))) {
-                                        isKeywordInput = true;
-                                    }
+                        // Check if this is a keyword/enum input rather than an SSA value
+                        let isKeywordInput = false;
+                        if (opInfo.metadata && opInfo.metadata.inputs) {
+                            const inputInfo = opInfo.metadata.inputs.find((inp) => inp.name === firstElem.name);
+                            if (inputInfo) {
+                                const inputType = inputInfo.type;
+                                if (typeof inputType === 'string' &&
+                                    (inputType.includes('Prop') || inputType.endsWith('Predicate') ||
+                                        inputType.includes('Flags') || inputType.includes('Enum'))) {
+                                    isKeywordInput = true;
                                 }
                             }
-                            if (isKeywordInput) {
-                                shouldParse = parser.match('id');
-                            } else {
-                                // For regular operands, check for %
-                                shouldParse = parser.match('%');
-                            }
+                        }
+                        if (isKeywordInput) {
+                            shouldParse = parser.match('id');
+                        } else {
+                            // For regular operands, check for %
+                            shouldParse = parser.match('%');
                         }
                     } else if (firstElem.type === 'operands') {
                         shouldParse = parser.match('(') || parser.match('%');
+                    } else if (firstElem.type === 'custom') {
+                        // For custom directives in optional groups, call the custom parser
+                        // and check its return value (null = not present, true = success)
+                        // This mirrors the reference impl's OptionalParseResult pattern
+                        const fn = this._customDirectives.get(firstElem.parser);
+                        if (fn) {
+                            const result = fn(parser, op, firstElem.args);
+                            if (result === null) {
+                                // Optional not present
+                                shouldParse = false;
+                            } else {
+                                // Optional present and parsed successfully
+                                // Reference impl: parse remaining elements (drop_front)
+                                shouldParse = 'skip_first';
+                            }
+                        }
                     }
                 }
                 if (shouldParse) {
                     // Recursively parse nested elements using the same parseDirective method
-                    for (let elemIdx = 0; elemIdx < directive.elements.length; elemIdx++) {
+                    // If shouldParse === 'skip_first', the custom directive already parsed the first element
+                    const startIdx = shouldParse === 'skip_first' ? 1 : 0;
+                    for (let elemIdx = startIdx; elemIdx < directive.elements.length; elemIdx++) {
                         this.parseDirective(directive.elements[elemIdx], parser, op, opInfo, directive.elements, elemIdx);
                     }
                 }
@@ -4757,20 +4853,32 @@ mlir.Dialect = class {
         throw new mlir.Error(`Expected ':' or '=' in TypeOrAttr ${parser.location()}`);
     }
 
-    _parseAngleBracketEnumAttr(parser, type) {
-        if (parser.match('<')) {
-            parser.expect('<');
-            const flags = [];
-            while (!parser.match('>')) {
-                const value = parser.expect('id');
-                if (!type.values.includes(value)) {
-                    throw new mlir.Error(`Invalid enum value '${value}' ${parser.location()}`);
-                }
-                flags.push(value);
-                parser.accept(',');
+    _parseEnumFlags(parser, type, separator) {
+        const flags = [];
+        do {
+            const value = parser.expect('id');
+            if (!type.values.includes(value)) {
+                throw new mlir.Error(`Invalid enum value '${value}' ${parser.location()}`);
             }
+            flags.push(value);
+        } while (parser.accept(separator));
+        return { value: flags.join(', ') };
+    }
+
+    _parseEnumFlagsAngleBracketComma(parser, type) {
+        if (parser.accept('<')) {
+            const value = this._parseEnumFlags(parser, type, ',');
             parser.expect('>');
-            return { value: flags.join(', ') };
+            return value;
+        }
+        return parser.parseOptionalAttribute();
+    }
+
+    _parseEnumFlagsAngleBracketPipe(parser, type) {
+        if (parser.accept('<')) {
+            const value = this._parseEnumFlags(parser, type, '|');
+            parser.expect('>');
+            return value;
         }
         return parser.parseOptionalAttribute();
     }
@@ -5266,28 +5374,37 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
     }
 
     parseOperation(parser, opName, op) {
+        // Reference: stablehlo/dialect/StablehloOps.cpp parseConstantOp
         if (opName === 'stablehlo.constant') {
+            // Generic form: () <properties> {attrs} : () -> type
             if (parser.accept('(') && parser.accept(')')) {
-                if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                // Parse optional properties <...>
+                if (parser.accept('<')) {
+                    op.properties = parser.parseValue();
+                    parser.expect('>');
                 }
-                if (parser.accept(':')) {
-                    parser.parseArgumentTypes(op.operands);
-                }
-                if (parser.accept('->')) {
-                    parser.parseArgumentTypes(op.results);
-                }
+                // Parse optional attributes
+                parser.parseOptionalAttrDict(op.attributes);
+                // Parse type signature: : () -> type
+                parser.expect(':');
+                parser.expect('(');
+                parser.expect(')');
+                parser.expect('->');
+                const type = parser.parseType();
+                op.results.push({ type: type.toString() });
             } else {
-                if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
-                }
+                // Custom form: {attrs} value : type
+                parser.parseOptionalAttrDict(op.attributes);
                 const value = parser.parseValue();
                 if (value) {
                     op.attributes.push({ name: 'value', value: value.value });
                 }
-                // Parse result type: : tensor<...>
-                if (parser.accept(':')) {
-                    parser.parseArgumentTypes(op.results);
+                // Parse result type - either explicit `: type` or from value's type
+                const types = parser.parseOptionalColonTypeList();
+                if (types.length > 0) {
+                    op.results.push({ type: types[0].toString() });
+                } else if (value && value.type) {
+                    op.results.push({ type: value.type.toString() });
                 }
             }
             return true;
@@ -5851,7 +5968,9 @@ mlir.AffineDialect = class extends mlir.Dialect {
             parser.expect(')');
         }
         if (parser.accept('->')) {
-            parser.parseFunctionResultList();
+            const resultTypes = [];
+            const resultAttrs = [];
+            parser.parseFunctionResultList(resultTypes, resultAttrs);
         }
         if (parser.match('{')) {
             const region = {};
@@ -6642,11 +6761,22 @@ mlir.HALDialect = class extends mlir.IREEDialect {
                     parser.accept(',');
                 }
             }
-            // Parse result type
+            // Parse result type: type($result) (`{` $dynamic_dims^ `}`)?
             if (parser.accept(':')) {
-                parser.parseArgumentTypes(op.results);
+                const type = parser.parseType();
+                if (type) {
+                    op.results.push({ type: type.toString() });
+                }
+                // Parse optional dynamic dimensions: {%dim1, %dim2, ...}
                 if (parser.accept('{')) {
-                    parser.parseSSAUse();
+                    const dynamicDims = [];
+                    if (!parser.match('}')) {
+                        do {
+                            const dimOperand = parser.parseSSAUse();
+                            dynamicDims.push(dimOperand);
+                            op.operands.push({ value: dimOperand.name, kind: 'dynamic_dim' });
+                        } while (parser.accept(','));
+                    }
                     parser.expect('}');
                 }
             }
@@ -6708,7 +6838,9 @@ mlir.HALDialect = class extends mlir.IREEDialect {
                 }
             }
             if (parser.accept('->')) {
-                parser.parseFunctionResultList();
+                const resultTypes = [];
+                const resultAttrs = [];
+                parser.parseFunctionResultList(resultTypes, resultAttrs);
             }
             if (parser.accept('id', 'attributes')) {
                 parser.parseAttributeDict(op.attributes);
@@ -6846,7 +6978,8 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
             return true;
         }
         if (opName === 'util.func') {
-            return this._parseFuncOp(parser, op);
+            parser.parseFunctionOp(op, false);
+            return true;
         }
         return super.parseOperation(parser, opName, op);
     }
@@ -6929,48 +7062,6 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
 
         return assumption;
     }
-
-    _parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            if (parser.match('(')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            } else {
-                do {
-                    const result = {};
-                    result.value = `%result${type.results.length}`;
-                    result.type = parser.parseType();
-                    type.results.push(result);
-                } while (parser.accept(','));
-            }
-        }
-        op.attributes.push({ name: 'function_type', value: type });
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        if (op.regions.length > 0) {
-            const region = op.regions[op.regions.length - 1];
-            if (region.blocks.length > 0) {
-                const block = region.blocks[region.blocks.length - 1];
-                if (block.operations.length > 0) {
-                    const lastOp = block.operations[block.operations.length - 1];
-                    type.results = lastOp.operands;
-                    block.operations.pop();
-                }
-            }
-        }
-        return true;
-    }
 };
 
 mlir.FlowDialect = class extends mlir.IREEDialect {
@@ -7031,42 +7122,10 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
             return true;
         }
         if (opName === 'flow.func') {
-            return this._parseFuncOp(parser, op);
+            parser.parseFunctionOp(op, false);
+            return true;
         }
         return super.parseOperation(parser, opName, op);
-    }
-
-    _parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            for (const result of parser.parseFunctionResultList()) {
-                type.results.push(result);
-            }
-        }
-        op.attributes.push({ name: 'function_type', value: type });
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        if (op.regions.length > 0) {
-            const region = op.regions[op.regions.length - 1];
-            if (region.blocks.length > 0) {
-                const block = region.blocks[region.blocks.length - 1];
-                if (block.operations.length > 0) {
-                    const lastOp = block.operations[block.operations.length - 1];
-                    type.results = lastOp.operands;
-                    block.operations.pop();
-                }
-            }
-        }
-        return true;
     }
 
     _parseDispatchRegionOp(parser, op) {
@@ -7797,7 +7856,7 @@ mlir.LinalgDialect = class extends mlir.Dialect {
             const block = { operations: [], arguments: blockArguments };
             parser.expect('{');
             while (!parser.accept('}')) {
-                if (parser.match('^') || (parser.match('id') && parser._token.value && parser._token.value.startsWith('^'))) {
+                if (parser.match('^') || (parser.match('id') && parser.getToken().value && parser.getToken().value.startsWith('^'))) {
                     break;
                 }
                 const operation = parser.parseOperation();
@@ -7911,8 +7970,8 @@ mlir.ONNXDialect = class extends mlir.Dialect {
                 op.attributes.push({ name: 'value', value: value.value });
             }
             // Parse optional : type
-            if (parser.accept(':')) {
-                parser.parseArgumentTypes(op.results);
+            for (const type of parser.parseOptionalColonTypeList()) {
+                op.results.push({ type: type.toString() });
             }
             return true;
         }
@@ -8471,7 +8530,7 @@ mlir.IRDLDialect = class extends mlir.Dialect {
                 // Optional variadicity keyword (single, optional, variadic)
                 let variadicity = null;
                 if (parser.match('id')) {
-                    const peekValue = parser._token.value;
+                    const peekValue = parser.getToken().value;
                     if (peekValue === 'single' || peekValue === 'optional' || peekValue === 'variadic') {
                         variadicity = parser.expect('id');
                     }
@@ -8575,7 +8634,7 @@ mlir.ShardDialect = class extends mlir.Dialect {
             }
 
             if (parser.match('id')) {
-                const token = parser._token.value;
+                const token = parser.getToken().value;
                 if (token === 'x') {
                     parser.expect('id');
                     continue;
@@ -8616,6 +8675,8 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
         super('spirv', operations);
         this.typesWithOptionalParams = new Set(['sampler', 'sampled_image', 'matrix', 'image', 'rtarray', 'ptr', 'array', 'struct', 'coopmatrix']);
         this.registerCustomDirective('ImageOperands', this._parseImageOperands.bind(this));
+        this.registerCustomAttribute('SPIRV_ScopeAttr', this._parseEnumFlagsAngleBracketPipe.bind(this));
+        this.registerCustomAttribute('SPIRV_MemorySemanticsAttr', this._parseEnumFlagsAngleBracketPipe.bind(this));
     }
 
     _parseImageOperands(parser /*, op, args */) {
@@ -8940,11 +9001,13 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                 inputs: [],
                 results: []
             };
+            const resultAttrs = [];
             if (parser.match('(')) {
-                function_type.inputs = parser.parseFunctionArgumentList();
+                const argResult = parser.parseFunctionArgumentList();
+                function_type.inputs = argResult.arguments.map((a) => a.type);
             }
             if (parser.accept('->')) {
-                function_type.results = parser.parseFunctionResultList();
+                parser.parseFunctionResultList(function_type.results, resultAttrs);
             }
             op.attributes.push({ name: 'function_type', value: function_type });
             if (parser.match('string')) {
@@ -9304,35 +9367,7 @@ mlir.EmitCDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'emitc.func') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
-            parser.parseSymbolName('sym_name', op.attributes);
-            const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            type.results = [];
-            if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            }
-            op.attributes.push({ name: 'function_type', value: type });
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.match('{')) {
-                const region = {};
-                parser.parseRegion(region);
-                op.regions.push(region);
-            }
-            if (op.regions.length > 0) {
-                const region = op.regions[op.regions.length - 1];
-                if (region.blocks.length > 0) {
-                    const block = region.blocks[region.blocks.length - 1];
-                    if (block.operations.length > 0) {
-                        const lastOp = block.operations[block.operations.length - 1];
-                        type.results = lastOp.operands;
-                        block.operations.pop();
-                    }
-                }
-            }
+            parser.parseFunctionOp(op, false);
             return true;
         }
         if (opName === 'emitc.global' || opName === 'emitc.field') {
@@ -9514,21 +9549,13 @@ mlir.AsyncDialect = class extends mlir.Dialect {
         parser.parseOptionalVisibilityKeyword(op.attributes);
         parser.parseSymbolName('sym_name', op.attributes);
         const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
+        const argResult = parser.parseFunctionArgumentList();
+        type.inputs = argResult.arguments.map((a) => a.type);
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
         type.results = [];
+        const resultAttrs = [];
         if (parser.accept('->')) {
-            if (parser.accept('(')) {
-                while (!parser.match(')')) {
-                    type.results.push({ type: parser.parseType() });
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(')');
-            } else {
-                type.results.push({ type: parser.parseType() });
-            }
+            parser.parseFunctionResultList(type.results, resultAttrs);
         }
         op.attributes.push({ name: 'function_type', value: type });
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
@@ -9566,8 +9593,8 @@ mlir.ArithDialect = class extends mlir.Dialect {
     constructor(operations) {
         super('arith', operations);
         // Register custom attribute parsers for attributes with <value> assemblyFormat
-        this.registerCustomAttribute('Arith_FastMathAttr', this._parseAngleBracketEnumAttr.bind(this));
-        this.registerCustomAttribute('Arith_IntegerOverflowAttr', this._parseAngleBracketEnumAttr.bind(this));
+        this.registerCustomAttribute('Arith_FastMathAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
+        this.registerCustomAttribute('Arith_IntegerOverflowAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -10242,7 +10269,8 @@ mlir.ShapeDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'shape.func') {
-            return this._parseFuncOp(parser, op);
+            parser.parseFunctionOp(op, false);
+            return true;
         }
         if (opName === 'shape.assuming') {
             return this._parseAssumingOp(parser, op);
@@ -10257,28 +10285,6 @@ mlir.ShapeDialect = class extends mlir.Dialect {
             return this._parseFunctionLibraryOp(parser, op);
         }
         return super.parseOperation(parser, opName, op);
-    }
-
-    _parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            for (const result of parser.parseFunctionResultList()) {
-                type.results.push(result);
-            }
-        }
-        op.attributes.push({ name: 'function_type', value: type });
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        return true;
     }
 
     _parseAssumingOp(parser, op) {
@@ -10506,35 +10512,7 @@ mlir.FuncDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'func.func') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
-            parser.parseSymbolName('sym_name', op.attributes);
-            const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            type.results = [];
-            if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            }
-            op.attributes.push({ name: 'function_type', value: type });
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.match('{')) {
-                const region = {};
-                parser.parseRegion(region);
-                op.regions.push(region);
-            }
-            if (op.regions.length > 0) {
-                const region = op.regions[op.regions.length - 1];
-                if (region.blocks.length > 0) {
-                    const block = region.blocks[region.blocks.length - 1];
-                    if (block.operations.length > 0) {
-                        const lastOp = block.operations[block.operations.length - 1];
-                        type.results = lastOp.operands;
-                        block.operations.pop();
-                    }
-                }
-            }
+            parser.parseFunctionOp(op, false);
             return true;
         }
         return super.parseOperation(parser, opName, op);
@@ -10555,7 +10533,7 @@ mlir.GpuDialect = class extends mlir.Dialect {
     _parseAllReduceOperation(parser, op, args) {
         const validOps = ['add', 'mul', 'minui', 'minsi', 'minnumf', 'maxui', 'maxsi', 'maxnumf', 'and', 'or', 'xor', 'minimumf', 'maximumf'];
         if (parser.match('id')) {
-            const opName = parser._token.value;
+            const opName = parser.getToken().value;
             if (validOps.includes(opName)) {
                 parser.expect('id');
                 const attrName = args && args.length > 0 ? args[0].replace(/^\$/, '') : 'op';
@@ -10588,15 +10566,9 @@ mlir.GpuDialect = class extends mlir.Dialect {
         if (opName === 'gpu.func') {
             parser.parseOptionalVisibilityKeyword(op.attributes);
             parser.parseSymbolName('sym_name', op.attributes);
-            const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            type.results = [];
-            if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            }
+            const sig = parser.parseFunctionSignatureWithArguments(false);
+            const argTypes = sig.arguments.map((a) => a.type);
+            const type = { inputs: argTypes, results: sig.resultTypes };
             op.attributes.push({ name: 'function_type', value: type });
             if (parser.match('id', 'kernel')) {
                 parser.expect();
@@ -10605,19 +10577,8 @@ mlir.GpuDialect = class extends mlir.Dialect {
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.match('{')) {
                 const region = {};
-                parser.parseRegion(region);
+                parser.parseRegion(region, sig.arguments);
                 op.regions.push(region);
-            }
-            if (op.regions.length > 0) {
-                const region = op.regions[op.regions.length - 1];
-                if (region.blocks.length > 0) {
-                    const block = region.blocks[region.blocks.length - 1];
-                    if (block.operations.length > 0) {
-                        const lastOp = block.operations[block.operations.length - 1];
-                        type.results = lastOp.operands;
-                        block.operations.pop();
-                    }
-                }
             }
             return true;
         }
@@ -10806,8 +10767,9 @@ mlir.ArmSMEDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('arm_sme', operations);
-        this.registerCustomAttribute('ArmSME_TypeSizeAttr', this._parseAngleBracketEnumAttr.bind(this));
-        this.registerCustomAttribute('ArmSME_TileSliceLayoutAttr', this._parseAngleBracketEnumAttr.bind(this));
+        this.registerCustomAttribute('ArmSME_TypeSizeAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
+        this.registerCustomAttribute('ArmSME_TileSliceLayoutAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
+        this.registerCustomAttribute('ArmSME_CombiningKindAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
     }
 };
 
@@ -10975,7 +10937,7 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
     _parsePrivateReductionRegion(parser, op, args) {
         // Parse optional private(...), reduction(...), and other clauses
         const clauseKeywords = ['private', 'reduction', 'in_reduction', 'task_reduction'];
-        while (parser.match('id') && clauseKeywords.includes(parser._token.value)) {
+        while (parser.match('id') && clauseKeywords.includes(parser.getToken().value)) {
             parser.expect('id');
             if (parser.accept('(')) {
                 // Parse the clause contents: symbol, variables, types
@@ -11141,9 +11103,47 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         this.registerCustomDirective('IndirectBrOpSucessors', this._parseIndirectBrOpSucessors.bind(this));
         this.registerCustomDirective('InsertExtractValueElementType', this._parseInsertExtractValueElementType.bind(this));
         this.registerCustomDirective('LLVMLinkage', this._parseLLVMLinkage.bind(this));
+        this.registerCustomDirective('OpBundles', this._parseOpBundles.bind(this));
         this.registerCustomDirective('ShuffleType', this._parseShuffleType.bind(this));
+        this.registerCustomDirective('SwitchOpCases', this._parseSwitchOpCases.bind(this));
+        this.registerCustomAttribute('LLVM_IntegerOverflowFlagsProp', this._parseLLVMIntegerOverflowFlagsProp.bind(this));
+        this.registerCustomAttribute('GEPNoWrapFlagsProp', this._parseGEPNoWrapFlagsProp.bind(this));
+        this.registerCustomAttribute('LLVM_BlockAddressAttr', this._parseLLVMBlockAddressAttr.bind(this));
+        this.registerCustomAttribute('LLVM_BlockTagAttr', this._parseLLVMBlockTagAttr.bind(this));
         this.registerCustomType('LLVM_AnyPointer', this._parseLLVMPointerType.bind(this));
         this.registerCustomType('LLVM_PointerInAddressSpace', this._parseLLVMPointerType.bind(this));
+    }
+
+    _parseLLVMIntegerOverflowFlagsProp(parser) {
+        if (parser.accept('id', 'overflow')) {
+            return this._parseEnumFlagsAngleBracketComma(parser, { values: ['wrap', 'nuw', 'nsw'] });
+        }
+        return null;
+    }
+
+    _parseGEPNoWrapFlagsProp(parser, type) {
+        if (type.values.includes(parser.getToken().value)) {
+            return this._parseEnumFlags(parser, type, '|');
+        }
+        return null;
+    }
+
+    _parseLLVMBlockAddressAttr(parser) {
+        // Parse: <function = @fn, tag = <id = N>>
+        if (!parser.match('<')) {
+            return null;
+        }
+        const content = parser.skip('<', '>');
+        return { blockaddress: content };
+    }
+
+    _parseLLVMBlockTagAttr(parser) {
+        // Parse: <id = N>
+        if (!parser.match('<')) {
+            return null;
+        }
+        const content = parser.skip('<', '>');
+        return { blocktag: content };
     }
 
     _parseLLVMPointerType(parser) {
@@ -11170,18 +11170,132 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         }
     }
 
-    _parseShuffleType(parser, op /*, args */) {
-        const type = parser.parseType();
-        if (type) {
-            for (const operand of op.operands) {
-                if (!operand.type) {
-                    operand.type = type.toString();
-                }
+    _parseOpBundles(parser, op /*, args */) {
+        // Parse operation bundles: [] or ["tag"()] or ["tag"(%0, %1 : i32, i32), ...]
+        // Returns: null if not present, true if success, throws on failure
+        // args[0] = $op_bundle_operands - operands for bundles
+        // args[1] = type($op_bundle_operands) - types
+        // args[2] = $op_bundle_tags - tags attribute
+
+        // Check if '[' is present - if not, optional is not present
+        if (!parser.accept('[')) {
+            return null; // Not present (equivalent to std::nullopt)
+        }
+
+        // Empty bundle list
+        if (parser.accept(']')) {
+            return true; // Success
+        }
+
+        const opBundles = [];
+        do {
+            const tag = parser.expect('string');
+            parser.expect('(');
+            const bundleOperands = [];
+            if (!parser.match(')')) {
+                do {
+                    bundleOperands.push(parser.parseValue());
+                } while (parser.accept(','));
+                parser.expect(':');
+                // Parse types for bundle operands
+                do {
+                    parser.parseType();
+                } while (parser.accept(','));
             }
-            if (op.results.length > 0 && !op.results[0].type) {
-                op.results[0].type = type.toString();
+            parser.expect(')');
+            opBundles.push({ tag, operands: bundleOperands });
+        } while (parser.accept(','));
+        parser.expect(']');
+
+        if (opBundles.length > 0) {
+            op.attributes.push({ name: 'op_bundle_tags', value: opBundles });
+        }
+        return true; // Success
+    }
+
+    _parseShuffleType(/* parser, op, args */) {
+        // custom<ShuffleType>(ref(type($v1)), type($res), ref($mask))
+        // This directive doesn't parse anything - it computes the result type
+        // based on the input vector type and mask length.
+        // args[0] = ref(type($v1)) - input type
+        // args[1] = type($res) - result type to populate
+        // args[2] = ref($mask) - mask attribute
+
+        // The result type has the same element type as input, but length = mask.size
+        // Since we can't easily compute this in JS without full type info,
+        // we do nothing here and let the standard assembly format handle it.
+        // The reference impl computes: getVectorType(v1Type.elementType, mask.size())
+    }
+
+    // Parse switch operation cases
+    // Format: `[` (case (`,` case )* )? `]`
+    // Where case: integer `:` bb-id (`(` ssa-use-and-type-list `)`)?
+    _parseSwitchOpCases(parser, op /*, args */) {
+        // args[0] is ref(type($value)) - the flag type
+        // args[1] is $case_values - attribute to populate
+        // args[2] is $caseDestinations - successors array
+        // args[3] is $caseOperands - operands for each case
+        // args[4] is type($caseOperands) - types for case operands
+        if (!parser.accept('[')) {
+            return;
+        }
+        // Check for empty case list
+        if (parser.accept(']')) {
+            return;
+        }
+        const caseValues = [];
+        const caseDestinations = [];
+        const caseOperands = [];
+        while (!parser.match(']') && !parser.match('eof')) {
+            if (!parser.match('int') && !parser.match('number')) {
+                throw new mlir.Error(`Expected integer case value at ${parser.location()}`);
+            }
+            const value = parseInt(parser.expect(), 10);
+            caseValues.push(value);
+            // Parse colon
+            parser.expect(':');
+            // Parse successor block (starts with ^)
+            const successor = parser.expect('^');
+            caseDestinations.push(successor);
+            // Parse optional operands
+            if (parser.accept('(')) {
+                const operands = [];
+                while (!parser.match(')') && !parser.match('eof')) {
+                    const operand = parser.expect('id');
+                    operands.push({ name: operand });
+                    if (parser.accept(',')) {
+                        continue;
+                    }
+                }
+                parser.expect(')');
+                caseOperands.push(operands);
+            } else {
+                caseOperands.push([]);
+            }
+            // Check for comma or end of list
+            if (!parser.accept(',')) {
+                break;
             }
         }
+        parser.expect(']');
+        // Populate operation with parsed data
+        if (caseValues.length > 0) {
+            op.attributes.push({
+                name: 'case_values',
+                value: caseValues
+            });
+        }
+        if (caseDestinations.length > 0) {
+            if (!op.successors) {
+                op.successors = [];
+            }
+            // Add case destinations (default destination is already added)
+            for (const dest of caseDestinations) {
+                op.successors.push({ name: dest });
+            }
+        }
+        // Note: caseOperands handling would require more complex logic
+        // to properly associate operands with their successors
     }
 
     parseType(parser, dialectName) {
@@ -11210,10 +11324,23 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         if (opName === 'llvm.call') {
             return this._parseLLVMCallOp(parser, op);
         }
+        if (opName === 'llvm.call_intrinsic') {
+            return this._parseLLVMCallIntrinsicOp(parser, op);
+        }
+        if (opName === 'llvm.invoke') {
+            return this._parseLLVMInvokeOp(parser, op);
+        }
+        if (opName === 'llvm.landingpad') {
+            return this._parseLLVMLandingpadOp(parser, op);
+        }
         if (opName === 'llvm.icmp' || opName === 'llvm.fcmp') {
             return this._parseLLVMCmpOp(parser, op);
         }
         if (opName.startsWith('llvm.intr.')) {
+            // Check if this intrinsic has assembly format - if so, use standard parsing
+            if (this.hasAssemblyFormat(opName)) {
+                return super.parseOperation(parser, opName, op);
+            }
             return this._parseLLVMIntrinsicOp(parser, op);
         }
         return super.parseOperation(parser, opName, op);
@@ -11221,19 +11348,19 @@ mlir.LLVMDialect = class extends mlir.Dialect {
 
     _parseLLVMGlobalOp(parser, op) {
         const linkageKeywords = ['external', 'available_externally', 'linkonce', 'linkonce_odr', 'weak', 'weak_odr', 'appending', 'internal', 'private', 'extern_weak', 'common'];
-        if (parser.match('id') && linkageKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && linkageKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'linkage', value: parser.expect('id') });
         }
         const visibilityKeywords = ['default', 'hidden', 'protected'];
-        if (parser.match('id') && visibilityKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && visibilityKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'visibility_', value: parser.expect('id') });
-        }
-        const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
-        if (parser.match('id') && unnamedAddrKeywords.includes(parser._token.value)) {
-            op.attributes.push({ name: 'unnamed_addr', value: parser.expect('id') });
         }
         if (parser.accept('id', 'thread_local')) {
             op.attributes.push({ name: 'thread_local_', value: true });
+        }
+        const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
+        if (parser.match('id') && unnamedAddrKeywords.includes(parser.getToken().value)) {
+            op.attributes.push({ name: 'unnamed_addr', value: parser.expect('id') });
         }
         if (parser.accept('id', 'constant')) {
             op.attributes.push({ name: 'constant', value: true });
@@ -11345,12 +11472,12 @@ mlir.LLVMDialect = class extends mlir.Dialect {
 
     _parseLLVMCallOp(parser, op) {
         const cconvKeywords = ['ccc', 'fastcc', 'coldcc', 'cc', 'webkit_jscc', 'anyregcc', 'preserve_mostcc', 'preserve_allcc', 'preserve_nonecc', 'cxx_fast_tlscc', 'tailcc', 'swiftcc', 'swifttailcc', 'cfguard_checkcc', 'ghccc'];
-        if (parser.match('id') && cconvKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && cconvKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'CConv', value: parser.expect('id') });
         }
-        const tailcallKeywords = ['tail', 'musttail', 'notail'];
-        if (parser.match('id') && tailcallKeywords.includes(parser._token.value)) {
-            op.attributes.push({ name: 'tailcallkind', value: parser.expect('id') });
+        const tailcallKeywords = ['none', 'tail', 'musttail', 'notail'];
+        if (parser.match('id') && tailcallKeywords.includes(parser.getToken().value)) {
+            op.attributes.push({ name: 'TailCallKind', value: parser.expect('id') });
         }
         let isDirect = false;
         if (parser.match('@')) {
@@ -11374,6 +11501,32 @@ mlir.LLVMDialect = class extends mlir.Dialect {
             op.attributes.push({ name: 'var_callee_type', value: varCalleeType });
             parser.expect(')');
         }
+        if (parser.accept('[')) {
+            if (!parser.accept(']')) {
+                const opBundles = [];
+                do {
+                    const tag = parser.expect('string');
+                    parser.expect('(');
+                    const bundleOperands = [];
+                    if (!parser.match(')')) {
+                        do {
+                            bundleOperands.push(parser.parseValue());
+                        } while (parser.accept(','));
+                        parser.expect(':');
+                        // Parse types for bundle operands
+                        do {
+                            parser.parseType();
+                        } while (parser.accept(','));
+                    }
+                    parser.expect(')');
+                    opBundles.push({ tag, operands: bundleOperands });
+                } while (parser.accept(','));
+                parser.expect(']');
+                if (opBundles.length > 0) {
+                    op.attributes.push({ name: 'op_bundle_tags', value: opBundles });
+                }
+            }
+        }
         if (parser.match('{')) {
             parser.parseAttributeDict(op.attributes);
         }
@@ -11382,10 +11535,73 @@ mlir.LLVMDialect = class extends mlir.Dialect {
             parser.parseType();
             parser.expect(',');
         }
-        parser.parseArgumentTypes(op.operands);
-        if (parser.accept('->')) {
-            const resultType = parser.parseType();
-            op.results = [{ type: resultType }];
+        const sig = parser.parseFunctionSignature(op.operands);
+        for (let i = 0; i < sig.argTypes.length && i < op.operands.length; i++) {
+            op.operands[i].type = sig.argTypes[i].toString();
+        }
+        // Set result types
+        if (sig.resultTypes.length > 0) {
+            op.results = sig.resultTypes.map((t) => ({ type: t.toString() }));
+        }
+        return true;
+    }
+
+    _parseLLVMCallIntrinsicOp(parser, op) {
+        // Format: llvm.call_intrinsic "intrinsic.name"(%args) ["op_bundles"] : (arg_types) -> result_type
+        const intrinName = parser.expect('string');
+        op.attributes.push({ name: 'intrin', value: intrinName });
+
+        parser.expect('(');
+        while (!parser.match(')')) {
+            const arg = parser.parseValue();
+            op.operands.push(arg);
+            parser.accept(',');
+        }
+        parser.expect(')');
+
+        // Parse operation bundles: [] or ["tag"()] or ["tag"(%0, %1 : i32, i32), ...]
+        if (parser.accept('[')) {
+            if (!parser.accept(']')) {
+                const opBundles = [];
+                do {
+                    const tag = parser.expect('string');
+                    parser.expect('(');
+                    const bundleOperands = [];
+                    if (!parser.match(')')) {
+                        do {
+                            bundleOperands.push(parser.parseValue());
+                        } while (parser.accept(','));
+                        parser.expect(':');
+                        // Parse types for bundle operands
+                        do {
+                            parser.parseType();
+                        } while (parser.accept(','));
+                    }
+                    parser.expect(')');
+                    opBundles.push({ tag, operands: bundleOperands });
+                } while (parser.accept(','));
+                parser.expect(']');
+                if (opBundles.length > 0) {
+                    op.attributes.push({ name: 'op_bundle_tags', value: opBundles });
+                }
+            }
+        }
+
+        if (parser.match('{')) {
+            parser.parseAttributeDict(op.attributes);
+        }
+
+        parser.expect(':');
+        // Parse function signature: (arg_types {attrs}) -> (result_types {attrs})
+        // Matches call_interface_impl::parseFunctionSignature
+        const sig = parser.parseFunctionSignature(op.operands);
+        // Set operand types
+        for (let i = 0; i < sig.argTypes.length && i < op.operands.length; i++) {
+            op.operands[i].type = sig.argTypes[i].toString();
+        }
+        // Set result types
+        if (sig.resultTypes.length > 0) {
+            op.results = sig.resultTypes.map((t) => ({ type: t.toString() }));
         }
         return true;
     }
@@ -11429,30 +11645,165 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         return true;
     }
 
+    _parseLLVMInvokeOp(parser, op) {
+        // Format: (@callee | %funcptr) (args) to ^normalDest unwind ^unwindDest : [callee_type,] (arg_types) -> result_type
+
+        // Try to parse function pointer (indirect call) or @callee (direct call)
+        let isDirect = false;
+        if (parser.match('@')) {
+            isDirect = true;
+            const callee = parser.expect('@');
+            op.attributes.push({ name: 'callee', value: callee });
+        } else if (parser.match('%')) {
+            // Indirect call - parse function pointer operand
+            const funcPtr = parser.parseValue();
+            op.operands.push(funcPtr);
+        }
+
+        // Parse arguments
+        parser.expect('(');
+        while (!parser.match(')')) {
+            const operand = parser.parseValue();
+            op.operands.push(operand);
+            parser.accept(',');
+        }
+        parser.expect(')');
+
+        // Parse 'to' normal destination
+        parser.expect('id', 'to');
+        const normalDest = parser.expect('^');
+        op.successors = op.successors || [];
+        op.successors.push({ label: normalDest });
+
+        // Parse 'unwind' destination
+        parser.expect('id', 'unwind');
+        const unwindDest = parser.expect('^');
+        op.successors.push({ label: unwindDest });
+
+        // Parse optional vararg
+        if (parser.accept('id', 'vararg')) {
+            parser.expect('(');
+            const varargType = parser.parseType();
+            op.attributes.push({ name: 'var_callee_type', value: varargType });
+            parser.expect(')');
+        }
+
+        // Parse operation bundles: [] or ["tag"()] or ["tag"(%0, %1 : i32, i32), ...]
+        if (parser.accept('[')) {
+            if (!parser.accept(']')) {
+                const opBundles = [];
+                do {
+                    const tag = parser.expect('string');
+                    parser.expect('(');
+                    const bundleOperands = [];
+                    if (!parser.match(')')) {
+                        do {
+                            bundleOperands.push(parser.parseValue());
+                        } while (parser.accept(','));
+                        parser.expect(':');
+                        // Parse types for bundle operands
+                        do {
+                            parser.parseType();
+                        } while (parser.accept(','));
+                    }
+                    parser.expect(')');
+                    opBundles.push({ tag, operands: bundleOperands });
+                } while (parser.accept(','));
+                parser.expect(']');
+                if (opBundles.length > 0) {
+                    op.attributes.push({ name: 'op_bundle_tags', value: opBundles });
+                }
+            }
+        }
+
+        // Parse optional attributes
+        if (parser.match('{')) {
+            parser.parseAttributeDict(op.attributes);
+        }
+
+        // Parse type signature
+        parser.expect(':');
+
+        // For indirect calls: callee_type, (arg_types) -> result
+        // For direct calls: (arg_types) -> result
+        if (!isDirect) {
+            // Parse callee type
+            const calleeType = parser.parseType();
+            if (op.operands.length > 0) {
+                op.operands[0].type = calleeType.toString();
+            }
+            parser.expect(',');
+        }
+
+        // Parse function signature: (arg_types {attrs}) -> (result_types {attrs})
+        // Matches call_interface_impl::parseFunctionSignature
+        // For invoke, the first operands are call args (after the optional funcptr)
+        const callArgOperands = isDirect ? op.operands : op.operands.slice(1);
+        const sig = parser.parseFunctionSignature(callArgOperands);
+        // Set operand types
+        for (let i = 0; i < sig.argTypes.length && i < callArgOperands.length; i++) {
+            callArgOperands[i].type = sig.argTypes[i].toString();
+        }
+        // Set result types
+        if (sig.resultTypes.length > 0) {
+            op.results = sig.resultTypes.map((t) => ({ type: t.toString() }));
+        }
+
+        return true;
+    }
+
+    _parseLLVMLandingpadOp(parser, op) {
+        // Format: cleanup? (catch|filter operand : type)*  : result_type
+        // Parse optional cleanup
+        if (parser.accept('id', 'cleanup')) {
+            op.attributes.push({ name: 'cleanup', value: true });
+        }
+        // Parse clauses
+        while (parser.match('(')) {
+            parser.expect('(');
+            parser.expect('id'); // 'catch' or 'filter'
+            const operand = parser.parseValue();
+            op.operands.push(operand);
+            parser.expect(':');
+            const type = parser.parseType();
+            operand.type = type.toString();
+            parser.expect(')');
+        }
+        // Parse result type
+        parser.expect(':');
+        const resultType = parser.parseType();
+        op.results = [{ type: resultType }];
+        return true;
+    }
+
     _parseLLVMFuncOp(parser, op) {
         const linkageKeywords = ['external', 'available_externally', 'linkonce', 'linkonce_odr', 'weak', 'weak_odr', 'appending', 'internal', 'private', 'extern_weak', 'common'];
-        if (parser.match('id') && linkageKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && linkageKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'linkage', value: parser.expect('id') });
         }
         const visibilityKeywords = ['default', 'hidden', 'protected'];
-        if (parser.match('id') && visibilityKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && visibilityKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'visibility_', value: parser.expect('id') });
         }
         const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
-        if (parser.match('id') && unnamedAddrKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && unnamedAddrKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'unnamed_addr', value: parser.expect('id') });
         }
         const cconvKeywords = ['ccc', 'fastcc', 'coldcc', 'cc', 'webkit_jscc', 'anyregcc', 'preserve_mostcc', 'preserve_allcc', 'preserve_nonecc', 'cxx_fast_tlscc', 'tailcc', 'swiftcc', 'swifttailcc', 'cfguard_checkcc', 'ghccc', 'arm_apcscc', 'arm_aapcscc', 'arm_aapcs_vfpcc', 'aarch64_vector_pcs', 'aarch64_sve_vector_pcs', 'aarch64_sme_preservemost_from_x0', 'aarch64_sme_preservemost_from_x2', 'msp430_intrcc', 'avr_intrcc', 'avr_signalcc', 'ptx_kernel', 'ptx_device', 'spir_func', 'spir_kernel', 'intel_ocl_bicc', 'x86_64_sysvcc', 'win64cc', 'x86_fastcallcc', 'x86_stdcallcc', 'x86_thiscallcc', 'x86_vectorcallcc', 'x86_intrcc', 'amdgpu_vs', 'amdgpu_gs', 'amdgpu_ps', 'amdgpu_cs', 'amdgpu_kernel', 'x86_regcallcc', 'amdgpu_hs', 'msp430_builtincc', 'amdgpu_ls', 'amdgpu_es', 'aarch64_vfpcc', 'aarch64_sve_vfpcc', 'wasm_emscripten_invokecc', 'amdgpu_gfx', 'm68k_intrcc'];
-        if (parser.match('id') && cconvKeywords.includes(parser._token.value)) {
+        if (parser.match('id') && cconvKeywords.includes(parser.getToken().value)) {
             op.attributes.push({ name: 'CConv', value: parser.expect('id') });
         }
         parser.parseSymbolName('sym_name', op.attributes);
         const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
+        const argResult = parser.parseFunctionArgumentList(true);
+        type.inputs = argResult.arguments.map((a) => a.type);
+        if (argResult.isVariadic) {
+            op.attributes.push({ name: 'var_arg_', value: true });
+        }
+        type.results = [];
+        const resultAttrs = [];
         if (parser.accept('->')) {
-            type.results = parser.parseFunctionResultList();
-        } else {
-            type.results = [];
+            parser.parseFunctionResultList(type.results, resultAttrs);
         }
         op.attributes.push({ name: 'function_type', value: type });
         if (parser.accept('id', 'vscale_range')) {
@@ -11501,20 +11852,14 @@ mlir.StdxDialect = class extends mlir.Dialect {
     }
 
     _parseClosureOp(parser, op) {
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            for (const result of parser.parseFunctionResultList()) {
-                type.results.push(result);
-            }
-        }
+        const sig = parser.parseFunctionSignatureWithArguments(false);
+        const argTypes = sig.arguments.map((a) => a.type);
+        const type = { inputs: argTypes, results: sig.resultTypes };
         op.attributes.push({ name: 'type', value: type });
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
         if (parser.match('{')) {
             const region = {};
-            parser.parseRegion(region);
+            parser.parseRegion(region, sig.arguments);
             op.regions.push(region);
         }
         return true;
@@ -11529,43 +11874,21 @@ mlir.VMDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'vm.func') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
-            parser.parseSymbolName('sym_name', op.attributes);
-            const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            type.results = [];
-            if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            }
-            op.attributes.push({ name: 'function_type', value: type });
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.match('{')) {
-                const region = {};
-                parser.parseRegion(region);
-                op.regions.push(region);
-            }
+            parser.parseFunctionOp(op, false);
             return true;
         }
-        // Handle vm.import - similar to function declaration but without body
-        // Format: vm.import @symbol(args) -> results attributes {...}
-        // Note: some imports have variadic args with '...' ellipsis that we can't parse
         if (opName === 'vm.import') {
             parser.parseOptionalVisibilityKeyword(op.attributes);
             parser.parseSymbolName('sym_name', op.attributes);
             const type = {};
-            // Skip the entire argument list since vm.import can have variadic '...' syntax
             if (parser.match('(')) {
                 parser.skip('(', ')');
             }
             type.inputs = [];
             type.results = [];
+            const resultAttrs = [];
             if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
+                parser.parseFunctionResultList(type.results, resultAttrs);
             }
             op.attributes.push({ name: 'function_type', value: type });
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
@@ -11997,31 +12320,10 @@ mlir.TFRDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'tfr.func') {
-            return this._parseFuncOp(parser, op);
+            parser.parseFunctionOp(op, false);
+            return true;
         }
         return super.parseOperation(parser, opName, op);
-    }
-
-    _parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            for (const result of parser.parseFunctionResultList()) {
-                type.results.push(result);
-            }
-        }
-        op.attributes.push({ name: 'function_type', value: type });
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        return true;
     }
 };
 
@@ -12298,7 +12600,8 @@ mlir.ToyDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'toy.func') {
-            return this._parseFuncOp(parser, op);
+            parser.parseFunctionOp(op, false);
+            return true;
         }
         if (opName === 'toy.constant') {
             const value = parser.parseValue();
@@ -12347,38 +12650,6 @@ mlir.ToyDialect = class extends mlir.Dialect {
         return super.parseOperation(parser, opName, op);
     }
 
-    _parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        type.results = [];
-        if (parser.accept('->')) {
-            for (const result of parser.parseFunctionResultList()) {
-                type.results.push(result);
-            }
-        }
-        op.attributes.push({ name: 'function_type', value: type });
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            op.regions.push(region);
-        }
-        if (op.regions.length > 0) {
-            const region = op.regions[op.regions.length - 1];
-            if (region.blocks.length > 0) {
-                const block = region.blocks[region.blocks.length - 1];
-                if (block.operations.length > 0) {
-                    const lastOp = block.operations[block.operations.length - 1];
-                    type.results = lastOp.operands;
-                    block.operations.pop();
-                }
-            }
-        }
-        return true;
-    }
 };
 
 mlir.SdfgDialect = class extends mlir.Dialect {
@@ -12414,11 +12685,13 @@ mlir.SdfgDialect = class extends mlir.Dialect {
         if (opName === 'sdfg.sdfg' || opName === 'sdfg.nested_sdfg' || opName === 'sdir.sdfg') {
             parser.parseOptionalAttrDict(op.attributes);
             const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
+            const inputResult = parser.parseFunctionArgumentList();
+            type.inputs = inputResult.arguments.map((a) => a.type);
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             type.results = [];
             if (parser.accept('->')) {
-                type.results = parser.parseFunctionArgumentList();
+                const outputResult = parser.parseFunctionArgumentList();
+                type.results = outputResult.arguments.map((a) => a.type);
             }
             op.attributes.push({ name: 'function_type', value: type });
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
@@ -12474,7 +12747,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                         } else if (parser.match('%') || parser.match(')')) {
                             break;
                         } else {
-                            throw new mlir.Error(`Expected named result in sdfg.consume but got '${parser._token.value}' ${parser.location()}`);
+                            throw new mlir.Error(`Expected named result in sdfg.consume but got '${parser.getToken().value}' ${parser.location()}`);
                         }
                         parser.accept(',');
                     }
@@ -13058,11 +13331,12 @@ mlir.TransformDialect = class extends mlir.Dialect {
         parser.parseOptionalVisibilityKeyword(op.attributes);
         parser.parseSymbolName('sym_name', op.attributes);
         const type = {};
-        type.inputs = parser.parseFunctionArgumentList();
+        const argResult = parser.parseFunctionArgumentList();
+        type.inputs = argResult.arguments.map((a) => a.type);
+        type.results = [];
+        const resultAttrs = [];
         if (parser.accept('->')) {
-            type.results = parser.parseFunctionResultList();
-        } else {
-            type.results = [];
+            parser.parseFunctionResultList(type.results, resultAttrs);
         }
         op.attributes.push({ name: 'function_type', value: type });
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
@@ -13126,24 +13400,7 @@ mlir.TestDialect = class extends mlir.Dialect {
         // test.conversion_func_op is a function-like operation with FunctionOpInterface
         // Parse it like func.func to handle argument and result attributes properly
         if (opName === 'test.conversion_func_op') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
-            parser.parseSymbolName('sym_name', op.attributes);
-            const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            type.results = [];
-            if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            }
-            op.attributes.push({ name: 'function_type', value: type });
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.match('{')) {
-                const region = {};
-                parser.parseRegion(region);
-                op.regions.push(region);
-            }
+            parser.parseFunctionOp(op, false);
             return true;
         }
         // test.call_on_device has assembly format: $callee `(` $forwarded_operands `)` `,` $device_operand attr-dict `:` functional-type(operands, results)
@@ -13216,37 +13473,7 @@ mlir.TritonDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'tt.func') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
-            parser.parseSymbolName('sym_name', op.attributes);
-            const type = {};
-            type.inputs = parser.parseFunctionArgumentList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            type.results = [];
-            if (parser.accept('->')) {
-                for (const result of parser.parseFunctionResultList()) {
-                    type.results.push(result);
-                }
-            }
-            op.attributes.push({ name: 'function_type', value: type });
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            if (parser.match('{')) {
-                const region = {};
-                parser.parseRegion(region);
-                op.regions.push(region);
-            }
-            if (op.regions.length > 0) {
-                const region = op.regions[op.regions.length - 1];
-                if (region.blocks.length > 0) {
-                    const block = region.blocks[region.blocks.length - 1];
-                    if (block.operations.length > 0) {
-                        const lastOp = block.operations[block.operations.length - 1];
-                        if (lastOp.name === 'tt.return') {
-                            type.results = lastOp.operands;
-                            block.operations.pop();
-                        }
-                    }
-                }
-            }
+            parser.parseFunctionOp(op, false);
             return true;
         }
         return super.parseOperation(parser, opName, op);
@@ -13307,14 +13534,14 @@ mlir.TritonGPUDialect = class extends mlir.Dialect {
             let partitionIndex = 0;
             while (parser.match('id', `partition${partitionIndex}`)) {
                 parser.expect('id', `partition${partitionIndex}`);
-                const args = parser.parseFunctionArgumentList();
+                const argResult = parser.parseFunctionArgumentList();
                 parser.expect('id', 'num_warps');
                 parser.expect('(');
                 const numWarps = parser.expect();
                 partitionNumWarps.push(parseInt(numWarps, 10));
                 parser.expect(')');
                 const partitionRegion = {};
-                partitionRegion.arguments = args;
+                partitionRegion.arguments = argResult.arguments;
                 parser.parseRegion(partitionRegion);
                 if (!op.regions[1]) {
                     op.regions[1] = { blocks: [{ operations: [] }] };

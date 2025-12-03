@@ -3296,6 +3296,20 @@
   },
   {
     "type":     "mlir",
+    "target":   "Arith_canonicalize.mlir",
+    "source":   "https://github.com/user-attachments/files/23912306/Arith_canonicalize.mlir.zip[Arith_canonicalize.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "ArmSME_roundtrip.mlir",
+    "source":   "https://github.com/user-attachments/files/23912304/ArmSME_roundtrip.mlir.zip[ArmSME_roundtrip.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "broadcast_to_dynamic.mlir",
     "source":   "https://github.com/user-attachments/files/23221752/broadcast_to_dynamic.mlir.zip[broadcast_to_dynamic.mlir]",
     "assert":   "model.modules[0].nodes[4].inputs.length == 0",
@@ -3433,6 +3447,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "LLVMIR_roundtrip.mlir",
+    "source":   "https://github.com/user-attachments/files/23912305/LLVMIR_roundtrip.mlir.zip[LLVMIR_roundtrip.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "sample.mlir",
     "source":   "https://github.com/user-attachments/files/17792073/sample.mlir.zip[sample.mlir]",
     "error":    "Unexpected operation name '>' at 4:58.",
@@ -3513,6 +3534,13 @@
     "type":     "mlir",
     "target":   "toy_gemms.mlir",
     "source":   "https://github.com/user-attachments/files/18049387/toy_gemms.mlir.zip[toy_gemms.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "TritonNvidiaGPU_canonicalize.mlir",
+    "source":   "https://github.com/user-attachments/files/23912819/TritonNvidiaGPU_canonicalize.mlir.zip[TritonNvidiaGPU_canonicalize.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },

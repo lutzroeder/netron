@@ -452,9 +452,30 @@ const schema = async () => {
             }
             if (value.type === 'def') {
                 const defName = value.value;
-                // Check if this is an enum attribute and add enum cases
-                const attrDef = parser.getDef(defName) || parser.getClass(defName);
-                if (attrDef && attrDef.isEnumAttr()) {
+                // Check if this is an enum attribute or property and add enum cases
+                let attrDef = parser.getDef(defName) || parser.getClass(defName);
+
+                // If this is a ConfinedAttr, unwrap to get the underlying attribute type
+                if (attrDef) {
+                    const checkIfConfinedAttr = (def) => {
+                        for (const parent of def.parents) {
+                            if (parent.name === 'ConfinedAttr' && parent.args && parent.args.length > 0) {
+                                // First arg is the underlying attr type
+                                const [underlyingAttr] = parent.args;
+                                if (underlyingAttr && underlyingAttr.type === 'def') {
+                                    return parser.getDef(underlyingAttr.value) || parser.getClass(underlyingAttr.value);
+                                }
+                            }
+                        }
+                        return null;
+                    };
+                    const underlyingAttr = checkIfConfinedAttr(attrDef);
+                    if (underlyingAttr) {
+                        attrDef = underlyingAttr;
+                    }
+                }
+
+                if (attrDef && (attrDef.isEnumAttr() || attrDef.isEnumProp())) {
                     const cases = attrDef.getEnumCases();
                     if (cases && cases.length > 0) {
                         return `${defName}{${cases.join('|')}}`;
@@ -489,8 +510,8 @@ const schema = async () => {
             for (const operand of args.operands) {
                 if (operand.value && operand.name) {
                     const type = toConstraintString(operand.value);
-                    // Check if this is an actual attribute constraint by looking up the def
-                    // and checking if it inherits from Attr class (matches LLVM reference)
+                    // Check if this is an actual attribute/property constraint by looking up the def
+                    // and checking if it inherits from Attr or Property class (matches LLVM reference)
                     const checkIsAttr = (record, visited = new Set()) => {
                         if (!record || visited.has(record.name)) {
                             return false;
@@ -498,6 +519,10 @@ const schema = async () => {
                         visited.add(record.name);
                         // Check for attribute base classes - both constraint and bytecode encoding types
                         if (record.name === 'Attr' || record.name === 'AttributeKind' || record.name === 'DialectAttribute') {
+                            return true;
+                        }
+                        // Check for property base classes - properties are also attributes (compile-time metadata)
+                        if (record.name === 'Property' || record.name === 'PropConstraint' || record.name === 'EnumProp') {
                             return true;
                         }
                         for (const parent of record.parents) {

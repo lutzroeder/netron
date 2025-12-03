@@ -486,9 +486,25 @@ tablegen.Record = class {
             };
         }
         if (init.type === 'concat' && Array.isArray(init.value)) {
+            const resolvedParts = init.value.map((v) => this._resolveInit(v, resolver, visited));
+            // Flatten nested concats recursively: if a resolved part is itself a concat,
+            // extract its parts to avoid nested concat structures that cause double evaluation
+            const flattenedParts = [];
+            const flattenConcat = (part) => {
+                if (part && part.type === 'concat' && Array.isArray(part.value)) {
+                    for (const subPart of part.value) {
+                        flattenConcat(subPart);
+                    }
+                } else {
+                    flattenedParts.push(part);
+                }
+            };
+            for (const part of resolvedParts) {
+                flattenConcat(part);
+            }
             return {
                 type: 'concat',
-                value: init.value.map((v) => this._resolveInit(v, resolver, visited))
+                value: flattenedParts
             };
         }
         // For other types, return shallow copy for parent field copying, as-is for post-inheritance
@@ -618,7 +634,9 @@ tablegen.Record = class {
         const enumBaseClasses = [
             'EnumAttr',  // Wrapper for dialect-specific enums
             'IntEnumAttr', 'I32EnumAttr', 'I64EnumAttr',
-            'BitEnumAttr', 'I8BitEnumAttr', 'I16BitEnumAttr', 'I32BitEnumAttr', 'I64BitEnumAttr'
+            'BitEnumAttr', 'I8BitEnumAttr', 'I16BitEnumAttr', 'I32BitEnumAttr', 'I64BitEnumAttr',
+            'IntEnum', 'I32IntEnum', 'I64IntEnum',  // Integer enum types
+            'BitEnum', 'I8BitEnum', 'I16BitEnum', 'I32BitEnum', 'I64BitEnum'  // Bit enum types
         ];
         const checkParents = (record, visited = new Set()) => {
             if (record && !visited.has(record.name)) {
@@ -638,11 +656,62 @@ tablegen.Record = class {
         return checkParents(this);
     }
 
-    // Get enum cases from an enum attribute definition
+    isEnumProp() {
+        const enumPropBaseClasses = [
+            'EnumProp',  // Property wrapping an enum
+            'EnumPropWithAttrForm'  // Property with attribute form
+        ];
+        const checkParents = (record, visited = new Set()) => {
+            if (record && !visited.has(record.name)) {
+                visited.add(record.name);
+                if (enumPropBaseClasses.includes(record.name)) {
+                    return true;
+                }
+                for (const parent of record.parents) {
+                    const parentClass = this.parser.getClass(parent.name);
+                    if (parentClass && checkParents(parentClass, visited)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+        return checkParents(this);
+    }
+
+    // Get enum cases from an enum attribute or property definition
     getEnumCases() {
-        if (!this.isEnumAttr()) {
+        if (!this.isEnumAttr() && !this.isEnumProp()) {
             return null;
         }
+
+        // Handle EnumProp - the first argument is the underlying enum
+        if (this.isEnumProp()) {
+            for (const parent of this.parents) {
+                if (parent.name === 'EnumProp' || parent.name === 'EnumPropWithAttrForm') {
+                    if (parent.args && parent.args.length >= 1) {
+                        const [enumInfoArg] = parent.args;
+                        if (enumInfoArg && enumInfoArg.type === 'def' && typeof enumInfoArg.value === 'string') {
+                            const enumName = enumInfoArg.value;
+                            const underlyingEnum = this.parser.getDef(enumName) || this.parser.getClass(enumName);
+                            if (underlyingEnum) {
+                                // Recursively get cases from the underlying enum
+                                return underlyingEnum.getEnumCases();
+                            }
+                        }
+                    }
+                }
+                // Recursively search parent classes
+                const parentClass = this.parser.getClass(parent.name);
+                if (parentClass && parentClass.isEnumProp()) {
+                    const cases = parentClass.getEnumCases();
+                    if (cases) {
+                        return cases;
+                    }
+                }
+            }
+        }
+
         // Helper to search for EnumAttr in the parent hierarchy
         const findEnumAttrParent = (record, visited = new Set()) => {
             if (!record || visited.has(record.name)) {
@@ -781,6 +850,29 @@ tablegen.Record = class {
                             }
                         } else if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
                             // Def reference format
+                            const caseDef = this.parser.getDef(caseValue.value) || this.parser.getClass(caseValue.value);
+                            if (caseDef) {
+                                const str = caseDef.getValueAsString('str');
+                                if (str) {
+                                    cases.push(str);
+                                }
+                            }
+                        }
+                    }
+                    return cases.length > 0 ? cases : null;
+                }
+            }
+        }
+        // Pattern 3: LLVM_EnumAttr<name, cppType, summary, [cases]>
+        // Cases are in the 4th template argument
+        for (const parent of this.parents) {
+            if (parent.args && parent.args.length >= 4) {
+                const [,,,casesArg] = parent.args;
+                if (casesArg && casesArg.type === 'list' && Array.isArray(casesArg.value)) {
+                    const cases = [];
+                    for (const caseValue of casesArg.value) {
+                        // Each case is a def reference
+                        if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
                             const caseDef = this.parser.getDef(caseValue.value) || this.parser.getClass(caseValue.value);
                             if (caseDef) {
                                 const str = caseDef.getValueAsString('str');
@@ -1198,6 +1290,85 @@ tablegen.Record = class {
                         const b = this.evaluateValue(args[1]);
                         return a >= b;
                     }
+                    case 'range': {
+                        // !range(n) or !range(start, end) or !range(start, end, step)
+                        // Generate a list of integers
+                        if (args.length === 0) {
+                            return [];
+                        }
+                        let start = 0;
+                        let end = 0;
+                        let step = 1;
+                        if (args.length === 1) {
+                            end = this.evaluateValue(args[0]);
+                        } else if (args.length === 2) {
+                            start = this.evaluateValue(args[0]);
+                            end = this.evaluateValue(args[1]);
+                        } else {
+                            start = this.evaluateValue(args[0]);
+                            end = this.evaluateValue(args[1]);
+                            step = this.evaluateValue(args[2]);
+                        }
+                        const result = [];
+                        if (step > 0) {
+                            for (let i = start; i < end; i += step) {
+                                result.push(i);
+                            }
+                        } else if (step < 0) {
+                            for (let i = start; i > end; i += step) {
+                                result.push(i);
+                            }
+                        }
+                        return result;
+                    }
+                    case 'listsplat': {
+                        // !listsplat(element, n)
+                        // Create a list with n copies of element
+                        if (args.length < 2) {
+                            return [];
+                        }
+                        const [element] = args; // Don't evaluate yet, keep as Value
+                        const count = this.evaluateValue(args[1]);
+                        const result = [];
+                        for (let i = 0; i < count; i++) {
+                            result.push(element);
+                        }
+                        return result;
+                    }
+                    case 'cond': {
+                        // !cond(condition1: value1, condition2: value2, ..., true: defaultValue)
+                        // Evaluate conditions in order, return first matching value
+                        for (let i = 0; i < args.length; i++) {
+                            const arg = args[i];
+                            if (arg.condition) {
+                                const condition = this.evaluateValue(arg.condition);
+                                if (condition === true || condition === 1) {
+                                    return this.evaluateValue(arg.value);
+                                }
+                            }
+                        }
+                        return null;
+                    }
+                    case 'dag': {
+                        // !dag(operator, operands_list, names_list)
+                        // Construct a DAG from operator, operands, and names
+                        if (args.length < 2) {
+                            return new tablegen.DAG('ins', []);
+                        }
+                        const operatorArg = this.evaluateValue(args[0]);
+                        const operator = typeof operatorArg === 'string' ? operatorArg : 'ins';
+                        const operandsList = this.evaluateValue(args[1]);
+                        const namesList = args.length > 2 ? this.evaluateValue(args[2]) : [];
+                        const operands = [];
+                        if (Array.isArray(operandsList)) {
+                            for (let i = 0; i < operandsList.length; i++) {
+                                const value = operandsList[i];
+                                const name = Array.isArray(namesList) && i < namesList.length ? namesList[i] : '';
+                                operands.push({ value, name });
+                            }
+                        }
+                        return new tablegen.DAG(operator, operands);
+                    }
                     default:
                         return null;
                 }
@@ -1241,6 +1412,9 @@ tablegen.Reader = class {
     // Add a subclass to a record, processing template parameters and copying fields
     // This mirrors LLVM's TGParser::AddSubClass behavior
     addSubClass(record) {
+        // Track which fields were explicitly defined in the def via 'let' statements
+        // These should never be overwritten by parent class fields
+        const explicitFields = new Set(record.fields.keys());
         // Step 1: Build initial template bindings for this record from its immediate parents
         const recordBindings = new Map();
         for (const parent of record.parents) {
@@ -1299,16 +1473,22 @@ tablegen.Reader = class {
                 processParent(grandparent, parentBindings, visited);
             }
             for (const [fieldName, field] of parentClass.fields) {
-                if (record.fields.has(fieldName)) {
-                    const resolvedField = record._copyAndResolveField(field, parentBindings, parentClass);
-                    const newIsUninit = resolvedField.value?.type === 'uninitialized';
-                    const newIsEmptyDag = resolvedField.value?.type === 'dag' && resolvedField.value?.value?.operands?.length === 0;
-                    const newIsEmptyString = resolvedField.value?.type === 'string' && resolvedField.value?.value === '';
-                    const newIsFalseBit = resolvedField.value?.type === 'int' && resolvedField.value?.value === 0 && resolvedField.type?.name === 'bit';
-                    if (!newIsUninit && !newIsEmptyDag && !newIsEmptyString && !newIsFalseBit) {
+                // Only protect fields that were explicitly defined in the def via 'let'
+                // Fields inherited from grandparents should be overwritten by parent class fields
+                if (explicitFields.has(fieldName)) {
+                    // Check if the explicit field is empty/uninitialized - if so, copy from parent
+                    const existingField = record.fields.get(fieldName);
+                    const existingIsUninit = existingField.value?.type === 'uninitialized';
+                    const existingIsEmptyDag = existingField.value?.type === 'dag' && existingField.value?.value?.operands?.length === 0;
+                    const existingIsEmptyString = existingField.value?.type === 'string' && existingField.value?.value === '';
+                    const existingIsFalseBit = existingField.value?.type === 'int' && existingField.value?.value === 0 && existingField.type?.name === 'bit';
+                    if (existingIsUninit || existingIsEmptyDag || existingIsEmptyString || existingIsFalseBit) {
+                        const resolvedField = record._copyAndResolveField(field, parentBindings, parentClass);
                         record.fields.set(fieldName, resolvedField);
                     }
+                    // Otherwise, keep the explicit field (child's 'let' wins)
                 } else {
+                    // Field is not explicit - copy from parent (overwrites grandparent values)
                     const resolvedField = record._copyAndResolveField(field, parentBindings, parentClass);
                     record.fields.set(fieldName, resolvedField);
                 }
@@ -1399,9 +1579,10 @@ tablegen.Reader = class {
         if (this._match(':')) {
             record.parents = this._parseParentClassList();
         }
-        // Process parent classes BEFORE parsing body
-        // This allows body 'let' statements to override inherited fields
-        this.addSubClass(record);
+        // Don't process parent classes for class definitions - only for defs/instances
+        // Classes are templates that get instantiated later with concrete template arguments
+        // Processing parents here with unbound template parameters causes incorrect resolutions
+        // this.addSubClass(record);
         if (this._match('{')) {
             this._parseRecordBody(record);
         }
