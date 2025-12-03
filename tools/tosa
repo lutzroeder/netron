@@ -1,0 +1,62 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)"
+}
+
+clean() {
+    bold "tosa clean"
+    rm -rf ./third_party/tosa
+}
+
+TOSA_VERSIONS=(v0.80 v1.0)
+
+sync() {
+    mkdir -p "./third_party/tosa"
+    for TOSA_VERSION in ${TOSA_VERSIONS[@]}
+    do
+        bold "tosa sync ${TOSA_VERSION}"
+        curl --silent --show-error --location "https://gitlab.arm.com/tosa/tosa-serialization/-/raw/${TOSA_VERSION}/schema/tosa.fbs" -o ./third_party/tosa/tosa_${TOSA_VERSION}.fbs
+        curl --silent --show-error --location "https://raw.githubusercontent.com/arm/tosa-specification/refs/heads/${TOSA_VERSION}/tosa.xml" -o ./third_party/tosa/tosa_${TOSA_VERSION}.xml
+    done
+}
+
+install() {
+    echo "tosa install"
+}
+
+schema() {
+    for TOSA_VERSION in ${TOSA_VERSIONS[@]}
+    do
+        bold "tosa schema ${TOSA_VERSION}"
+        [[ $(grep -U $'\x0D' ./source/tosa-schema-${TOSA_VERSION}.js) ]] && crlf=1
+        node ./tools/flatc.js --text --root tosa --out ./source/tosa-schema-${TOSA_VERSION}.js ./third_party/tosa/tosa_${TOSA_VERSION}.fbs
+        if [[ -n ${crlf} ]]; then
+            unix2dos --newfile ./source/tosa-schema-${TOSA_VERSION}.js ./source/tosa-schema-${TOSA_VERSION}.js
+        fi
+    done
+}
+
+metadata() {
+    for TOSA_VERSION in ${TOSA_VERSIONS[@]}
+    do
+        bold "tosa metadata ${TOSA_VERSION}"
+        python3 ./tools/tosa_metadata.py --xml ./third_party/tosa/tosa_${TOSA_VERSION}.xml > ./source/tosa-metadata-${TOSA_VERSION}.json
+    done
+}
+
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done

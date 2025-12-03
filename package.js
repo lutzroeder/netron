@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 
 import * as child_process from 'child_process';
 import * as crypto from 'crypto';
@@ -611,7 +612,8 @@ const update = async () => {
         'sentencepiece', 'sklearn',
         'tf',
         'uff',
-        'xmodel'
+        'xmodel',
+        'tosa'
     ];
     let commands = [
         'sync',
