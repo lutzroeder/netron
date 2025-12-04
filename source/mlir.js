@@ -3127,6 +3127,33 @@ mlir.FunctionType = class extends mlir.Type {
     }
 };
 
+mlir.LLVMFunctionType = class extends mlir.Type {
+
+    constructor(returnType, params, varArg = false) {
+        super(null);
+        this.returnType = returnType;
+        this.params = params || [];
+        this.varArg = varArg;
+    }
+
+    get inputs() {
+        return this.params;
+    }
+
+    get results() {
+        return this.returnType ? [this.returnType] : [];
+    }
+
+    toString() {
+        const params = this.params.map((t) => t.toString());
+        if (this.varArg) {
+            params.push('...');
+        }
+        const returnType = this.returnType ? this.returnType.toString() : 'void';
+        return `!llvm.func<${returnType} (${params.join(', ')})>`;
+    }
+};
+
 mlir.Utility = class {
 
     static dataType(value) {
@@ -4180,14 +4207,28 @@ mlir.Dialect = class {
                     input.value = parser.expect();
                     op.operands.push(input);
                 } else if (parser.match('{')) {
-                    // Fallback for region variables not in metadata.regions
                     // Only parse as region if this variable is NOT an actual operand
                     const isActualOperand = opInfo.metadata && opInfo.metadata.inputs &&
                                            opInfo.metadata.inputs.some((inp) => inp.name === refName);
                     if (!isActualOperand) {
-                        const region = {};
-                        parser.parseRegion(region);
-                        op.regions.push(region);
+                        // Check if region is variadic from metadata
+                        const regionMeta = opInfo.metadata && opInfo.metadata.regions &&
+                                          opInfo.metadata.regions.find((r) => r.name === refName);
+                        const isVariadicRegion = regionMeta && regionMeta.type &&
+                                                regionMeta.type.startsWith('VariadicRegion');
+                        if (isVariadicRegion) {
+                            // Parse variadic regions - comma-separated
+                            do {
+                                const region = {};
+                                parser.parseRegion(region);
+                                op.regions.push(region);
+                            } while (parser.accept(',') && parser.match('{'));
+                        } else {
+                            // Parse single region
+                            const region = {};
+                            parser.parseRegion(region);
+                            op.regions.push(region);
+                        }
                     }
                     // If it IS an actual operand, leave the '{' for attr_dict to handle
                 } else if (parser.match('@')) {
@@ -4245,7 +4286,7 @@ mlir.Dialect = class {
                                 if (opMetadata.outputs.length > 1) {
                                     hasVariadicResult = true;
                                 } else if (opMetadata.outputs.length === 1) {
-                                    hasVariadicResult = opMetadata.outputs[0].variadic || false;
+                                    hasVariadicResult = varidic(opMetadata.outputs[0].type);
                                 }
                             }
                             if (hasVariadicResult) {
@@ -6061,6 +6102,8 @@ mlir.VectorDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('vector', operations);
+        this.registerCustomAttribute('Vector_CombiningKindAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
+        this.registerCustomAttribute('Arith_FastMathAttr', this._parseEnumFlagsAngleBracketComma.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -11794,17 +11837,15 @@ mlir.LLVMDialect = class extends mlir.Dialect {
             op.attributes.push({ name: 'CConv', value: parser.expect('id') });
         }
         parser.parseSymbolName('sym_name', op.attributes);
-        const type = {};
         const argResult = parser.parseFunctionArgumentList(true);
-        type.inputs = argResult.arguments.map((a) => a.type);
-        if (argResult.isVariadic) {
-            op.attributes.push({ name: 'var_arg_', value: true });
-        }
-        type.results = [];
+        const params = argResult.arguments.map((a) => a.type);
+        const results = [];
         const resultAttrs = [];
         if (parser.accept('->')) {
-            parser.parseFunctionResultList(type.results, resultAttrs);
+            parser.parseFunctionResultList(results, resultAttrs);
         }
+        const returnType = results.length > 0 ? results[0] : null;
+        const type = new mlir.LLVMFunctionType(returnType, params, argResult.isVariadic);
         op.attributes.push({ name: 'function_type', value: type });
         if (parser.accept('id', 'vscale_range')) {
             parser.expect('(');

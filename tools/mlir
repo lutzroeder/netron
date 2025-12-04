@@ -59,7 +59,7 @@ schema() {
 
 test() {
     echo "mlir test"
-    node ./tools/mlir_script.js test $@
+    node ./tools/mlir_script.js test "$@"
 }
 
 while [ "$#" != 0 ]; do
@@ -68,6 +68,6 @@ while [ "$#" != 0 ]; do
         "clean") clean;;
         "sync") sync;;
         "schema") schema;;
-        "test") test $@;;
+        "test") test "$@";;
     esac
 done
