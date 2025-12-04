@@ -9,6 +9,9 @@
 window.exports = {};
 
 window.exports.require = function(id, callback) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+        throw new Error("Invalid module '" + id + "'.");
+    }
     let base = window.location.href || '';
     base = base.split('?')[0].split('#')[0];
     const index = base.lastIndexOf('/');
