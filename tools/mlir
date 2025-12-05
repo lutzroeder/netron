@@ -54,12 +54,12 @@ sync() {
 
 schema() {
     echo "mlir schema"
-    node ./tools/mlir_script.js schema
+    node ./tools/mlir-script.js schema
 }
 
 test() {
     echo "mlir test"
-    node ./tools/mlir_script.js test "$@"
+    node ./tools/mlir-script.js test "$@"
 }
 
 while [ "$#" != 0 ]; do
