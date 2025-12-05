@@ -8809,12 +8809,5 @@
     "source":   "https://github.com/lutzroeder/netron/files/7083633/pt_face-quality_80_60_61.68M_1.4.zip[pt_face-quality_80_60_61.68M_1.4/quantized/PointsQuality_int.xmodel]",
     "format":   "xmodel",
     "link":     "https://github.com/lutzroeder/netron/issues/718"
-  },
-  {
-    "type":     "espdl",
-    "target":   "imagenet_cls_mobilenetv2_s8_v1.espdl",
-    "source":   "https://raw.githubusercontent.com/espressif/esp-dl/master/models/imagenet_cls/models/p4/imagenet_cls_mobilenetv2_s8_v1.espdl",
-    "format":   "espdl",
-    "link":     "https://github.com/espressif/esp-dl/blob/master/models/imagenet_cls/models/p4/imagenet_cls_mobilenetv2_s8_v1.espdl"
   }
 ]
