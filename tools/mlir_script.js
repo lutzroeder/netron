@@ -358,7 +358,19 @@ const schema = async () => {
                         attrDef = underlyingAttr;
                     }
                 }
-
+                // Resolve type aliases that inherit from Variadic/Optional - expand to full form
+                if (attrDef) {
+                    for (const parent of attrDef.parents) {
+                        if (parent.name === 'Variadic' && parent.args && parent.args.length > 0) {
+                            const innerType = toConstraintString(parent.args[0]);
+                            return innerType ? `Variadic<${innerType}>` : 'Variadic';
+                        }
+                        if (parent.name === 'Optional' && parent.args && parent.args.length > 0) {
+                            const innerType = toConstraintString(parent.args[0]);
+                            return innerType ? `Optional<${innerType}>` : 'Optional';
+                        }
+                    }
+                }
                 if (attrDef && (attrDef.isEnumAttr() || attrDef.isEnumProp())) {
                     const cases = attrDef.getEnumCases();
                     if (cases && cases.length > 0) {
@@ -379,6 +391,11 @@ const schema = async () => {
             }
             if (value.type === 'dag' && value.value) {
                 const dag = value.value;
+                // Unwrap Arg/Res wrappers - they just hold the type constraint plus metadata
+                // The first operand is the actual type constraint
+                if ((dag.operator === 'Arg' || dag.operator === 'Res') && dag.operands.length > 0) {
+                    return toConstraintString(dag.operands[0].value);
+                }
                 const args = dag.operands.map((op) => toConstraintString(op.value)).filter((x) => x !== null);
                 if (args.length > 0) {
                     return `${dag.operator}<${args.join(', ')}>`;

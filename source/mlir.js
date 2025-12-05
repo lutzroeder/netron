@@ -4105,9 +4105,6 @@ mlir.Dialect = class {
             if (Array.isArray(type.args) && type.args.length > 0) {
                 return varidic(type.args[0]);
             }
-            if (type.name === 'HAL_ShapeDynamicDims') {
-                return true;
-            }
             return false;
         };
         switch (directive.type) {
@@ -7036,7 +7033,6 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
             const operand = parser.parseValue();
             parsedOperands.push(operand);
             const operandAssumptions = [];
-
             if (parser.accept('[')) {
                 if (!parser.match(']')) {
                     do {
@@ -7051,19 +7047,15 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
                 const assumption = this._parseIntAssumptionAttr(parser);
                 operandAssumptions.push(assumption);
             }
-
             allOperandAssumptions.push(operandAssumptions);
         } while (parser.accept(','));
-
         if (!parser.accept(':')) {
             throw new mlir.Error(`Expected ':' in util.assume.int ${parser.location()}`);
         }
-
         do {
             const type = parser.parseType();
             parsedOperandTypes.push(type);
         } while (parser.accept(','));
-
         for (let i = 0; i < parsedOperands.length; i++) {
             const operand = parsedOperands[i];
             if (parsedOperandTypes[i]) {
@@ -9406,6 +9398,7 @@ mlir.EmitCDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('emitc', operations);
+        this.registerCustomType('EmitC_LValueType', this._parseLValueType.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -9438,6 +9431,14 @@ mlir.EmitCDialect = class extends mlir.Dialect {
             return true;
         }
         return super.parseOperation(parser, opName, op);
+    }
+
+    _parseLValueType(parser) {
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!emitc.lvalue${content}`);
+        }
+        return null;
     }
 };
 
@@ -10878,6 +10879,20 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
         this.registerCustomDirective('UseDeviceAddrUseDevicePtrRegion', this._parsePrivateReductionRegion.bind(this));
         this.registerCustomDirective('TargetOpRegion', this._parseTargetOpRegion.bind(this));
         this.registerCustomDirective('ClauseAttr', this._parseClauseAttr.bind(this));
+        this.registerCustomAttribute('DataSharingClauseTypeAttr', this._parseDataSharingClauseTypeAttr.bind(this));
+    }
+
+    parseOperation(parser, opName, op) {
+        if (opName === 'omp.loop_nest') {
+            return this._parseLoopNestOp(parser, op);
+        }
+        if (opName === 'omp.canonical_loop') {
+            return this._parseCanonicalLoopOp(parser, op);
+        }
+        if (opName === 'omp.unroll_heuristic') {
+            return this._parseUnrollHeuristicOp(parser, op);
+        }
+        return super.parseOperation(parser, opName, op);
     }
 
     _parseClauseAttr(parser /*, op, args */) {
@@ -10978,29 +10993,24 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
     }
 
     _parsePrivateReductionRegion(parser, op, args) {
-        // Parse optional private(...), reduction(...), and other clauses
         const clauseKeywords = ['private', 'reduction', 'in_reduction', 'task_reduction'];
         while (parser.match('id') && clauseKeywords.includes(parser.getToken().value)) {
             parser.expect('id');
             if (parser.accept('(')) {
-                // Parse the clause contents: symbol, variables, types
                 while (!parser.match(')')) {
-                    // Skip symbol references like @symbol
+                    parser.accept('id', 'byref');
                     if (parser.match('@')) {
                         parser.expect('@');
                         parser.expect();
                     }
-                    // Skip variables like %var
                     if (parser.match('%')) {
                         parser.expect('%');
                     }
-                    // Skip -> arrow and result bindings
                     if (parser.accept('->')) {
                         if (parser.match('%')) {
                             parser.expect('%');
                         }
                     }
-                    // Skip type annotations
                     if (parser.accept(':')) {
                         parser.parseType();
                     }
@@ -11024,19 +11034,6 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
                 op.regions.push(region);
             }
         }
-    }
-
-    parseOperation(parser, opName, op) {
-        if (opName === 'omp.loop_nest') {
-            return this._parseLoopNestOp(parser, op);
-        }
-        if (opName === 'omp.canonical_loop') {
-            return this._parseCanonicalLoopOp(parser, op);
-        }
-        if (opName === 'omp.unroll_heuristic') {
-            return this._parseUnrollHeuristicOp(parser, op);
-        }
-        return super.parseOperation(parser, opName, op);
     }
 
     _parseCanonicalLoopOp(parser, op) {
@@ -11135,6 +11132,17 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
             op.regions.push(region);
         }
         return true;
+    }
+
+    _parseDataSharingClauseTypeAttr(parser) {
+        if (parser.accept('{')) {
+            parser.expect('id', 'type');
+            parser.expect('=');
+            const value = parser.expect('id');
+            parser.expect('}');
+            return { value };
+        }
+        return null;
     }
 };
 
@@ -13521,18 +13529,27 @@ mlir.TritonDialect = class extends mlir.Dialect {
     }
 
     _parseTensorPtr(parser) {
-        const content = parser.skip('<', '>');
-        return new mlir.Type(`!tt.ptr${content}`);
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!tt.ptr${content}`);
+        }
+        return null;
     }
 
     _parsePtr(parser) {
-        const content = parser.skip('<', '>');
-        return new mlir.Type(`!tt.ptr${content}`);
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!tt.ptr${content}`);
+        }
+        return null;
     }
 
     _parseTensorDescType(parser) {
-        const content = parser.skip('<', '>');
-        return new mlir.Type(`!tt.tensor_desc${content}`);
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!tt.tensor_desc${content}`);
+        }
+        return null;
     }
 };
 
@@ -13769,6 +13786,33 @@ mlir.TensorRTDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('tensorrt', operations);
+        this.registerCustomAttribute('TensorRT_TopKOperationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ScatterModeAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ResizeSelectorAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ResizeRoundModeAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ResizeModeAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ResizeCoordinateTransformationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ReduceOperationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_PaddingModeAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_MatrixOperationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_LoopOutputAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_GatherModeAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_FillOperationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ElementWiseOperationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_ActivationTypeAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_UnaryOperationAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_TripLimitAttr', this._parseEnumAttrBracket.bind(this));
+        this.registerCustomAttribute('TensorRT_PoolingTypeAttr', this._parseEnumAttrBracket.bind(this));
+    }
+
+    _parseEnumAttrBracket(parser) {
+        if (parser.match('<')) {
+            parser.expect('<');
+            const value = parser.expect('id');
+            parser.expect('>');
+            return { value };
+        }
+        return null;
     }
 };
 
