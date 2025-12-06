@@ -116,6 +116,7 @@ export class Target {
         if (errors.length > 0 && (!this.error || errors.map((error) => error.message).join('\n') !== this.error)) {
             throw errors[0];
         }
+        this.view.dispose();
     }
 
     async request(url, init) {

@@ -223,6 +223,12 @@ view.View = class {
         }
     }
 
+    dispose() {
+        if (this._worker) {
+            this._worker.cancel(true);
+        }
+    }
+
     get host() {
         return this._host;
     }
@@ -1440,9 +1446,9 @@ view.Worker = class {
             resolve({ type: 'terminate' });
             delete this._resolve;
             delete this._reject;
-            this._cancel(true);
+            this.cancel(true);
         } else {
-            this._cancel(false);
+            this.cancel(false);
         }
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
@@ -1451,7 +1457,7 @@ view.Worker = class {
             this._worker.postMessage(message);
             this._timeout = setTimeout(async () => {
                 await this._host.message(notification, null, 'Cancel');
-                this._cancel(true);
+                this.cancel(true);
                 delete this._resolve;
                 delete this._reject;
                 resolve({ type: 'cancel' });
@@ -1463,7 +1469,7 @@ view.Worker = class {
         if (!this._worker) {
             this._worker = this._host.worker('./worker');
             this._worker.addEventListener('message', (e) => {
-                this._cancel(false);
+                this.cancel(false);
                 const message = e.data;
                 const resolve = this._resolve;
                 const reject = this._reject;
@@ -1477,7 +1483,7 @@ view.Worker = class {
                 }
             });
             this._worker.addEventListener('error', (e) => {
-                this._cancel(true);
+                this.cancel(true);
                 const reject = this._reject;
                 delete this._resolve;
                 delete this._reject;
@@ -1488,8 +1494,7 @@ view.Worker = class {
         }
     }
 
-    _cancel(terminate) {
-        terminate = terminate || this._host.type === 'Test';
+    cancel(terminate) {
         if (this._worker && terminate) {
             this._worker.terminate();
             this._worker = null;
