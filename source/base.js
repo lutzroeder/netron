@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 
 const base = {};
 
@@ -238,6 +239,28 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
         value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
     }
     return value & ((1 << bits) - 1);
+};
+
+DataView.prototype.getInt48 = DataView.prototype.getInt48 || function(offset, littleEndian) {
+    const bits = 48n;
+    const shift = littleEndian ? 0n : 16n;
+    let value = 0n;
+    if (this.byteLength - offset < 8) {
+        const buffer = new ArrayBuffer(8);
+        const view = new DataView(buffer);
+        for (let i = 0; i < 6; i++) {
+            view.setUint8(i, this.getUint8(offset + i));
+        }
+        value = view.getBigUint64(0, littleEndian);
+    } else {
+        value = this.getBigUint64(offset, littleEndian);
+    }
+    value >>= shift;
+    value &= (1n << bits) - 1n;
+    if (value & (1n << (bits - 1n))) {
+        value -= 1n << bits;
+    }
+    return value;
 };
 
 DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
@@ -611,7 +634,7 @@ base.Tensor = class {
             ['qint8', 1], ['qint16', 2], ['qint32', 4],
             ['quint8', 1], ['quint16', 2], ['quint32', 4],
             ['xint8', 1],
-            ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
+            ['int8', 1], ['int16', 2], ['int32', 4], ['int48', 6], ['int64', 8],
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
             ['complex64', 8], ['complex128', 16],
@@ -869,6 +892,11 @@ base.Tensor = class {
                 case 'int32':
                     for (; offset < max; offset += stride) {
                         results.push(view.getInt32(offset, this._littleEndian));
+                    }
+                    break;
+                case 'int48':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getInt48(offset, this._littleEndian));
                     }
                     break;
                 case 'int64':
@@ -1274,7 +1302,8 @@ base.Metadata = class {
             'ptl', 't7',
             'dlc', 'uff', 'armnn', 'kann', 'kgraph',
             'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
-            'tar', 'zip'
+            'tar', 'zip',
+            'tosa'
         ];
     }
 };
