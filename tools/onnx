@@ -25,30 +25,31 @@ clean() {
     echo "onnx clean"
     rm -rf "${env_dir}"
     rm -rf "${src_dir}"
-    rm -rf "./third_party/source/onnxruntime"
 }
 
 sync() {
     echo "onnx sync"
-    if [ ! -d "${src_dir}" ]; then
-        git clone --quiet --depth=1 --branch main --single-branch https://github.com/onnx/onnx.git "${src_dir}"
+    onnx_src_dir="${src_dir}/onnx"
+    if [ ! -d "${onnx_src_dir}" ]; then
+        git clone --quiet --depth=1 --branch main --single-branch https://github.com/onnx/onnx.git "${onnx_src_dir}"
     else
-        git -C "${src_dir}" fetch --quiet --depth=1 origin main
-        git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
-        git -C "${src_dir}" gc --quiet --prune=all
+        git -C "${onnx_src_dir}" fetch --quiet --depth=1 origin main
+        git -C "${onnx_src_dir}" reset --quiet --hard FETCH_HEAD
+        git -C "${onnx_src_dir}" gc --quiet --prune=all
     fi
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
-    mkdir -p "./third_party/source/onnxruntime/core/flatbuffers/schema"
-    curl --silent --show-error --location --output "./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/raw/main/onnxruntime/core/flatbuffers/schema/ort.fbs"
+    mkdir -p "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema"
+    curl --silent --show-error --location --output "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/raw/main/onnxruntime/core/flatbuffers/schema/ort.fbs"
 }
 
 install() {
     echo "onnx install"
+    onnx_src_dir="${src_dir}/onnx"
     venv
-    protobuf_version=$(grep "protobuf" ./third_party/source/onnx/requirements.txt | cut -d'=' -f2)
+    protobuf_version=$(grep "protobuf" ${onnx_src_dir}/requirements.txt | cut -d'=' -f2)
     protoc_dir="$(pwd)/third_party/bin/protobuf/v${protobuf_version}"
     case "${OSTYPE}" in
         # linux*)
@@ -99,7 +100,7 @@ install() {
             export USE_MSVC_STATIC_RUNTIME=0
             ;;
     esac
-    ${python} -m pip install --quiet "./third_party/source/onnx"
+    ${python} -m pip install --quiet "${onnx_src_dir}"
     ${python} -m pip install --quiet --upgrade flatbuffers numpy packaging protobuf sympy
     ${python} -m pip install --quiet --upgrade onnxruntime --pre --extra-index https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
     deactivate
@@ -107,13 +108,14 @@ install() {
 
 schema() {
     echo "onnx schema"
+    onnx_src_dir="${src_dir}/onnx"
     [[ $(grep -U $'\x0D' ./source/onnx-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --binary --text --json --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
+    node ./tools/protoc.js --binary --text --json --root onnx --out ./source/onnx-proto.js --path ${onnx_src_dir} onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
     fi
     [[ $(grep -U $'\x0D' ./source/onnx-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root ort --out ./source/onnx-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
+    node ./tools/flatc.js --root ort --out ./source/onnx-schema.js ${src_dir}/onnxruntime/core/flatbuffers/schema/ort.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-schema.js ./source/onnx-schema.js
     fi
