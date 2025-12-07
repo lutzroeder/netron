@@ -22,6 +22,7 @@ venv() {
 
 clean() {
     echo "pytorch clean"
+    rm -rf "${env_dir}"
     rm -rf "${src_dir}"
     rm -rf "./third_party/source/caffe2"
 }
