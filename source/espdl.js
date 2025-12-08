@@ -1,5 +1,4 @@
 import * as flatbuffers from './flatbuffers.js';
-import * as zip from './zip.js';
 
 const espdl = {};
 
@@ -37,8 +36,7 @@ espdl.ModelFactory = class {
             throw new espdl.Error(`Failed to load ESPDL schema: ${error.message}`);
         }
         let model = null;
-        const attachments = new Map();
-        if (context.type == 'espdl.binary') {
+        if (context.type === 'espdl.binary') {
             // Read from stream directly
             const stream = context.stream;
             if (!stream) {
@@ -104,7 +102,7 @@ espdl.Model = class {
 
 espdl.Graph = class {
 
-    constructor(metadata, graph, model, stream) {
+    constructor(metadata, graph) {
         this.name = graph.name || '';
         this.inputs = [];
         this.outputs = [];
@@ -174,9 +172,11 @@ espdl.Node = class {
                 const count = inputMeta.list ? node.input.length - i : 1;
                 const list = node.input.slice(i, i + count);
                 const values = list.map((inputName) => {
-                    if (!inputName) return null; // Skip empty names
+                    if (!inputName) {
+                        return null; // Skip empty names
+                    }
                     return context.value(inputName);
-                }).filter(v => v);
+                }).filter((v) => v);
                 const argument = new espdl.Argument(inputMeta.name, values);
                 this.inputs.push(argument);
                 i += count;
@@ -191,7 +191,9 @@ espdl.Node = class {
                 const list = node.output.slice(i, i + count);
                 const values = list.map((outputName) => {
                     // Get or create tensor for output
-                    if (!outputName) return null; // Skip empty names
+                    if (!outputName) {
+                        return null; // Skip empty names
+                    }
                     let tensor = context.value(outputName);
                     if (!tensor) {
                         // Check if we have value_info for this tensor
@@ -201,7 +203,7 @@ espdl.Node = class {
                         context._values.set(outputName, tensor);
                     }
                     return tensor;
-                }).filter(v => v);
+                }).filter((v) => v);
                 const argument = new espdl.Argument(outputMeta.name, values);
                 this.outputs.push(argument);
                 i += count;
@@ -220,16 +222,16 @@ espdl.Node = class {
 
 espdl.Tensor = class {
 
-    constructor(index, tensor, stream) {
+    constructor(index, tensor) {
         this.identifier = index.toString();
         this.name = tensor.name || '';
         if (this.name === undefined) {
             this.name = '';
         }
-        this.type = tensor.data_type !== undefined ? new espdl.TensorType(tensor) : null;
+        this.type = tensor.data_type === undefined ? null : new espdl.TensorType(tensor);
         this.category = '';
         this.encoding = '<'; // little-endian assumption
-        // TODO: load tensor data from stream if external
+        // load tensor data from stream if external
         this._data = null;
         // Reference to initializer tensor (for weight display)
         this.initializer = null; // Will be set to self for initializers
@@ -255,10 +257,9 @@ espdl.Tensor = class {
             let shapeDims = [];
             // Check if we have dims directly on tensor
             if (tensor.dims) {
-                shapeDims = Array.from(tensor.dims).map(d => Number(d));
-            }
-            // Check if this is a ValueInfo object
-            else if (tensor.value_info_type !== undefined) {
+                shapeDims = Array.from(tensor.dims).map((d) => Number(d));
+            } else if (tensor.value_info_type !== undefined) {
+                // Check if this is a ValueInfo object
                 const dims = espdl.Utility.getShapeFromValueInfo(tensor);
                 if (dims) {
                     shapeDims = dims;
@@ -276,7 +277,7 @@ espdl.Tensor = class {
                     get shape() {
                         return this._shape;
                     },
-                    toString: function() {
+                    toString() {
                         return this._dataType + this._shape.toString();
                     }
                 };
@@ -293,18 +294,18 @@ espdl.TensorType = class {
 
     constructor(tensor) {
         // Check if this is a ValueInfo object (has value_info_type)
-        if (tensor.value_info_type !== undefined) {
+        if (tensor.value_info_type === undefined) {
+            // Regular tensor object
+            this._dataType = tensor.data_type === undefined ? '?' : espdl.Utility.dataType(tensor.data_type);
+            this._shape = new espdl.TensorShape(tensor.dims ? Array.from(tensor.dims).map((d) => Number(d)) : []);
+        } else {
             // Extract data type from ValueInfo
             const dataType = espdl.Utility.getDataTypeFromValueInfo(tensor);
-            this._dataType = dataType !== undefined ? espdl.Utility.dataType(dataType) : '?';
+            this._dataType = dataType === undefined ? '?' : espdl.Utility.dataType(dataType);
 
             // Extract shape from ValueInfo
             const shapeDims = espdl.Utility.getShapeFromValueInfo(tensor);
             this._shape = new espdl.TensorShape(shapeDims || []);
-        } else {
-            // Regular tensor object
-            this._dataType = tensor.data_type !== undefined ? espdl.Utility.dataType(tensor.data_type) : '?';
-            this._shape = new espdl.TensorShape(tensor.dims ? Array.from(tensor.dims).map(d => Number(d)) : []);
         }
     }
 
@@ -364,10 +365,10 @@ espdl.Attribute = class {
                 this.value = attr.floats ? Array.from(attr.floats) : [];
                 break;
             case espdl.schema.AttributeType.INTS:
-                this.value = attr.ints ? Array.from(attr.ints).map(i => Number(i)) : [];
+                this.value = attr.ints ? Array.from(attr.ints).map((i) => Number(i)) : [];
                 break;
             case espdl.schema.AttributeType.STRINGS:
-                this.value = attr.strings ? attr.strings.map(s => new TextDecoder('utf-8').decode(s)) : [];
+                this.value = attr.strings ? attr.strings.map((s) => new TextDecoder('utf-8').decode(s)) : [];
                 break;
             default:
                 this.value = '<Unknown>';
@@ -444,7 +445,7 @@ espdl.Utility = class {
             return undefined;
         }
         const tensorType = typeInfo.value;
-        return tensorType.elem_type !== undefined ? tensorType.elem_type : undefined;
+        return tensorType.elem_type === undefined ? undefined : tensorType.elem_type;
     }
 };
 

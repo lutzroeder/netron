@@ -175,7 +175,7 @@ espdl.Graph = class Graph {
 
 espdl.AlignedBytes = class AlignedBytes {
 
-    static decode(reader, position) {
+    static decode() {
         const $ = new espdl.AlignedBytes();
         $.bytes = undefined; // not implemented
         return $;

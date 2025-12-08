@@ -20,6 +20,8 @@ schema() {
     echo "espdl schema"
     [[ $(grep -U $'\x0D' ./source/espdl-schema.js) ]] && crlf=1
     node ./tools/flatc.js --root espdl --out ./source/espdl-schema.js ./third_party/source/espdl/metadata/espdl.fbs
+    # Fix ESLint errors for AlignedBytes.decode
+    sed -i '/espdl\.AlignedBytes = class AlignedBytes {/,/^};/ s/static decode(reader, position) {/static decode() {/' ./source/espdl-schema.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/espdl-schema.js ./source/espdl-schema.js
     fi

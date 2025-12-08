@@ -70,9 +70,9 @@ const main = async () => {
     }
 
     // Sort operators by name
-    const beforeSort = json.map(op => op.name);
+    const beforeSort = json.map((op) => op.name);
     json.sort((a, b) => a.name.localeCompare(b.name));
-    const afterSort = json.map(op => op.name);
+    const afterSort = json.map((op) => op.name);
 
     // Check if sorting changed anything
     let changed = false;
@@ -84,6 +84,7 @@ const main = async () => {
     }
 
     if (changed) {
+        // eslint-disable-next-line no-console
         console.log(`Sorted ${json.length} operators.`);
     }
 
@@ -98,10 +99,12 @@ const main = async () => {
     // Write back to file
     await fs.writeFile(file, output, 'utf-8');
 
+    // eslint-disable-next-line no-console
     console.log(`Processed ${json.length} ESPDL operators.`);
 };
 
 await main().catch((error) => {
+    // eslint-disable-next-line no-console
     console.error(error.message);
     process.exit(1);
 });
