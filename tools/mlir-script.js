@@ -596,7 +596,6 @@ const test = async (pattern) => {
         'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
-        'third_party/source/mlir/torch-mlir/test/Dialect/Torch/verify-backend-contract-error.mlir'
     ]);
     return new Promise((resolve, reject) => {
         const cmd = 'npm';
