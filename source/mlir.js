@@ -1375,9 +1375,9 @@ mlir.Parser = class {
         // Normalize operation name to canonical dialect name for metadata lookup
         // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
         opName = dialectName === dialect.name ? opName : opName.replace(`${dialectName}.`, `${dialect.name}.`);
-        // Check if this operation defines a default dialect for its region
         const opInfo = dialect.getOperation(opName);
         if (!opInfo) {
+            // Do not remove and address the underlying root cause.
             throw new mlir.Error(`Unsupported operation '${op.name}'.`);
         }
         op.metadata = opInfo.metadata;
@@ -9764,14 +9764,15 @@ mlir.AsyncDialect = class extends mlir.Dialect {
         const tokenArgs = parser.parseOperandList('optionalSquare');
         op.operands.push(...tokenArgs);
         if (parser.accept('(')) {
-            while (!parser.match(')') && !parser.match(':')) {
-                op.operands.push({ value: parser.expect('%') });
+            while (!parser.match(')')) {
+                const operand = { value: parser.expect('%') };
                 if (parser.accept('id', 'as')) {
                     parser.expect('%');
                 }
-                if (parser.match(':')) {
-                    parser.parseType();
+                if (parser.accept(':')) {
+                    operand.type = parser.parseType().toString();
                 }
+                op.operands.push(operand);
                 if (!parser.accept(',')) {
                     break;
                 }
@@ -12113,6 +12114,15 @@ mlir.ROCDLDialect = class extends mlir.LLVMDialect {
     constructor(operations) {
         super(operations);
         this._name = 'rocdl';
+        // Load rocdl-specific operations from metadata
+        for (const metadata of operations.get('rocdl') || []) {
+            const op = { metadata };
+            if (metadata.assemblyFormat) {
+                const parser = new mlir.AssemblyFormatParser(metadata);
+                op.directives = parser.parse();
+            }
+            this._operations.set(metadata.name, op);
+        }
     }
 };
 
@@ -13822,6 +13832,37 @@ mlir.TestDialect = class extends mlir.Dialect {
             }
             return true;
         }
+        // test.region_if has custom assembly format
+        if (opName === 'test.region_if') {
+            // Parse: $operands : type($operands) -> (type($results)) then $thenRegion else $elseRegion join $joinRegion
+            while (parser.match('%')) {
+                op.operands.push({ value: parser.expect('%') });
+                if (!parser.accept(',')) {
+                    break;
+                }
+            }
+            parser.expect(':');
+            const inputTypes = parser.parseTypeList();
+            parser.resolveOperands(op.operands, inputTypes);
+            parser.expect('->');
+            const outputTypes = parser.parseTypeListParens();
+            for (const t of outputTypes) {
+                op.results.push({ type: t.toString() });
+            }
+            parser.expect('id', 'then');
+            const thenRegion = {};
+            parser.parseRegion(thenRegion);
+            op.regions.push(thenRegion);
+            parser.expect('id', 'else');
+            const elseRegion = {};
+            parser.parseRegion(elseRegion);
+            op.regions.push(elseRegion);
+            parser.expect('id', 'join');
+            const joinRegion = {};
+            parser.parseRegion(joinRegion);
+            op.regions.push(joinRegion);
+            return true;
+        }
         const hasSchema = super.parseOperation(parser, opName, op);
         if (hasSchema) {
             return true;
@@ -14201,6 +14242,44 @@ mlir.TFRTTestDialect = class extends mlir.Dialect {
                         op.results.push({ type: resultType });
                     });
                 }
+            }
+            if (parser.match('{')) {
+                const region = {};
+                parser.parseRegion(region);
+                op.regions.push(region);
+            }
+            return true;
+        }
+        if (opName === 'tfrt_test.benchmark') {
+            if (parser.match('string')) {
+                const name = parser.expect('string');
+                op.attributes.push({ name: 'name', value: name });
+            }
+            parser.expect('(');
+            while (parser.match('%')) {
+                const operand = { value: parser.expect('%') };
+                if (parser.accept(':')) {
+                    operand.type = parser.parseType().toString();
+                }
+                op.operands.push(operand);
+                if (!parser.accept(',')) {
+                    break;
+                }
+            }
+            parser.expect(')');
+            while (parser.match('id') && !parser.match('{')) {
+                const name = parser.expect('id');
+                parser.expect('=');
+                let value = null;
+                if (parser.match('int')) {
+                    value = parser.parseInteger();
+                } else if (parser.match('string')) {
+                    value = parser.expect('string');
+                } else {
+                    value = parser.expect('id');
+                }
+                op.attributes.push({ name, value });
+                parser.accept(',');
             }
             if (parser.match('{')) {
                 const region = {};

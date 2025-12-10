@@ -1917,6 +1917,11 @@ tablegen.Reader = class {
     }
 
     _parseListItem() {
+        // Handle $variable as a standalone value in list/dag context
+        if (this._eat('$')) {
+            const name = this._expect('id');
+            return new tablegen.Value('var', name);
+        }
         // Special handling for dag-like constructs (id followed by <...>)
         // These need to be parsed as DAGs for trait information
         if (this._match('id')) {
@@ -1929,7 +1934,11 @@ tablegen.Reader = class {
                     }
                     return { value: arg, name: null };
                 });
-                return new tablegen.Value('dag', new tablegen.DAG(name, operands));
+                const result = new tablegen.Value('dag', new tablegen.DAG(name, operands));
+                if (this._eat('.')) {
+                    result.field = this._expect('id');
+                }
+                return result;
             }
             // Not a template instantiation, but might be an identifier with suffixes
             // Put the token back conceptually by creating a def value and checking for suffixes
@@ -1984,8 +1993,15 @@ tablegen.Reader = class {
         }
         if (this._eat('(')) {
             let operator = null;
+            let operatorName = null;
             if (this._match('id')) {
                 operator = this._read();
+                // Handle operator binding: (OpQ:$op ...)
+                if (this._eat(':') && this._eat('$')) {
+                    if (this._match('id') || this._match('keyword')) {
+                        operatorName = this._read();
+                    }
+                }
             }
             const operands = [];
             while (!this._match(')') && !this._match('eof')) {
@@ -2006,6 +2022,9 @@ tablegen.Reader = class {
             }
             this._expect(')');
             const dag = new tablegen.DAG(operator, operands);
+            if (operatorName) {
+                dag.operatorName = operatorName;
+            }
             return new tablegen.Value('dag', dag);
         }
         if (this._eat('{')) {
@@ -2092,6 +2111,10 @@ tablegen.Reader = class {
         }
         if (this._eat('?')) {
             return new tablegen.Value('uninitialized', null);
+        }
+        if (this._eat('$')) {
+            const name = this._expect('id');
+            return new tablegen.Value('var', name);
         }
         throw new tablegen.Error(`Unexpected value at ${this._tokenizer.location()}`);
     }
