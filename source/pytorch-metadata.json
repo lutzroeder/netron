@@ -3345,6 +3345,9 @@
     "name": "aten::glu.out(Tensor self, int dim=-1, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::grad(Tensor[] outputs, Tensor[] inputs, Tensor?[]? grad_outputs=None, bool? retain_graph=None, bool create_graph=False, bool allow_unused=False) -> Tensor?[]"
+  },
+  {
     "name": "aten::greater.Tensor(Tensor self, Tensor other) -> Tensor"
   },
   {
@@ -3729,6 +3732,24 @@
   },
   {
     "name": "aten::isfinite.complex(complex a) -> bool"
+  },
+  {
+    "name": "aten::isin.Tensor_Tensor(Tensor elements, Tensor test_elements, *, bool assume_unique=False, bool invert=False) -> Tensor"
+  },
+  {
+    "name": "aten::isin.Tensor_Tensor_out(Tensor elements, Tensor test_elements, *, bool assume_unique=False, bool invert=False, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::isin.Tensor_Scalar(Tensor elements, Scalar test_element, *, bool assume_unique=False, bool invert=False) -> Tensor"
+  },
+  {
+    "name": "aten::isin.Tensor_Scalar_out(Tensor elements, Scalar test_element, *, bool assume_unique=False, bool invert=False, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::isin.Scalar_Tensor(Scalar element, Tensor test_elements, *, bool assume_unique=False, bool invert=False) -> Tensor"
+  },
+  {
+    "name": "aten::isin.Scalar_Tensor_out(Scalar element, Tensor test_elements, *, bool assume_unique=False, bool invert=False, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::isinf(Tensor self) -> Tensor"
@@ -5693,6 +5714,9 @@
     "name": "aten::resolve_neg(Tensor(a) self) -> Tensor(a)"
   },
   {
+    "name": "aten::retain_grad(Tensor(a!) self) -> ()"
+  },
+  {
     "name": "aten::reverse.t(t[](a!) self) -> ()"
   },
   {
@@ -6733,6 +6757,12 @@
   },
   {
     "name": "aten::true_divide_.Scalar(Tensor(a!) self, Scalar other) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::trunc(Tensor self) -> Tensor"
+  },
+  {
+    "name": "aten::trunc.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::type_as(Tensor self, Tensor other) -> Tensor"
@@ -8646,6 +8676,9 @@
   },
   {
     "name": "torchao::choose_qparams_affine(Tensor? input, str mapping_type, SymInt[] block_size, ScalarType target_dtype, Scalar? quant_min=None, Scalar? quant_max=None, float? eps=None, ScalarType? scale_dtype=None, ScalarType? zero_point_dtype=None, bool keepdim=False) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "torchao::dequantize_affine(Tensor input, SymInt[] block_size, Tensor scale, Tensor? zero_point, ScalarType input_dtype, Scalar? quant_min=None, Scalar? quant_max=None, ScalarType output_dtype=6) -> Tensor"
   },
   {
     "name": "torchao::quantize_affine(Tensor input, SymInt[] block_size, Tensor scale, Tensor? zero_point, ScalarType output_dtype, Scalar? quant_min=None, Scalar? quant_max=None) -> Tensor"
