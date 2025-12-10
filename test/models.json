@@ -7427,15 +7427,22 @@
   },
   {
     "type":     "sentencepiece",
-    "target":   "spm_char.model",
-    "source":   "https://github.com/lutzroeder/netron/files/6611189/covost2_en_asr_vocab_char.zip[spm_char.model]",
+    "target":   "grammar_bpe.model",
+    "source":   "https://github.com/user-attachments/files/16517075/grammar_bpe.model.zip[grammar_bpe.model]",
     "format":   "SentencePiece",
     "link":     "https://github.com/lutzroeder/netron/issues/748"
   },
   {
     "type":     "sentencepiece",
-    "target":   "grammar_bpe.model",
-    "source":   "https://github.com/user-attachments/files/16517075/grammar_bpe.model.zip[grammar_bpe.model]",
+    "target":   "ice_text.model",
+    "source":   "https://github.com/user-attachments/files/24068115/ice_text.model.zip[ice_text.model]",
+    "format":   "SentencePiece",
+    "link":     "https://github.com/lutzroeder/netron/issues/748"
+  },
+  {
+    "type":     "sentencepiece",
+    "target":   "spm_char.model",
+    "source":   "https://github.com/lutzroeder/netron/files/6611189/covost2_en_asr_vocab_char.zip[spm_char.model]",
     "format":   "SentencePiece",
     "link":     "https://github.com/lutzroeder/netron/issues/748"
   },

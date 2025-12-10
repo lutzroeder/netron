@@ -11,8 +11,7 @@ sentencepiece.ModelFactory = class {
             const model = await context.tags('pb+');
             if (model &&
                 model['1'] && model['1']['1'] === 2 && model['1']['2'] === 5 && model['1']['3'] === 0 &&
-                model['2'] && model['2']['3'] === 0 && model['2']['4'] === 0 &&
-                model['3'] && model['3']['1'] === 2) {
+                model['2'] && model['2']['4'] === 0) {
                 return context.set('sentencepiece');
             }
         }
