@@ -6,6 +6,7 @@ const coreml = {};
 const vulkan = {};
 const xnnpack = {};
 const qnn = {};
+const ethosu = {};
 
 import * as base from './base.js';
 import * as python from './python.js';
@@ -390,25 +391,23 @@ executorch.Reader = class {
                             }
                         }
                         switch (delegate.id) {
-                            case 'XnnpackBackend': {
+                            case 'XnnpackBackend':
                                 delegate.backend = xnnpack.Reader.open(data, this);
                                 break;
-                            }
-                            case 'CoreMLBackend': {
+                            case 'CoreMLBackend':
                                 delegate.backend = coreml.Reader.open(data, this);
                                 break;
-                            }
-                            case 'VulkanBackend': {
+                            case 'VulkanBackend':
                                 delegate.backend = vulkan.Reader.open(data, this);
                                 break;
-                            }
-                            case 'QnnBackend': {
+                            case 'QnnBackend':
                                 delegate.backend = qnn.Reader.open(data, this);
                                 break;
-                            }
-                            default: {
+                            case 'EthosUBackend':
+                                delegate.backend = ethosu.Reader.open(data, this);
+                                break;
+                            default:
                                 throw new executorch.Error(`ExecuTorch delegate '${delegate.id}' not implemented.`);
-                            }
                         }
                         /* eslint-disable no-await-in-loop */
                         await delegate.backend.read();
@@ -1116,6 +1115,154 @@ qnn.Reader = class {
     async read() {
         // https://github.com/pytorch/executorch/blob/main/backends/qualcomm/runtime/backends/QnnCustomProtocol.h
         throw new executorch.Error('QNN backend not implemented.');
+    }
+};
+
+ethosu.Reader = class {
+
+    static open(data /* , target */) {
+        if (data.length >= 32) {
+            const reader = base.BinaryReader.open(data);
+            const magicBuffer = reader.read(16);
+            const magic = String.fromCharCode(...magicBuffer).replace(/\0/g, '');
+            if (magic === 'vela_bin_stream') {
+                return new ethosu.Reader(reader, data.length);
+            }
+        }
+        return null;
+    }
+
+    constructor(reader, size) {
+        this.reader = reader;
+        this.size = size;
+    }
+
+    async read() {
+        this.reader.seek(0);
+        const blocks = new Map();
+        while (this.reader.position < this.size) {
+            const nameBuffer = this.reader.read(16);
+            const name = String.fromCharCode(...nameBuffer).replace(/\0/g, '');
+            const size = this.reader.uint32();
+            this.reader.skip(12);
+            const data = this.reader.read(size);
+            blocks.set(name, data);
+            const padding = (16 - (size % 16)) % 16;
+            this.reader.skip(padding);
+            if (name === 'vela_end_stream') {
+                break;
+            }
+        }
+        const args = (data) => {
+            if (data && data.length >= 4) {
+                const reader = base.BinaryReader.open(data);
+                const count = reader.int32();
+                const arg = [];
+                for (let i = 0; i < count; i++) {
+                    const shape = [];
+                    for (let j = 0; j < 6; j++) {
+                        shape.push(reader.int32());
+                    }
+                    const elem_size = reader.int32();
+                    const offset = reader.int32();
+                    const region = reader.int32();
+                    arg.push({ shape, elem_size, offset, region });
+                }
+                return arg;
+            }
+            return [];
+        };
+        const inputs = args(blocks.get('inputs'));
+        const outputs = args(blocks.get('outputs'));
+        this.type = new ethosu.Graph(inputs, outputs);
+    }
+};
+
+ethosu.Graph = class {
+
+    constructor(inputs, outputs) {
+        this.name = 'EthosUBackend';
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            const type = new ethosu.TensorType(input);
+            const value = new ethosu.Value(i.toString(), type, null);
+            const name = inputs.length === 1 ? 'input' : `input.${i}`;
+            const argument = new ethosu.Argument(name, [value]);
+            this.inputs.push(argument);
+        }
+        for (let i = 0; i < outputs.length; i++) {
+            const output = outputs[i];
+            const type = new ethosu.TensorType(output);
+            const value = new ethosu.Value((inputs.length + i).toString(), type, null);
+            const name = outputs.length === 1 ? 'output' : `output.${i}`;
+            const argument = new ethosu.Argument(name, [value]);
+            this.outputs.push(argument);
+        }
+    }
+};
+
+ethosu.Argument = class {
+
+    constructor(name, value, type, visible) {
+        this.name = name;
+        this.value = value;
+        this.type = type || null;
+        this.visible = visible !== false;
+    }
+};
+
+ethosu.Value = class Value {
+
+    constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new executorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
+        }
+        this.name = name;
+        this.type = initializer && initializer.type ? initializer.type : type || null;
+        this.initializer = initializer || null;
+    }
+};
+
+ethosu.TensorType = class {
+
+    constructor(io) {
+        switch (io.elem_size) {
+            case 1: this.dataType = 'int8'; break;
+            case 2: this.dataType = 'int16'; break;
+            case 4: this.dataType = 'int32'; break;
+            default: this.dataType = `?${io.elem_size}`; break;
+        }
+        const shape = io.shape.filter((dim, index) => dim !== 1 || index === io.shape.length - 1 || io.shape.slice(index).some((d) => d !== 1));
+        this.shape = new ethosu.TensorShape(shape.length > 0 ? shape : [1]);
+    }
+
+    toString() {
+        return this.dataType + this.shape.toString();
+    }
+};
+
+ethosu.TensorShape = class {
+
+    constructor(dimensions) {
+        this.dimensions = dimensions || [];
+    }
+
+    toString() {
+        if (this.dimensions && this.dimensions.length > 0) {
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
+        }
+        return '';
+    }
+};
+
+ethosu.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading Ethos-U model.';
     }
 };
 
