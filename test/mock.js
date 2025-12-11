@@ -80,7 +80,8 @@ class DOMTokenList {
 
 class HTMLElement {
 
-    constructor() {
+    constructor(document) {
+        this._document = document;
         this._childNodes = [];
         this._attributes = new Map();
         this._style = new CSSStyleDeclaration();
@@ -122,10 +123,29 @@ class HTMLElement {
         const index = this._childNodes.lastIndexOf(node);
         if (index !== -1) {
             this._childNodes.splice(index, 1);
+            this._document._removeElement(node);
         }
     }
 
+    replaceChildren(...nodes) {
+        for (const child of this._childNodes) {
+            this._document._removeElement(child);
+        }
+        this._childNodes = [...nodes];
+    }
+
+    replaceChild(newChild, oldChild) {
+        const index = this._childNodes.indexOf(oldChild);
+        if (index !== -1) {
+            this._childNodes[index] = newChild;
+        }
+        return oldChild;
+    }
+
     setAttribute(name, value) {
+        if (name === 'id') {
+            this._document._updateElementId(this, value);
+        }
         this._attributes.set(name, value);
     }
 
@@ -179,9 +199,10 @@ class HTMLElement {
 class Document {
 
     constructor() {
-        this._elements = {};
-        this._documentElement = new HTMLElement();
-        this._body = new HTMLElement();
+        this._elements = new Map();
+        this._documentElement = new HTMLElement(this);
+        this._body = new HTMLElement(this);
+        this._documentElement.appendChild(this._body);
     }
 
     get documentElement() {
@@ -192,24 +213,22 @@ class Document {
         return this._body;
     }
 
-    createElement(/* name */) {
-        return new HTMLElement();
+    createElement(name) {
+        const element = new HTMLElement(this);
+        element.tagName = name.toUpperCase();
+        return element;
     }
 
-    createElementNS(/* namespace, name */) {
-        return new HTMLElement();
+    createElementNS(namespace, name) {
+        const element = new HTMLElement(this);
+        element.namespaceURI = namespace;
+        element.tagName = name;
+        return element;
     }
 
-    createTextNode(/* text */) {
-        return new HTMLElement();
-    }
-
-    getElementById(id) {
-        let element = this._elements[id];
-        if (!element) {
-            element = new HTMLElement();
-            this._elements[id] = element;
-        }
+    createTextNode(text) {
+        const element = new HTMLElement(this);
+        element.textContent = text;
         return element;
     }
 
@@ -217,6 +236,27 @@ class Document {
     }
 
     removeEventListener(/* event, callback */) {
+    }
+
+    getElementById(id) {
+        return this._elements.get(id) || null;
+    }
+
+    _removeElement(element) {
+        this._updateElementId(element, null);
+        for (const child of element.childNodes) {
+            this._removeElement(child);
+        }
+    }
+
+    _updateElementId(element, newId) {
+        const previous = element.getAttribute('id');
+        if (previous) {
+            this._elements.delete(previous);
+        }
+        if (newId) {
+            this._elements.set(newId, element);
+        }
     }
 }
 
@@ -247,7 +287,15 @@ mock.Host = class {
         this._environment = environment;
         this._errors = [];
         mock.Host.source = mock.Host.source || this._dirname('..', 'source');
-        mock.Host.window = mock.Host.window || new Window();
+        if (!mock.Host.window) {
+            mock.Host.window = new Window();
+            const document = mock.Host.window.document;
+            for (const id of ['target', 'sidebar']) {
+                const element = document.createElement('div');
+                element.setAttribute('id', id);
+                document.body.appendChild(element);
+            }
+        }
     }
 
     async view(/* view */) {
