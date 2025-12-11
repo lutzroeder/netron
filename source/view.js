@@ -122,6 +122,12 @@ view.View = class {
                         execute: async () => await this.export(`${this._host.document.title}.svg`),
                         enabled: () => this.activeTarget
                     });
+                    file.add({
+                        label: 'Export as &JSON',
+                        accelerator: 'CmdOrCtrl+Shift+J',
+                        execute: async () => await this.export(`${this._host.document.title}.json`),
+                        enabled: () => this.activeTarget
+                    });
                 }
                 const edit = this._menu.group('&Edit');
                 edit.add({
@@ -654,10 +660,253 @@ view.View = class {
         return status;
     }
 
+    _serializeModelToJson() {
+        const version = this._model.version;
+        const json = {
+            format: this._model.format || 'Unknown',
+            producer: this._model.producer || null,
+            version: typeof version === 'bigint' ? version.toString() : (version || null),
+            description: this._model.description || null,
+            domain: this._model.domain || null,
+            imports: this._model.imports || null,
+            metadata: this._serializeMetadata(this._model.metadata || []),
+            graphs: []
+        };
+
+        // Serialize all graphs/modules in the model
+        if (this._model.modules && Array.isArray(this._model.modules)) {
+            for (const graph of this._model.modules) {
+                json.graphs.push(this._serializeGraph(graph));
+            }
+        }
+
+        // Include functions if available
+        if (this._model.functions && Array.isArray(this._model.functions)) {
+            json.functions = this._model.functions.map(func => ({
+                name: func.name || null,
+                description: func.description || null
+            }));
+        }
+
+        return json;
+    }
+
+    _serializeGraph(graph) {
+        const graphJson = {
+            name: graph.name || null,
+            description: graph.description || null,
+            inputs: [],
+            outputs: [],
+            nodes: []
+        };
+
+        // Serialize inputs
+        if (graph.inputs && Array.isArray(graph.inputs)) {
+            for (const input of graph.inputs) {
+                graphJson.inputs.push(this._serializeArgument(input));
+            }
+        }
+
+        // Serialize outputs
+        if (graph.outputs && Array.isArray(graph.outputs)) {
+            for (const output of graph.outputs) {
+                graphJson.outputs.push(this._serializeArgument(output));
+            }
+        }
+
+        // Serialize nodes
+        if (graph.nodes && Array.isArray(graph.nodes)) {
+            for (const node of graph.nodes) {
+                graphJson.nodes.push(this._serializeNode(node));
+            }
+        }
+
+        return graphJson;
+    }
+
+    _serializeNode(node) {
+        const nodeJson = {
+            name: node.name || null,
+            type: this._serializeNodeType(node.type),
+            description: node.description || null,
+            inputs: [],
+            outputs: [],
+            attributes: []
+        };
+
+        // Serialize inputs
+        if (node.inputs && Array.isArray(node.inputs)) {
+            for (const input of node.inputs) {
+                nodeJson.inputs.push(this._serializeArgument(input));
+            }
+        }
+
+        // Serialize outputs
+        if (node.outputs && Array.isArray(node.outputs)) {
+            for (const output of node.outputs) {
+                nodeJson.outputs.push(this._serializeArgument(output));
+            }
+        }
+
+        // Serialize attributes
+        if (node.attributes && Array.isArray(node.attributes)) {
+            for (const attribute of node.attributes) {
+                nodeJson.attributes.push(this._serializeAttribute(attribute));
+            }
+        }
+
+        return nodeJson;
+    }
+
+    _serializeNodeType(type) {
+        if (!type) {
+            return null;
+        }
+        return {
+            name: type.name || null,
+            category: type.category || null,
+            description: type.description || null
+        };
+    }
+
+    _serializeArgument(argument) {
+        const argJson = {
+            name: argument.name || null,
+            value: []
+        };
+
+        if (argument.value && Array.isArray(argument.value)) {
+            for (const value of argument.value) {
+                argJson.value.push(this._serializeValue(value));
+            }
+        }
+
+        return argJson;
+    }
+
+    _serializeValue(value) {
+        const valueJson = {
+            name: value.name || null,
+            type: this._serializeType(value.type),
+            description: value.description || null
+        };
+
+        // Include initializer info if present
+        if (value.initializer) {
+            valueJson.initializer = {
+                name: value.initializer.name || null,
+                type: this._serializeType(value.initializer.type)
+            };
+        }
+
+        return valueJson;
+    }
+
+    _serializeType(type) {
+        if (!type) {
+            return null;
+        }
+
+        // Handle string types
+        if (typeof type === 'string') {
+            return type;
+        }
+
+        // Handle type objects
+        const typeJson = {
+            dataType: type.dataType || null,
+            shape: null
+        };
+
+        // Serialize shape if present
+        if (type.shape) {
+            if (type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
+                typeJson.shape = {
+                    dimensions: type.shape.dimensions.map(dim => {
+                        if (typeof dim === 'bigint') {
+                            return dim.toString();
+                        }
+                        if (typeof dim === 'object' && dim !== null) {
+                            return String(dim);
+                        }
+                        return dim;
+                    })
+                };
+            } else {
+                typeJson.shape = String(type.shape);
+            }
+        }
+
+        return typeJson;
+    }
+
+    _serializeAttribute(attribute) {
+        const attrJson = {
+            name: attribute.name || null,
+            type: attribute.type || null,
+            value: null,
+            description: attribute.description || null
+        };
+
+        // Try to serialize the value
+        if (attribute.value !== undefined && attribute.value !== null) {
+            try {
+                // Handle BigInt
+                if (typeof attribute.value === 'bigint') {
+                    attrJson.value = attribute.value.toString();
+                }
+                // Handle arrays that might contain BigInt
+                else if (Array.isArray(attribute.value)) {
+                    attrJson.value = attribute.value.map(v =>
+                        typeof v === 'bigint' ? v.toString() : v
+                    );
+                }
+                // Handle objects
+                else if (typeof attribute.value === 'object' && attribute.value.toString) {
+                    attrJson.value = attribute.value.toString();
+                } else {
+                    attrJson.value = attribute.value;
+                }
+            } catch {
+                attrJson.value = String(attribute.value);
+            }
+        }
+
+        return attrJson;
+    }
+
+    _serializeMetadata(metadata) {
+        if (!Array.isArray(metadata)) {
+            return [];
+        }
+        return metadata.map(item => {
+            let value = item.value;
+            if (typeof value === 'bigint') {
+                value = value.toString();
+            }
+            return {
+                name: item.name || null,
+                value: value || null
+            };
+        });
+    }
+
     async export(file) {
         const lastIndex = file.lastIndexOf('.');
         const extension = lastIndex === -1 ? 'png' : file.substring(lastIndex + 1).toLowerCase();
-        if (this.activeTarget && (extension === 'png' || extension === 'svg')) {
+        if (this.activeTarget && extension === 'json') {
+            try {
+                const json = this._serializeModelToJson();
+                // Use a replacer function to handle any remaining BigInt values
+                const data = JSON.stringify(json, (key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value
+                , 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                await this._host.export(file, blob);
+            } catch (error) {
+                await this.error(error, 'Error exporting to JSON.', null);
+            }
+        } else if (this.activeTarget && (extension === 'png' || extension === 'svg')) {
             const canvas = this._element('canvas');
             const clone = canvas.cloneNode(true);
             const document = this._host.document;

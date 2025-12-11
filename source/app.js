@@ -255,7 +255,8 @@ app.Application = class {
                 buttonLabel: 'Export',
                 filters: [
                     { name: 'PNG', extensions: ['png'] },
-                    { name: 'SVG', extensions: ['svg'] }
+                    { name: 'SVG', extensions: ['svg'] },
+                    { name: 'JSON', extensions: ['json'] }
                 ]
             };
             const { filePath, canceled } = await electron.dialog.showSaveDialog(owner, options);
