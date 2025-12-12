@@ -55,6 +55,7 @@ const schema = async () => {
     const paths = [
         source, // Add base source directory for cross-repository includes
         path.join(source, 'llvm-project', 'mlir', 'include'),
+        path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Dialect', 'Test'),
         path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Dialect', 'Transform'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmNeon'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSME', 'IR'),
@@ -337,34 +338,26 @@ const schema = async () => {
             if (value.type === 'def') {
                 const defName = value.value;
                 // Check if this is an enum attribute or property and add enum cases
-                let attrDef = parser.getDef(defName) || parser.getClass(defName);
-
-                // If this is a ConfinedAttr, unwrap to get the underlying attribute type
-                if (attrDef) {
-                    const checkIfConfinedAttr = (def) => {
-                        for (const parent of def.parents) {
-                            if (parent.name === 'ConfinedAttr' && parent.args && parent.args.length > 0) {
-                                // First arg is the underlying attr type
-                                const [underlyingAttr] = parent.args;
-                                if (underlyingAttr && underlyingAttr.type === 'def') {
-                                    return parser.getDef(underlyingAttr.value) || parser.getClass(underlyingAttr.value);
-                                }
-                            }
-                        }
-                        return null;
-                    };
-                    const underlyingAttr = checkIfConfinedAttr(attrDef);
-                    if (underlyingAttr) {
-                        attrDef = underlyingAttr;
-                    }
-                }
-                // Resolve type aliases that inherit from Variadic/Optional - expand to full form
+                const attrDef = parser.getDef(defName) || parser.getClass(defName);
+                // Resolve type aliases to their base forms for proper parser dispatch
                 if (attrDef) {
                     for (const parent of attrDef.parents) {
+                        // ConfinedAttr<BaseAttr, Constraints> -> ConfinedAttr<BaseAttr, Constraints>
+                        if (parent.name === 'ConfinedAttr' && parent.args && parent.args.length > 0) {
+                            const args = parent.args.map((arg) => toConstraintString(arg)).filter((x) => x !== null);
+                            return `ConfinedAttr<${args.join(', ')}>`;
+                        }
+                        // TypedArrayAttrBase<ElementType, ...> -> TypedArrayAttrBase<ElementType>
+                        if (parent.name === 'TypedArrayAttrBase' && parent.args && parent.args.length > 0) {
+                            const innerType = toConstraintString(parent.args[0]);
+                            return innerType ? `TypedArrayAttrBase<${innerType}>` : 'ArrayAttr';
+                        }
+                        // Variadic<Type> -> Variadic<Type>
                         if (parent.name === 'Variadic' && parent.args && parent.args.length > 0) {
                             const innerType = toConstraintString(parent.args[0]);
                             return innerType ? `Variadic<${innerType}>` : 'Variadic';
                         }
+                        // Optional<Type> -> Optional<Type>
                         if (parent.name === 'Optional' && parent.args && parent.args.length > 0) {
                             const innerType = toConstraintString(parent.args[0]);
                             return innerType ? `Optional<${innerType}>` : 'Optional';
@@ -653,23 +646,19 @@ const test = async (pattern) => {
         });
         process.on('close', (/* code */) => {
             const totalValid = validFiles.size;
-            const totalInvalid = invalidFiles.size;
             const filesWithErrors = new Set();
             for (const [, fileCounts] of filesByError) {
                 for (const file of fileCounts.keys()) {
                     filesWithErrors.add(file);
                 }
             }
-            const succeeded = totalValid - filesWithErrors.size;
             writeLine('');
             writeLine('-'.repeat(75));
             if (errorTotals.size > 0) {
-                const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 25);
                 for (const [err, cnt] of sortedErrors) {
                     const fileCounts = filesByError.get(err);
-                    const topFiles = Array.from(fileCounts.entries())
-                        .sort((a, b) => b[1] - a[1])
-                        .slice(0, 100);
+                    const topFiles = Array.from(fileCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
                     writeLine(`${cnt}  |  ${err}`);
                     for (const [file,] of topFiles) {
                         writeLine(`  ${file}`);
@@ -682,8 +671,9 @@ const test = async (pattern) => {
                 }
             }
             if (totalValid > 0) {
+                const succeeded = totalValid - filesWithErrors.size;
                 const percentage = (succeeded * 100.0) / totalValid;
-                writeLine(`  ${succeeded} / ${totalValid} =  ${percentage.toPrecision(6)}%  - skipped ${totalInvalid} files`);
+                writeLine(`  ${succeeded} / ${totalValid} =  ${percentage.toPrecision(6)}%  - skipped ${invalidFiles.size} files`);
             } else {
                 writeLine('  No valid files processed');
             }

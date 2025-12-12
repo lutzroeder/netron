@@ -2213,7 +2213,6 @@ mlir.Parser = class {
             const token = this.expect('!');
             if (this._typeAliases.has(token)) {
                 const aliasType = this._typeAliases.get(token);
-                // Type aliases already store mlir.Type objects, return directly
                 return aliasType instanceof mlir.Type ? aliasType : new mlir.Type(aliasType);
             }
             const dialectName = token.substring(1);
@@ -2224,7 +2223,7 @@ mlir.Parser = class {
             const dialect = this._dialects.get(dialectName);
             const type = dialect.parseType(this, dialectName);
             if (type) {
-                return type; // Already an mlir.Type object
+                return type;
             }
             throw new mlir.Error(`Invalid type '${token}' ${this.location()}`);
         }
@@ -2704,6 +2703,7 @@ mlir.Parser = class {
             case 'float':
             case '#':
             case '[':
+            case '{':
             case '<':
             case 'string':
             case 'boolean':
@@ -3733,8 +3733,11 @@ mlir.Dialect = class {
         this.registerCustomAttribute('OptionalAttr', this._parseOptionalAttr.bind(this));
         this.registerCustomAttribute('DefaultValuedOptionalAttr', this._parseDefaultValuedOptionalAttr.bind(this));
         this.registerCustomAttribute('DefaultValuedAttr', this._parseDefaultValuedAttr.bind(this));
+        this.registerCustomAttribute('ConfinedAttr', this._parseConfinedAttr.bind(this));
         this.registerCustomAttribute('TypeAttrOf', this._parseTypeAttrOf.bind(this));
         this.registerCustomAttribute('AnyAttrOf', this._parseAnyAttrOf.bind(this));
+        this.registerCustomAttribute('ArrayAttr', this._parseArrayAttr.bind(this));
+        this.registerCustomAttribute('TypedArrayAttrBase', this._parseArrayAttr.bind(this));
         this.registerCustomType('Optional', this._parseOptional.bind(this));
         for (const metadata of operations.get(name) || []) {
             const op = { metadata };
@@ -4810,6 +4813,22 @@ mlir.Dialect = class {
             }
         }
         return null;
+    }
+
+    _parseArrayAttr(parser) {
+        if (parser.match('[')) {
+            return parser.parseOptionalAttribute();
+        }
+        return null;
+    }
+
+    _parseConfinedAttr(parser, type) {
+        // ConfinedAttr<BaseAttr, Constraints> - parse the base attribute type
+        if (!Array.isArray(type.args) || type.args.length === 0) {
+            throw new mlir.Error(`Invalid ConfinedAttr type.`);
+        }
+        const [baseType] = type.args;
+        return this._parseCustomAttributeWithFallback(parser, baseType);
     }
 
     _parseTypedAttrInterface(parser) {
@@ -6123,7 +6142,48 @@ mlir.MemRefDialect = class extends mlir.Dialect {
             this._operations.get(opName).hasParseOperation = false; // compatibility
             return this._parseStoreOp(parser, op);
         }
+        if (opName === 'memref.alloca_scope') {
+            return this._parseAllocaScopeOp(parser, op);
+        }
+        if (opName === 'memref.transpose') {
+            return this._parseTransposeOp(parser, op);
+        }
         return super.parseOperation(parser, opName, op);
+    }
+
+    _parseTransposeOp(parser, op) {
+        // Reference: MemRefOps.cpp TransposeOp::parse
+        // Format: $in $permutation attr-dict : type($in) `to` type(results)
+        const operand = { value: parser.expect('%') };
+        op.operands.push(operand);
+        // Parse affine map permutation: (d0, d1) -> (d1, d0)
+        // This is a bare affine map, not wrapped in affine_map<...>
+        const dims = parser.skip('(', ')');
+        parser.expect('->');
+        const results = parser.skip('(', ')');
+        const permutation = `affine_map<${dims} -> ${results}>`;
+        op.attributes.push({ name: 'permutation', value: permutation });
+        parser.parseOptionalAttrDict(op.attributes);
+        if (parser.accept(':')) {
+            const srcType = parser.parseType();
+            operand.type = srcType;
+        }
+        parser.expect('id', 'to');
+        const dstType = parser.parseType();
+        parser.resolveOperands(op.results, [dstType]);
+        return true;
+    }
+
+    _parseAllocaScopeOp(parser, op) {
+        // Reference: MemRefOps.cpp AllocaScopeOp::parse
+        // Format: [-> (type, ...)] { region } [attr-dict]
+        const resultTypes = parser.parseOptionalArrowTypeList();
+        parser.resolveOperands(op.results, resultTypes);
+        const region = {};
+        parser.parseRegion(region);
+        op.regions.push(region);
+        parser.parseOptionalAttrDict(op.attributes);
+        return true;
     }
 
     _parseStoreOp(parser, op) {
@@ -8951,20 +9011,41 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
-        if (typeName && this.typesWithOptionalParams.has(typeName)) {
-            let type = `!${dialectName}.${typeName}`;
-            if (parser.match('<')) {
-                const content = parser.skip('<', '>');
-                type += content;
-            }
-            return new mlir.Type(type);
+        let typeName = parser.parseKeyword();
+        if (!typeName) {
+            return null;
         }
-        return null;
+        // Handle sub-dialect types like arm.tensor, KHR.CooperativeMatrix, etc.
+        while (parser.accept('.')) {
+            const subType = parser.parseKeyword();
+            if (subType) {
+                typeName += `.${subType}`;
+            } else {
+                break;
+            }
+        }
+        // Build the full type string
+        let type = `!${dialectName}.${typeName}`;
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            type += content;
+        }
+        return new mlir.Type(type);
     }
 
     parseOperation(parser, opName, op) {
-        if (opName.startsWith('spirv.GLSL.') || opName.startsWith('spv.GLSL.') || opName.startsWith('spirv.GL.') || opName.startsWith('spv.GL.')) {
+        // Operations with '->' in their assembly format should use assembly format parsing
+        const arrowFormatOps = new Set([
+            'spirv.GL.Distance', 'spirv.GL.FMix', 'spirv.GL.FrexpStruct', 'spirv.GL.Ldexp',
+            'spirv.GL.Length', 'spirv.GL.PackHalf2x16', 'spirv.GL.UnpackHalf2x16',
+            'spirv.GLSL.Distance', 'spirv.GLSL.FMix', 'spirv.GLSL.FrexpStruct', 'spirv.GLSL.Ldexp',
+            'spirv.GLSL.Length', 'spirv.GLSL.PackHalf2x16', 'spirv.GLSL.UnpackHalf2x16',
+            'spv.GL.Distance', 'spv.GL.FMix', 'spv.GL.FrexpStruct', 'spv.GL.Ldexp',
+            'spv.GL.Length', 'spv.GL.PackHalf2x16', 'spv.GL.UnpackHalf2x16',
+            'spv.GLSL.Distance', 'spv.GLSL.FMix', 'spv.GLSL.FrexpStruct', 'spv.GLSL.Ldexp',
+            'spv.GLSL.Length', 'spv.GLSL.PackHalf2x16', 'spv.GLSL.UnpackHalf2x16'
+        ]);
+        if ((opName.startsWith('spirv.GLSL.') || opName.startsWith('spv.GLSL.') || opName.startsWith('spirv.GL.') || opName.startsWith('spv.GL.')) && !arrowFormatOps.has(opName)) {
             while (!parser.match(':')) {
                 const operand = parser.parseAttribute();
                 op.operands.push(operand);
@@ -9255,6 +9336,25 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                 parser.parseRegion(region);
                 op.regions.push(region);
             }
+            return true;
+        }
+        if (opName === 'spirv.ARM.Graph') {
+            // Reference: ArmGraphOps.cpp GraphARMOp::parse
+            // Format: @name (args) -> (results) [attributes] { body }
+            parser.parseFunctionOp(op, false);
+            return true;
+        }
+        if (opName === 'spirv.ARM.GraphEntryPoint') {
+            // Reference: ArmGraphOps.cpp GraphEntryPointARMOp::parse
+            // Format: @fn_name, @interface1, @interface2, ...
+            const fn = parser.expect('@');
+            op.attributes.push({ name: 'fn', value: fn });
+            const interfaceVars = [];
+            while (parser.accept(',')) {
+                const varSymbol = parser.expect('@');
+                interfaceVars.push(varSymbol);
+            }
+            op.attributes.push({ name: 'interface', value: interfaceVars });
             return true;
         }
         if (opName === 'spirv.func' || opName === 'spv.func') {
@@ -10998,12 +11098,39 @@ mlir.NVGPUDialect = class extends mlir.Dialect {
     constructor(operations) {
         super('nvgpu', operations);
         this.registerCustomType('NVGPU_TensorMapDescriptor', this._parseTensorMapDescriptor.bind(this));
+        this.registerCustomType('NVGPU_WarpgroupAccumulator', this._parseWarpgroupAccumulator.bind(this));
+        this.registerCustomType('NVGPU_WarpgroupMatrixDescriptor', this._parseWarpgroupMatrixDescriptor.bind(this));
+        this.registerCustomType('NVGPU_MBarrierGroup', this._parseMBarrierGroup.bind(this));
     }
 
     _parseTensorMapDescriptor(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<', '>');
             return new mlir.Type(`!nvgpu.tensormap.descriptor${content}`);
+        }
+        return null;
+    }
+
+    _parseWarpgroupAccumulator(parser) {
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!nvgpu.warpgroup.accumulator${content}`);
+        }
+        return null;
+    }
+
+    _parseWarpgroupMatrixDescriptor(parser) {
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!nvgpu.warpgroup.descriptor${content}`);
+        }
+        return null;
+    }
+
+    _parseMBarrierGroup(parser) {
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!nvgpu.mbarrier.barrier${content}`);
         }
         return null;
     }
@@ -11350,12 +11477,34 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
                 }
             }
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        // Parse optional 'collapse(N)'
+        if (parser.accept('id', 'collapse')) {
+            parser.expect('(');
+            const value = parser.expect('int');
+            op.attributes.push({ name: 'collapse_num_loops', value: parseInt(value, 10) });
+            parser.expect(')');
+        }
+        // Parse optional 'tiles(N, ...)'
+        if (parser.accept('id', 'tiles')) {
+            parser.expect('(');
+            const tiles = [];
+            while (!parser.match(')')) {
+                tiles.push(parseInt(parser.expect('int'), 10));
+                if (!parser.accept(',')) {
+                    break;
+                }
+            }
+            parser.expect(')');
+            op.attributes.push({ name: 'tile_sizes', value: tiles });
+        }
+        // Parse region BEFORE attr-dict (matches reference impl)
         if (parser.match('{')) {
             const region = {};
             parser.parseRegion(region);
             op.regions.push(region);
         }
+        // Parse optional attr-dict AFTER region (matches reference impl)
+        parser.parseOptionalAttrDict(op.attributes);
         return true;
     }
 
@@ -11426,9 +11575,11 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         // Try parsing shorthand syntax first: <addressSpace>
         if (parser.match('<')) {
             const content = parser.skip('<', '>');
-            // If content is a number, it's the address space
-            if (/^\d+$/.test(content)) {
-                return new mlir.Type(`!llvm.ptr<${content}>`);
+            // content includes delimiters like "<1>", extract the inner value
+            const inner = content.startsWith('<') && content.endsWith('>') ? content.slice(1, -1) : content;
+            // If inner content is a number, it's the address space
+            if (/^\d+$/.test(inner)) {
+                return new mlir.Type(`!llvm.ptr<${inner}>`);
             }
             // Otherwise, it might be something else - fall through to standard parsing
         }
@@ -11523,24 +11674,45 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         const caseDestinations = [];
         const caseOperands = [];
         while (!parser.match(']') && !parser.match('eof')) {
+            // Handle negative case values: -1, -2, etc.
+            let sign = 1;
+            if (parser.accept('keyword', '-')) {
+                sign = -1;
+            }
             if (!parser.match('int') && !parser.match('number')) {
                 throw new mlir.Error(`Expected integer case value at ${parser.location()}`);
             }
-            const value = parseInt(parser.expect(), 10);
+            const value = sign * parseInt(parser.expect(), 10);
             caseValues.push(value);
             // Parse colon
             parser.expect(':');
             // Parse successor block (starts with ^)
             const successor = parser.expect('^');
             caseDestinations.push(successor);
-            // Parse optional operands
+            // Parse optional operands with types: (%operand : type, ...)
             if (parser.accept('(')) {
                 const operands = [];
-                while (!parser.match(')') && !parser.match('eof')) {
-                    const operand = parser.expect('id');
-                    operands.push({ name: operand });
-                    if (parser.accept(',')) {
-                        continue;
+                while (!parser.match(')') && !parser.match(':') && !parser.match('eof')) {
+                    if (parser.match('%')) {
+                        const operand = parser.expect('%');
+                        operands.push({ name: operand });
+                        if (!parser.accept(',')) {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                // Parse types after colon if present
+                if (parser.accept(':')) {
+                    let idx = 0;
+                    while (!parser.match(')') && idx < operands.length) {
+                        const type = parser.parseType();
+                        if (operands[idx]) {
+                            operands[idx].type = type;
+                        }
+                        idx++;
+                        parser.accept(',');
                     }
                 }
                 parser.expect(')');
@@ -11954,12 +12126,40 @@ mlir.LLVMDialect = class extends mlir.Dialect {
         parser.expect('id', 'to');
         const normalDest = parser.expect('^');
         op.successors = op.successors || [];
-        op.successors.push({ label: normalDest });
+        const normalSucc = { label: normalDest };
+        // Parse optional successor operands: ^bb1(%operand : type)
+        if (parser.accept('(')) {
+            normalSucc.operands = [];
+            while (!parser.match(')')) {
+                const operand = parser.parseAttribute();
+                normalSucc.operands.push(operand);
+                if (parser.accept(':')) {
+                    parser.parseType();
+                }
+                parser.accept(',');
+            }
+            parser.expect(')');
+        }
+        op.successors.push(normalSucc);
 
         // Parse 'unwind' destination
         parser.expect('id', 'unwind');
         const unwindDest = parser.expect('^');
-        op.successors.push({ label: unwindDest });
+        const unwindSucc = { label: unwindDest };
+        // Parse optional successor operands
+        if (parser.accept('(')) {
+            unwindSucc.operands = [];
+            while (!parser.match(')')) {
+                const operand = parser.parseAttribute();
+                unwindSucc.operands.push(operand);
+                if (parser.accept(':')) {
+                    parser.parseType();
+                }
+                parser.accept(',');
+            }
+            parser.expect(')');
+        }
+        op.successors.push(unwindSucc);
 
         // Parse optional vararg
         if (parser.accept('id', 'vararg')) {
@@ -14197,6 +14397,7 @@ mlir.ExecutorDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('executor', operations);
+        this.registerCustomType('Executor_Table', this._parseTable.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -14205,6 +14406,14 @@ mlir.ExecutorDialect = class extends mlir.Dialect {
             return true;
         }
         return super.parseOperation(parser, opName, op);
+    }
+
+    _parseTable(parser) {
+        if (parser.match('<')) {
+            const content = parser.skip('<', '>');
+            return new mlir.Type(`!executor.table${content}`);
+        }
+        return null;
     }
 };
 
