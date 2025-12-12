@@ -682,7 +682,7 @@ view.View = class {
 
         // Include functions if available
         if (this._model.functions && Array.isArray(this._model.functions)) {
-            json.functions = this._model.functions.map(func => ({
+            json.functions = this._model.functions.map((func) => ({
                 name: func.name || null,
                 description: func.description || null
             }));
@@ -822,7 +822,7 @@ view.View = class {
         if (type.shape) {
             if (type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
                 typeJson.shape = {
-                    dimensions: type.shape.dimensions.map(dim => {
+                    dimensions: type.shape.dimensions.map((dim) => {
                         if (typeof dim === 'bigint') {
                             return dim.toString();
                         }
@@ -854,15 +854,11 @@ view.View = class {
                 // Handle BigInt
                 if (typeof attribute.value === 'bigint') {
                     attrJson.value = attribute.value.toString();
-                }
-                // Handle arrays that might contain BigInt
-                else if (Array.isArray(attribute.value)) {
-                    attrJson.value = attribute.value.map(v =>
-                        typeof v === 'bigint' ? v.toString() : v
-                    );
-                }
-                // Handle objects
-                else if (typeof attribute.value === 'object' && attribute.value.toString) {
+                } else if (Array.isArray(attribute.value)) {
+                    // Handle arrays that might contain BigInt
+                    attrJson.value = attribute.value.map((v) => (typeof v === 'bigint' ? v.toString() : v));
+                } else if (typeof attribute.value === 'object' && attribute.value.toString) {
+                    // Handle objects
                     attrJson.value = attribute.value.toString();
                 } else {
                     attrJson.value = attribute.value;
@@ -879,7 +875,7 @@ view.View = class {
         if (!Array.isArray(metadata)) {
             return [];
         }
-        return metadata.map(item => {
+        return metadata.map((item) => {
             let value = item.value;
             if (typeof value === 'bigint') {
                 value = value.toString();
