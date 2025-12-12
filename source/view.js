@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 
 import * as base from './base.js';
 import * as grapher from './grapher.js';
@@ -3527,6 +3528,7 @@ view.TensorView = class extends view.Expander {
                     case 'float8e4m3fn': data_type = 'float16'; break;
                     case 'float8e4m3fnuz': data_type = 'float16'; break;
                     case 'int4': data_type = 'int8'; break;
+                    case 'int48': data_type = 'int64'; break;
                     default: data_type = tensor.type.dataType; break;
                 }
                 const python = await import('./python.js');
@@ -6313,6 +6315,7 @@ view.ModelFactoryService = class {
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
+        this.register('./tosa', ['.tosa', '.json']);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
         this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
         this.register('./transformers', ['.json']);
@@ -6613,6 +6616,7 @@ view.ModelFactoryService = class {
                         { name: 'MindSpore Lite model data', identifier: 'MSL1' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL2' },
                         { name: 'MindSpore Lite model data', identifier: 'MSL3' },
+                        { name: 'TOSA model data', identifier: 'TOSA' },
                         { name: 'NVDA model data', identifier: 'NVDA' },
                         { name: 'BSTM model data', identifier: 'BSTM' },
                         { name: 'onnu model data', identifier: 'onnu' },
