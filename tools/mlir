@@ -3,23 +3,25 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
+src_dir=./third_party/source/mlir
+
 entries=(
-    "https://github.com/llvm/llvm-project.git|main|./third_party/source/mlir/llvm-project|mlir"
-    "https://github.com/openxla/stablehlo.git|main|./third_party/source/mlir/stablehlo|stablehlo"
-    "https://github.com/openxla/xla.git|main|./third_party/source/mlir/xla|xla/mlir_hlo"
-    "https://github.com/onnx/onnx-mlir.git|main|./third_party/source/mlir/onnx-mlir|"
-    "https://github.com/llvm/torch-mlir.git|main|./third_party/source/mlir/torch-mlir|"
-    "https://github.com/triton-lang/triton|main|./third_party/source/mlir/triton|"
-    "https://github.com/tensorflow/tensorflow.git|master|./third_party/source/mlir/tensorflow|tensorflow/compiler/mlir"
-    "https://github.com/tensorflow/runtime.git|master|./third_party/source/mlir/runtime|"
-    "https://github.com/NVIDIA/TensorRT-Incubator.git|main|./third_party/source/mlir/TensorRT-Incubator|mlir-tensorrt"
-    "https://github.com/iree-org/iree.git|main|./third_party/source/mlir/iree|compiler"
-    "https://github.com/monellz/FlashTensor.git|main|./third_party/source/mlir/FlashTensor|"
-    "https://github.com/plaidml/plaidml.git|plaidml-v1|./third_party/source/mlir/plaidml|pmlc"
-    "https://github.com/sophgo/tpu-mlir.git|master|./third_party/source/mlir/tpu-mlir|include"
-    "https://github.com/spcl/mlir-dace.git|main|./third_party/source/mlir/mlir-dace|"
-    "https://github.com/woxjro/lltz.git|master|./third_party/source/mlir/lltz|"
-    "https://github.com/pengmai/lagrad.git|main|./third_party/source/mlir/lagrad|include"
+    "https://github.com/llvm/llvm-project.git|main|${src_dir}/llvm-project|mlir"
+    "https://github.com/openxla/stablehlo.git|main|${src_dir}/stablehlo|stablehlo"
+    "https://github.com/openxla/xla.git|main|${src_dir}/xla|xla/mlir_hlo"
+    "https://github.com/onnx/onnx-mlir.git|main|${src_dir}/onnx-mlir|"
+    "https://github.com/llvm/torch-mlir.git|main|${src_dir}/torch-mlir|"
+    "https://github.com/triton-lang/triton|main|${src_dir}/triton|"
+    "https://github.com/tensorflow/tensorflow.git|master|${src_dir}/tensorflow|tensorflow/compiler/mlir"
+    "https://github.com/tensorflow/runtime.git|master|${src_dir}/runtime|"
+    "https://github.com/NVIDIA/TensorRT-Incubator.git|main|${src_dir}/TensorRT-Incubator|mlir-tensorrt"
+    "https://github.com/iree-org/iree.git|main|${src_dir}/iree|compiler"
+    "https://github.com/monellz/FlashTensor.git|main|${src_dir}/FlashTensor|"
+    "https://github.com/plaidml/plaidml.git|plaidml-v1|${src_dir}/plaidml|pmlc"
+    "https://github.com/sophgo/tpu-mlir.git|master|${src_dir}/tpu-mlir|include"
+    "https://github.com/spcl/mlir-dace.git|main|${src_dir}/mlir-dace|"
+    "https://github.com/woxjro/lltz.git|master|${src_dir}/lltz|"
+    "https://github.com/pengmai/lagrad.git|main|${src_dir}/lagrad|include"
 )
 
 clean() {
@@ -50,6 +52,22 @@ sync() {
             git -C "${dir}" gc --quiet --prune=all
         fi
     done
+    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Interfaces"
+    curl --silent --show-error --location --output "${src_dir}/_/llvm-project/mlir/include/mlir/Interfaces/CopyOpInterface.td" "https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-14.0.0/mlir/include/mlir/Interfaces/CopyOpInterface.td"
+    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Arithmetic/IR"
+    curl --silent --show-error --location --output "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Arithmetic/IR/ArithmeticBase.td" "https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-14.0.0/mlir/include/mlir/Dialect/Arithmetic/IR/ArithmeticBase.td"
+    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenACC"
+    echo '#ifndef ACCCOMMON_TD
+#define ACCCOMMON_TD
+#endif // ACCCOMMON_TD' > "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenACC/AccCommon.td"
+    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenMP"
+    echo '#ifndef OMPCOMMON_TD
+#define OMPCOMMON_TD
+#endif // OMPCOMMON_TD' > "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenMP/OmpCommon.td"
+    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Linalg/IR"
+    echo '#ifndef LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD
+#define LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD
+#endif // LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD' > "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgNamedStructuredOps.yamlgen.td"
 }
 
 schema() {

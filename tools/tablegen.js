@@ -1996,6 +1996,10 @@ tablegen.Reader = class {
             let operatorName = null;
             if (this._match('id')) {
                 operator = this._read();
+                // Handle template arguments on the operator: (NativeCodeCallVoid<...> ...)
+                if (this._match('<')) {
+                    this._skip('<', '>');
+                }
                 // Handle operator binding: (OpQ:$op ...)
                 if (this._eat(':') && this._eat('$')) {
                     if (this._match('id') || this._match('keyword')) {
