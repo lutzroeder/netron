@@ -233,5 +233,24 @@ export default [
             'vars-on-top': 'error',
             'yoda': 'error'
         }
+    },
+    {
+        files: ['source/index.js'],
+        languageOptions: {
+            globals: {
+                ...globals.es2015,
+                ...globals.browser,
+            },
+            sourceType: 'script',
+            ecmaVersion: 2015
+        },
+        rules: {
+            'no-var': 'off',
+            'prefer-arrow-callback': 'off',
+            'prefer-template': 'off',
+            'prefer-destructuring': 'off',
+            'vars-on-top': 'off',
+            'strict': 'off'
+        }
     }
 ];
