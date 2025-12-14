@@ -893,6 +893,11 @@ tablegen.Record = class {
         if (!value) {
             return null;
         }
+        // Handle named values (e.g., { name: 'clauses', value: { type: 'list', ... } })
+        // These come from named arguments in template instantiation
+        if (!value.type && value.name && value.value) {
+            return this.evaluateValue(value.value);
+        }
         switch (value.type) {
             case 'string':
                 return value.value.replace(/^"|"$/g, '');

@@ -887,7 +887,7 @@ mlir.Parser = class {
         this._dialects.set('complex', new mlir.Dialect('complex', operations));
         this._dialects.set('index', new mlir.Dialect('index', operations));
         this._dialects.set('pdl', new mlir.PDLDialect(operations));
-        this._dialects.set('ptr', new mlir.Dialect('ptr', operations));
+        this._dialects.set('ptr', new mlir.PtrDialect(operations));
         this._dialects.set('ub', new mlir.Dialect('ub', operations));
         this._dialects.set('amdgpu', new mlir.AMDGPUDialect(operations));
         this._dialects.set('nvgpu', new mlir.NVGPUDialect(operations));
@@ -1729,6 +1729,10 @@ mlir.Parser = class {
                 if (this.accept(':')) {
                     location.col = this.expect('int');
                 }
+            } else if (this.accept('(')) {
+                // NameLoc with child location: "name"(child_location)
+                location.child = this.parseLocationContent();
+                this.expect(')');
             }
             return location;
         }
@@ -3880,7 +3884,6 @@ mlir.Dialect = class {
         this.registerCustomAttribute('DefaultValuedOptionalAttr', this._parseDefaultValuedOptionalAttr.bind(this));
         this.registerCustomAttribute('DefaultValuedAttr', this._parseDefaultValuedAttr.bind(this));
         this.registerCustomAttribute('DefaultValuedProp', this._parseDefaultValuedAttr.bind(this));
-        this.registerCustomAttribute('EnumProp', this._parseEnumProp.bind(this));
         this.registerCustomAttribute('ConfinedAttr', this._parseConfinedAttr.bind(this));
         this.registerCustomAttribute('TypeAttrOf', this._parseTypeAttrOf.bind(this));
         this.registerCustomAttribute('AnyAttrOf', this._parseAnyAttrOf.bind(this));
@@ -4752,17 +4755,17 @@ mlir.Dialect = class {
                         }
                     } else if (firstElem.type === 'attribute_ref') {
                         // Handle attribute variables in optional groups
-                        // Match reference implementation: use type-specific parsing based on attribute type
-                        const attrInfo = opInfo.metadata && opInfo.metadata.attributes &&
-                                        opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
-                        const attrType = attrInfo ? attrInfo.type : null;
-                        const result = this._parseCustomAttributeWithFallback(parser, attrType);
-                        if (result === null) {
-                            shouldParse = false;
-                        } else {
-                            const value = result.value === undefined ? result : result.value;
-                            op.attributes.push({ name: firstElem.name, value });
-                            shouldParse = true;
+                        // For optional groups, do lookahead before attempting to parse
+                        // Attribute types parse as: identifiers (enums), @ (symbols), # (attributes), string (strings), [ (arrays)
+                        if (parser.match('id') || parser.match('#') || parser.match('@') || parser.match('string') || parser.match('[')) {
+                            const attrInfo = opInfo.metadata && opInfo.metadata.attributes && opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
+                            const attrType = attrInfo ? attrInfo.type : null;
+                            const result = this._parseCustomAttributeWithFallback(parser, attrType);
+                            if (result !== null) {
+                                const value = result.value === undefined ? result : result.value;
+                                op.attributes.push({ name: firstElem.name, value });
+                                shouldParse = true;
+                            }
                         }
                     } else if (firstElem.type === 'successor_ref') {
                         // Handle successor variables in optional groups
@@ -4972,12 +4975,6 @@ mlir.Dialect = class {
         }
         const [baseType] = type.args;
         return this._parseCustomAttributeWithFallback(parser, baseType);
-    }
-
-    _parseEnumProp(parser /*, type */) {
-        // EnumProp<EnumType{val1|val2|...}> - parse keyword from enum values
-        const keyword = parser.expect('id');
-        return keyword;
     }
 
     _parseTypedAttrInterface(parser) {
@@ -8068,18 +8065,32 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
         }
     }
 
-    _parseParameterLoadOperations(parser /*, op, args */) {
+    _parseParameterLoadOperations(parser, op /*, args */) {
+        // Reference: IOParametersOps.cpp parseParameterLoadOperations
+        // Format: "scope"::"key"[%offset] : type{%size}, ...
         do {
-            parser.expect('%');
-            parser.expect('=');
-            parser.expect('%');
+            // Parse parameter reference: "scope"::"key" or just "key"
+            const firstAttr = parser.expect('string');
+            // Check for :: (scope::key) pattern - the lexer produces '::' as a single token
+            if (parser.accept('id', '::') || parser.accept('::')) {
+                const keyAttr = parser.expect('string');
+                op.attributes.push({ name: 'source_scope', value: firstAttr });
+                op.attributes.push({ name: 'source_key', value: keyAttr });
+            } else {
+                op.attributes.push({ name: 'source_key', value: firstAttr });
+            }
             parser.expect('[');
-            parser.expect('%');
+            const offset = parser.expect('%');
+            op.operands.push({ name: 'source_offset', value: offset });
             parser.expect(']');
             parser.expect(':');
-            parser.parseType();
-            parser.expect('->');
-            parser.parseType();
+            const resultType = parser.parseType();
+            op.results.push({ type: resultType });
+            if (parser.accept('{')) {
+                const size = parser.expect('%');
+                op.operands.push({ name: 'result_size', value: size });
+                parser.expect('}');
+            }
         } while (parser.accept(','));
     }
 
@@ -10413,6 +10424,27 @@ mlir.PDLDialect = class extends mlir.Dialect {
     }
 };
 
+mlir.PtrDialect = class extends mlir.Dialect {
+
+    constructor(operations) {
+        super('ptr', operations);
+        this.registerCustomAttribute('EnumProp', this._parseEnumProp.bind(this));
+        this.registerCustomAttribute('Ptr_PtrDiffFlags', this._parsePtrDiffFlags.bind(this));
+    }
+
+    _parseEnumProp(parser, type) {
+        const [innerType] = type.args;
+        return this._parseCustomAttributeWithFallback(parser, innerType);
+    }
+
+    _parsePtrDiffFlags(parser, type) {
+        if (type.values.includes(parser.getToken().value)) {
+            return this._parseEnumFlags(parser, type, '|');
+        }
+        return null;
+    }
+};
+
 mlir.EmitCDialect = class extends mlir.Dialect {
 
     constructor(operations) {
@@ -12183,6 +12215,88 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
                 if (parser.accept('id', kw)) {
                     progress = true;
                     op.attributes.push({ name: kw, value: true });
+                }
+            }
+            // Handle map_entries clause: map_entries(%vars : types)
+            if (parser.accept('id', 'map_entries')) {
+                progress = true;
+                parser.expect('(');
+                while (!parser.match(')') && !parser.match(':')) {
+                    if (parser.match('%')) {
+                        const operand = parser.expect('%');
+                        op.operands.push({ name: 'map_vars', value: operand });
+                    }
+                    if (!parser.accept(',') || parser.match(':')) {
+                        break;
+                    }
+                }
+                if (parser.accept(':')) {
+                    while (!parser.match(')')) {
+                        parser.parseType();
+                        if (!parser.accept(',')) {
+                            break;
+                        }
+                    }
+                }
+                parser.expect(')');
+            }
+            // Handle num_teams clause: num_teams(lower : type to upper : type) or num_teams(to upper : type)
+            if (parser.accept('id', 'num_teams')) {
+                progress = true;
+                parser.expect('(');
+                if (parser.accept('id', 'to')) {
+                    if (parser.match('%')) {
+                        const upper = parser.expect('%');
+                        op.operands.push({ name: 'num_teams_upper', value: upper });
+                    }
+                    if (parser.accept(':')) {
+                        parser.parseType();
+                    }
+                } else if (parser.match('%')) {
+                    const lower = parser.expect('%');
+                    op.operands.push({ name: 'num_teams_lower', value: lower });
+                    if (parser.accept(':')) {
+                        parser.parseType();
+                    }
+                    parser.expect('id', 'to');
+                    if (parser.match('%')) {
+                        const upper = parser.expect('%');
+                        op.operands.push({ name: 'num_teams_upper', value: upper });
+                    }
+                    if (parser.accept(':')) {
+                        parser.parseType();
+                    }
+                }
+                parser.expect(')');
+            }
+            // Handle use_device_addr/use_device_ptr clauses: keyword(%var -> %arg : type, ...)
+            for (const kw of ['use_device_addr', 'use_device_ptr', 'has_device_addr', 'host_eval']) {
+                if (parser.accept('id', kw)) {
+                    progress = true;
+                    parser.expect('(');
+                    while (!parser.match(')') && !parser.match(':')) {
+                        if (parser.match('%')) {
+                            const operand = parser.expect('%');
+                            op.operands.push({ name: kw, value: operand });
+                        }
+                        if (parser.accept('->')) {
+                            if (parser.match('%')) {
+                                parser.expect('%');
+                            }
+                        }
+                        if (!parser.accept(',') || parser.match(':')) {
+                            break;
+                        }
+                    }
+                    if (parser.accept(':')) {
+                        while (!parser.match(')')) {
+                            parser.parseType();
+                            if (!parser.accept(',')) {
+                                break;
+                            }
+                        }
+                    }
+                    parser.expect(')');
                 }
             }
         }
@@ -14906,14 +15020,29 @@ mlir.TransformDialect = class extends mlir.Dialect {
     }
 
     _parseSemiFunctionType(parser, op /* , args */) {
-        // Parse function-like type syntax: (inputs...) -> results
-        // Args: [inputTypesArg, outputTypesArg, isVariadic]
+        // Reference: Syntax.cpp parseSemiFunctionType
+        // Format: type OR (type) -> result_types
+        const hasLParen = parser.accept('(');
+        // Parse the argument type (first operand type)
+        const argType = parser.parseType();
+        if (op.operands.length > 0) {
+            op.operands[0].type = argType;
+        }
+        if (!hasLParen) {
+            return;
+        }
+        // Had '(' so expect ')' -> result_types
+        parser.expect(')');
+        parser.expect('->');
+        // Handle both single type and parenthesized type list
         if (parser.accept('(')) {
             let idx = 0;
             while (!parser.match(')')) {
                 const type = parser.parseType();
-                if (idx < op.operands.length) {
-                    op.operands[idx].type = type;
+                if (idx < op.results.length) {
+                    op.results[idx].type = type;
+                } else {
+                    op.results.push({ type });
                 }
                 idx++;
                 if (!parser.accept(',')) {
@@ -14921,27 +15050,12 @@ mlir.TransformDialect = class extends mlir.Dialect {
                 }
             }
             parser.expect(')');
-        }
-        if (parser.accept('->')) {
-            let idx = 0;
-            // Handle both single type and parenthesized type list
-            if (parser.accept('(')) {
-                while (!parser.match(')')) {
-                    const type = parser.parseType();
-                    if (idx < op.results.length) {
-                        op.results[idx].type = type;
-                    }
-                    idx++;
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(')');
+        } else {
+            const type = parser.parseType();
+            if (op.results.length > 0) {
+                op.results[0].type = type;
             } else {
-                const type = parser.parseType();
-                if (op.results.length > 0) {
-                    op.results[0].type = type;
-                }
+                op.results.push({ type });
             }
         }
     }
@@ -14951,6 +15065,7 @@ mlir.TestDialect = class extends mlir.Dialect {
 
     constructor(operations) {
         super('test', operations);
+        this.registerCustomAttribute('TestBitEnumProp', this._parseTestBitEnumProp.bind(this));
     }
 
     parseOperation(parser, opName, op) {
@@ -15028,6 +15143,13 @@ mlir.TestDialect = class extends mlir.Dialect {
             return true;
         }
         return super.parseOperation(parser, opName, op);
+    }
+
+    _parseTestBitEnumProp(parser, type) {
+        if (type.values.includes(parser.getToken().value)) {
+            return this._parseEnumFlags(parser, type, ',');
+        }
+        return null;
     }
 };
 
