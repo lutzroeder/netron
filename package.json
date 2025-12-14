@@ -43,7 +43,7 @@
         "extends": "publish/electron-builder.json"
     },
     "nyc": {
-        "reporter": "json",
+        "reporter": ["lcov", "html"],
         "report-dir": "dist/nyc/report",
         "temp-dir": "dist/nyc/.nyc_output"
     }

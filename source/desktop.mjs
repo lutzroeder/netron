@@ -32,10 +32,14 @@ desktop.Host = class {
         };
         this._window.addEventListener('unload', () => {
             if (typeof __coverage__ !== 'undefined') {
-                const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html'));
-                /* eslint-disable no-undef */
-                fs.writeFileSync(`${file}.json`, JSON.stringify(__coverage__));
-                /* eslint-enable no-undef */
+                const dir = path.join(process.cwd(), 'dist', 'nyc', '.nyc_output');
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+                const base = path.basename(window.location.pathname, '.html');
+                const file = path.join(dir, `${base}.json`);
+                /* eslint-disable-next-line no-undef */
+                fs.writeFileSync(file, JSON.stringify(__coverage__));
             }
         });
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
@@ -114,9 +118,8 @@ desktop.Host = class {
                 this.document.body.classList.remove('spinner');
                 const link = this._element('logo-github').href;
                 for (;;) {
-                    /* eslint-disable no-await-in-loop */
+                    /* eslint-disable-next-line no-await-in-loop */
                     await this.message('Please update to the newest version.', null, 'Download');
-                    /* eslint-enable no-await-in-loop */
                     this.openURL(link);
                 }
             }
