@@ -779,11 +779,11 @@ darknet.Graph = class {
 
 darknet.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
 
     }
 };

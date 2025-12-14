@@ -222,13 +222,13 @@ rknn.Argument = class {
 
 rknn.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type = null, initializer = null) {
         if (typeof name !== 'string') {
             throw new rknn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type || null;
-        this.initializer = initializer || null;
+        this.type = type;
+        this.initializer = initializer;
     }
 };
 

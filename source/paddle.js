@@ -433,13 +433,13 @@ paddle.Argument = class {
 
 paddle.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new paddle.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = !type && initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -586,10 +586,10 @@ paddle.Node = class {
 
 paddle.Tensor = class {
 
-    constructor(type, data, category) {
+    constructor(type, data, category = '') {
         this.type = type;
         this.values = data;
-        this.category = category || '';
+        this.category = category;
     }
 };
 

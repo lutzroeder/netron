@@ -70,11 +70,11 @@ pytorch.Model = class {
 
 pytorch.Graph = class {
 
-    constructor(execution, metadata, type, name, module) {
+    constructor(execution, metadata, type, name = '', module = null) {
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
-        this.name = name || '';
+        this.name = name;
         this.type = type;
         const values = new Map();
         values.map = (name, type, tensor) => {
@@ -321,24 +321,24 @@ pytorch.Graph = class {
 
 pytorch.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 pytorch.Value = class Value {
 
-    constructor(name, type, quantization, initializer) {
+    constructor(name, type, quantization, initializer = null) {
         if (typeof name !== 'string') {
             throw new pytorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer && initializer.type ? initializer.type : type || null;
         this.quantization = quantization;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -982,8 +982,8 @@ pytorch.TensorType = class {
 
 pytorch.TensorShape = class {
 
-    constructor(dimensions) {
-        this.dimensions = dimensions || [];
+    constructor(dimensions = []) {
+        this.dimensions = dimensions;
     }
 
     toString() {

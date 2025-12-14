@@ -100,8 +100,8 @@ sklearn.Model = class {
 
 sklearn.Module = class {
 
-    constructor(metadata, name, obj) {
-        this.name = name || '';
+    constructor(metadata, name = '', obj = null) {
+        this.name = name;
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
@@ -112,23 +112,23 @@ sklearn.Module = class {
 
 sklearn.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
         this.type = type;
-        this.visible = visible !== false;
+        this.visible = visible;
     }
 };
 
 sklearn.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new sklearn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

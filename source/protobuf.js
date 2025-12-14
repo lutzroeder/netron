@@ -474,11 +474,11 @@ protobuf.BinaryReader = class {
 
 protobuf.BufferReader = class extends protobuf.BinaryReader {
 
-    constructor(buffer, offset) {
+    constructor(buffer, offset = 0) {
         super();
         this._buffer = buffer;
         this._length = buffer.length;
-        this._position = offset || 0;
+        this._position = offset;
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 

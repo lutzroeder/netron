@@ -60,8 +60,8 @@ pickle.Model = class {
 
 pickle.Module = class {
 
-    constructor(type, obj) {
-        this.type = type || '';
+    constructor(type = '', obj = null) {
+        this.type = type;
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
@@ -168,23 +168,23 @@ pickle.Node = class {
 
 pickle.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name.toString();
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 pickle.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new pickle.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer && initializer.type ? initializer.type : type || null;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

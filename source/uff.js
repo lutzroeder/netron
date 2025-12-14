@@ -137,24 +137,22 @@ uff.Graph = class {
 
 uff.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
-        if (type) {
-            this.type = type;
-        }
+        this.type = type;
     }
 };
 
 uff.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type = null, initializer = null) {
         if (typeof name !== 'string') {
             throw new uff.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type || null;
-        this.initializer = initializer || null;
+        this.type = type;
+        this.initializer = initializer;
     }
 };
 

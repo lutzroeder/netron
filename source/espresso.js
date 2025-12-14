@@ -120,24 +120,24 @@ espresso.Graph = class {
 
 espresso.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 espresso.Value = class {
 
-    constructor(name, type, description, initializer) {
+    constructor(name, type, description = null, initializer = null) {
         if (typeof name !== 'string') {
             throw new espresso.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = !type && initializer ? initializer.type : type;
-        this.description = description || null;
-        this.initializer = initializer || null;
+        this.description = description;
+        this.initializer = initializer;
         this.quantization = initializer ? initializer.quantization : null;
     }
 };

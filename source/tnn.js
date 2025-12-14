@@ -109,23 +109,23 @@ tnn.Graph = class {
 
 tnn.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
         this.type = type;
-        this.visible = visible !== false;
+        this.visible = visible;
     }
 };
 
 tnn.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new tnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

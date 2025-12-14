@@ -316,23 +316,23 @@ caffe.Graph = class {
 
 caffe.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 caffe.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type = null, initializer = null) {
         if (typeof name !== 'string') {
             throw new caffe.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type || null;
-        this.initializer = initializer || null;
+        this.type = type;
+        this.initializer = initializer;
     }
 };
 

@@ -89,13 +89,13 @@ hickle.Argument = class {
 
 hickle.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new hickle.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = !type && initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

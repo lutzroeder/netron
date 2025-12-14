@@ -834,23 +834,23 @@ tf.Signature = class {
 
 tf.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 tf.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new tf.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = !type && initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -1110,9 +1110,9 @@ tf.Node = class {
 
 tf.Tensor = class {
 
-    constructor(tensor, name, category) {
+    constructor(tensor, name, category = null) {
         this.name = name;
-        this.category = category || null;
+        this.category = category;
         if (tensor) {
             this.type = new tf.TensorType(tensor.dtype, tensor.tensor_shape || tensor.tensorShape);
             this._tensor = tensor;

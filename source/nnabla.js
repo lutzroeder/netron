@@ -179,30 +179,30 @@ nnabla.Graph = class {
 
 nnabla.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 nnabla.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         this.name = name;
         this.type = !type && initializer && initializer.type ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
 nnabla.Node = class {
 
-    constructor(metadata, func, attributes, inputs, outputs) {
+    constructor(metadata, func, attributes = [], inputs = [], outputs = []) {
         this.name = func.name;
         this.type = metadata.type(func.type) || { name: func.type, type: func.type };
-        this.attributes = attributes || [];
-        this.outputs = outputs || [];
+        this.attributes = attributes;
+        this.outputs = outputs;
         this.chain = [];
         // "nonlinearity" does not match metadata type
         const get_nonlinearity = (name) => {

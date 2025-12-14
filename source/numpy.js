@@ -100,13 +100,13 @@ numpy.Argument = class {
 
 numpy.Value = class {
 
-    constructor(name, initializer) {
+    constructor(name, initializer = null) {
         if (typeof name !== 'string') {
             throw new numpy.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer.type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

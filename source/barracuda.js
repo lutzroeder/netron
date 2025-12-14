@@ -79,19 +79,19 @@ barracuda.Graph = class {
 
 barracuda.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
+        this.type = type;
     }
 };
 
 barracuda.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type = null, initializer = null) {
         this.name = name;
-        this.type = type || null;
-        this.initializer = initializer || null;
+        this.type = type;
+        this.initializer = initializer;
     }
 };
 

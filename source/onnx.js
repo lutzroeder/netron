@@ -251,25 +251,25 @@ onnx.Graph = class {
 
 onnx.Argument = class {
 
-    constructor(name, value, type, description, visible) {
+    constructor(name, value, type = null, description = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.description = description || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.description = description;
+        this.visible = visible;
     }
 };
 
 onnx.Value = class {
 
-    constructor(name, type, initializer, annotation, description) {
+    constructor(name, type = null, initializer = null, annotation = null, description = '') {
         if (typeof name !== 'string') {
             throw new onnx.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this._name = name;
-        this._type = type || null;
-        this._initializer = initializer || null;
-        this._description = description || '';
+        this._type = type;
+        this._initializer = initializer;
+        this._description = description;
         this._quantization = annotation ? { type: 'annotation', value: annotation } : null;
     }
 
@@ -447,8 +447,8 @@ onnx.Group = class {
 
 onnx.Tensor = class {
 
-    constructor(context, tensor, category) {
-        this._category = category || null;
+    constructor(context, tensor, category = null) {
+        this._category = category;
         if (tensor.indices && tensor.values) {
             this._name = tensor.values.name || '';
             this._type = context.createTensorType(tensor.values.data_type, tensor.dims, 'sparse');
@@ -649,11 +649,11 @@ onnx.Tensor = class {
 
 onnx.TensorType = class {
 
-    constructor(dataType, shape, layout, denotation) {
+    constructor(dataType, shape, layout = null, denotation = null) {
         this._dataType = dataType;
         this._shape = shape;
-        this._layout = layout || null;
-        this._denotation = denotation || null;
+        this._layout = layout;
+        this._denotation = denotation;
     }
 
     get dataType() {
@@ -1624,12 +1624,12 @@ onnx.ProtoReader = class {
         return undefined;
     }
 
-    constructor(context, encoding, type, offset) {
+    constructor(context, encoding, type, offset = 0) {
         this.name = 'onnx.proto';
         this.context = context;
         this.encoding = encoding;
         this.type = type;
-        this.offset = offset || 0;
+        this.offset = offset;
         this.locations = new Map();
     }
 

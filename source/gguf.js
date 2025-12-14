@@ -81,9 +81,9 @@ gguf.Model = class {
 
 gguf.Graph = class {
 
-    constructor(graph, type) {
+    constructor(graph, type = '') {
         this.name = graph.type;
-        this.type = type || '';
+        this.type = type;
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];

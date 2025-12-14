@@ -130,23 +130,23 @@ executorch.Graph = class {
 
 executorch.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 executorch.Value = class Value {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new executorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer && initializer.type ? initializer.type : type || null;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -280,8 +280,8 @@ executorch.TensorType = class {
 
 executorch.TensorShape = class {
 
-    constructor(dimensions) {
-        this.dimensions = dimensions || [];
+    constructor(dimensions = []) {
+        this.dimensions = dimensions;
     }
 
     toString() {
@@ -584,23 +584,23 @@ xnnpack.Node = class {
 
 xnnpack.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 xnnpack.Value = class Value {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new executorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer && initializer.type ? initializer.type : type || null;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -668,8 +668,8 @@ xnnpack.TensorType = class {
 
 xnnpack.TensorShape = class {
 
-    constructor(dimensions) {
-        this.dimensions = dimensions || [];
+    constructor(dimensions = []) {
+        this.dimensions = dimensions;
     }
 
     toString() {
@@ -839,23 +839,23 @@ vulkan.Node = class {
 
 vulkan.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 vulkan.Value = class Value {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new executorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer && initializer.type ? initializer.type : type || null;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -877,8 +877,8 @@ vulkan.TensorType = class {
 
 vulkan.TensorShape = class {
 
-    constructor(dimensions) {
-        this.dimensions = dimensions || [];
+    constructor(dimensions = []) {
+        this.dimensions = dimensions;
     }
 
     toString() {
@@ -1206,23 +1206,23 @@ ethosu.Graph = class {
 
 ethosu.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 ethosu.Value = class Value {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new executorch.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer && initializer.type ? initializer.type : type || null;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 
@@ -1246,8 +1246,8 @@ ethosu.TensorType = class {
 
 ethosu.TensorShape = class {
 
-    constructor(dimensions) {
-        this.dimensions = dimensions || [];
+    constructor(dimensions = []) {
+        this.dimensions = dimensions;
     }
 
     toString() {

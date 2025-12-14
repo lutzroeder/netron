@@ -105,13 +105,13 @@ dnn.Argument = class {
 
 dnn.Value = class {
 
-    constructor(name, type, initializer, quantization) {
+    constructor(name, type = null, initializer = null, quantization = null) {
         if (typeof name !== 'string') {
             throw new dnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type || null;
-        this.initializer = initializer || null;
+        this.type = type;
+        this.initializer = initializer;
         if (quantization) {
             this.quantization = {
                 type: 'lookup',

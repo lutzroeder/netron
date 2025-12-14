@@ -159,28 +159,24 @@ acuity.Node = class {
 
 acuity.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        if (type) {
-            this.type = type;
-        }
-        if (visible === false) {
-            this.visible = false;
-        }
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 acuity.Value = class {
 
-    constructor(name, type, quantization, initializer) {
+    constructor(name, type = null, quantization = null, initializer = null) {
         if (typeof name !== 'string') {
             throw new acuity.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type || null;
-        this.quantization = quantization || null;
-        this.initializer = initializer || null;
+        this.type = type;
+        this.quantization = quantization;
+        this.initializer = initializer;
     }
 };
 

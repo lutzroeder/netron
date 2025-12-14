@@ -99,13 +99,13 @@ flax.Argument = class {
 
 flax.Value = class {
 
-    constructor(name, initializer) {
+    constructor(name, initializer = null) {
         if (typeof name !== 'string') {
             throw new flax.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : null;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

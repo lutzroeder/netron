@@ -53,9 +53,10 @@ mlir.ModelFactory = class {
         switch (context.type) {
             case 'mlir.text': {
                 const decoder = await context.read('text.decoder');
-                const parser = new mlir.Parser(decoder, metadata);
-                const obj = await parser.read();
-                return new mlir.Model(metadata, obj);
+                const state = new mlir.ParserState();
+                const parser = new mlir.Parser(state, decoder, metadata);
+                const block = await parser.parse();
+                return new mlir.Model(metadata, block, state.attributeAliasDefinitions);
             }
             case 'mlir.binary': {
                 const reader = await context.read('binary');
@@ -72,11 +73,11 @@ mlir.ModelFactory = class {
 
 mlir.Model = class {
 
-    constructor(metadata, obj) {
+    constructor(metadata, block, attributeAliasDefinitions) {
         this.format = 'MLIR';
         this.modules = [];
         this.metadata = [];
-        for (const op of obj.operations) {
+        for (const op of block.operations) {
             if (op.name.endsWith('.func')) {
                 const graph = new mlir.Graph(metadata, op);
                 this.modules.push(graph);
@@ -94,15 +95,13 @@ mlir.Model = class {
                 }
             }
         }
-        if (obj.definitions) {
-            for (const attribute of obj.definitions) {
-                let value = attribute.type;
-                if (!value) {
-                    value = typeof attribute.value === 'string' ? attribute.value : JSON.stringify(attribute.value);
-                }
-                const metadata = new mlir.Argument(attribute.name, value, 'attribute');
-                this.metadata.push(metadata);
+        for (const [name, attribute] of attributeAliasDefinitions) {
+            let value = attribute.type;
+            if (!value) {
+                value = typeof attribute.value === 'string' ? attribute.value : JSON.stringify(attribute.value);
             }
+            const metadata = new mlir.Argument(name, value, 'attribute');
+            this.metadata.push(metadata);
         }
     }
 };
@@ -300,10 +299,10 @@ mlir.Graph = class {
 
 mlir.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
+        this.type = type;
         // Normalize common type aliases and accept extended MLIR types
         if (this.type) {
             // Convert mlir.Type objects to strings for high-level usage
@@ -862,15 +861,20 @@ mlir.Tokenizer = class {
     }
 };
 
+mlir.ParserState = class {
+    constructor() {
+        this.defaultDialectStack = ['builtin'];
+        this.attributeAliasDefinitions = new Map();
+        this.typeAliasDefinitions = new Map();
+    }
+};
+
 mlir.Parser = class {
 
-    constructor(decoder, metadata) {
+    constructor(state, decoder, metadata) {
         this._tokenizer = new mlir.Tokenizer(decoder);
         this._token = this._tokenizer.read();
-        this._state = {
-            defaultDialectStack: ['builtin']
-        };
-        this._typeAliases = new Map();
+        this._state = state;
         this._dialects = new Map();
         const operations = metadata.operations;
         this._dialects.set('builtin', new mlir.BuiltinDialect(operations));
@@ -1014,6 +1018,7 @@ mlir.Parser = class {
         this._redirect = new Map([
             ['builtin.func', 'func.func'],
             ['builtin.constant', 'arith.constant'],
+            ['func.constant', 'arith.constant'],
             ['builtin.return', 'func.return'],
             ['builtin.select', 'arith.select'],
             ['scf.select', 'arith.select'],
@@ -1068,58 +1073,76 @@ mlir.Parser = class {
         ]);
     }
 
-    async read() {
-        return this.parse();
-    }
-
-    parse() {
+    async parse() {
+        // Reference: Parser.cpp TopLevelOperationParser::parse
         // https://mlir.llvm.org/docs/LangRef/#top-level-productions
         const block = {
-            operations: [],
-            definitions: []
+            operations: []
         };
         while (true) {
             if (this.match('eof')) {
                 break;
             }
-            if (this.match('#')) { // attribute-alias-def
-                const name = this.expect();
-                this.expect('=');
-                // Handle pre-2020 bare affine map syntax: (dims) [symbols] -> (results)
-                // Changed to affine_map<...> in llvm/llvm-project@4268e4f4b84b (Jan 2020) to avoid conflicts with function types.
-                let value = null;
-                if (this.match('(')) {
-                    const dims = this.skip('(', ')');
-                    const symbols = this.match('[') ? this.skip('[', ']') : '';
-                    this.expect('->');
-                    const results = this.match('(') ? this.skip('(', ')') : '';
-                    value = { value: `affine_map<${dims}${symbols} -> ${results}>`, name: 'affine_map' };
-                } else {
-                    value = this.parseAttribute();
-                }
-                block.definitions.push({ name, value });
+            if (this.match('#')) {
+                // Reference: parseAttributeAliasDef stores in state.symbols.attributeAliasDefinitions
+                this.parseAttributeAliasDef();
                 continue;
             }
-            if (this.match('!')) { // type-alias-def
-                const name = this.expect('!');
-                this.expect('=');
-                const type = this.parseType();
-                block.definitions.push({ name, type });
-                this._typeAliases.set(name, type);
+            if (this.match('!')) {
+                // Reference: parseTypeAliasDef stores in state.symbols.typeAliasDefinitions
+                this.parseTypeAliasDef();
                 continue;
             }
-            if (this.match('{-#')) { // file metadata
-                this.expect('{-#');
-                while (!this.match('#-}') && !this.match('eof')) {
-                    this._token = this._tokenizer.read();
-                }
-                this.expect('#-}');
+            if (this.match('{-#')) {
+                this.parseFileMetadataDictionary();
                 continue;
             }
             const op = this.parseOperation();
             block.operations.push(op);
         }
         return block;
+    }
+
+    // Reference: Parser.cpp parseAttributeAliasDef lines 2695-2725
+    // attribute-alias-def ::= '#' alias-name `=` attribute-value
+    parseAttributeAliasDef() {
+        const aliasName = this.expect();
+        this.expect('=');
+        // Handle pre-2020 bare affine map syntax: (dims) [symbols] -> (results)
+        // Changed to affine_map<...> in llvm/llvm-project@4268e4f4b84b (Jan 2020)
+        let attr = null;
+        if (this.match('(')) {
+            const dims = this.skip('(', ')');
+            const symbols = this.match('[') ? this.skip('[', ']') : '';
+            this.expect('->');
+            const results = this.match('(') ? this.skip('(', ')') : '';
+            attr = { value: `affine_map<${dims}${symbols} -> ${results}>`, name: 'affine_map' };
+        } else {
+            // Reference: Attribute attr = parseAttribute();
+            attr = this.parseAttribute();
+        }
+        // Reference: state.symbols.attributeAliasDefinitions[aliasName] = attr;
+        this._state.attributeAliasDefinitions.set(aliasName, attr);
+    }
+
+    // Reference: Parser.cpp parseTypeAliasDef lines 2727-2757
+    // type-alias-def ::= '!' alias-name `=` type
+    parseTypeAliasDef() {
+        const aliasName = this.expect('!');
+        this.expect('=');
+        const type = this.parseType();
+        // Reference: state.symbols.typeAliasDefinitions[aliasName] = type;
+        this._state.typeAliasDefinitions.set(aliasName, type);
+    }
+
+    // Reference: Parser.cpp parseFileMetadataDictionary
+    // file-metadata-dict ::= '{-#' file-metadata-entry* `#-}'
+    parseFileMetadataDictionary() {
+        this.expect('{-#');
+        while (!this.match('#-}') && !this.match('eof')) {
+            this._token = this._tokenizer.read();
+        }
+        this.expect('#-}');
     }
 
     parseFunctionArgumentList(allowVariadic) {
@@ -1654,33 +1677,36 @@ mlir.Parser = class {
             const location = {};
             this.expect('(');
             if (this.match('string')) {
-                const str = this.expect('string');
-                if (this.match('(')) {
-                    location.name = str;
-                    this.expect('(');
-                    location.child = this.parseLocationContent();
+                const text = this.expect('string');
+                let content = `"${text}"`;
+                if (this.accept('(')) {
+                    const child = this.parseLocationContent();
                     this.expect(')');
-                } else {
-                    location.file = str;
+                    content += `(${child})`;
+                } else if (this.accept(':')) {
+                    const line = this.expect('int');
+                    content += `:${line}`;
                     if (this.accept(':')) {
-                        location.line = this.expect('int');
-                        if (this.accept(':')) {
-                            location.col = this.expect('int');
-                            if (this.accept('id', 'to')) {
+                        const col = this.expect('int');
+                        content += `:${col}`;
+                        if (this.accept('id', 'to')) {
+                            if (this.accept(':')) {
+                                const endLine = this.expect('int');
+                                content += ` to:${endLine}`;
                                 if (this.accept(':')) {
-                                    location.endLine = this.expect('int');
-                                    if (this.accept(':')) {
-                                        location.endCol = this.expect('int');
-                                    }
+                                    const endCol = this.expect('int');
+                                    content += `:${endCol}`;
                                 }
                             }
                         }
                     }
                 }
+                location.value = `loc(${content})`;
             } else if (this.match('#')) {
-                location.alias = this.expect();
+                const alias = this.expect();
+                location.value = `loc(${alias})`;
             } else if (this.accept('id', 'unknown')) {
-                location.unknown = true;
+                location.value = 'loc(unknown)';
             } else if (this.accept('id', 'callsite')) {
                 this.expect('(');
                 location.type = 'callsite';
@@ -2302,7 +2328,7 @@ mlir.Parser = class {
 
     // Reference: DialectSymbolParser.cpp parseExtendedType
     parseExtendedType() {
-        return this.parseExtendedSymbol('!', this._typeAliases, (dialectName, symbolData) => {
+        return this.parseExtendedSymbol('!', this._state.typeAliasDefinitions, (dialectName, symbolData) => {
             if (!this._dialects.has(dialectName)) {
                 throw new mlir.Error(`Unsupported dialect '${dialectName}' ${this.location()}`);
             }
@@ -2589,42 +2615,39 @@ mlir.Parser = class {
         return null;
     }
 
-    // Reference: AttributeParser.cpp parseAttribute
-    parseAttribute(/* type */) {
+    // Reference: AttributeParser.cpp parseAttribute(Type type = {})
+    // When type is null (default), parse `: type` suffix for int/float/string
+    // When type is provided, use it directly without parsing suffix
+    parseAttribute(type = null) {
         // Parse an AffineMap or IntegerSet attribute.
         if (this.match('id', 'affine_map') || this.match('id', 'affine_set')) {
             const name = this.expect();
             const args = this.skip('<', '>');
-            return { name, args };
+            return { value: `${name}${args}` };
         }
         // Parse an array attribute.
+        // Reference: AttributeParser.cpp lines 73-84
         if (this.match('[')) {
             this.expect('[');
             const elements = [];
             while (!this.accept(']')) {
+                // Reference: elements.push_back(parseAttribute());
                 const item = this.parseAttribute();
-                // Handle optional type annotation (e.g., 8 : index)
-                if (this.accept(':')) {
-                    item.type = this.parseType();
-                }
                 elements.push(item.value);
                 this.accept(',');
             }
             // Handle special `[a] x [b]` syntax (dialect-specific)
             if (this.accept('id', 'x')) {
-                const list = [Array.from(elements)];
+                const value = [Array.from(elements)];
                 this.expect('[');
                 const second = [];
                 while (!this.accept(']')) {
                     const item = this.parseAttribute();
-                    if (this.accept(':')) {
-                        item.type = this.parseType();
-                    }
                     second.push(item.value);
                     this.accept(',');
                 }
-                list.push(second);
-                return { value: list };
+                value.push(second);
+                return { value };
             }
             return { value: elements };
         }
@@ -2634,25 +2657,37 @@ mlir.Parser = class {
             return { value, type: new mlir.PrimitiveType('i1') };
         }
         // Parse a dense elements attribute.
-        // Reference: AttributeParser.cpp parseDenseElementsAttr
+        // Reference: AttributeParser.cpp parseDenseElementsAttr(Type attrType)
+        // Format: dense<literal> : type  (type suffix only if attrType not provided)
         if (this.match('id', 'dense')) {
             this.expect('id');
             this.expect('<');
-            if (this.accept('>')) {
-                return { value: null, type: 'dense' };
+            let value = null;
+            if (!this.accept('>')) {
+                const literalParser = new mlir.TensorLiteralParser(this);
+                value = literalParser.parse(/* allowHex */ true);
+                this.expect('>');
             }
-            const literalParser = new mlir.TensorLiteralParser(this);
-            const value = literalParser.parse(/* allowHex */ true);
-            this.expect('>');
-            return { value, type: 'dense' };
+            // Reference: if (!attrType) { parseToken(Token::colon); attrType = parseType(); }
+            if (!type) {
+                this.expect(':');
+                type = this.parseType();
+            }
+            return { value, type };
         }
         // Parse a dense resource elements attribute.
+        // Reference: AttributeParser.cpp parseDenseResourceElementsAttr(Type attrType)
+        // Format: dense_resource<handle> : type  (type suffix only if attrType not provided)
         if (this.match('id', 'dense_resource')) {
             this.expect('id');
             this.expect('<');
-            const resourceHandle = this.expect();
+            const value = this.expect();
             this.expect('>');
-            return { value: resourceHandle, type: 'dense' };
+            if (!type) {
+                this.expect(':');
+                type = this.parseType();
+            }
+            return { value, type };
         }
         // Parse a dense array attribute.
         if (this.match('id', 'array')) {
@@ -2674,36 +2709,49 @@ mlir.Parser = class {
         if (this.match('{')) {
             const attributes = [];
             this.parseAttributeDict(attributes);
-            const obj = {};
+            const value = {};
             for (const attribute of attributes) {
-                obj[attribute.name] = attribute.value;
+                value[attribute.name] = attribute.value;
             }
-            return { value: obj };
+            return { value };
         }
         // Parse an extended attribute, i.e. alias or dialect attribute.
         if (this.match('#')) {
             return this.parseExtendedAttr();
         }
+        const parseType = (type, defaultType) => {
+            if (type) {
+                return type;
+            }
+            return this.accept(':') ? this.parseType() : defaultType;
+        };
         // Parse floating point attribute.
+        // Reference: AttributeParser.cpp parseFloatAttr
         if (this.match('float')) {
             const value = this.expect();
-            return { value, type: new mlir.PrimitiveType('f64') };
+            type = parseType(type, new mlir.PrimitiveType('f64'));
+            return { value, type };
         }
         // Parse integer attribute.
+        // Reference: AttributeParser.cpp parseDecOrHexAttr lines 406-418
         if (this.match('int')) {
             const value = this.expect();
-            return { value, type: new mlir.PrimitiveType('i64') };
+            type = parseType(type, new mlir.PrimitiveType('i64'));
+            return { value, type };
         }
         // Parse negative number.
+        // Reference: AttributeParser.cpp parseAttribute case Token::minus
         if (this.match('keyword', '-')) {
             this.expect();
             if (this.match('int')) {
                 const value = `-${this.expect()}`;
-                return { value, type: new mlir.PrimitiveType('i64') };
+                type = parseType(type, new mlir.PrimitiveType('i64'));
+                return { value, type };
             }
             if (this.match('float')) {
                 const value = `-${this.expect()}`;
-                return { value, type: new mlir.PrimitiveType('f64') };
+                type = parseType(type, new mlir.PrimitiveType('f64'));
+                return { value, type };
             }
             throw new mlir.Error(`Expected integer or float after '-' ${this.location()}`);
         }
@@ -2712,23 +2760,30 @@ mlir.Parser = class {
             return this.parseLocation();
         }
         // Parse a sparse elements attribute.
-        // Reference: AttributeParser.cpp parseSparseElementsAttr
+        // Reference: AttributeParser.cpp parseSparseElementsAttr(Type attrType)
+        // Format: sparse<indices, values> : type  (type suffix only if attrType not provided)
         if (this.match('id', 'sparse')) {
             this.expect('id');
             this.expect('<');
+            let indices = null;
+            let values = null;
             // Parse empty sparse: sparse<>
-            if (this.accept('>')) {
-                return { value: { indices: null, values: null }, type: 'sparse' };
+            if (!this.accept('>')) {
+                // Parse indices (no hex allowed)
+                const indiceParser = new mlir.TensorLiteralParser(this);
+                indices = indiceParser.parse(/* allowHex */ false);
+                this.expect(',');
+                // Parse values (hex allowed)
+                const valuesParser = new mlir.TensorLiteralParser(this);
+                values = valuesParser.parse(/* allowHex */ true);
+                this.expect('>');
             }
-            // Parse indices (no hex allowed)
-            const indiceParser = new mlir.TensorLiteralParser(this);
-            const indices = indiceParser.parse(/* allowHex */ false);
-            this.expect(',');
-            // Parse values (hex allowed)
-            const valuesParser = new mlir.TensorLiteralParser(this);
-            const values = valuesParser.parse(/* allowHex */ true);
-            this.expect('>');
-            return { value: { indices, values }, type: 'sparse' };
+            let sparseType = type;
+            if (!sparseType) {
+                this.expect(':');
+                sparseType = this.parseType();
+            }
+            return { value: { indices, values }, type: sparseType };
         }
         // Parse a strided layout attribute.
         if (this.match('id', 'strided')) {
@@ -2737,15 +2792,26 @@ mlir.Parser = class {
             return { value: `strided${body}`, type: 'strided' };
         }
         // Parse a distinct attribute.
+        // Reference: AttributeParser.cpp parseDistinctAttr
+        // Format: distinct[id]<attribute>
         if (this.match('id', 'distinct')) {
             this.expect('id');
-            const body = this.skip('[', ']');
-            return { value: `distinct${body}`, type: 'distinct' };
+            const id = this.skip('[', ']');
+            this.expect('<');
+            let referencedAttr = null;
+            if (!this.match('>')) {
+                // Reference: referencedAttr = parseAttribute(type);
+                referencedAttr = this.parseAttribute();
+            }
+            this.expect('>');
+            return { value: `distinct${id}`, referencedAttr, type: 'distinct' };
         }
         // Parse a string attribute.
+        // Reference: AttributeParser.cpp case Token::string lines 160-168
         if (this.match('string')) {
             const value = this.expect();
-            return { value, type: new mlir.PrimitiveType('string') };
+            type = parseType(type, new mlir.PrimitiveType('string'));
+            return { value, type };
         }
         // Parse a symbol reference attribute.
         if (this.match('@')) {
@@ -2796,9 +2862,9 @@ mlir.Parser = class {
             return { value };
         }
         // Reference: AttributeParser.cpp default case - try to parse a type attribute
-        const type = this.parseOptionalType();
-        if (type) {
-            return { value: type, type: 'type' };
+        const typeAttr = this.parseOptionalType();
+        if (typeAttr) {
+            return { value: typeAttr, type: 'type' };
         }
         throw new mlir.Error(`Unexpected attribute token '${this._token.value}' ${this.location()}`);
     }
@@ -3889,6 +3955,27 @@ mlir.Dialect = class {
         this.registerCustomAttribute('AnyAttrOf', this._parseAnyAttrOf.bind(this));
         this.registerCustomAttribute('ArrayAttr', this._parseArrayAttr.bind(this));
         this.registerCustomAttribute('TypedArrayAttrBase', this._parseArrayAttr.bind(this));
+        // Register integer attribute types - parse without : type suffix
+        // Reference: for typed attributes, the type is known so no suffix needed
+        this.registerCustomAttribute('I64Attr', this._parseIntegerAttr.bind(this, 'i64'));
+        this.registerCustomAttribute('I32Attr', this._parseIntegerAttr.bind(this, 'i32'));
+        this.registerCustomAttribute('I16Attr', this._parseIntegerAttr.bind(this, 'i16'));
+        this.registerCustomAttribute('I8Attr', this._parseIntegerAttr.bind(this, 'i8'));
+        this.registerCustomAttribute('I1Attr', this._parseIntegerAttr.bind(this, 'i1'));
+        this.registerCustomAttribute('SI64Attr', this._parseIntegerAttr.bind(this, 'si64'));
+        this.registerCustomAttribute('SI32Attr', this._parseIntegerAttr.bind(this, 'si32'));
+        this.registerCustomAttribute('UI64Attr', this._parseIntegerAttr.bind(this, 'ui64'));
+        this.registerCustomAttribute('UI32Attr', this._parseIntegerAttr.bind(this, 'ui32'));
+        this.registerCustomAttribute('IndexAttr', this._parseIntegerAttr.bind(this, 'index'));
+        // Register float attribute types
+        this.registerCustomAttribute('F64Attr', this._parseFloatAttr.bind(this, 'f64'));
+        this.registerCustomAttribute('F32Attr', this._parseFloatAttr.bind(this, 'f32'));
+        this.registerCustomAttribute('F16Attr', this._parseFloatAttr.bind(this, 'f16'));
+        this.registerCustomAttribute('BF16Attr', this._parseFloatAttr.bind(this, 'bf16'));
+        // String attributes - pass string type to prevent : type suffix parsing
+        this.registerCustomAttribute('StrAttr', this._parseStrAttr.bind(this));
+        // Level attribute - parse as index to prevent : type suffix parsing
+        this.registerCustomAttribute('LevelAttr', this._parseIntegerAttr.bind(this, 'index'));
         this.registerCustomType('Optional', this._parseOptional.bind(this));
         for (const metadata of operations.get(name) || []) {
             const op = { metadata };
@@ -4401,6 +4488,7 @@ mlir.Dialect = class {
                 if (attrType && attrType !== 'Attribute') {
                     attrValue = this._parseCustomAttributeWithFallback(parser, attrType);
                 } else {
+                    // In assembly format, don't parse : type suffix (default parseTypeSuffix = false)
                     attrValue = parser.parseAttribute();
                 }
                 if (attrValue) {
@@ -4977,25 +5065,10 @@ mlir.Dialect = class {
         return this._parseCustomAttributeWithFallback(parser, baseType);
     }
 
+    // Reference: TypedAttrInterface attributes parse via parseAttribute()
+    // parseAttribute handles `: type` suffix internally when type is null
     _parseTypedAttrInterface(parser) {
-        if (parser.match('#')) {
-            const attr = parser.parseAttribute();
-            // Handle typed attribute with trailing : type
-            if (parser.accept(':')) {
-                const type = parser.parseType();
-                attr.type = type;
-            }
-            return attr;
-        }
-        const value = parser.parseAttribute();
-        if (parser.accept(':')) {
-            const type = parser.parseType();
-            if (value && value.value !== undefined) {
-                return { value: value.value, attrType: type };
-            }
-            return { value, attrType: type };
-        }
-        return value;
+        return parser.parseAttribute();
     }
 
     _parseUnitAttr() {
@@ -5008,6 +5081,28 @@ mlir.Dialect = class {
             return { value: value.substring(1) };
         }
         return null;
+    }
+
+    // Parse typed integer attribute (I64Attr, I32Attr, etc.)
+    // Reference: for typed attributes, the type is known so no : type suffix parsing
+    _parseIntegerAttr(typeName, parser) {
+        const type = new mlir.PrimitiveType(typeName);
+        // Use parseAttribute with the known type to avoid suffix parsing
+        return parser.parseAttribute(type);
+    }
+
+    // Parse typed float attribute (F64Attr, F32Attr, etc.)
+    _parseFloatAttr(typeName, parser) {
+        const type = new mlir.PrimitiveType(typeName);
+        // Use parseAttribute with the known type to avoid suffix parsing
+        return parser.parseAttribute(type);
+    }
+
+    // Parse string attribute (StrAttr)
+    // Pass string type to prevent : type suffix parsing
+    _parseStrAttr(parser) {
+        const type = new mlir.PrimitiveType('string');
+        return parser.parseAttribute(type);
     }
 
     _parseDynamicIndexList(parser, op, args) {
@@ -6348,7 +6443,8 @@ mlir.MemRefDialect = class extends mlir.Dialect {
             if (parser.accept('id', 'uninitialized')) {
                 op.attributes.push({ name: initialValueArg, value: 'uninitialized' });
             } else {
-                const initialValue = parser.parseAttribute();
+                // Pass the type to parseAttribute to suppress : type suffix parsing
+                const initialValue = parser.parseAttribute(type);
                 op.attributes.push({ name: initialValueArg, value: initialValue });
             }
         }
@@ -8103,14 +8199,15 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
         } while (parser.accept(','));
     }
 
-    // Parse: @entry_point or [@entry_point1, @entry_point2]
+    // Parse: @entry_point or {@entry_point1, @entry_point2}
+    // Reference: StreamOps.cpp parseDispatchEntryPoints
     _parseDispatchEntryPoints(parser, op /*, args */) {
-        if (parser.accept('[')) {
+        if (parser.accept('{')) {
             do {
                 const symbol = parser.expect('@');
                 op.attributes.push({ name: 'entry_point', value: symbol });
             } while (parser.accept(','));
-            parser.expect(']');
+            parser.expect('}');
         } else {
             const symbol = parser.expect('@');
             op.attributes.push({ name: 'entry_point', value: symbol });
@@ -9937,18 +10034,12 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             }
             return true;
         }
+        // Reference: ControlFlowOps.cpp BranchConditionalOp::parse
+        // Format: spirv.BranchConditional %cond [trueWeight, falseWeight]?, ^trueTarget(args)?, ^falseTarget(args)?
         if (opName === 'spirv.BranchConditional' || opName === 'spv.BranchConditional') {
             const condition = parser.parseAttribute();
             op.operands.push(condition);
-            parser.expect(',');
-            if (!op.successors) {
-                op.successors = [];
-            }
-            const trueLabel = parser.expect('^');
-            op.successors.push({ label: trueLabel });
-            parser.expect(',');
-            const falseLabel = parser.expect('^');
-            op.successors.push({ label: falseLabel });
+            // Parse optional branch weights [trueWeight, falseWeight]
             if (parser.accept('[')) {
                 const weights = [];
                 while (!parser.match(']')) {
@@ -9962,6 +10053,59 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                     op.attributes.push({ name: 'branch_weights', value: weights });
                 }
             }
+            parser.expect(',');
+            if (!op.successors) {
+                op.successors = [];
+            }
+            // Parse true branch successor
+            const trueLabel = parser.expect('^');
+            const trueSucc = { label: trueLabel };
+            if (parser.accept('(')) {
+                trueSucc.arguments = [];
+                while (!parser.match(')') && !parser.match(':')) {
+                    if (parser.match('%')) {
+                        trueSucc.arguments.push({ value: parser.expect('%') });
+                        parser.accept(',');
+                    } else {
+                        break;
+                    }
+                }
+                if (parser.accept(':')) {
+                    let idx = 0;
+                    while (!parser.match(')') && idx < trueSucc.arguments.length) {
+                        trueSucc.arguments[idx].type = parser.parseType().toString();
+                        idx++;
+                        parser.accept(',');
+                    }
+                }
+                parser.expect(')');
+            }
+            op.successors.push(trueSucc);
+            parser.expect(',');
+            // Parse false branch successor
+            const falseLabel = parser.expect('^');
+            const falseSucc = { label: falseLabel };
+            if (parser.accept('(')) {
+                falseSucc.arguments = [];
+                while (!parser.match(')') && !parser.match(':')) {
+                    if (parser.match('%')) {
+                        falseSucc.arguments.push({ value: parser.expect('%') });
+                        parser.accept(',');
+                    } else {
+                        break;
+                    }
+                }
+                if (parser.accept(':')) {
+                    let idx = 0;
+                    while (!parser.match(')') && idx < falseSucc.arguments.length) {
+                        falseSucc.arguments[idx].type = parser.parseType().toString();
+                        idx++;
+                        parser.accept(',');
+                    }
+                }
+                parser.expect(')');
+            }
+            op.successors.push(falseSucc);
             return true;
         }
         if (opName === 'spirv.CompositeConstruct' || opName === 'spv.CompositeConstruct') {
@@ -10154,50 +10298,6 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                 const region = {};
                 parser.parseRegion(region);
                 op.regions.push(region);
-            }
-            return true;
-        }
-        if (opName === 'spirv.BranchConditional' || opName === 'spv.BranchConditional') {
-            op.operands = parser.parseArguments();
-
-            // Parse successors
-            if (parser.match('^')) {
-                op.successors = [];
-                while (parser.match('^')) {
-                    const successor = {};
-                    successor.label = parser.expect('^');
-                    // Parse successor arguments with types
-                    // Format: ^label(%val1, %val2, ... : type1, type2, ...)
-                    if (parser.accept('(')) {
-                        successor.arguments = [];
-                        // Parse all values first
-                        while (!parser.match(':') && !parser.match(')')) {
-                            if (parser.match('%')) {
-                                const arg = {};
-                                arg.value = parser.expect('%');
-                                successor.arguments.push(arg);
-                                parser.accept(',');
-                            } else {
-                                break;
-                            }
-                        }
-                        // Parse types if present
-                        if (parser.accept(':')) {
-                            let idx = 0;
-                            while (idx < successor.arguments.length && !parser.match(')')) {
-                                const type = parser.parseType();
-                                successor.arguments[idx].type = type;
-                                idx++;
-                                parser.accept(',');
-                            }
-                        }
-                        parser.accept(')');
-                    }
-                    op.successors.push(successor);
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
             }
             return true;
         }

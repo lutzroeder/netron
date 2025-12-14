@@ -247,19 +247,19 @@ mnn.Node = class {
 
 mnn.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
+        this.type = type;
     }
 };
 
 mnn.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         this.name = name;
         this.type = !type && initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

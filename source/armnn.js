@@ -202,10 +202,10 @@ armnn.Node = class {
 
 armnn.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
+        this.type = type;
     }
 };
 
@@ -234,9 +234,9 @@ armnn.Value = class {
 
 armnn.Tensor = class {
 
-    constructor(tensor, category) {
+    constructor(tensor, category = '') {
         this.type = new armnn.TensorType(tensor.info);
-        this.category = category || '';
+        this.category = category;
         const data = tensor.data.data.slice(0);
         this.values = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
     }

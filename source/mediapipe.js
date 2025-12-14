@@ -193,12 +193,12 @@ mediapipe.Argument = class {
 
 mediapipe.Value = class {
 
-    constructor(name, type) {
+    constructor(name, type = null) {
         if (typeof name !== 'string') {
             throw new mediapipe.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
-        this.type = type || null;
+        this.type = type;
     }
 };
 

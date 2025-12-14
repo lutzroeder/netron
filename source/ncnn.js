@@ -271,13 +271,13 @@ ncnn.Argument = class {
 
 ncnn.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new ncnn.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = name;
         this.type = initializer ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
         this.quantization = initializer ? initializer.quantization : null;
     }
 };

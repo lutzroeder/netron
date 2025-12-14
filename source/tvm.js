@@ -187,23 +187,23 @@ tvm.Graph = class {
 
 tvm.Argument = class {
 
-    constructor(name, value, type, visible) {
+    constructor(name, value, type = null, visible = true) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
-        this.visible = visible !== false;
+        this.type = type;
+        this.visible = visible;
     }
 };
 
 tvm.Value = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer = null) {
         if (typeof name !== 'string') {
             throw new tvm.Error(`Invalid value identifier '${JSON.stringify(name)}'.`);
         }
         this.name = !name && initializer && initializer.name ? initializer.name : name;
         this.type = !type && initializer && initializer.type ? initializer.type : type;
-        this.initializer = initializer || null;
+        this.initializer = initializer;
     }
 };
 

@@ -143,12 +143,10 @@ dl4j.Graph = class {
 
 dl4j.Argument = class {
 
-    constructor(name, value, visible) {
+    constructor(name, value, visible = true) {
         this.name = name;
         this.value = value;
-        if (visible === false) {
-            this.visible = false;
-        }
+        this.visible = visible;
     }
 };
 

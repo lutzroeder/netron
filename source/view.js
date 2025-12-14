@@ -5578,7 +5578,7 @@ metadata.Attachment.Container = class {
 
 metadata.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
         this.type = type;

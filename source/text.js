@@ -91,7 +91,7 @@ text.Decoder.String = class {
 text.Decoder.Utf8 = class {
 
     constructor(buffer, position, fatal) {
-        this.position = position || 0;
+        this.position = position;
         this.buffer = buffer;
         this.fatal = fatal;
     }
@@ -156,7 +156,7 @@ text.Decoder.Utf8 = class {
 text.Decoder.Latin1 = class {
 
     constructor(buffer, position) {
-        this.position = position || 0;
+        this.position = position;
         this.buffer = buffer;
     }
 
@@ -176,9 +176,9 @@ text.Decoder.Latin1 = class {
 
 text.Decoder.Utf16LE = class {
 
-    constructor(buffer, position) {
+    constructor(buffer, position = 0) {
         this.buffer = buffer;
-        this.position = position || 0;
+        this.position = position;
         this.length = buffer.length;
     }
 
@@ -208,9 +208,9 @@ text.Decoder.Utf16LE = class {
 
 text.Decoder.Utf16BE = class {
 
-    constructor(buffer, position) {
+    constructor(buffer, position = 0) {
         this.buffer = buffer;
-        this.position = position || 0;
+        this.position = position;
         this.length = buffer.length;
     }
 
@@ -240,9 +240,9 @@ text.Decoder.Utf16BE = class {
 
 text.Decoder.Utf32LE = class {
 
-    constructor(buffer, position) {
+    constructor(buffer, position = 0) {
         this.buffer = buffer;
-        this.position = position || 0;
+        this.position = position;
         this.length = buffer.length;
     }
 
@@ -269,9 +269,9 @@ text.Decoder.Utf32LE = class {
 
 text.Decoder.Utf32BE = class {
 
-    constructor(buffer, position) {
+    constructor(buffer, position = 0) {
         this.buffer = buffer;
-        this.position = position || 0;
+        this.position = position;
         this.length = buffer.length;
     }
 

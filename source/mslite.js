@@ -169,19 +169,19 @@ mslite.Node = class {
 
 mslite.Argument = class {
 
-    constructor(name, value, type) {
+    constructor(name, value, type = null) {
         this.name = name;
         this.value = value;
-        this.type = type || null;
+        this.type = type;
     }
 };
 
 mslite.Value = class {
 
-    constructor(name, tensor, initializer) {
+    constructor(name, tensor, initializer = null) {
         this.name = name;
         this.type = initializer ? initializer.type : new mslite.TensorType(tensor.dataType, tensor.dims);
-        this.initializer = initializer || null;
+        this.initializer = initializer;
         if (Array.isArray(tensor.quantParams) && tensor.quantParams.length > 0) {
             this.quantization = {
                 type: 'linear',
@@ -199,10 +199,10 @@ mslite.Value = class {
 
 mslite.Tensor = class {
 
-    constructor(type, data) {
+    constructor(type, data = null) {
         this.type = type;
         this.encoding = type.dataType === 'string' ? '|' : '<';
-        this._data = data || null;
+        this._data = data;
     }
 
     get values() {
