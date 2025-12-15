@@ -73,6 +73,7 @@ const schema = async () => {
         path.join(source, 'iree', 'compiler', 'src'),
         path.join(source, 'iree', 'compiler', 'src', 'iree', 'compiler', 'Codegen', 'Dialect', 'PCF', 'IR'),
         path.join(source, 'iree', 'compiler', 'src', 'iree', 'compiler', 'Modules', 'IO', 'Parameters', 'IR'),
+        path.join(source, 'iree', 'llvm-external-projects', 'iree-dialects', 'include'),
         path.join(source, 'FlashTensor', 'include'),
         path.join(source, 'tpu-mlir', 'include'),
         path.join(source, 'tensorflow'),
@@ -263,6 +264,8 @@ const schema = async () => {
         'iree/compiler/Dialect/VM/IR/VMOps.td',
         'iree/compiler/Dialect/VMVX/IR/VMVXOps.td',
         'iree/compiler/Dialect/Encoding/IR/EncodingOps.td',
+        'iree/compiler/src/iree/compiler/Modules/Check/IR/CheckOps.td',
+        'iree-dialects/Dialect/LinalgTransform/StructuredTransformOpsExt.td',
         'asuka/Dialect/Asuka/IR/AsukaOps.td',
         'tpu_mlir/Dialect/Top/IR/TopOps.td',
         'tpu_mlir/Dialect/Tpu/IR/TpuOps.td',
@@ -311,12 +314,20 @@ const schema = async () => {
     await parser.parse(dialects, paths);
     for (const def of parser.defs) {
         const op = new Operator(def);
-        const operationName = op.getOperationName();
+        let operationName = op.getOperationName();
         if (!operationName) {
             continue;
         }
         if (operationName.endsWith('.') || operationName.includes('..') || operationName.includes('#')) {
             throw new Error(`Invalid operation name '${operationName}'.`);
+        }
+        // Workaround: Handle conflicting dialects from stablehlo and iree
+        if (operationName.startsWith('check.')) {
+            if (def.location.file.includes('stablehlo')) {
+                operationName = operationName.replace(/^check./, 'check.<stablehlo>.');
+            } else if (def.location.file.includes('iree')) {
+                operationName = operationName.replace(/^check./, 'check.<iree>.');
+            }
         }
         const operation = {
             name: operationName
@@ -625,6 +636,11 @@ const test = async (pattern) => {
         'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-uniform-invalid.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/simple_sdfg.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/symbol.mlir',
     ]);
     return new Promise((resolve, reject) => {
         const cmd = 'node';
