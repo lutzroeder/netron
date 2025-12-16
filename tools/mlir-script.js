@@ -64,6 +64,7 @@ const schema = async () => {
         path.join(source, 'llvm-project', 'mlir', 'examples', 'transform', 'Ch2', 'include'),
         path.join(source, 'llvm-project', 'mlir', 'examples', 'transform', 'Ch3', 'include'),
         path.join(source, 'stablehlo'),
+        path.join(source, 'shardy'),
         path.join(source, 'xla', 'xla', 'mlir_hlo'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
@@ -93,6 +94,10 @@ const schema = async () => {
         path.join(source, 'triton', 'third_party', 'nvidia', 'include', 'Dialect', 'NVGPU', 'IR'),
         path.join(source, 'triton', 'third_party', 'nvidia', 'include', 'Dialect', 'NVWS', 'IR'),
         path.join(source, '_', 'llvm-project', 'mlir', 'include'),
+        path.join(source, 'clangir'),
+        path.join(source, 'clangir', 'clang', 'include'),
+        path.join(source, 'rocMLIR'),
+        path.join(source, 'rocMLIR', 'mlir', 'include'),
     ];
     const dialects = [
         'mlir/include/mlir/IR/BuiltinAttributeInterfaces.td',
@@ -210,6 +215,8 @@ const schema = async () => {
         'stablehlo/dialect/VhloOps.td',
         'stablehlo/reference/InterpreterOps.td',
         'stablehlo/tests/CheckOps.td',
+        'shardy/dialect/sdy/ir/ops.td',
+        'shardy/dialect/mpmd/ir/ops.td',
         'mhlo/IR/hlo_ops.td',
         'src/Dialect/ONNX/ONNX.td',
         'src/Dialect/ONNX/ONNXOps.td.inc',
@@ -233,6 +240,7 @@ const schema = async () => {
         'tensorflow/compiler/mlir/tfrt/runtime_fallback/runtime_fallback_ops.td',
         'tensorflow/compiler/mlir/tfrt/ir/mlrt/mlrt_ops.td',
         'tfrt/core_runtime/opdefs/core_runtime.td',
+        'tfrt/core_runtime/opdefs/sync/core_runtime.td',
         'tfrt/basic_kernels/opdefs/basic_kernels.td',
         'tfrt/test_kernels/opdefs/test_kernels.td',
         'tfrt/tensor/opdefs/tensor.td',
@@ -293,6 +301,8 @@ const schema = async () => {
         'mlir-kernel/Kernel/IR/Ops.td',
         'Dialect/NVGPU/IR/NVGPUOps.td',
         'Standalone/StandaloneOps.td',
+        'clang/include/clang/CIR/Dialect/IR/CIROps.td',
+        'mlir/include/mlir/Dialect/MIGraphX/IR/MIGraphX.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -707,7 +717,7 @@ const test = async (pattern) => {
             writeLine('');
             writeLine('-'.repeat(75));
             if (errorTotals.size > 0) {
-                const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 25);
+                const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
                 for (const [err, cnt] of sortedErrors) {
                     const fileCounts = filesByError.get(err);
                     const topFiles = Array.from(fileCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
