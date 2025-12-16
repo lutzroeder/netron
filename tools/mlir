@@ -8,6 +8,7 @@ src_dir=./third_party/source/mlir
 entries=(
     "https://github.com/llvm/llvm-project.git|main|${src_dir}/llvm-project|mlir"
     "https://github.com/openxla/stablehlo.git|main|${src_dir}/stablehlo|stablehlo"
+    "https://github.com/openxla/shardy.git|main|${src_dir}/shardy|shardy"
     "https://github.com/openxla/xla.git|main|${src_dir}/xla|xla/mlir_hlo"
     "https://github.com/onnx/onnx-mlir.git|main|${src_dir}/onnx-mlir|"
     "https://github.com/llvm/torch-mlir.git|main|${src_dir}/torch-mlir|"
@@ -22,6 +23,8 @@ entries=(
     "https://github.com/spcl/mlir-dace.git|main|${src_dir}/mlir-dace|"
     "https://github.com/woxjro/lltz.git|master|${src_dir}/lltz|"
     "https://github.com/pengmai/lagrad.git|main|${src_dir}/lagrad|include"
+    "https://github.com/llvm/clangir.git|main|${src_dir}/clangir|clang/include/clang/CIR"
+    "https://github.com/ROCm/rocMLIR.git|develop|${src_dir}/rocMLIR|mlir/include/mlir/Dialect"
 )
 
 clean() {
