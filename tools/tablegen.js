@@ -1374,6 +1374,58 @@ tablegen.Record = class {
                         }
                         return new tablegen.DAG(operator, operands);
                     }
+                    case 'tolower': {
+                        // !tolower(string)
+                        // Convert string to lowercase
+                        if (args.length < 1) {
+                            return null;
+                        }
+                        const str = this.evaluateValue(args[0]);
+                        if (typeof str === 'string') {
+                            return str.toLowerCase();
+                        }
+                        return null;
+                    }
+                    case 'toupper': {
+                        // !toupper(string)
+                        // Convert string to uppercase
+                        if (args.length < 1) {
+                            return null;
+                        }
+                        const str = this.evaluateValue(args[0]);
+                        if (typeof str === 'string') {
+                            return str.toUpperCase();
+                        }
+                        return null;
+                    }
+                    case 'strconcat': {
+                        // !strconcat(str1, str2, ...)
+                        // Concatenate strings
+                        const parts = [];
+                        for (const arg of args) {
+                            const val = this.evaluateValue(arg);
+                            if (val !== null && val !== undefined) {
+                                parts.push(String(val));
+                            }
+                        }
+                        return parts.join('');
+                    }
+                    case 'subst': {
+                        // !subst(pattern, replacement, string)
+                        // Replace all occurrences of pattern with replacement in string
+                        if (args.length < 3) {
+                            return null;
+                        }
+                        const pattern = this.evaluateValue(args[0]);
+                        const replacement = this.evaluateValue(args[1]);
+                        const str = this.evaluateValue(args[2]);
+                        if (typeof str === 'string' && typeof pattern === 'string') {
+                            const rep = replacement !== null && replacement !== undefined ? String(replacement) : '';
+                            // Use split/join for global replacement
+                            return str.split(pattern).join(rep);
+                        }
+                        return str;
+                    }
                     default:
                         return null;
                 }

@@ -370,7 +370,7 @@ const schema = async () => {
             operation.category = 'Tensor';
         } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu'].indexOf(name) !== -1) {
             operation.category = 'Activation';
-        } else if (['convolution', 'Conv', 'matmul', 'batch_matmul', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].indexOf(name) !== -1) {
+        } else if (['convolution', 'Conv', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].indexOf(name) !== -1) {
             operation.category = 'Layer';
         } else if (['batch_norm_inference'].includes(name)) {
             operation.category = 'Normalization';
