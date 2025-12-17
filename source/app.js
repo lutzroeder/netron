@@ -304,7 +304,12 @@ app.Application = class {
 
     async _executeOnnxSlim(data) {
         // Execute OnnxSlim operations via Python subprocess
-        const pythonScript = path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'onnxslim_bridge.py');
+        let pythonScript = path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'onnxslim_bridge.py');
+
+        // In asar mode, use the unpacked path
+        if (electron.app.isPackaged && pythonScript.includes('.asar')) {
+            pythonScript = pythonScript.replace('app.asar', 'app.asar.unpacked');
+        }
 
         // Try multiple Python commands
         const pythonCmds = process.platform === 'win32'
