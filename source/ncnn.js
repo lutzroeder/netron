@@ -954,7 +954,7 @@ ncnn.BlobReader = class {
 
     constructor(identifier, entries, buffer, position) {
         this._identifier = identifier;
-        this._entires = entries;
+        this._entries = entries;
         this._buffer = buffer;
         this._position = position;
     }
@@ -1038,8 +1038,8 @@ ncnn.BlobReader = class {
     }
 
     entry(identifier) {
-        if (this._entires && this._entires.has(identifier)) {
-            const reader = this._entires.get(identifier);
+        if (this._entries && this._entries.has(identifier)) {
+            const reader = this._entries.get(identifier);
             return reader.peek();
         }
         return null;
