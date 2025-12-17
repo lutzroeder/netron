@@ -44,6 +44,13 @@ view.View = class {
             this._element('sidebar-target-button').addEventListener('click', () => {
                 this.showTargetProperties();
             });
+            // OnnxSlim button handler
+            const onnxslimButton = this._element('sidebar-onnxslim-button');
+            if (onnxslimButton) {
+                onnxslimButton.addEventListener('click', () => {
+                    this.showOnnxSlimTools();
+                });
+            }
             this._element('zoom-in-button').addEventListener('click', () => {
                 this.zoomIn();
             });
@@ -449,7 +456,19 @@ view.View = class {
         this._sidebar.close();
         await this._timeout(2);
         try {
+            // Store raw model bytes for OnnxSlim in-memory optimization
+            this._modelData = null;
+            if (context.stream && context.stream.length > 0) {
+                try {
+                    context.stream.seek(0);
+                    this._modelData = context.stream.peek(context.stream.length);
+                } catch {
+                    // Ignore errors reading stream
+                }
+            }
             const model = await this._modelFactoryService.open(context);
+            // Store model path for OnnxSlim integration
+            this._modelPath = context.identifier || '';
             const format = [];
             if (model.format) {
                 format.push(model.format);
@@ -540,6 +559,16 @@ view.View = class {
             this._activeTarget = null;
         }
         this.show(null);
+        // Show/hide OnnxSlim button based on model format
+        const onnxslimButton = this._element('sidebar-onnxslim-button');
+        if (onnxslimButton) {
+            const format = (model && model.format) ? model.format.toLowerCase() : '';
+            const isOnnx = format.includes('onnx');
+            const isPythonServer = this._host.type === 'Python';
+            const isElectron = this._host.type === 'Electron';
+            // Show for ONNX models in Python server mode or Electron mode
+            onnxslimButton.style.display = (isOnnx && (isPythonServer || isElectron)) ? 'inline-block' : 'none';
+        }
         const path = this._element('toolbar-path');
         const back = this._element('toolbar-path-back-button');
         while (path.children.length > 1) {
@@ -760,6 +789,50 @@ view.View = class {
             this._sidebar.open(sidebar, 'Model Properties');
         } catch (error) {
             this.error(error, 'Error showing model properties.', null);
+        }
+    }
+
+    async showOnnxSlimTools() {
+        if (!this._model) {
+            return;
+        }
+        // Check if model is ONNX format
+        const format = this._model.format || '';
+        if (!format.toLowerCase().includes('onnx')) {
+            await this._host.message('OnnxSlim tools are only available for ONNX models.', true, 'OK');
+            return;
+        }
+        try {
+            const onnxslim = await import('./onnxslim.js');
+            const modelPath = this._modelPath || '';
+            // Pass model data for in-memory optimization (when opened via browser drag-drop)
+            const sidebar = new onnxslim.Sidebar(this, this._model, modelPath, this._modelData);
+            sidebar.on('model-modified', async (sender, data) => {
+                if (data.operation === 'download') {
+                    // Handle download operation
+                    if (this._host.type === 'Electron') {
+                        // Get the filename from the path
+                        const filename = data.path.split(/[/\\]/).pop();
+                        const destPath = await this._host.save('ONNX Model', 'onnx', filename);
+                        if (destPath) {
+                            // Copy file from temp to destination
+                            await this._host.copyFile(data.path, destPath);
+                        }
+                    } else {
+                        window.location.href = `/api/download?path=${encodeURIComponent(data.path)}`;
+                    }
+                } else {
+                    // Default: open the modified model
+                    if (this._host.type === 'Electron') {
+                        await this._host.execute('open', data.path);
+                    } else {
+                        window.location.href = `/api/open?path=${encodeURIComponent(data.path)}`;
+                    }
+                }
+            });
+            this._sidebar.open(sidebar, 'OnnxSlim Tools');
+        } catch (error) {
+            this.error(error, 'Error showing OnnxSlim tools.', null);
         }
     }
 

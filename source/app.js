@@ -1,5 +1,6 @@
 
 import * as base from './base.js';
+import * as child_process from 'child_process';
 import * as electron from 'electron';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -98,6 +99,16 @@ app.Application = class {
                 argument.error = error.message;
             }
             event.sender.send('execute-complete', argument);
+        });
+        // OnnxSlim IPC handler for Electron
+        electron.ipcMain.on('onnxslim', async (event, data) => {
+            const argument = {};
+            try {
+                argument.value = await this._executeOnnxSlim(data);
+            } catch (error) {
+                argument.error = error.message;
+            }
+            event.sender.send('onnxslim-complete', argument);
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -289,6 +300,85 @@ app.Application = class {
         if (view && view.path) {
             view.open(view.path);
         }
+    }
+
+    async _executeOnnxSlim(data) {
+        // Execute OnnxSlim operations via Python subprocess
+        const pythonScript = path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'onnxslim_bridge.py');
+
+        // Try multiple Python commands
+        const pythonCmds = process.platform === 'win32'
+            ? ['python', 'python3', 'py']
+            : ['python3', 'python'];
+
+        const tryPython = async (cmds) => {
+            if (cmds.length === 0) {
+                throw new Error('Python not found. Make sure Python is installed and in PATH, or install the Python launcher (py).');
+            }
+
+            const pythonCmd = cmds[0];
+            const remainingCmds = cmds.slice(1);
+
+            return new Promise((resolve, reject) => {
+                const args = [pythonScript, '--stdin'];
+                let stdout = '';
+                let stderr = '';
+
+                const proc = child_process.spawn(pythonCmd, args, {
+                    shell: process.platform === 'win32',
+                    env: {
+                        ...process.env,
+                        PYTHONIOENCODING: 'utf-8',
+                        PYTHONUTF8: '1',
+                        PYTHONLEGACYWINDOWSSTDIO: '0'
+                    }
+                });
+
+                proc.stdout.on('data', (chunk) => {
+                    stdout += chunk.toString();
+                });
+
+                proc.stderr.on('data', (chunk) => {
+                    stderr += chunk.toString();
+                });
+
+                proc.on('close', (code) => {
+                    if (code === 0) {
+                        try {
+                            const result = JSON.parse(stdout);
+                            resolve(result);
+                        } catch (e) {
+                            reject(new Error(`Failed to parse OnnxSlim output.\nstdout: ${stdout || '(empty)'}\nstderr: ${stderr || '(empty)'}`));
+                        }
+                    } else if (code === 9009 && remainingCmds.length > 0) {
+                        // Windows error 9009 = command not found, try next Python command
+                        tryPython(remainingCmds).then(resolve).catch(reject);
+                    } else {
+                        // Include both stderr and stdout for better debugging
+                        const errorDetails = [
+                            stderr ? `stderr: ${stderr}` : '',
+                            stdout ? `stdout: ${stdout}` : ''
+                        ].filter(Boolean).join('\n') || 'No output';
+                        reject(new Error(`OnnxSlim failed with code ${code}:\n${errorDetails}`));
+                    }
+                });
+
+                proc.on('error', (error) => {
+                    // Command not found, try next Python command
+                    if ((error.code === 'ENOENT' || error.code === 'UNKNOWN') && remainingCmds.length > 0) {
+                        tryPython(remainingCmds).then(resolve).catch(reject);
+                    } else {
+                        reject(new Error(`Failed to execute OnnxSlim: ${error.message}. Make sure Python and OnnxSlim are installed.`));
+                    }
+                });
+
+                // Send JSON request via stdin (includes model_data_base64 for in-memory models)
+                proc.stdin.write(JSON.stringify(data));
+                proc.stdin.end();
+            });
+        };
+
+        return tryPython(pythonCmds);
     }
 
     async _checkForUpdates() {

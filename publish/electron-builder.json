@@ -1,6 +1,7 @@
 {
     "appId": "com.lutzroeder.netron",
     "productName": "Netron",
+    "asar": false,
     "files": [ "source/**/*" ],
     "directories": { "buildResources": "./publish" },
     "fileAssociations": [
