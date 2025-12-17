@@ -8735,6 +8735,7 @@ python.Execution = class {
         this.registerFunction('torchvision.models.resnet.resnet152', () => {});
         this.registerFunction('torchvision.models.vision_transformer.vit_h_14', () => {});
         this.registerFunction('torchvision.ops.boxes.box_iou');
+        this.registerFunction('torchvision.ops.focal_loss.sigmoid_focal_loss');
         this.registerFunction('builtins.annotate', (type, value) => {
             if (type === builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
