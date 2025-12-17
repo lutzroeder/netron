@@ -1,5 +1,6 @@
 """ Python Server implementation """
 
+import base64
 import errno
 import http.server
 import importlib
@@ -11,8 +12,10 @@ import random
 import re
 import socket
 import socketserver
+import tempfile
 import threading
 import time
+import traceback
 import urllib.parse
 import webbrowser
 
@@ -20,18 +23,38 @@ __version__ = "0.0.0"
 
 logger = logging.getLogger(__name__)
 
+# OnnxSlim integration
+_onnxslim_bridge = None
+
+def _get_onnxslim_bridge():
+    """Lazy load OnnxSlim bridge module."""
+    global _onnxslim_bridge
+    if _onnxslim_bridge is None:
+        try:
+            from . import onnxslim_bridge
+            _onnxslim_bridge = onnxslim_bridge
+        except ImportError:
+            # Try direct import if not in package
+            try:
+                import onnxslim_bridge
+                _onnxslim_bridge = onnxslim_bridge
+            except ImportError:
+                _onnxslim_bridge = False
+    return _onnxslim_bridge if _onnxslim_bridge else None
+
 class _ContentProvider:
-    data = bytearray()
-    base_dir = ""
-    base = ""
-    identifier = ""
     def __init__(self, data, path, file, name):
         self.data = data if data else bytearray()
         self.identifier = os.path.basename(file) if file else ""
         self.name = name
+        self.dir = ""
+        self.base = ""
+        self.full_path = ""
         if path:
             self.dir = os.path.dirname(path) if os.path.dirname(path) else "."
             self.base = os.path.basename(path)
+            # Store full absolute path for OnnxSlim integration
+            self.full_path = os.path.realpath(path)
     def read(self, path):
         if path == self.base and self.data:
             return self.data
@@ -60,17 +83,189 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         ".eot": "application/vnd.ms-fontobject",
         ".woff": "font/woff",
         ".woff2": "font/woff2",
-        ".svg": "image/svg+xml"
+        ".svg": "image/svg+xml",
+        ".onnx": "application/octet-stream"
     }
     def do_HEAD(self):
         self.do_GET()
-    def do_GET(self):
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests."""
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+    def do_POST(self):
+        """Handle POST requests for OnnxSlim API."""
         path = urllib.parse.urlparse(self.path).path
+        if path.startswith("/api/onnxslim"):
+            self._handle_onnxslim_api()
+        else:
+            self._write(404, "application/json", json.dumps({"error": "Not found"}).encode("utf-8"))
+    def _handle_onnxslim_api(self):
+        """Handle OnnxSlim API requests."""
+        bridge = _get_onnxslim_bridge()
+        if not bridge:
+            response = {
+                "status": "error",
+                "error": "OnnxSlim bridge not available. Make sure OnnxSlim is installed."
+            }
+            self._write(500, "application/json", json.dumps(response).encode("utf-8"))
+            return
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length)
+            request_data = json.loads(body.decode("utf-8")) if body else {}
+
+            # Check if model data is sent as base64 from browser
+            model_data_base64 = request_data.get("model_data_base64")
+            if model_data_base64:
+                # Decode base64 to bytes and use for in-memory optimization
+                try:
+                    model_data = base64.b64decode(model_data_base64)
+                    request_data["model_data"] = model_data
+                    request_data["model_name"] = request_data.get("model_name", "model.onnx")
+                    request_data["input_path"] = None  # Clear path since we're using data
+                    # Remove base64 data from request to save memory
+                    del request_data["model_data_base64"]
+                    logger.info(f"OnnxSlim using base64 in-memory model: {request_data.get('model_name')}")
+                except Exception as e:
+                    response = {
+                        "status": "error",
+                        "error": f"Failed to decode base64 model data: {str(e)}"
+                    }
+                    self._write(400, "application/json", json.dumps(response).encode("utf-8"))
+                    return
+            else:
+                # Resolve input path or get model data from content provider
+                input_path = request_data.get("input_path", "")
+                model_name = ""
+
+                # If no input_path provided, try to use the current model's full path
+                if not input_path:
+                    if hasattr(self.content, "full_path") and self.content.full_path:
+                        input_path = self.content.full_path
+                    elif hasattr(self.content, "base") and self.content.base:
+                        input_path = self.content.base
+                    model_name = getattr(self.content, "identifier", "") or getattr(self.content, "base", "") or "model"
+
+                if input_path:
+                    resolved_path = None
+
+                    # If input_path is absolute and exists, use it directly
+                    if os.path.isabs(input_path) and os.path.exists(input_path):
+                        resolved_path = input_path
+                    else:
+                        # Try to use the stored full_path if the basename matches
+                        if hasattr(self.content, "full_path") and self.content.full_path:
+                            if os.path.basename(self.content.full_path) == input_path or input_path == self.content.base:
+                                if os.path.exists(self.content.full_path):
+                                    resolved_path = self.content.full_path
+
+                        # Try to construct full path from content directory
+                        if not resolved_path and hasattr(self.content, "dir") and self.content.dir:
+                            full_path = os.path.join(self.content.dir, input_path)
+                            full_path = os.path.realpath(full_path)
+                            if os.path.exists(full_path):
+                                resolved_path = full_path
+
+                    # If path still doesn't exist, try to get data from content provider
+                    if not resolved_path:
+                        model_data = None
+                        # Try reading via content provider
+                        if hasattr(self.content, "read"):
+                            model_data = self.content.read(input_path)
+                        # Also check if data is stored directly in content
+                        if not model_data and hasattr(self.content, "data") and self.content.data:
+                            model_data = bytes(self.content.data)
+
+                        if model_data:
+                            # Pass model data directly to bridge (in-memory optimization)
+                            request_data["model_data"] = model_data
+                            request_data["model_name"] = model_name or input_path
+                            request_data["input_path"] = None  # Clear path since we're using data
+                            logger.info(f"OnnxSlim using in-memory model: {model_name or input_path}")
+                        else:
+                            response = {
+                                "status": "error",
+                                "error": f"Input file not found: {input_path}. Could not resolve path or read model data."
+                            }
+                            self._write(400, "application/json", json.dumps(response).encode("utf-8"))
+                            return
+                    else:
+                        request_data["input_path"] = resolved_path
+                        logger.info(f"OnnxSlim using input path: {resolved_path}")
+
+            result = bridge.handle_request(request_data)
+            response_body = json.dumps(result).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", len(response_body))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(response_body)
+        except json.JSONDecodeError as e:
+            response = {"status": "error", "error": f"Invalid JSON: {str(e)}"}
+            self._write(400, "application/json", json.dumps(response).encode("utf-8"))
+        except Exception as e:
+            logger.error(f"OnnxSlim API error: {e}")
+            logger.error(traceback.format_exc())
+            response = {"status": "error", "error": str(e)}
+            self._write(500, "application/json", json.dumps(response).encode("utf-8"))
+    def do_GET(self):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        query = urllib.parse.parse_qs(parsed.query)
         path = "/index.html" if path == "/" else path
         status_code = 404
         content = None
         content_type = None
-        if path.startswith("/data/"):
+
+        # Handle download of optimized models from temp directory
+        if path == "/api/download":
+            file_path = query.get("path", [None])[0]
+            if file_path:
+                file_path = urllib.parse.unquote(file_path)
+                # Only allow downloading from temp directory for security
+                temp_dir = tempfile.gettempdir()
+                real_path = os.path.realpath(file_path)
+                if real_path.startswith(temp_dir) and os.path.exists(real_path) and os.path.isfile(real_path):
+                    with open(real_path, "rb") as f:
+                        content = f.read()
+                    content_type = "application/octet-stream"
+                    status_code = 200
+                    # Add Content-Disposition header for download
+                    self.send_response(status_code)
+                    self.send_header("Content-Type", content_type)
+                    self.send_header("Content-Length", len(content))
+                    self.send_header("Content-Disposition", f'attachment; filename="{os.path.basename(real_path)}"')
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(content)
+                    return
+        # Handle switching to optimized model
+        elif path == "/api/open":
+            file_path = query.get("path", [None])[0]
+            if file_path:
+                file_path = urllib.parse.unquote(file_path)
+                # Only allow opening from temp directory for security
+                temp_dir = tempfile.gettempdir()
+                real_path = os.path.realpath(file_path)
+                if real_path.startswith(temp_dir) and os.path.exists(real_path) and os.path.isfile(real_path):
+                    # Update content provider to serve the new file
+                    self.content.dir = os.path.dirname(real_path)
+                    self.content.base = os.path.basename(real_path)
+                    self.content.full_path = real_path
+                    self.content.identifier = os.path.basename(real_path)
+                    self.content.name = real_path
+                    self.content.data = bytearray()  # Clear any cached data
+                    # Redirect to home page with cache buster
+                    self.send_response(302)
+                    self.send_header("Location", "/?t=" + str(int(time.time() * 1000)))
+                    self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                    self.end_headers()
+                    return
+        elif path.startswith("/data/"):
             path = urllib.parse.unquote(path[len("/data/"):])
             content = self.content.read(path)
             if content:
@@ -105,6 +300,14 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     regex = r'<meta name="version" content=".*">'
                     content = re.sub(regex, lambda _: meta, content)
                     content = content.encode("utf-8")
+                    # Serve index.html with no-cache headers
+                    self.send_response(200)
+                    self.send_header("Content-Type", content_type)
+                    self.send_header("Content-Length", len(content))
+                    self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                    self.end_headers()
+                    self.wfile.write(content)
+                    return
                 status_code = 200
         self._write(status_code, content_type, content)
     def log_message(self, format, *args):

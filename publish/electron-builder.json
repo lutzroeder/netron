@@ -2,6 +2,7 @@
     "appId": "com.lutzroeder.netron",
     "productName": "Netron",
     "files": [ "source/**/*" ],
+    "asarUnpack": [ "source/onnxslim_bridge.py", "source/onnxslim.py" ],
     "directories": { "buildResources": "./publish" },
     "fileAssociations": [
         { "ext": "armnn",       "name": "Arm NN Model"             },

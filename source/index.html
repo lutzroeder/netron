@@ -305,6 +305,39 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu { transition: none; }
 .sidebar { transition: none; }
 }
+/* OnnxSlim sidebar styles */
+.sidebar-onnxslim { padding: 0px 20px 20px 20px; overflow-y: auto; }
+.sidebar-onnxslim h2 { font-size: 13px; font-weight: bold; margin: 0 0 10px 0; }
+.sidebar-onnxslim p { font-size: 11px; margin: 5px 0; color: #666; }
+.sidebar-onnxslim small { font-size: 10px; color: #888; }
+.sidebar-onnxslim .sidebar-section { margin-bottom: 20px; }
+.sidebar-onnxslim .sidebar-section-header { font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #ddd; }
+.sidebar-onnxslim .sidebar-section-content { padding: 5px 0; }
+.sidebar-onnxslim .sidebar-checkbox { display: block; font-size: 11px; margin: 5px 0; cursor: pointer; }
+.sidebar-onnxslim .sidebar-checkbox input { margin-right: 5px; }
+.sidebar-onnxslim .sidebar-item-label { font-size: 11px; font-weight: bold; margin: 10px 0 5px 0; }
+.sidebar-onnxslim .sidebar-input { width: 100%; padding: 5px 8px; font-size: 11px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; margin-bottom: 5px; }
+.sidebar-onnxslim .sidebar-input:focus { outline: none; border-color: #666; }
+.sidebar-onnxslim .sidebar-button-container { margin-top: 10px; }
+.sidebar-onnxslim .sidebar-button { width: 100%; padding: 8px 12px; font-size: 11px; font-weight: bold; color: #fff; background-color: #555; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+.sidebar-onnxslim .sidebar-button:hover { background-color: #333; }
+.sidebar-onnxslim .sidebar-status { margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 11px; }
+.sidebar-onnxslim .sidebar-status pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; font-family: inherit; }
+.sidebar-onnxslim .sidebar-status-info { background-color: #e8f4fd; color: #1a5276; }
+.sidebar-onnxslim .sidebar-status-success { background-color: #d4edda; color: #155724; }
+.sidebar-onnxslim .sidebar-status-error { background-color: #f8d7da; color: #721c24; }
+@media (prefers-color-scheme: dark) {
+    .sidebar-onnxslim p { color: #aaa; }
+    .sidebar-onnxslim small { color: #888; }
+    .sidebar-onnxslim .sidebar-section-header { border-bottom-color: #444; }
+    .sidebar-onnxslim .sidebar-input { background-color: #383838; border-color: #555; color: #dfdfdf; }
+    .sidebar-onnxslim .sidebar-input:focus { border-color: #888; }
+    .sidebar-onnxslim .sidebar-button { background-color: #555; }
+    .sidebar-onnxslim .sidebar-button:hover { background-color: #666; }
+    .sidebar-onnxslim .sidebar-status-info { background-color: #1a3a4a; color: #8ecae6; }
+    .sidebar-onnxslim .sidebar-status-success { background-color: #1a3a2a; color: #8fd19e; }
+    .sidebar-onnxslim .sidebar-status-error { background-color: #4a1a1a; color: #e68a8a; }
+}
 </style>
 </head>
 <body class="welcome spinner">
@@ -386,6 +419,22 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
             <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
             <circle class="stroke" cx="50" cy="50" r="18" stroke-width="4"></circle>
             <circle class="stroke fill" cx="50" cy="50" r="3" stroke-width="4"></circle>
+        </svg>
+    </button>
+    <button id="sidebar-onnxslim-button" class="toolbar-button" title="OnnxSlim Tools" style="display: none;">
+        <svg class="toolbar-icon" viewBox="0 0 100 100">
+            <!-- O - outer ring -->
+            <circle class="border" cx="50" cy="50" r="38" stroke-width="8" fill="none"></circle>
+            <circle class="stroke" cx="50" cy="50" r="38" stroke-width="4" fill="none"></circle>
+            <!-- S curve -->
+            <path class="border" d="M58 26 Q38 26, 36 38 Q34 50, 50 50 Q66 50, 64 62 Q62 74, 42 74" stroke-width="5" fill="none" stroke-linecap="round"></path>
+            <path class="stroke" d="M58 26 Q38 26, 36 38 Q34 50, 50 50 Q66 50, 64 62 Q62 74, 42 74" stroke-width="2.5" fill="none" stroke-linecap="round"></path>
+            <!-- 5 Nodes along the S curve -->
+            <circle class="stroke fill" cx="58" cy="26" r="5"></circle>
+            <circle class="stroke fill" cx="37" cy="38" r="4"></circle>
+            <circle class="stroke fill" cx="50" cy="50" r="5"></circle>
+            <circle class="stroke fill" cx="63" cy="62" r="4"></circle>
+            <circle class="stroke fill" cx="42" cy="74" r="5"></circle>
         </svg>
     </button>
     <div id="toolbar-navigator" class="toolbar-select">
