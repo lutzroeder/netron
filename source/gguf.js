@@ -285,7 +285,7 @@ gguf.Reader = class {
                     tensor.dtype = dtype || '?';
                     if (offset < reader.length) {
                         const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
-                        const n_bytes = Math.floor(n_elems * type_size / block_size);
+                        const n_bytes = Math.floor((n_elems * type_size) / block_size);
                         reader.seek(offset + tensor.offset);
                         tensor.data = reader.stream(n_bytes);
                     }
@@ -480,9 +480,9 @@ gguf.Utility = class {
             const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
             gguf.Utility._enums.set(type, entries);
         }
-        const entires = gguf.Utility._enums.get(type);
-        if (entires.has(value)) {
-            return entires.get(value);
+        const entries = gguf.Utility._enums.get(type);
+        if (entries.has(value)) {
+            return entries.get(value);
         }
         return value;
     }
