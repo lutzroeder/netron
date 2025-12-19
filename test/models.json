@@ -3319,7 +3319,7 @@
     "type":     "mlir",
     "target":   "broadcast_to_dynamic.mlir",
     "source":   "https://github.com/user-attachments/files/23221752/broadcast_to_dynamic.mlir.zip[broadcast_to_dynamic.mlir]",
-    "assert":   "model.modules[0].nodes[4].inputs.length == 0",
+    "assert":   "model.functions[0].nodes[4].inputs.length == 0",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3349,7 +3349,7 @@
     "type":     "mlir",
     "target":   "conversion.mlir",
     "source":   "https://github.com/user-attachments/files/23268419/conversion.mlir.zip[conversion.mlir]",
-    "assert":   "model.modules[0].nodes[10].inputs.length == 0",
+    "assert":   "model.functions[0].nodes[10].inputs.length == 0",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3358,6 +3358,7 @@
     "target":   "ctlz.mlir",
     "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[0].nodes[0].attributes[0].value.nodes.length == 4",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3428,6 +3429,7 @@
     "target":   "mnist.onnx.dense.mlir",
     "source":   "https://github.com/user-attachments/files/17775783/mnist.onnx.dense.mlir.zip[mnist.onnx.dense.mlir]",
     "format":   "MLIR",
+    "assert":   "model.modules[0].nodes[0].attributes[0].value.nodes.length == 11",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

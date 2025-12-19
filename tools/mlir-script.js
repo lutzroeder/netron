@@ -519,6 +519,64 @@ const schema = async () => {
                 }
             }
         }
+        // If no attributes were found from 'arguments', try to extract from 'builders'
+        // Some ops (like krnl.entry_point) define attributes only via builders
+        if (attributes.length === 0) {
+            const buildersField = def.getValue('builders');
+            if (buildersField && buildersField.value && buildersField.value.type === 'list') {
+                const buildersList = buildersField.value.value;
+                if (buildersList && buildersList.length > 0) {
+                    // Try to get attribute name mappings from extraClassDeclaration
+                    const attrNameMap = new Map();
+                    const extraDecl = def.getValueAsString('extraClassDeclaration');
+                    if (extraDecl) {
+                        // Match patterns like: static StringRef getXxxAttrName() { return "yyy"; }
+                        const matches = extraDecl.matchAll(/get(\w+)AttrName\(\)\s*\{\s*return\s+"(\w+)"/g);
+                        for (const match of matches) {
+                            // Map parameter name (camelCase) to actual attribute name
+                            const paramName = match[1].charAt(0).toLowerCase() + match[1].slice(1);
+                            attrNameMap.set(paramName, match[2]);
+                        }
+                    }
+                    // Parse first OpBuilder<(ins ...)> to extract attributes
+                    for (const builder of buildersList) {
+                        if (builder.type === 'dag' && builder.value && builder.value.operator === 'OpBuilder') {
+                            const builderOperands = builder.value.operands;
+                            if (builderOperands && builderOperands.length > 0) {
+                                const [insArg] = builderOperands;
+                                if (insArg && insArg.value && insArg.value.type === 'dag' && insArg.value.value.operator === 'ins') {
+                                    const insDag = insArg.value.value;
+                                    for (const param of insDag.operands) {
+                                        // Builder parameters have string types like "SymbolRefAttr":$name
+                                        if (param.value && param.value.type === 'string' && param.name) {
+                                            const cppType = param.value.value;
+                                            // Only include Attr types (not Value or other C++ types)
+                                            if (cppType.endsWith('Attr') || cppType.includes('Attr:')) {
+                                                // Strip trailing Attr suffix variations and get base attr name
+                                                const attrType = cppType.replace(/::$/, '').replace(/:.*$/, '');
+                                                // Use the mapped name if available, otherwise derive from param name
+                                                let attrName = param.name;
+                                                // Remove common suffixes like 'Attr' from the parameter name
+                                                const cleanParamName = attrName.replace(/Attr$/, '');
+                                                if (attrNameMap.has(cleanParamName)) {
+                                                    attrName = attrNameMap.get(cleanParamName);
+                                                } else if (attrNameMap.has(attrName)) {
+                                                    attrName = attrNameMap.get(attrName);
+                                                } else {
+                                                    attrName = cleanParamName;
+                                                }
+                                                attributes.push({ name: attrName, type: attrType });
+                                            }
+                                        }
+                                    }
+                                    break; // Only process first builder
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         let results = def.getValueAsDag('results');
         if (!results || !results.operands || results.operands.length === 0) {
             // Try to get from parent Results class

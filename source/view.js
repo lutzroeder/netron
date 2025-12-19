@@ -2217,7 +2217,9 @@ view.Node = class extends grapher.Node {
         if (node.type.type || (Array.isArray(node.type.nodes) && node.type.nodes.length > 0)) {
             let icon = '\u0192';
             let tooltip = 'Show Function Definition';
-            if (type === 'graph') {
+            if (node.type.type === 'function') {
+                // default
+            } else if (type === 'graph') {
                 icon = '\u25CB';
                 tooltip = 'Show Graph';
             } else if (node.type.type === 'weights') {
@@ -2308,12 +2310,12 @@ view.Node = class extends grapher.Node {
         for (const argument of objects) {
             const type = argument.type;
             let content = null;
-            if (type === 'graph') {
+            if (type === 'graph' || type === 'function') {
                 content = this.context.createGraph(argument.value);
                 this.context.setNode(content);
             } else if (type === 'graph[]') {
                 content = argument.value.map((value) => this.context.createGraph(value));
-            } else if (type === 'function' || argument.type === 'object') {
+            } else if (argument.type === 'object') {
                 content = this.context.createNode(argument.value);
             } else if (type === 'function[]' || argument.type === 'object[]') {
                 content = argument.value.map((value) => this.context.createNode(value));
@@ -3198,7 +3200,7 @@ view.PrimitiveView = class extends view.Expander {
                 }
                 case 'function': {
                     const line = this.createElement('div', 'sidebar-item-value-line-link');
-                    line.textContent = value.type.name;
+                    line.textContent = value.name;
                     line.addEventListener('click', () => this.emit('activate', value));
                     this.add(line);
                     break;
@@ -4647,8 +4649,9 @@ view.Formatter = class {
                 return view.Formatter.tensor(value);
             }
             case 'object':
-            case 'function':
                 return value.type.name;
+            case 'function':
+                return value.name;
             case 'object[]':
             case 'function[]':
                 return value ? value.map((item) => item.type.name).join(', ') : '(null)';

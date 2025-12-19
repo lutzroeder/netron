@@ -970,7 +970,9 @@ tf.Node = class {
                         }
                         case 'func': {
                             type = 'function';
-                            value = new tf.Node(metadata, { op: obj.func.name, attr: obj.func.attr }, null, new tf.Context());
+                            value = metadata.type(obj.func.name);
+                            // type = 'object';
+                            // value = new tf.Node(metadata, { op: obj.func.name, attr: obj.func.attr }, null, new tf.Context());
                             break;
                         }
                         case 'placeholder': {
