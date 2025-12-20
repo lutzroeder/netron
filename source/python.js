@@ -2748,8 +2748,8 @@ python.Execution = class {
                         }
                     case 'c':
                         switch (this.itemsize) {
-                            case 8: return 'complex64';
-                            case 16: return 'complex128';
+                            case 8: return 'complex<float32>';
+                            case 16: return 'complex<float64>';
                             default: throw new python.Error(`Unsupported complex itemsize '${this.itemsize}'.`);
                         }
                     case 'S':
@@ -20574,9 +20574,9 @@ python.Execution = class {
         torch.float16 = torch.HalfStorage.dtype = new torch.dtype(5, 'float16', 2);
         torch.float32 = torch.FloatStorage.dtype = new torch.dtype(6, 'float32', 4);
         torch.float64 = torch.DoubleStorage.dtype = new torch.dtype(7, 'float64', 8);
-        torch.complex32 = torch.ComplexHalfStorage.dtype = new torch.dtype(8, 'complex32', 4);
-        torch.complex64 = torch.ComplexFloatStorage.dtype = new torch.dtype(9, 'complex64', 8);
-        torch.complex128 = torch.ComplexDoubleStorage.dtype = new torch.dtype(10, 'complex128', 16);
+        torch.complex32 = torch.ComplexHalfStorage.dtype = new torch.dtype(8, 'complex<float16>', 4);
+        torch.complex64 = torch.ComplexFloatStorage.dtype = new torch.dtype(9, 'complex<float32>', 8);
+        torch.complex128 = torch.ComplexDoubleStorage.dtype = new torch.dtype(10, 'complex<float64>', 16);
         torch.bool = torch.BoolStorage.dtype = new torch.dtype(11, 'boolean', 1);
         torch.qint8 = torch.QInt8Storage.dtype = new torch.dtype(12, 'qint8', 1);
         torch.quint8 = torch.QUInt8Storage.dtype = new torch.dtype(13, 'quint8', 1);

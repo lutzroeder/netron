@@ -520,8 +520,11 @@ tflite.Utility = class {
 
     static dataType(type) {
         if (!tflite.Utility._tensorTypes) {
+            const TensorType = tflite.schema.TensorType;
             tflite.Utility._tensorTypes = new Map(Object.entries(tflite.schema.TensorType).map(([key, value]) => [value, key.toLowerCase()]));
-            tflite.Utility._tensorTypes.set(6, 'boolean');
+            tflite.Utility._tensorTypes.set(TensorType.BOOL, 'boolean');
+            tflite.Utility._tensorTypes.set(tflite.schema.TensorType.COMPLEX64, 'complex<float32>');
+            tflite.Utility._tensorTypes.set(tflite.schema.TensorType.COMPLEX128, 'complex<float64>');
         }
         return tflite.Utility._tensorTypes.has(type) ? tflite.Utility._tensorTypes.get(type) : '?';
     }

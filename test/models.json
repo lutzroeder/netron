@@ -4087,7 +4087,7 @@
     "target":   "complex128.npy",
     "source":   "https://github.com/user-attachments/files/16554725/complex128.npy.zip[complex128.npy]",
     "format":   "NumPy Array",
-    "assert":   "model.modules[0].nodes[0].inputs[0].value[0].type.dataType == 'complex128'",
+    "assert":   "model.modules[0].nodes[0].inputs[0].value[0].type.dataType == 'complex<float64>'",
     "link":     "https://github.com/lutzroeder/netron/issues/711"
   },
   {
@@ -5745,7 +5745,7 @@
     "target":   "complex_tensor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9108149/complex_tensor.pt.zip[complex_tensor.pt]",
     "format":   "PyTorch v1.6",
-    "assert":   "model.modules[0].nodes[0].inputs[0].value[0].type.dataType == 'complex64'",
+    "assert":   "model.modules[0].nodes[0].inputs[0].value[0].type.dataType == 'complex<float32>'",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {

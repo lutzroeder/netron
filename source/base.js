@@ -1,21 +1,7 @@
 
 const base = {};
 
-base.Complex64 = class Complex64 {
-
-    constructor(real, imaginary) {
-        this.real = real;
-        this.imaginary = imaginary;
-    }
-
-    toString(/* radix */) {
-        const sign = this.imaginary < 0 ? '-' : '+';
-        const imaginary = Math.abs(this.imaginary);
-        return `${this.real} ${sign} ${imaginary}i`;
-    }
-};
-
-base.Complex128 = class Complex128 {
+base.Complex = class Complex {
 
     constructor(real, imaginary) {
         this.real = real;
@@ -240,10 +226,16 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
     return value & ((1 << bits) - 1);
 };
 
+DataView.prototype.getComplex32 = DataView.prototype.getComplex32 || function(byteOffset, littleEndian) {
+    const real = littleEndian ? this.getFloat16(byteOffset, littleEndian) : this.getFloat16(byteOffset + 4, littleEndian);
+    const imaginary = littleEndian ? this.getFloat16(byteOffset + 4, littleEndian) : this.getFloat16(byteOffset, littleEndian);
+    return new base.Complex(real, imaginary);
+};
+
 DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
-    return new base.Complex64(real, imaginary);
+    return new base.Complex(real, imaginary);
 };
 
 DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(byteOffset, value, littleEndian) {
@@ -259,7 +251,7 @@ DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(by
 DataView.prototype.getComplex128 = DataView.prototype.getComplex128 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
     const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
-    return new base.Complex128(real, imaginary);
+    return new base.Complex(real, imaginary);
 };
 
 DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(byteOffset, value, littleEndian) {
@@ -614,7 +606,7 @@ base.Tensor = class {
             ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
-            ['complex64', 8], ['complex128', 16],
+            ['complex<float32>', 8], ['complex<float64>', 16],
             ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1]
         ]);
     }
@@ -789,7 +781,8 @@ base.Tensor = class {
                     }
                     case '|': {
                         context.data = this.values;
-                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'datetime' && dataType !== 'void') {
+                        const integer = (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) || (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10)));
+                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'datetime' && dataType !== 'void' && !integer) {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
                         const size = context.dimensions.reduce((a, v) => a * v, 1);
@@ -929,12 +922,17 @@ base.Tensor = class {
                         results.push(view.getBfloat16(offset, this._littleEndian));
                     }
                     break;
-                case 'complex64':
+                case 'complex<float16>':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getComplex32(offset, this._littleEndian));
+                    }
+                    break;
+                case 'complex<float32>':
                     for (; offset < max; offset += stride) {
                         results.push(view.getComplex64(offset, this._littleEndian));
                     }
                     break;
-                case 'complex128':
+                case 'complex<float64>':
                     for (; offset < max; offset += stride) {
                         results.push(view.getComplex128(offset, this._littleEndian));
                     }
@@ -1279,8 +1277,7 @@ base.Metadata = class {
     }
 };
 
-export const Complex64 = base.Complex64;
-export const Complex128 = base.Complex128;
+export const Complex = base.Complex;
 export const BinaryStream = base.BinaryStream;
 export const BinaryReader = base.BinaryReader;
 export const Tensor = base.Tensor;

@@ -821,6 +821,8 @@ onnx.Context.Model = class {
         this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
         this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
         this._dataTypes.set(onnx.DataType.DOUBLE, 'float64');
+        this._dataTypes.set(onnx.DataType.COMPLEX64, 'complex<float32>');
+        this._dataTypes.set(onnx.DataType.COMPLEX128, 'complex<float64>');
         this._imageFormat = imageFormat;
         this._imports = imports;
         this._types = new Map();

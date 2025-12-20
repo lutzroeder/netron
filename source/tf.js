@@ -1195,7 +1195,7 @@ tf.Tensor = class {
                         const values = tensor.scomplex_val || null;
                         this._values = new Array(values.length >> 1);
                         for (let i = 0; i < values.length; i += 2) {
-                            this._values[i >> 1] = new base.Complex64(values[i], values[i + 1]);
+                            this._values[i >> 1] = new base.Complex(values[i], values[i + 1]);
                         }
                         this.encoding = '|';
                         break;
@@ -1204,7 +1204,7 @@ tf.Tensor = class {
                         const values = tensor.dcomplex_val || null;
                         this._values = new Array(values.length >> 1);
                         for (let i = 0; i < values.length; i += 2) {
-                            this._values[i >> 1] = new base.Complex128(values[i], values[i + 1]);
+                            this._values[i >> 1] = new base.Complex(values[i], values[i + 1]);
                         }
                         this.encoding = '|';
                         break;
@@ -2179,6 +2179,8 @@ tf.Utility = class {
             dataTypes.set(DataType.DT_FLOAT, 'float32');
             dataTypes.set(DataType.DT_DOUBLE, 'float64');
             dataTypes.set(DataType.DT_BOOL, 'boolean');
+            dataTypes.set(DataType.DT_COMPLEX64, 'complex<float32>');
+            dataTypes.set(DataType.DT_COMPLEX128, 'complex<float64>');
             tf.Utility._dataTypes = dataTypes;
         }
         return tf.Utility._dataTypes.has(type) ? tf.Utility._dataTypes.get(type) : '?';

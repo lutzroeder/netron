@@ -1247,8 +1247,8 @@ paddle.IR = class {
             case 'i16': return 'int16';
             case 'i32': return 'int32';
             case 'i64': return 'int64';
-            case 'c64': return 'complex64';
-            case 'c128': return 'complex128';
+            case 'c64': return 'complex<float32>';
+            case 'c128': return 'complex<float64>';
             case 'str': return 'string';
             default: return type;
         }

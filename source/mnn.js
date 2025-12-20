@@ -334,7 +334,7 @@ mnn.Utility = class {
             case mnn.schema.DataType.DT_INT16: return 'int16';
             case mnn.schema.DataType.DT_INT8: return 'int8';
             case mnn.schema.DataType.DT_STRING: return 'string';
-            case mnn.schema.DataType.DT_COMPLEX64: return 'complex64';
+            case mnn.schema.DataType.DT_COMPLEX64: return 'complex<float32>';
             case mnn.schema.DataType.DT_INT64: return 'int64';
             case mnn.schema.DataType.DT_BOOL: return 'boolean';
             case mnn.schema.DataType.DT_QINT8: return 'qint8';
@@ -344,7 +344,7 @@ mnn.Utility = class {
             case mnn.schema.DataType.DT_QINT16: return 'qint16';
             case mnn.schema.DataType.DT_QUINT16: return 'quint16';
             case mnn.schema.DataType.DT_UINT16: return 'uint16';
-            case mnn.schema.DataType.DT_COMPLEX128: return 'complex128';
+            case mnn.schema.DataType.DT_COMPLEX128: return 'complex<float64>';
             case mnn.schema.DataType.DT_HALF: return 'float16';
             case mnn.schema.DataType.DT_RESOURCE: return 'resource';
             case mnn.schema.DataType.DT_VARIANT: return 'variant';
