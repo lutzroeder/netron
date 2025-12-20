@@ -56,6 +56,7 @@ const schema = async () => {
         path.join(source, 'llvm-project', 'mlir', 'include'),
         path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Dialect', 'Test'),
         path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Dialect', 'Transform'),
+        path.join(source, 'llvm-project', 'mlir', 'test', 'lib', 'Transforms'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmNeon'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSME', 'IR'),
         path.join(source, 'llvm-project', 'mlir', 'include', 'mlir', 'Dialect', 'ArmSVE', 'IR'),
@@ -205,8 +206,6 @@ const schema = async () => {
         'mlir/include/mlir/Dialect/X86Vector/X86Vector.td',
         'mlir/include/mlir/Dialect/XeGPU/IR/XeGPUOps.td',
         'mlir/include/mlir/Dialect/XeGPU/TransformOps/XeGPUTransformOps.td',
-        'mlir/test/lib/Dialect/Test/TestOps.td',
-        'mlir/test/lib/Dialect/Transform/TestTransformDialectExtension.td',
         'mlir/examples/toy/Ch7/include/toy/Ops.td',
         'mlir/examples/transform/Ch2/include/MyExtension.td',
         'mlir/examples/transform/Ch3/include/MyExtension.td',
@@ -246,6 +245,10 @@ const schema = async () => {
         'tfrt/tensor/opdefs/tensor.td',
         'tfrt/tensor/opdefs/dense_host_tensor.td',
         'tfrt/tensor/opdefs/tensor_shape.td',
+        'mlir/test/lib/Dialect/Test/TestOps.td',
+        'mlir/test/lib/Dialect/Test/TestOpsSyntax.td',
+        'mlir/test/lib/Dialect/Transform/TestTransformDialectExtension.td',
+        'mlir/test/lib/Transforms/TestTransformsOps.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/HAL/IR/HALTypes.td',
         'iree/compiler/Modules/HAL/Loader/IR/HALLoaderOps.td',
@@ -724,7 +727,7 @@ const test = async (pattern) => {
             }
             if (stripped.startsWith('third_party/')) {
                 currentFile = stripped;
-                if (stripped.toLowerCase().includes('invalid')) {
+                if (stripped.toLowerCase().includes('invalid') || stripped.startsWith('third_party/source/mlir/mlir-dace/design')) {
                     invalidFiles.add(currentFile);
                 } else {
                     validFiles.add(currentFile);
