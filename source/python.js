@@ -5241,13 +5241,13 @@ python.Execution = class {
                                 context.view.setUint32(context.position, data[i], littleendian);
                                 break;
                             case 'u8':
-                                context.view.setBigUint64(context.position, data[i], littleendian);
+                                context.view.setComplexFloat16(context.position, data[i], littleendian);
                                 break;
                             case 'c8':
-                                context.view.setComplex64(context.position, data[i], littleendian);
+                                context.view.setComplexFloat32(context.position, data[i], littleendian);
                                 break;
                             case 'c16':
-                                context.view.setComplex128(context.position, data[i], littleendian);
+                                context.view.setComplexFloat64(context.position, data[i], littleendian);
                                 break;
                             case 'b1':
                                 context.view.setInt8(context.position, data[i] ? 1 : 0);

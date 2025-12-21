@@ -226,19 +226,25 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
     return value & ((1 << bits) - 1);
 };
 
-DataView.prototype.getComplex32 = DataView.prototype.getComplex32 || function(byteOffset, littleEndian) {
+DataView.prototype.getComplexInt32 = DataView.prototype.getComplexInt32 || function(byteOffset, littleEndian) {
+    const real = littleEndian ? this.getInt32(byteOffset, littleEndian) : this.getInt32(byteOffset + 4, littleEndian);
+    const imaginary = littleEndian ? this.getInt32(byteOffset + 4, littleEndian) : this.getInt32(byteOffset, littleEndian);
+    return new base.Complex(real, imaginary);
+};
+
+DataView.prototype.getComplexFloat16 = DataView.prototype.getComplexFloat16 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat16(byteOffset, littleEndian) : this.getFloat16(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat16(byteOffset + 4, littleEndian) : this.getFloat16(byteOffset, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
-DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
+DataView.prototype.getComplexFloat32 = DataView.prototype.getComplexFloat32 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
-DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(byteOffset, value, littleEndian) {
+DataView.prototype.setComplexFloat32 = DataView.prototype.setComplexFloat32 || function(byteOffset, value, littleEndian) {
     if (littleEndian) {
         this.setFloat32(byteOffset, value.real, littleEndian);
         this.setFloat32(byteOffset + 4, value.imaginary, littleEndian);
@@ -248,13 +254,13 @@ DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(by
     }
 };
 
-DataView.prototype.getComplex128 = DataView.prototype.getComplex128 || function(byteOffset, littleEndian) {
+DataView.prototype.getComplexFloat64 = DataView.prototype.getComplexFloat64 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
     const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
-DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(byteOffset, value, littleEndian) {
+DataView.prototype.setComplexFloat64 = DataView.prototype.setComplexFloat64 || function(byteOffset, value, littleEndian) {
     if (littleEndian) {
         this.setFloat64(byteOffset, value.real, littleEndian);
         this.setFloat64(byteOffset + 8, value.imaginary, littleEndian);
@@ -606,7 +612,7 @@ base.Tensor = class {
             ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
-            ['complex<float32>', 8], ['complex<float64>', 16],
+            ['complex<float32>', 8], ['complex<float64>', 16], ['complex<int32>', 8],
             ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1]
         ]);
     }
@@ -922,19 +928,24 @@ base.Tensor = class {
                         results.push(view.getBfloat16(offset, this._littleEndian));
                     }
                     break;
+                case 'complex<int32>':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getComplexInt32(offset, this._littleEndian));
+                    }
+                    break;
                 case 'complex<float16>':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getComplex32(offset, this._littleEndian));
+                        results.push(view.getComplexFloat16(offset, this._littleEndian));
                     }
                     break;
                 case 'complex<float32>':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getComplex64(offset, this._littleEndian));
+                        results.push(view.getComplexFloat32(offset, this._littleEndian));
                     }
                     break;
                 case 'complex<float64>':
                     for (; offset < max; offset += stride) {
-                        results.push(view.getComplex128(offset, this._littleEndian));
+                        results.push(view.getComplexFloat64(offset, this._littleEndian));
                     }
                     break;
                 case 'float4e2m1':
@@ -1265,7 +1276,7 @@ base.Metadata = class {
             'gguf',
             'hd5', 'hdf5', 'keras',
             'tfl', 'circle', 'lite',
-            'mlir', 'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn',
+            'mlir', 'mlirbc', 'mlnet', 'mar', 'maxviz', 'meta', 'nn', 'ngf', 'hn',
             'param', 'params',
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
             'pkl', 'pickle', 'joblib', 'safetensors',

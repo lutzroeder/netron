@@ -3436,8 +3436,7 @@
     "type":     "mlir",
     "target":   "model.mlirbc",
     "source":   "https://github.com/user-attachments/files/17179955/model.mlirbc.zip[model.mlirbc]",
-    "format":   "MLIR",
-    "error":    "File contains unsupported MLIR bytecode data.",
+    "format":   "MLIR Bytecode v6",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3452,6 +3451,13 @@
     "target":   "resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir",
     "source":   "https://github.com/user-attachments/files/17640926/resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir.zip[resnet18-v1-op13-fp32-onnxzoo-simplified.onnx.mlir]",
     "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "resnet50.mlirbc",
+    "source":   "https://github.com/user-attachments/files/24273184/resnet50.mlirbc.zip[resnet50.mlirbc]",
+    "format":   "MLIR Bytecode v6",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3557,8 +3563,7 @@
     "type":     "mlir",
     "target":   "versioned-op-2.0.mlirbc",
     "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
-    "format":   "MLIR",
-    "error":    "File contains unsupported MLIR bytecode data.",
+    "format":   "MLIR Bytecode v1",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
