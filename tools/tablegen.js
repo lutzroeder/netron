@@ -1736,7 +1736,7 @@ tablegen.Reader = class {
         this._expect('=');
         const listValue = this._parseForeachListValue();
         this._expect('keyword', 'in');
-        const loop = { location, iterVarName, listValue, entries: [], hasDefvar: false };
+        const loop = { location, iterVarName, listValue, entries: [] };
         if (this._match('{')) {
             this._read();
             this._parseForeachBody(loop);
@@ -1873,11 +1873,6 @@ tablegen.Reader = class {
     _parseForeachBody(loop) {
         while (!this._match('}') && !this._match('eof')) {
             this._parseForeachBodyStatement(loop);
-            // If we found defvar, skip the rest of the body since we can't properly expand this loop
-            if (loop.hasDefvar) {
-                this._skipUntilClosingBrace();
-                return;
-            }
         }
     }
 
@@ -1915,8 +1910,7 @@ tablegen.Reader = class {
                     this._parseLet();
                     break;
                 case 'defvar':
-                    loop.hasDefvar = true;
-                    this._parseDefvar();
+                    loop.entries.push({ type: 'defvar', data: this._parseDefvarTemplate() });
                     break;
                 case 'foreach':
                     loop.entries.push({ type: 'foreach', data: this._parseForeachTemplate() });
@@ -1991,6 +1985,11 @@ tablegen.Reader = class {
                 nameTemplate.push({ type: 'number', value: this._read() });
             } else if (this._eat('#')) {
                 nameTemplate.push({ type: 'concat' });
+            } else if (this._match('!')) {
+                const bangValue = this._parseValue();
+                if (bangValue && bangValue.type === 'bang') {
+                    nameTemplate.push({ type: 'bang', value: bangValue.value });
+                }
             } else {
                 break;
             }
@@ -2016,7 +2015,7 @@ tablegen.Reader = class {
         this._expect('=');
         const listValue = this._parseForeachListValue();
         this._expect('keyword', 'in');
-        const loop = { location, iterVarName, listValue, entries: [], hasDefvar: false };
+        const loop = { location, iterVarName, listValue, entries: [] };
         if (this._match('{')) {
             this._read();
             this._parseForeachBody(loop);
@@ -2025,6 +2024,15 @@ tablegen.Reader = class {
             this._parseForeachBodyStatement(loop);
         }
         return loop;
+    }
+
+    _parseDefvarTemplate() {
+        this._read();
+        const name = this._expect('id');
+        this._expect('=');
+        const value = this._parseValue();
+        this._expect(';');
+        return { name, value };
     }
 
     _parseRecordBodyFields() {
@@ -2069,9 +2077,6 @@ tablegen.Reader = class {
     }
 
     _resolveForeachLoop(loop, substitutions) {
-        if (loop.hasDefvar) {
-            return;
-        }
         if (loop.entries.length === 0) {
             return;
         }
@@ -2086,6 +2091,9 @@ tablegen.Reader = class {
                     this._instantiateDef(entry.data, substitutions);
                 } else if (entry.type === 'foreach') {
                     this._resolveForeachLoop(entry.data, substitutions);
+                } else if (entry.type === 'defvar') {
+                    const value = this._evaluateDefvar(entry.data.value, substitutions);
+                    substitutions.set(entry.data.name, value);
                 }
             }
             return;
@@ -2103,6 +2111,9 @@ tablegen.Reader = class {
                     this._instantiateDef(entry.data, currentSubs);
                 } else if (entry.type === 'foreach') {
                     this._resolveForeachLoop(entry.data, currentSubs);
+                } else if (entry.type === 'defvar') {
+                    const value = this._evaluateDefvar(entry.data.value, currentSubs);
+                    currentSubs.set(entry.data.name, value);
                 }
             }
         }
@@ -2150,6 +2161,60 @@ tablegen.Reader = class {
         return null;
     }
 
+    _evaluateDefvar(value, substitutions) {
+        if (!value) {
+            return new tablegen.Value('string', '');
+        }
+        if (value.type === 'string') {
+            return value;
+        }
+        if (value.type === 'int') {
+            return value;
+        }
+        if ((value.type === 'def' || value.type === 'id') && substitutions.has(value.value)) {
+            return substitutions.get(value.value);
+        }
+        if (value.type === 'concat') {
+            const parts = value.value.map((part) => this._evaluateDefvar(part, substitutions));
+            let result = '';
+            for (const part of parts) {
+                if (part.type === 'string') {
+                    result += String(part.value).replace(/^"|"$/g, '');
+                } else if (part.type === 'int') {
+                    result += String(part.value);
+                } else if (part.type === 'def' || part.type === 'id') {
+                    result += String(part.value);
+                }
+            }
+            return new tablegen.Value('string', result);
+        }
+        if (value.type === 'bang' && value.value) {
+            const { op, args } = value.value;
+            if (op === 'cast' && args && args.length > 0) {
+                const arg = this._evaluateDefvar(args[0], substitutions);
+                if (arg.type === 'int') {
+                    return new tablegen.Value('string', String(arg.value));
+                }
+                return arg;
+            }
+            if (op === 'toupper' && args && args.length > 0) {
+                const arg = this._evaluateDefvar(args[0], substitutions);
+                if (arg.type === 'string') {
+                    return new tablegen.Value('string', String(arg.value).toUpperCase());
+                }
+                return arg;
+            }
+            if (op === 'tolower' && args && args.length > 0) {
+                const arg = this._evaluateDefvar(args[0], substitutions);
+                if (arg.type === 'string') {
+                    return new tablegen.Value('string', String(arg.value).toLowerCase());
+                }
+                return arg;
+            }
+        }
+        return value;
+    }
+
     _instantiateDef(template, substitutions) {
         let name = '';
         for (const part of template.nameTemplate) {
@@ -2173,6 +2238,9 @@ tablegen.Reader = class {
                 name += part.value;
             } else if (part.type === 'number') {
                 name += String(part.value);
+            } else if (part.type === 'bang') {
+                const evaluated = this._evaluateDefvar(new tablegen.Value('bang', part.value), substitutions);
+                name += this._valueToString(evaluated);
             }
         }
         const def = new tablegen.Record(name, this);
@@ -2491,6 +2559,10 @@ tablegen.Reader = class {
         while (this._match('#') || (values[values.length - 1] && values[values.length - 1].type === 'string' && this._match('string'))) {
             if (this._match('#')) {
                 this._read();
+                // Handle trailing # before ; (malformed TableGen but seen in some files)
+                if (this._match(';') || this._match(',') || this._match(')') || this._match(']') || this._match('}') || this._match('eof')) {
+                    break;
+                }
             }
             values.push(this._parsePrimaryValue());
         }

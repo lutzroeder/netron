@@ -92,6 +92,7 @@
   },
   {
     "name": "Clamp",
+    "category": "Activation",
     "description": "*Clamp* layer represents clipping activation operation.\n**Detailed description**: [Reference](https://www.tensorflow.org/versions/r1.2/api_docs/MO_DG/prepare_model/python/tf/clip_by_value)\n**Parameters**: *Clamp* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Clamp* generally does the following with the input blobs:\n\\f[\nout_i=\\left\\{\\begin{array}{ll}\n\tmax\\_value \\quad \\mbox{if } \\quad input_i>max\\_value \\\\\n\tmin\\_value \\quad \\mbox{if } \\quad input_i\n\\end{array}\\right.\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Clamp\" ... >\n    <data min=\"10\" max=\"50\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
     "attributes": [
       {

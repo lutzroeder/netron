@@ -3484,6 +3484,20 @@
   },
   {
     "type":     "mlir",
+    "target":   "squeezenet.mlir",
+    "source":   "https://github.com/user-attachments/files/24284768/squeezenet.mlir.zip[squeezenet.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "squeezenet.mlirbc",
+    "source":   "https://github.com/user-attachments/files/24284768/squeezenet.mlir.zip[squeezenet.mlirbc]",
+    "format":   "MLIR Bytecode v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "stablehlo_ea.mlir",
     "source":   "https://github.com/user-attachments/files/21081168/stablehlo_ea.mlir.zip[stablehlo_ea.mlir]",
     "format":   "MLIR",

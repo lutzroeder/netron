@@ -64,6 +64,7 @@ const schema = async () => {
         path.join(source, 'llvm-project', 'mlir', 'examples', 'toy', 'Ch7', 'include'),
         path.join(source, 'llvm-project', 'mlir', 'examples', 'transform', 'Ch2', 'include'),
         path.join(source, 'llvm-project', 'mlir', 'examples', 'transform', 'Ch3', 'include'),
+        path.join(source, 'llvm-project', 'mlir', 'examples', 'transform', 'Ch4', 'include'),
         path.join(source, 'stablehlo'),
         path.join(source, 'shardy'),
         path.join(source, 'xla', 'xla', 'mlir_hlo'),
@@ -94,11 +95,12 @@ const schema = async () => {
         path.join(source, 'triton', 'third_party', 'nvidia', 'include'),
         path.join(source, 'triton', 'third_party', 'nvidia', 'include', 'Dialect', 'NVGPU', 'IR'),
         path.join(source, 'triton', 'third_party', 'nvidia', 'include', 'Dialect', 'NVWS', 'IR'),
-        path.join(source, '_', 'llvm-project', 'mlir', 'include'),
         path.join(source, 'clangir'),
         path.join(source, 'clangir', 'clang', 'include'),
         path.join(source, 'rocMLIR'),
         path.join(source, 'rocMLIR', 'mlir', 'include'),
+        path.join(source, '_', 'llvm-project', 'mlir', 'include'),
+        path.join(source, '_', 'mlir-hlo'),
     ];
     const dialects = [
         'mlir/include/mlir/IR/BuiltinAttributeInterfaces.td',
@@ -204,11 +206,13 @@ const schema = async () => {
         'mlir/include/mlir/Dialect/Vector/TransformOps/VectorTransformOps.td',
         'mlir/include/mlir/Dialect/WasmSSA/IR/WasmSSAOps.td',
         'mlir/include/mlir/Dialect/X86Vector/X86Vector.td',
+        'mlir/include/mlir/Dialect/X86Vector/TransformOps/X86VectorTransformOps.td',
         'mlir/include/mlir/Dialect/XeGPU/IR/XeGPUOps.td',
         'mlir/include/mlir/Dialect/XeGPU/TransformOps/XeGPUTransformOps.td',
         'mlir/examples/toy/Ch7/include/toy/Ops.td',
         'mlir/examples/transform/Ch2/include/MyExtension.td',
         'mlir/examples/transform/Ch3/include/MyExtension.td',
+        'mlir/examples/transform/Ch4/include/MyExtension.td',
         'stablehlo/dialect/StablehloOps.td',
         'stablehlo/dialect/ChloOps.td',
         'stablehlo/dialect/VhloOps.td',
@@ -217,6 +221,7 @@ const schema = async () => {
         'shardy/dialect/sdy/ir/ops.td',
         'shardy/dialect/mpmd/ir/ops.td',
         'mhlo/IR/hlo_ops.td',
+        'thlo/IR/thlo_ops.td',
         'src/Dialect/ONNX/ONNX.td',
         'src/Dialect/ONNX/ONNXOps.td.inc',
         'src/Dialect/ONNX/AdditionalONNXOps.td',
@@ -244,10 +249,12 @@ const schema = async () => {
         'tfrt/test_kernels/opdefs/test_kernels.td',
         'tfrt/tensor/opdefs/tensor.td',
         'tfrt/tensor/opdefs/dense_host_tensor.td',
+        'tfrt/tensor/opdefs/coo_host_tensor.td',
         'tfrt/tensor/opdefs/tensor_shape.td',
         'mlir/test/lib/Dialect/Test/TestOps.td',
         'mlir/test/lib/Dialect/Test/TestOpsSyntax.td',
         'mlir/test/lib/Dialect/Transform/TestTransformDialectExtension.td',
+        'mlir/test/lib/Interfaces/TilingInterface/TestTilingInterfaceTransformOps.td',
         'mlir/test/lib/Transforms/TestTransformsOps.td',
         'iree/compiler/Dialect/HAL/IR/HALOps.td',
         'iree/compiler/Dialect/HAL/IR/HALTypes.td',
@@ -285,10 +292,12 @@ const schema = async () => {
         'pmlc/dialect/pxa/ir/ops.td',
         'pmlc/dialect/linalgx/ir/ops.td',
         'pmlc/dialect/xsmm/ir/ops.td',
+        'pmlc/dialect/layer/ir/ops.td',
         'SDFG/Dialect/Ops.td',
         'lltz/mlir/dialect/include/Michelson/MichelsonOps.td',
         'triton/Dialect/Triton/IR/TritonOps.td',
         'triton/Dialect/TritonGPU/IR/TritonGPUOps.td',
+        'triton/Dialect/TritonInstrument/IR/TritonInstrumentOps.td',
         'triton/Dialect/Gluon/IR/GluonOps.td',
         'triton/Dialect/TritonNvidiaGPU/IR/TritonNvidiaGPUOps.td',
         'triton/third_party/nvidia/include/Dialect/NVWS/IR/NVWSOps.td',
@@ -369,12 +378,14 @@ const schema = async () => {
             operation.category = 'Shape';
         } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].includes(name)) {
             operation.category = 'Transform';
-        } else if (['slice', 'split', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter', 'concatenate'].includes(name)) {
+        } else if (['slice', 'split', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter', 'concat', 'concatenate'].includes(name)) {
             operation.category = 'Tensor';
-        } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu'].includes(name)) {
+        } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu', 'clamp'].includes(name)) {
             operation.category = 'Activation';
         } else if (['convolution', 'Conv', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].includes(name)) {
             operation.category = 'Layer';
+        } else if (['max_pool2d'].includes(name)) {
+            operation.category = 'Pool';
         } else if (['batch_norm_inference'].includes(name)) {
             operation.category = 'Normalization';
         }
@@ -709,9 +720,14 @@ const test = async (pattern) => {
         'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-uniform-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/memory-ops.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/simple_sdfg.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/symbol.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
     ]);
     return new Promise((resolve, reject) => {
         const cmd = 'node';

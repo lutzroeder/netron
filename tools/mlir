@@ -71,6 +71,10 @@ sync() {
     echo '#ifndef LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD
 #define LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD
 #endif // LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD' > "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Linalg/IR/LinalgNamedStructuredOps.yamlgen.td"
+    mkdir -p "${src_dir}/_/mlir-hlo/thlo/IR"
+    curl --silent --show-error --location --output "${src_dir}/_/mlir-hlo/thlo/IR/thlo_ops.td" "https://raw.githubusercontent.com/rengolin/mlir-hlo/08ce879a5a04ea95dd02515baadc1796901546c5/thlo/IR/thlo_ops.td"
+    mkdir -p "${src_dir}/_/mlir-hlo/gml_st/interfaces"
+    curl --silent --show-error --location --output "${src_dir}/_/mlir-hlo/gml_st/interfaces/tiling_interface.td" "https://raw.githubusercontent.com/rengolin/mlir-hlo/08ce879a5a04ea95dd02515baadc1796901546c5/gml_st/interfaces/tiling_interface.td"
 }
 
 schema() {
