@@ -370,7 +370,7 @@ desktop.Host = class {
                     reject(err);
                 } else if (!stat.isFile()) {
                     reject(new Error(`The path '${file}' is not a file.`));
-                } else if (stat && stat.size < 0x7ffff000) {
+                } else if (stat && stat.size < 0x40000000) {
                     fs.readFile(pathname, encoding, (err, data) => {
                         if (err) {
                             reject(err);
