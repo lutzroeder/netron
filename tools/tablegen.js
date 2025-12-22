@@ -734,6 +734,32 @@ tablegen.Record = class {
             return null;
         };
         const enumAttrParent = findEnumAttrParent(this);
+        // Pattern 0: Handle wrapper classes like OpenMP_EnumAttr, GPU_EnumAttr, etc.
+        // These are classes that inherit from EnumAttr and take the underlying enum as first arg.
+        // When we call findEnumAttrParent, it returns EnumAttr's template params (e.g., "enumInfo"),
+        // not the actual values. So we need to look at this.parents to find the wrapper class
+        // and extract the actual enum from its args.
+        for (const parent of this.parents) {
+            const parentClass = this.parser.getClass(parent.name);
+            if (parentClass && parentClass !== this) {
+                // Check if this parent class inherits from EnumAttr
+                const parentEnumAttr = findEnumAttrParent(parentClass);
+                if (parentEnumAttr && parent.args && parent.args.length >= 1) {
+                    // The first arg of wrapper classes is typically the underlying enum
+                    for (const arg of parent.args) {
+                        if (arg.type === 'def' && typeof arg.value === 'string') {
+                            const potentialEnum = this.parser.getDef(arg.value) || this.parser.getClass(arg.value);
+                            if (potentialEnum && potentialEnum.isEnumAttr()) {
+                                const cases = potentialEnum.getEnumCases();
+                                if (cases && cases.length > 0) {
+                                    return cases;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Pattern 1a: EnumAttr<Dialect, EnumInfo (as def), name>
         // The 2nd argument is a reference to the underlying enum (e.g., GPU_Dimension)
         if (enumAttrParent && enumAttrParent.args && enumAttrParent.args.length >= 2) {

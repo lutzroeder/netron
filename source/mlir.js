@@ -19488,7 +19488,52 @@ mlir.ACCDialect = class extends mlir.Dialect {
         }
     }
 
-    _parseDeviceTypeOperandsWithKeywordOnly() {
+    _parseDeviceTypeOperandsWithKeywordOnly(parser, op, args) {
+        const [, , deviceTypesVar, keywordOnlyVar] = args.map((a) => a.replace('$', '').replace(/^type\(/, '').replace(/\)$/, ''));
+        if (!parser.accept('(')) {
+            op.attributes.set(keywordOnlyVar, [{ value: 'none' }]);
+            return;
+        }
+        const keywordOnlyAttrs = [];
+        let needComma = false;
+        if (parser.accept('[')) {
+            while (!parser.match(']')) {
+                const attr = parser.parseAttribute();
+                keywordOnlyAttrs.push(attr);
+                parser.accept(',');
+            }
+            parser.expect(']');
+            needComma = true;
+        }
+        if (keywordOnlyAttrs.length > 0) {
+            op.attributes.set(keywordOnlyVar, keywordOnlyAttrs);
+        }
+        if (needComma) {
+            parser.accept(',');
+        }
+        const operands = [];
+        const deviceTypes = [];
+        while (!parser.match(')')) {
+            const operand = parser.parseOperand();
+            parser.expect(':');
+            operand.type = parser.parseType();
+            operands.push(operand);
+            if (parser.accept('[')) {
+                const deviceType = parser.parseAttribute();
+                deviceTypes.push(deviceType);
+                parser.expect(']');
+            } else {
+                deviceTypes.push({ value: 'none' });
+            }
+            if (!parser.accept(',')) {
+                break;
+            }
+        }
+        parser.expect(')');
+        op.operands.push(...operands);
+        if (deviceTypes.length > 0) {
+            op.attributes.set(deviceTypesVar, deviceTypes);
+        }
     }
 
     _parseLoopControl(parser, op) {
@@ -19595,27 +19640,78 @@ mlir.ACCDialect = class extends mlir.Dialect {
         }
     }
 
-    _parseGangClause(parser, op) {
+    _parseGangClause(parser, op, args) {
+        const [, , , , , gangOnlyVar] = args.map((a) => a.replace('$', '').replace(/^type\(/, '').replace(/\)$/, ''));
+        if (!parser.accept('(')) {
+            op.attributes.set(gangOnlyVar, [{ value: 'none' }]);
+            return;
+        }
+        const gangOnlyAttrs = [];
+        let needComma = false;
+        if (parser.accept('[')) {
+            while (!parser.match(']')) {
+                const attr = parser.parseAttribute();
+                gangOnlyAttrs.push(attr);
+                parser.accept(',');
+            }
+            parser.expect(']');
+            needComma = true;
+        }
+        if (gangOnlyAttrs.length > 0) {
+            op.attributes.set(gangOnlyVar, gangOnlyAttrs);
+        }
+        if (needComma) {
+            parser.accept(',');
+        }
+        const gangArgTypes = [];
+        const deviceTypes = [];
+        const segments = [];
         while (parser.accept('{')) {
-            while (!parser.accept('}')) {
+            let segmentCount = 0;
+            while (!parser.match('}')) {
+                let argType = 'Num';
                 if (parser.accept('id', 'num')) {
                     parser.expect('=');
+                    argType = 'Num';
                 } else if (parser.accept('id', 'dim')) {
                     parser.expect('=');
+                    argType = 'Dim';
                 } else if (parser.accept('id', 'static')) {
                     parser.expect('=');
+                    argType = 'Static';
                 }
+                gangArgTypes.push({ value: argType });
                 const operand = parser.parseOperand();
                 parser.expect(':');
                 operand.type = parser.parseType();
                 op.operands.push(operand);
-                parser.accept(',');
+                segmentCount++;
+                if (!parser.accept(',')) {
+                    break;
+                }
             }
+            parser.expect('}');
+            segments.push(segmentCount);
             if (parser.accept('[')) {
-                parser.parseAttribute();
+                const deviceType = parser.parseAttribute();
+                deviceTypes.push(deviceType);
                 parser.expect(']');
+            } else {
+                deviceTypes.push({ value: 'none' });
             }
-            parser.accept(',');
+            if (!parser.accept(',')) {
+                break;
+            }
+        }
+        parser.expect(')');
+        if (gangArgTypes.length > 0) {
+            op.attributes.set('gangOperandsArgType', gangArgTypes);
+        }
+        if (deviceTypes.length > 0) {
+            op.attributes.set('gangOperandsDeviceType', deviceTypes);
+        }
+        if (segments.length > 0) {
+            op.attributes.set('gangOperandsSegments', segments);
         }
     }
 
