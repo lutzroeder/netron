@@ -4,12 +4,13 @@ import json
 import os
 import pydoc
 import re
+import warnings
+
+warnings.filterwarnings("ignore",
+    category=FutureWarning,
+    module="keras.src.export.tf2onnx_lib")
 
 os.environ["KERAS_BACKEND"] = "jax"
-
-def _read(path):
-    with open(path, encoding="utf-8") as file:
-        return file.read()
 
 def _parse_docstring(docstring):
     headers = []
@@ -173,7 +174,9 @@ def _update_headers(schema, docstring):
 def _metadata():
     root = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     json_path = os.path.join(root, "source", "keras-metadata.json")
-    json_root = json.loads(_read(json_path))
+    with open(json_path, encoding="utf-8") as file:
+        json_content = file.read()
+    json_root = json.loads(json_content)
     skip_names = set([
         "keras.layers.InputLayer",
         "keras.layers.ThresholdedReLU",
