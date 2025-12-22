@@ -889,14 +889,14 @@ tablegen.Record = class {
         return null;
     }
 
-    evaluateValue(value) {
+    evaluateValue(value, visited = new Set()) {
         if (!value) {
             return null;
         }
         // Handle named values (e.g., { name: 'clauses', value: { type: 'list', ... } })
         // These come from named arguments in template instantiation
         if (!value.type && value.name && value.value) {
-            return this.evaluateValue(value.value);
+            return this.evaluateValue(value.value, visited);
         }
         switch (value.type) {
             case 'string':
@@ -908,34 +908,46 @@ tablegen.Record = class {
             case 'bit':
                 return value.value === 'true' || value.value === '1';
             case 'list':
-                return value.value.map((v) => this.evaluateValue(v));
+                return value.value.map((v) => this.evaluateValue(v, visited));
             case 'concat': {
-                const parts = value.value.map((v) => this.evaluateValue(v)).filter((v) => v !== null && v !== undefined && v !== '');
+                const parts = value.value.map((v) => this.evaluateValue(v, visited)).filter((v) => v !== null && v !== undefined && v !== '');
                 return parts.join('');
             }
             case 'id': {
                 const fieldName = value.value;
+                // Guard against circular references
+                const idKey = `id:${fieldName}`;
+                if (visited.has(idKey)) {
+                    return null;
+                }
+                visited.add(idKey);
                 if (this.templateBindings.has(fieldName)) {
-                    return this.evaluateValue(this.templateBindings.get(fieldName));
+                    return this.evaluateValue(this.templateBindings.get(fieldName), visited);
                 }
                 const field = this.getValue(fieldName);
                 if (field && field.value) {
-                    return this.evaluateValue(field.value);
+                    return this.evaluateValue(field.value, visited);
                 }
                 return null;
             }
             case 'def': {
                 const defName = typeof value.value === 'string' ? value.value : value.value.value;
+                // Guard against circular references
+                const defKey = `def:${defName}`;
+                if (visited.has(defKey)) {
+                    return defName; // Return the def name itself to break the cycle
+                }
+                visited.add(defKey);
                 if (defName.includes('.')) {
                     const parts = defName.split('.');
                     const [baseName, ...fieldPath] = parts;
                     let baseValue = null;
                     if (this.templateBindings.has(baseName)) {
-                        baseValue = this.evaluateValue(this.templateBindings.get(baseName));
+                        baseValue = this.evaluateValue(this.templateBindings.get(baseName), visited);
                     } else {
                         const field = this.getValue(baseName);
                         if (field && field.value) {
-                            baseValue = this.evaluateValue(field.value);
+                            baseValue = this.evaluateValue(field.value, visited);
                         }
                     }
                     if (typeof baseValue === 'string') {
@@ -947,7 +959,7 @@ tablegen.Record = class {
                                 if (!field || !field.value) {
                                     return null;
                                 }
-                                const evaluated = current.evaluateValue(field.value);
+                                const evaluated = current.evaluateValue(field.value, visited);
                                 // If it's another def name, continue navigation
                                 if (typeof evaluated === 'string' && (this.parser.getDef(evaluated) || this.parser.getClass(evaluated))) {
                                     current = this.parser.getDef(evaluated) || this.parser.getClass(evaluated);
@@ -961,11 +973,11 @@ tablegen.Record = class {
                     return null;
                 }
                 if (this.templateBindings.has(defName)) {
-                    return this.evaluateValue(this.templateBindings.get(defName));
+                    return this.evaluateValue(this.templateBindings.get(defName), visited);
                 }
                 const field = this.getValue(defName);
                 if (field && field.value) {
-                    return this.evaluateValue(field.value);
+                    return this.evaluateValue(field.value, visited);
                 }
                 const def = this.parser.getDef(defName) || this.parser.getClass(defName);
                 return def ? defName : null;
@@ -977,17 +989,17 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return null;
                         }
-                        const condition = this.evaluateValue(args[0]);
+                        const condition = this.evaluateValue(args[0], visited);
                         if (condition) {
-                            return args.length > 1 ? this.evaluateValue(args[1]) : null;
+                            return args.length > 1 ? this.evaluateValue(args[1], visited) : null;
                         }
-                        return args.length > 2 ? this.evaluateValue(args[2]) : null;
+                        return args.length > 2 ? this.evaluateValue(args[2], visited) : null;
                     }
                     case 'empty': {
                         if (args.length < 1) {
                             return true;
                         }
-                        const val = this.evaluateValue(args[0]);
+                        const val = this.evaluateValue(args[0], visited);
                         if (Array.isArray(val)) {
                             return val.length === 0;
                         }
@@ -1000,8 +1012,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return '';
                         }
-                        const list = this.evaluateValue(args[0]);
-                        const separator = this.evaluateValue(args[1]);
+                        const list = this.evaluateValue(args[0], visited);
+                        const separator = this.evaluateValue(args[1], visited);
                         if (!Array.isArray(list)) {
                             return '';
                         }
@@ -1011,17 +1023,17 @@ tablegen.Record = class {
                         if (args.length < 1) {
                             return true;
                         }
-                        return !this.evaluateValue(args[0]);
+                        return !this.evaluateValue(args[0], visited);
                     case 'or':
                         for (const arg of args) {
-                            if (this.evaluateValue(arg)) {
+                            if (this.evaluateValue(arg, visited)) {
                                 return true;
                             }
                         }
                         return false;
                     case 'and':
                         for (const arg of args) {
-                            if (!this.evaluateValue(arg)) {
+                            if (!this.evaluateValue(arg, visited)) {
                                 return false;
                             }
                         }
@@ -1032,8 +1044,8 @@ tablegen.Record = class {
                         if (args.length < 5) {
                             return null;
                         }
-                        let accumulator = this.evaluateValue(args[0]); // init value
-                        const list = this.evaluateValue(args[1]); // list to fold over
+                        let accumulator = this.evaluateValue(args[0], visited); // init value
+                        const list = this.evaluateValue(args[1], visited); // list to fold over
                         // args[2] is the accumulator variable name (not evaluated)
                         // args[3] is the item variable name (not evaluated)
                         // args[4] is the expression to evaluate
@@ -1072,7 +1084,7 @@ tablegen.Record = class {
                                 itemValue = new tablegen.Value('dag', item);
                             }
                             this.fields.set(itemName, new tablegen.RecordVal(itemName, null, itemValue));
-                            accumulator = this.evaluateValue(args[4]);
+                            accumulator = this.evaluateValue(args[4], new Set()); // Fresh visited set for each iteration
                             if (prevAcc) {
                                 this.fields.set(accName, prevAcc);
                             } else {
@@ -1093,7 +1105,7 @@ tablegen.Record = class {
                             return [];
                         }
                         const itemName = args[0].value;
-                        const list = this.evaluateValue(args[1]);
+                        const list = this.evaluateValue(args[1], visited);
                         const results = [];
                         if (Array.isArray(list)) {
                             for (const item of list) {
@@ -1109,7 +1121,7 @@ tablegen.Record = class {
                                     itemValue = new tablegen.Value('dag', item);
                                 }
                                 this.fields.set(itemName, new tablegen.RecordVal(itemName, null, itemValue));
-                                const result = this.evaluateValue(args[2]);
+                                const result = this.evaluateValue(args[2], new Set()); // Fresh visited set for each iteration
                                 results.push(result);
                                 if (prevItem) {
                                     this.fields.set(itemName, prevItem);
@@ -1127,7 +1139,7 @@ tablegen.Record = class {
                             return [];
                         }
                         const itemName = args[0].value;
-                        const list = this.evaluateValue(args[1]);
+                        const list = this.evaluateValue(args[1], visited);
                         const results = [];
                         if (Array.isArray(list)) {
                             for (const item of list) {
@@ -1147,7 +1159,7 @@ tablegen.Record = class {
                                 }
                                 // If item is already a Value, use it as is
                                 this.fields.set(itemName, new tablegen.RecordVal(itemName, null, itemValue));
-                                const keep = this.evaluateValue(args[2]);
+                                const keep = this.evaluateValue(args[2], new Set()); // Fresh visited set for each iteration
                                 if (keep) {
                                     results.push(item);
                                 }
@@ -1170,7 +1182,7 @@ tablegen.Record = class {
                         const allOperands = [];
                         for (const arg of args) {
                             let dagToProcess = null;
-                            const evaluated = this.evaluateValue(arg);
+                            const evaluated = this.evaluateValue(arg, visited);
                             if (evaluated && typeof evaluated === 'object') {
                                 if (evaluated.operator && evaluated.operands) {
                                     dagToProcess = evaluated;
@@ -1195,7 +1207,7 @@ tablegen.Record = class {
                         // Concatenate multiple lists into one
                         const result = [];
                         for (const arg of args) {
-                            const list = this.evaluateValue(arg);
+                            const list = this.evaluateValue(arg, visited);
                             if (Array.isArray(list)) {
                                 result.push(...list);
                             }
@@ -1208,8 +1220,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return [];
                         }
-                        const list = this.evaluateValue(args[0]);
-                        const toRemove = this.evaluateValue(args[1]);
+                        const list = this.evaluateValue(args[0], visited);
+                        const toRemove = this.evaluateValue(args[1], visited);
                         if (!Array.isArray(list)) {
                             return [];
                         }
@@ -1229,7 +1241,7 @@ tablegen.Record = class {
                         if (args.length < 1) {
                             return null;
                         }
-                        const val = this.evaluateValue(args[0]);
+                        const val = this.evaluateValue(args[0], visited);
                         if (val === null || val === undefined) {
                             return null;
                         }
@@ -1241,8 +1253,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return false;
                         }
-                        const a = this.evaluateValue(args[0]);
-                        const b = this.evaluateValue(args[1]);
+                        const a = this.evaluateValue(args[0], visited);
+                        const b = this.evaluateValue(args[1], visited);
                         return a === b;
                     }
                     case 'ne': {
@@ -1251,8 +1263,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return false;
                         }
-                        const a = this.evaluateValue(args[0]);
-                        const b = this.evaluateValue(args[1]);
+                        const a = this.evaluateValue(args[0], visited);
+                        const b = this.evaluateValue(args[1], visited);
                         return a !== b;
                     }
                     case 'lt': {
@@ -1261,8 +1273,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return false;
                         }
-                        const a = this.evaluateValue(args[0]);
-                        const b = this.evaluateValue(args[1]);
+                        const a = this.evaluateValue(args[0], visited);
+                        const b = this.evaluateValue(args[1], visited);
                         return a < b;
                     }
                     case 'le': {
@@ -1271,8 +1283,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return false;
                         }
-                        const a = this.evaluateValue(args[0]);
-                        const b = this.evaluateValue(args[1]);
+                        const a = this.evaluateValue(args[0], visited);
+                        const b = this.evaluateValue(args[1], visited);
                         return a <= b;
                     }
                     case 'gt': {
@@ -1281,8 +1293,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return false;
                         }
-                        const a = this.evaluateValue(args[0]);
-                        const b = this.evaluateValue(args[1]);
+                        const a = this.evaluateValue(args[0], visited);
+                        const b = this.evaluateValue(args[1], visited);
                         return a > b;
                     }
                     case 'ge': {
@@ -1291,8 +1303,8 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return false;
                         }
-                        const a = this.evaluateValue(args[0]);
-                        const b = this.evaluateValue(args[1]);
+                        const a = this.evaluateValue(args[0], visited);
+                        const b = this.evaluateValue(args[1], visited);
                         return a >= b;
                     }
                     case 'range': {
@@ -1305,14 +1317,14 @@ tablegen.Record = class {
                         let end = 0;
                         let step = 1;
                         if (args.length === 1) {
-                            end = this.evaluateValue(args[0]);
+                            end = this.evaluateValue(args[0], visited);
                         } else if (args.length === 2) {
-                            start = this.evaluateValue(args[0]);
-                            end = this.evaluateValue(args[1]);
+                            start = this.evaluateValue(args[0], visited);
+                            end = this.evaluateValue(args[1], visited);
                         } else {
-                            start = this.evaluateValue(args[0]);
-                            end = this.evaluateValue(args[1]);
-                            step = this.evaluateValue(args[2]);
+                            start = this.evaluateValue(args[0], visited);
+                            end = this.evaluateValue(args[1], visited);
+                            step = this.evaluateValue(args[2], visited);
                         }
                         const result = [];
                         if (step > 0) {
@@ -1333,7 +1345,7 @@ tablegen.Record = class {
                             return [];
                         }
                         const [element] = args; // Don't evaluate yet, keep as Value
-                        const count = this.evaluateValue(args[1]);
+                        const count = this.evaluateValue(args[1], visited);
                         const result = [];
                         for (let i = 0; i < count; i++) {
                             result.push(element);
@@ -1346,9 +1358,9 @@ tablegen.Record = class {
                         for (let i = 0; i < args.length; i++) {
                             const arg = args[i];
                             if (arg.condition) {
-                                const condition = this.evaluateValue(arg.condition);
+                                const condition = this.evaluateValue(arg.condition, visited);
                                 if (condition === true || condition === 1) {
-                                    return this.evaluateValue(arg.value);
+                                    return this.evaluateValue(arg.value, visited);
                                 }
                             }
                         }
@@ -1360,10 +1372,10 @@ tablegen.Record = class {
                         if (args.length < 2) {
                             return new tablegen.DAG('ins', []);
                         }
-                        const operatorArg = this.evaluateValue(args[0]);
+                        const operatorArg = this.evaluateValue(args[0], visited);
                         const operator = typeof operatorArg === 'string' ? operatorArg : 'ins';
-                        const operandsList = this.evaluateValue(args[1]);
-                        const namesList = args.length > 2 ? this.evaluateValue(args[2]) : [];
+                        const operandsList = this.evaluateValue(args[1], visited);
+                        const namesList = args.length > 2 ? this.evaluateValue(args[2], visited) : [];
                         const operands = [];
                         if (Array.isArray(operandsList)) {
                             for (let i = 0; i < operandsList.length; i++) {
@@ -1380,7 +1392,7 @@ tablegen.Record = class {
                         if (args.length < 1) {
                             return null;
                         }
-                        const str = this.evaluateValue(args[0]);
+                        const str = this.evaluateValue(args[0], visited);
                         if (typeof str === 'string') {
                             return str.toLowerCase();
                         }
@@ -1392,7 +1404,7 @@ tablegen.Record = class {
                         if (args.length < 1) {
                             return null;
                         }
-                        const str = this.evaluateValue(args[0]);
+                        const str = this.evaluateValue(args[0], visited);
                         if (typeof str === 'string') {
                             return str.toUpperCase();
                         }
@@ -1403,7 +1415,7 @@ tablegen.Record = class {
                         // Concatenate strings
                         const parts = [];
                         for (const arg of args) {
-                            const val = this.evaluateValue(arg);
+                            const val = this.evaluateValue(arg, visited);
                             if (val !== null && val !== undefined) {
                                 parts.push(String(val));
                             }
@@ -1416,9 +1428,9 @@ tablegen.Record = class {
                         if (args.length < 3) {
                             return null;
                         }
-                        const pattern = this.evaluateValue(args[0]);
-                        const replacement = this.evaluateValue(args[1]);
-                        const str = this.evaluateValue(args[2]);
+                        const pattern = this.evaluateValue(args[0], visited);
+                        const replacement = this.evaluateValue(args[1], visited);
+                        const str = this.evaluateValue(args[2], visited);
                         if (typeof str === 'string' && typeof pattern === 'string') {
                             const rep = replacement !== null && replacement !== undefined ? String(replacement) : '';
                             // Use split/join for global replacement
@@ -1448,6 +1460,7 @@ tablegen.Reader = class {
         this._defs = new Map();
         this.defs = [];
         this.classes = new Map();
+        this.multiclasses = new Map();
     }
 
     async parse(files, paths) {
@@ -1519,11 +1532,28 @@ tablegen.Reader = class {
             }
             const parentBindings = new Map();
             if (parentClass.templateArgs && parent.args) {
-                for (let i = 0; i < parentClass.templateArgs.length && i < parent.args.length; i++) {
-                    const paramName = parentClass.templateArgs[i].name;
-                    const argValue = parent.args[i];
-                    const resolvedArg = resolveInitValue(argValue, currentBindings);
-                    parentBindings.set(paramName, resolvedArg);
+                // Handle named and positional arguments correctly
+                // Named arguments have {name, value} format and should match by name
+                // Positional arguments should fill remaining slots in order
+                const templateArgs = parent.args;
+                for (let i = 0; i < parentClass.templateArgs.length; i++) {
+                    const param = parentClass.templateArgs[i];
+                    let boundValue = null;
+                    // Check for named argument first
+                    const namedArg = templateArgs.find((arg) => arg.name === param.name);
+                    if (namedArg) {
+                        boundValue = namedArg.value;
+                    } else if (i < templateArgs.length) {
+                        // Positional argument - use if it's not a named arg for another param
+                        const arg = templateArgs[i];
+                        boundValue = arg.name ? arg.value : arg;
+                    } else if (param.defaultValue) {
+                        boundValue = param.defaultValue;
+                    }
+                    if (boundValue) {
+                        const resolvedArg = resolveInitValue(boundValue, currentBindings);
+                        parentBindings.set(param.name, resolvedArg);
+                    }
                 }
             }
             for (const grandparent of parentClass.parents) {
@@ -1671,26 +1701,371 @@ tablegen.Reader = class {
     }
 
     _parseDefm() {
-        this._read();
-        this._skipUntil([';', 'def', 'class', 'defm', 'let', 'multiclass']);
+        this._read(); // consume 'defm'
+        // Parse the defm name prefix (may be empty or a concatenated name)
+        const namePrefix = [];
+        while (!this._match(':') && !this._match(';') && !this._match('eof')) {
+            if (this._match('id')) {
+                const value = this._read();
+                if (this._eat('.')) {
+                    const field = this._expect('id');
+                    namePrefix.push({ type: 'field_access', base: value, field });
+                } else {
+                    namePrefix.push({ type: 'id', value });
+                }
+            } else if (this._match('string')) {
+                namePrefix.push({ type: 'string', value: this._read() });
+            } else if (this._match('number')) {
+                namePrefix.push({ type: 'number', value: this._read() });
+            } else if (this._eat('#')) {
+                namePrefix.push({ type: 'concat' });
+            } else if (this._match('!')) {
+                const bangValue = this._parseValue();
+                if (bangValue && bangValue.type === 'bang') {
+                    namePrefix.push({ type: 'bang', value: bangValue.value });
+                }
+            } else {
+                break;
+            }
+        }
+        // Parse the parent multiclass references
+        let parents = [];
+        if (this._match(':')) {
+            parents = this._parseParentClassList();
+        }
         this._eat(';');
+        // Instantiate each parent multiclass
+        for (const parent of parents) {
+            this._instantiateMulticlass(parent, namePrefix, new Map());
+        }
+    }
+
+    _instantiateMulticlass(parent, namePrefix, substitutions) {
+        const multiclass = this.multiclasses.get(parent.name);
+        if (!multiclass) {
+            // Might be a regular class, not a multiclass - skip
+            return;
+        }
+        // Build template argument bindings
+        const bindings = new Map(substitutions);
+        if (multiclass.templateArgs && parent.args) {
+            for (let i = 0; i < multiclass.templateArgs.length && i < parent.args.length; i++) {
+                const param = multiclass.templateArgs[i];
+                const arg = parent.args[i];
+                // Handle both {name, value} format (named arg) and tablegen.Value format (positional arg)
+                // For named args like {name: 'foo', value: <Value>}, use the value property
+                // For positional args that are already Values, use them directly
+                let argValue = null;
+                if (arg && arg.name && arg.value !== undefined) {
+                    // Named argument: {name: 'foo', value: <Value>}
+                    argValue = arg.value;
+                } else if (arg && arg.type !== undefined) {
+                    // This is a tablegen.Value object, use it directly
+                    argValue = arg;
+                } else {
+                    argValue = arg;
+                }
+                bindings.set(param.name, argValue);
+            }
+        }
+        // Process inherited parent multiclasses first
+        for (const mcParent of multiclass.parents) {
+            const resolvedParent = this._resolveMulticlassParent(mcParent, bindings);
+            this._instantiateMulticlass(resolvedParent, namePrefix, bindings);
+        }
+        // Process entries
+        for (const entry of multiclass.entries) {
+            if (entry.type === 'def') {
+                this._instantiateMulticlassDef(entry.data, namePrefix, bindings);
+            } else if (entry.type === 'defm') {
+                // Nested defm - instantiate the referenced multiclass(es)
+                for (const defmParent of entry.data.parents) {
+                    const resolvedParent = this._resolveMulticlassParent(defmParent, bindings);
+                    const combinedPrefix = [...namePrefix, ...entry.data.nameTemplate];
+                    this._instantiateMulticlass(resolvedParent, combinedPrefix, bindings);
+                }
+            } else if (entry.type === 'foreach') {
+                this._resolveMulticlassForeach(entry.data, namePrefix, bindings);
+            } else if (entry.type === 'defvar') {
+                const value = this._evaluateDefvar(entry.data.value, bindings);
+                bindings.set(entry.data.name, value);
+            }
+        }
+    }
+
+    _resolveMulticlassParent(parent, bindings) {
+        // Resolve template arguments in parent reference
+        const resolvedArgs = [];
+        if (parent.args) {
+            for (const arg of parent.args) {
+                const argValue = arg.value === undefined ? arg : arg.value;
+                if (argValue && argValue.type === 'def' && bindings.has(argValue.value)) {
+                    resolvedArgs.push({ value: bindings.get(argValue.value) });
+                } else {
+                    resolvedArgs.push(arg);
+                }
+            }
+        }
+        return { name: parent.name, args: resolvedArgs };
+    }
+
+    _resolveMulticlassForeach(loop, namePrefix, bindings) {
+        if (loop.isConditional) {
+            const conditionResult = this._evaluateCondition(loop.condition, bindings);
+            if (conditionResult === false || conditionResult === null) {
+                return;
+            }
+            for (const entry of loop.entries) {
+                if (entry.type === 'def') {
+                    this._instantiateMulticlassDef(entry.data, namePrefix, bindings);
+                } else if (entry.type === 'foreach') {
+                    this._resolveMulticlassForeach(entry.data, namePrefix, bindings);
+                } else if (entry.type === 'defvar') {
+                    const value = this._evaluateDefvar(entry.data.value, bindings);
+                    bindings.set(entry.data.name, value);
+                }
+            }
+            return;
+        }
+        if (!loop.listValue || loop.listValue.length === 0) {
+            return;
+        }
+        for (const listItem of loop.listValue) {
+            const currentBindings = new Map(bindings);
+            if (loop.iterVarName) {
+                currentBindings.set(loop.iterVarName, listItem);
+            }
+            for (const entry of loop.entries) {
+                if (entry.type === 'def') {
+                    this._instantiateMulticlassDef(entry.data, namePrefix, currentBindings);
+                } else if (entry.type === 'foreach') {
+                    this._resolveMulticlassForeach(entry.data, namePrefix, currentBindings);
+                } else if (entry.type === 'defvar') {
+                    const value = this._evaluateDefvar(entry.data.value, currentBindings);
+                    currentBindings.set(entry.data.name, value);
+                }
+            }
+        }
+    }
+
+    _resolveTemplateValue(value, bindings) {
+        if (!value) {
+            return value;
+        }
+        if (value.type === 'string' || value.type === 'int' || value.type === 'code') {
+            return value;
+        }
+        if (value.type === 'def' || value.type === 'id') {
+            const name = typeof value.value === 'string' ? value.value : value.value?.value;
+            if (name && bindings.has(name)) {
+                return bindings.get(name);
+            }
+            return value;
+        }
+        if (value.type === 'bang') {
+            const resolved = this._evaluateDefvar(value, bindings);
+            return resolved;
+        }
+        if (value.type === 'list' && Array.isArray(value.value)) {
+            return new tablegen.Value('list', value.value.map((v) => this._resolveTemplateValue(v, bindings)));
+        }
+        return value;
+    }
+
+    _instantiateMulticlassDef(template, namePrefix, bindings) {
+        // Build the full name from prefix + template name
+        const fullNameTemplate = [...namePrefix, ...template.nameTemplate];
+        // Resolve name template to get the actual def name
+        let name = '';
+        for (const part of fullNameTemplate) {
+            if (part.type === 'concat') {
+                continue;
+            }
+            if (part.type === 'string') {
+                name += String(part.value).replace(/^"|"$/g, '');
+            } else if (part.type === 'number') {
+                name += String(part.value);
+            } else if (part.type === 'id') {
+                if (bindings.has(part.value)) {
+                    const resolved = bindings.get(part.value);
+                    if (resolved && resolved.type === 'string') {
+                        name += String(resolved.value).replace(/^"|"$/g, '');
+                    } else if (resolved && resolved.type === 'int') {
+                        name += String(resolved.value);
+                    } else if (typeof resolved === 'string') {
+                        name += resolved;
+                    } else {
+                        name += part.value;
+                    }
+                } else {
+                    name += part.value;
+                }
+            } else if (part.type === 'field_access') {
+                const baseName = part.base;
+                if (bindings.has(baseName)) {
+                    const baseValue = bindings.get(baseName);
+                    if (baseValue && baseValue.type === 'record_instance' && baseValue.value && baseValue.value.fields) {
+                        const fieldValue = baseValue.value.fields.get(part.field);
+                        if (fieldValue && fieldValue.type === 'string') {
+                            name += String(fieldValue.value).replace(/^"|"$/g, '');
+                        }
+                    }
+                }
+            } else if (part.type === 'bang') {
+                const evaluated = this._evaluateDefvar({ type: 'bang', value: part.value }, bindings);
+                if (evaluated && evaluated.type === 'string') {
+                    name += String(evaluated.value).replace(/^"|"$/g, '');
+                }
+            }
+        }
+        // Skip if already defined (avoid duplicates)
+        if (this._defs.has(name)) {
+            return;
+        }
+        // Create the def record
+        const def = new tablegen.Record(name, this);
+        def.location = this._tokenizer ? this._tokenizer.location() : null;
+        // Store template bindings in the def for later resolution
+        def.templateBindings = new Map(bindings);
+        // Resolve parent classes with template bindings
+        const resolvedParents = [];
+        for (const parent of template.parents) {
+            const resolvedArgs = [];
+            if (parent.args) {
+                for (const arg of parent.args) {
+                    // arg could be:
+                    // - A tablegen.Value object: {type: '...', value: ...}
+                    // - A named arg: {name: '...', value: <Value>}
+                    let argValue = null;
+                    let argName = null;
+                    if (arg && arg.type !== undefined) {
+                        // This is a tablegen.Value, use it directly
+                        argValue = arg;
+                        argName = null;
+                    } else if (arg && arg.name && arg.value !== undefined) {
+                        // This is a named arg, extract the value
+                        argValue = arg.value;
+                        argName = arg.name;
+                    } else {
+                        argValue = arg;
+                        argName = null;
+                    }
+                    // Resolve the argument value with template bindings
+                    const resolved = this._resolveTemplateValue(argValue, bindings);
+                    // Push in format expected by addSubClass: named args as {name, value}, others as direct Value
+                    if (argName) {
+                        resolvedArgs.push({ name: argName, value: resolved });
+                    } else {
+                        resolvedArgs.push(resolved);
+                    }
+                }
+            }
+            resolvedParents.push({ name: parent.name, args: resolvedArgs });
+        }
+        def.parents = resolvedParents;
+        // Copy body fields and resolve them
+        if (template.bodyFields) {
+            for (const [fieldName, field] of template.bodyFields) {
+                const resolvedValue = this._resolveTemplateValue(field.value, bindings);
+                def.fields.set(fieldName, new tablegen.RecordVal(fieldName, field.type, resolvedValue));
+            }
+        }
+        this.addSubClass(def);
+        def.resolveReferences();
+        if (name) {
+            this._defs.set(name, def);
+            this.defs.push(def);
+        }
     }
 
     _parseMulticlass() {
-        this._read();
-        let depth = 0;
-        while (!this._match('eof')) {
-            if (this._eat('{')) {
-                depth++;
-            } else if (this._eat('}')) {
-                depth--;
-                if (depth === 0) {
-                    break;
+        this._read(); // consume 'multiclass'
+        const name = this._expect('id');
+        const multiclass = {
+            name,
+            templateArgs: [],
+            parents: [],
+            entries: []
+        };
+        // Parse template parameters
+        if (this._match('<')) {
+            multiclass.templateArgs = this._parseTemplateParams();
+        }
+        // Parse parent multiclass references
+        if (this._match(':')) {
+            multiclass.parents = this._parseParentClassList();
+        }
+        // Parse multiclass body
+        if (this._eat('{')) {
+            while (!this._match('}') && !this._match('eof')) {
+                const token = this._tokenizer.current();
+                if (token.type === 'keyword') {
+                    switch (token.value) {
+                        case 'def':
+                            multiclass.entries.push({ type: 'def', data: this._parseDefTemplate() });
+                            break;
+                        case 'defm':
+                            multiclass.entries.push({ type: 'defm', data: this._parseDefmTemplate() });
+                            break;
+                        case 'foreach':
+                            multiclass.entries.push({ type: 'foreach', data: this._parseForeachTemplate() });
+                            break;
+                        case 'if':
+                            multiclass.entries.push({ type: 'foreach', data: this._parseIfAsLoop() });
+                            break;
+                        case 'let':
+                            this._parseLet();
+                            break;
+                        case 'defvar':
+                            multiclass.entries.push({ type: 'defvar', data: this._parseDefvarTemplate() });
+                            break;
+                        default:
+                            this._read();
+                            break;
+                    }
+                } else {
+                    this._read();
+                }
+            }
+            this._expect('}');
+        }
+        this.multiclasses.set(name, multiclass);
+    }
+
+    _parseDefmTemplate() {
+        this._read(); // consume 'defm'
+        const nameTemplate = [];
+        // Parse name template (similar to _parseDefTemplate but for nested defm)
+        while (!this._match(':') && !this._match(';') && !this._match('eof')) {
+            if (this._match('id')) {
+                const value = this._read();
+                if (this._eat('.')) {
+                    const field = this._expect('id');
+                    nameTemplate.push({ type: 'field_access', base: value, field });
+                } else {
+                    nameTemplate.push({ type: 'id', value });
+                }
+            } else if (this._match('string')) {
+                nameTemplate.push({ type: 'string', value: this._read() });
+            } else if (this._match('number')) {
+                nameTemplate.push({ type: 'number', value: this._read() });
+            } else if (this._eat('#')) {
+                nameTemplate.push({ type: 'concat' });
+            } else if (this._match('!')) {
+                const bangValue = this._parseValue();
+                if (bangValue && bangValue.type === 'bang') {
+                    nameTemplate.push({ type: 'bang', value: bangValue.value });
                 }
             } else {
-                this._read();
+                break;
             }
         }
+        let parents = [];
+        if (this._match(':')) {
+            parents = this._parseParentClassList();
+        }
+        this._eat(';');
+        return { nameTemplate, parents };
     }
 
     _parseLet() {
@@ -2155,8 +2530,30 @@ tablegen.Reader = class {
         if (expr.type === 'int') {
             return typeof expr.value === 'number' ? expr.value : parseInt(expr.value, 10);
         }
-        if ((expr.type === 'def' || expr.type === 'id') && substitutions.has(expr.value)) {
-            return this._evaluateSimpleExpr(substitutions.get(expr.value), substitutions);
+        if ((expr.type === 'def' || expr.type === 'id') && typeof expr.value === 'string') {
+            // Handle field access like "largeT.name"
+            if (expr.value.includes('.')) {
+                const [baseName, ...fieldParts] = expr.value.split('.');
+                let current = substitutions.has(baseName) ? substitutions.get(baseName) : null;
+                if (current) {
+                    for (const fieldName of fieldParts) {
+                        // Handle record_instance (from _instantiateClassTemplate)
+                        if (current && current.type === 'record_instance' && current.value && current.value.fields) {
+                            const fieldValue = current.value.fields.get(fieldName);
+                            if (fieldValue) {
+                                current = fieldValue;
+                            } else {
+                                return null;
+                            }
+                        } else {
+                            return null;
+                        }
+                    }
+                    return this._evaluateSimpleExpr(current, substitutions);
+                }
+            } else if (substitutions.has(expr.value)) {
+                return this._evaluateSimpleExpr(substitutions.get(expr.value), substitutions);
+            }
         }
         return null;
     }
@@ -2210,6 +2607,18 @@ tablegen.Reader = class {
                     return new tablegen.Value('string', String(arg.value).toLowerCase());
                 }
                 return arg;
+            }
+            if (op === 'strconcat' && args && args.length > 0) {
+                let result = '';
+                for (const arg of args) {
+                    const evaluated = this._evaluateDefvar(arg, substitutions);
+                    if (evaluated && evaluated.type === 'string') {
+                        result += String(evaluated.value).replace(/^"|"$/g, '');
+                    } else if (evaluated && evaluated.type === 'int') {
+                        result += String(evaluated.value);
+                    }
+                }
+                return new tablegen.Value('string', result);
             }
         }
         return value;

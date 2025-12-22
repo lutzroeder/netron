@@ -196,6 +196,53 @@ if (!DataView.prototype.getFloat8e5m2) {
     };
 }
 
+if (!DataView.prototype.getFloat8e3m4) {
+    DataView.__float8e3m4_float32 = new Float32Array(1);
+    DataView.__float8e3m4_uint32 = new Uint32Array(DataView.__float8e3m4_float32.buffer, DataView.__float8e3m4_float32.byteOffset, 1);
+    DataView.prototype.getFloat8e3m4 = function(byteOffset) {
+        const value = this.getUint8(byteOffset);
+        const exponent_bias = 3;
+        if (value === 0x7f) {
+            return NaN;
+        }
+        if (value === 0xff) {
+            return -NaN;
+        }
+        let expo = (value & 0x70) >> 4;
+        let mant = value & 0x0F;
+        const sign = value & 0x80;
+        let res = sign << 24;
+        if (expo === 0) {
+            if (mant > 0) {
+                expo = 0x7F - exponent_bias;
+                if ((mant & 0x8) === 0) {
+                    mant &= 0x7;
+                    mant <<= 1;
+                    expo -= 1;
+                }
+                if ((mant & 0x8) === 0) {
+                    mant &= 0x7;
+                    mant <<= 1;
+                    expo -= 1;
+                }
+                if ((mant & 0x8) === 0) {
+                    mant &= 0x7;
+                    mant <<= 1;
+                    expo -= 1;
+                }
+                res |= (mant & 0x7) << 20;
+                res |= expo << 23;
+            }
+        } else {
+            res |= mant << 19;
+            expo += 0x7F - exponent_bias;
+            res |= expo << 23;
+        }
+        DataView.__float8e3m4_uint32[0] = res;
+        return DataView.__float8e3m4_float32[0];
+    };
+}
+
 DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset *= bits;
     const position = Math.floor(offset / 8);
@@ -613,7 +660,7 @@ base.Tensor = class {
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
             ['complex<float32>', 8], ['complex<float64>', 16], ['complex<int32>', 8],
-            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1]
+            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1],
         ]);
     }
 
@@ -951,6 +998,11 @@ base.Tensor = class {
                 case 'float4e2m1':
                     for (; offset < max; offset += stride) {
                         results.push(view.getFloat4e2m1(offset));
+                    }
+                    break;
+                case 'float8e3m4':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat8e3m4(offset));
                     }
                     break;
                 case 'float8e4m3fn':

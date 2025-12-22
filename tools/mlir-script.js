@@ -311,6 +311,7 @@ const schema = async () => {
         'mlir-tensorrt/Dialect/TensorRTRuntime/IR/TensorRTRuntimeOps.td',
         'mlir-tensorrt/Dialect/Plan/IR/PlanOps.td',
         'mlir-kernel/Kernel/IR/Ops.td',
+        'mlir-kernel/Kernel/TransformOps/KernelTransformOps.td',
         'Dialect/NVGPU/IR/NVGPUOps.td',
         'Standalone/StandaloneOps.td',
         'clang/include/clang/CIR/Dialect/IR/CIROps.td',
@@ -816,7 +817,7 @@ const test = async (pattern) => {
             } else {
                 writeLine('  No valid files processed');
             }
-            writeLine();
+            writeLine('');
             resolve();
         });
     });
