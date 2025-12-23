@@ -19,7 +19,7 @@ venv() {
 }
 
 clean() {
-    echo "tf clean"
+    echo "keras clean"
     rm -rf "./third_party/env/keras"
     rm -rf "./third_party/source/keras"
 }
