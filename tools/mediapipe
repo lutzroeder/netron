@@ -11,7 +11,6 @@ clean() {
 sync() {
     echo "mediapipe sync"
     download() {
-        echo ${1}
         mkdir -p "./third_party/source/mediapipe/$(dirname ${1})"
         curl --silent --show-error --location --output "./third_party/source/mediapipe/${1}" "https://github.com/google/mediapipe/raw/master/${1}"
     }
