@@ -4578,7 +4578,11 @@ python.Execution = class {
             return obj.length;
         });
         this.registerFunction('builtins.setattr', (obj, name, value) => {
-            obj[name] = value;
+            if (obj && obj.__setattr__) {
+                obj.__setattr__(name, value);
+            } else {
+                obj[name] = value;
+            }
         });
         this.registerType('builtins.set', class extends Set {
             __contains__(item) {
@@ -8505,11 +8509,37 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('torch.fx.graph_module._copy_attr', (from_module, to_module, target) => {
+            const parts = target.split('.');
+            const field = parts.pop();
+            for (const item of parts) {
+                const f = builtins.getattr(from_module, item);
+                let t = builtins.getattr(to_module, item, null);
+                if (f === t) {
+                    return;
+                }
+                if (t === null) {
+                    t = new torch.nn.modules.module.Module();
+                    builtins.setattr(to_module, item, t);
+                }
+                from_module = f;
+                to_module = t;
+            }
+            const orig = builtins.getattr(from_module, field);
+            builtins.setattr(to_module, field, orig);
+        });
         this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.modules.module.Module {
             constructor(root, graph, class_name) {
                 super();
                 this.__class__.__name__ = class_name || 'GraphModule';
                 this.graph = graph;
+                if (root instanceof torch.nn.modules.module.Module && graph && graph.nodes) {
+                    for (const node of graph.nodes) {
+                        if (node.op === 'get_attr' || node.op === 'call_module') {
+                            torch.fx.graph_module._copy_attr(root, this, node.target);
+                        }
+                    }
+                }
             }
         });
         torch.fx.Graph = torch.fx.graph.Graph;
@@ -19519,7 +19549,6 @@ python.Execution = class {
                 } else if (typ_ === 'as_layout') {
                     return torch._export.serde.serialize._SERIALIZE_TO_TORCH_LAYOUT[inp.as_layout];
                 } else if (typ_ === 'as_graph') {
-                    // throw new python.Error('GraphArgument deserialization is not implemented.');
                     const context = this.save_graph_module();
                     context.__enter__();
                     this.deserialize_graph(value.graph);

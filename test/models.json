@@ -6391,6 +6391,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "nested_autocast.pt2",
+    "source":   "https://github.com/user-attachments/files/24322606/nested_autocast.pt2.zip[nested_autocast.pt2]",
+    "format":   "PyTorch Export v8.15",
+    "assert":   "model.modules[0].nodes[0].inputs[4].value.nodes[1].inputs[4].value.nodes.length == 1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "netron_issue_313_v1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
     "format":   "TorchScript v1.0",
