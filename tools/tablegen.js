@@ -1484,6 +1484,7 @@ tablegen.Reader = class {
         this._paths = [];
         this._includes = new Set();
         this._defs = new Map();
+        this._defvars = new Map();
         this.defs = [];
         this.classes = new Map();
         this.multiclasses = new Map();
@@ -1498,10 +1499,24 @@ tablegen.Reader = class {
     }
 
     getDef(name) {
+        // Check if this is a defvar alias and resolve it
+        if (this._defvars.has(name)) {
+            const alias = this._defvars.get(name);
+            if (alias && alias.type === 'def' && typeof alias.value === 'string') {
+                return this.getDef(alias.value) || this._defs.get(name);
+            }
+        }
         return this._defs.get(name);
     }
 
     getClass(name) {
+        // Check if this is a defvar alias and resolve it
+        if (this._defvars.has(name)) {
+            const alias = this._defvars.get(name);
+            if (alias && alias.type === 'def' && typeof alias.value === 'string') {
+                return this.getClass(alias.value) || this.classes.get(name);
+            }
+        }
         return this.classes.get(name);
     }
 
@@ -2103,14 +2118,16 @@ tablegen.Reader = class {
 
     _parseDefvar() {
         this._read(); // consume 'defvar'
-        this._expect('id'); // variable name
+        const name = this._expect('id'); // variable name
         this._expect('=');
-        // Parse the value (could be complex expression)
-        this._parseValue();
+        // Parse and store the value - needed for resolving type aliases like
+        // defvar Util_GlobalRefAttr = FlatSymbolRefAttr;
+        const value = this._parseValue();
         this._expect(';');
-        // Note: defvar defines local variables used in templates
-        // We don't need to store them as they're only used during TableGen evaluation
-        // Just consume the syntax for now
+        // Store defvar for alias resolution (e.g., type constraint lookups)
+        if (name && value) {
+            this._defvars.set(name, value);
+        }
     }
 
     _parseDefset() {
