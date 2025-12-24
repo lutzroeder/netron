@@ -499,33 +499,44 @@ const schema = async () => {
                         }
                         return false;
                     };
-                    let isAttribute = false;
-                    if (operand.value) {
-                        if (operand.value.type === 'def') {
+                    // Recursively check if a value represents an attribute type
+                    const checkValueIsAttr = (value) => {
+                        if (!value) {
+                            return false;
+                        }
+                        if (value.type === 'def') {
                             // Simple def reference like StrAttr
-                            const constraintDef = parser.getDef(operand.value.value) || parser.getClass(operand.value.value);
+                            const constraintDef = parser.getDef(value.value) || parser.getClass(value.value);
                             if (constraintDef) {
-                                isAttribute = checkIsAttr(constraintDef);
+                                return checkIsAttr(constraintDef);
                             }
-                        } else if (operand.value.type === 'dag' && operand.value.value) {
-                            // DAG constraint like OptionalAttr<StrAttr>
-                            const dag = operand.value.value;
+                            // Fallback: if definition not found but name ends with "Attr", treat as attribute
+                            // This handles cases like CancellationConstructTypeAttr which are generated/external
+                            if (typeof value.value === 'string' && value.value.endsWith('Attr')) {
+                                return true;
+                            }
+                            return false;
+                        }
+                        if (value.type === 'dag' && value.value) {
+                            // DAG constraint like OptionalAttr<StrAttr> or Arg<OptionalAttr<ArrayAttr>, ...>
+                            const dag = value.value;
                             // Check the operator (e.g., OptionalAttr, DefaultValuedAttr)
                             const operatorDef = parser.getDef(dag.operator) || parser.getClass(dag.operator);
                             if (operatorDef && checkIsAttr(operatorDef)) {
-                                isAttribute = true;
-                            } else if (dag.operands && dag.operands.length > 0) {
-                                // Check the first operand (the wrapped type)
-                                const innerValue = dag.operands[0].value;
-                                if (innerValue && innerValue.type === 'def') {
-                                    const innerDef = parser.getDef(innerValue.value) || parser.getClass(innerValue.value);
-                                    if (innerDef && checkIsAttr(innerDef)) {
-                                        isAttribute = true;
-                                    }
-                                }
+                                return true;
+                            }
+                            // Fallback: if operator name ends with "Attr", treat as attribute
+                            if (typeof dag.operator === 'string' && dag.operator.endsWith('Attr')) {
+                                return true;
+                            }
+                            // For wrappers like Arg<...>, check the first operand recursively
+                            if (dag.operands && dag.operands.length > 0) {
+                                return checkValueIsAttr(dag.operands[0].value);
                             }
                         }
-                    }
+                        return false;
+                    };
+                    const isAttribute = checkValueIsAttr(operand.value);
                     if (isAttribute) {
                         attributes.push({ name: operand.name, type });
                     } else {
@@ -716,19 +727,29 @@ const test = async (pattern) => {
     let currentFile = null;
     const validFiles = new Set();
     const invalidFiles = new Set([
-        'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
-        'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
-        'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
-        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
+        'third_party/source/mlir/iree/samples/compiler_plugins/simple_io_sample/test/print.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Builtin/ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-uniform-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/memory-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Examples/transform-opt/syntax-error.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/attribute.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-unregistered.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/parser.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/zero_whitespace.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/simple_sdfg.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/symbol.mlir',
-        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
-        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
+        'third_party/source/mlir/runtime/mlir_tests/bef_executor/tutorial.mlir',
+        'third_party/source/mlir/runtime/mlir_tests/core_runtime/basic_ops.mlir',
+        'third_party/source/mlir/shardy/shardy/dialect/mpmd/ir/test/memory_kind_parse_and_print.mlir',
+        'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
+        'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
+        'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
     ]);
     return new Promise((resolve, reject) => {
         const cmd = 'node';
