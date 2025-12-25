@@ -31,10 +31,10 @@ flux.ModelFactory = class {
                 }
             } else if (obj === Object(obj)) {
                 if (obj.tag === 'backref' && obj.ref) {
-                    if (!root._backrefs[obj.ref - 1]) {
+                    if (!root._backrefs[obj.ref - 1n]) {
                         throw new flux.Error(`Invalid backref '${obj.ref}'.`);
                     }
-                    obj = root._backrefs[obj.ref - 1];
+                    obj = root._backrefs[obj.ref - 1n];
                 }
                 for (const key of Object.keys(obj)) {
                     if (obj !== root || key !== '_backrefs') {

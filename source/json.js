@@ -466,7 +466,11 @@ json.BinaryReader = class {
                 continue;
             }
             const start = position;
-            position = buffer.indexOf(0x00, start) + 1;
+            position = buffer.indexOf(0x00, start);
+            if (position === -1) {
+                throw new bson.Error('Missing string terminator.');
+            }
+            position += 1;
             const key = asciiDecoder.decode(buffer.subarray(start, position - 1));
             let value = null;
             switch (type) {
@@ -530,13 +534,13 @@ json.BinaryReader = class {
                 case 0x11: { // uint64
                     const start = position;
                     skip(8);
-                    value = Number(view.getBigUint64(start, true));
+                    value = view.getBigUint64(start, true);
                     break;
                 }
                 case 0x12: { // int64
                     const start = position;
                     skip(8);
-                    value = Number(view.getBigInt64(start, true));
+                    value = view.getBigInt64(start, true);
                     break;
                 }
                 default: {
