@@ -103,6 +103,12 @@ const schema = async () => {
         path.join(source, '_', 'mlir-hlo'),
     ];
     const dialects = [
+        'pmlc/dialect/tile/ir/ops.td',
+        'pmlc/dialect/stdx/ir/ops.td',
+        'pmlc/dialect/pxa/ir/ops.td',
+        'pmlc/dialect/linalgx/ir/ops.td',
+        'pmlc/dialect/xsmm/ir/ops.td',
+        'pmlc/dialect/layer/ir/ops.td',
         'mlir/include/mlir/IR/BuiltinAttributeInterfaces.td',
         'mlir/include/mlir/IR/BuiltinTypeInterfaces.td',
         'mlir/include/mlir/IR/BuiltinLocationAttributes.td',
@@ -287,12 +293,6 @@ const schema = async () => {
         'asuka/Dialect/Asuka/IR/AsukaOps.td',
         'tpu_mlir/Dialect/Top/IR/TopOps.td',
         'tpu_mlir/Dialect/Tpu/IR/TpuOps.td',
-        'pmlc/dialect/tile/ir/ops.td',
-        'pmlc/dialect/stdx/ir/ops.td',
-        'pmlc/dialect/pxa/ir/ops.td',
-        'pmlc/dialect/linalgx/ir/ops.td',
-        'pmlc/dialect/xsmm/ir/ops.td',
-        'pmlc/dialect/layer/ir/ops.td',
         'SDFG/Dialect/Ops.td',
         'lltz/mlir/dialect/include/Michelson/MichelsonOps.td',
         'triton/Dialect/Triton/IR/TritonOps.td',
@@ -470,8 +470,8 @@ const schema = async () => {
             return null;
         };
         const attributes = [];
-        const inputs = [];
-        const outputs = [];
+        const operands = [];
+        const results = [];
         if (args && args.operator === 'ins') {
             for (const operand of args.operands) {
                 if (operand.value && operand.name) {
@@ -540,7 +540,7 @@ const schema = async () => {
                     if (isAttribute) {
                         attributes.push({ name: operand.name, type });
                     } else {
-                        inputs.push({ name: operand.name, type });
+                        operands.push({ name: operand.name, type });
                     }
                 }
             }
@@ -603,32 +603,32 @@ const schema = async () => {
                 }
             }
         }
-        let results = def.getValueAsDag('results');
-        if (!results || !results.operands || results.operands.length === 0) {
+        let resultsDag = def.getValueAsDag('results');
+        if (!resultsDag || !resultsDag.operands || resultsDag.operands.length === 0) {
             // Try to get from parent Results class
             for (const parent of def.parents) {
                 if (parent.name === 'Results' && parent.args && parent.args.length > 0) {
                     const [dagValue] = parent.args;
                     if (dagValue && dagValue.type === 'dag') {
-                        results = dagValue.value;
+                        resultsDag = dagValue.value;
                     }
                     break;
                 }
             }
         }
-        if (results && results.operator === 'outs') {
-            for (const operand of results.operands) {
+        if (resultsDag && resultsDag.operator === 'outs') {
+            for (const operand of resultsDag.operands) {
                 if (operand.value && operand.name) {
                     const type = toConstraintString(operand.value);
-                    outputs.push({ name: operand.name, type });
+                    results.push({ name: operand.name, type });
                 }
             }
         }
-        if (inputs.length > 0) {
-            operation.inputs = inputs;
+        if (operands.length > 0) {
+            operation.operands = operands;
         }
-        if (outputs.length > 0) {
-            operation.outputs = outputs;
+        if (results.length > 0) {
+            operation.results = results;
         }
         if (attributes.length > 0) {
             operation.attributes = attributes;
@@ -638,7 +638,8 @@ const schema = async () => {
             const list = [];
             for (const operand of successors.operands) {
                 if (operand.name) {
-                    list.push({ name: operand.name });
+                    const type = toConstraintString(operand.value);
+                    list.push({ name: operand.name, type });
                 }
             }
             if (list.length > 0) {
@@ -727,18 +728,49 @@ const test = async (pattern) => {
     let currentFile = null;
     const validFiles = new Set();
     const invalidFiles = new Set([
+        'third_party/source/mlir/iree/compiler/src/iree/compiler/Codegen/Dialect/Codegen/IR/test/lowering_config_attr.mlir',
         'third_party/source/mlir/iree/samples/compiler_plugins/simple_io_sample/test/print.mlir',
+        'third_party/source/mlir/lltz/mlir/dialect/irdl/michelson.irdl.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Builtin/ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/regions-ops.irdl.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/testd.irdl.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/variadics.irdl.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Linalg/tile-to-forall.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/func.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/global.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-uniform-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SMT/bitvector-errors.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/barrier-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/composite-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/control-flow-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/gl-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/khr-cooperative-matrix-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/logical-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/memory-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/misc-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/ocl-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/structure-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/types.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Tosa/level_check.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Tosa/verifier.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Transform/test-pass-application.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Examples/transform-opt/syntax-error.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/attribute.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/dynamic.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-unregistered.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/parser.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/zero_whitespace.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/mlir-tblgen/attr-or-type-format.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/simple_sdfg.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/symbol.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Converter/toSDFG/llvm/load.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Converter/toSDFG/llvm/store.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/consume/too_many_params.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/memlet/explicit_tile.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/state/missing_identifier.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/state/missing_region.mlir',
+        'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/tasklet/missing_return_type.mlir',
         'third_party/source/mlir/runtime/mlir_tests/bef_executor/tutorial.mlir',
         'third_party/source/mlir/runtime/mlir_tests/core_runtime/basic_ops.mlir',
         'third_party/source/mlir/shardy/shardy/dialect/mpmd/ir/test/memory_kind_parse_and_print.mlir',
@@ -749,7 +781,9 @@ const test = async (pattern) => {
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
     ]);
     return new Promise((resolve, reject) => {
         const cmd = 'node';

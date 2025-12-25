@@ -958,6 +958,13 @@ tablegen.Record = class {
             }
             case 'def': {
                 const defName = typeof value.value === 'string' ? value.value : value.value.value;
+                // Handle TableGen builtin constants
+                if (defName === 'true') {
+                    return true;
+                }
+                if (defName === 'false') {
+                    return false;
+                }
                 // Guard against circular references
                 const defKey = `def:${defName}`;
                 if (visited.has(defKey)) {
@@ -1592,7 +1599,11 @@ tablegen.Reader = class {
                         boundValue = param.defaultValue;
                     }
                     if (boundValue) {
-                        const resolvedArg = resolveInitValue(boundValue, currentBindings);
+                        // When resolving default values, also check parentBindings for previously bound template params
+                        // This handles cases like: class Foo<string sym, string str = sym>
+                        // where 'str' default value references 'sym' which was bound earlier
+                        const combinedBindings = new Map([...currentBindings, ...parentBindings]);
+                        const resolvedArg = resolveInitValue(boundValue, combinedBindings);
                         parentBindings.set(param.name, resolvedArg);
                     }
                 }
