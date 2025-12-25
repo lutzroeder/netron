@@ -2260,6 +2260,7 @@ view.Node = class extends grapher.Node {
                 (Array.isArray(node.inputs) && node.inputs.length > 0) ||
                 (Array.isArray(node.outputs) && node.outputs.length > 0) ||
                 (Array.isArray(node.attributes) && node.attributes.length > 0) ||
+                (Array.isArray(node.blocks) && node.blocks.length > 0) ||
                 (Array.isArray(node.chain) && node.chain.length > 0) ||
                 (node.type && Array.isArray(node.type.nodes) && node.type.nodes.length > 0)) {
                 return true;
@@ -2300,6 +2301,17 @@ view.Node = class extends grapher.Node {
                 } else if (options.attributes && argument.visible !== false) {
                     const item = attribute(argument);
                     list().add(item);
+                }
+            }
+        }
+        if (Array.isArray(node.blocks)) {
+            for (const argument of node.blocks) {
+                const type = argument.type;
+                if (argument.visible !== false &&
+                    ((type === 'graph') ||
+                    (type === 'object' && isObject(argument.value)) ||
+                    (type === 'object[]' || type === 'function' || type === 'function[]'))) {
+                    objects.push(argument);
                 }
             }
         }
@@ -2978,6 +2990,14 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             for (const output of outputs) {
                 const name = output.name;
                 this.addArgument(name, output);
+            }
+        }
+        const blocks = node.blocks;
+        if (Array.isArray(blocks) && blocks.length > 0) {
+            this.addSection('Blocks');
+            for (const block of blocks) {
+                const name = block.name;
+                this.addArgument(name, block);
             }
         }
         const metadata = this._view.model.attachment.metadata.node(node);

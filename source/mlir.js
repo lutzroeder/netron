@@ -238,6 +238,7 @@ mlir.Graph = class {
                         attributes: op.attributes,
                         operands: [],
                         results: [],
+                        regions: op.regions || [],
                         delete: false,
                     };
                     const opMetadata = op.metadata;
@@ -335,35 +336,8 @@ mlir.Graph = class {
                 }
             }
         }
-        for (const op of operations) {
-            if (op.delete) {
-                continue;
-            }
-            op.operands = op.operands.map((input) => {
-                if (input.type) {
-                    const typeStr = input.type instanceof mlir.Type ? input.type.toString() : input.type;
-                    if (typeStr.startsWith('tensor<')) {
-                        const type = mlir.Utility.valueType(typeStr);
-                        const tensor = new mlir.Tensor(type, input.value);
-                        return new mlir.Argument(input.name, tensor, 'tensor');
-                    }
-                    return new mlir.Argument(input.name, input.value, input.type);
-                }
-                if (Array.isArray(input.value) && !input.value.every((value) => typeof value.name === 'string' && value.name.startsWith('%'))) {
-                    return new mlir.Argument(input.name, input.value, input.type || 'attribute');
-                }
-                if (!Array.isArray(input.value)) {
-                    // Handle non-array values (e.g., affine maps, complex expressions) as attributes
-                    return new mlir.Argument(input.name, input.value, input.type || 'attribute');
-                }
-                return new mlir.Argument(input.name, input.value.map((argument) => tensor(argument)));
-            });
-            op.results = op.results.map((output) => {
-                return new mlir.Argument(output.name, output.value.map((argument) => tensor(argument)));
-            });
-        }
         for (const op of operations.filter((op) => !op.delete)) {
-            const node = new mlir.Node(metadata, op, context);
+            const node = new mlir.Node(metadata, op, context, tensor);
             this.nodes.push(node);
         }
         for (const [name, value] of func.attributes) {
@@ -443,7 +417,7 @@ mlir.Value = class {
 
 mlir.Node = class {
 
-    constructor(metadata, op, context) {
+    constructor(metadata, op, context, tensor) {
         if (!op.type) {
             throw new mlir.Error('Undefined node type.');
         }
@@ -451,9 +425,34 @@ mlir.Node = class {
         this.type.name = op.type || '';
         this.type.identifier = op.identifier || '';
         this.name = op.name || '';
-        this.inputs = op.operands || [];
-        this.outputs = op.results || [];
+        this.inputs = [];
+        this.outputs = [];
         this.attributes = [];
+        this.blocks = [];
+        for (const input of op.operands || []) {
+            let argument = null;
+            if (input.type) {
+                const typeStr = input.type instanceof mlir.Type ? input.type.toString() : input.type;
+                if (typeStr.startsWith('tensor<')) {
+                    const type = mlir.Utility.valueType(typeStr);
+                    const value = new mlir.Tensor(type, input.value);
+                    argument = new mlir.Argument(input.name, value, 'tensor');
+                } else {
+                    argument = new mlir.Argument(input.name, input.value, input.type);
+                }
+            } else if (Array.isArray(input.value) && !input.value.every((value) => typeof value.name === 'string' && value.name.startsWith('%'))) {
+                argument = new mlir.Argument(input.name, input.value, input.type || 'attribute');
+            } else if (Array.isArray(input.value)) {
+                argument = new mlir.Argument(input.name, input.value.map((arg) => tensor(arg)));
+            } else {
+                argument = new mlir.Argument(input.name, input.value, input.type || 'attribute');
+            }
+            this.inputs.push(argument);
+        }
+        for (const output of op.results || []) {
+            const argument = new mlir.Argument(output.name, output.value.map((arg) => tensor(arg)));
+            this.outputs.push(argument);
+        }
         if (op.attributes) {
             for (const [name, attr] of op.attributes) {
                 let value = attr;
@@ -478,6 +477,19 @@ mlir.Node = class {
                 }
                 const attribute = new mlir.Argument(name, value, type || 'attribute');
                 this.attributes.push(attribute);
+            }
+        }
+        if (op.regions && op.regions.length > 0) {
+            const opMetadata = this.type;
+            for (let i = 0; i < op.regions.length; i++) {
+                const region = op.regions[i];
+                if (region.blocks && region.blocks.length > 0) {
+                    const name = (opMetadata.regions && opMetadata.regions[i] ? opMetadata.regions[i].name : null) || i.toString();
+                    const func = { name, attributes: new Map(), regions: [region] };
+                    const graph = new mlir.Graph(metadata, func, context, name);
+                    const argument = new mlir.Argument(name, graph, 'graph');
+                    this.blocks.push(argument);
+                }
             }
         }
     }

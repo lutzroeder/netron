@@ -318,6 +318,7 @@ pytorch.Node = class {
         this.attributes = [];
         this.inputs = [];
         this.outputs = [];
+        this.blocks = [];
         this.metadata = [];
         if (torch && obj instanceof torch.Node) {
             const node = obj;
@@ -518,7 +519,7 @@ pytorch.Node = class {
                     const name = `block${i.toString()}`;
                     const graph = { name: '', nodes: [] }; // new pytorch.Graph(execution, metadata, null, name, blocks[i]);
                     const argument = new pytorch.Argument(name, graph, 'graph');
-                    this.inputs.push(argument);
+                    this.blocks.push(argument);
                 }
             }
             const sourceRange = node.sourceRange();
