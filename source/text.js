@@ -112,16 +112,20 @@ text.Decoder.Utf8 = class {
         if (c >= 0xC2 && c <= 0xDF) {
             if (this.buffer[this.position] !== undefined) {
                 const c2 = this.buffer[this.position];
-                this.position++;
-                return String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
+                if (c2 >= 0x80 && c2 <= 0xBF) {
+                    this.position++;
+                    return String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
+                }
             }
         }
         if (c >= 0xE0 && c <= 0xEF) {
             if (this.buffer[this.position + 1] !== undefined) {
                 const c2 = this.buffer[this.position];
-                if ((c !== 0xE0 || c2 >= 0xA0) && (c !== 0xED || c2 <= 0x9f)) {
+                if (c2 >= 0x80 && c2 <= 0xBF &&
+                    (c !== 0xE0 || c2 >= 0xA0) &&
+                    (c !== 0xED || c2 <= 0x9f)) {
                     const c3 = this.buffer[this.position + 1];
-                    if (c3 >= 0x80 && c3 < 0xFB) {
+                    if (c3 >= 0x80 && c3 <= 0xBF) {
                         this.position += 2;
                         return String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
                     }
