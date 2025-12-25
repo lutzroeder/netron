@@ -204,8 +204,8 @@ numpy.Utility = class {
                             if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
                                 weights.set(`${name}.__class__`, `${value.__class__.__module__}.${value.__class__.__name__}`);
                             }
-                            for (const [name, obj] of Object.entries(value)) {
-                                weights.set(`${name}.${name}`, obj);
+                            for (const [key, obj] of Object.entries(value)) {
+                                weights.set(`${name}.${key}`, obj);
                             }
                             continue;
                         }
