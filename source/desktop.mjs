@@ -102,15 +102,19 @@ desktop.Host = class {
         this._view = view;
         if (process.env.SNAP) {
             this.document.body.classList.remove('spinner');
-            await this.message('Please migrate as Snap support is being discontinued.', null, 'Migrate');
-            this.openURL('https://github.com/lutzroeder/netron/issues/1500');
-            this.document.body.classList.add('spinner');
+            for (;;) {
+                // eslint-disable-next-line no-await-in-loop
+                await this.message('Please migrate as Snap support has been discontinued.', null, 'Migrate');
+                this.openURL('https://github.com/lutzroeder/netron/issues/1500');
+            }
         }
         if (process.env.APPIMAGE) {
             this.document.body.classList.remove('spinner');
-            await this.message('Please migrate as AppImage support is being discontinued.', null, 'Migrate');
-            this.openURL('https://github.com/lutzroeder/netron/issues/1500');
-            this.document.body.classList.add('spinner');
+            for (;;) {
+                // eslint-disable-next-line no-await-in-loop
+                await this.message('Please migrate as AppImage support has been discontinued.', null, 'Migrate');
+                this.openURL('https://github.com/lutzroeder/netron/issues/1500');
+            }
         }
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
