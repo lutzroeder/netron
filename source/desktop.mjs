@@ -56,21 +56,15 @@ desktop.Host = class {
         metadata.push(os.arch());
         let packager = '';
         if (process.platform === 'linux') {
-            if (process.env.APPIMAGE) {
-                packager = 'appimage';
-            } else if (process.env.SNAP) {
-                packager = 'snap';
-            } else {
+            try {
+                child_process.execFileSync('dpkg', ['-S', process.execPath]);
+                packager = 'deb';
+            } catch {
                 try {
-                    child_process.execFileSync('dpkg', ['-S', process.execPath]);
-                    packager = 'deb';
+                    child_process.execFileSync("rpm", ["-qf", process.execPath]);
+                    packager = 'rpm';
                 } catch {
-                    try {
-                        child_process.execFileSync("rpm", ["-qf", process.execPath]);
-                        packager = 'rpm';
-                    } catch {
-                        // continue regardless of error
-                    }
+                    // continue regardless of error
                 }
             }
         }
@@ -100,22 +94,6 @@ desktop.Host = class {
 
     async view(view) {
         this._view = view;
-        if (process.env.SNAP) {
-            this.document.body.classList.remove('spinner');
-            for (;;) {
-                // eslint-disable-next-line no-await-in-loop
-                await this.message('Please migrate as Snap support has been discontinued.', null, 'Migrate');
-                this.openURL('https://github.com/lutzroeder/netron/issues/1500');
-            }
-        }
-        if (process.env.APPIMAGE) {
-            this.document.body.classList.remove('spinner');
-            for (;;) {
-                // eslint-disable-next-line no-await-in-loop
-                await this.message('Please migrate as AppImage support has been discontinued.', null, 'Migrate');
-                this.openURL('https://github.com/lutzroeder/netron/issues/1500');
-            }
-        }
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {

@@ -77,8 +77,7 @@
         "executableName": "netron",
         "target": [ 
             { "target": "deb", "arch": ["x64"] },
-            { "target": "rpm", "arch": ["x64"] },
-            { "target": "AppImage", "arch": ["x64"] }
+            { "target": "rpm", "arch": ["x64"] }
         ]
     },
     "mac": {
@@ -111,9 +110,5 @@
     },
     "nsis": {
         "differentialPackage": false
-    },
-    "snap": {
-        "plugs": [ "default", "removable-media" ],
-        "publish": { "provider": "snapStore", "channels": "stable" }
     }
 }

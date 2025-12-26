@@ -51,7 +51,6 @@ jobs:
             ubuntu*)
               sudo apt-get install rpm --yes
               npm run build electron linux
-              npx electron-builder --linux snap --x64 --publish never
               ;;
             windows*)
               npm run build electron windows
