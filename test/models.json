@@ -2780,7 +2780,7 @@
   {
     "type":     "keras",
     "target":   "tecogan_model.h5",
-    "source":   "https://nnabla.org/pretrained-models/nnabla-examples/GANs/tecogan/tecogan_model.h5",
+    "source":   "https://github.com/user-attachments/files/24350408/tecogan_model.h5.zip[tecogan_model.h5]",
     "format":   "HDF5 Weights",
     "link":     "https://github.com/sony/nnabla-examples/issues/192"
   },
@@ -4053,45 +4053,24 @@
   },
   {
     "type":     "nnabla",
-    "target":   "Resnet-18.nnp",
-    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/Resnet-18/Resnet-18.nnp",
-    "format":   "NNabla v0.1",
-    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
-  },
-  {
-    "type":     "nnabla",
     "target":   "MobileNet-v2.nnp",
-    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/MobileNet-v2/MobileNet-v2.nnp",
+    "source":   "https://github.com/user-attachments/files/24350428/MobileNet-v2.nnp.zip[MobileNet-v2.nnp]",
     "format":   "NNabla v0.1",
     "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
   },
   {
     "type":     "nnabla",
     "target":   "SqueezeNet-1.1.nnp",
-    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/SqueezeNet-1.1/SqueezeNet-1.1.nnp",
-    "format":   "NNabla v0.1",
-    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
-  },
-  {
-    "type":     "nnabla",
-    "target":   "NIN.nnp",
-    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/NIN/NIN.nnp",
+    "source":   "https://github.com/user-attachments/files/24350433/SqueezeNet-1.1.nnp.zip[SqueezeNet-1.1.nnp]",
     "format":   "NNabla v0.1",
     "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
   },
   {
     "type":     "nnabla",
     "target":   "results.nnp",
-    "source":   "https://github.com/lutzroeder/netron/files/14927097/results.nnp.zip[results.nnp]",
+    "source":   "https://github.com/user-attachments/files/24350430/results.nnp.zip[results.nnp]",
     "format":   "NNabla v0.1",
     "link":     "https://github.com/lutzroeder/netron/issues/759"
-  },
-  {
-    "type":     "nnabla",
-    "target":   "ShuffleNet-0.5x.nnp",
-    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/ShuffleNet-0.5x/ShuffleNet-0.5x.nnp",
-    "format":   "NNabla v0.1",
-    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
   },
   {
     "type":     "nnef",
