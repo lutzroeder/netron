@@ -3477,6 +3477,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "sd-clip-tank.mlirbc",
+    "source":   "https://github.com/user-attachments/files/24355655/sd-clip-tank.mlirbc.zip[sd-clip-tank.mlirbc]",
+    "format":   "MLIR Bytecode v6",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "sha256.mlir",
     "source":   "https://github.com/user-attachments/files/17788766/sha256.mlir.zip[sha256.mlir]",
     "format":   "MLIR",
@@ -3494,6 +3501,13 @@
     "target":   "squeezenet.mlirbc",
     "source":   "https://github.com/user-attachments/files/24284768/squeezenet.mlir.zip[squeezenet.mlirbc]",
     "format":   "MLIR Bytecode v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "stable_diffusion_3_medium.mlirbc",
+    "source":   "https://github.com/user-attachments/files/24355687/stable_diffusion_3_medium.mlirbc.zip[stable_diffusion_3_medium.mlirbc]",
+    "format":   "MLIR Bytecode v6",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

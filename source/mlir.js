@@ -106,14 +106,12 @@ mlir.Model = class {
                 }
             }
             if (funcs.length > 0 || ops.length > 0) {
-                const name = attributes.get('sym_name');
-                modules.push({
-                    path,
-                    symName: name ? `@${name}` : null,
-                    funcs,
-                    ops,
-                    attributes
-                });
+                let name = null;
+                if (attributes.get('sym_name')) {
+                    name = attributes.get('sym_name');
+                    name = `@${name.value}`;
+                }
+                modules.push({ path, symName: name, funcs, ops, attributes });
             }
         };
         collectModules(block.operations, [], new Map());
@@ -144,7 +142,7 @@ mlir.Model = class {
             this.functions.push(graph);
         }
         for (const module of modules) {
-            if (module.ops.length > 0 || module.attributes.size === 0 && (module.attributes.has('sym_name') && module.attributes.size === 1)) {
+            if (module.ops.length > 0 || module.attributes.size === 0 || (module.attributes.has('sym_name') && module.attributes.size === 1)) {
                 const name = formatPrefix(module.path, module.symName) || '';
                 const op = {
                     name: 'builtin.module',
@@ -775,7 +773,7 @@ mlir.Tokenizer = class {
                     this._read();
                     return this._token('>', '>');
                 default:
-                    if (/[a-zA-Z_$]/.test(this._current) || /[-.]/.test(this._current)) {
+                    if (/[a-zA-Z_$]/.test(this._current) || /[.-]/.test(this._current)) {
                         return this._identifier();
                     }
                     if (/[0-9]/.test(this._current)) {
@@ -986,7 +984,7 @@ mlir.Tokenizer = class {
         if (this._current === '"') {
             value += this._stringLiteral().value;
         } else {
-            while (this._current && (/[a-zA-Z_$]/.test(this._current) || /[0-9]/.test(this._current) || /[-.]/.test(this._current))) {
+            while (this._current && (/[a-zA-Z_$]/.test(this._current) || /[0-9]/.test(this._current) || /[.-]/.test(this._current))) {
                 // Don't consume '-' if it's followed by '>' (to preserve '->' as separate token)
                 if (this._current === '-' && this._peek() === '>') {
                     break;
@@ -1008,7 +1006,7 @@ mlir.Tokenizer = class {
         if (this._current === '"') {
             result += this._stringLiteral().value;
         } else {
-            while (this._current && (/[a-zA-Z_$]/.test(this._current) || /[0-9]/.test(this._current) || /[-.]/.test(this._current))) {
+            while (this._current && (/[a-zA-Z_$]/.test(this._current) || /[0-9]/.test(this._current) || /[.-]/.test(this._current))) {
                 // Don't consume '-' if it's followed by '>' (to preserve '->' as separate token)
                 if (this._current === '-' && this._peek() === '>') {
                     break;
@@ -1063,7 +1061,7 @@ mlir.Tokenizer = class {
             result += this._read();
             return this._token('^', result);
         }
-        while (this._current && (/[a-zA-Z_$]/.test(this._current) || /[0-9]/.test(this._current) || /[-.]/.test(this._current))) {
+        while (this._current && (/[a-zA-Z_$]/.test(this._current) || /[0-9]/.test(this._current) || /[.-]/.test(this._current))) {
             result += this._read();
         }
         if (this._current === ':' && this._peek() === ':') {
@@ -1635,8 +1633,8 @@ mlir.Parser = class {
             }
             region.blocks.push(nextBlock);
         }
-        if (hasMultipleBlocks && this.match('}')) {
-            this.expect('}');
+        if (hasMultipleBlocks) {
+            this.accept('}');
         }
         return region;
     }
@@ -2832,7 +2830,7 @@ mlir.Parser = class {
         if (!this.accept('>')) {
             const indiceParser = new mlir.TensorLiteralParser(this);
             indiceParser.parse(/* allowHex */ false);
-            indices = indiceParser.getShape().length === 0 ? indiceParser._storage : indiceParser._storage;
+            indices = indiceParser._storage;
             this.expect(',');
             const valuesParser = new mlir.TensorLiteralParser(this);
             valuesParser.parse(/* allowHex */ true);
@@ -2987,7 +2985,7 @@ mlir.TensorLiteralParser = class {
         // If hex is allowed, check for a string literal.
         if (allowHex && this._parser.match('string')) {
             const hexStr = this._parser.expect();
-            if (hexStr.startsWith('"0x') || hexStr.startsWith('0x')) {
+            if (hexStr.startsWith('0x')) {
                 const cleanHex = hexStr.replace(/"/g, '').substring(2);
                 const data = new Uint8Array(cleanHex.length >> 1);
                 for (let i = 0; i < data.length; i++) {
@@ -3295,7 +3293,25 @@ mlir.AttrTypeReader = class {
             case 8: { // IntegerAttr
                 const typeIdx = reader.varint().toNumber();
                 const type = this.readType(typeIdx);
-                const value = reader.svarint();
+                // Read value based on bit width (ref: BytecodeReader.cpp:1145-1171)
+                // - bitWidth <= 8: single byte
+                // - bitWidth <= 64: signed varint
+                // - larger: word count + words
+                const bitWidth = this._getIntegerBitWidth(type);
+                let value = null;
+                if (bitWidth <= 8) {
+                    value = BigInt(reader.byte());
+                } else if (bitWidth <= 64) {
+                    value = reader.svarint();
+                } else {
+                    // Large integers: read word count, then words
+                    const numWords = reader.varint().toNumber();
+                    value = 0n;
+                    for (let i = 0; i < numWords; i++) {
+                        const word = reader.svarint();
+                        value |= (word << BigInt(i * 64));
+                    }
+                }
                 return new mlir.IntegerAttr(value, type);
             }
             case 9: { // FloatAttr
@@ -3419,6 +3435,17 @@ mlir.AttrTypeReader = class {
             return new mlir.DenseArrayAttr(blob, type);
         }
         return new mlir.DenseArrayAttr(values, type);
+    }
+
+    _getIntegerBitWidth(type) {
+        // Extract bit width from integer type (i1, i8, i16, i32, i64, si32, ui64, etc.)
+        const typeStr = type ? type.toString() : '';
+        const match = typeStr.match(/^[su]?i(\d+)$/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        // Default to 64-bit for index and unknown types
+        return 64;
     }
 
     _readFloatValue(reader, typeStr) {
@@ -4002,23 +4029,19 @@ mlir.BytecodeReader = class {
         // Parse properties (version >= 5)
         if (opMask & kHasProperties) {
             if (opNameEntry.isRegistered) {
-                // Native properties - read index
+                // Native properties - read index into properties table
                 const propIdx = reader.varint().toNumber();
-                // Try to parse native properties as raw data
                 if (propIdx < this._properties.length) {
                     const propData = this._properties[propIdx];
-                    op._propertiesData = propData;
-                    // Parse native properties for operations with SymbolNameAttr
-                    if (propData.length > 0 && this._hasSymbolNameAttr(fullName)) {
-                        this._parseFuncNativeProperties(propData, op);
+                    if (propData.length > 0) {
+                        this._parseNativeProperties(propData, op, fullName);
                     }
                 }
             } else {
-                // Fallback to attribute dictionary
+                // Unregistered operations store properties as a single dictionary attribute
                 const propAttrIdx = reader.varint().toNumber();
                 const propAttr = this._attrTypeReader.readAttribute(propAttrIdx);
                 if (propAttr && propAttr.value) {
-                    // Parse fallback properties as dictionary attribute
                     const propAttrs = this.parseAttributeDict(propAttr.value);
                     for (const [key, value] of propAttrs) {
                         op.addAttribute(key, value);
@@ -4170,46 +4193,38 @@ mlir.BytecodeReader = class {
         return attrs;
     }
 
-    _parseFuncNativeProperties(data, op) {
-        // Parse func.func native properties:
-        // - sym_name: SymbolNameAttr (StringAttr) - required
-        // - function_type: TypeAttrOf<FunctionType> (TypeAttr) - required
-        // - arg_attrs: OptionalAttr<ArrayAttr>
-        // - res_attrs: OptionalAttr<ArrayAttr>
-        // - sym_visibility: OptionalAttr<StrAttr>
-        //
-        // Encoding: varint attribute indices for each property
+    _parseNativeProperties(data, op, fullName) {
+        // Native properties encoding is operation-specific (generated by tablegen).
+        // Without the generated code, we can only safely parse known operation types.
+        // Reference: llvm-project/mlir/lib/Bytecode/Reader/BytecodeReader.cpp:1274-1282
         const propReader = new mlir.BufferReader(data);
-        const symNameIdx = propReader.varint().toNumber();
-        const symNameAttr = this._attrTypeReader.readAttribute(symNameIdx);
-        if (symNameAttr && symNameAttr.value) {
-            const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
-            op.addAttribute('sym_name', new mlir.StringAttr(name));
-        }
-        const funcTypeIdx = propReader.varint().toNumber();
-        const funcTypeAttr = this._attrTypeReader.readAttribute(funcTypeIdx);
-        if (funcTypeAttr instanceof mlir.TypeAttrOf && funcTypeAttr.type instanceof mlir.FunctionType) {
-            op.addAttribute('function_type', funcTypeAttr);
-        }
-    }
-
-    _hasSymbolNameAttr(fullName) {
-        // Check operation metadata for SymbolNameAttr on sym_name property
-        const [dialectName] = fullName.split('.');
-        const dialect = this._context.getDialect(dialectName);
-        if (dialect) {
-            const opInfo = dialect.getOperation(fullName);
-            if (opInfo && opInfo.metadata && Array.isArray(opInfo.metadata.attributes)) {
-                for (const attr of opInfo.metadata.attributes) {
-                    if (attr.name === 'sym_name' && attr.type && attr.type.name === 'SymbolNameAttr') {
-                        return true;
-                    }
+        // Function operations: sym_name (required), function_type (required), then optional attrs
+        if (fullName.endsWith('.func') || /\.func_v\d+$/.test(fullName)) {
+            const symNameIdx = propReader.varint().toNumber();
+            const symNameAttr = this._attrTypeReader.readAttribute(symNameIdx);
+            if (symNameAttr && symNameAttr.value !== undefined) {
+                const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
+                op.addAttribute('sym_name', new mlir.StringAttr(name));
+            }
+            if (propReader.position < data.length) {
+                const funcTypeIdx = propReader.varint().toNumber();
+                const funcTypeAttr = this._attrTypeReader.readAttribute(funcTypeIdx);
+                if (funcTypeAttr instanceof mlir.TypeAttrOf && funcTypeAttr.type instanceof mlir.FunctionType) {
+                    op.addAttribute('function_type', funcTypeAttr);
                 }
-                // Operation found in metadata but no SymbolNameAttr
+            }
+            return;
+        }
+        // Constant operations: single required 'value' attribute
+        if (fullName.includes('.constant.') || fullName.includes('.const')) {
+            const attrIdx = propReader.varint().toNumber();
+            const attr = this._attrTypeReader.readAttribute(attrIdx);
+            if (attr !== null && attr !== undefined) {
+                op.addAttribute('value', attr);
             }
         }
-        // Fallback for operations not in metadata: check by naming convention
-        return fullName.endsWith('.func') || /\.func_v\d+$/.test(fullName);
+        // For all other operations, skip native property parsing.
+        // The encoding is operation-specific and we don't have the generated code.
     }
 };
 
@@ -4276,7 +4291,7 @@ mlir.BinaryReader = class {
             shift += 8n;
             numBytes++;
         }
-        result >>= BigInt(numBytes + 1n);
+        result >>= numBytes + 1n;
         return result;
     }
 
@@ -4362,7 +4377,7 @@ mlir.BufferReader = class {
             shift += 8n;
             numBytes++;
         }
-        result >>= BigInt(numBytes + 1n);
+        result >>= numBytes + 1n;
         return result;
     }
 
