@@ -285,6 +285,16 @@ DataView.prototype.getComplexFloat16 = DataView.prototype.getComplexFloat16 || f
     return new base.Complex(real, imaginary);
 };
 
+DataView.prototype.setComplexFloat16 = DataView.prototype.setComplexFloat16 || function(byteOffset, value, littleEndian) {
+    if (littleEndian) {
+        this.setFloat16(byteOffset, value.real, littleEndian);
+        this.setFloat16(byteOffset + 2, value.imaginary, littleEndian);
+    } else {
+        this.setFloat16(byteOffset + 2, value.real, littleEndian);
+        this.setFloat16(byteOffset, value.imaginary, littleEndian);
+    }
+};
+
 DataView.prototype.getComplexFloat32 = DataView.prototype.getComplexFloat32 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
@@ -656,11 +666,11 @@ base.Tensor = class {
             ['qint8', 1], ['qint16', 2], ['qint32', 4],
             ['quint8', 1], ['quint16', 2], ['quint32', 4],
             ['xint8', 1],
-            ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8],
+            ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8], ['int128', 16],
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
             ['complex<float32>', 8], ['complex<float64>', 16], ['complex<int32>', 8],
-            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1],
+            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e4m3b11fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1], ['float4e2m1fn', 1], ['float6e2m3fn', 1], ['float6e3m2fn', 1], ['float8e8m0fnu', 1]
         ]);
     }
 

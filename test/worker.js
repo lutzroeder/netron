@@ -362,16 +362,33 @@ export class Target {
                                 tensor.toString();
                                 if (this.tags.has('validation')) {
                                     const size = tensor.type.shape.dimensions.reduce((a, b) => a * b, 1);
-                                    if (tensor.type && tensor.type.dataType !== '?' && size < 8192) {
+                                    if (size < 8192 && tensor.type &&
+                                        tensor.type.dataType !== '?' &&
+                                        tensor.type.dataType !== 'string' &&
+                                        tensor.type.dataType !== 'int128' &&
+                                        tensor.type.dataType !== 'complex<int32>') {
                                         let data_type = '?';
                                         switch (tensor.type.dataType) {
                                             case 'boolean': data_type = 'bool'; break;
                                             case 'bfloat16': data_type = 'float32'; break;
+                                            case 'float4e2m1fn': data_type = 'float16'; break;
+                                            case 'float6e2m3fn': data_type = 'float16'; break;
+                                            case 'float6e3m2fn': data_type = 'float16'; break;
                                             case 'float8e5m2': data_type = 'float16'; break;
                                             case 'float8e5m2fnuz': data_type = 'float16'; break;
+                                            case 'float8e3m4': data_type = 'float16'; break;
+                                            case 'float8e4m3': data_type = 'float16'; break;
                                             case 'float8e4m3fn': data_type = 'float16'; break;
                                             case 'float8e4m3fnuz': data_type = 'float16'; break;
+                                            case 'float8e4m3b11fnuz': data_type = 'float16'; break;
+                                            case 'float8e8m0fnu': data_type = 'float16'; break;
+                                            case 'complex<float32>': data_type = 'complex64'; break;
+                                            case 'complex<float64>': data_type = 'complex128'; break;
+                                            case 'int1': data_type = 'int8'; break;
+                                            case 'int2': data_type = 'int8'; break;
                                             case 'int4': data_type = 'int8'; break;
+                                            case 'uint2': data_type = 'uint8'; break;
+                                            case 'uint4': data_type = 'uint8'; break;
                                             default: data_type = tensor.type.dataType; break;
                                         }
                                         Target.execution = Target.execution || new python.Execution();

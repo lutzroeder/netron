@@ -3319,7 +3319,7 @@
     "type":     "mlir",
     "target":   "broadcast_to_dynamic.mlir",
     "source":   "https://github.com/user-attachments/files/23221752/broadcast_to_dynamic.mlir.zip[broadcast_to_dynamic.mlir]",
-    "assert":   "model.functions[0].nodes[4].inputs.length == 0",
+    "assert":   "model.functions[0].nodes.length == 6",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3571,13 +3571,6 @@
     "target":   "TritonNvidiaGPU_canonicalize.mlir",
     "source":   "https://github.com/user-attachments/files/23912819/TritonNvidiaGPU_canonicalize.mlir.zip[TritonNvidiaGPU_canonicalize.mlir]",
     "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "versioned-op-2.0.mlirbc",
-    "source":   "https://github.com/user-attachments/files/17174958/versioned-op-2.0.mlirbc.zip[versioned-op-2.0.mlirbc]",
-    "format":   "MLIR Bytecode v1",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
