@@ -307,6 +307,7 @@ known_legacy_schema_definitions = [
     "quantized_decomposed::embedding_byte.out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::embedding_byte.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::mixed_mm(Tensor input, Tensor weight, Tensor weight_scales, Tensor? weight_zero_points) -> Tensor", # noqa E501
+    "quantized_decomposed::choose_qparams_per_token_asymmetric.out(Tensor input, ScalarType dtype, *, Tensor(a!) scale_out, Tensor(b!) zero_point_out) -> (Tensor(a!), Tensor(b!))", # noqa E501
     "tensorrt::execute_engine(Tensor[] inputs, __torch__.torch.classes.tensorrt.Engine engine) -> Tensor[]", # noqa E501
     "torch_sparse::hgt_sample(Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, int[]) _3, int _4) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
     "torch_sparse::cuda_version() -> int _0",

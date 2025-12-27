@@ -3384,6 +3384,12 @@
     "name": "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor"
   },
   {
+    "name": "aten::grid_sampler_2d(Tensor input, Tensor grid, int interpolation_mode, int padding_mode, bool align_corners) -> Tensor"
+  },
+  {
+    "name": "aten::grid_sampler_2d.out(Tensor input, Tensor grid, int interpolation_mode, int padding_mode, bool align_corners, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::group_norm(Tensor input, int num_groups, Tensor? weight=None, Tensor? bias=None, float eps=1.0000000000000001e-05, bool cudnn_enabled=True) -> Tensor",
     "category": "Normalization"
   },
@@ -6785,6 +6791,12 @@
     "name": "aten::unfold(Tensor(a) self, int dimension, int size, int step) -> Tensor(a)"
   },
   {
+    "name": "aten::unfold_copy(Tensor self, int dimension, int size, int step) -> Tensor"
+  },
+  {
+    "name": "aten::unfold_copy.out(Tensor self, int dimension, int size, int step, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::uniform_(Tensor(a!) self, float from=0., float to=1., *, Generator? generator=None) -> Tensor(a!)"
   },
   {
@@ -8491,6 +8503,9 @@
   },
   {
     "name": "quantized_decomposed::choose_qparams_per_token(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "quantized_decomposed::choose_qparams_per_token_asymmetric.out(Tensor input, ScalarType dtype, *, Tensor(a!) scale_out, Tensor(b!) zero_point_out) -> (Tensor(a!), Tensor(b!))"
   },
   {
     "name": "quantized_decomposed::choose_qparams_per_token_asymmetric(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
