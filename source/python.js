@@ -84,14 +84,12 @@ python.Execution = class {
                 if (args.length === 1) {
                     const [obj] = args;
                     if (obj === null) {
-                        /* eslint-disable no-constructor-return */
+                        // eslint-disable-next-line no-constructor-return
                         return builtins.NoneType;
-                        /* eslint-enable no-constructor-return */
                     }
                     if (obj && obj.__class__) {
-                        /* eslint-disable no-constructor-return */
+                        // eslint-disable-next-line no-constructor-return
                         return obj.__class__;
-                        /* eslint-enable no-constructor-return */
                     }
                     throw new python.Error(`Unknown type '${obj}'`);
                 }
@@ -102,9 +100,8 @@ python.Execution = class {
                     for (const [key, value] of body) {
                         cls[key] = value;
                     }
-                    /* eslint-disable no-constructor-return */
+                    // eslint-disable-next-line no-constructor-return
                     return cls;
-                    /* eslint-enable no-constructor-return */
                 }
                 throw new python.Error(`Invalid 'builtins.dict' argument count.`);
             }
@@ -9367,6 +9364,9 @@ python.Execution = class {
                             const [, storage_type, key, , numel] = saved_id;
                             if (!loaded_storages.has(key)) {
                                 const storage = new storage_type(numel);
+                                if (!storage._set_cdata) {
+                                    throw new python.Error(`'${storage_type.__name__}._set_cdata' is not a function.`);
+                                }
                                 const name = `data/${key}`;
                                 const stream = entries.get(name);
                                 storage._set_cdata(stream);
@@ -13747,6 +13747,9 @@ python.Execution = class {
                         return storage_context.get_storage(key);
                     }
                     const storage = new storage_type(size);
+                    if (!storage._set_cdata) {
+                        throw new python.Error(`'${storage_type.__name__}._set_cdata' is not a function.`);
+                    }
                     const storage_ptr = read_record(key);
                     storage._set_cdata(storage_ptr);
                     if (storage_context) {
@@ -15500,6 +15503,9 @@ python.Execution = class {
                             const [, storage_type, key, , size] = saved_id;
                             if (!this.storage_context.has_storage(key)) {
                                 const storage = new storage_type(size);
+                                if (!storage._set_cdata) {
+                                    throw new python.Error(`'${storage_type.__name__}._set_cdata' is not a function.`);
+                                }
                                 const stream = this.zip_reader.get_record(`.data/${key}.storage`);
                                 const buffer = stream.peek();
                                 storage._set_cdata(buffer);
@@ -20116,128 +20122,128 @@ python.Execution = class {
         });
         this.registerType('torch.BoolStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.BoolStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ByteStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.ByteStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.CharStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.CharStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ShortStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.ShortStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.IntStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.IntStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.LongStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.LongStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.HalfStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.HalfStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.FloatStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.FloatStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.DoubleStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.DoubleStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ComplexHalfStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.ComplexHalfStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ComplexFloatStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.ComplexFloatStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ComplexDoubleStorage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.ComplexDoubleStorage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QInt8Storage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.QUInt8Storage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QUInt8Storage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.QUInt8Storage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QInt32Storage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.QInt32Storage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.BFloat16Storage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.BFloat16Storage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QUInt4x2Storage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.QUInt4x2Storage.dtype);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QUInt2x4Storage', class extends torch.storage._LegacyStorage {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.QUInt2x4Storage.dtype);
-                /* eslint-enable no-constructor-return */
+            }
+        });
+        this.registerType('torch.UInt16Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                // eslint-disable-next-line
+                return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.UInt16Storage.dtype);
+            }
+        });
+        this.registerType('torch.UInt32Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                // eslint-disable-next-line no-constructor-return
+                return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.UInt32Storage.dtype);
+            }
+        });
+        this.registerType('torch.UInt64Storage', class extends torch.storage._LegacyStorage {
+            constructor(...args) {
+                // eslint-disable-next-line no-constructor-return
+                return new torch.storage.TypedStorage(args.length > 0 ? args[0] : 0, torch.UInt64Storage.dtype);
             }
         });
         this.registerType('torch.Size', class extends Array {
@@ -20439,132 +20445,114 @@ python.Execution = class {
         this.registerType('torch.nn.parameter.UninitializedBuffer', class extends torch.Tensor {});
         this.registerType('torch.BoolTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ByteTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.CharTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ShortTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.IntTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.LongTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.HalfTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.FloatTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.DoubleTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ComplexFloatTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.ComplexDoubleTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QInt8Tensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QUInt8Tensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.QInt32Tensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.cuda._CudaLegacyStorage', class extends torch.storage._LegacyStorage {});
         this.registerType('torch.cuda.FloatStorage', class extends torch.cuda._CudaLegacyStorage {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.cuda.DoubleStorage', class extends torch.cuda._CudaLegacyStorage {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torch.cuda.amp.grad_scaler.GradScaler', class {});
         this.registerType('torchao.utils.TorchAOBaseTensor', class extends torch.Tensor {
             constructor(...args) {
-                /* eslint-disable no-constructor-return */
+                // eslint-disable-next-line no-constructor-return
                 return new torch.Tensor(...args);
-                /* eslint-enable no-constructor-return */
             }
         });
         this.registerType('torchao.dtypes.affine_quantized_tensor.AffineQuantizedTensor', class extends torchao.utils.TorchAOBaseTensor {});
@@ -20622,9 +20610,9 @@ python.Execution = class {
         torch.float8_e5m2fnuz = new torch.dtype(24, 'float8_e5m2fnuz', 1);
         torch.float8_e4m3fn = new torch.dtype(25, 'float8_e4m3fn', 1);
         torch.float8_e4m3fnuz = new torch.dtype(26, 'float8_e4m3fnuz', 1);
-        torch.uint16 = new torch.dtype(27, 'uint16', 2);
-        torch.uint32 = new torch.dtype(28, 'uint32', 4);
-        torch.uint64 = new torch.dtype(29, 'uint64', 8);
+        torch.uint16 = torch.UInt16Storage.dtype = new torch.dtype(27, 'uint16', 2);
+        torch.uint32 = torch.UInt32Storage.dtype = new torch.dtype(28, 'uint32', 4);
+        torch.uint64 = torch.UInt64Storage.dtype = new torch.dtype(29, 'uint64', 8);
         torch._export.serde.serialize._SERIALIZE_TO_TORCH_DTYPE = new Map([
             ['uint8', 'BYTE'],
             ['int8', 'CHAR'], ['int16', 'SHORT'], ['int32', 'INT'], ['int64', 'LONG'],
