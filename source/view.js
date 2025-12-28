@@ -6903,6 +6903,7 @@ view.ModelFactoryService = class {
                 { name: 'Keras Tokenizer data', value: /^"{\\"class_name\\":\s*\\"Tokenizer\\"/ },
                 { name: 'llama2.c checkpoint', value: /^..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00..\x00\x00/, identifier: /^stories\d+[KM]\.bin/ },
                 { name: 'Mathematica Notebook data', value: /^\(\*\sContent-type:\sapplication\/vnd\.wolfram\.mathematica\s\*\)/ },
+                { name: 'Momentum Human Rig model', value: /^Momentum Model Definition/ }, // https://github.com/facebookresearch/MHR
                 { name: 'obfuscated data', value: /^obfs/ },
                 { name: 'Optimium model', value: /^EZMODEL/ }, // https://github.com/EZ-Optimium/Optimium,
                 { name: 'PNG image', value: /^\x89PNG/ },
