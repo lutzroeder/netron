@@ -66,7 +66,8 @@ tar.Entry = class {
             reader.string(32); // owner group name
             reader.string(8); // device major number
             reader.string(8); // device number number
-            this._name = reader.string(155) + this._name;
+            const prefix = reader.string(155);
+            this._name = prefix ? `${prefix}/${this._name}` : this._name;
         }
         this._stream = stream.stream(size);
         stream.read(((size % 512) === 0) ? 0 : (512 - (size % 512)));
@@ -112,10 +113,16 @@ tar.BinaryReader = class {
 
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._length || this._position < 0) {
+            throw new tar.Error('Invalid tar archive. Unexpected end of file.');
+        }
     }
 
     skip(offset) {
         this._position += offset;
+        if (this._position > this._length || this._position < 0) {
+            throw new tar.Error('Invalid tar archive. Unexpected end of file.');
+        }
     }
 
     peek(length) {
