@@ -51,11 +51,11 @@ text.Decoder = class {
                 lo[buffer[i]]++;
                 hi[buffer[i + 1]]++;
             }
-            if (lo[0x00] === 0 && (hi[0x00] / (length >> 1)) > 0.5) {
+            if (lo[0x00] === 0 && (hi[0x00] / (size >> 1)) > 0.5) {
                 assert(encoding, 'utf-16');
                 return new text.Decoder.Utf16LE(buffer, 0);
             }
-            if (hi[0x00] === 0 && (lo[0x00] / (length >> 1)) > 0.5) {
+            if (hi[0x00] === 0 && (lo[0x00] / (size >> 1)) > 0.5) {
                 assert(encoding, 'utf-16');
                 return new text.Decoder.Utf16BE(buffer, 0);
             }
@@ -262,6 +262,9 @@ text.Decoder.Utf32LE = class {
                 (this.buffer[this.position++] << 16) |
                 (this.buffer[this.position++] << 24)
             ) >>> 0;
+            if (c >= 0xD800 && c <= 0xDFFF) {
+                return String.fromCharCode(0xfffd);
+            }
             if (c <= 0x10FFFF) {
                 return String.fromCodePoint(c);
             }
@@ -291,6 +294,9 @@ text.Decoder.Utf32BE = class {
                 (this.buffer[this.position++] << 8) |
                 (this.buffer[this.position++])
             ) >>> 0;
+            if (c >= 0xD800 && c <= 0xDFFF) {
+                return String.fromCharCode(0xfffd);
+            }
             if (c <= 0x10FFFF) {
                 return String.fromCodePoint(c);
             }
@@ -302,10 +308,10 @@ text.Decoder.Utf32BE = class {
 
 text.Reader = class {
 
-    constructor(data) {
+    constructor(data, length) {
         this.decoder = text.Decoder.open(data);
         this.position = 0;
-        this.length = Number.MAX_SAFE_INTEGER;
+        this.length = length === undefined ? Number.MAX_SAFE_INTEGER : length;
     }
 
     static open(data, length) {
