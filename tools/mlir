@@ -9,7 +9,7 @@ entries=(
     "https://github.com/llvm/llvm-project.git|main|${src_dir}/llvm-project|mlir"
     "https://github.com/openxla/stablehlo.git|main|${src_dir}/stablehlo|stablehlo"
     "https://github.com/openxla/shardy.git|main|${src_dir}/shardy|shardy"
-    "https://github.com/openxla/xla.git|main|${src_dir}/xla|xla/mlir_hlo"
+    "https://github.com/openxla/xla.git|main|${src_dir}/xla|xla"
     "https://github.com/onnx/onnx-mlir.git|main|${src_dir}/onnx-mlir|"
     "https://github.com/llvm/torch-mlir.git|main|${src_dir}/torch-mlir|"
     "https://github.com/triton-lang/triton|main|${src_dir}/triton|"

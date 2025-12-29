@@ -280,8 +280,8 @@ DataView.prototype.getComplexInt32 = DataView.prototype.getComplexInt32 || funct
 };
 
 DataView.prototype.getComplexFloat16 = DataView.prototype.getComplexFloat16 || function(byteOffset, littleEndian) {
-    const real = littleEndian ? this.getFloat16(byteOffset, littleEndian) : this.getFloat16(byteOffset + 4, littleEndian);
-    const imaginary = littleEndian ? this.getFloat16(byteOffset + 4, littleEndian) : this.getFloat16(byteOffset, littleEndian);
+    const real = littleEndian ? this.getFloat16(byteOffset, littleEndian) : this.getFloat16(byteOffset + 2, littleEndian);
+    const imaginary = littleEndian ? this.getFloat16(byteOffset + 2, littleEndian) : this.getFloat16(byteOffset, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
@@ -361,14 +361,14 @@ base.BinaryStream = class {
 
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
-        if (this._position > this._buffer.length) {
+        if (this._position > this._buffer.length || this._position < 0) {
             throw new Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
     skip(offset) {
         this._position += offset;
-        if (this._position > this._buffer.length) {
+        if (this._position > this._buffer.length || this._position < 0) {
             throw new Error(`Expected ${this._position - this._buffer.length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }

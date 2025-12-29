@@ -288,6 +288,7 @@ tablegen.Tokenizer = class {
         }
         // Binary
         if (this.peek() === '0' && this.peek(1) === 'b') {
+            const isNegative = value === '-';
             value += this.peek();
             this._next();
             value += this.peek();
@@ -296,7 +297,9 @@ tablegen.Tokenizer = class {
                 value += this.peek();
                 this._next();
             }
-            return new tablegen.Token('number', parseInt(value.substring(2), 2), location);
+            const binaryDigits = isNegative ? value.substring(3) : value.substring(2);
+            const result = parseInt(binaryDigits, 2);
+            return new tablegen.Token('number', isNegative ? -result : result, location);
         }
         // Decimal
         while (this._position < this._text.length && this._isDigit(this.peek())) {
@@ -2228,6 +2231,9 @@ tablegen.Reader = class {
                 for (let i = start; i <= end; i++) {
                     values.push(new tablegen.Value('int', i));
                 }
+            } else {
+                // Single value: {5} means just the value 5
+                values.push(new tablegen.Value('int', start));
             }
             this._expect('}');
         } else {
@@ -2391,6 +2397,10 @@ tablegen.Reader = class {
                         this._read();
                     }
                 }
+            } else {
+                // Single statement else: skip until semicolon
+                this._skipUntil([';']);
+                this._eat(';');
             }
         }
         return loop;

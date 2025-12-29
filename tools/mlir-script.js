@@ -68,6 +68,7 @@ const schema = async () => {
         path.join(source, 'stablehlo'),
         path.join(source, 'shardy'),
         path.join(source, 'xla', 'xla', 'mlir_hlo'),
+        path.join(source, 'xla'),
         path.join(source, 'onnx-mlir'),
         path.join(source, 'torch-mlir', 'include'),
         path.join(source, 'triton', 'include'),
@@ -81,6 +82,7 @@ const schema = async () => {
         path.join(source, 'tpu-mlir', 'include'),
         path.join(source, 'tensorflow'),
         path.join(source, 'tensorflow', 'tensorflow', 'compiler', 'mlir', 'tfrt', 'ir'),
+        path.join(source, 'xla', 'xla', 'backends', 'gpu', 'codegen', 'triton', 'ir'),
         path.join(source, 'runtime', 'include'),
         path.join(source, 'plaidml'),
         path.join(source, 'plaidml', 'pmlc', 'dialect', 'pxa', 'ir'),
@@ -117,7 +119,6 @@ const schema = async () => {
         'mlir/include/mlir/IR/BuiltinDialectBytecode.td',
         'mlir/include/mlir/IR/BuiltinAttributes.td',
         'mlir/include/mlir/IR/BuiltinTypes.td',
-        'mlir/include/mlir/Dialect/Affine/IR/AffineOps.td',
         'mlir/include/mlir/Dialect/Affine/IR/AffineOps.td',
         'mlir/include/mlir/Dialect/Affine/TransformOps/AffineTransformOps.td',
         'mlir/include/mlir/Dialect/AMDGPU/IR/AMDGPU.td',
@@ -316,6 +317,14 @@ const schema = async () => {
         'Standalone/StandaloneOps.td',
         'clang/include/clang/CIR/Dialect/IR/CIROps.td',
         'mlir/include/mlir/Dialect/MIGraphX/IR/MIGraphX.td',
+        'xla/backends/cpu/codegen/emitters/ir/xla_cpu_ops.td',
+        'xla/backends/gpu/codegen/emitters/ir/xla_gpu_ops.td',
+        'xla/backends/gpu/codegen/triton/ir/triton_xla_ops.td',
+        'xla/codegen/emitters/ir/xla_ops.td',
+        'xla/codegen/xtile/ir/xtile_ops.td',
+        'xla/python/ifrt/ir/ifrt_ops.td',
+        'xla/python/ifrt/ir/vifrt_ops.td',
+        'xla/xla/mlir/framework/ir/xla_framework_ops.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -721,7 +730,7 @@ const schema = async () => {
 };
 
 const test = async (pattern) => {
-    pattern = pattern || './third_party/source/mlir/**/*.mlir';
+    pattern = pattern || './**/*.mlir';
     const errorTotals = new Map();
     const filesByError = new Map();
     const fileErrorDetails = new Map();
@@ -784,6 +793,16 @@ const test = async (pattern) => {
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
+        'third_party/source/mlir/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
+        'third_party/source/tensorflow/third_party/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/test/mlir/sample.mlir',
     ]);
     return new Promise((resolve, reject) => {
         const cmd = 'node';
