@@ -465,12 +465,17 @@ view.View = class {
             }
             await this._timeout(20);
             const path = [];
-            if (Array.isArray(model.modules) && model.modules.length > 0) {
-                const [graph] = model.modules;
-                const signature = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures[0] : null;
-                path.push({ target: graph, signature });
-            } else if (Array.isArray(model.functions) && model.functions.length > 0) {
-                path.push({ target: model.functions[0], signature: null });
+            const modules = Array.isArray(model.functions) ? model.modules.concat(model.functions) : model.modules;
+            let target = modules.length > 0 ? modules[0] : null;
+            for (const module of modules) {
+                if (Array.isArray(module.nodes) && module.nodes.length > 0) {
+                    target = module;
+                    break;
+                }
+            }
+            if (target) {
+                const signature = Array.isArray(target.signatures) && target.signatures.length > 0 ? target.signatures[0] : null;
+                path.push({ target, signature });
             }
             return await this._updateTarget(model, path);
         } catch (error) {
