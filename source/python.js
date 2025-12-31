@@ -5230,7 +5230,7 @@ python.Execution = class {
                                 context.view.setInt32(context.position, data[i], littleendian);
                                 break;
                             case 'i8':
-                                context.view.setBigInt64(context.position, data[i], littleendian);
+                                context.view.setBigInt64(context.position, typeof data[i] === 'number' ? BigInt(data[i]) : data[i], littleendian);
                                 break;
                             case 'u1':
                                 context.view.setUint8(context.position, data[i], littleendian);

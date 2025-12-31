@@ -387,6 +387,7 @@ export class Target {
                                             case 'int1': data_type = 'int8'; break;
                                             case 'int2': data_type = 'int8'; break;
                                             case 'int4': data_type = 'int8'; break;
+                                            case 'int48': data_type = 'int64'; break;
                                             case 'uint2': data_type = 'uint8'; break;
                                             case 'uint4': data_type = 'uint8'; break;
                                             default: data_type = tensor.type.dataType; break;

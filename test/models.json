@@ -3419,6 +3419,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "mlp_tosa-0.mlir",
+    "source":   "https://github.com/user-attachments/files/24387445/mlp_tosa-0.mlir.zip[mlp_tosa-0.mlir]",
+    "assert":   "model.functions[0].name == '@example::@mlp_invocation'",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "mnist.onnx.mlir",
     "source":   "https://github.com/user-attachments/files/17640924/mnist.onnx.mlir.zip[mnist.onnx.mlir]",
     "format":   "MLIR",
@@ -3535,13 +3543,6 @@
     "type":     "mlir",
     "target":   "stablehlo_resnet18.mlir",
     "source":   "https://github.com/user-attachments/files/21081166/stablehlo_resnet18.mlir.zip[stablehlo_resnet18.mlir]",
-    "format":   "MLIR",
-    "link":     "https://github.com/lutzroeder/netron/issues/1044"
-  },
-  {
-    "type":     "mlir",
-    "target":   "test_bf16.mlir",
-    "source":   "https://github.com/user-attachments/files/23023446/test_bf16.mlir.zip[test_bf16.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
