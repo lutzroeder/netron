@@ -125,7 +125,7 @@ class Queue extends Array {
     constructor(targets, patterns) {
         for (const target of targets) {
             target.targets = target.target.split(',');
-            target.name = target.type ? `${target.type}/${target.targets[0]}` : target.targets[0];
+            target.name = target.type ? `third_party/test/${target.type}/${target.targets[0]}` : target.targets[0];
             target.tags = target.tags ? target.tags.split(',') : [];
         }
         if (patterns.length > 0) {

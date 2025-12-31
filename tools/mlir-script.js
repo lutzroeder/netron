@@ -394,7 +394,7 @@ const schema = async () => {
             operation.category = 'Activation';
         } else if (['convolution', 'Conv', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].includes(name)) {
             operation.category = 'Layer';
-        } else if (['max_pool2d'].includes(name)) {
+        } else if (['max_pool2d', 'MaxPoolSingleOut'].includes(name)) {
             operation.category = 'Pool';
         } else if (['batch_norm_inference'].includes(name)) {
             operation.category = 'Normalization';
@@ -668,6 +668,53 @@ const schema = async () => {
                 operation.regions = list;
             }
         }
+        // Extract traits (defaultDialect and type inference traits like AllTypesMatch)
+        const traits = [];
+        for (const parent of def.parents) {
+            const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
+            for (const traitsArg of possibleTraitArgs) {
+                if (traitsArg && traitsArg.type === 'list' && traitsArg.value) {
+                    for (const trait of traitsArg.value) {
+                        const traitName = trait.type === 'def' ? trait.value : null;
+                        const traitDag = trait.type === 'dag' && trait.value?.operator ? trait.value.operator : null;
+                        // Extract AllTypesMatch traits
+                        if (traitDag === 'AllTypesMatch' && trait.value?.operands) {
+                            // AllTypesMatch<["value", "result"]> -> operands[0] is a list of strings
+                            const [namesOperand] = trait.value.operands;
+                            if (namesOperand && namesOperand.value && namesOperand.value.type === 'list') {
+                                const names = namesOperand.value.value
+                                    .filter((v) => v.type === 'string')
+                                    .map((v) => v.value);
+                                if (names.length > 0) {
+                                    traits.push({ type: `AllTypesMatch<[${names.map((n) => `"${n}"`).join(', ')}]>` });
+                                }
+                            }
+                        }
+                        // Extract defaultDialect from OpAsmOpInterface
+                        if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
+                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value?.operands) {
+                                if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
+                                    const [dialectName] = operationName.split('.');
+                                    operation.defaultDialect = dialectName;
+                                }
+                            }
+                            if (!operation.defaultDialect) {
+                                const extraClass = def.getValueAsString('extraClassDeclaration');
+                                if (extraClass) {
+                                    const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
+                                    if (match) {
+                                        [, operation.defaultDialect] = match;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (traits.length > 0) {
+            operation.traits = traits;
+        }
         if (def.getValue('assemblyFormat')) {
             const assemblyFormat = def.getValueAsString('assemblyFormat');
             if (assemblyFormat) {
@@ -680,41 +727,6 @@ const schema = async () => {
         if (def.getValue('parser')) {
             operation.parser = def.getValueAsString('parser');
         }
-        // Extract defaultDialect from OpAsmOpInterface
-        for (const parent of def.parents) {
-            const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
-            for (const traitsArg of possibleTraitArgs) {
-                if (traitsArg && traitsArg.type === 'list' && traitsArg.value) {
-                    for (const trait of traitsArg.value) {
-                        const traitName = trait.type === 'def' ? trait.value : null;
-                        const traitDag = trait.type === 'dag' && trait.value?.operator ? trait.value.operator : null;
-                        if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
-                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value?.operands) {
-                                if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
-                                    const [dialectName] = operationName.split('.');
-                                    operation.defaultDialect = dialectName;
-                                    break;
-                                }
-                            }
-                            const extraClass = def.getValueAsString('extraClassDeclaration');
-                            if (extraClass) {
-                                const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
-                                if (match) {
-                                    [, operation.defaultDialect] = match;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (operation.defaultDialect) {
-                        break;
-                    }
-                }
-            }
-            if (operation.defaultDialect) {
-                break;
-            }
-        }
         if (Object.keys(operation).length > 1) {
             operations.set(operationName, operation);
             count++;
@@ -722,7 +734,8 @@ const schema = async () => {
     }
     const sorted = Array.from(operations.values()).sort((a, b) => a.name.localeCompare(b.name));
     const output = JSON.stringify(sorted, null, 2);
-    const formatted = output.replace(/\{\s+"name":\s+"([^"]+)",\s+"type":\s+"([^"]+)"\s+\}/g, '{ "name": "$1", "type": "$2" }');
+    let formatted = output.replace(/\{\s+"name":\s+"([^"]+)",\s+"type":\s+"([^"]+)"\s+\}/g, '{ "name": "$1", "type": "$2" }');
+    formatted = formatted.replace(/\{\s+"type":\s+"((?:[^"\\]|\\.)*)"\s+\}/g, '{ "type": "$1" }');
     await fs.writeFile(file, formatted, 'utf-8');
     if (count < 6300) {
         throw new Error(`Unexpected operation count '${count}'.`);
