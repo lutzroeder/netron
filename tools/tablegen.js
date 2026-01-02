@@ -1620,10 +1620,10 @@ tablegen.Reader = class {
                 if (explicitFields.has(fieldName)) {
                     // Check if the explicit field is empty/uninitialized - if so, copy from parent
                     const existingField = record.fields.get(fieldName);
-                    const existingIsUninit = existingField.value?.type === 'uninitialized';
-                    const existingIsEmptyDag = existingField.value?.type === 'dag' && existingField.value?.value?.operands?.length === 0;
-                    const existingIsEmptyString = existingField.value?.type === 'string' && existingField.value?.value === '';
-                    const existingIsFalseBit = existingField.value?.type === 'int' && existingField.value?.value === 0 && existingField.type?.name === 'bit';
+                    const existingIsUninit = existingField.value && existingField.value.type === 'uninitialized';
+                    const existingIsEmptyDag = existingField.value && existingField.value.type === 'dag' && existingField.value.value && existingField.value.value.operands && existingField.value.value.operands.length === 0;
+                    const existingIsEmptyString = existingField.value && existingField.value.type === 'string' && existingField.value.value === '';
+                    const existingIsFalseBit = existingField.value && existingField.value.type === 'int' && existingField.value.value === 0 && existingField.type && existingField.type.name === 'bit';
                     if (existingIsUninit || existingIsEmptyDag || existingIsEmptyString || existingIsFalseBit) {
                         const resolvedField = record._copyAndResolveField(field, parentBindings, parentClass);
                         record.fields.set(fieldName, resolvedField);
@@ -1911,7 +1911,7 @@ tablegen.Reader = class {
             return value;
         }
         if (value.type === 'def' || value.type === 'id') {
-            const name = typeof value.value === 'string' ? value.value : value.value?.value;
+            const name = typeof value.value === 'string' ? value.value : (value.value && value.value.value);
             if (name && bindings.has(name)) {
                 return bindings.get(name);
             }

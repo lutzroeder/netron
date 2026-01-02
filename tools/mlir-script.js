@@ -20,12 +20,42 @@ const writeLine = (message) => {
 
 class Operator {
 
-    constructor(def) {
+    constructor(def, parser) {
         this.def = def;
         this.opName = def.getValueAsString('opName');
         const dialectDef = this.def.getValueAsDef('opDialect');
         if (dialectDef) {
-            this.dialectName = dialectDef.getValueAsString('name');
+            // Resolve dialect from the same file context using path proximity
+            // This handles cases where multiple projects define the same dialect name
+            // (e.g., Tensor_Dialect in both MLIR and TFRT)
+            let resolved = dialectDef;
+            const contextFile = def.location.file;
+            if (parser && contextFile) {
+                const candidates = parser.defs.filter((d) => d.name === dialectDef.name);
+                if (candidates.length > 1) {
+                    const contextParts = contextFile.split('/');
+                    let bestMatch = null;
+                    let bestPrefixLength = -1;
+                    for (const candidate of candidates) {
+                        const candidateParts = ((candidate.location && candidate.location.file) || '').split('/');
+                        let prefixLength = 0;
+                        for (let i = 0; i < Math.min(contextParts.length, candidateParts.length); i++) {
+                            if (contextParts[i] !== candidateParts[i]) {
+                                break;
+                            }
+                            prefixLength += contextParts[i].length + 1;
+                        }
+                        if (prefixLength > bestPrefixLength) {
+                            bestPrefixLength = prefixLength;
+                            bestMatch = candidate;
+                        }
+                    }
+                    if (bestMatch) {
+                        resolved = bestMatch;
+                    }
+                }
+            }
+            this.dialectName = resolved.getValueAsString('name');
         }
     }
 
@@ -345,7 +375,7 @@ const schema = async () => {
     const parser = new tablegen.Reader();
     await parser.parse(dialects, paths);
     for (const def of parser.defs) {
-        const op = new Operator(def);
+        const op = new Operator(def, parser);
         let operationName = op.getOperationName();
         if (!operationName) {
             continue;
@@ -676,23 +706,25 @@ const schema = async () => {
                 if (traitsArg && traitsArg.type === 'list' && traitsArg.value) {
                     for (const trait of traitsArg.value) {
                         const traitName = trait.type === 'def' ? trait.value : null;
-                        const traitDag = trait.type === 'dag' && trait.value?.operator ? trait.value.operator : null;
+                        const traitDag = trait.type === 'dag' && trait.value && trait.value.operator ? trait.value.operator : null;
                         // Extract AllTypesMatch traits
-                        if (traitDag === 'AllTypesMatch' && trait.value?.operands) {
+                        if (traitDag === 'AllTypesMatch' && trait.value && trait.value.operands) {
                             // AllTypesMatch<["value", "result"]> -> operands[0] is a list of strings
                             const [namesOperand] = trait.value.operands;
                             if (namesOperand && namesOperand.value && namesOperand.value.type === 'list') {
-                                const names = namesOperand.value.value
-                                    .filter((v) => v.type === 'string')
-                                    .map((v) => v.value);
+                                const names = namesOperand.value.value.filter((v) => v.type === 'string').map((v) => v.value);
                                 if (names.length > 0) {
                                     traits.push({ type: `AllTypesMatch<[${names.map((n) => `"${n}"`).join(', ')}]>` });
                                 }
                             }
                         }
+                        // Extract AttrSizedOperandSegments trait
+                        if (traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') {
+                            traits.push({ type: 'AttrSizedOperandSegments' });
+                        }
                         // Extract defaultDialect from OpAsmOpInterface
                         if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
-                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value?.operands) {
+                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
                                 if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
                                     const [dialectName] = operationName.split('.');
                                     operation.defaultDialect = dialectName;

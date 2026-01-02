@@ -898,7 +898,7 @@ mlir.ComplexType = class extends mlir.Type {
     }
 
     toString() {
-        const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
+        const elementTypeStr = this.elementType && this.elementType.toString ? this.elementType.toString() : this.elementType;
         return `complex<${elementTypeStr}>`;
     }
 };
@@ -929,7 +929,7 @@ mlir.RankedTensorType = class extends mlir.Type {
 
     toString() {
         const shapeStr = this.shape.map((d) => d < 0 ? '?' : d).join('x');
-        const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
+        const elementTypeStr = this.elementType && this.elementType.toString ? this.elementType.toString() : this.elementType;
         const prefix = shapeStr ? `${shapeStr}x` : '';
         if (this.encoding) {
             return `tensor<${prefix}${elementTypeStr}, ${this.encoding}>`;
@@ -968,7 +968,7 @@ mlir.VectorType = class extends mlir.Type {
             return isScalable ? `[${d}]` : String(d);
         });
         const shapeStr = parts.join('x');
-        const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
+        const elementTypeStr = this.elementType && this.elementType.toString ? this.elementType.toString() : this.elementType;
         const prefix = shapeStr ? `${shapeStr}x` : '';
         return `vector<${prefix}${elementTypeStr}>`;
     }
@@ -18287,7 +18287,7 @@ mlir.TFRTDialect = class extends mlir.Dialect {
         if (!opInfo) {
             return false;
         }
-        if (opInfo.metadata?.assemblyFormat === 'operands attr-dict') {
+        if (opInfo.metadata && opInfo.metadata.assemblyFormat === 'operands attr-dict') {
             while (parser.match('%')) {
                 op.operands.push({ value: parser.expect() });
                 if (!parser.accept(',')) {
@@ -20783,7 +20783,7 @@ mlir.TFRTTestDialect = class extends mlir.Dialect {
         if (!opInfo) {
             return false;
         }
-        if (opInfo.metadata?.assemblyFormat === 'operands attr-dict') {
+        if (opInfo.metadata && opInfo.metadata.assemblyFormat === 'operands attr-dict') {
             while (parser.match('%')) {
                 op.operands.push({ value: parser.expect() });
                 if (!parser.accept(',')) {
