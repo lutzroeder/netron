@@ -4318,20 +4318,20 @@ view.FindSidebar = class extends view.Control {
         this._search = this.createElement('div', 'sidebar-find-search');
         this._query = this.createElement('input', 'sidebar-find-query');
         this._search.appendChild(this._query);
-        
+
         // Add node type filter button for ONNX models
         if (this._isOnnxModel) {
             const container = this.createElement('div');
             container.style.position = 'relative';
-            
+
             this._nodeTypeFilterButton = this.createElement('label', 'sidebar-find-toggle');
             this._nodeTypeFilterButton.innerHTML = `<svg class='sidebar-find-toggle-icon'><use href="#sidebar-icon-filter"></use></svg>`;
             this._nodeTypeFilterButton.setAttribute('title', 'Filter by Node Type');
-            
+
             // Create dropdown menu (initially hidden)
             this._nodeTypeDropdown = this.createElement('div', 'sidebar-find-nodetype-dropdown');
             this._nodeTypeDropdown.style.display = 'none';
-            
+
             const defaultOption = this.createElement('div');
             defaultOption.style.padding = '6px 12px';
             defaultOption.style.cursor = 'pointer';
@@ -4345,7 +4345,7 @@ view.FindSidebar = class extends view.Control {
                 this._nodeTypeDropdown.style.display = 'none';
             });
             this._nodeTypeDropdown.appendChild(defaultOption);
-            
+
             const nodeTypes = this._collectNodeTypes();
             for (const nodeType of nodeTypes) {
                 const option = this.createElement('div');
@@ -4372,16 +4372,16 @@ view.FindSidebar = class extends view.Control {
                 });
                 this._nodeTypeDropdown.appendChild(option);
             }
-            
+
             container.appendChild(this._nodeTypeFilterButton);
             container.appendChild(this._nodeTypeDropdown);
-            
+
             this._nodeTypeFilterButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isVisible = this._nodeTypeDropdown.style.display !== 'none';
                 this._nodeTypeDropdown.style.display = isVisible ? 'none' : 'block';
             });
-            
+
             // Close dropdown when clicking outside
             const closeDropdown = (e) => {
                 if (container && !container.contains(e.target)) {
@@ -4389,13 +4389,13 @@ view.FindSidebar = class extends view.Control {
                 }
             };
             this._host.document.addEventListener('click', closeDropdown);
-            
+
             const nodeTypesList = nodeTypes;
             this._updateDropdownSelection = () => {
                 const options = this._nodeTypeDropdown.children;
                 for (let i = 0; i < options.length; i++) {
                     const option = options[i];
-                    const isSelected = (i === 0 && this._state.nodeType === '') || 
+                    const isSelected = (i === 0 && this._state.nodeType === '') ||
                                       (i > 0 && this._state.nodeType === nodeTypesList[i - 1]);
                     option.style.color = isSelected ? '#2e6bd2' : '';
                     option.style.fontWeight = isSelected ? 'bold' : 'normal';
@@ -4404,11 +4404,11 @@ view.FindSidebar = class extends view.Control {
                     }
                 }
             };
-            
+
             this._search.appendChild(container);
             this._updateDropdownSelection();
         }
-        
+
         this._content = this.createElement('ol', 'sidebar-find-content');
         this._elements = [this._query, this._content];
         this._query.setAttribute('id', 'search');
