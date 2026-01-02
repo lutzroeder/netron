@@ -246,7 +246,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 }
 .sidebar-separator { margin-bottom: 20px; }
 .sidebar-find-search { display: flex; align-items: center; background: #fff; border-radius: 16px; margin: 0px 20px 8px 20px; padding: 0px 8px 0px 8px; }
-.sidebar-find-query { width: 100vw; background: none; font-family: inherit; font-size: 13px; padding: 8px 8px 8px 8px; border: 0; outline: 0; }
+.sidebar-find-query { flex: 1; background: none; font-family: inherit; font-size: 13px; padding: 8px 8px 8px 8px; border: 0; outline: 0; }
+.sidebar-find-nodetype-filter { font-family: inherit; font-size: 11px; padding: 0 16px 0 0; margin-left: 6px; margin-right: 0; border: 0; background: transparent; outline: 0; cursor: pointer; color: #999; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: linear-gradient(45deg, transparent 50%, #bbb 50%), linear-gradient(135deg, #bbb 50%, transparent 50%); background-position: calc(100% - 6px) calc(50%), calc(100% - 2px) calc(50%); background-size: 3px 3px, 3px 3px; background-repeat: no-repeat; min-width: 60px; }
+.sidebar-find-nodetype-filter:hover { color: #666; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); }
+.sidebar-find-nodetype-filter:focus { color: #666; outline: 0; }
 .sidebar-find-toggle { margin-left: auto; margin-right: 2px; width: 16px; height: 16px; cursor: pointer; }
 .sidebar-find-toggle input[type="checkbox"] { display: none; }
 .sidebar-find-toggle input[type="checkbox"]:not(:checked) + svg { fill: #ccc; stroke: #ccc; }
@@ -290,6 +293,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     .sidebar-documentation code { background-color: #1e1e1e; }
     .sidebar-documentation pre { background-color: #1e1e1e; }
     .sidebar-find-search { background: #383838; color: #dfdfdf; border-color: #424242; }
+    .sidebar-find-nodetype-filter { background: transparent; color: #666; background-image: linear-gradient(45deg, transparent 50%, #777 50%), linear-gradient(135deg, #777 50%, transparent 50%); }
+    .sidebar-find-nodetype-filter:hover { color: #aaa; background-image: linear-gradient(45deg, transparent 50%, #999 50%), linear-gradient(135deg, #999 50%, transparent 50%); }
+    .sidebar-find-nodetype-filter:focus { color: #aaa; outline: 0; }
     .sidebar-find-toggle input[type="checkbox"]:not(:checked) + svg { fill: #555; stroke: #555; }
     .sidebar-find-toggle input[type="checkbox"]:checked + svg { fill: #aaa; stroke: #aaa; }
     .sidebar-find-content li { color: #aaaaaa; }
