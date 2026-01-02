@@ -37,13 +37,13 @@ json.TextReader = class {
                     }
                     break;
                 case '[]':
-                    if (c !== '"' && c !== '-' && c !== '+' && c !== '{' && c !== '[' && (c < '0' || c > '9')) {
+                    if (c !== '"' && c !== '-' && c !== '+' && c !== '{' && c !== '[' && c !== ']' && (c < '0' || c > '9')) {
                         return null;
                     }
                     state = 'match';
                     break;
                 case '{}':
-                    if (c !== '"') {
+                    if (c !== '"' && c !== '}') {
                         return null;
                     }
                     state = 'match';
