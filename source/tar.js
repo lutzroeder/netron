@@ -5,7 +5,7 @@ tar.Archive = class {
 
     static open(data) {
         const stream = data instanceof Uint8Array ? new tar.BinaryReader(data) : data;
-        if (stream && stream.length > 512) {
+        if (stream && stream.length >= 512) {
             const buffer = stream.peek(512);
             const sum = buffer.map((value, index) => (index >= 148 && index < 156) ? 32 : value).reduce((a, b) => a + b, 0);
             const checksum = parseInt(Array.from(buffer.slice(148, 156)).map((c) => String.fromCharCode(c)).join('').split('\0').shift(), 8);
