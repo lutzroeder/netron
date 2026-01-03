@@ -656,10 +656,13 @@ const schema = async () => {
             }
         }
         if (resultsDag && resultsDag.operator === 'outs') {
-            for (const operand of resultsDag.operands) {
-                if (operand.value && operand.name) {
+            for (let i = 0; i < resultsDag.operands.length; i++) {
+                const operand = resultsDag.operands[i];
+                if (operand.value) {
                     const type = toConstraintString(operand.value);
-                    results.push({ name: operand.name, type });
+                    // Use operand name if present, otherwise generate default name
+                    const name = operand.name || (resultsDag.operands.length === 1 ? 'result' : `result${i}`);
+                    results.push({ name, type });
                 }
             }
         }
@@ -698,52 +701,91 @@ const schema = async () => {
                 operation.regions = list;
             }
         }
-        // Extract traits (defaultDialect and type inference traits like AllTypesMatch)
+        // Extract traits (defaultDialect and type inference traits like AllTypesMatch, TypesMatchWith)
         const traits = [];
-        for (const parent of def.parents) {
-            const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
-            for (const traitsArg of possibleTraitArgs) {
-                if (traitsArg && traitsArg.type === 'list' && traitsArg.value) {
-                    for (const trait of traitsArg.value) {
-                        const traitName = trait.type === 'def' ? trait.value : null;
-                        const traitDag = trait.type === 'dag' && trait.value && trait.value.operator ? trait.value.operator : null;
-                        // Extract AllTypesMatch traits
-                        if (traitDag === 'AllTypesMatch' && trait.value && trait.value.operands) {
-                            // AllTypesMatch<["value", "result"]> -> operands[0] is a list of strings
-                            const [namesOperand] = trait.value.operands;
-                            if (namesOperand && namesOperand.value && namesOperand.value.type === 'list') {
-                                const names = namesOperand.value.value.filter((v) => v.type === 'string').map((v) => v.value);
-                                if (names.length > 0) {
-                                    traits.push({ type: `AllTypesMatch<[${names.map((n) => `"${n}"`).join(', ')}]>` });
-                                }
+        const extractTraitsFromList = (traitsArg) => {
+            if (!traitsArg) {
+                return;
+            }
+            // Handle concat expressions: traits # [list of traits]
+            if (traitsArg.type === 'concat' && Array.isArray(traitsArg.value)) {
+                for (const element of traitsArg.value) {
+                    extractTraitsFromList(element);
+                }
+                return;
+            }
+            if (traitsArg.type === 'list' && traitsArg.value) {
+                for (const trait of traitsArg.value) {
+                    const traitName = trait.type === 'def' ? trait.value : null;
+                    const traitDag = trait.type === 'dag' && trait.value && trait.value.operator ? trait.value.operator : null;
+                    // Extract AllTypesMatch traits as string - parsed on demand in getOperation
+                    if (traitDag === 'AllTypesMatch' && trait.value && trait.value.operands) {
+                        const [namesOperand] = trait.value.operands;
+                        if (namesOperand && namesOperand.value && namesOperand.value.type === 'list') {
+                            const names = namesOperand.value.value.filter((v) => v.type === 'string').map((v) => v.value);
+                            if (names.length > 0) {
+                                traits.push({ type: `AllTypesMatch<[${names.map((n) => `'${n}'`).join(', ')}]>` });
                             }
                         }
-                        // Extract AttrSizedOperandSegments trait
-                        if (traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') {
-                            traits.push({ type: 'AttrSizedOperandSegments' });
-                        }
-                        // Extract defaultDialect from OpAsmOpInterface
-                        if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
-                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
-                                if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
-                                    const [dialectName] = operationName.split('.');
-                                    operation.defaultDialect = dialectName;
-                                }
+                    }
+                    // Extract TypesMatchWith traits as string - parsed on demand in getOperation
+                    if (traitDag === 'TypesMatchWith' && trait.value && trait.value.operands) {
+                        const operands = trait.value.operands;
+                        if (operands.length >= 4) {
+                            const getStringValue = (op) => op?.value?.value || op?.value;
+                            const from = getStringValue(operands[1]);
+                            const to = getStringValue(operands[2]);
+                            const transformer = getStringValue(operands[3]);
+                            if (from && to && transformer) {
+                                traits.push({ type: `TypesMatchWith<'${from}', '${to}', '${transformer}'>` });
                             }
-                            if (!operation.defaultDialect) {
-                                const extraClass = def.getValueAsString('extraClassDeclaration');
-                                if (extraClass) {
-                                    const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
-                                    if (match) {
-                                        [, operation.defaultDialect] = match;
-                                    }
+                        }
+                    }
+                    // Extract AttrSizedOperandSegments trait
+                    if (traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') {
+                        traits.push({ type: 'AttrSizedOperandSegments' });
+                    }
+                    // Extract defaultDialect from OpAsmOpInterface
+                    if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
+                        if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
+                            if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
+                                const [dialectName] = operationName.split('.');
+                                operation.defaultDialect = dialectName;
+                            }
+                        }
+                        if (!operation.defaultDialect) {
+                            const extraClass = def.getValueAsString('extraClassDeclaration');
+                            if (extraClass) {
+                                const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
+                                if (match) {
+                                    [, operation.defaultDialect] = match;
                                 }
                             }
                         }
                     }
                 }
             }
-        }
+        };
+        // Recursively extract traits from parent classes
+        const extractTraitsFromParents = (parents, visited = new Set()) => {
+            for (const parent of parents) {
+                if (visited.has(parent.name)) {
+                    continue;
+                }
+                visited.add(parent.name);
+                // Extract traits from parent args
+                const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
+                for (const traitsArg of possibleTraitArgs) {
+                    extractTraitsFromList(traitsArg);
+                }
+                // Recursively look at parent class definition
+                const parentClass = parser.getClass(parent.name);
+                if (parentClass && parentClass.parents) {
+                    extractTraitsFromParents(parentClass.parents, visited);
+                }
+            }
+        };
+        extractTraitsFromParents(def.parents);
         if (traits.length > 0) {
             operation.traits = traits;
         }
