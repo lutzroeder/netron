@@ -628,7 +628,46 @@ tablegen.Record = class {
         }
         if (field.value.type === 'def' && typeof field.value.value === 'string') {
             const defName = field.value.value;
-            return this.parser.getDef(defName) || this.parser.getClass(defName);
+            const candidates = [];
+            for (const def of this.parser.defs) {
+                if (def.name === defName) {
+                    candidates.push(def);
+                }
+            }
+            for (const cls of this.parser.classes.values()) {
+                if (cls.name === defName) {
+                    candidates.push(cls);
+                }
+            }
+            if (candidates.length === 0) {
+                return null;
+            }
+            if (candidates.length === 1) {
+                return candidates[0];
+            }
+            const sourceFile = this.location?.file || '';
+            if (sourceFile) {
+                const sourceParts = sourceFile.split('/');
+                let [bestMatch] = candidates;
+                let bestPrefixLength = -1;
+                for (const candidate of candidates) {
+                    const candidateFile = candidate.location?.file || '';
+                    const candidateParts = candidateFile.split('/');
+                    let prefixLength = 0;
+                    for (let i = 0; i < Math.min(sourceParts.length, candidateParts.length); i++) {
+                        if (sourceParts[i] !== candidateParts[i]) {
+                            break;
+                        }
+                        prefixLength++;
+                    }
+                    if (prefixLength > bestPrefixLength) {
+                        bestPrefixLength = prefixLength;
+                        bestMatch = candidate;
+                    }
+                }
+                return bestMatch;
+            }
+            return candidates[0];
         }
         return null;
     }
@@ -2124,10 +2163,30 @@ tablegen.Reader = class {
     }
 
     _parseLet() {
-        this._read();
-        this._skipUntil(['in', '{', ';']);
-        this._eat('in');
-        this._eat(';');
+        this._read(); // consume 'let'
+        // Skip until we find 'in' keyword, '{', or ';'
+        while (!this._match('eof') && !this._match('keyword', 'in') && !this._match('{') && !this._match(';')) {
+            this._read();
+        }
+        if (this._match('keyword', 'in')) {
+            this._read(); // consume 'in'
+            // After 'in', we can have:
+            // - '{' for a block of statements
+            // - ';' for no body
+            // - A statement like 'def', 'defm', etc.
+            if (this._match('{')) {
+                this._read();
+                this._skipUntilClosingBrace();
+                this._expect('}');
+            } else if (this._eat(';')) {
+                // Just a let declaration, no body
+            }
+            // Otherwise, fall through to let the main loop handle the next statement
+            // (e.g., 'let ... in def X' - the def will be parsed by the main loop)
+        } else {
+            this._eat('{');
+            this._eat(';');
+        }
     }
 
     _parseDefvar() {

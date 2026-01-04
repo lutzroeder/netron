@@ -3306,6 +3306,7 @@
     "target":   "Arith_canonicalize.mlir",
     "source":   "https://github.com/user-attachments/files/23912306/Arith_canonicalize.mlir.zip[Arith_canonicalize.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[1].nodes[0].outputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3328,6 +3329,7 @@
     "target":   "codegen.toy.mlir",
     "source":   "https://github.com/user-attachments/files/17878028/codegen.toy.mlir.zip[codegen.toy.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[0].nodes[2].outputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3349,7 +3351,7 @@
     "type":     "mlir",
     "target":   "conversion.mlir",
     "source":   "https://github.com/user-attachments/files/23268419/conversion.mlir.zip[conversion.mlir]",
-    "assert":   "model.functions[0].nodes[10].inputs.length == 0",
+    "assert":   "model.functions[0].nodes[33].inputs[3].value.length == 3",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
@@ -3437,7 +3439,7 @@
     "target":   "mnist.onnx.dense.mlir",
     "source":   "https://github.com/user-attachments/files/17775783/mnist.onnx.dense.mlir.zip[mnist.onnx.dense.mlir]",
     "format":   "MLIR",
-    "assert":   "model.modules[0].nodes[0].attributes[0].value.nodes.length == 11",
+    "assert":   "model.modules[0].nodes[0].attributes[0].value.nodes.length == 6",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3523,6 +3525,7 @@
     "target":   "stablehlo_ea.mlir",
     "source":   "https://github.com/user-attachments/files/21081168/stablehlo_ea.mlir.zip[stablehlo_ea.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[0].nodes[3].outputs[0].value.length == 3",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3558,6 +3561,7 @@
     "target":   "torch_mlir_3423.mlir",
     "source":   "https://github.com/user-attachments/files/17775259/torch-mlir-3423.mlir.zip[torch-mlir-3423.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[0].nodes[0].outputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

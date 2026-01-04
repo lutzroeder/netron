@@ -20,42 +20,12 @@ const writeLine = (message) => {
 
 class Operator {
 
-    constructor(def, parser) {
+    constructor(def) {
         this.def = def;
         this.opName = def.getValueAsString('opName');
         const dialectDef = this.def.getValueAsDef('opDialect');
         if (dialectDef) {
-            // Resolve dialect from the same file context using path proximity
-            // This handles cases where multiple projects define the same dialect name
-            // (e.g., Tensor_Dialect in both MLIR and TFRT)
-            let resolved = dialectDef;
-            const contextFile = def.location.file;
-            if (parser && contextFile) {
-                const candidates = parser.defs.filter((d) => d.name === dialectDef.name);
-                if (candidates.length > 1) {
-                    const contextParts = contextFile.split('/');
-                    let bestMatch = null;
-                    let bestPrefixLength = -1;
-                    for (const candidate of candidates) {
-                        const candidateParts = ((candidate.location && candidate.location.file) || '').split('/');
-                        let prefixLength = 0;
-                        for (let i = 0; i < Math.min(contextParts.length, candidateParts.length); i++) {
-                            if (contextParts[i] !== candidateParts[i]) {
-                                break;
-                            }
-                            prefixLength += contextParts[i].length + 1;
-                        }
-                        if (prefixLength > bestPrefixLength) {
-                            bestPrefixLength = prefixLength;
-                            bestMatch = candidate;
-                        }
-                    }
-                    if (bestMatch) {
-                        resolved = bestMatch;
-                    }
-                }
-            }
-            this.dialectName = resolved.getValueAsString('name');
+            this.dialectName = dialectDef.getValueAsString('name');
         }
     }
 
@@ -199,10 +169,10 @@ const schema = async () => {
         'mlir/include/mlir/Dialect/SCF/TransformOps/SCFTransformOps.td',
         'mlir/include/mlir/Dialect/Shape/IR/ShapeOps.td',
         'mlir/include/mlir/Dialect/Shard/IR/ShardOps.td',
+        'mlir/include/mlir/Dialect/SMT/IR/SMTOps.td',
         'mlir/include/mlir/Dialect/SMT/IR/SMTArrayOps.td',
         'mlir/include/mlir/Dialect/SMT/IR/SMTBitVectorOps.td',
         'mlir/include/mlir/Dialect/SMT/IR/SMTIntOps.td',
-        'mlir/include/mlir/Dialect/SMT/IR/SMTOps.td',
         'mlir/include/mlir/Dialect/SparseTensor/IR/SparseTensorOps.td',
         'mlir/include/mlir/Dialect/SparseTensor/TransformOps/SparseTensorTransformOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVArithmeticOps.td',
@@ -375,7 +345,7 @@ const schema = async () => {
     const parser = new tablegen.Reader();
     await parser.parse(dialects, paths);
     for (const def of parser.defs) {
-        const op = new Operator(def, parser);
+        const op = new Operator(def);
         let operationName = op.getOperationName();
         if (!operationName) {
             continue;
@@ -530,10 +500,30 @@ const schema = async () => {
                         if (record.name === 'Property' || record.name === 'PropConstraint' || record.name === 'EnumProp') {
                             return true;
                         }
-                        for (const parent of record.parents) {
+                        // Check for enum attribute base classes (e.g., AtomicBinOp, AtomicOrdering)
+                        // Inheritance chain: LLVM_EnumAttr -> I64EnumAttr -> IntEnumAttr -> EnumAttrInfo
+                        if (record.name === 'EnumAttrInfo' || record.name === 'IntEnumAttr' ||
+                            record.name === 'I32EnumAttr' || record.name === 'I64EnumAttr' ||
+                            record.name === 'IntEnumAttrBase' || record.name === 'SignlessIntegerAttrBase' ||
+                            record.name === 'BitEnumAttr' || record.name === 'I32BitEnumAttr' ||
+                            record.name === 'I64BitEnumAttr') {
+                            return true;
+                        }
+                        for (const parent of record.parents || []) {
                             const parentClass = parser.getClass(parent.name);
                             if (parentClass && checkIsAttr(parentClass, visited)) {
                                 return true;
+                            }
+                            // Fallback: if parent class not found, check if the parent name itself
+                            // matches known enum attribute base classes (handles cases where the
+                            // base class definition wasn't parsed from included files)
+                            if (!parentClass && parent.name) {
+                                if (parent.name === 'I64EnumAttr' || parent.name === 'I32EnumAttr' ||
+                                    parent.name === 'IntEnumAttr' || parent.name === 'EnumAttrInfo' ||
+                                    parent.name === 'BitEnumAttr' || parent.name === 'I32BitEnumAttr' ||
+                                    parent.name === 'I64BitEnumAttr' || parent.name.endsWith('EnumAttr')) {
+                                    return true;
+                                }
                             }
                         }
                         return false;
@@ -552,6 +542,11 @@ const schema = async () => {
                             // Fallback: if definition not found but name ends with "Attr", treat as attribute
                             // This handles cases like CancellationConstructTypeAttr which are generated/external
                             if (typeof value.value === 'string' && value.value.endsWith('Attr')) {
+                                return true;
+                            }
+                            // Also check for enum predicates (like IntPredicate, CmpIPredicate) which inherit from
+                            // I64EnumAttr but don't end with "Attr" - look for the Predicate suffix pattern
+                            if (typeof value.value === 'string' && value.value.endsWith('Predicate')) {
                                 return true;
                             }
                             return false;
@@ -656,10 +651,13 @@ const schema = async () => {
             }
         }
         if (resultsDag && resultsDag.operator === 'outs') {
-            for (const operand of resultsDag.operands) {
-                if (operand.value && operand.name) {
+            for (let i = 0; i < resultsDag.operands.length; i++) {
+                const operand = resultsDag.operands[i];
+                if (operand.value) {
                     const type = toConstraintString(operand.value);
-                    results.push({ name: operand.name, type });
+                    // Use operand name if present, otherwise generate default name
+                    const name = operand.name || (resultsDag.operands.length === 1 ? 'result' : `result${i}`);
+                    results.push({ name, type });
                 }
             }
         }
@@ -698,52 +696,91 @@ const schema = async () => {
                 operation.regions = list;
             }
         }
-        // Extract traits (defaultDialect and type inference traits like AllTypesMatch)
+        // Extract traits (defaultDialect and type inference traits like AllTypesMatch, TypesMatchWith)
         const traits = [];
-        for (const parent of def.parents) {
-            const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
-            for (const traitsArg of possibleTraitArgs) {
-                if (traitsArg && traitsArg.type === 'list' && traitsArg.value) {
-                    for (const trait of traitsArg.value) {
-                        const traitName = trait.type === 'def' ? trait.value : null;
-                        const traitDag = trait.type === 'dag' && trait.value && trait.value.operator ? trait.value.operator : null;
-                        // Extract AllTypesMatch traits
-                        if (traitDag === 'AllTypesMatch' && trait.value && trait.value.operands) {
-                            // AllTypesMatch<["value", "result"]> -> operands[0] is a list of strings
-                            const [namesOperand] = trait.value.operands;
-                            if (namesOperand && namesOperand.value && namesOperand.value.type === 'list') {
-                                const names = namesOperand.value.value.filter((v) => v.type === 'string').map((v) => v.value);
-                                if (names.length > 0) {
-                                    traits.push({ type: `AllTypesMatch<[${names.map((n) => `"${n}"`).join(', ')}]>` });
-                                }
+        const extractTraitsFromList = (traitsArg) => {
+            if (!traitsArg) {
+                return;
+            }
+            // Handle concat expressions: traits # [list of traits]
+            if (traitsArg.type === 'concat' && Array.isArray(traitsArg.value)) {
+                for (const element of traitsArg.value) {
+                    extractTraitsFromList(element);
+                }
+                return;
+            }
+            if (traitsArg.type === 'list' && traitsArg.value) {
+                for (const trait of traitsArg.value) {
+                    const traitName = trait.type === 'def' ? trait.value : null;
+                    const traitDag = trait.type === 'dag' && trait.value && trait.value.operator ? trait.value.operator : null;
+                    // Extract AllTypesMatch traits as string - parsed on demand in getOperation
+                    if (traitDag === 'AllTypesMatch' && trait.value && trait.value.operands) {
+                        const [namesOperand] = trait.value.operands;
+                        if (namesOperand && namesOperand.value && namesOperand.value.type === 'list') {
+                            const names = namesOperand.value.value.filter((v) => v.type === 'string').map((v) => v.value);
+                            if (names.length > 0) {
+                                traits.push({ type: `AllTypesMatch<[${names.map((n) => `'${n}'`).join(', ')}]>` });
                             }
                         }
-                        // Extract AttrSizedOperandSegments trait
-                        if (traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') {
-                            traits.push({ type: 'AttrSizedOperandSegments' });
-                        }
-                        // Extract defaultDialect from OpAsmOpInterface
-                        if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
-                            if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
-                                if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
-                                    const [dialectName] = operationName.split('.');
-                                    operation.defaultDialect = dialectName;
-                                }
+                    }
+                    // Extract TypesMatchWith traits as string - parsed on demand in getOperation
+                    if (traitDag === 'TypesMatchWith' && trait.value && trait.value.operands) {
+                        const operands = trait.value.operands;
+                        if (operands.length >= 4) {
+                            const getStringValue = (op) => op?.value?.value || op?.value;
+                            const from = getStringValue(operands[1]);
+                            const to = getStringValue(operands[2]);
+                            const transformer = getStringValue(operands[3]);
+                            if (from && to && transformer) {
+                                traits.push({ type: `TypesMatchWith<'${from}', '${to}', '${transformer}'>` });
                             }
-                            if (!operation.defaultDialect) {
-                                const extraClass = def.getValueAsString('extraClassDeclaration');
-                                if (extraClass) {
-                                    const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
-                                    if (match) {
-                                        [, operation.defaultDialect] = match;
-                                    }
+                        }
+                    }
+                    // Extract AttrSizedOperandSegments trait
+                    if (traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') {
+                        traits.push({ type: 'AttrSizedOperandSegments' });
+                    }
+                    // Extract defaultDialect from OpAsmOpInterface
+                    if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
+                        if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
+                            if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
+                                const [dialectName] = operationName.split('.');
+                                operation.defaultDialect = dialectName;
+                            }
+                        }
+                        if (!operation.defaultDialect) {
+                            const extraClass = def.getValueAsString('extraClassDeclaration');
+                            if (extraClass) {
+                                const match = extraClass.match(/getDefaultDialect\(\)\s*\{\s*return\s+"(\w+)"/);
+                                if (match) {
+                                    [, operation.defaultDialect] = match;
                                 }
                             }
                         }
                     }
                 }
             }
-        }
+        };
+        // Recursively extract traits from parent classes
+        const extractTraitsFromParents = (parents, visited = new Set()) => {
+            for (const parent of parents) {
+                if (visited.has(parent.name)) {
+                    continue;
+                }
+                visited.add(parent.name);
+                // Extract traits from parent args
+                const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
+                for (const traitsArg of possibleTraitArgs) {
+                    extractTraitsFromList(traitsArg);
+                }
+                // Recursively look at parent class definition
+                const parentClass = parser.getClass(parent.name);
+                if (parentClass && parentClass.parents) {
+                    extractTraitsFromParents(parentClass.parents, visited);
+                }
+            }
+        };
+        extractTraitsFromParents(def.parents);
         if (traits.length > 0) {
             operation.traits = traits;
         }
