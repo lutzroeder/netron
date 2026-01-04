@@ -2840,7 +2840,7 @@ view.TargetSelector = class extends view.Control {
         const functions = [];
         if (model && Array.isArray(model.modules)) {
             for (const graph of model.modules) {
-                const name = graph.name || '(unnamed)';
+                const name = graph.name || '-';
                 modules.push({ name, target: graph, signature: null });
                 if (Array.isArray(graph.functions)) {
                     for (const func of graph.functions) {
