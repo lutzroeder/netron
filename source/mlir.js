@@ -4,6 +4,7 @@
 import * as base from './base.js';
 
 const mlir = {};
+const _ = {};
 
 mlir.ModelFactory = class {
 
@@ -56,14 +57,14 @@ mlir.ModelFactory = class {
         switch (context.type) {
             case 'mlir.text': {
                 const decoder = await context.read('text.decoder');
-                const state = new mlir.ParserState(decoder);
-                const parser = new mlir.Parser(state, new mlir.DialectContext(metadata));
+                const state = new _.ParserState(decoder);
+                const parser = new _.Parser(state, new _.DialectContext(metadata));
                 const block = await parser.parse();
                 return new mlir.Model(metadata, 'MLIR', '', block, state.attributeAliasDefinitions);
             }
             case 'mlir.binary': {
                 const binary = await context.read('binary');
-                const reader = new mlir.BytecodeReader(binary, new mlir.DialectContext(metadata));
+                const reader = new _.BytecodeReader(binary, new _.DialectContext(metadata));
                 const block = reader.read();
                 const format = `MLIR Bytecode v${reader.version}`;
                 const producer = reader.producer;
@@ -139,7 +140,7 @@ mlir.Model = class {
                 functions.set(name, { func, prefix, base, module });
             }
         }
-        const context = new mlir.Context(metadata, functions);
+        const context = new _.Context(metadata, functions);
         for (const [name, info] of functions) {
             const graph = context.graph(info.func, name);
             this.functions.push(graph);
@@ -147,10 +148,10 @@ mlir.Model = class {
         for (const module of modules) {
             if (module.ops.length > 0 || module.attributes.size > 0) {
                 const name = formatPrefix(module.path, module.symName) || '';
-                const state = new mlir.OperationState('builtin.module');
+                const state = new _.OperationState('builtin.module');
                 state.attributes = module.attributes;
                 state.regions = [{ blocks: [{ operations: module.ops, arguments: [] }] }];
-                const op = mlir.Operation.create(state);
+                const op = _.Operation.create(state);
                 const graph = context.graph(op, name);
                 this.modules.push(graph);
             }
@@ -191,15 +192,9 @@ mlir.Graph = class {
             const results = function_type.type.results;
             for (let i = 0; i < inputs.length; i++) {
                 const input = inputs[i];
-                let name = '';
-                if (args[i] && args[i].name) {
-                    name = args[i].name;
-                } else if (input.value) {
-                    name = input.value;
-                } else {
-                    name = i.toString();
-                }
-                const type = mlir.Utility.valueType(input.type || input);
+                // args[i] is an _.Value with .name set by parseRegion
+                const name = args[i] && args[i].name ? args[i].name : `%arg${i}`;
+                const type = _.Utility.valueType(input.type || input);
                 const value = new mlir.Value(name, type, '', null);
                 const argument = new mlir.Argument(name, [value]);
                 this.inputs.push(argument);
@@ -207,7 +202,7 @@ mlir.Graph = class {
             for (let i = 0; i < results.length; i++) {
                 const output = results[i];
                 const name = output.value || i.toString();
-                const type = mlir.Utility.valueType(output.type);
+                const type = _.Utility.valueType(output.type);
                 const valueName = output.value || output.name || `%result${i}`;
                 const value = new mlir.Value(valueName, type, '', null);
                 const argument = new mlir.Argument(name, [value]);
@@ -290,7 +285,7 @@ mlir.Graph = class {
                             continue;
                         }
                         const value = values.map(output.name);
-                        value.type = mlir.Utility.valueType(output.type);
+                        value.type = _.Utility.valueType(output.type);
                         value.from.push(operation);
                         // Determine result name: use metadata if available, or variadic name if past metadata bounds
                         let outputName = null;
@@ -330,10 +325,10 @@ mlir.Graph = class {
                 const [result] = op.results[0].value;
                 if (result.to && result.to.length === 1) {
                     const valueAttr = op.attributes.get('value') || op.attributes.get('values');
-                    if ((valueAttr instanceof mlir.DenseElementsAttr || valueAttr instanceof mlir.DenseResourceElementsAttr) &&
+                    if ((valueAttr instanceof _.DenseElementsAttr || valueAttr instanceof _.DenseResourceElementsAttr) &&
                         valueAttr.value !== null &&
                         valueAttr.type && valueAttr.type.toString().startsWith('tensor<')) {
-                        const type = mlir.Utility.valueType(valueAttr.type);
+                        const type = _.Utility.valueType(valueAttr.type);
                         if (type instanceof mlir.TensorType) {
                             constantMap.set(result.name, new mlir.Tensor(type, valueAttr.value));
                             op.delete = true;
@@ -365,7 +360,7 @@ mlir.Graph = class {
                     const [returnValue] = operand.value;
                     if (returnValue && typeof returnValue.name === 'string' && returnValue.name.startsWith('%')) {
                         const output = this.outputs[i];
-                        const returnType = mlir.Utility.valueType(returnValue.type);
+                        const returnType = _.Utility.valueType(returnValue.type);
                         output.value[0] = new mlir.Value(returnValue.name, returnType, '', null);
                     }
                 }
@@ -404,8 +399,8 @@ mlir.Argument = class {
         this.type = type;
         // Normalize common type aliases and accept extended MLIR types
         if (this.type) {
-            // Convert mlir.Type objects to strings for high-level usage
-            const typeStr = this.type instanceof mlir.Type ? this.type.toString() : this.type;
+            // Convert _.Type objects to strings for high-level usage
+            const typeStr = this.type instanceof _.Type ? this.type.toString() : this.type;
             switch (typeStr) {
                 case 'i64': case 'si64': this.type = 'int64'; break;
                 case 'i48': case 'si48': this.type = 'int48'; break;
@@ -509,9 +504,9 @@ mlir.Node = class {
             if (inputs.length === 1) {
                 const [input] = inputs;
                 if (input.type) {
-                    const typeStr = input.type instanceof mlir.Type ? input.type.toString() : input.type;
+                    const typeStr = input.type instanceof _.Type ? input.type.toString() : input.type;
                     if (typeStr.startsWith('tensor<')) {
-                        const type = mlir.Utility.valueType(typeStr);
+                        const type = _.Utility.valueType(typeStr);
                         const value = new mlir.Tensor(type, input.value);
                         argument = new mlir.Argument(input.name, value, 'tensor');
                     } else {
@@ -546,19 +541,19 @@ mlir.Node = class {
             for (const [name, attr] of op.attributes) {
                 let value = attr;
                 let type = null;
-                if (attr instanceof mlir.SymbolRefAttr && context) {
+                if (attr instanceof _.SymbolRefAttr && context) {
                     const graph = context.function(`${value.value}`);
                     if (graph) {
                         value = graph;
                         type = 'function';
                     }
-                } else if (attr instanceof mlir.DenseElementsAttr && attr.value !== null) {
-                    value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.value);
+                } else if (attr instanceof _.DenseElementsAttr && attr.value !== null) {
+                    value = new mlir.Tensor(_.Utility.valueType(attr.type), attr.value);
                     type = 'tensor';
-                } else if (attr instanceof mlir.DenseResourceElementsAttr) {
-                    value = new mlir.Tensor(mlir.Utility.valueType(attr.type), null);
+                } else if (attr instanceof _.DenseResourceElementsAttr) {
+                    value = new mlir.Tensor(_.Utility.valueType(attr.type), null);
                     type = 'tensor';
-                } else if (attr instanceof mlir.ArrayAttr || attr instanceof mlir.DenseArrayAttr) {
+                } else if (attr instanceof _.ArrayAttr || attr instanceof _.DenseArrayAttr) {
                     value = attr.value;
                 } else if (attr) {
                     value = attr.toString();
@@ -595,7 +590,7 @@ mlir.Tensor = class {
 mlir.TensorType = class {
 
     constructor(dataType, shape) {
-        this.dataType = mlir.Utility.dataType(dataType); // string
+        this.dataType = _.Utility.dataType(dataType); // string
         this.shape = shape || new mlir.TensorShape([]);  // mlir.TensorShape
     }
 
@@ -618,7 +613,7 @@ mlir.TensorShape = class {
     }
 };
 
-mlir.Context = class {
+_.Context = class {
 
     constructor(metadata, functions) {
         this._metadata = metadata;
@@ -667,7 +662,7 @@ mlir.Context = class {
     }
 };
 
-mlir.OperationState = class {
+_.OperationState = class {
 
     constructor(name) {
         this.name = name;
@@ -701,7 +696,7 @@ mlir.OperationState = class {
     }
 
     getAttr(name) {
-        if (this.propertiesAttr instanceof mlir.DictionaryAttr) {
+        if (this.propertiesAttr instanceof _.DictionaryAttr) {
             const value = this.propertiesAttr.get(name);
             if (value !== undefined) {
                 return value;
@@ -711,7 +706,7 @@ mlir.OperationState = class {
     }
 
     getAttrDictionary() {
-        if (this.propertiesAttr instanceof mlir.DictionaryAttr) {
+        if (this.propertiesAttr instanceof _.DictionaryAttr) {
             const result = new Map(this.attributes);
             for (const [name, value] of this.propertiesAttr.value) {
                 result.set(name, value);
@@ -722,10 +717,10 @@ mlir.OperationState = class {
     }
 };
 
-mlir.Operation = class {
+_.Operation = class {
 
     static create(state) {
-        return new mlir.Operation(state);
+        return new _.Operation(state);
     }
 
     constructor(state) {
@@ -741,13 +736,13 @@ mlir.Operation = class {
         this.results = [];
         if (state.types && Array.isArray(state.types)) {
             for (const type of state.types) {
-                this.results.push(new mlir.Operand(null, type));
+                this.results.push(new _.Value(null, type));
             }
         }
     }
 
     getAttr(name) {
-        if (this.propertiesAttr instanceof mlir.DictionaryAttr) {
+        if (this.propertiesAttr instanceof _.DictionaryAttr) {
             const value = this.propertiesAttr.get(name);
             if (value !== undefined) {
                 return value;
@@ -757,7 +752,7 @@ mlir.Operation = class {
     }
 
     getAttrDictionary() {
-        if (this.propertiesAttr instanceof mlir.DictionaryAttr) {
+        if (this.propertiesAttr instanceof _.DictionaryAttr) {
             const result = new Map(this.attributes);
             for (const [key, value] of this.propertiesAttr.value) {
                 result.set(key, value);
@@ -768,7 +763,7 @@ mlir.Operation = class {
     }
 };
 
-mlir.UnresolvedOperand = class {
+_.UnresolvedOperand = class {
 
     constructor(name, number = 0, location = null) {
         this.name = name;
@@ -781,7 +776,7 @@ mlir.UnresolvedOperand = class {
     }
 };
 
-mlir.Operand = class {
+_.Value = class {
 
     constructor(name, type) {
         this.name = name;
@@ -793,10 +788,10 @@ mlir.Operand = class {
     }
 };
 
-mlir.Attribute = class {
+_.Attribute = class {
 };
 
-mlir.TypedAttr = class extends mlir.Attribute {
+_.TypedAttr = class extends _.Attribute {
 
     constructor(value, type) {
         super();
@@ -809,10 +804,10 @@ mlir.TypedAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.StringAttr = class extends mlir.TypedAttr {
+_.StringAttr = class extends _.TypedAttr {
 
     constructor(value, type) {
-        super(value, type || new mlir.PrimitiveType('string'));
+        super(value, type || new _.PrimitiveType('string'));
     }
 
     toString() {
@@ -820,14 +815,14 @@ mlir.StringAttr = class extends mlir.TypedAttr {
     }
 };
 
-mlir.UnitAttr = class extends mlir.Attribute {
+_.UnitAttr = class extends _.Attribute {
 
     toString() {
         return '';
     }
 };
 
-mlir.IntegerAttr = class extends mlir.Attribute {
+_.IntegerAttr = class extends _.Attribute {
 
     constructor(value, type) {
         super();
@@ -840,7 +835,7 @@ mlir.IntegerAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.FloatAttr = class extends mlir.Attribute {
+_.FloatAttr = class extends _.Attribute {
 
     constructor(value, type) {
         super();
@@ -853,7 +848,7 @@ mlir.FloatAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.SymbolRefAttr = class extends mlir.Attribute {
+_.SymbolRefAttr = class extends _.Attribute {
 
     constructor(value) {
         super();
@@ -861,7 +856,7 @@ mlir.SymbolRefAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.DenseElementsAttr = class extends mlir.Attribute {
+_.DenseElementsAttr = class extends _.Attribute {
 
     constructor(value, type) {
         super();
@@ -870,7 +865,7 @@ mlir.DenseElementsAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.DenseResourceElementsAttr = class extends mlir.Attribute {
+_.DenseResourceElementsAttr = class extends _.Attribute {
 
     constructor(handle, type) {
         super();
@@ -883,7 +878,7 @@ mlir.DenseResourceElementsAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.ArrayAttr = class extends mlir.Attribute {
+_.ArrayAttr = class extends _.Attribute {
 
     constructor(elements) {
         super();
@@ -899,7 +894,7 @@ mlir.ArrayAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.DictionaryAttr = class extends mlir.Attribute {
+_.DictionaryAttr = class extends _.Attribute {
 
     constructor(value) {
         super();
@@ -921,7 +916,7 @@ mlir.DictionaryAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.DenseArrayAttr = class extends mlir.Attribute {
+_.DenseArrayAttr = class extends _.Attribute {
 
     constructor(elements, type) {
         super();
@@ -939,7 +934,7 @@ mlir.DenseArrayAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.TypeAttrOf = class extends mlir.Attribute {
+_.TypeAttrOf = class extends _.Attribute {
     constructor(type) {
         super();
         this.type = type;  // the type IS the value
@@ -950,7 +945,7 @@ mlir.TypeAttrOf = class extends mlir.Attribute {
     }
 };
 
-mlir.ConvDimensionNumbersAttr = class extends mlir.Attribute {
+_.ConvDimensionNumbersAttr = class extends _.Attribute {
     constructor(input, kernel, output) {
         super();
         this.input = input;
@@ -964,7 +959,7 @@ mlir.ConvDimensionNumbersAttr = class extends mlir.Attribute {
     }
 };
 
-mlir.Type = class {
+_.Type = class {
 
     constructor(value) {
         this._value = value;
@@ -979,10 +974,10 @@ mlir.Type = class {
     }
 };
 
-mlir.PrimitiveType = class extends mlir.Type {
+_.PrimitiveType = class extends _.Type {
 };
 
-mlir.FunctionType = class extends mlir.Type {
+_.FunctionType = class extends _.Type {
 
     constructor(inputs, results) {
         super(null);
@@ -998,7 +993,7 @@ mlir.FunctionType = class extends mlir.Type {
     }
 };
 
-mlir.ComplexType = class extends mlir.Type {
+_.ComplexType = class extends _.Type {
 
     constructor(elementType) {
         super(null);
@@ -1015,7 +1010,7 @@ mlir.ComplexType = class extends mlir.Type {
     }
 };
 
-mlir.RankedTensorType = class extends mlir.Type {
+_.RankedTensorType = class extends _.Type {
 
     constructor(shape, elementType, encoding) {
         super(null);
@@ -1050,7 +1045,7 @@ mlir.RankedTensorType = class extends mlir.Type {
     }
 };
 
-mlir.VectorType = class extends mlir.Type {
+_.VectorType = class extends _.Type {
 
     constructor(shape, elementType, scalableDims) {
         super(null);
@@ -1086,7 +1081,7 @@ mlir.VectorType = class extends mlir.Type {
     }
 };
 
-mlir.LLVMFunctionType = class extends mlir.Type {
+_.LLVMFunctionType = class extends _.Type {
 
     constructor(returnType, params, varArg = false) {
         super(null);
@@ -1113,7 +1108,7 @@ mlir.LLVMFunctionType = class extends mlir.Type {
     }
 };
 
-mlir.SMLoc = class {
+_.SMLoc = class {
 
     constructor(decoder) {
         this.decoder = decoder;
@@ -1145,17 +1140,17 @@ mlir.SMLoc = class {
     }
 };
 
-mlir.Token = class {
+_.Token = class {
 
     constructor(decoder) {
-        this.loc = new mlir.SMLoc(decoder);
+        this.loc = new _.SMLoc(decoder);
         this.kind = null;
         this.value = null;
         this.text = null;
     }
 };
 
-mlir.Lexer = class {
+_.Lexer = class {
 
     constructor(decoder) {
         this._decoder = decoder;
@@ -1163,13 +1158,13 @@ mlir.Lexer = class {
         this._current = this._decoder.decode();
         this._nextPosition = this._decoder.position;
         this._next = this._decoder.decode();
-        this._tokens = [new mlir.Token(decoder), new mlir.Token(decoder), new mlir.Token(decoder), new mlir.Token(decoder)];
+        this._tokens = [new _.Token(decoder), new _.Token(decoder), new _.Token(decoder), new _.Token(decoder)];
         this._index = 0;
-        this._errorLoc = new mlir.SMLoc(decoder);
+        this._errorLoc = new _.SMLoc(decoder);
     }
 
     location() {
-        const loc = new mlir.SMLoc(this._decoder, this._position);
+        const loc = new _.SMLoc(this._decoder, this._position);
         return loc.toString();
     }
 
@@ -1546,18 +1541,18 @@ mlir.Lexer = class {
     }
 };
 
-mlir.ParserState = class {
+_.ParserState = class {
 
     constructor(decoder) {
         this.defaultDialectStack = ['builtin'];
         this.attributeAliasDefinitions = new Map();
         this.typeAliasDefinitions = new Map();
-        this.lexer = new mlir.Lexer(decoder);
+        this.lexer = new _.Lexer(decoder);
         this.curToken = this.lexer.lexToken();
     }
 };
 
-mlir.Parser = class {
+_.Parser = class {
 
     constructor(state, context) {
         this.state = state;
@@ -1627,89 +1622,6 @@ mlir.Parser = class {
             this.state.curToken = this.state.lexer.lexToken();
         }
         this.expect('#-}');
-    }
-
-    parseFunctionArgumentList(allowVariadic) {
-        const inputs = [];
-        let isVariadic = false;
-        if (this.accept('(')) {
-            while (!this.accept(')')) {
-                if (this.match(')')) {
-                    break;
-                }
-                if (allowVariadic && this.accept('ellipsis')) {
-                    isVariadic = true;
-                    this.expect(')');
-                    break;
-                }
-                if (this.match('%')) {
-                    const operand = this.parseOperand();
-                    this.expect(':');
-                    const type = this.parseType();
-                    const input = { value: operand.toString(), name: operand.name, type };
-                    if (this.match('{')) {
-                        input.attributes = new Map();
-                        this.parseAttributeDict(input.attributes);
-                    }
-                    input.loc = this.parseLocation();
-                    inputs.push(input);
-                } else {
-                    const input = {};
-                    input.value = `%arg${inputs.length}`;
-                    input.type = this.parseType();
-                    if (this.match('{')) {
-                        input.attributes = new Map();
-                        this.parseAttributeDict(input.attributes);
-                    }
-                    inputs.push(input);
-                }
-                if (!this.match(')')) {
-                    if (!this.accept(',')) {
-                        break;
-                    }
-                    if (this.match(')')) {
-                        break;
-                    }
-                }
-            }
-        }
-        return { arguments: inputs, isVariadic };
-    }
-
-    parseFunctionSignatureWithArguments(allowVariadic) {
-        const argResult = this.parseFunctionArgumentList(allowVariadic);
-        const resultTypes = [];
-        const resultAttrs = [];
-        if (this.accept('->')) {
-            this.parseFunctionResultList(resultTypes, resultAttrs);
-        }
-        return { arguments: argResult.arguments, isVariadic: argResult.isVariadic, resultTypes, resultAttrs };
-    }
-
-    parseFunctionOp(op, allowVariadic) {
-        this.parseOptionalVisibilityKeyword(op.attributes);
-        this.parseSymbolName('sym_name', op.attributes);
-        const sig = this.parseFunctionSignatureWithArguments(allowVariadic);
-        const argTypes = [];
-        for (const arg of sig.arguments) {
-            if (arg.name !== '...') {
-                argTypes.push(arg.type);
-            }
-        }
-        const type = new mlir.FunctionType(argTypes, sig.resultTypes);
-        op.addAttribute('function_type', new mlir.TypeAttrOf(type));
-        if (sig.resultAttrs.some((a) => a !== null)) {
-            op.addAttribute('res_attrs', sig.resultAttrs);
-        }
-        const argAttrs = sig.arguments.filter((a) => a.name !== '...').map((a) => a.attributes || null);
-        if (argAttrs.some((a) => a !== null)) {
-            op.addAttribute('arg_attrs', argAttrs);
-        }
-        this.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (this.match('{')) {
-            const region = op.addRegion();
-            this.parseRegion(region, sig.arguments);
-        }
     }
 
     parseTypeList() {
@@ -1856,10 +1768,10 @@ mlir.Parser = class {
     }
 
     // Reference: Parser.cpp:1082-1123 resolveSSAUse
-    // Given an UnresolvedOperand and type, returns a resolved mlir.Operand
+    // Given an UnresolvedOperand and type, returns a resolved _.Value
     // Uses name to look up SSA value entry, number to index into results
     resolveSSAUse(unresolvedOperand, type) {
-        if (unresolvedOperand instanceof mlir.UnresolvedOperand) {
+        if (unresolvedOperand instanceof _.UnresolvedOperand) {
             const entries = this.getSSAValueEntry(unresolvedOperand.name);
             // Reference: Parser.cpp:1094-1106 - check if value exists at this result number
             if (unresolvedOperand.number < entries.length && entries[unresolvedOperand.number]) {
@@ -1870,10 +1782,10 @@ mlir.Parser = class {
                 }
                 return entry.value;
             }
-            // Value not yet defined - create a new mlir.Operand and register it
+            // Value not yet defined - create a new _.Value and register it
             // This handles forward references and first-time definitions
             // The full name (with #N suffix) comes from toString()
-            const value = new mlir.Operand(unresolvedOperand.toString(), type);
+            const value = new _.Value(unresolvedOperand.toString(), type);
             // Make sure there is a slot for this value
             if (entries.length <= unresolvedOperand.number) {
                 entries.length = unresolvedOperand.number + 1;
@@ -1899,7 +1811,7 @@ mlir.Parser = class {
     // Reference pattern: resolveOperands(unresolvedOperands, types, result.operands)
     // - unresolvedOperands: array of UnresolvedOperand (input)
     // - types: array of types (input)
-    // - result: optional array to append resolved mlir.Operand to (output)
+    // - result: optional array to append resolved _.Value to (output)
     //           if not provided, resolves operands in place
     resolveOperands(operands, types, result) {
         if (!Array.isArray(operands)) {
@@ -1923,7 +1835,7 @@ mlir.Parser = class {
                 const operand = operands[i];
                 const type = types[i];
                 if (operand && type) {
-                    if (operand instanceof mlir.Operand) {
+                    if (operand instanceof _.Value) {
                         operand.type = type;
                     } else if (typeof operand === 'object') {
                         operand.type = type;
@@ -1967,7 +1879,7 @@ mlir.Parser = class {
         }
         this.expect(':');
         const fnType = this.parseType();
-        if (fnType instanceof mlir.FunctionType === false) {
+        if (fnType instanceof _.FunctionType === false) {
             throw new mlir.Error(`Expected function type ${this.location()}`);
         }
         this.resolveOperands(unresolvedOperands, fnType.inputs, op.operands);
@@ -1978,7 +1890,7 @@ mlir.Parser = class {
 
     parseCustomOperation(resultIDs) {
         const opNameInfo = this.parseCustomOperationName();
-        const state = new mlir.OperationState(opNameInfo);
+        const state = new _.OperationState(opNameInfo);
         let opName = this.context.resolveOpName(state.name);
         const index = opName.indexOf('.');
         if (index === -1) {
@@ -2000,7 +1912,7 @@ mlir.Parser = class {
         state.metadata = opInfo.metadata;
         const defaultDialect = (opInfo && opInfo.metadata && opInfo.metadata.defaultDialect) || '';
         this.state.defaultDialectStack.push(defaultDialect);
-        const customParser = new mlir.CustomAsmParser(this.state, this.context, resultIDs);
+        const customParser = new _.CustomOpAsmParser(this.state, this.context, resultIDs);
         if (!dialect.parseOperation(customParser, opName, state)) {
             this.state.defaultDialectStack.pop();
             throw new mlir.Error(`Unsupported custom operation '${state.name}' ${this.location()}`);
@@ -2010,7 +1922,7 @@ mlir.Parser = class {
         }
         state.loc = this.parseLocation() || {};
         this.state.defaultDialectStack.pop();
-        return mlir.Operation.create(state);
+        return _.Operation.create(state);
     }
 
     parseCustomOperationName() {
@@ -2033,7 +1945,7 @@ mlir.Parser = class {
 
     parseGenericOperation() {
         const name = this.expect('string');
-        const state = new mlir.OperationState(name);
+        const state = new _.OperationState(name);
         const index = name.indexOf('.');
         if (index !== -1) {
             const dialectName = name.substring(0, index);
@@ -2046,7 +1958,7 @@ mlir.Parser = class {
             }
         }
         this.parseGenericOperationAfterOpName(state);
-        return mlir.Operation.create(state);
+        return _.Operation.create(state);
     }
 
     parseOptionalVisibilityKeyword(attributes) {
@@ -2058,7 +1970,7 @@ mlir.Parser = class {
 
     parseSymbolName(name, attributes) {
         const value = this.expect('@').substring(1);
-        attributes.set(name, new mlir.StringAttr(value));
+        attributes.set(name, new _.StringAttr(value));
     }
 
     parseOptionalSymbolName() {
@@ -2104,7 +2016,7 @@ mlir.Parser = class {
                 } else if (name === null) {
                     break;
                 } else {
-                    attributes.set(name, new mlir.UnitAttr());
+                    attributes.set(name, new _.UnitAttr());
                     this.accept(',');
                     continue;
                 }
@@ -2118,13 +2030,27 @@ mlir.Parser = class {
 
     parseRegion(region, entryArguments) {
         region.blocks = Array.isArray(region.blocks) ? region.blocks : [];
+        // Register SSA entries for entry arguments BEFORE parsing the block
+        // This ensures operations that reference %arg0 find the pre-registered entries
+        const resolvedEntryArgs = [];
+        if (entryArguments && entryArguments.length > 0) {
+            for (let i = 0; i < entryArguments.length; i++) {
+                const arg = entryArguments[i];
+                // Use explicit name if provided, otherwise generate %arg0, %arg1, etc.
+                const name = arg.name || `%arg${i}`;
+                const operand = new _.Value(name, arg.type);
+                // Register in SSA scope so operations can find it
+                this.addDefinition({ name, number: 0, location: arg.loc || null }, operand);
+                resolvedEntryArgs.push(operand);
+            }
+        }
         const block = {};
         this.parseBlock(block);
-        if (entryArguments && entryArguments.length > 0) {
+        if (resolvedEntryArgs.length > 0) {
             if (block.arguments.length === 0) {
-                block.arguments = entryArguments;
-            } else if (block.arguments.length !== entryArguments.length) {
-                throw new mlir.Error(`Entry block has ${block.arguments.length} arguments, but function signature has ${entryArguments.length} ${this.location()}`);
+                block.arguments = resolvedEntryArgs;
+            } else if (block.arguments.length !== resolvedEntryArgs.length) {
+                throw new mlir.Error(`Entry block has ${block.arguments.length} arguments, but function signature has ${resolvedEntryArgs.length} ${this.location()}`);
             }
         }
         region.blocks.push(block);
@@ -2209,6 +2135,12 @@ mlir.Parser = class {
         }
         block.loc = this.parseLocation();
         return block;
+    }
+
+    // Reference: Parser.cpp parseOptionalLocationSpecifier
+    // Parses optional location: loc(...) - returns null if not present
+    parseOptionalLocationSpecifier() {
+        return this.parseLocation();
     }
 
     parseLocation() {
@@ -2345,101 +2277,6 @@ mlir.Parser = class {
         }
     }
 
-    parseArguments() {
-        const inputs = [];
-        if (this.match('{')) {
-            return inputs;
-        }
-        const open = this.accept('(');
-        // eslint-disable-next-line no-unmodified-loop-condition
-        while (!this.match(')') && !this.match('->') && !this.match('{') && !this.match('}') && !this.match('=') && !this.match('^') && !(this.match(':') && !open)) {
-            const input = {};
-            if (this.match('[')) {
-                this.expect('[');
-                const array = [];
-                while (!this.match(']')) {
-                    if (this.match('%')) {
-                        array.push(this.parseOperand().name);
-                    } else if (this.match('int')) {
-                        array.push(this.parseInteger());
-                    } else if (this.match('-')) {
-                        this.expect('-');
-                        if (this.match('int')) {
-                            array.push(-this.parseInteger());
-                        } else {
-                            throw new mlir.Error(`Expected integer after '-' in array literal ${this.location()}`);
-                        }
-                    } else {
-                        break;
-                    }
-                    if (!this.accept(',')) {
-                        break;
-                    }
-                }
-                this.expect(']');
-                input.value = array;
-                inputs.push(input);
-                if (!this.accept(',')) {
-                    break;
-                }
-                continue;
-            }
-            if (this.getToken().kind === 'id' && this.getToken().value !== 'dense' && this.getToken().value !== 'dense_resource') {
-                const identifier = this.expect('id');
-                if (this.accept('(')) {
-                    const args = this.parseArguments();
-                    for (let i = 0; i < args.length; i++) {
-                        const arg = args[i];
-                        arg.name = `${identifier}.${i}`;
-                        inputs.push(arg);
-                    }
-                    this.resolveOperands(inputs, this.parseOptionalColonTypeList());
-                    this.expect(')');
-                    continue;
-                } else if (this.match('=')) {
-                    input.name = identifier;
-                    this.expect('=');
-                } else if (this.match(':')) {
-                    // Named argument syntax: identifier: value (e.g., init: %init)
-                    input.name = identifier;
-                    this.expect(':');
-                } else {
-                    input.value = identifier;
-                    inputs.push(input);
-                    if (!this.accept(',')) {
-                        break;
-                    }
-                    continue;
-                }
-            }
-            if (this.match('%')) {
-                const operand = this.parseOperand();
-                input.value = operand;  // Store UnresolvedOperand, not just .name
-                input.name = operand.toString();  // Also store name for consumer compatibility
-                if (open && this.accept(':')) {
-                    input.type = this.parseType();
-                }
-            } else if (this.match('keyword', 'loc')) {
-                break;
-            } else {
-                const value = this.parseAttribute();
-                input.type = value.type;
-                input.value = value.value;
-                if (open && this.accept(':')) {
-                    input.type = this.parseType();
-                }
-            }
-            inputs.push(input);
-            if (!this.accept(',') && !this.match('id')) {
-                break;
-            }
-        }
-        if (open) {
-            this.expect(')');
-        }
-        return inputs;
-    }
-
     parseElementTypeFromPrefix(prefix, dimensions) {
         if (/^[0-9?]/.test(prefix)) {
             let i = 0;
@@ -2472,7 +2309,7 @@ mlir.Parser = class {
             if (this.accept('<')) {
                 const elementType = this.parseType();
                 this.expect('>');
-                return new mlir.ComplexType(elementType);
+                return new _.ComplexType(elementType);
             }
         } else if (prefix === 'tensor' || prefix === 'vector' || prefix === 'memref') {
             if (this.accept('<')) {
@@ -2523,7 +2360,7 @@ mlir.Parser = class {
         }
         // Return as PrimitiveType for known primitive types
         if (/^[su]?i[0-9]+$/.test(prefix) || /^[fb]f?[0-9]+/.test(prefix) || prefix === 'index') {
-            return new mlir.PrimitiveType(prefix);
+            return new _.PrimitiveType(prefix);
         }
         return prefix;
     }
@@ -2668,10 +2505,10 @@ mlir.Parser = class {
         this.expect('>');
         if (dimInfo.unranked) {
             // UnrankedTensorType - fall back to string for now
-            const elementTypeStr = elementType instanceof mlir.Type ? elementType.toString() : elementType;
-            return new mlir.Type(`tensor<*x${elementTypeStr}>`);
+            const elementTypeStr = elementType instanceof _.Type ? elementType.toString() : elementType;
+            return new _.Type(`tensor<*x${elementTypeStr}>`);
         }
-        return new mlir.RankedTensorType(dimInfo.dimensions, elementType, encoding);
+        return new _.RankedTensorType(dimInfo.dimensions, elementType, encoding);
     }
 
     parseMemRefType() {
@@ -2708,13 +2545,13 @@ mlir.Parser = class {
         } else if (dimInfo.dimensions.length > 0) {
             typeStr += `${dimInfo.dimensions.join('x')}x`;
         }
-        typeStr += elementType instanceof mlir.Type ? elementType.toString() : elementType;
+        typeStr += elementType instanceof _.Type ? elementType.toString() : elementType;
         if (extras.length > 0) {
             const content = extras.map((e) => typeof e === 'object' ? JSON.stringify(e) : e).join(', ');
             typeStr += `, ${content}`;
         }
         typeStr += '>';
-        return new mlir.Type(typeStr);
+        return new _.Type(typeStr);
     }
 
     parseVectorType() {
@@ -2740,14 +2577,14 @@ mlir.Parser = class {
             elementType = this.parseType();
         }
         this.expect('>');
-        return new mlir.VectorType(dimInfo.dimensions, elementType);
+        return new _.VectorType(dimInfo.dimensions, elementType);
     }
 
     parseComplexType() {
         this.expect('<');
         const elementType = this.parseType();
         this.expect('>');
-        return new mlir.ComplexType(elementType);
+        return new _.ComplexType(elementType);
     }
 
     parseTupleType() {
@@ -2758,8 +2595,8 @@ mlir.Parser = class {
             this.accept(',');
         }
         this.expect('>');
-        const typeStrs = types.map((t) => t instanceof mlir.Type ? t.toString() : t);
-        return new mlir.Type(`tuple<${typeStrs.join(', ')}>`);
+        const typeStrs = types.map((t) => t instanceof _.Type ? t.toString() : t);
+        return new _.Type(`tuple<${typeStrs.join(', ')}>`);
     }
 
     parseCustomTypeWithFallback(typeT) {
@@ -2846,8 +2683,8 @@ mlir.Parser = class {
                 case 'memref': return this.parseMemRefType();
                 case 'complex': return this.parseComplexType();
                 case 'tuple': return this.parseTupleType();
-                case 'none': return new mlir.PrimitiveType(value);
-                case 'index': return new mlir.PrimitiveType(value);
+                case 'none': return new _.PrimitiveType(value);
+                case 'index': return new _.PrimitiveType(value);
                 case 'bf16':
                 case 'f16':
                 case 'f32':
@@ -2866,10 +2703,10 @@ mlir.Parser = class {
                 case 'f4E2M1FN':
                 case 'f6E2M3FN':
                 case 'f6E3M2FN':
-                    return new mlir.PrimitiveType(value);
+                    return new _.PrimitiveType(value);
                 default:
                     if (/^[su]?i[0-9]+$/.test(value)) {
-                        return new mlir.PrimitiveType(value);
+                        return new _.PrimitiveType(value);
                     }
                     break;
             }
@@ -2887,7 +2724,7 @@ mlir.Parser = class {
                 throw new mlir.Error(`Unsupported dialect '${dialectName}'.`);
             }
             if (symbolData) {
-                return new mlir.Type(`!${dialectName}${symbolData}`);
+                return new _.Type(`!${dialectName}${symbolData}`);
             }
             const type = dialect.parseType(this, dialectName);
             if (type) {
@@ -2901,7 +2738,7 @@ mlir.Parser = class {
         const token = this.expect(prefix);
         if (aliases.has(token)) {
             const alias = aliases.get(token);
-            return alias instanceof mlir.Type ? alias : new mlir.Type(alias);
+            return alias instanceof _.Type ? alias : new _.Type(alias);
         }
         const identifier = token.substring(1);
         const dotIndex = identifier.indexOf('.');
@@ -2932,7 +2769,15 @@ mlir.Parser = class {
         const inputs = this.parseTypeListParens();
         this.expect('->');
         const results = this.parseFunctionResultTypes();
-        return new mlir.FunctionType(inputs, results);
+        return new _.FunctionType(inputs, results);
+    }
+
+    parseFunctionResultTypes() {
+        if (this.match('(')) {
+            return this.parseTypeListParens();
+        }
+        const type = this.parseNonFunctionType();
+        return type ? [type] : [];
     }
 
     parseCommaSeparatedList(delimiter, parseElement) {
@@ -2976,14 +2821,6 @@ mlir.Parser = class {
             this.expect(close);
         }
         return results;
-    }
-
-    parseFunctionResultTypes() {
-        if (this.match('(')) {
-            return this.parseTypeListParens();
-        }
-        const type = this.parseNonFunctionType();
-        return type ? [type] : [];
     }
 
     parseColonType() {
@@ -3045,42 +2882,6 @@ mlir.Parser = class {
         return { argTypes, argAttrs, resultTypes, resultAttrs };
     }
 
-    parseTypeAndAttrList(types, attrs, operands) {
-        let index = 0;
-        this.parseCommaSeparatedList('none', () => {
-            const type = this.parseType();
-            types.push(type);
-            // Parse optional attribute dict after each type
-            if (this.match('{')) {
-                const attrList = new Map();
-                this.parseAttributeDict(attrList);
-                attrs.push(attrList);
-                // Associate attrs with operand if available
-                if (operands && index < operands.length) {
-                    operands[index].attributes = attrList;
-                }
-            } else {
-                attrs.push(null);
-            }
-            index++;
-            return true;
-        });
-    }
-
-    parseFunctionResultList(types, attrs) {
-        if (this.accept('(')) {
-            if (this.accept(')')) {
-                return;
-            }
-            this.parseTypeAndAttrList(types, attrs);
-            this.expect(')');
-        } else {
-            const type = this.parseType();
-            types.push(type);
-            attrs.push(null);
-        }
-    }
-
     parseSSAUse(allowResultNumber = true) {
         const name = this.expect('%');
         let number = 0;
@@ -3094,15 +2895,13 @@ mlir.Parser = class {
                 throw new mlir.Error(`Invalid SSA value result number '${value}' ${this.location()}`);
             }
         }
-        return new mlir.UnresolvedOperand(name, number, null);
+        return new _.UnresolvedOperand(name, number, null);
     }
 
-    // Reference: Parser.cpp:1700-1708 parseOperand
     parseOperand(allowResultNumber = true) {
         return this.parseSSAUse(allowResultNumber);
     }
 
-    // Reference: Parser.cpp:1710-1717 parseOptionalOperand
     parseOptionalOperand(allowResultNumber = true) {
         if (this.match('%')) {
             return this.parseOperand(allowResultNumber);
@@ -3126,7 +2925,7 @@ mlir.Parser = class {
             }
             // Handle special `[a] x [b]` syntax (dialect-specific)
             if (this.accept('id', 'x')) {
-                const firstArray = new mlir.ArrayAttr(elements);
+                const firstArray = new _.ArrayAttr(elements);
                 this.expect('[');
                 const second = [];
                 while (!this.accept(']')) {
@@ -3134,14 +2933,14 @@ mlir.Parser = class {
                     second.push(item);
                     this.accept(',');
                 }
-                const secondArray = new mlir.ArrayAttr(second);
-                return new mlir.ArrayAttr([firstArray, secondArray]);
+                const secondArray = new _.ArrayAttr(second);
+                return new _.ArrayAttr([firstArray, secondArray]);
             }
-            return new mlir.ArrayAttr(elements);
+            return new _.ArrayAttr(elements);
         }
         if (this.match('boolean')) {
             const value = this.expect();
-            return new mlir.TypedAttr(value, new mlir.PrimitiveType('i1'));
+            return new _.TypedAttr(value, new _.PrimitiveType('i1'));
         }
         if (this.match('id', 'dense')) {
             return this.parseDenseElementsAttr(type);
@@ -3155,7 +2954,7 @@ mlir.Parser = class {
         if (this.match('{')) {
             const attributes = new Map();
             this.parseAttributeDict(attributes);
-            return new mlir.DictionaryAttr(attributes);
+            return new _.DictionaryAttr(attributes);
         }
         if (this.match('#')) {
             const attr = this.parseExtendedAttr();
@@ -3172,25 +2971,25 @@ mlir.Parser = class {
         };
         if (this.match('float')) {
             const value = this.expect();
-            type = parseType(type, new mlir.PrimitiveType('f64'));
-            return new mlir.TypedAttr(value, type);
+            type = parseType(type, new _.PrimitiveType('f64'));
+            return new _.TypedAttr(value, type);
         }
         if (this.match('int')) {
             const value = this.expect();
-            type = parseType(type, new mlir.PrimitiveType('i64'));
-            return new mlir.TypedAttr(value, type);
+            type = parseType(type, new _.PrimitiveType('i64'));
+            return new _.TypedAttr(value, type);
         }
         if (this.match('keyword', '-')) {
             this.expect();
             if (this.match('int')) {
                 const value = `-${this.expect()}`;
-                type = parseType(type, new mlir.PrimitiveType('i64'));
-                return new mlir.TypedAttr(value, type);
+                type = parseType(type, new _.PrimitiveType('i64'));
+                return new _.TypedAttr(value, type);
             }
             if (this.match('float')) {
                 const value = `-${this.expect()}`;
-                type = parseType(type, new mlir.PrimitiveType('f64'));
-                return new mlir.TypedAttr(value, type);
+                type = parseType(type, new _.PrimitiveType('f64'));
+                return new _.TypedAttr(value, type);
             }
             throw new mlir.Error(`Expected integer or float after '-' ${this.location()}`);
         }
@@ -3208,8 +3007,8 @@ mlir.Parser = class {
         }
         if (this.match('string')) {
             const value = this.expect();
-            type = parseType(type, new mlir.PrimitiveType('string'));
-            return new mlir.TypedAttr(value, type);
+            type = parseType(type, new _.PrimitiveType('string'));
+            return new _.TypedAttr(value, type);
         }
         if (this.match('@')) {
             const value = this.parseOptionalSymbolName();
@@ -3225,11 +3024,11 @@ mlir.Parser = class {
                     break;
                 }
             }
-            return new mlir.SymbolRefAttr(fullSymbol);
+            return new _.SymbolRefAttr(fullSymbol);
         }
         if (this.match('id', 'unit')) {
             this.expect('id');
-            return { value: 'unit', type: new mlir.PrimitiveType('unit') };
+            return { value: 'unit', type: new _.PrimitiveType('unit') };
         }
         if (this.getToken().kind === 'id') {
             const tokenValue = this.getToken().value;
@@ -3238,12 +3037,12 @@ mlir.Parser = class {
                 /^f[0-9]+$/.test(tokenValue) || tokenValue === 'bf16' || tokenValue === 'tf32' ||
                 tokenValue.startsWith('f8')) {
                 const type = this.parseType();
-                return { value: type, type: new mlir.PrimitiveType('type') };
+                return { value: type, type: new _.PrimitiveType('type') };
             }
         }
         if (this.match('!')) {
             const type = this.parseType();
-            return { value: type, type: new mlir.PrimitiveType('type') };
+            return { value: type, type: new _.PrimitiveType('type') };
         }
         if (this.match('%')) {
             const value = this.expect();
@@ -3266,17 +3065,13 @@ mlir.Parser = class {
         }
         const parsedType = this.parseOptionalType();
         if (parsedType) {
-            return new mlir.TypeAttrOf(parsedType);
+            return new _.TypeAttrOf(parsedType);
         }
         throw new mlir.Error(`Unexpected attribute token '${this.getToken().value}' ${this.location()}`);
     }
 
-    // Reference: DialectSymbolParser.cpp parseExtendedSymbol
-    // Parses #dialect.symbol or #alias - does NOT parse trailing : type
     parseExtendedAttr() {
         const name = this.expect('#');
-        // Check if this is an attribute alias reference (no '.' means it's an alias, not a dialect attribute)
-        // Reference: Parser.cpp parseLocationAlias - looks up in state.symbols.attributeAliasDefinitions
         if (!name.includes('.') && this.state.attributeAliasDefinitions.has(name)) {
             return this.state.attributeAliasDefinitions.get(name);
         }
@@ -3296,13 +3091,13 @@ mlir.Parser = class {
         this.expect('<');
         let literalParser = null;
         if (!this.accept('>')) {
-            literalParser = new mlir.TensorLiteralParser(this);
+            literalParser = new _.TensorLiteralParser(this);
             literalParser.parse(/* allowHex */ true);
             this.expect('>');
         }
         const type = this.parseElementsLiteralType(attrType);
         const value = literalParser ? literalParser.getAttr(type) : null;
-        return new mlir.DenseElementsAttr(value, type);
+        return new _.DenseElementsAttr(value, type);
     }
 
     parseDenseResourceElementsAttr(attrType) {
@@ -3315,7 +3110,7 @@ mlir.Parser = class {
             this.expect(':');
             type = this.parseType();
         }
-        return new mlir.DenseResourceElementsAttr(handle, type);
+        return new _.DenseResourceElementsAttr(handle, type);
     }
 
     parseDenseArrayAttr(/* attrType */) {
@@ -3331,7 +3126,7 @@ mlir.Parser = class {
             }
         }
         this.expect('>');
-        return new mlir.DenseArrayAttr(arrayValues, arrayType);
+        return new _.DenseArrayAttr(arrayValues, arrayType);
     }
 
     parseSparseElementsAttr(attrType) {
@@ -3340,11 +3135,11 @@ mlir.Parser = class {
         let indices = null;
         let values = null;
         if (!this.accept('>')) {
-            const indiceParser = new mlir.TensorLiteralParser(this);
+            const indiceParser = new _.TensorLiteralParser(this);
             indiceParser.parse(/* allowHex */ false);
             indices = indiceParser._storage;
             this.expect(',');
-            const valuesParser = new mlir.TensorLiteralParser(this);
+            const valuesParser = new _.TensorLiteralParser(this);
             valuesParser.parse(/* allowHex */ true);
             values = valuesParser._storage;
             this.expect('>');
@@ -3377,7 +3172,7 @@ mlir.Parser = class {
             return null;
         }
         // If type is null or a string, parse the `: type` suffix from input.
-        // Concrete type objects (mlir.Type instances) are used directly.
+        // Concrete type objects (_.Type instances) are used directly.
         // Note: ElementsAttr constraints (I32ElementsAttr, etc.) are registered as
         // custom attributes that call parseAttribute() with no type, so they never
         // reach here with constraint objects - they use the null path.
@@ -3508,12 +3303,165 @@ mlir.Parser = class {
 
 // Reference: AsmParser - base class for assembly parsing interfaces
 // Provides the interface that dialect parsers use
-mlir.AsmParser = class extends mlir.Parser {
+_.AsmParser = class extends _.Parser {
+};
+
+_.OpAsmParser = class extends _.AsmParser {
+
+    parseFunctionOp(op, allowVariadic) {
+        this.parseOptionalVisibilityKeyword(op.attributes);
+        this.parseSymbolName('sym_name', op.attributes);
+        const sig = this.parseFunctionSignatureWithArguments(allowVariadic);
+        const argTypes = [];
+        for (const arg of sig.arguments) {
+            if (arg.name !== '...') {
+                argTypes.push(arg.type);
+            }
+        }
+        const type = new _.FunctionType(argTypes, sig.resultTypes);
+        op.addAttribute('function_type', new _.TypeAttrOf(type));
+        if (sig.resultAttrs.some((a) => a !== null)) {
+            op.addAttribute('res_attrs', sig.resultAttrs);
+        }
+        const argAttrs = sig.arguments.filter((a) => a.name !== '...').map((a) => a.attrs || null);
+        if (argAttrs.some((a) => a !== null)) {
+            op.addAttribute('arg_attrs', argAttrs);
+        }
+        this.parseOptionalAttrDictWithKeyword(op.attributes);
+        if (this.match('{')) {
+            const region = op.addRegion();
+            this.parseRegion(region, sig.arguments);
+        }
+    }
+
+    parseFunctionSignatureWithArguments(allowVariadic) {
+        const argResult = this.parseFunctionArgumentList(allowVariadic);
+        const resultTypes = [];
+        const resultAttrs = [];
+        if (this.accept('->')) {
+            this.parseFunctionResultList(resultTypes, resultAttrs);
+        }
+        return { arguments: argResult.arguments, isVariadic: argResult.isVariadic, resultTypes, resultAttrs };
+    }
+
+    parseFunctionResultList(types, attrs) {
+        if (this.accept('(')) {
+            if (this.accept(')')) {
+                return;
+            }
+            this.parseTypeAndAttrList(types, attrs);
+            this.expect(')');
+        } else {
+            const type = this.parseType();
+            types.push(type);
+            attrs.push(null);
+        }
+    }
+
+    // Returns { arguments: Array<OpAsmParser.Argument>, isVariadic: boolean }
+    parseFunctionArgumentList(allowVariadic) {
+        const inputs = [];
+        let isVariadic = false;
+        if (this.accept('(')) {
+            while (!this.accept(')')) {
+                if (this.match(')')) {
+                    break;
+                }
+                if (allowVariadic && this.accept('ellipsis')) {
+                    isVariadic = true;
+                    this.expect(')');
+                    break;
+                }
+                if (this.match('%')) {
+                    const ssaName = this.parseOperand();
+                    this.expect(':');
+                    const type = this.parseType();
+                    let attrs = null;
+                    if (this.match('{')) {
+                        attrs = new Map();
+                        this.parseAttributeDict(attrs);
+                    }
+                    const loc = this.parseLocation();
+                    inputs.push(new _.OpAsmParser.Argument(ssaName, type, attrs, loc));
+                } else {
+                    // Type-only argument (no explicit name like %arg0)
+                    // Don't generate a name - let the region/SSA system handle it
+                    const type = this.parseType();
+                    let attrs = null;
+                    if (this.match('{')) {
+                        attrs = new Map();
+                        this.parseAttributeDict(attrs);
+                    }
+                    inputs.push(new _.OpAsmParser.Argument(null, type, attrs, null));
+                }
+                if (!this.match(')')) {
+                    if (!this.accept(',')) {
+                        break;
+                    }
+                    if (this.match(')')) {
+                        break;
+                    }
+                }
+            }
+        }
+        return { arguments: inputs, isVariadic };
+    }
+
+    parseTypeAndAttrList(types, attrs, operands) {
+        let index = 0;
+        this.parseCommaSeparatedList('none', () => {
+            const type = this.parseType();
+            types.push(type);
+            // Parse optional attribute dict after each type
+            if (this.match('{')) {
+                const attrList = new Map();
+                this.parseAttributeDict(attrList);
+                attrs.push(attrList);
+                // Associate attrs with operand if available
+                if (operands && index < operands.length) {
+                    operands[index].attributes = attrList;
+                }
+            } else {
+                attrs.push(null);
+            }
+            index++;
+            return true;
+        });
+    }
+};
+
+_.OpAsmParser.Argument = class {
+
+    constructor(ssaName, type, attrs, loc) {
+        this.ssaName = ssaName;
+        this.type = type;
+        this.attrs = attrs;
+        this.loc = loc;
+    }
+
+    get name() {
+        return this.ssaName ? this.ssaName.name : null;
+    }
+
+    get value() {
+        return this.ssaName ? this.ssaName.toString() : null;
+    }
+
+    // Alias for compatibility with code expecting 'attributes'
+    get attributes() {
+        // DO NOT REMOVE fix client code
+        throw new mlir.Error("OpAsmParser.Argument.attributes is deprecated, use .attrs instead.");
+    }
+
+    set attributes(value) {
+        // DO NOT REMOVE fix client code
+        throw new mlir.Error("OpAsmParser.Argument.attributes is deprecated, use .attrs instead.");
+    }
 };
 
 // Reference: OpAsmParser - parser interface for custom operation parsing
 // Holds resultIDs and provides methods to access result info
-mlir.CustomAsmParser = class extends mlir.AsmParser {
+_.CustomOpAsmParser = class extends _.OpAsmParser {
 
     constructor(state, context, resultIDs) {
         super(state, context);
@@ -3534,9 +3482,53 @@ mlir.CustomAsmParser = class extends mlir.AsmParser {
         }
         return null;
     }
+
+    // Reference: Parser.cpp:1832-1842 parseArgument
+    // Parses a single argument: %name [: type] [attr-dict] [loc]
+    // When allowType=true, colon+type is REQUIRED (uses parseColonType)
+    // When allowAttrs=true, optional attr-dict is parsed
+    // Returns OpAsmParser.Argument
+    parseArgument(allowType, allowAttrs) {
+        const ssaName = this.parseOperand();
+        let type = null;
+        let attrs = null;
+        let loc = null;
+        // Reference: (allowType && parseColonType(result.type))
+        if (allowType) {
+            type = this.parseColonType();
+        }
+        // Reference: (allowAttrs && parseOptionalAttrDict(attrs))
+        if (allowAttrs) {
+            attrs = {};
+            this.parseOptionalAttrDict(attrs);
+            if (Object.keys(attrs).length === 0) {
+                attrs = null;
+            }
+        }
+        loc = this.parseOptionalLocationSpecifier();
+        return new _.OpAsmParser.Argument(ssaName, type, attrs, loc);
+    }
+
+    parseArgumentList(delimiter, allowType, allowAttrs) {
+        delimiter = delimiter || 'none';
+        allowType = allowType === true; // default to false (matching ref impl)
+        allowAttrs = allowAttrs === true; // default to false
+        if (delimiter === 'none') {
+            if (!this.match('%')) {
+                return [];
+            }
+        }
+        const parseOneArgument = () => {
+            if (this.match('%')) {
+                return this.parseArgument(allowType, allowAttrs);
+            }
+            return null;
+        };
+        return this.parseCommaSeparatedList(delimiter, parseOneArgument);
+    }
 };
 
-mlir.TensorLiteralParser = class {
+_.TensorLiteralParser = class {
 
     constructor(parser) {
         this._parser = parser;
@@ -3654,7 +3646,7 @@ mlir.TensorLiteralParser = class {
         }
         const elementType = type && type.getElementType ? type.getElementType() : null;
         const numElements = type && type.getNumElements ? type.getNumElements() : 0;
-        const isComplex = elementType instanceof mlir.ComplexType;
+        const isComplex = elementType instanceof _.ComplexType;
         const baseElemType = isComplex && elementType.elementType ? elementType.elementType : elementType;
         // Determine conversion function once based on element type
         let convert = (v) => v;
@@ -3712,7 +3704,7 @@ mlir.TensorLiteralParser = class {
     }
 };
 
-mlir.AttrTypeReader = class {
+_.AttrTypeReader = class {
 
     constructor(bytecodeReader) {
         this._bytecodeReader = bytecodeReader;
@@ -3761,7 +3753,7 @@ mlir.AttrTypeReader = class {
 
     readType(index) {
         if (index >= this._typeEntries.length) {
-            return new mlir.Type(`<local type ${index}>`);
+            return new _.Type(`<local type ${index}>`);
         }
         const entry = this._typeEntries[index];
         if (entry.resolved !== null) {
@@ -3774,7 +3766,7 @@ mlir.AttrTypeReader = class {
             if (entry.dialect.name === 'builtin') {
                 entry.resolved = this._parseBuiltinType(reader);
             } else {
-                entry.resolved = new mlir.Type(`!${entry.dialect.name}.custom`);
+                entry.resolved = new _.Type(`!${entry.dialect.name}.custom`);
             }
         } else {
             // ASM format - null-terminated string
@@ -3783,7 +3775,7 @@ mlir.AttrTypeReader = class {
             while ((c = reader.byte()) !== 0) {
                 str += String.fromCharCode(c);
             }
-            entry.resolved = new mlir.Type(str);
+            entry.resolved = new _.Type(str);
         }
         reader.seek(savedPosition);
         return entry.resolved;
@@ -3804,7 +3796,7 @@ mlir.AttrTypeReader = class {
                     const attrIdx = reader.varintNum();
                     elements.push(this.readAttribute(attrIdx));
                 }
-                return new mlir.ArrayAttr(elements);
+                return new _.ArrayAttr(elements);
             }
             case 1: { // DictionaryAttr
                 const count = reader.varintNum();
@@ -3822,19 +3814,19 @@ mlir.AttrTypeReader = class {
             case 2: { // StringAttr
                 const strIdx = reader.varintNum();
                 const value = this._bytecodeReader._stringReader.getString(strIdx);
-                return new mlir.StringAttr(value);
+                return new _.StringAttr(value);
             }
             case 3: { // StringAttrWithType
                 const strIdx = reader.varintNum();
                 const typeIdx = reader.varintNum();
                 const value = this._bytecodeReader._stringReader.getString(strIdx);
                 const type = this.readType(typeIdx);
-                return new mlir.StringAttr(value, type);
+                return new _.StringAttr(value, type);
             }
             case 4: { // FlatSymbolRefAttr
                 const strIdx = reader.varintNum();
                 const value = this._bytecodeReader._stringReader.getString(strIdx);
-                return new mlir.SymbolRefAttr(`@${value}`);
+                return new _.SymbolRefAttr(`@${value}`);
             }
             case 5: { // SymbolRefAttr
                 const rootIdx = reader.varintNum();
@@ -3846,15 +3838,15 @@ mlir.AttrTypeReader = class {
                     const nested = this._bytecodeReader._stringReader.getString(nestedIdx);
                     value += `::@${nested}`;
                 }
-                return new mlir.SymbolRefAttr(value);
+                return new _.SymbolRefAttr(value);
             }
             case 6: { // TypeAttr
                 const typeIdx = reader.varintNum();
                 const type = this.readType(typeIdx);
-                return new mlir.TypeAttrOf(type);
+                return new _.TypeAttrOf(type);
             }
             case 7: { // UnitAttr
-                return new mlir.UnitAttr();
+                return new _.UnitAttr();
             }
             case 8: { // IntegerAttr
                 const typeIdx = reader.varintNum();
@@ -3878,13 +3870,13 @@ mlir.AttrTypeReader = class {
                         value |= (word << BigInt(i * 64));
                     }
                 }
-                return new mlir.IntegerAttr(value, type);
+                return new _.IntegerAttr(value, type);
             }
             case 9: { // FloatAttr
                 const typeIdx = reader.varintNum();
                 const type = this.readType(typeIdx);
                 const value = this._readFloatValue(reader, type.toString());
-                return new mlir.FloatAttr(value, type);
+                return new _.FloatAttr(value, type);
             }
             case 10: { // CallSiteLoc
                 const callerIdx = reader.varintNum();
@@ -3959,7 +3951,7 @@ mlir.AttrTypeReader = class {
                 const type = this.readType(typeIdx);
                 const blobLen = reader.varintNum();
                 const blob = reader.read(blobLen);
-                return new mlir.DenseElementsAttr(blob, type);
+                return new _.DenseElementsAttr(blob, type);
             }
             case 19: { // DenseStringElementsAttr
                 const typeIdx = reader.varintNum();
@@ -3977,7 +3969,7 @@ mlir.AttrTypeReader = class {
                 const typeIdx = reader.varintNum();
                 const type = this.readType(typeIdx);
                 const handleIdx = reader.varintNum();
-                return new mlir.DenseResourceElementsAttr(`resource<${handleIdx}>`, type);
+                return new _.DenseResourceElementsAttr(`resource<${handleIdx}>`, type);
             }
             default: {
                 return { name: 'builtin', value: `<builtin code ${typeCode}>` };
@@ -4018,9 +4010,9 @@ mlir.AttrTypeReader = class {
             }
         } else {
             // Default to raw bytes
-            return new mlir.DenseArrayAttr(blob, type);
+            return new _.DenseArrayAttr(blob, type);
         }
-        return new mlir.DenseArrayAttr(values, type);
+        return new _.DenseArrayAttr(values, type);
     }
 
     _getIntegerBitWidth(type) {
@@ -4061,15 +4053,15 @@ mlir.AttrTypeReader = class {
                 const width = widthAndSign >> 2;
                 const signedness = widthAndSign & 0x3;
                 if (signedness === 0) {
-                    return new mlir.Type(`i${width}`);
+                    return new _.Type(`i${width}`);
                 }
                 if (signedness === 1) {
-                    return new mlir.Type(`si${width}`);
+                    return new _.Type(`si${width}`);
                 }
-                return new mlir.Type(`ui${width}`);
+                return new _.Type(`ui${width}`);
             }
             case 1: { // IndexType
-                return new mlir.Type('index');
+                return new _.Type('index');
             }
             case 2: { // FunctionType
                 const numInputs = reader.varintNum();
@@ -4084,50 +4076,50 @@ mlir.AttrTypeReader = class {
                     const typeIdx = reader.varintNum();
                     results.push(this.readType(typeIdx));
                 }
-                const type = new mlir.FunctionType(inputs, results);
+                const type = new _.FunctionType(inputs, results);
                 return type;
             }
             case 3: { // BFloat16Type
-                return new mlir.Type('bf16');
+                return new _.Type('bf16');
             }
             case 4: { // Float16Type
-                return new mlir.Type('f16');
+                return new _.Type('f16');
             }
             case 5: { // Float32Type
-                return new mlir.Type('f32');
+                return new _.Type('f32');
             }
             case 6: { // Float64Type
-                return new mlir.Type('f64');
+                return new _.Type('f64');
             }
             case 7: { // Float80Type
-                return new mlir.Type('f80');
+                return new _.Type('f80');
             }
             case 8: { // Float128Type
-                return new mlir.Type('f128');
+                return new _.Type('f128');
             }
             case 9: { // ComplexType
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
-                return new mlir.Type(`complex<${elementType.toString()}>`);
+                return new _.Type(`complex<${elementType.toString()}>`);
             }
             case 10: { // MemRefType
                 const shape = this._readShape(reader);
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
                 // Skip layout and memory space for now
-                return new mlir.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
+                return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
             }
             case 11: { // MemRefTypeWithLayout - skip for now
-                return new mlir.Type('memref<?>');
+                return new _.Type('memref<?>');
             }
             case 12: { // NoneType
-                return new mlir.Type('none');
+                return new _.Type('none');
             }
             case 13: { // RankedTensorType
                 const shape = this._readShape(reader);
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
-                return new mlir.RankedTensorType(shape, elementType, null);
+                return new _.RankedTensorType(shape, elementType, null);
             }
             case 14: { // RankedTensorTypeWithEncoding
                 const encodingAttrIdx = reader.varintNum();
@@ -4135,7 +4127,7 @@ mlir.AttrTypeReader = class {
                 const shape = this._readShape(reader);
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
-                return new mlir.RankedTensorType(shape, elementType, encoding);
+                return new _.RankedTensorType(shape, elementType, encoding);
             }
             case 15: { // TupleType
                 const numTypes = reader.varintNum();
@@ -4144,29 +4136,29 @@ mlir.AttrTypeReader = class {
                     const typeIdx = reader.varintNum();
                     types.push(this.readType(typeIdx));
                 }
-                return new mlir.Type(`tuple<${types.map((t) => t.toString()).join(', ')}>`);
+                return new _.Type(`tuple<${types.map((t) => t.toString()).join(', ')}>`);
             }
             case 16: { // UnrankedMemRefType
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
-                return new mlir.Type(`memref<*x${elementType.toString()}>`);
+                return new _.Type(`memref<*x${elementType.toString()}>`);
             }
             case 17: { // UnrankedTensorType
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
-                return new mlir.Type(`tensor<*x${elementType.toString()}>`);
+                return new _.Type(`tensor<*x${elementType.toString()}>`);
             }
             case 18: { // VectorType
                 const shape = this._readShape(reader);
                 const elementTypeIdx = reader.varintNum();
                 const elementType = this.readType(elementTypeIdx);
-                return new mlir.VectorType(shape, elementType);
+                return new _.VectorType(shape, elementType);
             }
             case 19: { // VectorTypeWithScalableDims - simplified
-                return new mlir.Type('vector<?>');
+                return new _.Type('vector<?>');
             }
             default: {
-                return new mlir.Type(`<builtin type ${typeCode}>`);
+                return new _.Type(`<builtin type ${typeCode}>`);
             }
         }
     }
@@ -4183,7 +4175,7 @@ mlir.AttrTypeReader = class {
     }
 };
 
-mlir.StringSectionReader = class {
+_.StringSectionReader = class {
 
     constructor() {
         this._strings = [];
@@ -4210,7 +4202,7 @@ mlir.StringSectionReader = class {
     }
 };
 
-mlir.ResourceSectionReader = class {
+_.ResourceSectionReader = class {
 
     constructor() {
         this._resources = [];
@@ -4234,10 +4226,10 @@ mlir.ResourceSectionReader = class {
     }
 };
 
-mlir.BytecodeReader = class {
+_.BytecodeReader = class {
 
     constructor(reader, context) {
-        this._reader = new mlir.BinaryReader(reader);
+        this._reader = new _.BinaryReader(reader);
         this._context = context;
         this._valueScopes = [];
     }
@@ -4274,9 +4266,9 @@ mlir.BytecodeReader = class {
             throw new mlir.Error('Missing required section.');
         }
         // Initialize section readers
-        this._stringReader = new mlir.StringSectionReader();
+        this._stringReader = new _.StringSectionReader();
         this._stringReader.initialize(reader, this._sections.get(0));
-        this._resourceReader = new mlir.ResourceSectionReader();
+        this._resourceReader = new _.ResourceSectionReader();
         this._resourceReader.initialize(reader, this._sections.get(6));
         this._parseDialectSection();
         this._parseAttrTypeSection();
@@ -4365,7 +4357,7 @@ mlir.BytecodeReader = class {
         parseEntries(typeEntries);
         const dataStart = this._sections.get(2).start;
         // Initialize AttrTypeReader
-        this._attrTypeReader = new mlir.AttrTypeReader(this);
+        this._attrTypeReader = new _.AttrTypeReader(this);
         this._attrTypeReader.initialize(attrEntries, typeEntries, dataStart);
     }
 
@@ -4413,7 +4405,7 @@ mlir.BytecodeReader = class {
             while (state.numOpsRemaining > 0 && !pushedRegions) {
                 state.numOpsRemaining--;
                 const { state: opState, resultNames, isIsolatedFromAbove } = this.parseOpWithoutRegions(reader, state);
-                const op = mlir.Operation.create(opState);
+                const op = _.Operation.create(opState);
                 // Assign result names for Netron display (reference: names are in parser symbol table)
                 for (let i = 0; i < resultNames.length && i < op.results.length; i++) {
                     op.results[i].name = resultNames[i];
@@ -4536,7 +4528,7 @@ mlir.BytecodeReader = class {
             }
             // Create block argument with name and value for graph linking
             const argName = `%${valueOffset + i}`;
-            const arg = new mlir.Operand(argName, type);
+            const arg = new _.Value(argName, type);
             arg.location = location;
             block.arguments.push(arg);
             // Update the scope so operands can reference this argument
@@ -4607,7 +4599,7 @@ mlir.BytecodeReader = class {
         const kHasUseListOrders = 0x20;
         const kHasProperties = 0x40;
 
-        const op = new mlir.OperationState(fullName);
+        const op = new _.OperationState(fullName);
         const [dialectName] = fullName.split('.');
         const dialect = this._context.getDialect(dialectName);
         if (dialect) {
@@ -4676,7 +4668,7 @@ mlir.BytecodeReader = class {
                 const valueName = `%${valueIdx}`;
                 resultNames.push(valueName);
                 // Create placeholder in scope (will be replaced after Operation creation)
-                const placeholder = new mlir.Operand(valueName, type);
+                const placeholder = new _.Value(valueName, type);
                 if (valueIdx < scope.length) {
                     scope[valueIdx] = placeholder;
                 } else {
@@ -4694,7 +4686,7 @@ mlir.BytecodeReader = class {
                 if (valueIdx < scope.length && scope[valueIdx]) {
                     op.operands.push(scope[valueIdx]);
                 } else {
-                    op.operands.push(new mlir.Operand(`%${valueIdx}`, null));
+                    op.operands.push(new _.Value(`%${valueIdx}`, null));
                 }
             }
         }
@@ -4811,19 +4803,19 @@ mlir.BytecodeReader = class {
         // Native properties encoding is operation-specific (generated by tablegen).
         // Without the generated code, we can only safely parse known operation types.
         // Reference: llvm-project/mlir/lib/Bytecode/Reader/BytecodeReader.cpp:1274-1282
-        const propReader = new mlir.BufferReader(data);
+        const propReader = new _.BufferReader(data);
         // Function operations: sym_name (required), function_type (required), then optional attrs
         if (fullName.endsWith('.func') || /\.func_v\d+$/.test(fullName)) {
             const symNameIdx = propReader.varint().toNumber();
             const symNameAttr = this._attrTypeReader.readAttribute(symNameIdx);
             if (symNameAttr && symNameAttr.value !== undefined) {
                 const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
-                op.addAttribute('sym_name', new mlir.StringAttr(name));
+                op.addAttribute('sym_name', new _.StringAttr(name));
             }
             if (propReader.position < data.length) {
                 const funcTypeIdx = propReader.varint().toNumber();
                 const funcTypeAttr = this._attrTypeReader.readAttribute(funcTypeIdx);
-                if (funcTypeAttr instanceof mlir.TypeAttrOf && funcTypeAttr.type instanceof mlir.FunctionType) {
+                if (funcTypeAttr instanceof _.TypeAttrOf && funcTypeAttr.type instanceof _.FunctionType) {
                     op.addAttribute('function_type', funcTypeAttr);
                 }
             }
@@ -4842,7 +4834,7 @@ mlir.BytecodeReader = class {
     }
 };
 
-mlir.BinaryReader = class {
+_.BinaryReader = class {
 
     constructor(reader) {
         this._reader = reader;
@@ -4939,7 +4931,7 @@ mlir.BinaryReader = class {
     }
 };
 
-mlir.BufferReader = class {
+_.BufferReader = class {
 
     constructor(data) {
         this._data = data;
@@ -5011,14 +5003,14 @@ mlir.BufferReader = class {
     }
 };
 
-mlir.Utility = class {
+_.Utility = class {
 
     static dataType(value) {
-        if (value instanceof mlir.ComplexType) {
-            const elementType = mlir.Utility.dataType(value.elementType);
+        if (value instanceof _.ComplexType) {
+            const elementType = _.Utility.dataType(value.elementType);
             return `complex<${elementType}>`;
         }
-        if (value instanceof mlir.Type) {
+        if (value instanceof _.Type) {
             value = value.toString();
         }
         switch (value) {
@@ -5085,7 +5077,7 @@ mlir.Utility = class {
                 }
                 if (value && value.startsWith('complex<') && value.endsWith('>')) {
                     const elementTypeStr = value.substring(8, value.length - 1);
-                    const convertedElementType = mlir.Utility.dataType(elementTypeStr);
+                    const convertedElementType = _.Utility.dataType(elementTypeStr);
                     return `complex<${convertedElementType}>`;
                 }
                 if (value && /^[su]?i[0-9]+$/.test(value)) {
@@ -5105,59 +5097,18 @@ mlir.Utility = class {
         }
     }
 
-    // Parse shape dimensions from a type string like "tensor<2x3xf32>" -> [2, 3]
-    // Returns null if dimensions cannot be extracted or contain dynamic dimensions
-    static parseShapeDimensions(typeStr) {
-        let spec = null;
-        if (typeStr.startsWith('tensor<') && typeStr.endsWith('>')) {
-            spec = typeStr.substring(7, typeStr.length - 1).trim();
-        } else if (typeStr.startsWith('vector<') && typeStr.endsWith('>')) {
-            spec = typeStr.substring(7, typeStr.length - 1).trim();
-        }
-        if (!spec) {
-            return null;
-        }
-        const shape = [];
-        let i = 0;
-        while (i < spec.length) {
-            if (spec[i] === '?' || spec[i] === '*') {
-                // Dynamic dimension - cannot expand splats for dynamic shapes
-                return null;
-            }
-            if (/[0-9]/.test(spec[i])) {
-                let numStr = '';
-                while (i < spec.length && /[0-9]/.test(spec[i])) {
-                    numStr += spec[i];
-                    i++;
-                }
-                const dim = parseInt(numStr, 10);
-                if (!isNaN(dim)) {
-                    shape.push(dim);
-                }
-            } else {
-                break;
-            }
-            if (i < spec.length && spec[i] === 'x') {
-                i++;
-            } else {
-                break;
-            }
-        }
-        return shape;
-    }
-
     static valueType(type) {
         if (type === undefined) {
             return null;
         }
-        const typeStr = type instanceof mlir.Type ? type.toString() : type;
+        const typeStr = type instanceof _.Type ? type.toString() : type;
         if (typeStr.startsWith('!') && !typeStr.startsWith('!torch.vtensor<')) {
             return typeStr;
         }
         if (typeStr.startsWith('tensor<') && typeStr.endsWith('>')) {
             const spec = typeStr.substring(7, typeStr.length - 1).trim();
             if (spec.startsWith('!')) {
-                return mlir.Utility.valueType(spec);
+                return _.Utility.valueType(spec);
             }
             let i = 0;
             const shape = [];
@@ -5227,7 +5178,7 @@ mlir.Utility = class {
 
 // Dialect Plugin System
 
-mlir.AssemblyFormatParser = class {
+_.AssemblyFormatParser = class {
 
     constructor(metadata) {
         this._metadata = metadata;
@@ -5363,24 +5314,7 @@ mlir.AssemblyFormatParser = class {
             if (metadata.regions && metadata.regions.some((a) => a.name === name)) {
                 return { type: 'region_ref', name, anchor };
             }
-
-            // Special keywords for collections (only used if not found in metadata)
-            if (name === 'operands') {
-                return { type: 'operands', anchor };
-            }
-            if (name === 'results') {
-                return { type: 'results', anchor };
-            }
-            if (name === 'regions') {
-                return { type: 'regions', anchor };
-            }
-            if (name === 'successors') {
-                return { type: 'successors', anchor };
-            }
-
-            // Variable not found in metadata - this indicates incomplete metadata or parsing of non-existent variable
-            // Assume it's an operand_ref for backward compatibility, but this should be investigated
-            return { type: 'operand_ref', name, anchor };
+            throw new mlir.Error(`Unknown variable '$${name}' in assembly format.`);
         }
         if (this.accept('type')) {
             const args = this._parseParenList();
@@ -5592,166 +5526,166 @@ mlir.AssemblyFormatParser = class {
     }
 };
 
-mlir.DialectContext = class {
+_.DialectContext = class {
 
     constructor(metadata) {
         const operations = metadata.operations;
         this._dialects = new Map();
-        this._dialects.set('builtin', new mlir.BuiltinDialect(operations));
-        this._dialects.set('bufferization', new mlir.BufferizationDialect(operations));
-        this._dialects.set('stablehlo', new mlir.StableHLODialect(operations));
-        this._dialects.set('vhlo', new mlir.VhloDialect(operations));
-        this._dialects.set('interpreter', new mlir.InterpreterDialect(operations));
-        this._dialects.set('affine', new mlir.AffineDialect(operations));
-        this._dialects.set('asuka', new mlir.AsukaDialect(operations));
-        this._dialects.set('arith', new mlir.ArithDialect(operations));
-        this._dialects.set('async', new mlir.AsyncDialect(operations));
-        this._dialects.set('cf', new mlir.CFDialect(operations));
-        this._dialects.set('emitc', new mlir.EmitCDialect(operations));
-        this._dialects.set('complex', new mlir.Dialect(operations, 'complex'));
-        this._dialects.set('index', new mlir.Dialect(operations, 'index'));
-        this._dialects.set('pdl', new mlir.PDLDialect(operations));
-        this._dialects.set('ptr', new mlir.PtrDialect(operations));
-        this._dialects.set('ub', new mlir.Dialect(operations, 'ub'));
-        this._dialects.set('amdgpu', new mlir.AMDGPUDialect(operations));
-        this._dialects.set('nvgpu', new mlir.NVGPUDialect(operations));
-        this._dialects.set('nvvm', new mlir.NVVMDialect(operations));
-        this._dialects.set('rocdl', new mlir.ROCDLDialect(operations));
-        this._dialects.set('nvws', new mlir.NVWSDialect(operations));
-        this._dialects.set('tti', new mlir.Dialect(operations, 'tti'));
-        this._dialects.set('omp', new mlir.OpenMPDialect(operations));
-        this._dialects.set('proton', new mlir.ProtonDialect(operations));
-        this._dialects.set('proton_gpu', new mlir.Dialect(operations, 'proton_gpu'));
-        this._dialects.set('arm_sme', new mlir.ArmSMEDialect(operations));
-        this._dialects.set('arm_neon', new mlir.ArmNeonDialect(operations));
-        this._dialects.set('arm_sve', new mlir.ArmSVEDialect(operations));
-        this._dialects.set('shard', new mlir.ShardDialect(operations));
-        this._dialects.set('amx', new mlir.Dialect(operations, 'amx'));
-        this._dialects.set('smt', new mlir.SMTDialect(operations));
-        this._dialects.set('lagrad', new mlir.Dialect(operations, 'lagrad'));
-        this._dialects.set('iree_codegen', new mlir.IREECodegenDialect(operations));
-        this._dialects.set('iree_encoding', new mlir.Dialect(operations, 'iree_encoding'));
-        this._dialects.set('test', new mlir.TestDialect(operations));
-        this._dialects.set('scf', new mlir.SCFDialect(operations));
-        this._dialects.set('shape', new mlir.ShapeDialect(operations));
-        this._dialects.set('sparse_tensor', new mlir.SparseTensorDialect(operations));
-        this._dialects.set('func', new mlir.FuncDialect(operations));
-        this._dialects.set('gpu', new mlir.GpuDialect(operations));
-        this._dialects.set('llvm', new mlir.LLVMDialect(operations));
-        this._dialects.set('xegpu', new mlir.XeGPUDialect(operations));
-        this._dialects.set('memref', new mlir.MemRefDialect(operations));
-        this._dialects.set('vector', new mlir.VectorDialect(operations));
-        this._dialects.set('x86vector', new mlir.Dialect(operations, 'x86vector'));
-        this._dialects.set('onnx', new mlir.ONNXDialect(operations));
-        this._dialects.set('krnl', new mlir.KrnlDialect(operations));
-        this._dialects.set('torch', new mlir.TorchDialect(operations));
-        this._dialects.set('torch_c', new mlir.Dialect(operations, 'torch_c'));
-        this._dialects.set('hal', new mlir.HALDialect(operations));
-        this._dialects.set('hal_loader', new mlir.HALLoaderDialect(operations));
-        this._dialects.set('hal_inline', new mlir.Dialect(operations, 'hal_inline'));
-        this._dialects.set('util', new mlir.UtilDialect(operations));
-        this._dialects.set('mhlo', new mlir.MhloDialect(operations));
-        this._dialects.set('chlo', new mlir.Dialect(operations, 'chlo'));
-        this._dialects.set('thlo', new mlir.THLODialect(operations));
-        this._dialects.set('flow', new mlir.FlowDialect(operations));
-        this._dialects.set('stream', new mlir.StreamDialect(operations));
-        this._dialects.set('iree_vector_ext', new mlir.IREEVectorExtDialect(operations));
-        this._dialects.set('iree_tensor_ext', new mlir.IREETensorExtDialect(operations));
-        this._dialects.set('linalg', new mlir.LinalgDialect(operations));
-        this._dialects.set('iree_linalg_ext', new mlir.Dialect(operations, 'iree_linalg_ext'));
+        this._dialects.set('builtin', new _.BuiltinDialect(operations));
+        this._dialects.set('bufferization', new _.BufferizationDialect(operations));
+        this._dialects.set('stablehlo', new _.StableHLODialect(operations));
+        this._dialects.set('vhlo', new _.VhloDialect(operations));
+        this._dialects.set('interpreter', new _.InterpreterDialect(operations));
+        this._dialects.set('affine', new _.AffineDialect(operations));
+        this._dialects.set('asuka', new _.AsukaDialect(operations));
+        this._dialects.set('arith', new _.ArithDialect(operations));
+        this._dialects.set('async', new _.AsyncDialect(operations));
+        this._dialects.set('cf', new _.CFDialect(operations));
+        this._dialects.set('emitc', new _.EmitCDialect(operations));
+        this._dialects.set('complex', new _.Dialect(operations, 'complex'));
+        this._dialects.set('index', new _.Dialect(operations, 'index'));
+        this._dialects.set('pdl', new _.PDLDialect(operations));
+        this._dialects.set('ptr', new _.PtrDialect(operations));
+        this._dialects.set('ub', new _.Dialect(operations, 'ub'));
+        this._dialects.set('amdgpu', new _.AMDGPUDialect(operations));
+        this._dialects.set('nvgpu', new _.NVGPUDialect(operations));
+        this._dialects.set('nvvm', new _.NVVMDialect(operations));
+        this._dialects.set('rocdl', new _.ROCDLDialect(operations));
+        this._dialects.set('nvws', new _.NVWSDialect(operations));
+        this._dialects.set('tti', new _.Dialect(operations, 'tti'));
+        this._dialects.set('omp', new _.OpenMPDialect(operations));
+        this._dialects.set('proton', new _.ProtonDialect(operations));
+        this._dialects.set('proton_gpu', new _.Dialect(operations, 'proton_gpu'));
+        this._dialects.set('arm_sme', new _.ArmSMEDialect(operations));
+        this._dialects.set('arm_neon', new _.ArmNeonDialect(operations));
+        this._dialects.set('arm_sve', new _.ArmSVEDialect(operations));
+        this._dialects.set('shard', new _.ShardDialect(operations));
+        this._dialects.set('amx', new _.Dialect(operations, 'amx'));
+        this._dialects.set('smt', new _.SMTDialect(operations));
+        this._dialects.set('lagrad', new _.Dialect(operations, 'lagrad'));
+        this._dialects.set('iree_codegen', new _.IREECodegenDialect(operations));
+        this._dialects.set('iree_encoding', new _.Dialect(operations, 'iree_encoding'));
+        this._dialects.set('test', new _.TestDialect(operations));
+        this._dialects.set('scf', new _.SCFDialect(operations));
+        this._dialects.set('shape', new _.ShapeDialect(operations));
+        this._dialects.set('sparse_tensor', new _.SparseTensorDialect(operations));
+        this._dialects.set('func', new _.FuncDialect(operations));
+        this._dialects.set('gpu', new _.GpuDialect(operations));
+        this._dialects.set('llvm', new _.LLVMDialect(operations));
+        this._dialects.set('xegpu', new _.XeGPUDialect(operations));
+        this._dialects.set('memref', new _.MemRefDialect(operations));
+        this._dialects.set('vector', new _.VectorDialect(operations));
+        this._dialects.set('x86vector', new _.Dialect(operations, 'x86vector'));
+        this._dialects.set('onnx', new _.ONNXDialect(operations));
+        this._dialects.set('krnl', new _.KrnlDialect(operations));
+        this._dialects.set('torch', new _.TorchDialect(operations));
+        this._dialects.set('torch_c', new _.Dialect(operations, 'torch_c'));
+        this._dialects.set('hal', new _.HALDialect(operations));
+        this._dialects.set('hal_loader', new _.HALLoaderDialect(operations));
+        this._dialects.set('hal_inline', new _.Dialect(operations, 'hal_inline'));
+        this._dialects.set('util', new _.UtilDialect(operations));
+        this._dialects.set('mhlo', new _.MhloDialect(operations));
+        this._dialects.set('chlo', new _.Dialect(operations, 'chlo'));
+        this._dialects.set('thlo', new _.THLODialect(operations));
+        this._dialects.set('flow', new _.FlowDialect(operations));
+        this._dialects.set('stream', new _.StreamDialect(operations));
+        this._dialects.set('iree_vector_ext', new _.IREEVectorExtDialect(operations));
+        this._dialects.set('iree_tensor_ext', new _.IREETensorExtDialect(operations));
+        this._dialects.set('linalg', new _.LinalgDialect(operations));
+        this._dialects.set('iree_linalg_ext', new _.Dialect(operations, 'iree_linalg_ext'));
         this._dialects.set('linalg_ext', this._dialects.get('iree_linalg_ext'));
-        this._dialects.set('quant', new mlir.QuantDialect(operations));
-        this._dialects.set('tensor', new mlir.TensorDialect(operations));
-        this._dialects.set('tosa', new mlir.TosaDialect(operations));
-        this._dialects.set('tf', new mlir.TFDialect(operations));
-        this._dialects.set('tf_saved_model', new mlir.Dialect(operations, 'tf_saved_model'));
-        this._dialects.set('tf_type', new mlir.TFTypeDialect(operations));
-        this._dialects.set('tf_device', new mlir.TFDeviceDialect(operations));
-        this._dialects.set('tf_executor', new mlir.TFExecutorDialect(operations));
-        this._dialects.set('tf_framework', new mlir.TFFrameworkDialect(operations));
-        this._dialects.set('tfr', new mlir.TFRDialect(operations));
-        this._dialects.set('corert', new mlir.CoreRTDialect(operations));
-        this._dialects.set('tfrt', new mlir.TFRTDialect(operations));
-        this._dialects.set('tfrt_fallback', new mlir.Dialect(operations, 'tfrt_fallback'));
-        this._dialects.set('tfrt_fallback_async', new mlir.TFRTFallbackAsyncDialect(operations));
-        this._dialects.set('tfl', new mlir.TFLDialect(operations));
-        this._dialects.set('stdx', new mlir.StdxDialect(operations));
-        this._dialects.set('vm', new mlir.VMDialect(operations));
-        this._dialects.set('math', new mlir.MathDialect(operations));
-        this._dialects.set('tm_tensor', new mlir.TMTensorDialect(operations));
-        this._dialects.set('ml_program', new mlir.MLProgramDialect(operations));
-        this._dialects.set('iree_gpu', new mlir.IREEGPUDialect(operations));
-        this._dialects.set('tile', new mlir.TileDialect(operations));
-        this._dialects.set('pxa', new mlir.PXADialect(operations));
-        this._dialects.set('irdl', new mlir.IRDLDialect(operations));
-        this._dialects.set('transform', new mlir.TransformDialect(operations));
-        this._dialects.set('wasmssa', new mlir.WasmSSADialect(operations));
-        this._dialects.set('spirv', new mlir.SPIRVDialect(operations));
+        this._dialects.set('quant', new _.QuantDialect(operations));
+        this._dialects.set('tensor', new _.TensorDialect(operations));
+        this._dialects.set('tosa', new _.TosaDialect(operations));
+        this._dialects.set('tf', new _.TFDialect(operations));
+        this._dialects.set('tf_saved_model', new _.Dialect(operations, 'tf_saved_model'));
+        this._dialects.set('tf_type', new _.TFTypeDialect(operations));
+        this._dialects.set('tf_device', new _.TFDeviceDialect(operations));
+        this._dialects.set('tf_executor', new _.TFExecutorDialect(operations));
+        this._dialects.set('tf_framework', new _.TFFrameworkDialect(operations));
+        this._dialects.set('tfr', new _.TFRDialect(operations));
+        this._dialects.set('corert', new _.CoreRTDialect(operations));
+        this._dialects.set('tfrt', new _.TFRTDialect(operations));
+        this._dialects.set('tfrt_fallback', new _.Dialect(operations, 'tfrt_fallback'));
+        this._dialects.set('tfrt_fallback_async', new _.TFRTFallbackAsyncDialect(operations));
+        this._dialects.set('tfl', new _.TFLDialect(operations));
+        this._dialects.set('stdx', new _.StdxDialect(operations));
+        this._dialects.set('vm', new _.VMDialect(operations));
+        this._dialects.set('math', new _.MathDialect(operations));
+        this._dialects.set('tm_tensor', new _.TMTensorDialect(operations));
+        this._dialects.set('ml_program', new _.MLProgramDialect(operations));
+        this._dialects.set('iree_gpu', new _.IREEGPUDialect(operations));
+        this._dialects.set('tile', new _.TileDialect(operations));
+        this._dialects.set('pxa', new _.PXADialect(operations));
+        this._dialects.set('irdl', new _.IRDLDialect(operations));
+        this._dialects.set('transform', new _.TransformDialect(operations));
+        this._dialects.set('wasmssa', new _.WasmSSADialect(operations));
+        this._dialects.set('spirv', new _.SPIRVDialect(operations));
         this._dialects.set('spv', this._dialects.get('spirv'));
-        this._dialects.set('toy', new mlir.ToyDialect(operations));
-        this._dialects.set('top', new mlir.Dialect(operations, 'top'));
-        this._dialects.set('tpu', new mlir.Dialect(operations, 'tpu'));
-        this._dialects.set('sdfg', new mlir.SdfgDialect(operations));
+        this._dialects.set('toy', new _.ToyDialect(operations));
+        this._dialects.set('top', new _.Dialect(operations, 'top'));
+        this._dialects.set('tpu', new _.Dialect(operations, 'tpu'));
+        this._dialects.set('sdfg', new _.SdfgDialect(operations));
         this._dialects.set('sdir', this._dialects.get('sdfg'));
-        this._dialects.set('check', new mlir.CheckDialect(operations));
-        this._dialects.set('tt', new mlir.TritonDialect(operations));
-        this._dialects.set('ttg', new mlir.TritonGPUDialect(operations));
+        this._dialects.set('check', new _.CheckDialect(operations));
+        this._dialects.set('tt', new _.TritonDialect(operations));
+        this._dialects.set('ttg', new _.TritonGPUDialect(operations));
         this._dialects.set('triton_gpu', this._dialects.get('ttg'));
-        this._dialects.set('gluon', new mlir.GluonDialect(operations));
-        this._dialects.set('ttng', new mlir.TritonNvidiaGPUDialect(operations));
+        this._dialects.set('gluon', new _.GluonDialect(operations));
+        this._dialects.set('ttng', new _.TritonNvidiaGPUDialect(operations));
         this._dialects.set('nvidia_gpu', this._dialects.get('ttng'));
-        this._dialects.set('amdg', new mlir.TritonAMDGPUDialect(operations));
+        this._dialects.set('amdg', new _.TritonAMDGPUDialect(operations));
         this._dialects.set('amd_gpu', this._dialects.get('amdg'));
-        this._dialects.set('michelson', new mlir.MichelsonDialect(operations));
-        this._dialects.set('tensorrt', new mlir.TensorRTDialect(operations));
-        this._dialects.set('executor', new mlir.ExecutorDialect(operations));
+        this._dialects.set('michelson', new _.MichelsonDialect(operations));
+        this._dialects.set('tensorrt', new _.TensorRTDialect(operations));
+        this._dialects.set('executor', new _.ExecutorDialect(operations));
         this._dialects.set('exec', this._dialects.get('executor'));
-        this._dialects.set('tfrt_test', new mlir.TFRTTestDialect(operations));
-        this._dialects.set('xevm', new mlir.XeVMDialect(operations));
-        this._dialects.set('vmvx', new mlir.VMVXDialect(operations));
-        this._dialects.set('mlrt', new mlir.MLRTDialect(operations));
-        this._dialects.set('tfrt_tensor', new mlir.TFRTTensorDialect(operations));
-        this._dialects.set('tfrt_dht', new mlir.TFRTDHTDialect(operations));
-        this._dialects.set('coo', new mlir.Dialect(operations, 'coo'));
-        this._dialects.set('tfd', new mlir.TFDDialect(operations));
-        this._dialects.set('acc', new mlir.ACCDialect(operations));
-        this._dialects.set('cuda', new mlir.Dialect(operations, 'cuda'));
-        this._dialects.set('trtrt', new mlir.Dialect(operations, 'trtrt'));
-        this._dialects.set('plan', new mlir.PlanDialect(operations));
-        this._dialects.set('kernel', new mlir.KernelDialect(operations));
-        this._dialects.set('nvg', new mlir.Dialect(operations, 'nvg'));
-        this._dialects.set('mpi', new mlir.Dialect(operations, 'mpi'));
-        this._dialects.set('pdl_interp', new mlir.PDLInterpDialect(operations));
-        this._dialects.set('standalone', new mlir.Dialect(operations, 'standalone'));
-        this._dialects.set('custom', new mlir.Dialect(operations, 'custom'));
-        this._dialects.set('layer', new mlir.Dialect(operations, 'layer'));
-        this._dialects.set('foo', new mlir.Dialect(operations, 'foo'));
-        this._dialects.set('some', new mlir.Dialect(operations, 'some'));
-        this._dialects.set('ts', new mlir.Dialect(operations, 'ts'));
-        this._dialects.set('tf_mlrt', new mlir.Dialect(operations, 'tf_mlrt'));
-        this._dialects.set('io_parameters', new mlir.IOParametersDialect(operations));
-        this._dialects.set('pcf', new mlir.PCFDialect(operations));
-        this._dialects.set('linalgx', new mlir.Dialect(operations, 'linalgx'));
-        this._dialects.set('xsmm', new mlir.XSMMDialect(operations));
-        this._dialects.set('sdy', new mlir.SdyDialect(operations));
-        this._dialects.set('mpmd', new mlir.MPMDDialect(operations));
-        this._dialects.set('tfg', new mlir.TFGDialect(operations));
-        this._dialects.set('vt', new mlir.Dialect(operations, 'vt'));
-        this._dialects.set('testd', new mlir.Dialect(operations, 'testd'));
-        this._dialects.set('cmath', new mlir.Dialect(operations, 'cmath'));
-        this._dialects.set('bytecode', new mlir.Dialect(operations, 'bytecode'));
-        this._dialects.set('test_irdl_to_cpp', new mlir.Dialect(operations, 'test_irdl_to_cpp'));
-        this._dialects.set('iree_unregistered', new mlir.Dialect(operations, 'iree_unregistered'));
-        this._dialects.set('cir', new mlir.Dialect(operations, 'cir'));
-        this._dialects.set('migraphx', new mlir.Dialect(operations, 'migraphx'));
-        this._dialects.set('xla', new mlir.XlaDialect(operations));
-        this._dialects.set('xla_gpu', new mlir.XlaGpuDialect(operations));
-        this._dialects.set('xla_cpu', new mlir.Dialect(operations, 'xla_cpu'));
-        this._dialects.set('xla_framework', new mlir.Dialect(operations, 'xla_framework'));
-        this._dialects.set('ifrt', new mlir.Dialect(operations, 'ifrt'));
-        this._dialects.set('vifrt', new mlir.Dialect(operations, 'vifrt'));
-        this._dialects.set('triton_xla', new mlir.TritonXlaDialect(operations));
-        this._dialects.set('xtile', new mlir.XTileDialect(operations));
+        this._dialects.set('tfrt_test', new _.TFRTTestDialect(operations));
+        this._dialects.set('xevm', new _.XeVMDialect(operations));
+        this._dialects.set('vmvx', new _.VMVXDialect(operations));
+        this._dialects.set('mlrt', new _.MLRTDialect(operations));
+        this._dialects.set('tfrt_tensor', new _.TFRTTensorDialect(operations));
+        this._dialects.set('tfrt_dht', new _.TFRTDHTDialect(operations));
+        this._dialects.set('coo', new _.Dialect(operations, 'coo'));
+        this._dialects.set('tfd', new _.TFDDialect(operations));
+        this._dialects.set('acc', new _.ACCDialect(operations));
+        this._dialects.set('cuda', new _.Dialect(operations, 'cuda'));
+        this._dialects.set('trtrt', new _.Dialect(operations, 'trtrt'));
+        this._dialects.set('plan', new _.PlanDialect(operations));
+        this._dialects.set('kernel', new _.KernelDialect(operations));
+        this._dialects.set('nvg', new _.Dialect(operations, 'nvg'));
+        this._dialects.set('mpi', new _.Dialect(operations, 'mpi'));
+        this._dialects.set('pdl_interp', new _.PDLInterpDialect(operations));
+        this._dialects.set('standalone', new _.Dialect(operations, 'standalone'));
+        this._dialects.set('custom', new _.Dialect(operations, 'custom'));
+        this._dialects.set('layer', new _.Dialect(operations, 'layer'));
+        this._dialects.set('foo', new _.Dialect(operations, 'foo'));
+        this._dialects.set('some', new _.Dialect(operations, 'some'));
+        this._dialects.set('ts', new _.Dialect(operations, 'ts'));
+        this._dialects.set('tf_mlrt', new _.Dialect(operations, 'tf_mlrt'));
+        this._dialects.set('io_parameters', new _.IOParametersDialect(operations));
+        this._dialects.set('pcf', new _.PCFDialect(operations));
+        this._dialects.set('linalgx', new _.Dialect(operations, 'linalgx'));
+        this._dialects.set('xsmm', new _.XSMMDialect(operations));
+        this._dialects.set('sdy', new _.SdyDialect(operations));
+        this._dialects.set('mpmd', new _.MPMDDialect(operations));
+        this._dialects.set('tfg', new _.TFGDialect(operations));
+        this._dialects.set('vt', new _.Dialect(operations, 'vt'));
+        this._dialects.set('testd', new _.Dialect(operations, 'testd'));
+        this._dialects.set('cmath', new _.Dialect(operations, 'cmath'));
+        this._dialects.set('bytecode', new _.Dialect(operations, 'bytecode'));
+        this._dialects.set('test_irdl_to_cpp', new _.Dialect(operations, 'test_irdl_to_cpp'));
+        this._dialects.set('iree_unregistered', new _.Dialect(operations, 'iree_unregistered'));
+        this._dialects.set('cir', new _.Dialect(operations, 'cir'));
+        this._dialects.set('migraphx', new _.Dialect(operations, 'migraphx'));
+        this._dialects.set('xla', new _.XlaDialect(operations));
+        this._dialects.set('xla_gpu', new _.XlaGpuDialect(operations));
+        this._dialects.set('xla_cpu', new _.Dialect(operations, 'xla_cpu'));
+        this._dialects.set('xla_framework', new _.Dialect(operations, 'xla_framework'));
+        this._dialects.set('ifrt', new _.Dialect(operations, 'ifrt'));
+        this._dialects.set('vifrt', new _.Dialect(operations, 'vifrt'));
+        this._dialects.set('triton_xla', new _.TritonXlaDialect(operations));
+        this._dialects.set('xtile', new _.XTileDialect(operations));
         this._redirect = new Map([
             ['builtin.func', 'func.func'],
             ['builtin.constant', 'arith.constant'],
@@ -5818,7 +5752,7 @@ mlir.DialectContext = class {
     }
 };
 
-mlir.Dialect = class {
+_.Dialect = class {
 
     constructor(operations, name) {
         this._name = name;
@@ -5891,7 +5825,7 @@ mlir.Dialect = class {
         for (const metadata of operations.get(name) || []) {
             const opInfo = { metadata };
             if (metadata.assemblyFormat) {
-                const parser = new mlir.AssemblyFormatParser(metadata);
+                const parser = new _.AssemblyFormatParser(metadata);
                 opInfo.directives = parser.parse();
             }
             this._operations.set(metadata.name, opInfo);
@@ -6396,12 +6330,12 @@ mlir.Dialect = class {
         let resultType = null;
         if (transformer === '::getI1SameShape($_self)') {
             // Same shape with i1 element type (comparison ops)
-            if (sourceType instanceof mlir.VectorType) {
-                resultType = new mlir.VectorType(sourceType.dimensions, new mlir.PrimitiveType('i1'), sourceType.scalableDims);
+            if (sourceType instanceof _.VectorType) {
+                resultType = new _.VectorType(sourceType.dimensions, new _.PrimitiveType('i1'), sourceType.scalableDims);
             } else if (sourceType instanceof mlir.TensorType) {
-                resultType = new mlir.TensorType(sourceType.dimensions, new mlir.PrimitiveType('i1'));
+                resultType = new mlir.TensorType(sourceType.dimensions, new _.PrimitiveType('i1'));
             } else {
-                resultType = new mlir.PrimitiveType('i1');
+                resultType = new _.PrimitiveType('i1');
             }
         } else if (transformer === '$_self') {
             resultType = sourceType;
@@ -6420,7 +6354,7 @@ mlir.Dialect = class {
         if (parser.match('<')) {
             type += parser.skip('<');
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseDirective(directive, parser, op, opInfo, directives, i, ctx) {
@@ -6643,7 +6577,7 @@ mlir.Dialect = class {
             }
             case 'results': {
                 // Parse result types from arguments format and add to types
-                const args = parser.parseArguments();
+                const args = parser.parseArgumentList('none', true);
                 const types = args.map((a) => a.type).filter((t) => t);
                 op.addTypes(types);
                 break;
@@ -6795,7 +6729,7 @@ mlir.Dialect = class {
             }
             case 'functional_type': {
                 const type = parser.parseFunctionType();
-                if (!(type instanceof mlir.FunctionType)) {
+                if (!(type instanceof _.FunctionType)) {
                     throw new mlir.Error('Invalid functional-type function type.');
                 }
                 // Distribute input types to operands in metadata order
@@ -6868,7 +6802,7 @@ mlir.Dialect = class {
                 const clauses = directive.content.split('|').map((c) => c.trim());
                 const parsedClauses = [];
                 for (const clauseStr of clauses) {
-                    const clauseParser = new mlir.AssemblyFormatParser({ ...opInfo.metadata, assemblyFormat: clauseStr });
+                    const clauseParser = new _.AssemblyFormatParser({ ...opInfo.metadata, assemblyFormat: clauseStr });
                     const elements = clauseParser.parse();
                     parsedClauses.push({ elements, parsed: false, clauseStr });
                 }
@@ -7209,7 +7143,7 @@ mlir.Dialect = class {
             for (const result of opInfo.metadata.results) {
                 const typeName = result.type?.name;
                 if (typeName && concreteTypes.has(typeName)) {
-                    inferredTypes.push(new mlir.Type(concreteTypes.get(typeName)));
+                    inferredTypes.push(new _.Type(concreteTypes.get(typeName)));
                 }
             }
             if (inferredTypes.length > 0) {
@@ -7238,7 +7172,7 @@ mlir.Dialect = class {
         if (type && Array.isArray(type.values)) {
             const value = parser.parseOptionalKeyword(type.values);
             if (value !== null) {
-                return new mlir.TypedAttr(value, null);
+                return new _.TypedAttr(value, null);
             }
         }
         return parser.parseOptionalAttribute(type);
@@ -7337,13 +7271,13 @@ mlir.Dialect = class {
 
     _parseUnitAttr(parser) {
         parser.accept('id', 'unit');
-        return new mlir.UnitAttr();
+        return new _.UnitAttr();
     }
 
     _parseSymbolNameAttr(parser) {
         const value = parser.parseOptionalSymbolName();
         if (value) {
-            return new mlir.StringAttr(value);
+            return new _.StringAttr(value);
         }
         return null;
     }
@@ -7363,7 +7297,7 @@ mlir.Dialect = class {
                     break;
                 }
             }
-            return new mlir.SymbolRefAttr(fullSymbol);
+            return new _.SymbolRefAttr(fullSymbol);
         }
         return null;
     }
@@ -7374,17 +7308,17 @@ mlir.Dialect = class {
 
     // Reference: for typed attributes, the type is known so no : type suffix parsing
     _parseIntegerAttr(typeName, parser) {
-        const type = new mlir.PrimitiveType(typeName);
+        const type = new _.PrimitiveType(typeName);
         return parser.parseAttribute(type);
     }
 
     _parseFloatAttr(typeName, parser) {
-        const type = new mlir.PrimitiveType(typeName);
+        const type = new _.PrimitiveType(typeName);
         return parser.parseAttribute(type);
     }
 
     _parseStrAttr(parser) {
-        const type = new mlir.PrimitiveType('string');
+        const type = new _.PrimitiveType('string');
         return parser.parseAttribute(type);
     }
 
@@ -7428,7 +7362,7 @@ mlir.Dialect = class {
             parser.expect(closeDelim);
         }
         // Resolve dynamic operands with index type
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
         // Set static attribute
         if (staticAttrName && staticValues.length > 0) {
@@ -7538,7 +7472,7 @@ mlir.Dialect = class {
             }
             flags.push(value);
         } while (parser.accept(separator));
-        return new mlir.TypedAttr(flags.join(', '));
+        return new _.TypedAttr(flags.join(', '));
     }
 
     _parseEnumFlagsAngleBracketComma(parser, type) {
@@ -7564,7 +7498,7 @@ mlir.Dialect = class {
     }
 };
 
-mlir.HLODialect = class extends mlir.Dialect {
+_.HLODialect = class extends _.Dialect {
 
     constructor(operations, name) {
         super(operations, name);
@@ -7674,7 +7608,7 @@ mlir.HLODialect = class extends mlir.Dialect {
         const kernel = this._parseDims(parser);
         parser.expect('->');
         const output = this._parseDims(parser);
-        op.addAttribute(attrName, new mlir.ConvDimensionNumbersAttr(input, kernel, output));
+        op.addAttribute(attrName, new _.ConvDimensionNumbersAttr(input, kernel, output));
     }
 
     _parseWindowAttributes(parser, op, stridesAttr, paddingAttr, lhsDilationAttr, rhsDilationAttr, reversalAttr) {
@@ -7891,7 +7825,7 @@ mlir.HLODialect = class extends mlir.Dialect {
     }
 };
 
-mlir.StableHLODialect = class extends mlir.HLODialect {
+_.StableHLODialect = class extends _.HLODialect {
 
     constructor(operations) {
         super(operations, 'stablehlo');
@@ -7914,7 +7848,7 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
     parseType(parser, dialectName) {
         const typeName = parser.parseKeyword();
         if (typeName === 'token') {
-            return new mlir.Type(`!${dialectName}.token`);
+            return new _.Type(`!${dialectName}.token`);
         }
         return null;
     }
@@ -8001,10 +7935,53 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
     }
 
     _parseReduceLikeOp(parser, op) {
-        op.operands = parser.parseArguments();
-        while (parser.accept(',')) {
-            const moreOperands = parser.parseArguments();
-            op.operands.push(...moreOperands);
+        // Handle formats:
+        // 1. (%input init: %init) - single group
+        // 2. (%input1 init: %init1), (%input2 init: %init2) - multiple groups
+        // 3. %operands without parens
+        let unresolvedOperands = [];
+        const parseOneGroup = () => {
+            if (parser.accept('(')) {
+                // Parse inputs until we hit 'init:' or ')'
+                while (parser.match('%')) {
+                    unresolvedOperands.push(parser.parseOperand());
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                // Parse init values: init: %init, %init2, ...
+                if (parser.accept('id', 'init')) {
+                    parser.expect(':');
+                    while (parser.match('%')) {
+                        unresolvedOperands.push(parser.parseOperand());
+                        if (!parser.accept(',')) {
+                            break;
+                        }
+                    }
+                }
+                parser.expect(')');
+                return true;
+            }
+            return false;
+        };
+        if (parser.match('(')) {
+            // Parse first group
+            parseOneGroup();
+            // Parse additional groups: ), (%input init: %init)
+            while (parser.accept(',')) {
+                if (!parseOneGroup()) {
+                    // Not a group, might be regular operands
+                    const moreOperands = parser.parseOperandList();
+                    unresolvedOperands = unresolvedOperands.concat(moreOperands);
+                }
+            }
+        } else {
+            // Fallback: no parens, just operand list
+            unresolvedOperands = parser.parseOperandList();
+            while (parser.accept(',')) {
+                const moreOperands = parser.parseOperandList();
+                unresolvedOperands = unresolvedOperands.concat(moreOperands);
+            }
         }
         if (parser.accept('id', 'applies')) {
             const innerOpName = parser.expect('id');
@@ -8019,7 +7996,7 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
             }
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             op.addTypes(parser.parseOptionalArrowTypeList());
             return true;
         }
@@ -8044,17 +8021,10 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
             }
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             if (parser.accept('->') || parser.accept('id', 'to')) {
-                if (op.types.length > 0) {
-                    const types = parser.parseFunctionResultTypes();
-                    op.addTypes(types);
-                } else {
-                    // Parse result types from arguments format
-                    const args = parser.parseArguments();
-                    const types = args.map((a) => a.type).filter((t) => t);
-                    op.addTypes(types);
-                }
+                const types = parser.parseFunctionResultTypes();
+                op.addTypes(types);
             }
 
             return true;
@@ -8069,17 +8039,10 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
         if (parser.match('{')) {
             parser.parseAttributeDict(op.attributes);
         }
-        parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+        parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
         if (parser.accept('->') || parser.accept('id', 'to')) {
-            if (op.types.length > 0) {
-                const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
-            } else {
-                // Parse result types from arguments format
-                const args = parser.parseArguments();
-                const types = args.map((a) => a.type).filter((t) => t);
-                op.addTypes(types);
-            }
+            const types = parser.parseFunctionResultTypes();
+            op.addTypes(types);
         }
         if (parser.match('id') && !parser.match('keyword', 'loc')) {
             const label = parser.expect('id');
@@ -8114,7 +8077,7 @@ mlir.StableHLODialect = class extends mlir.HLODialect {
     }
 };
 
-mlir.VhloDialect = class extends mlir.Dialect {
+_.VhloDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vhlo');
@@ -8135,8 +8098,8 @@ mlir.VhloDialect = class extends mlir.Dialect {
         }
 
         if (opName === 'vhlo.return_v1') {
-            op.operands = parser.parseArguments();
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            const unresolvedOperands = parser.parseOperandList();
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             return true;
         }
 
@@ -8148,14 +8111,14 @@ mlir.VhloDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.InterpreterDialect = class extends mlir.Dialect {
+_.InterpreterDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'interpreter');
     }
 };
 
-mlir.AffineDialect = class extends mlir.Dialect {
+_.AffineDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'affine');
@@ -8182,7 +8145,7 @@ mlir.AffineDialect = class extends mlir.Dialect {
                 op.addAttribute('condition', `affine_set${content}`);
             }
             // Reference impl pattern: all affine operands are of type index
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             if (parser.accept('(')) {
                 while (!parser.accept(')')) {
                     if (parser.match('%')) {
@@ -8219,7 +8182,7 @@ mlir.AffineDialect = class extends mlir.Dialect {
                 op.addAttribute('map', value);
             }
             // Reference impl pattern: all affine operands are of type index
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             if (parser.match('(')) {
                 const unresolvedDims = parser.parseOperandList('paren');
                 parser.resolveOperands(unresolvedDims, unresolvedDims.map(() => indexType), op.operands);
@@ -8267,7 +8230,7 @@ mlir.AffineDialect = class extends mlir.Dialect {
         if (opName === 'affine.dma_start') {
             // Format: affine.dma_start %src[indices], %dst[indices], %tag[indices], %num_elements [, %stride, %num_elt_per_stride] : memref, memref, memref
             // Reference impl pattern: collect unresolved operands, resolve later
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             const unresolvedOperands = [];
             while (!parser.match(':') && !parser.match('{')) {
                 if (parser.match('%')) {
@@ -8293,7 +8256,7 @@ mlir.AffineDialect = class extends mlir.Dialect {
         if (opName === 'affine.dma_wait') {
             // Format: affine.dma_wait %tag[indices], %num_elements : memref
             // Reference impl pattern: collect unresolved operands, resolve later
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             const unresolvedOperands = [];
             while (!parser.match(':') && !parser.match('{')) {
                 if (parser.match('%')) {
@@ -8378,7 +8341,7 @@ mlir.AffineDialect = class extends mlir.Dialect {
         // Parse affine bound following reference implementation in AffineOps.cpp parseBound()
         // Syntax: [max|min] (ssa-id | integer | affine-map dim-and-symbol-list)
         // All affine operands have type index
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
 
         // Try parsing SSA value first (shorthand for identity map)
         if (parser.match('%')) {
@@ -8510,7 +8473,12 @@ mlir.AffineDialect = class extends mlir.Dialect {
     }
 
     _parseParallelOp(parser, op) {
-        const ivs = parser.parseArguments();
+        // Parse induction variables as block arguments
+        const ivArgs = parser.parseArgumentList('paren', false);
+        const ivs = ivArgs.map((arg) => {
+            const resolved = parser.resolveSSAUse(arg.ssaName, arg.type);
+            return resolved;
+        });
         if (!parser.accept('=')) {
             return false;
         }
@@ -8555,7 +8523,7 @@ mlir.AffineDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.MemRefDialect = class extends mlir.Dialect {
+_.MemRefDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'memref');
@@ -8594,8 +8562,8 @@ mlir.MemRefDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'memref.tensor_load') {
-            op.operands = parser.parseArguments();
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            const unresolvedOperands = parser.parseOperandList();
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             return true;
         }
         if (opName === 'memref.store') {
@@ -8630,7 +8598,7 @@ mlir.MemRefDialect = class extends mlir.Dialect {
             // Reference: parseColonType then resolveOperand/resolveOperands
             const type = parser.parseColonType();
             parser.resolveOperand(memref, type, op.operands);
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             const indexTypes = indices.map(() => indexType);
             parser.resolveOperands(indices, indexTypes, op.operands);
             return true;
@@ -8683,7 +8651,7 @@ mlir.MemRefDialect = class extends mlir.Dialect {
         const memrefType = parser.parseType();
         // Resolve operands with types and push to op.operands
         parser.resolveOperand(memref, memrefType, op.operands);
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         const indexTypes = indices.map(() => indexType);
         parser.resolveOperands(indices, indexTypes, op.operands);
         const region = op.addRegion();
@@ -8756,7 +8724,7 @@ mlir.MemRefDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.VectorDialect = class extends mlir.Dialect {
+_.VectorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vector');
@@ -8766,8 +8734,10 @@ mlir.VectorDialect = class extends mlir.Dialect {
 
     parseOperation(parser, opName, op) {
         if (opName === 'vector.splat') {
-            op.operands = parser.parseArguments();
-            op.addTypes(parser.parseOptionalColonTypeList());
+            const unresolvedOperands = parser.parseOperandList();
+            const types = parser.parseOptionalColonTypeList();
+            parser.resolveOperands(unresolvedOperands, types, op.operands);
+            op.addTypes(types);
             return true;
         }
         if (opName === 'vector.contract') {
@@ -8776,10 +8746,10 @@ mlir.VectorDialect = class extends mlir.Dialect {
             } else if (parser.match('#')) {
                 parser.expect('#');
             }
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             parser.parseOptionalAttrDict(op.attributes);
             const types = parser.parseColonTypeList();
-            parser.resolveOperands(op.operands, types);
+            parser.resolveOperands(unresolvedOperands, types, op.operands);
             // Reference: parseKeywordType("into", resultType)
             const resultType = parser.parseKeywordType('into');
             op.addTypes([resultType]);
@@ -8858,7 +8828,7 @@ mlir.VectorDialect = class extends mlir.Dialect {
         // New syntax: %r = vector.extract %v[0] : f32 from vector<4xf32>
         const unresolvedSource = parser.parseOperand();
         const unresolvedDynIndices = [];
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
 
         // Parse indices: [0, 1, ...]
         if (parser.accept('[')) {
@@ -8945,7 +8915,7 @@ mlir.VectorDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TensorDialect = class extends mlir.Dialect {
+_.TensorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tensor');
@@ -8983,7 +8953,7 @@ mlir.TensorDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TorchDialect = class extends mlir.Dialect {
+_.TorchDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'torch');
@@ -9001,14 +8971,14 @@ mlir.TorchDialect = class extends mlir.Dialect {
         }
         let type = `!${dialectName}.${typeName}`;
         if (this.simpleTypes.has(typeName)) {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (typeName === 'vtensor' || typeName === 'tensor' || typeName === 'list' || typeName === 'tuple' || typeName === 'union' || typeName === 'optional' || typeName === 'dict' || typeName.startsWith('nn.')) {
             if (parser.match('<')) {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
@@ -9020,12 +8990,12 @@ mlir.TorchDialect = class extends mlir.Dialect {
                 op.addAttribute('value', value);
             }
             parser.parseOptionalAttrDict(op.attributes);
-            op.addTypes([new mlir.Type('!torch.int')]);
+            op.addTypes([new _.Type('!torch.int')]);
             return true;
         }
         if (opName === 'torch.onnx.rotary_embedding') {
-            op.operands = parser.parseArguments();
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            const unresolvedOperands = parser.parseOperandList();
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             if (parser.accept('->')) {
                 const resultType = parser.parseType();
                 op.addTypes([resultType]);
@@ -9078,10 +9048,15 @@ mlir.TorchDialect = class extends mlir.Dialect {
     }
 
     _parseDefaultTorchOp(parser, op) {
-        op.operands = parser.parseArguments();
+        const unresolvedOperands = parser.parseOperandList();
         parser.parseOptionalAttrDict(op.attributes);
         if (parser.accept(':')) {
-            parser.resolveOperands(op.operands, parser.parseTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseTypeList(), op.operands);
+        } else {
+            // Resolve operands without types
+            for (const operand of unresolvedOperands) {
+                parser.resolveOperand(operand, null, op.operands);
+            }
         }
         if (parser.accept('->')) {
             // Handle both -> (type, type) and -> type, type syntaxes
@@ -9101,7 +9076,7 @@ mlir.TorchDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.IREEDialect = class extends mlir.Dialect {
+_.IREEDialect = class extends _.Dialect {
 
     constructor(operations, name) {
         super(operations, name);
@@ -9303,7 +9278,7 @@ mlir.IREEDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.HALDialect = class extends mlir.IREEDialect {
+_.HALDialect = class extends _.IREEDialect {
 
     constructor(operations) {
         super(operations, 'hal');
@@ -9322,18 +9297,20 @@ mlir.HALDialect = class extends mlir.IREEDialect {
         if (this.simpleTypes.has(typeName)) {
             // Note: !hal.buffer{%size} syntax is handled by custom<SizeAwareType> directive,
             // not by the type parser. The type parser just returns the base type.
-            return new mlir.Type(`!${dialectName}.${typeName}`);
+            return new _.Type(`!${dialectName}.${typeName}`);
         }
         return null;
     }
 
     parseOperation(parser, opName, op) {
         if (opName === 'hal.tensor.cast') {
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             if (parser.accept(':')) {
                 const type = parser.parseType();
-                if (op.operands.length > 0) {
-                    op.operands[0].type = type;
+                parser.resolveOperands(unresolvedOperands, [type], op.operands);
+            } else {
+                for (const operand of unresolvedOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
                 }
             }
             if (parser.accept('->')) {
@@ -9396,7 +9373,7 @@ mlir.HALDialect = class extends mlir.IREEDialect {
             }
             if (parser.accept('->')) {
                 const resultTypes = parser.parseFunctionResultTypes();
-                op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType([], resultTypes)));
+                op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], resultTypes)));
             }
             if (parser.accept('id', 'as')) {
                 if (parser.match('(')) {
@@ -9607,8 +9584,8 @@ mlir.HALDialect = class extends mlir.IREEDialect {
         if (opName === 'hal.executable.condition' || opName === 'hal.executable.constant.block') {
             const sig = parser.parseFunctionSignatureWithArguments(false);
             const argTypes = sig.arguments.map((a) => a.type);
-            const type = new mlir.FunctionType(argTypes, sig.resultTypes);
-            op.addAttribute('function_type', new mlir.TypeAttrOf(type));
+            const type = new _.FunctionType(argTypes, sig.resultTypes);
+            op.addAttribute('function_type', new _.TypeAttrOf(type));
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.match('{')) {
                 const region = op.addRegion();
@@ -9643,7 +9620,7 @@ mlir.HALDialect = class extends mlir.IREEDialect {
             const symbolRef = parser.expect('@');
             op.addAttribute('layout', symbolRef);
             const unresolvedOperands = [];
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             if (parser.accept('[')) {
                 while (!parser.accept(']')) {
                     if (parser.match('%')) {
@@ -9887,7 +9864,7 @@ mlir.HALDialect = class extends mlir.IREEDialect {
     }
 };
 
-mlir.IREECodegenDialect = class extends mlir.Dialect {
+_.IREECodegenDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'iree_codegen');
@@ -9913,7 +9890,7 @@ mlir.IREECodegenDialect = class extends mlir.Dialect {
             }
             parser.expect(')');
             // Resolve operands with index type (sizes are typically index)
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             for (const unresolved of unresolvedSizes) {
                 parser.resolveOperand(unresolved, indexType, op.operands);
             }
@@ -9927,7 +9904,7 @@ mlir.IREECodegenDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.HALLoaderDialect = class extends mlir.Dialect {
+_.HALLoaderDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'hal_loader');
@@ -9952,7 +9929,7 @@ mlir.HALLoaderDialect = class extends mlir.Dialect {
             parser.expect(']');
         } while (parser.accept(','));
         // Resolve all operands
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         for (let i = 0; i < unresolvedBuffers.length; i++) {
             parser.resolveOperand(unresolvedBuffers[i], bufferTypes[i], op.operands);
         }
@@ -9965,7 +9942,7 @@ mlir.HALLoaderDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.UtilDialect = class extends mlir.IREEDialect {
+_.UtilDialect = class extends _.IREEDialect {
 
     constructor(operations) {
         super(operations, 'util');
@@ -10015,7 +9992,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
@@ -10052,7 +10029,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
                 if (tiedType) {
                     return tiedType;
                 }
-                return new mlir.Type('!util.unknown');
+                return new _.Type('!util.unknown');
             }
             return parser.parseType();
         };
@@ -10158,7 +10135,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
                 if (tiedIndex >= 0 && argResult.arguments[tiedIndex].type) {
                     return argResult.arguments[tiedIndex].type;
                 }
-                return new mlir.Type('!util.unknown');
+                return new _.Type('!util.unknown');
             }
             tiedOperandIndices.push(-1);
             return parser.parseType();
@@ -10186,15 +10163,15 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
             }
         }
         const argTypes = argResult.arguments.filter((a) => a.value !== '...').map((a) => a.type);
-        const type = new mlir.FunctionType(argTypes, resultTypes);
-        op.addAttribute('function_type', new mlir.TypeAttrOf(type));
+        const type = new _.FunctionType(argTypes, resultTypes);
+        op.addAttribute('function_type', new _.TypeAttrOf(type));
         if (tiedOperandIndices.some((i) => i >= 0)) {
             op.addAttribute('tied_operands', tiedOperandIndices);
         }
         if (resultAttrs.some((a) => a !== null)) {
             op.addAttribute('res_attrs', resultAttrs);
         }
-        const argAttrs = argResult.arguments.filter((a) => a.value !== '...').map((a) => a.attributes || null);
+        const argAttrs = argResult.arguments.filter((a) => a.value !== '...').map((a) => a.attrs || null);
         if (argAttrs.some((a) => a !== null)) {
             op.addAttribute('arg_attrs', argAttrs);
         }
@@ -10278,7 +10255,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
             parser.expect(']');
         } while (parser.accept(','));
         // Resolve all operands with index type
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         for (const unresolved of unresolvedOffsets) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
@@ -10300,7 +10277,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
         } else if (listType && listType.value) {
             const match = listType.value.match(/!util\.list<(.+)>/);
             if (match) {
-                elementType = new mlir.Type(match[1]);
+                elementType = new _.Type(match[1]);
             }
         }
         // Push types to the arrays
@@ -10325,7 +10302,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
             listType = leadingType;
             const match = leadingType.value.match(/!util\.list<(.+)>/);
             if (match) {
-                elementType = new mlir.Type(match[1]);
+                elementType = new _.Type(match[1]);
             }
         }
         // Push types to the arrays
@@ -10353,7 +10330,7 @@ mlir.UtilDialect = class extends mlir.IREEDialect {
     }
 };
 
-mlir.FlowDialect = class extends mlir.IREEDialect {
+_.FlowDialect = class extends _.IREEDialect {
 
     constructor(operations) {
         super(operations, 'flow');
@@ -10370,14 +10347,14 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
         }
         let type = `!${dialectName}.${typeName}`;
         if (typeName === 'channel') {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (typeName === 'dispatch.tensor') {
             if (parser.match('<')) {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
@@ -10435,7 +10412,7 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
                             const resultType = parser.parseType();
                             results.push(resultType);
                         } else {
-                            results.push(new mlir.Type('tied'));
+                            results.push(new _.Type('tied'));
                         }
                     } else {
                         const resultType = parser.parseType();
@@ -10453,7 +10430,7 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
                 parser.expect(')');
             }
         }
-        op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
         if (parser.match('{')) {
             const region = op.addRegion();
@@ -10502,20 +10479,13 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
                 parser.accept(',');
             }
         }
-        op.operands = parser.parseArguments();
+        const unresolvedOperands = parser.parseOperandList('paren');
         // Reference: parseOptionalColonTypeList
-        parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+        parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
         // Reference: parseOptionalArrowTypeList for results
         if (parser.accept('->')) {
-            if (op.types.length > 0) {
-                const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
-            } else {
-                // Parse result types from arguments format
-                const args = parser.parseArguments();
-                const types = args.map((a) => a.type).filter((t) => t);
-                op.addTypes(types);
-            }
+            const types = parser.parseFunctionResultTypes();
+            op.addTypes(types);
         }
         // Parse optional attributes before =
         if (parser.accept('id', 'attributes')) {
@@ -10749,14 +10719,14 @@ mlir.FlowDialect = class extends mlir.IREEDialect {
         for (let i = 0; i < unresolvedValues.length; i++) {
             parser.resolveOperand(unresolvedValues[i], valueTypes[i], op.operands);
         }
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         for (const unresolved of unresolvedDims) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
     }
 };
 
-mlir.StreamDialect = class extends mlir.IREEDialect {
+_.StreamDialect = class extends _.IREEDialect {
 
     constructor(operations, name = 'stream') {
         super(operations, name);
@@ -10801,7 +10771,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
             op.addAttribute('resource_access', accessMode);
             // Resolve operands
             parser.resolveOperand(unresolvedResource, resourceType, op.operands);
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             parser.resolveOperand(unresolvedOffset, indexType, op.operands);
             parser.resolveOperand(unresolvedLength, indexType, op.operands);
         } while (parser.accept(','));
@@ -10848,7 +10818,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
         for (let i = 0; i < unresolvedOperands.length; i++) {
             parser.resolveOperand(unresolvedOperands[i], operandTypes[i] || null, op.operands);
         }
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         for (const unresolved of unresolvedSizes) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
@@ -10864,7 +10834,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
         const unresolvedOperands = [];
         const operandTypes = [];
         const unresolvedSizes = [];
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         parser.expect('(');
         if (!parser.match(')')) {
             do {
@@ -10900,7 +10870,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
                     const resultType = parser.parseType();
                     op.addTypes([resultType]);
                 } else {
-                    op.addTypes([new mlir.Type('tied')]);
+                    op.addTypes([new _.Type('tied')]);
                 }
             } else {
                 const resultType = parser.parseType();
@@ -10939,7 +10909,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
     _parseParameterLoadOperations(parser, op /*, args */) {
         // Reference: IOParametersOps.cpp parseParameterLoadOperations
         // Format: "scope"::"key"[%offset] : type{%size}, ...
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         do {
             // Parse parameter reference: "scope"::"key" or just "key"
             const firstAttr = parser.expect('string');
@@ -11005,7 +10975,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
         if (parser.accept('{')) {
             if (parser.match('%')) {
                 const unresolvedSize = parser.parseOperand();
-                const indexType = new mlir.PrimitiveType('index');
+                const indexType = new _.PrimitiveType('index');
                 parser.resolveOperand(unresolvedSize, indexType, op.operands);
             }
             parser.expect('}');
@@ -11159,7 +11129,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
                 if (parser.accept('id', 'as')) {
                     return parser.parseType();
                 }
-                return new mlir.Type('tied');
+                return new _.Type('tied');
             }
             return parser.parseType();
         };
@@ -11177,7 +11147,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
                 parser.skip('{');
             }
         }
-        op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
     }
 
     // Parse: shaped function signature
@@ -11198,7 +11168,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
                     const size = parser.parseAttribute();
                     if (size) {
                         // If it's an integer literal, create operand directly
-                        op.operands.push(new mlir.Operand(null, size));
+                        op.operands.push(new _.Value(null, size));
                     }
                 }
                 parser.expect('}');
@@ -11216,7 +11186,7 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
     _parseCmdCallOperands(parser, op /*, args */) {
         parser.expect('(');
         if (!parser.match(')')) {
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             do {
                 // Check for access mode keyword (ro, rw, wo)
                 const accessMode = parser.accept('id', 'ro') || parser.accept('id', 'rw') || parser.accept('id', 'wo');
@@ -11319,14 +11289,14 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
         let type = `!${dialectName}.${typeName}`;
         const simpleTypes = ['binding', 'channel', 'timepoint', 'file'];
         if (simpleTypes.includes(typeName)) {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (typeName === 'resource') {
             if (parser.match('<')) {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         // Handle test.fence type (Stream_TestFence in StreamTypes.td)
         // Reference: mnemonic = "test.fence" means the type name after stream. is "test.fence"
@@ -11334,19 +11304,19 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
             if (parser.accept('.')) {
                 const subtype = parser.parseKeyword();
                 if (subtype === 'fence') {
-                    return new mlir.Type(`!${dialectName}.test.fence`);
+                    return new _.Type(`!${dialectName}.test.fence`);
                 }
                 // Handle unknown test.X subtypes generically
-                return new mlir.Type(`!${dialectName}.test.${subtype}`);
+                return new _.Type(`!${dialectName}.test.${subtype}`);
             }
             // Just "test" without subtype - return as is
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         // Fallback for unknown stream types - parse generically like base Dialect
         if (parser.match('<')) {
             type += parser.skip('<');
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseOperation(parser, opName, op) {
@@ -11387,14 +11357,14 @@ mlir.StreamDialect = class extends mlir.IREEDialect {
     }
 };
 
-mlir.IOParametersDialect = class extends mlir.StreamDialect {
+_.IOParametersDialect = class extends _.StreamDialect {
 
     constructor(operations) {
         super(operations, 'io_parameters');
     }
 };
 
-mlir.PCFDialect = class extends mlir.Dialect {
+_.PCFDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'pcf');
@@ -11506,7 +11476,7 @@ mlir.PCFDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.IREEVectorExtDialect = class extends mlir.Dialect {
+_.IREEVectorExtDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'iree_vector_ext');
@@ -11566,7 +11536,7 @@ mlir.IREEVectorExtDialect = class extends mlir.Dialect {
             }
             // Resolve all operands
             parser.resolveOperand(unresolvedSource, sourceType, op.operands);
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             for (const idx of unresolvedIndices) {
                 parser.resolveOperand(idx, indexType, op.operands);
             }
@@ -11582,7 +11552,7 @@ mlir.IREEVectorExtDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.IREETensorExtDialect = class extends mlir.Dialect {
+_.IREETensorExtDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'iree_tensor_ext');
@@ -11596,13 +11566,13 @@ mlir.IREETensorExtDialect = class extends mlir.Dialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
 };
 
-mlir.LinalgDialect = class extends mlir.Dialect {
+_.LinalgDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'linalg');
@@ -11655,14 +11625,15 @@ mlir.LinalgDialect = class extends mlir.Dialect {
             if (parser.match('id', 'ins') || parser.match('{')) {
                 return this._parseInsOutsOp(parser, op);
             }
+            let unresolvedOperands = [];
             if (parser.accept('(')) {
-                op.operands = parser.parseArguments();
+                unresolvedOperands = parser.parseOperandList();
                 parser.expect(')');
             }
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
             }
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             if (parser.accept('->')) {
                 const types = parser.parseFunctionResultTypes();
                 op.addTypes(types);
@@ -11670,19 +11641,20 @@ mlir.LinalgDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'linalg.conv') {
+            let unresolvedOperands = [];
             if (parser.accept('(')) {
-                op.operands = parser.parseArguments();
+                unresolvedOperands = parser.parseOperandList();
                 parser.expect(')');
             }
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
             }
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             return true;
         }
         if (opName === 'linalg.yield') {
-            op.operands = parser.parseArguments();
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            const unresolvedOperands = parser.parseOperandList();
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             return true;
         }
         if (opName === 'linalg.transpose') {
@@ -11843,7 +11815,7 @@ mlir.LinalgDialect = class extends mlir.Dialect {
                     break;
                 }
                 const operation = parser.parseOperation();
-                block.operations.push(mlir.Operation.create(operation));
+                block.operations.push(_.Operation.create(operation));
             }
             region.blocks.push(block);
             op.regions.push(region);
@@ -12022,7 +11994,7 @@ mlir.LinalgDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ONNXDialect = class extends mlir.Dialect {
+_.ONNXDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'onnx');
@@ -12066,7 +12038,7 @@ mlir.ONNXDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.KrnlDialect = class extends mlir.Dialect {
+_.KrnlDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'krnl');
@@ -12154,7 +12126,11 @@ mlir.KrnlDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'krnl.iterate') {
-            op.operands = parser.parseArguments();
+            // Syntax: krnl.iterate(%ib, %il) with (...)
+            const unresolvedOperands = parser.parseOperandList('paren');
+            for (const operand of unresolvedOperands) {
+                parser.resolveOperand(operand, null, op.operands);
+            }
             if (parser.accept('id', 'with')) {
                 parser.expect('(');
                 const numOptimizedLoops = op.operands.length;
@@ -12222,7 +12198,7 @@ mlir.KrnlDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.MhloDialect = class extends mlir.HLODialect {
+_.MhloDialect = class extends _.HLODialect {
 
     constructor(operations) {
         super(operations, 'mhlo');
@@ -12267,7 +12243,7 @@ mlir.MhloDialect = class extends mlir.HLODialect {
                 const comparisonDirection = parser.expect('id');
                 op.addAttribute('comparison_direction', comparisonDirection);
                 parser.expect(',');
-                op.operands = parser.parseArguments();
+                const unresolvedOperands = parser.parseOperandList();
                 // Check for optional compare_type
                 if (parser.accept(',') && parser.match('id')) {
                     const compareType = parser.expect('id');
@@ -12277,16 +12253,17 @@ mlir.MhloDialect = class extends mlir.HLODialect {
                 if (parser.accept(':')) {
                     // Reference: Parse FunctionType (type, type) -> type or just type list
                     const type = parser.parseType();
-                    if (type instanceof mlir.FunctionType) {
-                        parser.resolveOperands(op.operands, type.inputs);
+                    if (type instanceof _.FunctionType) {
+                        parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
                         op.addTypes(type.results);
                     } else {
                         // Single type applied to all operands
-                        for (const operand of op.operands) {
-                            if (!operand.type) {
-                                operand.type = type;
-                            }
-                        }
+                        const types = unresolvedOperands.map(() => type);
+                        parser.resolveOperands(unresolvedOperands, types, op.operands);
+                    }
+                } else {
+                    for (const operand of unresolvedOperands) {
+                        parser.resolveOperand(operand, null, op.operands);
                     }
                 }
                 return true;
@@ -12390,7 +12367,7 @@ mlir.MhloDialect = class extends mlir.HLODialect {
             // Reference: Use FunctionType pattern
             if (parser.accept(':')) {
                 const type = parser.parseType();
-                if (type instanceof mlir.FunctionType) {
+                if (type instanceof _.FunctionType) {
                     parser.resolveOperands(allUnresolved, type.inputs, op.operands);
                     op.addTypes(type.results);
                 } else {
@@ -12431,15 +12408,15 @@ mlir.MhloDialect = class extends mlir.HLODialect {
             const tensorType = elementType ? `tensor<${elementType}>` : null;
             block.arguments.push({ value: '%lhs', type: tensorType });
             block.arguments.push({ value: '%rhs', type: tensorType });
-            const innerOp = new mlir.OperationState(innerOpName);
-            // Use proper mlir.Operand instances for synthetic operands
-            innerOp.operands.push(new mlir.Operand('%lhs', tensorType));
-            innerOp.operands.push(new mlir.Operand('%rhs', tensorType));
+            const innerOp = new _.OperationState(innerOpName);
+            // Use proper _.Value instances for synthetic operands
+            innerOp.operands.push(new _.Value('%lhs', tensorType));
+            innerOp.operands.push(new _.Value('%rhs', tensorType));
             innerOp.addTypes([tensorType]);
-            block.operations.push(mlir.Operation.create(innerOp));
-            const returnOp = new mlir.OperationState('mhlo.return');
-            returnOp.operands.push(new mlir.Operand('%0', tensorType));
-            block.operations.push(mlir.Operation.create(returnOp));
+            block.operations.push(_.Operation.create(innerOp));
+            const returnOp = new _.OperationState('mhlo.return');
+            returnOp.operands.push(new _.Value('%0', tensorType));
+            block.operations.push(_.Operation.create(returnOp));
             region.blocks.push(block);
             op.regions.push(region);
             return true;
@@ -12501,22 +12478,25 @@ mlir.MhloDialect = class extends mlir.HLODialect {
     }
 
     parseOneResultSameOperandTypeOp(parser, op) {
-        op.operands = parser.parseArguments();
+        const unresolvedOperands = parser.parseOperandList();
         parser.parseOptionalAttrDict(op.attributes);
         if (parser.accept(':')) {
             const type = parser.parseType();
-            for (const operand of op.operands) {
-                operand.type = type;
-            }
+            const types = unresolvedOperands.map(() => type);
+            parser.resolveOperands(unresolvedOperands, types, op.operands);
             if (op.types.length > 0) {
                 op.types[0] = type;
+            }
+        } else {
+            for (const operand of unresolvedOperands) {
+                parser.resolveOperand(operand, null, op.operands);
             }
         }
         return true;
     }
 };
 
-mlir.THLODialect = class extends mlir.Dialect {
+_.THLODialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'thlo');
@@ -12581,7 +12561,7 @@ mlir.THLODialect = class extends mlir.Dialect {
             parser.expect('{');
             while (!parser.accept('}')) {
                 const operation = parser.parseOperation();
-                block.operations.push(mlir.Operation.create(operation));
+                block.operations.push(_.Operation.create(operation));
             }
             region.blocks.push(block);
             op.regions.push(region);
@@ -12590,7 +12570,7 @@ mlir.THLODialect = class extends mlir.Dialect {
     }
 };
 
-mlir.QuantDialect = class extends mlir.Dialect {
+_.QuantDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'quant');
@@ -12604,13 +12584,13 @@ mlir.QuantDialect = class extends mlir.Dialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
 };
 
-mlir.TosaDialect = class extends mlir.Dialect {
+_.TosaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tosa');
@@ -12632,11 +12612,11 @@ mlir.TosaDialect = class extends mlir.Dialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         // Reference: TosaTypesBase.td - mxint8 is a simple type without parameters
         if (typeName === 'mxint8') {
-            return new mlir.Type(`!${dialectName}.mxint8`);
+            return new _.Type(`!${dialectName}.mxint8`);
         }
         return null;
     }
@@ -12717,7 +12697,7 @@ mlir.TosaDialect = class extends mlir.Dialect {
             return true;
         }
         if (this._customOps.has(opName) && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             if (parser.match('{')) {
                 // Parse attribute dict but check if any are actually inputs
                 const opInfo = this.getOperation(opName);
@@ -12727,11 +12707,11 @@ mlir.TosaDialect = class extends mlir.Dialect {
                 for (const [name, value] of tempAttrs) {
                     // If this is an input (like input_zp, output_zp), add as operand
                     if (inputNames.has(name) && value && typeof value === 'string' && value.startsWith('%')) {
-                        const unresolvedOperand = new mlir.UnresolvedOperand(value, 0, null);
-                        parser.resolveOperand(unresolvedOperand, null, op.operands);
+                        const unresolvedOperand = new _.UnresolvedOperand(value, 0, null);
+                        unresolvedOperands.push(unresolvedOperand);
                     } else if (inputNames.has(name) && value && value.value && typeof value.value === 'string' && value.value.startsWith('%')) {
-                        const unresolvedOperand = new mlir.UnresolvedOperand(value.value, 0, null);
-                        parser.resolveOperand(unresolvedOperand, null, op.operands);
+                        const unresolvedOperand = new _.UnresolvedOperand(value.value, 0, null);
+                        unresolvedOperands.push(unresolvedOperand);
                     } else {
                         op.attributes.set(name, value);
                     }
@@ -12739,19 +12719,20 @@ mlir.TosaDialect = class extends mlir.Dialect {
             }
             if (parser.accept(':')) {
                 const type = parser.parseType();
-                if (type instanceof mlir.FunctionType) {
-                    parser.resolveOperands(op.operands, type.inputs);
+                if (type instanceof _.FunctionType) {
+                    parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
                     op.addTypes(type.results);
                 } else {
-                    for (const operand of op.operands) {
-                        if (!operand.type) {
-                            operand.type = type;
-                        }
-                    }
+                    const types = unresolvedOperands.map(() => type);
+                    parser.resolveOperands(unresolvedOperands, types, op.operands);
                     if (parser.accept('->')) {
                         const resultTypes = parser.parseFunctionResultTypes();
                         op.addTypes(resultTypes);
                     }
+                }
+            } else {
+                for (const operand of unresolvedOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
                 }
             }
             return true;
@@ -12770,7 +12751,7 @@ mlir.TosaDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.IRDLDialect = class extends mlir.Dialect {
+_.IRDLDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'irdl');
@@ -12888,7 +12869,7 @@ mlir.IRDLDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.XeGPUDialect = class extends mlir.Dialect {
+_.XeGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xegpu');
@@ -12928,7 +12909,7 @@ mlir.XeGPUDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ShardDialect = class extends mlir.Dialect {
+_.ShardDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'shard');
@@ -12983,7 +12964,7 @@ mlir.ShardDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.SPIRVDialect = class extends mlir.Dialect {
+_.SPIRVDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'spirv');
@@ -13102,7 +13083,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseOperation(parser, opName, op) {
@@ -13570,7 +13551,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             if (parser.accept('->')) {
                 parser.parseFunctionResultList(results, resultAttrs);
             }
-            op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+            op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
             if (parser.match('string')) {
                 const control = parser.expect('string');
                 op.addAttribute('function_control', control);
@@ -13627,7 +13608,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
             op.operands = [];
             while (parser.match('@')) {
                 const symbol = parser.expect('@');
-                op.addAttribute('fn', new mlir.SymbolRefAttr(symbol));
+                op.addAttribute('fn', new _.SymbolRefAttr(symbol));
                 parser.accept(',');
             }
             return true;
@@ -13635,7 +13616,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
         if (opName === 'spirv.ExecutionMode' || opName === 'spv.ExecutionMode') {
             if (parser.match('@')) {
                 const symbol = parser.expect('@');
-                op.addAttribute('fn', new mlir.SymbolRefAttr(symbol));
+                op.addAttribute('fn', new _.SymbolRefAttr(symbol));
             }
             if (parser.match('string')) {
                 const mode = parser.expect('string');
@@ -13674,7 +13655,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
         // Format: spirv.CompositeInsert %object, %composite[indices] : object-type into composite-type
         if (opName === 'spirv.CompositeInsert' || opName === 'spv.CompositeInsert') {
             // Parse operands (object and composite)
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             // Parse indices as attributes
             if (parser.accept('[')) {
                 const indices = [];
@@ -13688,7 +13669,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
                 }
                 op.addAttribute('indices', indices);
             }
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             if (parser.accept('id', 'into')) {
                 const resultType = parser.parseType();
                 op.types = [resultType];
@@ -13705,10 +13686,15 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
         ]);
         if (arithmeticExtendedOps.has(opName)) {
             parser.parseOptionalAttrDict(op.attributes);
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             if (parser.accept(':')) {
                 const resultType = parser.parseType();
+                parser.resolveOperands(unresolvedOperands, [resultType, resultType], op.operands);
                 op.addTypes([resultType]);
+            } else {
+                for (const operand of unresolvedOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
+                }
             }
             return true;
         }
@@ -13787,7 +13773,7 @@ mlir.SPIRVDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.WasmSSADialect = class extends mlir.Dialect {
+_.WasmSSADialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'wasmssa');
@@ -13801,7 +13787,7 @@ mlir.WasmSSADialect = class extends mlir.Dialect {
             parser.expect('id', 'ref');
             parser.expect('id', 'to');
             const elementType = parser.parseType();
-            return new mlir.Type(`!wasmssa<local ref to ${elementType}>`);
+            return new _.Type(`!wasmssa<local ref to ${elementType}>`);
         }
         return null;
     }
@@ -13816,7 +13802,7 @@ mlir.WasmSSADialect = class extends mlir.Dialect {
             parser.expect('id', 'as');
             parser.parseSymbolName('sym_name', op.attributes);
             if (parser.accept('id', 'mutable')) {
-                op.addAttribute('isMutable', new mlir.UnitAttr());
+                op.addAttribute('isMutable', new _.UnitAttr());
             }
             parser.expect(':');
             const type = parser.parseType();
@@ -13825,13 +13811,13 @@ mlir.WasmSSADialect = class extends mlir.Dialect {
         }
         if (opName === 'wasmssa.global') {
             if (parser.accept('id', 'exported')) {
-                op.addAttribute('exported', new mlir.UnitAttr());
+                op.addAttribute('exported', new _.UnitAttr());
             }
             parser.parseSymbolName('sym_name', op.attributes);
             const type = parser.parseType();
             op.addAttribute('type', type);
             if (parser.accept('id', 'mutable')) {
-                op.addAttribute('isMutable', new mlir.UnitAttr());
+                op.addAttribute('isMutable', new _.UnitAttr());
             }
             parser.expect(':');
             const region = op.addRegion();
@@ -13840,7 +13826,7 @@ mlir.WasmSSADialect = class extends mlir.Dialect {
         }
         if (opName === 'wasmssa.func') {
             if (parser.accept('id', 'exported')) {
-                op.addAttribute('exported', new mlir.UnitAttr());
+                op.addAttribute('exported', new _.UnitAttr());
             }
             parser.parseFunctionOp(op, false);
             return true;
@@ -13856,7 +13842,7 @@ mlir.WasmSSADialect = class extends mlir.Dialect {
         parser.expect('id', 'ref');
         parser.expect('id', 'to');
         const elementType = parser.parseType();
-        return new mlir.Type(`ref to ${elementType}`);
+        return new _.Type(`ref to ${elementType}`);
     }
 
     // Parse ElseRegion directive: `else { ... }` or empty
@@ -13869,7 +13855,7 @@ mlir.WasmSSADialect = class extends mlir.Dialect {
     }
 };
 
-mlir.CFDialect = class extends mlir.Dialect {
+_.CFDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'cf');
@@ -13959,7 +13945,7 @@ mlir.CFDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.PDLDialect = class extends mlir.Dialect {
+_.PDLDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'pdl');
@@ -14097,7 +14083,7 @@ mlir.PDLDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.PDLInterpDialect = class extends mlir.Dialect {
+_.PDLInterpDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'pdl_interp');
@@ -14214,7 +14200,7 @@ mlir.PDLInterpDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.PtrDialect = class extends mlir.Dialect {
+_.PtrDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ptr');
@@ -14238,13 +14224,13 @@ mlir.PtrDialect = class extends mlir.Dialect {
     _parsePtrTypeShorthand(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!ptr.ptr${content}`);
+            return new _.Type(`!ptr.ptr${content}`);
         }
         return parser.parseType();
     }
 };
 
-mlir.EmitCDialect = class extends mlir.Dialect {
+_.EmitCDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'emitc');
@@ -14295,7 +14281,7 @@ mlir.EmitCDialect = class extends mlir.Dialect {
                     // Try to extract result type from function type
                     const match = type.value.match(/\) -> (.+)$/);
                     if (match) {
-                        op.addTypes([new mlir.Type(match[1])]);
+                        op.addTypes([new _.Type(match[1])]);
                     }
                 }
             }
@@ -14360,7 +14346,7 @@ mlir.EmitCDialect = class extends mlir.Dialect {
     _parseLValueType(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!emitc.lvalue${content}`);
+            return new _.Type(`!emitc.lvalue${content}`);
         }
         return null;
     }
@@ -14390,7 +14376,7 @@ mlir.EmitCDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.AsukaDialect = class extends mlir.Dialect {
+_.AsukaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'asuka');
@@ -14439,7 +14425,7 @@ mlir.AsukaDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.AsyncDialect = class extends mlir.Dialect {
+_.AsyncDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'async');
@@ -14461,24 +14447,24 @@ mlir.AsyncDialect = class extends mlir.Dialect {
                     type += `.${subType}`;
                 }
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         const simpleTypes = ['token', 'group'];
         if (simpleTypes.includes(typeName)) {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (typeName === 'value') {
             if (parser.match('<')) {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         // Fallback for unknown async types
         if (parser.match('<')) {
             type += parser.skip('<');
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseOperation(parser, opName, op) {
@@ -14556,7 +14542,7 @@ mlir.AsyncDialect = class extends mlir.Dialect {
         if (parser.accept('->')) {
             parser.parseFunctionResultList(results, resultAttrs);
         }
-        op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
         if (parser.match('{')) {
             const region = op.addRegion();
@@ -14579,7 +14565,7 @@ mlir.AsyncDialect = class extends mlir.Dialect {
                 // Extract the inner type and set it as the result type
                 const [, innerType] = match;
                 if (op.types.length > 0) {
-                    op.types[0] = new mlir.Type(innerType);
+                    op.types[0] = new _.Type(innerType);
                 }
             }
         }
@@ -14588,13 +14574,13 @@ mlir.AsyncDialect = class extends mlir.Dialect {
     _parseValueTypeShorthand(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!async.value${content}`);
+            return new _.Type(`!async.value${content}`);
         }
         return parser.parseType();
     }
 };
 
-mlir.ArithDialect = class extends mlir.Dialect {
+_.ArithDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'arith');
@@ -14610,7 +14596,7 @@ mlir.ArithDialect = class extends mlir.Dialect {
     }
 
     _parseSelectOp(parser, op) {
-        op.operands = parser.parseArguments();
+        const unresolvedOperands = parser.parseOperandList();
         if (parser.match('{')) {
             parser.parseAttributeDict(op.attributes);
         }
@@ -14618,29 +14604,33 @@ mlir.ArithDialect = class extends mlir.Dialect {
             const condType = parser.parseType();
             if (parser.accept(',')) {
                 const resultType = parser.parseType();
-                if (op.operands.length > 0) {
-                    op.operands[0].type = condType;
-                }
-                if (op.operands.length > 1) {
-                    op.operands[1].type = resultType;
-                    op.operands[2].type = resultType;
-                }
+                const types = [condType, resultType, resultType];
+                parser.resolveOperands(unresolvedOperands, types, op.operands);
                 if (op.types.length > 0) {
                     op.types[0] = resultType;
                 } else {
                     op.addTypes([resultType]);
                 }
-            } else if (op.types.length > 0) {
-                op.types[0] = condType;
             } else {
-                op.addTypes([condType]);
+                // Single type for all
+                const types = unresolvedOperands.map(() => condType);
+                parser.resolveOperands(unresolvedOperands, types, op.operands);
+                if (op.types.length > 0) {
+                    op.types[0] = condType;
+                } else {
+                    op.addTypes([condType]);
+                }
+            }
+        } else {
+            for (const operand of unresolvedOperands) {
+                parser.resolveOperand(operand, null, op.operands);
             }
         }
         return true;
     }
 };
 
-mlir.BuiltinDialect = class extends mlir.Dialect {
+_.BuiltinDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'builtin');
@@ -14649,8 +14639,8 @@ mlir.BuiltinDialect = class extends mlir.Dialect {
     parseOperation(parser, opName, op) {
         if (opName === 'builtin.call' || opName === 'builtin.call_indirect') {
             parser.parseSymbolName('callee', op.attributes);
-            op.operands = parser.parseArguments();
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            const unresolvedOperands = parser.parseOperandList();
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             if (parser.accept('->')) {
                 const resultTypes = parser.parseFunctionResultTypes();
                 op.addTypes(resultTypes);
@@ -14661,7 +14651,7 @@ mlir.BuiltinDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.BufferizationDialect = class extends mlir.Dialect {
+_.BufferizationDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'bufferization');
@@ -14700,7 +14690,7 @@ mlir.BufferizationDialect = class extends mlir.Dialect {
             if (parser.accept(':')) {
                 const resultType = parser.parseType();
                 // Resolve dynamic dim operands - their type is index
-                const indexType = new mlir.PrimitiveType('index');
+                const indexType = new _.PrimitiveType('index');
                 parser.resolveOperands(unresolvedDynamicDims, unresolvedDynamicDims.map(() => indexType), op.operands);
                 // Resolve copy operand if present - its type is the result type
                 if (unresolvedCopy) {
@@ -14746,7 +14736,7 @@ mlir.BufferizationDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.SCFDialect = class extends mlir.Dialect {
+_.SCFDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'scf');
@@ -14790,7 +14780,7 @@ mlir.SCFDialect = class extends mlir.Dialect {
             return false;
         }
         // Reference impl pattern: collect unresolved operands, then resolve with index type
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         let unresolvedLb = null;
         if (parser.match('%')) {
             unresolvedLb = parser.parseOperand();
@@ -14876,7 +14866,7 @@ mlir.SCFDialect = class extends mlir.Dialect {
         } else {
             return false;
         }
-        const i1Type = new mlir.PrimitiveType('i1');
+        const i1Type = new _.PrimitiveType('i1');
         parser.resolveOperands([unresolvedCond], [i1Type], op.operands);
         op.addTypes(parser.parseOptionalArrowTypeList());
         if (parser.match('{')) {
@@ -14942,7 +14932,7 @@ mlir.SCFDialect = class extends mlir.Dialect {
 
     _parseForallOp(parser, op) {
         // Reference: SCF/IR/SCF.cpp ForallOp::parse
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         const inductionVars = [];
         if (!parser.accept('(')) {
             return false;
@@ -15043,7 +15033,7 @@ mlir.SCFDialect = class extends mlir.Dialect {
 
     _parseParallelOp(parser, op) {
         // Reference: SCF/IR/SCF.cpp ParallelOp::parse
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         const inductionVars = [];
         if (!parser.accept('(')) {
             return false;
@@ -15205,7 +15195,7 @@ mlir.SCFDialect = class extends mlir.Dialect {
 
 };
 
-mlir.ShapeDialect = class extends mlir.Dialect {
+_.ShapeDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'shape');
@@ -15224,7 +15214,7 @@ mlir.ShapeDialect = class extends mlir.Dialect {
         }
         const simpleTypes = ['shape', 'witness', 'size', 'value_shape'];
         if (simpleTypes.includes(type.substring(7))) { // Remove "!shape." prefix
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
@@ -15255,7 +15245,7 @@ mlir.ShapeDialect = class extends mlir.Dialect {
         }
         const unresolvedWitness = parser.parseOperand();
         // Witness has type !shape.witness
-        const witnessType = new mlir.Type('!shape.witness');
+        const witnessType = new _.Type('!shape.witness');
         parser.resolveOperand(unresolvedWitness, witnessType, op.operands);
         if (parser.accept('->')) {
             const types = parser.parseFunctionResultTypes();
@@ -15293,7 +15283,7 @@ mlir.ShapeDialect = class extends mlir.Dialect {
             }
         }
         parser.accept(')');
-        let shapeType = new mlir.Type('!shape.shape');
+        let shapeType = new _.Type('!shape.shape');
         if (parser.accept(':')) {
             shapeType = parser.parseType();
         }
@@ -15334,7 +15324,7 @@ mlir.ShapeDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.SparseTensorDialect = class extends mlir.Dialect {
+_.SparseTensorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'sparse_tensor');
@@ -15523,7 +15513,7 @@ mlir.SparseTensorDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.FuncDialect = class extends mlir.Dialect {
+_.FuncDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'func');
@@ -15538,7 +15528,7 @@ mlir.FuncDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.GpuDialect = class extends mlir.Dialect {
+_.GpuDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'gpu');
@@ -15565,7 +15555,7 @@ mlir.GpuDialect = class extends mlir.Dialect {
         // Parse optional `: type`, default to index type
         // typeArg1 = type($gridSizeX), typeArg2 = ref($clusterSizeX)
         // clusterTypeArg1/2/3 = type($clusterSizeX/Y/Z)
-        let dimType = new mlir.PrimitiveType('index');
+        let dimType = new _.PrimitiveType('index');
         if (parser.accept(':')) {
             dimType = parser.parseType();
         }
@@ -15594,8 +15584,8 @@ mlir.GpuDialect = class extends mlir.Dialect {
             parser.parseSymbolName('sym_name', op.attributes);
             const sig = parser.parseFunctionSignatureWithArguments(false);
             const argTypes = sig.arguments.map((a) => a.type);
-            const type = new mlir.FunctionType(argTypes, sig.resultTypes);
-            op.addAttribute('function_type', new mlir.TypeAttrOf(type));
+            const type = new _.FunctionType(argTypes, sig.resultTypes);
+            op.addAttribute('function_type', new _.TypeAttrOf(type));
             const allArgs = [...sig.arguments];
             if (parser.accept('id', 'workgroup')) {
                 const workgroupResult = parser.parseFunctionArgumentList(false);
@@ -15617,7 +15607,7 @@ mlir.GpuDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'gpu.launch') {
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             if (parser.accept('id', 'async')) {
                 if (parser.getNumResults() === 0) {
                     throw new mlir.Error(`Operation '${opName}' needs to be named when marked 'async' ${parser.location()}`);
@@ -15698,7 +15688,7 @@ mlir.GpuDialect = class extends mlir.Dialect {
     _parseWarpExecuteOnLane0Op(parser, op) {
         parser.expect('(');
         const unresolvedLaneId = parser.parseOperand();
-        const indexType = new mlir.PrimitiveType('index');
+        const indexType = new _.PrimitiveType('index');
         parser.resolveOperand(unresolvedLaneId, indexType, op.operands);
         parser.expect(')');
         parser.expect('[');
@@ -15707,8 +15697,7 @@ mlir.GpuDialect = class extends mlir.Dialect {
         parser.expect(']');
         if (parser.accept('id', 'args')) {
             parser.expect('(');
-            const args = parser.parseArguments();
-            const unresolvedArgs = args.map((a) => a.value);
+            const unresolvedArgs = parser.parseOperandList('none');
             if (parser.accept(':')) {
                 const types = parser.parseTypeListNoParens();
                 parser.resolveOperands(unresolvedArgs, types, op.operands);
@@ -15793,7 +15782,7 @@ mlir.GpuDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ArmSMEDialect = class extends mlir.Dialect {
+_.ArmSMEDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'arm_sme');
@@ -15803,21 +15792,21 @@ mlir.ArmSMEDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ArmNeonDialect = class extends mlir.Dialect {
+_.ArmNeonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'arm_neon');
     }
 };
 
-mlir.ArmSVEDialect = class extends mlir.Dialect {
+_.ArmSVEDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'arm_sve');
     }
 };
 
-mlir.AMDGPUDialect = class extends mlir.Dialect {
+_.AMDGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'amdgpu');
@@ -15836,7 +15825,7 @@ mlir.AMDGPUDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.NVGPUDialect = class extends mlir.Dialect {
+_.NVGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'nvgpu');
@@ -15849,7 +15838,7 @@ mlir.NVGPUDialect = class extends mlir.Dialect {
     _parseTensorMapDescriptor(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!nvgpu.tensormap.descriptor${content}`);
+            return new _.Type(`!nvgpu.tensormap.descriptor${content}`);
         }
         return null;
     }
@@ -15857,7 +15846,7 @@ mlir.NVGPUDialect = class extends mlir.Dialect {
     _parseWarpgroupAccumulator(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!nvgpu.warpgroup.accumulator${content}`);
+            return new _.Type(`!nvgpu.warpgroup.accumulator${content}`);
         }
         return null;
     }
@@ -15865,7 +15854,7 @@ mlir.NVGPUDialect = class extends mlir.Dialect {
     _parseWarpgroupMatrixDescriptor(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!nvgpu.warpgroup.descriptor${content}`);
+            return new _.Type(`!nvgpu.warpgroup.descriptor${content}`);
         }
         return null;
     }
@@ -15873,13 +15862,13 @@ mlir.NVGPUDialect = class extends mlir.Dialect {
     _parseMBarrierGroup(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!nvgpu.mbarrier.barrier${content}`);
+            return new _.Type(`!nvgpu.mbarrier.barrier${content}`);
         }
         return null;
     }
 };
 
-mlir.NVVMDialect = class extends mlir.Dialect {
+_.NVVMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'nvvm');
@@ -15908,7 +15897,7 @@ mlir.NVVMDialect = class extends mlir.Dialect {
             parser.parseOptionalAttrDict(op.attributes);
             if (parser.accept(':')) {
                 const funcType = parser.parseFunctionType();
-                if (funcType instanceof mlir.FunctionType) {
+                if (funcType instanceof _.FunctionType) {
                     parser.resolveOperands(unresolvedOperands, funcType.inputs, op.operands);
                     op.addTypes(funcType.results);
                 }
@@ -15960,7 +15949,7 @@ mlir.NVVMDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.NVWSDialect = class extends mlir.Dialect {
+_.NVWSDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'nvws');
@@ -15970,7 +15959,7 @@ mlir.NVWSDialect = class extends mlir.Dialect {
     _parseArefTypeShorthand(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!nvws.aref${content}`);
+            return new _.Type(`!nvws.aref${content}`);
         }
         return parser.parseType();
     }
@@ -15997,7 +15986,7 @@ mlir.NVWSDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.OpenMPDialect = class extends mlir.Dialect {
+_.OpenMPDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'omp');
@@ -16067,7 +16056,7 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
             while (parser.accept(',')) {
                 unresolvedShape.push(parser.parseOperand());
             }
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             for (const s of unresolvedShape) {
                 parser.resolveOperand(s, indexType, op.operands);
             }
@@ -16156,14 +16145,19 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
         // Resolve CLI operands
         parser.resolveOperands(unresolvedCli, cliTypes, op.operands);
         if (parser.accept('=')) {
-            // Parse lower bounds: (%iv = %lb : type, ...)
+            // Parse lower bounds: = (%lb, ...)
             if (parser.accept('(')) {
-                const args = parser.parseArguments();
-                // args contains {value: UnresolvedOperand, name, type}
-                for (const arg of args) {
-                    parser.resolveOperand(arg.value, arg.type, op.operands);
+                const unresolvedLb = [];
+                while (!parser.match(')')) {
+                    unresolvedLb.push(parser.parseOperand());
+                    if (!parser.accept(',')) {
+                        break;
+                    }
                 }
                 parser.expect(')');
+                for (const lb of unresolvedLb) {
+                    parser.resolveOperand(lb, null, op.operands);
+                }
             }
             // Parse upper bounds: to (%ub, ...)
             if (parser.accept('id', 'to')) {
@@ -16232,7 +16226,7 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
         if (parser.accept('(')) {
             const value = parser.parseKeyword();
             parser.expect(')');
-            return new mlir.TypedAttr(value, null);
+            return new _.TypedAttr(value, null);
         }
         return null;
     }
@@ -16885,7 +16879,7 @@ mlir.OpenMPDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.LLVMDialect = class extends mlir.Dialect {
+_.LLVMDialect = class extends _.Dialect {
 
     constructor(operations, name = 'llvm') {
         super(operations, name);
@@ -16944,7 +16938,7 @@ mlir.LLVMDialect = class extends mlir.Dialect {
             const inner = content.startsWith('<') && content.endsWith('>') ? content.slice(1, -1) : content;
             // If inner content is a number, it's the address space
             if (/^\d+$/.test(inner)) {
-                return new mlir.Type(`!llvm.ptr<${inner}>`);
+                return new _.Type(`!llvm.ptr<${inner}>`);
             }
             // Otherwise, it might be something else - fall through to standard parsing
         }
@@ -17118,7 +17112,7 @@ mlir.LLVMDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseOperation(parser, opName, op) {
@@ -17677,8 +17671,8 @@ mlir.LLVMDialect = class extends mlir.Dialect {
             parser.parseFunctionResultList(results, resultAttrs);
         }
         const returnType = results.length > 0 ? results[0] : null;
-        const type = new mlir.LLVMFunctionType(returnType, params, argResult.isVariadic);
-        op.addAttribute('function_type', new mlir.TypeAttrOf(type));
+        const type = new _.LLVMFunctionType(returnType, params, argResult.isVariadic);
+        op.addAttribute('function_type', new _.TypeAttrOf(type));
         if (parser.accept('id', 'vscale_range')) {
             parser.expect('(');
             const minRange = parser.expect();
@@ -17702,7 +17696,7 @@ mlir.LLVMDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ROCDLDialect = class extends mlir.LLVMDialect {
+_.ROCDLDialect = class extends _.LLVMDialect {
 
     constructor(operations) {
         super(operations, 'rocdl');
@@ -17777,7 +17771,7 @@ mlir.ROCDLDialect = class extends mlir.LLVMDialect {
     }
 };
 
-mlir.XSMMDialect = class extends mlir.Dialect {
+_.XSMMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xsmm');
@@ -17873,7 +17867,7 @@ mlir.XSMMDialect = class extends mlir.Dialect {
             } else if (parser.match('id')) {
                 const keyword = parser.expect('id');
                 parser.expect('=');
-                const attrValue = parser.parseAttribute(new mlir.PrimitiveType('i64'));
+                const attrValue = parser.parseAttribute(new _.PrimitiveType('i64'));
                 op.addAttribute(keyword, attrValue);
             } else {
                 break;
@@ -17889,7 +17883,7 @@ mlir.XSMMDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.StdxDialect = class extends mlir.Dialect {
+_.StdxDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'stdx');
@@ -17916,7 +17910,7 @@ mlir.StdxDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.VMDialect = class extends mlir.Dialect {
+_.VMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vm');
@@ -17974,7 +17968,7 @@ mlir.VMDialect = class extends mlir.Dialect {
             if (parser.accept('->')) {
                 parser.parseFunctionResultList(results, resultAttrs);
             }
-            op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+            op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             return true;
         }
@@ -18140,7 +18134,7 @@ mlir.VMDialect = class extends mlir.Dialect {
                 } else {
                     // Regular vm.call - Reference: uses functional-type(operands, results)
                     const type = parser.parseType();
-                    if (type instanceof mlir.FunctionType) {
+                    if (type instanceof _.FunctionType) {
                         parser.resolveOperands(op.operands, type.inputs);
                         op.addTypes(type.results);
                     }
@@ -18220,7 +18214,7 @@ mlir.VMDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.MathDialect = class extends mlir.Dialect {
+_.MathDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'math');
@@ -18228,14 +18222,14 @@ mlir.MathDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TMTensorDialect = class extends mlir.Dialect {
+_.TMTensorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tm_tensor');
     }
 };
 
-mlir.MLProgramDialect = class extends mlir.Dialect {
+_.MLProgramDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ml_program');
@@ -18292,14 +18286,14 @@ mlir.MLProgramDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.IREEGPUDialect = class extends mlir.Dialect {
+_.IREEGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'iree_gpu');
     }
 };
 
-mlir.TFDeviceDialect = class extends mlir.Dialect {
+_.TFDeviceDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tf_device');
@@ -18370,91 +18364,34 @@ mlir.TFDeviceDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFGDialect = class extends mlir.Dialect {
+_.TFGDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfg');
-        this._operations.set('tfg.graph', { metadata: { name: 'tfg.graph', hasCustomAssemblyFormat: true, defaultDialect: 'tfg' } });
-        this._operations.set('tfg.func', { metadata: { name: 'tfg.func', hasCustomAssemblyFormat: true, defaultDialect: 'tfg' } });
     }
 
     getOperation(opName) {
-        const op = this._operations.get(opName);
-        if (op) {
-            return op;
+        let op = super.getOperation(opName);
+        if (!op) {
+            this._operations.set(opName, { metadata: {} });
+            op = super.getOperation(opName);
         }
-        return { metadata: { name: opName, hasCustomAssemblyFormat: true } };
+        return op;
     }
 
     parseOperation(parser, opName, op) {
-        if (opName === 'tfg.graph') {
-            if (parser.match('#')) {
-                const attr = parser.parseAttribute();
-                op.addAttribute('version', attr);
-            }
-            if (parser.match('{')) {
-                const region = op.addRegion();
-                parser.parseRegion(region);
-            }
-            return true;
-        }
         if (opName === 'tfg.func') {
-            // Handle optional 'generic' keyword
             if (parser.accept('id', 'generic')) {
                 op.addAttribute('generic', true);
             }
             parser.parseFunctionOp(op, false);
             return true;
         }
-        // yield: [`(` $args `)`]? [`[` $ctls `]`]? attr-dict [`:` type($args)]?
-        if (opName === 'tfg.yield') {
-            // Reference impl pattern: collect unresolved, parse types, then resolve
-            const unresolvedArgs = [];
-            // Parse optional data operands
-            if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    unresolvedArgs.push(arg.value);
-                }
-            }
-            // Parse optional control dependencies
-            const unresolvedCtls = [];
-            if (parser.accept('[')) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
-                        unresolvedCtls.push(parser.parseOperand());
-                    }
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(']');
-            }
-            // Parse optional attributes
-            parser.parseOptionalAttrDict(op.attributes);
-            // Parse optional types and resolve operands
-            if (parser.accept(':')) {
-                const types = parser.parseTypeListNoParens();
-                parser.resolveOperands(unresolvedArgs, types, op.operands);
-            } else {
-                parser.resolveOperands(unresolvedArgs, unresolvedArgs.map(() => null), op.operands);
-            }
-            // Resolve control operands
-            parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-            return true;
-        }
-        // return: `(` $operands `)` [`[` $ctl {attr}, ... `]`]? attr-dict `:` types
         if (opName === 'tfg.return') {
-            // Reference: Collect unresolved operands first, then resolve with types
-            const dataOperands = [];
-            // Parse optional data operands
+            let dataOperands = [];
             if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    dataOperands.push(arg.value);
-                }
+                dataOperands = parser.parseOperandList('paren');
             }
-            // Parse optional control operands with attributes
             const controlOperands = [];
             const controlRetAttrs = [];
             if (parser.accept('[')) {
@@ -18462,7 +18399,6 @@ mlir.TFGDialect = class extends mlir.Dialect {
                     if (parser.match('%')) {
                         const ctlDep = parser.parseOperand();
                         controlOperands.push(ctlDep);
-                        // Parse optional attributes on control operand
                         if (parser.match('{')) {
                             const attrs = new Map();
                             parser.parseAttributeDict(attrs);
@@ -18480,301 +18416,28 @@ mlir.TFGDialect = class extends mlir.Dialect {
             if (controlRetAttrs.length > 0) {
                 op.addAttribute('control_ret_attrs', controlRetAttrs);
             }
-            // Parse optional attributes
             parser.parseOptionalAttrDict(op.attributes);
-            // Parse optional types and resolve operands
             if (parser.accept(':')) {
                 const types = parser.parseTypeListNoParens();
                 parser.resolveOperands(dataOperands, types, op.operands);
             } else {
                 parser.resolveOperands(dataOperands, dataOperands.map(() => null), op.operands);
             }
-            // Resolve control operands with null type
             parser.resolveOperands(controlOperands, controlOperands.map(() => null), op.operands);
             return true;
         }
-        // condition: $cond `:` type($cond) [`(` $args `)`]? [`[` $ctls `]`]? attr-dict [`:` type($args)]?
-        if (opName === 'tfg.condition') {
-            // Reference impl pattern: collect unresolved, parse types, then resolve
-            const unresolvedCond = parser.parseOperand();
-            // Parse condition type
-            parser.expect(':');
-            const condType = parser.parseType();
-            // Parse optional args
-            const unresolvedArgs = [];
-            if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    unresolvedArgs.push(arg.value);
-                }
-            }
-            // Parse optional control dependencies
-            const unresolvedCtls = [];
-            if (parser.accept('[')) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
-                        unresolvedCtls.push(parser.parseOperand());
-                    }
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(']');
-            }
-            // Parse optional attributes
-            parser.parseOptionalAttrDict(op.attributes);
-            // Resolve condition operand first
-            parser.resolveOperand(unresolvedCond, condType, op.operands);
-            // Parse optional arg types and resolve
-            if (parser.accept(':')) {
-                const types = parser.parseTypeListNoParens();
-                parser.resolveOperands(unresolvedArgs, types, op.operands);
-            } else {
-                parser.resolveOperands(unresolvedArgs, unresolvedArgs.map(() => null), op.operands);
-            }
-            // Resolve control operands
-            parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
+        if (!this.hasAssemblyFormat(opName)) {
+            this._parseTFGOperation(parser, op);
             return true;
         }
-        // get_result: `(` $value `)` $name `:` $number attr-dict-with-keyword
-        if (opName === 'tfg.get_result') {
-            parser.expect('(');
-            const unresolvedValue = parser.parseOperand();
-            parser.expect(')');
-            const name = parser.expect('string');
-            op.addAttribute('name', name);
-            parser.expect(':');
-            const number = parser.expect('int');
-            op.addAttribute('number', parseInt(number, 10));
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            // Resolve operand with type
-            parser.resolveOperand(unresolvedValue, '!tfg.opaque_tensor', op.operands);
-            op.addTypes(['!tfg.opaque_tensor']);
-            return true;
-        }
-        // IfRegion: $cond [`[` $ctls `]`]? `then` $then_region `else` $else_region attr-dict `:` functional-type($cond, $outs)
-        if (opName === 'tfg.IfRegion' || opName === 'tfg.StatelessIfRegion' || opName === 'tfg.StatefulIfRegion') {
-            // Reference impl pattern: collect unresolved, parse types, then resolve
-            const unresolvedCond = parser.parseOperand();
-            // Parse optional control dependencies
-            const unresolvedCtls = [];
-            if (parser.accept('[')) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
-                        unresolvedCtls.push(parser.parseOperand());
-                    }
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(']');
-            }
-            // Parse 'then' region
-            parser.expect('id', 'then');
-            const thenRegion = op.addRegion();
-            parser.parseRegion(thenRegion);
-            // Parse 'else' region
-            parser.expect('id', 'else');
-            const elseRegion = op.addRegion();
-            parser.parseRegion(elseRegion);
-            // Parse optional attributes and type
-            parser.parseOptionalAttrDict(op.attributes);
-            if (parser.accept(':')) {
-                const type = parser.parseType();
-                if (type instanceof mlir.FunctionType) {
-                    // First input is cond type
-                    parser.resolveOperand(unresolvedCond, type.inputs[0], op.operands);
-                    // Remaining are control types
-                    parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                    op.addTypes(type.results);
-                } else {
-                    parser.resolveOperand(unresolvedCond, null, op.operands);
-                    parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                }
-            } else {
-                parser.resolveOperand(unresolvedCond, null, op.operands);
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-            }
-            return true;
-        }
-        // CaseRegion: $branch_index [`[` $ctls `]`]? $branches attr-dict `:` functional-type($branch_index, $outs)
-        if (opName === 'tfg.CaseRegion' || opName === 'tfg.StatelessCaseRegion' || opName === 'tfg.StatefulCaseRegion') {
-            // Reference impl pattern: collect unresolved, parse types, then resolve
-            const unresolvedBranchIndex = parser.parseOperand();
-            // Parse optional control dependencies
-            const unresolvedCtls = [];
-            if (parser.accept('[')) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
-                        unresolvedCtls.push(parser.parseOperand());
-                    }
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(']');
-            }
-            // Parse branch regions (comma-separated)
-            do {
-                const region = op.addRegion();
-                parser.parseRegion(region);
-            } while (parser.accept(','));
-            // Parse optional attributes and type
-            parser.parseOptionalAttrDict(op.attributes);
-            if (parser.accept(':')) {
-                const type = parser.parseType();
-                if (type instanceof mlir.FunctionType) {
-                    parser.resolveOperand(unresolvedBranchIndex, type.inputs[0], op.operands);
-                    parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                    op.addTypes(type.results);
-                } else {
-                    parser.resolveOperand(unresolvedBranchIndex, null, op.operands);
-                    parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                }
-            } else {
-                parser.resolveOperand(unresolvedBranchIndex, null, op.operands);
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-            }
-            return true;
-        }
-        // WhileRegion: [`(` $init `)`]? [`[` $ctls `]`]? $cond_region `do` $body_region attr-dict [`:` functional-type($init, $outs)]?
-        if (opName === 'tfg.WhileRegion' || opName === 'tfg.StatelessWhileRegion' || opName === 'tfg.StatefulWhileRegion') {
-            // Reference impl pattern: collect unresolved, parse types, then resolve
-            const unresolvedInits = [];
-            // Parse optional init operands
-            if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    unresolvedInits.push(arg.value);
-                }
-            }
-            // Parse optional control dependencies
-            const unresolvedCtls = [];
-            if (parser.accept('[')) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
-                        unresolvedCtls.push(parser.parseOperand());
-                    }
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(']');
-            }
-            // Parse condition region
-            const condRegion = op.addRegion();
-            parser.parseRegion(condRegion);
-            // Parse 'do' and body region
-            parser.expect('id', 'do');
-            const bodyRegion = op.addRegion();
-            parser.parseRegion(bodyRegion);
-            // Parse optional attributes and type
-            parser.parseOptionalAttrDict(op.attributes);
-            if (parser.accept(':')) {
-                const type = parser.parseType();
-                if (type instanceof mlir.FunctionType) {
-                    parser.resolveOperands(unresolvedInits, type.inputs, op.operands);
-                    parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                    op.addTypes(type.results);
-                } else {
-                    parser.resolveOperands(unresolvedInits, unresolvedInits.map(() => null), op.operands);
-                    parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                }
-            } else {
-                parser.resolveOperands(unresolvedInits, unresolvedInits.map(() => null), op.operands);
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-            }
-            return true;
-        }
-        // ForRegion: [`(` $init `)`]? [`[` $ctls `]`]? `from` $start `to` $limit `by` $delta $body_region attr-dict `:` ...
-        if (opName === 'tfg.ForRegion') {
-            // Reference impl pattern: collect unresolved, parse types, then resolve
-            const unresolvedInits = [];
-            // Parse optional init operands
-            if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    unresolvedInits.push(arg.value);
-                }
-            }
-            // Parse optional control dependencies
-            const unresolvedCtls = [];
-            if (parser.accept('[')) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
-                        unresolvedCtls.push(parser.parseOperand());
-                    }
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.expect(']');
-            }
-            // Parse 'from' $start 'to' $limit 'by' $delta
-            parser.expect('id', 'from');
-            const unresolvedStart = parser.parseOperand();
-            parser.expect('id', 'to');
-            const unresolvedLimit = parser.parseOperand();
-            parser.expect('id', 'by');
-            const unresolvedDelta = parser.parseOperand();
-            // Parse body region
-            const bodyRegion = op.addRegion();
-            parser.parseRegion(bodyRegion);
-            // Parse optional attributes
-            parser.parseOptionalAttrDict(op.attributes);
-            // Parse type: `(` type($start) `,` type($limit) `,` type($delta) [`,` type($init)]? `)` [`->` `(` type($outs) `)`]?
-            if (parser.accept(':')) {
-                parser.expect('(');
-                const types = parser.parseTypeListNoParens();
-                parser.expect(')');
-                // First 3 types are start, limit, delta
-                if (types.length >= 3) {
-                    parser.resolveOperand(unresolvedStart, types[0], op.operands);
-                    parser.resolveOperand(unresolvedLimit, types[1], op.operands);
-                    parser.resolveOperand(unresolvedDelta, types[2], op.operands);
-                    // Remaining types are for init operands
-                    const initTypes = types.slice(3);
-                    parser.resolveOperands(unresolvedInits, initTypes, op.operands);
-                } else {
-                    // Fallback: resolve without types
-                    parser.resolveOperand(unresolvedStart, null, op.operands);
-                    parser.resolveOperand(unresolvedLimit, null, op.operands);
-                    parser.resolveOperand(unresolvedDelta, null, op.operands);
-                    parser.resolveOperands(unresolvedInits, unresolvedInits.map(() => null), op.operands);
-                }
-                // Resolve control operands
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                // Parse optional result types
-                if (parser.accept('->')) {
-                    parser.expect('(');
-                    const resultTypes = parser.parseTypeListNoParens();
-                    parser.expect(')');
-                    for (const t of resultTypes) {
-                        op.addTypes([t.toString()]);
-                    }
-                }
-            } else {
-                // No types provided
-                parser.resolveOperand(unresolvedStart, null, op.operands);
-                parser.resolveOperand(unresolvedLimit, null, op.operands);
-                parser.resolveOperand(unresolvedDelta, null, op.operands);
-                parser.resolveOperands(unresolvedInits, unresolvedInits.map(() => null), op.operands);
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-            }
-            return true;
-        }
-        this._parseTFGOperation(parser, op);
-        return true;
+        return super.parseOperation(parser, opName, op);
     }
 
     _parseTFGOperation(parser, op) {
         // Reference impl pattern: collect unresolved, parse types, then resolve
-        const unresolvedArgs = [];
+        let unresolvedArgs = [];
         if (parser.match('(')) {
-            const args = parser.parseArguments();
-            for (const arg of args) {
-                unresolvedArgs.push(arg.value);
-            }
+            unresolvedArgs = parser.parseOperandList('paren');
         }
         const unresolvedCtls = [];
         if (parser.accept('[')) {
@@ -18805,7 +18468,7 @@ mlir.TFGDialect = class extends mlir.Dialect {
         }
         if (parser.accept(':')) {
             const type = parser.parseType();
-            if (type instanceof mlir.FunctionType) {
+            if (type instanceof _.FunctionType) {
                 parser.resolveOperands(unresolvedArgs, type.inputs, op.operands);
                 parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
                 op.addTypes(type.results);
@@ -18826,7 +18489,7 @@ mlir.TFGDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFExecutorDialect = class extends mlir.Dialect {
+_.TFExecutorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tf_executor');
@@ -18839,7 +18502,7 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
         }
         const type = `!${dialectName}.${typeName}`;
         if (typeName === 'control' || typeName === 'token') {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
@@ -18862,12 +18525,9 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
             parser.expect('id', 'of');
             const numOuts = parseInt(parser.expect('int'), 10);
             op.addAttribute('num_outs', numOuts);
-            const unresolvedControlInputs = [];
+            let unresolvedControlInputs = [];
             if (parser.match('(')) {
-                const controlInputs = parser.parseArguments();
-                for (const ctrl of controlInputs) {
-                    unresolvedControlInputs.push(ctrl.value);
-                }
+                unresolvedControlInputs = parser.parseOperandList('paren');
             }
             parser.expect(':');
             const type = parser.parseType();
@@ -18887,11 +18547,10 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
             opName === 'tf_executor.LoopCond' || opName === 'tf_executor.Exit') {
             // These ops have hasCustomAssemblyFormat: true but no assemblyFormat in metadata
             // Reference impl pattern: collect unresolved, parse types, then resolve
-            const args = parser.parseArguments();
-            const unresolvedOperands = args.map((a) => a.value);
+            const unresolvedOperands = parser.parseOperandList();
             if (parser.accept(':')) {
                 const type = parser.parseType();
-                if (type instanceof mlir.FunctionType) {
+                if (type instanceof _.FunctionType) {
                     parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
                     op.addTypes(type.results);
                 } else {
@@ -18931,7 +18590,7 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
         op.addAttribute('is_constant', isConstant);
         parser.expect(':');
         const type = parser.parseType();
-        if (type instanceof mlir.FunctionType) {
+        if (type instanceof _.FunctionType) {
             parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
             op.addTypes(type.results);
         } else {
@@ -18973,7 +18632,10 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
         // or: tf_executor.island {...}
         // or: tf_executor.island(%control_inputs) {...}
         if (parser.match('(')) {
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList('paren');
+            for (const operand of unresolvedOperands) {
+                parser.resolveOperand(operand, null, op.operands);
+            }
         }
         if (parser.accept('id', 'wraps')) {
             const wrappedOp = parser.parseGenericOperation();
@@ -18987,14 +18649,14 @@ mlir.TFExecutorDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFFrameworkDialect = class extends mlir.Dialect {
+_.TFFrameworkDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tf_framework');
     }
 };
 
-mlir.TFRDialect = class extends mlir.Dialect {
+_.TFRDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfr');
@@ -19009,7 +18671,7 @@ mlir.TFRDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.CoreRTDialect = class extends mlir.Dialect {
+_.CoreRTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'corert');
@@ -19021,16 +18683,16 @@ mlir.CoreRTDialect = class extends mlir.Dialect {
             return false;
         }
         if (opName === 'corert.executeop' || opName === 'corert.executeop.seq') {
-            // Reference: Collect unresolved operands, resolve properly
-            const opHandlerArgs = parser.parseArguments();
-            for (const arg of opHandlerArgs) {
-                parser.resolveOperand(arg.value, arg.type || null, op.operands);
+            // Format: corert.executeop(%cpu) "tf.Relu"(%arg0) { attrs } : count
+            const opHandlerOperands = parser.parseOperandList('paren');
+            for (const operand of opHandlerOperands) {
+                parser.resolveOperand(operand, null, op.operands);
             }
             const opNameAttr = parser.expect('string');
             op.addAttribute('op_name', opNameAttr);
-            const operandArgs = parser.parseArguments();
-            for (const arg of operandArgs) {
-                parser.resolveOperand(arg.value, arg.type || null, op.operands);
+            const operandOperands = parser.parseOperandList('paren');
+            for (const operand of operandOperands) {
+                parser.resolveOperand(operand, null, op.operands);
             }
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
@@ -19045,7 +18707,7 @@ mlir.CoreRTDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFRTDialect = class extends mlir.Dialect {
+_.TFRTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfrt');
@@ -19059,20 +18721,20 @@ mlir.TFRTDialect = class extends mlir.Dialect {
         let type = `!${dialectName}.${typeName}`;
         const simpleTypes = ['chain', 'string', 'dist_context', 'device', 'tensor_type'];
         if (simpleTypes.includes(typeName)) {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (typeName === 'tensor') {
             if (parser.match('<')) {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         // Fallback for unknown tfrt types
         if (parser.match('<')) {
             type += parser.skip('<');
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseOperation(parser, opName, op) {
@@ -19098,30 +18760,43 @@ mlir.TFRTDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'tfrt.call') {
+            // Syntax: tfrt.call @callee(%args) : ...
             parser.parseSymbolName('callee', op.attributes);
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList('paren');
             parser.parseOptionalAttrDict(op.attributes);
             if (parser.accept(':')) {
                 const type = parser.parseFunctionType();
-                if (type && type.results) {
-                    type.results.forEach((resultType) => {
-                        op.addTypes([resultType]);
-                    });
+                if (type) {
+                    if (type.inputs) {
+                        parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
+                    }
+                    if (type.results) {
+                        type.results.forEach((resultType) => {
+                            op.addTypes([resultType]);
+                        });
+                    }
+                }
+            } else {
+                for (const operand of unresolvedOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
                 }
             }
             return true;
         }
         if (opName === 'tfrt.return') {
             if (!parser.match('keyword', 'loc') && !parser.match('eof')) {
-                op.operands = parser.parseArguments();
+                const unresolvedOperands = parser.parseOperandList();
                 // Reference: parseOptionalColonTypeList
-                parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+                parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             }
             return true;
         }
         if (opName === 'tfrt.repeat.i32') {
             if (parser.match('%')) {
-                op.operands = parser.parseArguments();
+                const unresolvedOperands = parser.parseOperandList();
+                for (const operand of unresolvedOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
+                }
             }
             if (parser.accept(':')) {
                 while (!parser.match('{') && !parser.match('eof')) {
@@ -19135,16 +18810,25 @@ mlir.TFRTDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'tfrt.if') {
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             if (parser.accept('id', 'attributes')) {
                 parser.parseOptionalAttrDict(op.attributes);
             }
             if (parser.accept(':')) {
                 const funcType = parser.parseFunctionType();
-                if (funcType && funcType.results) {
-                    for (const resultType of funcType.results) {
-                        op.addTypes([resultType]);
+                if (funcType) {
+                    if (funcType.inputs) {
+                        parser.resolveOperands(unresolvedOperands, funcType.inputs, op.operands);
                     }
+                    if (funcType.results) {
+                        for (const resultType of funcType.results) {
+                            op.addTypes([resultType]);
+                        }
+                    }
+                }
+            } else {
+                for (const operand of unresolvedOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
                 }
             }
             if (parser.match('{')) {
@@ -19167,23 +18851,17 @@ mlir.TFRTDialect = class extends mlir.Dialect {
             const endUnresolved = parser.parseOperand();
             parser.expect('id', 'fixed');
             const blockSizeUnresolved = parser.parseOperand();
-            const additionalArgs = [];
+            let additionalArgs = [];
             if (parser.accept(',')) {
-                const additionalOperands = parser.parseArguments();
-                additionalArgs.push(...additionalOperands);
+                additionalArgs = parser.parseOperandList();
             }
             const types = parser.parseOptionalColonTypeList();
             // Resolve fixed operands with i32 type
             parser.resolveOperand(startUnresolved, 'i32', op.operands);
             parser.resolveOperand(endUnresolved, 'i32', op.operands);
             parser.resolveOperand(blockSizeUnresolved, 'i32', op.operands);
-            // Resolve additional operands with parsed types - parseArguments returns {value: UnresolvedOperand, type: ...}
-            for (let i = 0; i < additionalArgs.length; i++) {
-                const arg = additionalArgs[i];
-                const unresolved = arg.value instanceof mlir.UnresolvedOperand ? arg.value : arg;
-                const type = i < types.length ? types[i] : (arg.type || null);
-                parser.resolveOperand(unresolved, type, op.operands);
-            }
+            // Resolve additional operands with parsed types
+            parser.resolveOperands(additionalArgs, types, op.operands);
             op.addTypes(['!tfrt.chain']);
             if (parser.match('{')) {
                 const region = op.addRegion();
@@ -19199,19 +18877,13 @@ mlir.TFRTDialect = class extends mlir.Dialect {
             const blockSizeUnresolved = parser.parseOperand();
             const callee = parser.expect('@');
             op.addAttribute('callee', callee);
-            const additionalArgs = parser.parseArguments();
+            // Syntax: @async_fn(%cnt0, %cnt1) : types
+            const additionalArgs = parser.parseOperandList('paren');
             const types = parser.parseOptionalColonTypeList();
-            // Resolve fixed operands with i32 type
             parser.resolveOperand(startUnresolved, 'i32', op.operands);
             parser.resolveOperand(endUnresolved, 'i32', op.operands);
             parser.resolveOperand(blockSizeUnresolved, 'i32', op.operands);
-            // Resolve additional operands with parsed types - parseArguments returns {value: UnresolvedOperand, type: ...}
-            for (let i = 0; i < additionalArgs.length; i++) {
-                const arg = additionalArgs[i];
-                const unresolved = arg.value instanceof mlir.UnresolvedOperand ? arg.value : arg;
-                const type = i < types.length ? types[i] : (arg.type || null);
-                parser.resolveOperand(unresolved, type, op.operands);
-            }
+            parser.resolveOperands(additionalArgs, types, op.operands);
             op.addTypes(['!tfrt.chain']);
             return true;
         }
@@ -19258,7 +18930,7 @@ mlir.TFRTDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFRTFallbackAsyncDialect = class extends mlir.Dialect {
+_.TFRTFallbackAsyncDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfrt_fallback_async');
@@ -19277,11 +18949,10 @@ mlir.TFRTFallbackAsyncDialect = class extends mlir.Dialect {
             op.addAttribute('device', device);
             const funcName = parser.expect('@');
             op.addAttribute('f', funcName);
-            const operands = parser.parseArguments();
-            for (const arg of operands) {
-                // parseArguments returns {value: UnresolvedOperand, type: ...}
-                const unresolved = arg.value instanceof mlir.UnresolvedOperand ? arg.value : arg;
-                parser.resolveOperand(unresolved, arg.type || null, op.operands);
+            // Syntax: @matmul_cpu (%a1, %b) {...}
+            const unresolvedOperands = parser.parseOperandList('paren');
+            for (const operand of unresolvedOperands) {
+                parser.resolveOperand(operand, null, op.operands);
             }
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
@@ -19303,9 +18974,9 @@ mlir.TFRTFallbackAsyncDialect = class extends mlir.Dialect {
             const hasChain = isCreateOp || opName.includes('.seq');
             const hasAllocator = opName.includes('.allocator');
             if ((hasChain || hasAllocator) && parser.match('(')) {
-                const chainArgs = parser.parseArguments();
-                for (const arg of chainArgs) {
-                    parser.resolveOperand(arg.value, arg.type || null, op.operands);
+                const chainOperands = parser.parseOperandList('paren');
+                for (const operand of chainOperands) {
+                    parser.resolveOperand(operand, null, op.operands);
                 }
             }
             while (!parser.match(':') && !parser.match('{')) {
@@ -19319,9 +18990,11 @@ mlir.TFRTFallbackAsyncDialect = class extends mlir.Dialect {
                 } else if (parser.match('string')) {
                     const opNameAttr = parser.expect('string');
                     op.addAttribute('op_name', opNameAttr);
-                    const operandArgs = parser.parseArguments();
-                    for (const arg of operandArgs) {
-                        parser.resolveOperand(arg.value, arg.type || null, op.operands);
+                    if (parser.match('(')) {
+                        const unresolvedOperands = parser.parseOperandList('paren');
+                        for (const operand of unresolvedOperands) {
+                            parser.resolveOperand(operand, null, op.operands);
+                        }
                     }
                     break;
                 } else {
@@ -19352,7 +19025,7 @@ mlir.TFRTFallbackAsyncDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TileDialect = class extends mlir.Dialect {
+_.TileDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tile');
@@ -19374,11 +19047,11 @@ mlir.TileDialect = class extends mlir.Dialect {
                 op.addAttribute('combo', combo);
             }
             parser.accept(',');
-            op.operands = parser.parseArguments();
+            const unresolvedOperands = parser.parseOperandList();
             if (parser.match('{')) {
                 parser.parseAttributeDict(op.attributes);
             }
-            parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
             if (parser.accept('->')) {
                 const resultTypes = parser.parseFunctionResultTypes();
                 op.addTypes(resultTypes);
@@ -19389,7 +19062,7 @@ mlir.TileDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.PXADialect = class extends mlir.Dialect {
+_.PXADialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'pxa');
@@ -19505,7 +19178,7 @@ mlir.PXADialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ToyDialect = class extends mlir.HLODialect {
+_.ToyDialect = class extends _.HLODialect {
 
     constructor(operations) {
         super(operations, 'toy');
@@ -19545,7 +19218,7 @@ mlir.ToyDialect = class extends mlir.HLODialect {
 
 };
 
-mlir.SdfgDialect = class extends mlir.Dialect {
+_.SdfgDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'sdfg');
@@ -19569,7 +19242,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
@@ -19585,7 +19258,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 const outputResult = parser.parseFunctionArgumentList();
                 results = outputResult.arguments.map((a) => a.type);
             }
-            op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+            op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.match('{')) {
                 const region = op.addRegion();
@@ -19637,24 +19310,33 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             return true;
         }
         if (opName === 'sdfg.consume') {
-            // Reference impl pattern: collect unresolved, resolve later
+            // Format: sdfg.consume{num_pes=5} (%A : !sdfg.stream<i32>) -> (pe: %p, elem: %e) { ... }
             parser.parseOptionalAttrDict(op.attributes);
-            const unresolvedOperands = [];
-            if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    unresolvedOperands.push(arg.value);
+            if (parser.accept('(')) {
+                // Parse typed argument: %A : type
+                while (parser.match('%')) {
+                    const operand = parser.parseOperand();
+                    let type = null;
+                    if (parser.accept(':')) {
+                        type = parser.parseType();
+                    }
+                    parser.resolveOperand(operand, type, op.operands);
+                    if (!parser.accept(',')) {
+                        break;
+                    }
                 }
+                parser.expect(')');
             }
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.accept('->')) {
                 if (parser.accept('(')) {
+                    // Parse named results: (pe: %p, elem: %e)
                     while (!parser.accept(')')) {
                         if (parser.match('id')) {
-                            parser.expect('id');
+                            parser.expect('id'); // name like 'pe' or 'elem'
                             if (parser.accept(':')) {
-                                parser.parseOperand(); // Parse the SSA name but don't store on OperationState
-                                op.types.push(null);  // Add placeholder type
+                                parser.parseOperand(); // Parse %p or %e but don't store
+                                op.types.push(null);
                             }
                         } else if (parser.match('%') || parser.match(')')) {
                             break;
@@ -19665,8 +19347,6 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                     }
                 }
             }
-            // Resolve operands (types not known at this point)
-            parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.match('{')) {
                 const region = op.addRegion();
@@ -19689,10 +19369,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             parser.parseOptionalAttrDict(op.attributes);
             const unresolvedOperands = [];
             if (parser.match('(')) {
-                const args = parser.parseArguments();
-                for (const arg of args) {
-                    unresolvedOperands.push(arg.value);
-                }
+                unresolvedOperands.push(...parser.parseOperandList('paren'));
             }
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             let allocType = null;
@@ -19701,7 +19378,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 op.addTypes([allocType]);
             }
             // Resolve operands (these are likely dimension/size operands with index type)
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
             return true;
         }
@@ -19732,7 +19409,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 const arrayType = parser.parseType();
                 parser.resolveOperand(valueOp, valueType, op.operands);
                 parser.resolveOperand(arrayOp, arrayType, op.operands);
-                const indexType = new mlir.PrimitiveType('index');
+                const indexType = new _.PrimitiveType('index');
                 parser.resolveOperands(indices, indices.map(() => indexType), op.operands);
             } else {
                 parser.resolveOperand(valueOp, null, op.operands);
@@ -19765,7 +19442,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 parser.accept('->');
                 const resultType = parser.parseType();
                 parser.resolveOperand(arrayOp, arrayType, op.operands);
-                const indexType = new mlir.PrimitiveType('index');
+                const indexType = new _.PrimitiveType('index');
                 parser.resolveOperands(indices, indices.map(() => indexType), op.operands);
                 op.addTypes([resultType]);
             } else {
@@ -19806,10 +19483,23 @@ mlir.SdfgDialect = class extends mlir.Dialect {
             }
             return true;
         }
-        if (opName === 'sdfg.consume' || opName === 'sdir.consume') {
+        if (opName === 'sdir.consume') {
+            // Format: sdir.consume (%A : type) -> (name: %p, ...) { ... }
             parser.parseOptionalAttrDict(op.attributes);
             if (parser.accept('(')) {
-                op.operands = parser.parseArguments();
+                // Parse typed arguments
+                while (parser.match('%')) {
+                    const operand = parser.parseOperand();
+                    let type = null;
+                    if (parser.accept(':')) {
+                        type = parser.parseType();
+                    }
+                    parser.resolveOperand(operand, type, op.operands);
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                parser.expect(')');
             }
             if (parser.accept('->')) {
                 if (parser.accept('(')) {
@@ -19827,8 +19517,27 @@ mlir.SdfgDialect = class extends mlir.Dialect {
         }
         if (opName === 'sdfg.edge' || opName === 'sdir.edge') {
             parser.parseOptionalAttrDict(op.attributes);
-            if (parser.match('(')) {
-                op.operands = parser.parseArguments();
+            // Format: (label: %arg: type) or (%arg)
+            if (parser.accept('(')) {
+                while (!parser.match(')')) {
+                    // Check for label: prefix
+                    if (parser.match('id') && !parser.match('%')) {
+                        parser.expect('id'); // label like 'ref'
+                        parser.expect(':');
+                    }
+                    if (parser.match('%')) {
+                        const operand = parser.parseOperand();
+                        let type = null;
+                        if (parser.accept(':')) {
+                            type = parser.parseType();
+                        }
+                        parser.resolveOperand(operand, type, op.operands);
+                    }
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                parser.expect(')');
             }
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.match('@')) {
@@ -19858,14 +19567,10 @@ mlir.SdfgDialect = class extends mlir.Dialect {
         if (opName === 'sdfg.copy' || opName === 'sdir.copy') {
             // Reference impl pattern: collect unresolved, parse types, then resolve
             parser.parseOptionalAttrDict(op.attributes);
-            const srcArgs = parser.parseArguments();
-            const unresolvedSrc = srcArgs.map((a) => a.value);
+            const unresolvedSrc = parser.parseOperandList('none');
             const unresolvedDst = [];
             if (parser.accept('->')) {
-                const dstArgs = parser.parseArguments();
-                for (const arg of dstArgs) {
-                    unresolvedDst.push(arg.value);
-                }
+                unresolvedDst.push(...parser.parseOperandList('none'));
             }
             if (parser.accept(':')) {
                 const type = parser.parseType();
@@ -19884,8 +19589,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 const libname = parser.expect('string');
                 op.addAttribute('libname', libname);
             }
-            const args = parser.parseArguments();
-            const unresolvedOperands = args.map((a) => a.value);
+            const unresolvedOperands = parser.parseOperandList('paren');
             const types = [];
             if (parser.accept(':')) {
                 if (parser.accept('(')) {
@@ -19925,7 +19629,8 @@ mlir.SdfgDialect = class extends mlir.Dialect {
                 op.addAttribute('callee', callee);
             }
             if (parser.match('(')) {
-                op.operands = parser.parseArguments();
+                const unresolvedOperands = parser.parseOperandList('paren');
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
             }
             if (parser.accept(':')) {
                 if (parser.accept('(')) {
@@ -19952,8 +19657,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
         if (opName === 'sdfg.return') {
             // Reference impl pattern: collect unresolved, parse types, then resolve
             if (parser.match('%')) {
-                const args = parser.parseArguments();
-                const unresolvedOperands = args.map((a) => a.value);
+                const unresolvedOperands = parser.parseOperandList('none');
                 const types = parser.parseOptionalColonTypeList();
                 parser.resolveOperands(unresolvedOperands, types, op.operands);
             }
@@ -20046,7 +19750,7 @@ mlir.SdfgDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFLDialect = class extends mlir.Dialect {
+_.TFLDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfl');
@@ -20098,7 +19802,7 @@ mlir.TFLDialect = class extends mlir.Dialect {
                 parser.parseOptionalAttrDict(op.attributes);
                 if (parser.accept(':')) {
                     const fnType = parser.parseType();
-                    if (fnType instanceof mlir.FunctionType) {
+                    if (fnType instanceof _.FunctionType) {
                         parser.resolveOperands(unresolvedOperands, fnType.inputs, op.operands);
                         op.addTypes(fnType.results.map((r) => r.toString()));
                     } else {
@@ -20112,8 +19816,7 @@ mlir.TFLDialect = class extends mlir.Dialect {
                 return true;
             }
             // Compact form: %a, %b attr-dict : type
-            const args = parser.parseArguments();
-            const unresolvedOperands = args.map((arg) => arg.value);
+            const unresolvedOperands = parser.parseOperandList('none');
             parser.parseOptionalAttrDict(op.attributes);
             if (parser.accept(':')) {
                 const type = parser.parseType();
@@ -20129,7 +19832,7 @@ mlir.TFLDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFDialect = class extends mlir.Dialect {
+_.TFDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tf');
@@ -20146,16 +19849,16 @@ mlir.TFDialect = class extends mlir.Dialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (typeName === 'string' || typeName === 'control') {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
 };
 
-mlir.TFTypeDialect = class extends mlir.Dialect {
+_.TFTypeDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tf_type');
@@ -20186,22 +19889,22 @@ mlir.TFTypeDialect = class extends mlir.Dialect {
                     parser.accept(',');
                 }
                 parser.expect('>');
-                return new mlir.Type(`${type}<${subtypes.join(', ')}>`);
+                return new _.Type(`${type}<${subtypes.join(', ')}>`);
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         if (this.simpleTypes.has(typeName)) {
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         // Fallback for unknown tf_type types
         if (parser.match('<')) {
             type += parser.skip('<');
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 };
 
-mlir.CheckDialect = class extends mlir.Dialect {
+_.CheckDialect = class extends _.Dialect {
     constructor(operations) {
         super(operations, 'check');
         // Workaround: Handle conflicting dialects from stablehlo and iree
@@ -20221,7 +19924,7 @@ mlir.CheckDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TransformDialect = class extends mlir.Dialect {
+_.TransformDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'transform');
@@ -20355,7 +20058,7 @@ mlir.TransformDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     _parseNamedSequenceOp(parser, op) {
@@ -20368,7 +20071,7 @@ mlir.TransformDialect = class extends mlir.Dialect {
         if (parser.accept('->')) {
             parser.parseFunctionResultList(results, resultAttrs);
         }
-        op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType(inputs, results)));
+        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
         if (parser.match('{')) {
             const region = op.addRegion();
@@ -20473,10 +20176,10 @@ mlir.TransformDialect = class extends mlir.Dialect {
             if (match) {
                 const [, inputType, resultType] = match;
                 if (op.operands.length > 0) {
-                    op.operands[0].type = new mlir.Type(inputType);
+                    op.operands[0].type = new _.Type(inputType);
                 }
-                op.addTypes([new mlir.Type(resultType)]);
-                op.addTypes([new mlir.Type(resultType)]);
+                op.addTypes([new _.Type(resultType)]);
+                op.addTypes([new _.Type(resultType)]);
             }
         }
     }
@@ -20488,11 +20191,11 @@ mlir.TransformDialect = class extends mlir.Dialect {
             if (match) {
                 const [, inputType, resultType] = match;
                 if (op.operands.length > 0) {
-                    op.operands[0].type = new mlir.Type(inputType);
+                    op.operands[0].type = new _.Type(inputType);
                 }
-                op.addTypes([new mlir.Type(resultType)]);
-                op.addTypes([new mlir.Type(resultType)]);
-                op.addTypes([new mlir.Type(resultType)]);
+                op.addTypes([new _.Type(resultType)]);
+                op.addTypes([new _.Type(resultType)]);
+                op.addTypes([new _.Type(resultType)]);
             }
         }
     }
@@ -20546,7 +20249,7 @@ mlir.TransformDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TestDialect = class extends mlir.Dialect {
+_.TestDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'test');
@@ -20765,7 +20468,7 @@ mlir.TestDialect = class extends mlir.Dialect {
         }
         if (opName === 'test.isolated_region' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
             const operand = parser.parseOperand();
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             parser.resolveOperand(operand, indexType, op.operands);
             const region = op.addRegion();
             parser.parseRegion(region, [{ value: operand.toString(), type: 'index' }]);
@@ -20802,7 +20505,7 @@ mlir.TestDialect = class extends mlir.Dialect {
         const token = parser.getToken();
         if (token && type.values && type.values.includes(token.value)) {
             parser.expect();
-            return new mlir.TypedAttr(token.value, null);
+            return new _.TypedAttr(token.value, null);
         }
         return null;
     }
@@ -20821,7 +20524,7 @@ mlir.TestDialect = class extends mlir.Dialect {
                     parser.accept(',');
                 }
                 parser.expect('>');
-                return new mlir.TypedAttr(`bit_enum<${flags.join(', ')}>`, null);
+                return new _.TypedAttr(`bit_enum<${flags.join(', ')}>`, null);
             }
         }
         return null;
@@ -20836,7 +20539,7 @@ mlir.TestDialect = class extends mlir.Dialect {
         // Parse $inner - could be full (!test.cmpnd_inner<...>) or elided (<...>)
         const inner = parser.match('!') ? parser.parseType() : this._parseCompoundNestedInnerType(parser);
         parser.expect('>');
-        return new mlir.Type(`!test.cmpnd_nested_outer<i ${inner}>`);
+        return new _.Type(`!test.cmpnd_nested_outer<i ${inner}>`);
     }
 
     // Parse CompoundNestedInnerType: assemblyFormat = "`<` $some_int $cmpdA `>`"
@@ -20848,7 +20551,7 @@ mlir.TestDialect = class extends mlir.Dialect {
         // Parse $cmpdA - could be full (!test.cmpnd_a<...>) or elided (<...>)
         const cmpdA = parser.match('!') ? parser.parseType() : this._parseCompoundTypeA(parser);
         parser.expect('>');
-        return new mlir.Type(`!test.cmpnd_inner<${someInt} ${cmpdA}>`);
+        return new _.Type(`!test.cmpnd_inner<${someInt} ${cmpdA}>`);
     }
 
     // Parse CompoundTypeA: hasCustomAssemblyFormat = 1
@@ -20868,7 +20571,7 @@ mlir.TestDialect = class extends mlir.Dialect {
         }
         parser.expect(']');
         parser.expect('>');
-        return new mlir.Type(`!test.cmpnd_a<${width}, ${oneType}, [${arrayOfInts.join(', ')}]>`);
+        return new _.Type(`!test.cmpnd_a<${width}, ${oneType}, [${arrayOfInts.join(', ')}]>`);
     }
 
     _parseOptionalLoc(parser, op, attrName = 'loc') {
@@ -21110,7 +20813,7 @@ mlir.TestDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TritonDialect = class extends mlir.Dialect {
+_.TritonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tt');
@@ -21129,7 +20832,7 @@ mlir.TritonDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 
     parseOperation(parser, opName, op) {
@@ -21143,7 +20846,7 @@ mlir.TritonDialect = class extends mlir.Dialect {
     _parseTensorPtr(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!tt.ptr${content}`);
+            return new _.Type(`!tt.ptr${content}`);
         }
         return null;
     }
@@ -21151,7 +20854,7 @@ mlir.TritonDialect = class extends mlir.Dialect {
     _parsePtr(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!tt.ptr${content}`);
+            return new _.Type(`!tt.ptr${content}`);
         }
         return null;
     }
@@ -21159,13 +20862,13 @@ mlir.TritonDialect = class extends mlir.Dialect {
     _parseTensorDescType(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!tt.tensor_desc${content}`);
+            return new _.Type(`!tt.tensor_desc${content}`);
         }
         return null;
     }
 };
 
-mlir.TritonGPUDialect = class extends mlir.Dialect {
+_.TritonGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ttg');
@@ -21179,7 +20882,7 @@ mlir.TritonGPUDialect = class extends mlir.Dialect {
             return null;
         }
         const content = parser.skip('<');
-        return new mlir.Type(`!ttg.memdesc<${content}>`);
+        return new _.Type(`!ttg.memdesc<${content}>`);
     }
 
     parseOperation(parser, opName, op) {
@@ -21219,11 +20922,11 @@ mlir.TritonGPUDialect = class extends mlir.Dialect {
             }
             parser.expect(':');
             const fnType = parser.parseType();
-            if (fnType instanceof mlir.FunctionType) {
-                op.addAttribute('function_type', new mlir.TypeAttrOf(fnType));
+            if (fnType instanceof _.FunctionType) {
+                op.addAttribute('function_type', new _.TypeAttrOf(fnType));
                 parser.resolveOperands(unresolvedOperands, fnType.inputs, op.operands);
             } else {
-                op.addAttribute('function_type', new mlir.TypeAttrOf(new mlir.FunctionType([], [fnType])));
+                op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], [fnType])));
                 parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
             }
             if (partitionNumWarps.length > 0) {
@@ -21244,18 +20947,18 @@ mlir.TritonGPUDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 };
 
-mlir.GluonDialect = class extends mlir.Dialect {
+_.GluonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'gluon');
     }
 };
 
-mlir.TritonNvidiaGPUDialect = class extends mlir.Dialect {
+_.TritonNvidiaGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ttng');
@@ -21271,7 +20974,7 @@ mlir.TritonNvidiaGPUDialect = class extends mlir.Dialect {
         }
         // Push token type to the types array
         if (Array.isArray(tokenTypeArr)) {
-            tokenTypeArr.push(new mlir.Type('!ttng.async.token'));
+            tokenTypeArr.push(new _.Type('!ttng.async.token'));
         }
         if (parser.match(']')) {
             parser.expect(']');
@@ -21319,11 +21022,11 @@ mlir.TritonNvidiaGPUDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 };
 
-mlir.TritonAMDGPUDialect = class extends mlir.Dialect {
+_.TritonAMDGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'amdg');
@@ -21342,18 +21045,18 @@ mlir.TritonAMDGPUDialect = class extends mlir.Dialect {
             const content = parser.skip('<');
             type += content;
         }
-        return new mlir.Type(type);
+        return new _.Type(type);
     }
 };
 
-mlir.ProtonDialect = class extends mlir.Dialect {
+_.ProtonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'proton');
     }
 };
 
-mlir.MichelsonDialect = class extends mlir.Dialect {
+_.MichelsonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'michelson');
@@ -21372,7 +21075,7 @@ mlir.MichelsonDialect = class extends mlir.Dialect {
         }
         const simpleTypes = ['int', 'bytes', 'operation', 'nat', 'string', 'unit', 'bool', 'mutez', 'timestamp', 'address', 'key', 'signature', 'chain_id', 'key_hash'];
         if (simpleTypes.includes(type.substring(11))) { // Remove "!michelson." prefix
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
         if (typesWithParams.includes(type.substring(11))) {
@@ -21380,13 +21083,13 @@ mlir.MichelsonDialect = class extends mlir.Dialect {
                 const content = parser.skip('<');
                 type += content;
             }
-            return new mlir.Type(type);
+            return new _.Type(type);
         }
         return null;
     }
 };
 
-mlir.PlanDialect = class extends mlir.Dialect {
+_.PlanDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'plan');
@@ -21405,7 +21108,7 @@ mlir.PlanDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.KernelDialect = class extends mlir.Dialect {
+_.KernelDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'kernel');
@@ -21435,7 +21138,7 @@ mlir.KernelDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TensorRTDialect = class extends mlir.Dialect {
+_.TensorRTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tensorrt');
@@ -21553,7 +21256,7 @@ mlir.TensorRTDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.ExecutorDialect = class extends mlir.Dialect {
+_.ExecutorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'executor');
@@ -21572,7 +21275,7 @@ mlir.ExecutorDialect = class extends mlir.Dialect {
     _parseTable(parser) {
         if (parser.match('<')) {
             const content = parser.skip('<');
-            return new mlir.Type(`!executor.table${content}`);
+            return new _.Type(`!executor.table${content}`);
         }
         return null;
     }
@@ -21594,7 +21297,7 @@ mlir.ExecutorDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TFRTTestDialect = class extends mlir.Dialect {
+_.TFRTTestDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfrt_test');
@@ -21642,7 +21345,8 @@ mlir.TFRTTestDialect = class extends mlir.Dialect {
         }
         if (opName === 'tfrt_test.do.async') {
             if (parser.match('%')) {
-                op.operands = parser.parseArguments();
+                const unresolvedOperands = parser.parseOperandList('none');
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
             }
             if (parser.accept(':')) {
                 const type = parser.parseFunctionType();
@@ -21700,49 +21404,49 @@ mlir.TFRTTestDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.XeVMDialect = class extends mlir.Dialect {
+_.XeVMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xevm');
     }
 };
 
-mlir.VMVXDialect = class extends mlir.Dialect {
+_.VMVXDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vmvx');
     }
 };
 
-mlir.MLRTDialect = class extends mlir.Dialect {
+_.MLRTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'mlrt');
     }
 };
 
-mlir.TFRTTensorDialect = class extends mlir.Dialect {
+_.TFRTTensorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfrt_tensor');
     }
 };
 
-mlir.TFRTDHTDialect = class extends mlir.Dialect {
+_.TFRTDHTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfrt_dht');
     }
 };
 
-mlir.TFDDialect = class extends mlir.Dialect {
+_.TFDDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tfd');
     }
 };
 
-mlir.ACCDialect = class extends mlir.Dialect {
+_.ACCDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'acc');
@@ -22142,7 +21846,7 @@ mlir.ACCDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.SMTDialect = class extends mlir.Dialect {
+_.SMTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'smt');
@@ -22220,7 +21924,7 @@ mlir.SMTDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.MPMDDialect = class extends mlir.Dialect {
+_.MPMDDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'mpmd');
@@ -22250,9 +21954,7 @@ mlir.MPMDDialect = class extends mlir.Dialect {
         const origin = this._parseUserOriginAttr(parser);
         op.addAttribute('origin', origin);
         parser.expect('>');
-        // parseArguments returns objects with { value: UnresolvedOperand, name }
-        const inputs = parser.parseArguments();
-        const unresolvedInputs = inputs.map((input) => input.value);
+        const unresolvedInputs = parser.parseOperandList('paren');
         const entryArguments = this.parseBlockArguments(parser);
         if (parser.match('{')) {
             const region = op.addRegion();
@@ -22260,7 +21962,7 @@ mlir.MPMDDialect = class extends mlir.Dialect {
         }
         if (parser.accept(':')) {
             const type = parser.parseType();
-            if (type instanceof mlir.FunctionType) {
+            if (type instanceof _.FunctionType) {
                 parser.resolveOperands(unresolvedInputs, type.inputs, op.operands);
                 op.addTypes(type.results);
             }
@@ -22269,17 +21971,7 @@ mlir.MPMDDialect = class extends mlir.Dialect {
     }
 
     parseBlockArguments(parser) {
-        const args = [];
-        if (parser.accept('(')) {
-            while (!parser.accept(')')) {
-                const value = parser.parseOperand();
-                parser.expect(':');
-                const type = parser.parseType();
-                args.push({ value, type });
-                parser.accept(',');
-            }
-        }
-        return args;
+        return parser.parseArgumentList('optionalParen', true);
     }
 
     _parseFragmentOp(parser, op) {
@@ -22295,10 +21987,7 @@ mlir.MPMDDialect = class extends mlir.Dialect {
             parser.accept(',');
         }
         parser.expect('>');
-        // parseArguments returns objects with { value: UnresolvedOperand, name }
-        // Extract the .value to get UnresolvedOperand for resolution
-        const inputs = parser.parseArguments();
-        const unresolvedInputs = inputs.map((input) => input.value);
+        const unresolvedInputs = parser.parseOperandList('paren');
         parser.parseOptionalAttrDict(op.attributes);
         const entryArguments = this.parseBlockArguments(parser);
         if (parser.match('{')) {
@@ -22307,7 +21996,7 @@ mlir.MPMDDialect = class extends mlir.Dialect {
         }
         if (parser.accept(':')) {
             const type = parser.parseType();
-            if (type instanceof mlir.FunctionType) {
+            if (type instanceof _.FunctionType) {
                 parser.resolveOperands(unresolvedInputs, type.inputs, op.operands);
                 op.addTypes(type.results);
             }
@@ -22330,15 +22019,13 @@ mlir.MPMDDialect = class extends mlir.Dialect {
         parser.expect('>');
         const callee = parser.expect('@');
         op.addAttribute('callee', callee);
-        // parseArguments returns objects with { value: UnresolvedOperand, name }
-        const args = parser.parseArguments();
-        const unresolvedArgs = args.map((arg) => arg.value);
+        const unresolvedArgs = parser.parseOperandList('paren');
         if (parser.match('{')) {
             parser.parseAttributeDict(op.attributes);
         }
         if (parser.accept(':')) {
             const type = parser.parseType();
-            if (type instanceof mlir.FunctionType) {
+            if (type instanceof _.FunctionType) {
                 parser.resolveOperands(unresolvedArgs, type.inputs, op.operands);
                 op.addTypes(type.results);
             }
@@ -22413,7 +22100,7 @@ mlir.MPMDDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.SdyDialect = class extends mlir.Dialect {
+_.SdyDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'sdy');
@@ -22657,7 +22344,7 @@ mlir.SdyDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.XlaDialect = class extends mlir.Dialect {
+_.XlaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xla');
@@ -22697,7 +22384,7 @@ mlir.XlaDialect = class extends mlir.Dialect {
                 parser.expect(']');
             }
             // The result types are inferred from the number of results (all index type)
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             for (let i = 0; i < op.types.length; i++) {
                 op.types[i] = indexType;
             }
@@ -22715,7 +22402,7 @@ mlir.XlaDialect = class extends mlir.Dialect {
             const unresolvedDims = [];
             const unresolvedInits = [];
             const regionArgs = [];
-            const indexType = new mlir.PrimitiveType('index');
+            const indexType = new _.PrimitiveType('index');
             // Parse optional dimensions in parentheses
             if (parser.accept('(')) {
                 while (!parser.match(')')) {
@@ -22819,7 +22506,7 @@ mlir.XlaDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.XlaGpuDialect = class extends mlir.Dialect {
+_.XlaGpuDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xla_gpu');
@@ -22849,7 +22536,7 @@ mlir.XlaGpuDialect = class extends mlir.Dialect {
             parser.expect('id', 'combiner');
             parser.expect('=');
             const combiner = parser.expect('@');
-            op.addAttribute('combiner', new mlir.SymbolRefAttr(`@${combiner}`));
+            op.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             // Parse optional attributes
             parser.parseOptionalAttrDict(op.attributes);
             // Parse : types
@@ -22902,7 +22589,7 @@ mlir.XlaGpuDialect = class extends mlir.Dialect {
             parser.expect('id', 'combiner');
             parser.expect('=');
             const combiner = parser.expect('@');
-            op.addAttribute('combiner', new mlir.SymbolRefAttr(`@${combiner}`));
+            op.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             // Parse optional attributes
             parser.parseOptionalAttrDict(op.attributes);
             // Parse : in_types to out_types
@@ -22930,7 +22617,7 @@ mlir.XlaGpuDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.XTileDialect = class extends mlir.Dialect {
+_.XTileDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xtile');
@@ -22946,7 +22633,7 @@ mlir.XTileDialect = class extends mlir.Dialect {
     }
 };
 
-mlir.TritonXlaDialect = class extends mlir.Dialect {
+_.TritonXlaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'triton_xla');
