@@ -661,17 +661,31 @@ const pull = async () => {
 };
 
 const coverage = async () => {
-    await rm('dist', 'nyc');
-    await mkdir('dist', 'nyc');
-    await exec('cp package.json dist/nyc');
-    await exec('cp -R source dist/nyc');
-    await exec('nyc instrument --compact false source dist/nyc/source');
-    const file = dirname('dist', 'nyc', 'source', 'index.html');
-    let content = await fs.readFile(file, 'utf-8');
-    content = content.replace(`"script-src 'self'"`, `"script-src 'self' 'unsafe-eval'"`);
-    await fs.writeFile(file, content, 'utf-8');
-    await exec('nyc --instrument npx electron ./dist/nyc');
-    await exec('nyc report');
+    switch (read()) {
+        case 'desktop': {
+            await rm('dist', 'nyc');
+            await mkdir('dist', 'nyc');
+            await exec('cp package.json dist/nyc');
+            await exec('cp -R source dist/nyc');
+            await exec('nyc instrument --compact false source dist/nyc/source');
+            const file = dirname('dist', 'nyc', 'source', 'index.html');
+            let content = await fs.readFile(file, 'utf-8');
+            content = content.replace(`"script-src 'self'"`, `"script-src 'self' 'unsafe-eval'"`);
+            await fs.writeFile(file, content, 'utf-8');
+            await exec('nyc --instrument npx electron ./dist/nyc');
+            await exec('nyc report');
+            break;
+        }
+        case 'test': {
+            const target = args.join(' ');
+            await rm('dist', 'c8');
+            await exec(`npx c8 --reporter=html --report-dir=dist/c8/report node test/models.js ${target}`);
+            break;
+        }
+        default: {
+            throw new Error('Unsupported coverage target.');
+        }
+    }
 };
 
 const analyze = async () => {
