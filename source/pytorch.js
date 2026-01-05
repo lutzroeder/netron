@@ -1034,6 +1034,7 @@ pytorch.Context = class {
                 }
             }
         }
+        let controlDependency = null;
         for (const obj of graph.nodes) {
             if (obj.op === 'placeholder') {
                 if (inputs) {
@@ -1066,6 +1067,14 @@ pytorch.Context = class {
             }
             const node = new pytorch.Node(this.execution, this.metadata, obj.name, null, obj, null, this);
             target.nodes.push(node);
+            if (controlDependency) {
+                node.controlDependencies = node.controlDependencies || [];
+                node.controlDependencies.push(controlDependency);
+                controlDependency = null;
+            }
+            if (obj.op === 'call_function' && obj.users.size === 0) {
+                controlDependency = node.outputs[0].value[0];
+            }
         }
     }
 };
