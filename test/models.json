@@ -3334,6 +3334,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "collatz.mlir",
+    "source":   "https://github.com/user-attachments/files/24442934/collatz.mlir.zip[collatz.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "conv-conversion.mlir",
     "source":   "https://github.com/user-attachments/files/23023452/conv-conversion.mlir.zip[conv-conversion.mlir]",
     "format":   "MLIR",
@@ -3368,6 +3375,14 @@
     "target":   "dogs_vs_cats.stablehlo.mlir",
     "source":   "https://github.com/user-attachments/files/22517931/dogs_vs_cats.stablehlo.mlir.zip[dogs_vs_cats.stablehlo.mlir]",
     "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "edge_detection.mlir",
+    "source":   "https://github.com/user-attachments/files/24442856/edge_detection.mlir.zip[edge_detection.mlir]",
+    "format":   "MLIR",
+    "assert":   "model.functions[0].nodes[2].attributes[0].value == '[b, 0, 1, f]x[0, 1, i, o]->[b, 0, 1, f]'",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3444,6 +3459,14 @@
   },
   {
     "type":     "mlir",
+    "target":   "mnist_stablehlo.mlir",
+    "source":   "https://github.com/user-attachments/files/24441726/mnist_stablehlo.mlir.zip",
+    "format":   "MLIR",
+    "assert":   "model.functions[0].nodes.length == 23",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "model.mlirbc",
     "source":   "https://github.com/user-attachments/files/17179955/model.mlirbc.zip[model.mlirbc]",
     "format":   "MLIR Bytecode v6",
@@ -3475,6 +3498,14 @@
     "target":   "LLVMIR_roundtrip.mlir",
     "source":   "https://github.com/user-attachments/files/23912305/LLVMIR_roundtrip.mlir.zip[LLVMIR_roundtrip.mlir]",
     "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
+    "target":   "lstm.mlir",
+    "source":   "https://github.com/user-attachments/files/24440170/lstm.mlir.zip[lstm.mlir]",
+    "format":   "MLIR",
+    "assert":   "model.functions[2].nodes[6].inputs[0].value[4].initializer.type.dataType == 'float32'",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
