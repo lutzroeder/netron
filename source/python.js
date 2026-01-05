@@ -17207,7 +17207,7 @@ python.Execution = class {
                     if (decl_ret && decl_ret !== torch.NoneType.get()) {
                         throw new python.Error('Function was not annotated as having type None, but does not return along all paths.');
                     }
-                    const b = new torch._C.WithInsertPoint(block.nodes()[-1]);
+                    const b = new torch._C.WithInsertPoint(block.nodes().at(-1));
                     // this.emitReturn(Return::create(def.range(), Expr(Compound::create(TK_NONE, def.range(), {}))));
                     b.dispose();
                     throw new python.Error("'torch._C.to_ir.handleMaybeNoReturn' not implemented.");
@@ -19690,10 +19690,10 @@ python.Execution = class {
                                 operator.getitem,
                                 (fx_node, idx),
                             );
-                            meta_val.append([]);
-                            generate_getitems(meta_val[-1], list_output, arg);
+                            meta_val.push([]);
+                            generate_getitems(meta_val.at(-1), list_output, arg);
                             list_output.meta.update(deserialized_metadata);
-                            list_output.meta.set('val', meta_val[-1]);
+                            list_output.meta.set('val', meta_val.at(-1));
                         } else {
                             throw new python.Error(`Unsupported node output type: '${arg}'.`);
                         }
