@@ -13451,9 +13451,7 @@ python.Execution = class {
                 let lines = null;
                 if (ivalues[0] === 'FORMAT_WITH_STRING_TABLE') {
                     this.deserializer = new torch._C.SourceRangeDeserializer(ivalues[1]);
-                    /* eslint-disable prefer-destructuring */
                     lines = ivalues[2];
-                    /* eslint-enable prefer-destructuring */
                 } else {
                     this.deserializer = new torch._C.SourceRangeDeserializer();
                     lines = ivalues;

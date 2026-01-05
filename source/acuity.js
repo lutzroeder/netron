@@ -551,10 +551,8 @@ acuity.Inference = class {
         });
         operators.set('image_resize', (inputs, params) => {
             const newShape = inputs[0].slice();
-            /* eslint-disable prefer-destructuring */
             newShape[1] = params.new_size[0];
             newShape[2] = params.new_size[1];
-            /* eslint-enable prefer-destructuring */
             return [newShape];
         });
         operators.set('argmax', (inputs, params) => {

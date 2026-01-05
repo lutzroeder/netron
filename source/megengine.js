@@ -488,9 +488,7 @@ megengine.Node = class {
             let qparams = null;
             for (const o of expr.outputs) {
                 if (o._qparams !== null) {
-                    /* eslint-disable prefer-destructuring */
                     qparams = o._qparams[1];
-                    /* eslint-enable prefer-destructuring */
                 }
                 const name = `output${outIdx === 0 ? '' : outIdx}`;
                 const dtype = o._dtype ? o._dtype.__name__ : null;

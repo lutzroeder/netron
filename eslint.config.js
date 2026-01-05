@@ -201,7 +201,7 @@ export default [
             'operator-assignment': 'error',
             'prefer-arrow-callback': 'error',
             'prefer-const': 'error',
-            'prefer-destructuring': ['error', { 'array': true }],
+            'prefer-destructuring': ['error', { 'array': false }],
             // 'prefer-exponentiation-operator': 'error',
             // 'prefer-named-capture-group': 'error',
             'prefer-numeric-literals': 'error',

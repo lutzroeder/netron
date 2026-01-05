@@ -1724,7 +1724,6 @@ pytorch.Execution = class extends python.Execution {
                 const [/* pack_version */, tensors, opt_tensors] = state;
                 const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
                 const packed_config = packed_config_tensor.decode();
-                /* eslint-disable prefer-destructuring */
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [packed_config[1], packed_config[2]];
@@ -1732,7 +1731,6 @@ pytorch.Execution = class extends python.Execution {
                 this.dilation = [packed_config[5], packed_config[6]];
                 this.output_padding = [packed_config[7], packed_config[8]];
                 this.groups = packed_config[9];
-                /* eslint-enable prefer-destructuring */
             }
         });
         this.registerType('__torch__.torch.classes.quantized.Conv3dPackedParamsBase', class {
@@ -1743,7 +1741,6 @@ pytorch.Execution = class extends python.Execution {
                 const [/* pack_version */, tensors, opt_tensors] = state;
                 const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
                 const packed_config = packed_config_tensor.decode();
-                /* eslint-disable prefer-destructuring */
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [packed_config[1], packed_config[2]];
@@ -1751,7 +1748,6 @@ pytorch.Execution = class extends python.Execution {
                 this.dilation = [packed_config[5], packed_config[6]];
                 this.output_padding = [packed_config[7], packed_config[8]];
                 this.groups = packed_config[9];
-                /* eslint-enable prefer-destructuring */
             }
         });
         this.registerType('__torch__.torch.classes.quantized.LinearPackedParamsBase', class {

@@ -657,9 +657,7 @@ keras.Graph = class {
                             const transform = (value) => {
                                 if (value.every((item) => is_constant(item))) {
                                     for (let i = 0; i < value.length; i++) {
-                                        /* eslint-disable prefer-destructuring */
                                         value[i] = value[i][2];
-                                        /* eslint-enable prefer-destructuring */
                                     }
                                 } else if (value.every((item) => Array.isArray(item))) {
                                     const dims = value.map((item) => transform(item));
