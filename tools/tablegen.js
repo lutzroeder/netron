@@ -2176,7 +2176,9 @@ tablegen.Reader = class {
             // - A statement like 'def', 'defm', etc.
             if (this._match('{')) {
                 this._read();
-                this._skipUntilClosingBrace();
+                // Parse the contents of the let block - don't skip them!
+                // This handles 'let opDocGroup = ... in { def X, def Y, ... }'
+                this._parseLetBlockBody();
                 this._expect('}');
             } else if (this._eat(';')) {
                 // Just a let declaration, no body
@@ -2186,6 +2188,30 @@ tablegen.Reader = class {
         } else {
             this._eat('{');
             this._eat(';');
+        }
+    }
+
+    _parseLetBlockBody() {
+        // Parse statements inside a 'let ... in { ... }' block
+        while (!this._match('}') && !this._match('eof')) {
+            const token = this._tokenizer.current();
+            if (token.type === 'keyword') {
+                switch (token.value) {
+                    case 'def': this._parseDef(); break;
+                    case 'defm': this._parseDefm(); break;
+                    case 'let': this._parseLet(); break;
+                    case 'multiclass': this._parseMulticlass(); break;
+                    case 'defvar': this._parseDefvar(); break;
+                    case 'defset': this._parseDefset(); break;
+                    case 'foreach': this._parseForeach(); break;
+                    case 'class': this._parseClass(); break;
+                    default:
+                        this._read();
+                        break;
+                }
+            } else {
+                this._read();
+            }
         }
     }
 
@@ -2367,26 +2393,6 @@ tablegen.Reader = class {
     _parseForeachBody(loop) {
         while (!this._match('}') && !this._match('eof')) {
             this._parseForeachBodyStatement(loop);
-        }
-    }
-
-    // Skip tokens until we reach the matching closing brace (but don't consume it)
-    _skipUntilClosingBrace() {
-        let depth = 1;
-        while (depth > 0 && !this._match('eof')) {
-            if (this._match('{')) {
-                depth++;
-                this._read();
-            } else if (this._match('}')) {
-                depth--;
-                if (depth === 0) {
-                    // Don't consume the final } - let the caller handle it
-                    return;
-                }
-                this._read();
-            } else {
-                this._read();
-            }
         }
     }
 

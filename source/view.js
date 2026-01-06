@@ -589,7 +589,11 @@ view.View = class {
                         element.appendChild(text);
                     } else {
                         element.removeAttribute('title');
-                        element.textContent = name;
+                        if (name) {
+                            element.textContent = name;
+                        } else {
+                            element.innerHTML = '&nbsp;';
+                        }
                     }
                     path.appendChild(element);
                 }

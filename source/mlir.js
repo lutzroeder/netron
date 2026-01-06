@@ -3410,19 +3410,6 @@ _.Parser = class {
         }
     }
 
-    parseKeyword() {
-        return this.accept('id');
-    }
-
-    parseOptionalKeyword(values) {
-        if (this.match('id')) {
-            if (values.some((v) => this.getToken().value === v)) {
-                return this.expect('id');
-            }
-        }
-        return null;
-    }
-
     parseInteger() {
         const value = this.expect('int');
         return parseInt(value, 10);
@@ -3488,9 +3475,24 @@ _.Parser = class {
     }
 };
 
-// Reference: AsmParser - base class for assembly parsing interfaces
-// Provides the interface that dialect parsers use
 _.AsmParser = class extends _.Parser {
+
+    parseKeyword(keyword) {
+        this.expect('id', keyword);
+    }
+
+    parseOptionalKeyword(allowedValues) {
+        if (this.match('id')) {
+            if (allowedValues === undefined || allowedValues.some((v) => this.getToken().value === v)) {
+                return this.expect('id');
+            }
+        }
+        return null;
+    }
+
+    parseEqual() {
+        this.expect('=');
+    }
 };
 
 _.OpAsmParser = class extends _.AsmParser {
@@ -3614,6 +3616,15 @@ _.OpAsmParser = class extends _.AsmParser {
             index++;
             return true;
         });
+    }
+
+    // Reference: llvm-project/mlir/lib/Dialect/Linalg/IR/LinalgOps.cpp parseDenseI64ArrayAttr
+    // Parses: attributeName = [values]
+    parseDenseI64ArrayAttr(attributeName, attributes) {
+        this.parseKeyword(attributeName);
+        this.parseEqual();
+        const value = this.skip('[');
+        attributes.set(attributeName, value);
     }
 };
 
@@ -6360,7 +6371,7 @@ _.Dialect = class {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -7732,7 +7743,7 @@ _.HLODialect = class extends _.Dialect {
         }
 
         parser.expect('id', 'precision');
-        parser.expect('=');
+        parser.parseEqual();
         const precision = parser.parseCommaSeparatedList('square', () => {
             if (parser.match('id')) {
                 return parser.expect('id');
@@ -7864,7 +7875,7 @@ _.StableHLODialect = class extends _.HLODialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (typeName === 'token') {
             return new _.Type(`!${dialectName}.token`);
         }
@@ -8049,7 +8060,7 @@ _.StableHLODialect = class extends _.HLODialect {
         }
         if (parser.accept('id', 'across')) {
             if (parser.accept('id', 'dimensions')) {
-                parser.expect('=');
+                parser.parseEqual();
                 const dims = parser.parseAttribute();
                 op.addAttribute('dimensions', dims.value);
             }
@@ -8237,7 +8248,7 @@ _.AffineDialect = class extends _.Dialect {
             const memref = parser.parseOperand();
             parser.skip('[');
             parser.expect(',');
-            const rwSpecifier = parser.parseKeyword();
+            const rwSpecifier = parser.parseOptionalKeyword();
             op.addAttribute('isWrite', rwSpecifier === 'write');
             parser.expect(',');
             parser.expect('id', 'locality');
@@ -8246,7 +8257,7 @@ _.AffineDialect = class extends _.Dialect {
             op.addAttribute('localityHint', locality);
             parser.expect('>');
             parser.expect(',');
-            const cacheType = parser.parseKeyword();
+            const cacheType = parser.parseOptionalKeyword();
             op.addAttribute('isDataCache', cacheType === 'data');
             parser.parseOptionalAttrDict(op.attributes);
             const type = parser.parseColonType();
@@ -8311,7 +8322,7 @@ _.AffineDialect = class extends _.Dialect {
     _parseForOp(parser, op) {
         const inductionVar = parser.parseOperand();
         parser.parseLocation();
-        parser.expect('=');
+        parser.parseEqual();
         this._parseAffineBound(parser, op, 'lowerBound');
         parser.expect('id', 'to');
         this._parseAffineBound(parser, op, 'upperBound');
@@ -8993,7 +9004,7 @@ _.TorchDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -9318,7 +9329,7 @@ _.HALDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -10010,7 +10021,7 @@ _.UtilDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -10369,7 +10380,7 @@ _.FlowDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -11086,7 +11097,7 @@ _.StreamDialect = class extends _.IREEDialect {
             parser.expect(',');
             parser.parseAttribute();
             parser.expect(']');
-            parser.expect('=');
+            parser.parseEqual();
             const unresolvedOperand = parser.parseOperand();
             parser.resolveOperand(unresolvedOperand, null, op.operands);
             if (!parser.accept(',')) {
@@ -11201,7 +11212,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 }
                 parser.expect('}');
             }
-            parser.expect('=');
+            parser.parseEqual();
             parser.parseAttribute();
             if (parser.accept(':')) {
                 parser.parseType();
@@ -11310,7 +11321,7 @@ _.StreamDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -11330,7 +11341,7 @@ _.StreamDialect = class extends _.IREEDialect {
         // Reference: mnemonic = "test.fence" means the type name after stream. is "test.fence"
         if (typeName === 'test') {
             if (parser.accept('.')) {
-                const subtype = parser.parseKeyword();
+                const subtype = parser.parseOptionalKeyword();
                 if (subtype === 'fence') {
                     return new _.Type(`!${dialectName}.test.fence`);
                 }
@@ -11587,7 +11598,7 @@ _.IREETensorExtDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (typeName === 'dispatch.tensor') {
             let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
@@ -11622,8 +11633,7 @@ _.LinalgDialect = class extends _.Dialect {
             'linalg.pooling_nhwc_max', 'linalg.pooling_nhwc_max_unsigned', 'linalg.pooling_nhwc_min', 'linalg.pooling_nhwc_min_unsigned', 'linalg.pooling_nhwc_sum',
             'linalg.pooling_ncw_max', 'linalg.pooling_ncw_sum',
             'linalg.pooling_nwc_max', 'linalg.pooling_nwc_max_unsigned', 'linalg.pooling_nwc_min', 'linalg.pooling_nwc_min_unsigned', 'linalg.pooling_nwc_sum',
-            'linalg.pooling_ndhwc_max', 'linalg.pooling_ndhwc_min', 'linalg.pooling_ndhwc_sum',
-            'linalg.broadcast', 'linalg.reduce'
+            'linalg.pooling_ndhwc_max', 'linalg.pooling_ndhwc_min', 'linalg.pooling_ndhwc_sum'
         ]);
     }
 
@@ -11650,8 +11660,10 @@ _.LinalgDialect = class extends _.Dialect {
             return true;
         }
         if (opName === 'linalg.fill') {
-            if (parser.match('id', 'ins') || parser.match('{')) {
-                return this._parseInsOutsOp(parser, op);
+            // Reference: FillOp has two syntax forms
+            // Form 1: ins/outs format - use parseNamedStructuredOp
+            if (parser.match('id', 'ins') || parser.match('{') || parser.match('<')) {
+                return this.parseNamedStructuredOp(parser, op);
             }
             let unresolvedOperands = [];
             if (parser.accept('(')) {
@@ -11686,79 +11698,144 @@ _.LinalgDialect = class extends _.Dialect {
             return true;
         }
         if (opName === 'linalg.transpose') {
-            if (!this._parseInsOutsOp(parser, op)) {
+            return this.parseDstStyleOp(parser, op, (parser, attributes) => {
+                parser.parseDenseI64ArrayAttr('permutation', attributes);
+            });
+        }
+        if (opName === 'linalg.reduce') {
+            // Reference: LinalgOps.cpp ReduceOp::parse (lines 1816-1852)
+            // Optional short form: { payload_op attr-dict }
+            let payloadOpName = null;
+            const payloadOpAttrs = new Map();
+            if (parser.accept('{')) {
+                payloadOpName = parser.parseOperationName();
+                if (parser.match('{')) {
+                    parser.parseAttributeDict(payloadOpAttrs);
+                }
+                parser.expect('}');
+            }
+            // parseDstStyleOp with parseAttrsFn for dimensions
+            if (!this.parseDstStyleOp(parser, op, (parser, attributes) => {
+                parser.parseDenseI64ArrayAttr('dimensions', attributes);
+            })) {
                 return false;
             }
-            if (parser.match('id', 'permutation')) {
-                parser.expect('id', 'permutation');
-                parser.expect('=');
-                const permutation = parser.skip('[');
-                op.addAttribute('permutation', permutation);
+            // Parse block arguments and region (or add body with payload op)
+            if (payloadOpName) {
+                this.addBodyWithPayloadOp(op, payloadOpName, payloadOpAttrs, true, true);
+            } else {
+                // Parse argument list and region inline
+                const regionArgs = [];
+                if (parser.match('(')) {
+                    parser.expect('(');
+                    while (!parser.match(')')) {
+                        const value = parser.parseOperand();
+                        parser.expect(':');
+                        const type = parser.parseType();
+                        regionArgs.push({ value, type });
+                        if (!parser.accept(',')) {
+                            break;
+                        }
+                    }
+                    parser.expect(')');
+                }
+                const region = op.addRegion();
+                if (parser.match('{')) {
+                    parser.parseRegion(region, regionArgs);
+                }
             }
             return true;
         }
+        if (opName === 'linalg.broadcast') {
+            return this.parseDstStyleOp(parser, op, (parser, attributes) => {
+                parser.parseDenseI64ArrayAttr('dimensions', attributes);
+            });
+        }
         if (opName === 'linalg.elementwise') {
-            if (parser.accept('id', 'kind')) {
-                parser.expect('=');
-                const kind = parser.parseAttribute();
-                op.addAttribute('kind', kind.value);
+            // Reference: ElementwiseOp::parse (lines 4802-4872)
+            // Parse required kind = <attr>
+            parser.expect('id', 'kind');
+            parser.expect('=');
+            const kind = parser.parseAttribute();
+            op.addAttribute('kind', kind.value);
+            // Parse optional indexing_maps
+            const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
+            if (indexingMapsAttr !== null) {
+                op.addAttribute('indexing_maps', indexingMapsAttr);
             }
-            if (parser.accept('id', 'indexing_maps')) {
-                parser.expect('=');
-                const indexingMaps = parser.skip('[');
-                op.addAttribute('indexing_maps', indexingMaps);
-            }
-            return this._parseInsOutsOp(parser, op);
+            return this.parseNamedStructuredOp(parser, op);
         }
         if (opName === 'linalg.map') {
-            return this._parseMapOp(parser, op);
+            return this.parseMapOp(parser, op);
         }
         if (opName === 'linalg.contract') {
-            if (parser.accept('id', 'indexing_maps')) {
-                parser.expect('=');
-                // Handle both literal array [...] and attribute alias #alias
-                if (parser.match('[')) {
-                    const indexingMaps = parser.skip('[');
-                    op.addAttribute('indexing_maps', indexingMaps);
-                } else if (parser.match('#')) {
-                    const alias = parser.expect('#');
-                    op.addAttribute('indexing_maps', { alias });
-                }
+            const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
+            if (!indexingMapsAttr) {
+                throw new mlir.Error(`Expected 'indexing_maps' attribute ${parser.location()}`);
             }
-            return this._parseInsOutsOp(parser, op);
+            op.addAttribute('indexing_maps', indexingMapsAttr);
+            return this.parseNamedStructuredOp(parser, op);
         }
-        // Many linalg operations (especially named structured ops) follow the pattern:
-        // linalg.<op_name> <{properties}> [indexing_maps = [...]] {attributes} ins(...) outs(...) [-> type]
-        // These named structured ops are generated at LLVM build time from YAML.
         if (this._namedStructuredOps.has(opName)) {
-            if (parser.accept('<')) {
-                op.propertiesAttr = parser.parseAttribute();
-                parser.expect('>');
+            const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
+            if (indexingMapsAttr) {
+                op.addAttribute('indexing_maps', indexingMapsAttr);
             }
-            if (parser.match('id', 'indexing_maps')) {
-                parser.expect('id', 'indexing_maps');
-                parser.expect('=');
-                const indexingMaps = parser.skip('[');
-                op.addAttribute('indexing_maps', indexingMaps);
-            }
-            return this._parseInsOutsOp(parser, op);
+            return this.parseNamedStructuredOp(parser, op);
         }
         const opInfo = this.getOperation(opName);
         if (opInfo && opInfo.metadata.assemblyFormat) {
             return super.parseOperation(parser, opName, op);
         }
         if (parser.match('{') || parser.match('id', 'ins') || parser.match('id', 'outs')) {
-            return this._parseInsOutsOp(parser, op);
+            // Reference: GenericOp::parse and parseNamedStructuredOp
+            if (!this.parseCommonStructuredOpParts(parser, op)) {
+                return false;
+            }
+            // Parse optional attr-dict (for generic ops: attrs = {...})
+            if (parser.accept('id', 'attrs')) {
+                parser.parseEqual();
+                parser.parseAttributeDict(op.attributes);
+            } else if (parser.match('{') && !parser.match('{', '^')) {
+                // Inline attr-dict without 'attrs =' prefix (but not a region starting with ^bb)
+                const saved = parser.save();
+                parser.expect('{');
+                if (!parser.match('%') && !parser.match('id')) {
+                    parser.restore(saved);
+                } else {
+                    parser.restore(saved);
+                    parser.parseAttributeDict(op.attributes);
+                }
+            }
+            // Parse optional result types -> type (for named ops like linalg.matmul)
+            if (parser.accept('->')) {
+                const types = parser.parseFunctionResultTypes();
+                op.addTypes(types);
+            }
+            // Parse region (for generic ops)
+            if (parser.match('{')) {
+                const region = op.addRegion();
+                parser.parseRegion(region, []);
+            }
+            return true;
         }
         return false;
     }
 
-    _parseInsOutsOp(parser, op) {
-        // Parse: linalg.op {attrs} ins(%0, %1 : type, type) outs(%2 : type) [-> type]
+    // Reference: LinalgOps.cpp parseCommonStructuredOpParts (lines 242-315)
+    // "Common parsing used for both named structured ops created by ods-gen and by
+    // manually defined C++ ops. Does not handle regions."
+    parseCommonStructuredOpParts(parser, op) {
+        // Parse optional properties <{...}>
+        if (parser.accept('<')) {
+            op.propertiesAttr = parser.parseAttribute();
+            parser.expect('>');
+        }
+        // Parse optional attr-dict
         if (parser.match('{')) {
             parser.parseAttributeDict(op.attributes);
         }
-        // Reference impl pattern: collect unresolved operands, then resolve with types
+        // Parse ins(...) operands
         if (parser.accept('id', 'ins')) {
             if (!parser.accept('(')) {
                 return false;
@@ -11784,6 +11861,7 @@ _.LinalgDialect = class extends _.Dialect {
                 return false;
             }
         }
+        // Parse outs(...) operands
         if (parser.accept('id', 'outs')) {
             if (!parser.accept('(')) {
                 return false;
@@ -11807,145 +11885,121 @@ _.LinalgDialect = class extends _.Dialect {
             }
             if (!parser.accept(')')) {
                 return false;
-            }
-        }
-        if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
-        }
-        if (parser.match('id', 'dimensions') || parser.match('id', 'permutation')) {
-            const attrName = parser.expect('id');
-            parser.expect('=');
-            const attrValue = parser.parseAttribute();
-            if (attrValue) {
-                op.addAttribute(attrName, attrValue.value);
-            }
-        }
-        const blockArguments = [];
-        if (parser.match('(')) {
-            parser.expect('(');
-            while (!parser.match(')')) {
-                const value = parser.parseOperand();
-                parser.expect(':');
-                const type = parser.parseType();
-                blockArguments.push({ value, type });
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-            parser.expect(')');
-        }
-        if (blockArguments.length > 0 && parser.match('{')) {
-            const region = { blocks: [] };
-            const block = { operations: [], arguments: blockArguments };
-            parser.expect('{');
-            while (!parser.accept('}')) {
-                if (parser.match('^') || (parser.match('id') && parser.getToken().value && parser.getToken().value.startsWith('^'))) {
-                    break;
-                }
-                const operation = parser.parseOperation();
-                block.operations.push(_.Operation.create(operation));
-            }
-            region.blocks.push(block);
-            op.regions.push(region);
-        }
-        if (parser.accept('->') || parser.accept('id', 'to')) {
-            if (op.types.length > 0) {
-                const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
-            } else {
-                const type = parser.parseType();
-                op.addTypes([type]);
             }
         }
         return true;
     }
 
-    // Reference: llvm-project/mlir/lib/Dialect/Linalg/IR/LinalgOps.cpp MapOp::parse
-    // Format: linalg.map [{ payload_op }] ins(...) outs(...) [(args)] { region }
-    _parseMapOp(parser, op) {
-        // Reference: LinalgOps.cpp MapOp::parse
-        // Optional short form: { payload_op attr-dict }
-        let hasPayloadOp = false;
-        if (parser.accept('{')) {
-            const payloadOpName = parser.parseOperationName();
-            op.addAttribute('payload_op', payloadOpName);
-            if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
-            }
-            parser.expect('}');
-            hasPayloadOp = true;
+    // Reference: LinalgOps.cpp parseNamedStructuredOp (lines 361-390)
+    parseNamedStructuredOp(parser, op) {
+        if (!this.parseCommonStructuredOpParts(parser, op)) {
+            return false;
         }
-        // Parse ins(...) and outs(...) - collect unresolved operands, then resolve with types
-        if (parser.accept('id', 'ins')) {
-            parser.expect('(');
-            const unresolvedIns = [];
-            while (parser.match('%')) {
-                unresolvedIns.push(parser.parseOperand());
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-            if (parser.accept(':')) {
-                const insTypes = [];
-                while (!parser.match(')')) {
-                    insTypes.push(parser.parseType());
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.resolveOperands(unresolvedIns, insTypes, op.operands);
-            } else {
-                parser.resolveOperands(unresolvedIns, unresolvedIns.map(() => null), op.operands);
-            }
-            parser.expect(')');
+        // Parse optional trailing attribute dict
+        if (parser.match('{')) {
+            parser.parseAttributeDict(op.attributes);
         }
-        if (parser.accept('id', 'outs')) {
-            parser.expect('(');
-            const unresolvedOuts = [];
-            while (parser.match('%')) {
-                unresolvedOuts.push(parser.parseOperand());
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-            if (parser.accept(':')) {
-                const outsTypes = [];
-                while (!parser.match(')')) {
-                    outsTypes.push(parser.parseType());
-                    if (!parser.accept(',')) {
-                        break;
-                    }
-                }
-                parser.resolveOperands(unresolvedOuts, outsTypes, op.operands);
-            } else {
-                parser.resolveOperands(unresolvedOuts, unresolvedOuts.map(() => null), op.operands);
-            }
-            parser.expect(')');
-        }
-        // Parse optional block arguments: (args)
-        const blockArguments = [];
-        if (parser.match('(')) {
-            parser.expect('(');
-            while (!parser.match(')')) {
-                const value = parser.parseOperand();
-                parser.expect(':');
-                const type = parser.parseType();
-                blockArguments.push({ value, type });
-                if (!parser.accept(',')) {
-                    break;
-                }
-            }
-            parser.expect(')');
-        }
-        // Parse region { ... } if not short form
-        if (!hasPayloadOp && parser.match('{')) {
-            const region = op.addRegion();
-            parser.parseRegion(region, blockArguments);
-        }
-        // Parse optional result type: -> type
+        // Parse optional result types -> type
         if (parser.accept('->')) {
             const types = parser.parseFunctionResultTypes();
             op.addTypes(types);
+        }
+        return true;
+    }
+
+    parseIndexingMapsAttr(parser) {
+        if (!parser.accept('id', 'indexing_maps')) {
+            return null;
+        }
+        parser.expect('=');
+        return parser.parseAttribute();
+    }
+
+    parseDstStyleOp(parser, op, parseAttrsFn) {
+        if (!this.parseCommonStructuredOpParts(parser, op)) {
+            return false;
+        }
+        for (const operand of op.operands) {
+            if (operand && operand.type instanceof _.RankedTensorType) {
+                op.addTypes([operand.type]);
+            }
+        }
+        if (parseAttrsFn) {
+            parseAttrsFn(parser, op.attributes);
+        }
+        if (parser.match('{')) {
+            parser.parseAttributeDict(op.attributes);
+        }
+        return true;
+    }
+
+    addBodyWithPayloadOp(op, payloadOpName, payloadOpAttrs /*, initFirst, mapInit */) {
+        const region = op.addRegion();
+        const block = { operations: [], arguments: [] };
+        for (const operand of op.operands) {
+            if (operand && operand.type) {
+                const elemType = operand.type.elementType || operand.type;
+                block.arguments.push({ value: null, type: elemType });
+            }
+        }
+        const payloadState = new _.OperationState(payloadOpName);
+        if (op.operands.length > 0) {
+            const lastOperand = op.operands[op.operands.length - 1];
+            if (lastOperand && lastOperand.type) {
+                const elemType = lastOperand.type.elementType || lastOperand.type;
+                payloadState.types = [elemType];
+            }
+        }
+        for (const [name, value] of payloadOpAttrs) {
+            payloadState.attributes.set(name, value);
+        }
+        block.operations.push(_.Operation.create(payloadState));
+        const yieldState = new _.OperationState('linalg.yield');
+        block.operations.push(_.Operation.create(yieldState));
+        region.blocks = [block];
+    }
+
+    parseMapOp(parser, op) {
+        let payloadOpName = null;
+        const payloadOpAttrs = new Map();
+        if (parser.accept('{')) {
+            payloadOpName = parser.parseOperationName();
+            if (parser.match('{')) {
+                parser.parseAttributeDict(payloadOpAttrs);
+            }
+            parser.expect('}');
+        }
+        // parseDstStyleOp (no parseAttrsFn for MapOp)
+        if (!this.parseDstStyleOp(parser, op)) {
+            return false;
+        }
+        // Parse block arguments and region (or add body with payload op)
+        if (payloadOpName) {
+            if (op.operands.length > 0) {
+                this.addBodyWithPayloadOp(op, payloadOpName, payloadOpAttrs, false, false);
+            } else {
+                op.addRegion();
+            }
+        } else {
+            // Parse argument list and region inline
+            const regionArgs = [];
+            if (parser.match('(')) {
+                parser.expect('(');
+                while (!parser.match(')')) {
+                    const value = parser.parseOperand();
+                    parser.expect(':');
+                    const type = parser.parseType();
+                    regionArgs.push({ value, type });
+                    if (!parser.accept(',')) {
+                        break;
+                    }
+                }
+                parser.expect(')');
+            }
+            const region = op.addRegion();
+            if (parser.match('{')) {
+                parser.parseRegion(region, regionArgs);
+            }
         }
         return true;
     }
@@ -12006,7 +12060,7 @@ _.LinalgDialect = class extends _.Dialect {
             parser.expect(')');
         }
         if (parser.accept('id', 'attrs')) {
-            parser.expect('=');
+            parser.parseEqual();
             parser.parseAttributeDict(op.attributes);
         }
         if (parser.match('{')) {
@@ -12166,7 +12220,7 @@ _.KrnlDialect = class extends _.Dialect {
                     parser.parseOperand();
                     parser.expect('->');
                     parser.parseOperand();
-                    parser.expect('=');
+                    parser.parseEqual();
                     parser.accept('id', 'max');
                     if (parser.match('id', 'affine_map') || parser.match('id', 'affine_set')) {
                         parser.parseAttribute();
@@ -12203,7 +12257,7 @@ _.KrnlDialect = class extends _.Dialect {
                 parser.expect('(');
                 while (!parser.match(')')) {
                     parser.parseOperand();
-                    parser.expect('=');
+                    parser.parseEqual();
                     parser.parseAttribute();
                     if (!parser.match(')')) {
                         parser.accept(',');
@@ -12375,7 +12429,7 @@ _.MhloDialect = class extends _.HLODialect {
             const innerOpName = parser.parseCustomOperationName();
             parser.expect('id', 'across');
             parser.expect('id', 'dimensions');
-            parser.expect('=');
+            parser.parseEqual();
             parser.expect('[');
             const dimensions = [];
             while (!parser.match(']')) {
@@ -12453,7 +12507,7 @@ _.MhloDialect = class extends _.HLODialect {
         // Non-compact syntax: parse "across dimensions = [...] : type reducer"
         parser.expect('id', 'across');
         parser.expect('id', 'dimensions');
-        parser.expect('=');
+        parser.parseEqual();
         parser.expect('[');
         const dimensions = [];
         while (!parser.match(']')) {
@@ -12605,7 +12659,7 @@ _.QuantDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (typeName === 'uniform' || typeName === 'calibrated' || typeName === 'any') {
             let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
@@ -12633,7 +12687,7 @@ _.TosaDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (typeName === 'shape') {
             let type = `!${dialectName}.${typeName}`;
             if (parser.match('<')) {
@@ -12676,7 +12730,7 @@ _.TosaDialect = class extends _.Dialect {
                 while (!parser.match(')')) {
                     if (parser.match('%')) {
                         blockArgs.push(parser.parseOperand());
-                        parser.expect('=');
+                        parser.parseEqual();
                         unresolvedInputs.push(parser.parseOperand());
                     }
                     if (!parser.accept(',')) {
@@ -12881,7 +12935,7 @@ _.IRDLDialect = class extends _.Dialect {
             while (!parser.match('}')) {
                 const name = parser.expect('string');
                 nameValues.push(name);
-                parser.expect('=');
+                parser.parseEqual();
                 const value = parser.parseOperand();
                 argValues.push(value);
                 parser.accept(',');
@@ -13092,13 +13146,13 @@ _.SPIRVDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        let typeName = parser.parseKeyword();
+        let typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
         // Handle sub-dialect types like arm.tensor, KHR.CooperativeMatrix, etc.
         while (parser.accept('.')) {
-            const subType = parser.parseKeyword();
+            const subType = parser.parseOptionalKeyword();
             if (subType) {
                 typeName += `.${subType}`;
             } else {
@@ -13119,12 +13173,16 @@ _.SPIRVDialect = class extends _.Dialect {
         const arrowFormatOps = new Set([
             'spirv.GL.Distance', 'spirv.GL.FMix', 'spirv.GL.FrexpStruct', 'spirv.GL.Ldexp',
             'spirv.GL.Length', 'spirv.GL.PackHalf2x16', 'spirv.GL.UnpackHalf2x16',
+            'spirv.GL.PackSnorm4x8', 'spirv.GL.UnpackSnorm4x8',
             'spirv.GLSL.Distance', 'spirv.GLSL.FMix', 'spirv.GLSL.FrexpStruct', 'spirv.GLSL.Ldexp',
             'spirv.GLSL.Length', 'spirv.GLSL.PackHalf2x16', 'spirv.GLSL.UnpackHalf2x16',
+            'spirv.GLSL.PackSnorm4x8', 'spirv.GLSL.UnpackSnorm4x8',
             'spv.GL.Distance', 'spv.GL.FMix', 'spv.GL.FrexpStruct', 'spv.GL.Ldexp',
             'spv.GL.Length', 'spv.GL.PackHalf2x16', 'spv.GL.UnpackHalf2x16',
+            'spv.GL.PackSnorm4x8', 'spv.GL.UnpackSnorm4x8',
             'spv.GLSL.Distance', 'spv.GLSL.FMix', 'spv.GLSL.FrexpStruct', 'spv.GLSL.Ldexp',
-            'spv.GLSL.Length', 'spv.GLSL.PackHalf2x16', 'spv.GLSL.UnpackHalf2x16'
+            'spv.GLSL.Length', 'spv.GLSL.PackHalf2x16', 'spv.GLSL.UnpackHalf2x16',
+            'spv.GLSL.PackSnorm4x8', 'spv.GLSL.UnpackSnorm4x8'
         ]);
         if ((opName.startsWith('spirv.GLSL.') || opName.startsWith('spv.GLSL.') || opName.startsWith('spirv.GL.') || opName.startsWith('spv.GL.')) && !arrowFormatOps.has(opName)) {
             const unresolvedOperands = [];
@@ -13668,7 +13726,7 @@ _.SPIRVDialect = class extends _.Dialect {
             // Parse optional control(EnumValue) attribute
             if (parser.accept('id', 'control')) {
                 parser.expect('(');
-                const controlValue = parser.parseKeyword();
+                const controlValue = parser.parseOptionalKeyword();
                 op.addAttribute('selection_control', controlValue);
                 parser.expect(')');
             }
@@ -14177,7 +14235,7 @@ _.PDLInterpDialect = class extends _.Dialect {
         if (parser.accept('{')) {
             while (!parser.match('}')) {
                 const nameAttr = parser.parseAttribute();
-                parser.expect('=');
+                parser.parseEqual();
                 const operand = parser.parseOperand();
                 // Resolve the operand properly
                 parser.resolveOperand(operand, null, op.operands);
@@ -14347,7 +14405,7 @@ _.EmitCDialect = class extends _.Dialect {
         if (opName === 'emitc.for') {
             // Format: emitc.for %iter = %lb to %ub step %step [: type] { region }
             const iterVar = parser.parseOperand();
-            parser.expect('=');
+            parser.parseEqual();
             const lb = parser.parseOperand();
             parser.resolveOperand(lb, null, op.operands);
             parser.expect('id', 'to');
@@ -14462,7 +14520,7 @@ _.AsyncDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -14470,7 +14528,7 @@ _.AsyncDialect = class extends _.Dialect {
         // Handle coro.* types (coro.id, coro.handle, coro.state)
         if (typeName === 'coro') {
             if (parser.accept('.')) {
-                const subType = parser.parseKeyword();
+                const subType = parser.parseOptionalKeyword();
                 if (subType) {
                     type += `.${subType}`;
                 }
@@ -14711,7 +14769,7 @@ _.BufferizationDialect = class extends _.Dialect {
             }
             let unresolvedSizeHint = null;
             if (parser.accept('id', 'size_hint')) {
-                parser.expect('=');
+                parser.parseEqual();
                 unresolvedSizeHint = parser.parseOperand();
             }
             parser.parseOptionalAttrDict(op.attributes);
@@ -15230,7 +15288,7 @@ _.ShapeDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -16252,7 +16310,7 @@ _.OpenMPDialect = class extends _.Dialect {
 
     _parseParenthesizedEnumAttr(parser) {
         if (parser.accept('(')) {
-            const value = parser.parseKeyword();
+            const value = parser.parseOptionalKeyword();
             parser.expect(')');
             return new _.TypedAttr(value, null);
         }
@@ -16264,11 +16322,11 @@ _.OpenMPDialect = class extends _.Dialect {
         const orderKinds = ['concurrent'];
         let orderMod = null;
         let orderKind = null;
-        const keyword = parser.parseKeyword();
+        const keyword = parser.parseOptionalKeyword();
         if (orderModifiers.includes(keyword)) {
             orderMod = keyword;
             parser.expect(':');
-            orderKind = parser.parseKeyword();
+            orderKind = parser.parseOptionalKeyword();
         } else if (orderKinds.includes(keyword)) {
             orderKind = keyword;
         }
@@ -16289,7 +16347,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 break;
             }
             unresolvedLinearVars.push(parser.parseOperand());
-            parser.expect('=');
+            parser.parseEqual();
             unresolvedStepVars.push(parser.parseOperand());
             parser.expect(':');
             const type = parser.parseType();
@@ -16384,7 +16442,7 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         const modifiers = [];
         while (parser.accept(',')) {
-            const mod = parser.parseKeyword();
+            const mod = parser.parseOptionalKeyword();
             if (mod) {
                 modifiers.push(mod);
             }
@@ -16531,7 +16589,7 @@ _.OpenMPDialect = class extends _.Dialect {
                         }
                         if (parser.accept('[')) {
                             parser.expect('id', 'map_idx');
-                            parser.expect('=');
+                            parser.parseEqual();
                             parser.expect('int');
                             parser.expect(']');
                         }
@@ -16687,7 +16745,7 @@ _.OpenMPDialect = class extends _.Dialect {
                             }
                             if (parser.accept('[')) {
                                 parser.expect('id', 'map_idx');
-                                parser.expect('=');
+                                parser.parseEqual();
                                 parser.expect('int');
                                 parser.expect(']');
                             }
@@ -16827,7 +16885,7 @@ _.OpenMPDialect = class extends _.Dialect {
     _parseDataSharingClauseTypeAttr(parser) {
         if (parser.accept('{')) {
             parser.expect('id', 'type');
-            parser.expect('=');
+            parser.parseEqual();
             const value = parser.expect('id');
             parser.expect('}');
             return { value };
@@ -17131,7 +17189,7 @@ _.LLVMDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -17826,7 +17884,7 @@ _.XSMMDialect = class extends _.Dialect {
                 parser.accept(',');
             }
         }
-        parser.expect('=');
+        parser.parseEqual();
         unresolvedOperands.push(parser.parseOperand());
         parser.expect('(');
         unresolvedOperands.push(parser.parseOperand());
@@ -17861,7 +17919,7 @@ _.XSMMDialect = class extends _.Dialect {
                 parser.accept(',');
             }
         }
-        parser.expect('=');
+        parser.parseEqual();
         unresolvedOperands.push(parser.parseOperand());
         if (parser.accept('[')) {
             while (!parser.accept(']')) {
@@ -17894,7 +17952,7 @@ _.XSMMDialect = class extends _.Dialect {
                 }
             } else if (parser.match('id')) {
                 const keyword = parser.expect('id');
-                parser.expect('=');
+                parser.parseEqual();
                 const attrValue = parser.parseAttribute(new _.PrimitiveType('i64'));
                 op.addAttribute(keyword, attrValue);
             } else {
@@ -18524,7 +18582,7 @@ _.TFExecutorDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -18742,7 +18800,7 @@ _.TFRTDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -19253,7 +19311,7 @@ _.SdfgDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -19867,7 +19925,7 @@ _.TFDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -19903,7 +19961,7 @@ _.TFTypeDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -20072,7 +20130,7 @@ _.TransformDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -20234,8 +20292,8 @@ _.TransformDialect = class extends _.Dialect {
         }
         const options = {};
         while (!parser.match('}')) {
-            const key = parser.match('string') ? parser.expect('string') : parser.parseKeyword();
-            parser.expect('=');
+            const key = parser.match('string') ? parser.expect('string') : parser.parseOptionalKeyword();
+            parser.parseEqual();
             if (parser.match('%')) {
                 const operand = parser.parseOperand();
                 parser.resolveOperand(operand, null, op.operands);
@@ -20832,7 +20890,7 @@ _.TestDialect = class extends _.Dialect {
     // Format: <second> = <sum> where sum should equal first + second
     _parseSumProperty(parser, op, propArg) {
         const second = parser.parseInteger();
-        parser.expect('=');
+        parser.parseEqual();
         parser.parseInteger(); // sum value (validation skipped)
         if (propArg) {
             const propName = typeof propArg === 'string' ? propArg : propArg.name;
@@ -20851,7 +20909,7 @@ _.TritonDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -20966,7 +21024,7 @@ _.TritonGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -21041,7 +21099,7 @@ _.TritonNvidiaGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -21064,7 +21122,7 @@ _.TritonAMDGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -21091,7 +21149,7 @@ _.MichelsonDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialectName) {
-        const typeName = parser.parseKeyword();
+        const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
             return null;
         }
@@ -21244,7 +21302,7 @@ _.TensorRTDialect = class extends _.Dialect {
 
     _parseForOp(parser, op) {
         const inductionVar = parser.parseOperand();
-        parser.expect('=');
+        parser.parseEqual();
         const unresolvedLb = parser.parseOperand();
         parser.resolveOperand(unresolvedLb, null, op.operands);
         parser.expect('id', 'to');
@@ -21410,7 +21468,7 @@ _.TFRTTestDialect = class extends _.Dialect {
             parser.expect(')');
             while (parser.match('id') && !parser.match('{')) {
                 const name = parser.expect('id');
-                parser.expect('=');
+                parser.parseEqual();
                 let value = null;
                 if (parser.match('int')) {
                     value = parser.parseInteger();
@@ -21594,7 +21652,7 @@ _.ACCDialect = class extends _.Dialect {
                 parser.accept(',');
             }
             parser.expect(')');
-            parser.expect('=');
+            parser.parseEqual();
             parser.expect('(');
             const lowerbound = parser.parseOperandList();
             const lowerboundTypes = parser.parseColonTypeList();
@@ -21713,13 +21771,13 @@ _.ACCDialect = class extends _.Dialect {
             while (!parser.match('}')) {
                 let argType = 'Num';
                 if (parser.accept('id', 'num')) {
-                    parser.expect('=');
+                    parser.parseEqual();
                     argType = 'Num';
                 } else if (parser.accept('id', 'dim')) {
-                    parser.expect('=');
+                    parser.parseEqual();
                     argType = 'Dim';
                 } else if (parser.accept('id', 'static')) {
-                    parser.expect('=');
+                    parser.parseEqual();
                     argType = 'Static';
                 }
                 gangArgTypes.push({ value: argType });
@@ -22008,7 +22066,7 @@ _.MPMDDialect = class extends _.Dialect {
         // Parse attributes inside <>
         while (!parser.match('>')) {
             const attrName = parser.expect('id');
-            parser.expect('=');
+            parser.parseEqual();
             // Use custom parser for origin attribute (array of UserOriginAttr)
             const attrValue = attrName === 'origin' ? this._parseOriginArray(parser) : parser.parseAttribute();
             op.addAttribute(attrName, attrValue);
@@ -22038,7 +22096,7 @@ _.MPMDDialect = class extends _.Dialect {
         // Parse attributes inside <>
         while (!parser.match('>')) {
             const attrName = parser.expect('id');
-            parser.expect('=');
+            parser.parseEqual();
             // Use custom parser for origin attribute (array of UserOriginAttr)
             const attrValue = attrName === 'origin' ? this._parseOriginArray(parser) : parser.parseAttribute();
             op.addAttribute(attrName, attrValue);
@@ -22094,7 +22152,7 @@ _.MPMDDialect = class extends _.Dialect {
         if (parser.accept(',')) {
             // Parse optional sharding
             if (parser.accept('id', 'sharding')) {
-                parser.expect('=');
+                parser.parseEqual();
                 result.sharding = parser.parseAttribute();
             }
         }
@@ -22201,10 +22259,10 @@ _.SdyDialect = class extends _.Dialect {
         let unreducedAxes = null;
         while (parser.accept(',')) {
             if (parser.accept('id', 'replicated')) {
-                parser.expect('=');
+                parser.parseEqual();
                 replicatedAxes = this._parseAxisRefList(parser);
             } else if (parser.accept('id', 'unreduced')) {
-                parser.expect('=');
+                parser.parseEqual();
                 unreducedAxes = this._parseAxisRefList(parser);
             }
         }
@@ -22218,7 +22276,7 @@ _.SdyDialect = class extends _.Dialect {
         parser.expect('[');
         while (!parser.accept(']')) {
             const name = parser.parseString();
-            parser.expect('=');
+            parser.parseEqual();
             const size = parser.parseInteger();
             axes.push({ name, size });
             parser.accept(',');
@@ -22226,7 +22284,7 @@ _.SdyDialect = class extends _.Dialect {
         let deviceIds = null;
         if (parser.accept(',')) {
             if (parser.accept('id', 'device_ids')) {
-                parser.expect('=');
+                parser.parseEqual();
                 deviceIds = parser.parseAttribute().value;
             }
         }
@@ -22562,7 +22620,7 @@ _.XlaGpuDialect = class extends _.Dialect {
             op.addAttribute('max_distance', parseInt(maxDistance, 10));
             // Parse 'combiner=@func'
             parser.expect('id', 'combiner');
-            parser.expect('=');
+            parser.parseEqual();
             const combiner = parser.expect('@');
             op.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             // Parse optional attributes
@@ -22610,12 +22668,12 @@ _.XlaGpuDialect = class extends _.Dialect {
             parser.expect(')');
             // Parse 'dimensions=[0, 2]'
             parser.expect('id', 'dimensions');
-            parser.expect('=');
+            parser.parseEqual();
             const dimensions = parser.parseAttribute();
             op.addAttribute('dimensions', dimensions);
             // Parse 'combiner=@func'
             parser.expect('id', 'combiner');
-            parser.expect('=');
+            parser.parseEqual();
             const combiner = parser.expect('@');
             op.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             // Parse optional attributes
