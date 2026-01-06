@@ -7004,6 +7004,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "test_model.pt2",
+    "source":   "https://github.com/user-attachments/files/24445963/test_model.pt2.zip[test_model.pt2]",
+    "format":   "PyTorch Export v8.15",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "test_quint4x2.pth",
     "source":   "https://github.com/user-attachments/files/22782069/test_quint4x2.pth.zip[test_quint4x2.pth]",
     "format":   "PyTorch v1.6",

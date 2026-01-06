@@ -576,7 +576,7 @@ pytorch.Node = class {
                 const inputs = new Map((schema ? schema.arguments : []).map((arg) => [arg.name, arg]));
                 args = args.concat(Array.from(obj.kwargs));
                 for (const [name, arg] of args) {
-                    const type = inputs.has(name) ? pytorch.Utility.toType(inputs.get(name).real_type) : null;
+                    let type = inputs.has(name) ? pytorch.Utility.toType(inputs.get(name).real_type) : null;
                     if (arg instanceof torch.fx.node.Node) {
                         let argument = null;
                         if (arg.op === 'get_attr' && arg.users.size === 1) {
@@ -602,6 +602,8 @@ pytorch.Node = class {
                         const argument = new pytorch.Argument(name, arg.toString(), type || 'attribute');
                         this.inputs.push(argument);
                     } else {
+                        const primitive = typeof arg === 'number' || typeof arg === 'boolean' || typeof arg === 'string' || arg === null;
+                        type = type === 'tensor' && primitive ? null : type;
                         const argument = new pytorch.Argument(name, arg, type || 'attribute');
                         this.inputs.push(argument);
                     }
