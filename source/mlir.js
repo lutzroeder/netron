@@ -344,6 +344,74 @@ mlir.Graph = class {
                 }
             }
         }
+        // Fold torch.constant.* operations with single use into their consumers
+        const torchConstantMap = new Map();
+        for (const op of operations) {
+            if (op.name === 'torch.constant.int' ||
+                op.name === 'torch.constant.bool' ||
+                op.name === 'torch.constant.float' ||
+                op.name === 'torch.constant.str' ||
+                op.name === 'torch.constant.none') {
+                if (op.operands.length === 0 &&
+                    op.results.length === 1 &&
+                    op.results[0].value.length === 1) {
+                    const [result] = op.results[0].value;
+                    if (result.to && result.to.length === 1) {
+                        let value = null;
+                        let type = null;
+                        const attr = op.attributes.get('value');
+                        const attrValue = attr && typeof attr === 'object' ? attr.value : attr;
+                        if (op.name === 'torch.constant.int') {
+                            value = attrValue === undefined ? 0 : attrValue;
+                            type = 'int64';
+                        } else if (op.name === 'torch.constant.bool') {
+                            value = attrValue === undefined ? false : attrValue;
+                            type = 'boolean';
+                        } else if (op.name === 'torch.constant.float') {
+                            value = attrValue === undefined ? 0.0 : attrValue;
+                            type = 'float64';
+                        } else if (op.name === 'torch.constant.str') {
+                            value = attrValue === undefined ? '' : attrValue;
+                            type = 'string';
+                        } else if (op.name === 'torch.constant.none') {
+                            value = null;
+                            type = 'none';
+                        }
+                        torchConstantMap.set(result.name, { value, type });
+                        op.delete = true;
+                    }
+                }
+            }
+        }
+        // Fold torch.prim.ListConstruct with all constant inputs and single use
+        for (const op of operations) {
+            if (op.name === 'torch.prim.ListConstruct' &&
+                op.results.length === 1 &&
+                op.results[0].value.length === 1) {
+                const [result] = op.results[0].value;
+                if (result.to && result.to.length === 1) {
+                    const inputValues = [];
+                    let allConstant = true;
+                    for (const operand of op.operands) {
+                        for (const val of operand.value) {
+                            if (torchConstantMap.has(val.name)) {
+                                inputValues.push(torchConstantMap.get(val.name).value);
+                            } else {
+                                allConstant = false;
+                                break;
+                            }
+                        }
+                        if (!allConstant) {
+                            break;
+                        }
+                    }
+                    if (allConstant) {
+                        torchConstantMap.set(result.name, { value: inputValues, type: 'list' });
+                        op.delete = true;
+                    }
+                }
+            }
+        }
         const tensor = (arg) => {
             if (!tensors.has(arg.name)) {
                 const initializer = constantMap.get(arg.name) || null;
@@ -391,7 +459,7 @@ mlir.Graph = class {
             }
         }
         for (const op of operations.filter((op) => !op.delete)) {
-            const node = new mlir.Node(metadata, op, context, tensor);
+            const node = new mlir.Node(metadata, op, context, tensor, torchConstantMap);
             this.nodes.push(node);
         }
         for (const [name, value] of func.attributes) {
@@ -441,6 +509,8 @@ mlir.Argument = class {
                 case 'function':
                 case 'symbol':
                 case 'graph':
+                case 'list':
+                case 'none':
                     break;
                 default:
                     if (/^[usi]i?[0-9]+$/.test(typeStr) || /^f[0-9]+$/.test(typeStr) ||
@@ -471,7 +541,7 @@ mlir.Value = class {
 
 mlir.Node = class {
 
-    constructor(metadata, op, context, tensor) {
+    constructor(metadata, op, context, tensor, torchConstantMap) {
         if (!op.name) {
             throw new mlir.Error('Undefined node type.');
         }
@@ -483,6 +553,7 @@ mlir.Node = class {
         this.outputs = [];
         this.attributes = [];
         this.blocks = [];
+        torchConstantMap = torchConstantMap || new Map();
         // Use operandSegmentSizes and metadata to assign semantic names to operands
         const segmentSizes = op.attributes && op.attributes.get('operandSegmentSizes');
         const operandMeta = this.type && this.type.operands;
@@ -516,6 +587,16 @@ mlir.Node = class {
             let argument = null;
             if (inputs.length === 1) {
                 const [input] = inputs;
+                // Check if this is a folded torch constant or list
+                if (Array.isArray(input.value) && input.value.length === 1) {
+                    const val = input.value[0];
+                    if (val && typeof val.name === 'string' && torchConstantMap.has(val.name)) {
+                        const constant = torchConstantMap.get(val.name);
+                        argument = new mlir.Argument(input.name, constant.value, constant.type);
+                        this.inputs.push(argument);
+                        continue;
+                    }
+                }
                 if (input.type) {
                     const typeStr = input.type instanceof _.Type ? input.type.toString() : input.type;
                     if (typeStr.startsWith('tensor<')) {
@@ -534,15 +615,39 @@ mlir.Node = class {
                 }
             } else {
                 // Multiple operands with same name - group into single Argument with array of values
-                const values = [];
+                // Check if all values are folded constants
+                let allConstants = true;
+                const constantValues = [];
                 for (const input of inputs) {
                     if (Array.isArray(input.value)) {
-                        values.push(...input.value.map((arg) => tensor(arg)));
+                        for (const arg of input.value) {
+                            if (arg && typeof arg.name === 'string' && torchConstantMap.has(arg.name)) {
+                                constantValues.push(torchConstantMap.get(arg.name).value);
+                            } else {
+                                allConstants = false;
+                                break;
+                            }
+                        }
                     } else {
-                        values.push(tensor({ name: input.value, type: input.type }));
+                        allConstants = false;
+                    }
+                    if (!allConstants) {
+                        break;
                     }
                 }
-                argument = new mlir.Argument(name, values);
+                if (allConstants && constantValues.length > 0) {
+                    argument = new mlir.Argument(name, constantValues, 'list');
+                } else {
+                    const values = [];
+                    for (const input of inputs) {
+                        if (Array.isArray(input.value)) {
+                            values.push(...input.value.map((arg) => tensor(arg)));
+                        } else {
+                            values.push(tensor({ name: input.value, type: input.type }));
+                        }
+                    }
+                    argument = new mlir.Argument(name, values);
+                }
             }
             this.inputs.push(argument);
         }
@@ -566,7 +671,7 @@ mlir.Node = class {
                 } else if (attr instanceof _.DenseResourceElementsAttr) {
                     value = new mlir.Tensor(mlir.Utility.valueType(attr.type), null);
                     type = 'tensor';
-                } else if (attr instanceof _.ArrayAttr || attr instanceof _.DenseArrayAttr) {
+                } else if (attr instanceof _.DenseArrayAttr) {
                     value = attr.value;
                 } else if (attr) {
                     value = attr.toString();
@@ -1074,6 +1179,27 @@ _.DenseResourceElementsAttr = class extends _.Attribute {
     }
 };
 
+_.OpaqueAttr = class extends _.Attribute {
+
+    constructor(dialectName, symbolData, type) {
+        super();
+        this.dialectName = dialectName;
+        this.symbolData = symbolData;
+        this.type = type;
+    }
+
+    get value() {
+        return this.toString();
+    }
+
+    toString() {
+        if (this.symbolData) {
+            return `${this.dialectName}${this.symbolData}`;
+        }
+        return this.dialectName;
+    }
+};
+
 _.ArrayAttr = class extends _.Attribute {
 
     constructor(elements) {
@@ -1086,7 +1212,7 @@ _.ArrayAttr = class extends _.Attribute {
     }
 
     toString() {
-        return `[${this.elements.map((e) => e && e.toString ? e.toString() : String(e)).join(', ')}]`;
+        return `${this.elements.map((e) => e && e.toString ? e.toString() : String(e)).join(', ')}`;
     }
 };
 
@@ -1841,10 +1967,13 @@ _.Parser = class {
     skip(open) {
         const closingFor = { '<': '>', '[': ']', '(': ')', '{': '}' };
         const openingFor = { '>': '<', ']': '[', ')': '(', '}': '{' };
+        const delimiters = new Set(['<', '>', '[', ']', '(', ')', '{', '}', ',', ':', '=']);
         let value = '';
+        let prevToken = '';
         if (this.match(open)) {
             const stack = [open];
-            value += this.expect();
+            prevToken = this.expect();
+            value += prevToken;
             while (stack.length > 0) {
                 if (this.match('eof')) {
                     throw new mlir.Error(`Unbalanced '${stack[stack.length - 1]}' ${this.location()}`);
@@ -1858,7 +1987,12 @@ _.Parser = class {
                     }
                     stack.pop();
                 }
-                value += this.expect();
+                const curToken = this.expect();
+                if (!delimiters.has(prevToken) && !delimiters.has(curToken)) {
+                    value += ' ';
+                }
+                value += curToken;
+                prevToken = curToken;
             }
         }
         return value;
@@ -3271,15 +3405,13 @@ _.Parser = class {
         if (!name.includes('.') && this.state.attributeAliasDefinitions.has(name)) {
             return this.state.attributeAliasDefinitions.get(name);
         }
-        let value = name;
+        let symbolData = '';
         if (this.match('<')) {
-            const body = this.skip('<');
-            value = name + body;
+            symbolData = this.skip('<');
         } else if (this.match('(')) {
-            const body = this.skip('(');
-            value = name + body;
+            symbolData = this.skip('(');
         }
-        return { value };
+        return new _.OpaqueAttr(name, symbolData, null);
     }
 
     parseDenseElementsAttr(attrType) {
