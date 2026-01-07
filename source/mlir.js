@@ -919,12 +919,11 @@ _.Operation = class {
         this.propertiesAttr = state.propertiesAttr;
         this.loc = state.loc;
         this.metadata = state.metadata;
-        // Names are NOT part of Operation - they exist in parser's symbol table
-        // For Netron display, names are assigned by caller after creation
         this.results = [];
         if (state.types && Array.isArray(state.types)) {
-            for (const type of state.types) {
-                this.results.push(new _.Value(null, type));
+            for (let i = 0; i < state.types.length; i++) {
+                const result = new _.OpResult(this, i, state.types[i]);
+                this.results.push(result);
             }
         }
     }
@@ -973,6 +972,15 @@ _.Value = class {
 
     toString() {
         return this.name;
+    }
+};
+
+_.OpResult = class extends _.Value {
+
+    constructor(owner, resultNumber, type) {
+        super(null, type);
+        this.owner = owner;
+        this.resultNumber = resultNumber;
     }
 };
 
