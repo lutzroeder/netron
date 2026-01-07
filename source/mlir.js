@@ -221,8 +221,8 @@ mlir.Graph = class {
             for (const block of region.blocks) {
                 for (const op of block.operations) {
                     const operation = {
-                        type: op.kind || op.name,
-                        identifier: op.name,
+                        name: op.name,
+                        label: op.label,
                         attributes: op.getAttrDictionary(),
                         operands: [],
                         results: [],
@@ -324,7 +324,7 @@ mlir.Graph = class {
             'mhlo.constant', 'torch.constant.tensor', 'onnx.Constant'
         ]);
         for (const op of operations) {
-            if (constantTypes.has(op.type) &&
+            if (constantTypes.has(op.name) &&
                 op.operands.length === 0 &&
                 op.attributes.size === 1 &&
                 op.results.length === 1 &&
@@ -365,7 +365,7 @@ mlir.Graph = class {
             }
         }
         // Find return operation and connect its operands to graph outputs
-        const returnOp = operations.find((op) => op.type === 'return' || op.type.endsWith('.return'));
+        const returnOp = operations.find((op) => op.name === 'return' || op.name.endsWith('.return'));
         if (returnOp) {
             for (let i = 0; i < this.outputs.length && i < returnOp.operands.length; i++) {
                 const operand = returnOp.operands[i];
@@ -472,13 +472,13 @@ mlir.Value = class {
 mlir.Node = class {
 
     constructor(metadata, op, context, tensor) {
-        if (!op.type) {
+        if (!op.name) {
             throw new mlir.Error('Undefined node type.');
         }
-        this.type = { ...metadata.type(op.identifier || '') };
-        this.type.name = op.type || '';
-        this.type.identifier = op.identifier || '';
-        this.name = op.name || '';
+        this.name = '';
+        this.type = { ...metadata.type(op.name || '') };
+        this.type.name = op.label || op.name || '';
+        this.type.identifier = op.name || '';
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
@@ -912,6 +912,7 @@ _.Operation = class {
 
     constructor(state) {
         this.name = state.name;
+        this.label = state.label;
         this.attributes = state.attributes;
         this.operands = state.operands;
         this.regions = state.regions;
@@ -9023,6 +9024,11 @@ _.TorchDialect = class extends _.Dialect {
     }
 
     parseOperation(parser, opName, op) {
+        if (opName.startsWith('torch.constant.')) {
+            op.label = 'constant';
+        } else if (opName.startsWith('torch.aten.') || opName.startsWith('torch.prim.') || opName.startsWith('torch.prims.') || opName.startsWith('torch.torchvision.')) {
+            op.label = opName.split('.')[2];
+        }
         if (opName === 'torch.constant.int') {
             if (parser.match('int')) {
                 const value = parser.expect('int');

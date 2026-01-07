@@ -3364,6 +3364,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "clip_text_bf16.mlir",
+    "source":   "https://github.com/user-attachments/files/24459374/clip_text_bf16.mlir.zip[clip_text_bf16.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "ctlz.mlir",
     "source":   "https://github.com/user-attachments/files/17894431/ctlz.mlir.zip[ctlz.mlir]",
     "format":   "MLIR",
@@ -3592,7 +3599,7 @@
     "target":   "torch_mlir_3423.mlir",
     "source":   "https://github.com/user-attachments/files/17775259/torch-mlir-3423.mlir.zip[torch-mlir-3423.mlir]",
     "format":   "MLIR",
-    "assert":   "model.functions[0].nodes[0].outputs.length == 1",
+    "assert":   "model.functions[0].nodes[2].type.name == 'select'",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3600,6 +3607,7 @@
     "target":   "torch_mlir_3429.mlir",
     "source":   "https://github.com/user-attachments/files/17605115/torch_mlir_3429.mlir.zip[torch_mlir_3429.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[0].nodes[0].outputs.length == 1",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
