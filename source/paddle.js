@@ -352,19 +352,25 @@ paddle.Graph = class {
             for (const op of block.ops) {
                 if (op.type === 'feed') {
                     let name = '';
-                    if (op.kind === 'op') {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
-                    } else {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    const colAttr = op.attrs.find((attr) => attr.name === 'col');
+                    if (colAttr) {
+                        if (op.kind === 'op') {
+                            name = colAttr.irValue.toString();
+                        } else {
+                            name = colAttr.i.toString();
+                        }
                     }
                     const argument = new paddle.Argument(name, op.outputs[0].arguments.map((id) => values.get(id)));
                     this.inputs.push(argument);
                 } else if (op.type === 'fetch') {
                     let name = '';
-                    if (op.kind === 'op') {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
-                    } else {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    const colAttr = op.attrs.find((attr) => attr.name === 'col');
+                    if (colAttr) {
+                        if (op.kind === 'op') {
+                            name = colAttr.irValue.toString();
+                        } else {
+                            name = colAttr.i.toString();
+                        }
                     }
                     const argument = new paddle.Argument(name, op.inputs[0].arguments.map((id) => values.get(id)));
                     this.outputs.push(argument);
