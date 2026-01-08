@@ -352,19 +352,25 @@ paddle.Graph = class {
             for (const op of block.ops) {
                 if (op.type === 'feed') {
                     let name = '';
-                    if (op.kind === 'op') {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
-                    } else {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    const attr = op.attrs.find((attr) => attr.name === 'col');
+                    if (attr) {
+                        if (op.kind === 'op') {
+                            name = attr.irValue.toString();
+                        } else {
+                            name = attr.i.toString();
+                        }
                     }
                     const argument = new paddle.Argument(name, op.outputs[0].arguments.map((id) => values.get(id)));
                     this.inputs.push(argument);
                 } else if (op.type === 'fetch') {
                     let name = '';
-                    if (op.kind === 'op') {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].irValue.toString();
-                    } else {
-                        name = op.attrs.filter((attr) => attr.name === 'col')[0].i.toString();
+                    const attr = op.attrs.find((attr) => attr.name === 'col');
+                    if (attr) {
+                        if (op.kind === 'op') {
+                            name = attr.irValue.toString();
+                        } else {
+                            name = attr.i.toString();
+                        }
                     }
                     const argument = new paddle.Argument(name, op.inputs[0].arguments.map((id) => values.get(id)));
                     this.outputs.push(argument);
@@ -753,7 +759,7 @@ paddle.NaiveBuffer = class {
         const stream = context.stream;
         if (stream && stream.length > 4) {
             const buffer = stream.peek(4);
-            if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[2] !== 0x32) {
+            if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[3] !== 0x32) {
                 if (context.identifier === '__model__.nb') {
                     return new paddle.NaiveBuffer('paddle.naive.model', stream, -1);
                 }
