@@ -4278,7 +4278,7 @@ view.FindSidebar = class extends view.Control {
                 this._node(node);
             }
             if (this._state.connection) {
-                const outputs = this._signature ? this._signature.outputs : this._target.inputs;
+                const outputs = this._signature ? this._signature.outputs : this._target.outputs;
                 for (const output of outputs) {
                     if (!output.type || output.type.endsWith('*')) {
                         for (const value of output.value) {
