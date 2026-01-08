@@ -1514,7 +1514,7 @@ onnx.ProtoReader = class {
                     return new onnx.ProtoReader(context, 'binary', 'model');
                 }
             }
-            const length = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
+            const length = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24) >>> 0;
             if (length === stream.length - 4 && (buffer[4] === 0x08 || buffer[4] === 0x0A)) {
                 offset = 4;
             }

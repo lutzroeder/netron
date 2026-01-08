@@ -987,7 +987,7 @@ ncnn.BlobReader = class {
         if (type === 0) {
             const buffer = this.read(4);
             const [f0, f1, f2, f3] = buffer;
-            const flag = f0 | f1 << 8 | f2 << 16 | f3 << 24;
+            const flag = (f0 | f1 << 8 | f2 << 16 | f3 << 24) >>> 0;
             // https://github.com/Tencent/ncnn/blob/master/src/modelbin.cpp
             if (flag === 0x01306B47) { // float16
                 const data = this.read(size * 2);
