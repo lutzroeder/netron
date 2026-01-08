@@ -6,7 +6,7 @@ const safetensors = {};
 safetensors.ModelFactory = class {
 
     async match(context) {
-        const container = safetensors.Container.open(context);
+        const container = safetensors.Reader.open(context);
         if (container) {
             return context.set('safetensors', container);
         }
@@ -32,7 +32,7 @@ safetensors.ModelFactory = class {
                 const keys = new Set(weight_map.keys());
                 const files = Array.from(new Set(weight_map.values()));
                 const contexts = await Promise.all(files.map((name) => context.fetch(name)));
-                const containers = contexts.map((context) => safetensors.Container.open(context));
+                const containers = contexts.map((context) => safetensors.Reader.open(context));
                 await Promise.all(containers.map((container) => container.read()));
                 const entries = new Map();
                 for (const container of containers) {
@@ -179,17 +179,17 @@ safetensors.Tensor = class {
     }
 };
 
-safetensors.Container = class {
+safetensors.Reader = class {
 
     static open(context) {
         const identifier = context.identifier;
         const stream = context.stream;
         if (stream.length > 9) {
             const buffer = stream.peek(9);
-            if (buffer[6] === 0 && buffer[7] === 0 && buffer[8] === 0x7b) {
-                const size = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24 | buffer [3] << 32 | buffer [3] << 40;
+            if (buffer[4] === 0 && buffer[5] === 0 && buffer[6] === 0 && buffer[7] === 0 && buffer[8] === 0x7b) {
+                const size = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24) >>> 0;
                 if (size < stream.length) {
-                    return new safetensors.Container(identifier, stream, size);
+                    return new safetensors.Reader(identifier, stream, size);
                 }
             }
         }
