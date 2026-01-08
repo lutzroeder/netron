@@ -187,7 +187,7 @@ safetensors.Container = class {
         if (stream.length > 9) {
             const buffer = stream.peek(9);
             if (buffer[6] === 0 && buffer[7] === 0 && buffer[8] === 0x7b) {
-                const size = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24 | buffer [3] << 32 | buffer [3] << 40;
+                const size = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24 | buffer[4] << 32 | buffer[5] << 40;
                 if (size < stream.length) {
                     return new safetensors.Container(identifier, stream, size);
                 }

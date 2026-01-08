@@ -753,7 +753,7 @@ paddle.NaiveBuffer = class {
         const stream = context.stream;
         if (stream && stream.length > 4) {
             const buffer = stream.peek(4);
-            if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[2] !== 0x32) {
+            if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[3] !== 0x32) {
                 if (context.identifier === '__model__.nb') {
                     return new paddle.NaiveBuffer('paddle.naive.model', stream, -1);
                 }

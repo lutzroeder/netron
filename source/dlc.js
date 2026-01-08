@@ -638,7 +638,7 @@ dlc.Container = class {
             const buffer = stream.peek(Math.min(stream.length, 16));
             if (buffer[0] === 0xD5 && buffer[1] === 0x0A) {
                 delete signature.identifier;
-                if (buffer[3] === 0x00 && buffer[5] === 0x00 && buffer[5] === 0x00 && buffer[6] === 0x00) {
+                if (buffer[3] === 0x00 && buffer[4] === 0x00 && buffer[5] === 0x00 && buffer[6] === 0x00) {
                     signature.major = buffer[2] | buffer[3] << 8;
                     signature.minor = buffer[4] | buffer[5] << 8;
                     if (signature.major > 2) {
