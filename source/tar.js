@@ -21,7 +21,7 @@ tar.Archive = class {
         const position = stream.position;
         while (stream.position < stream.length) {
             const entry = new tar.Entry(stream);
-            if (entry.type === '0' || entry.type === '1' || entry.type === '2') {
+            if (entry.type === '' || entry.type === '0' || entry.type === '1' || entry.type === '2') {
                 this._entries.set(entry.name, entry.stream);
             }
             if (stream.position + 512 > stream.length ||
