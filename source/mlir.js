@@ -58,7 +58,7 @@ mlir.ModelFactory = class {
             case 'mlir.text': {
                 const decoder = await context.read('text.decoder');
                 const state = new _.ParserState(decoder);
-                const parser = new _.Parser(state, new _.DialectContext(metadata));
+                const parser = new _.OperationParser(state, new _.DialectContext(metadata));
                 const block = await parser.parse();
                 return new mlir.Model(metadata, 'MLIR', '', block, state.attributeAliasDefinitions);
             }
@@ -1869,12 +1869,33 @@ _.ParserState = class {
     }
 };
 
+_.IsolatedSSANameScope = class {
+
+    constructor() {
+        this.values = new Map();
+        this.definitionsPerScope = [];
+    }
+
+    recordDefinition(def) {
+        this.definitionsPerScope[this.definitionsPerScope.length - 1].add(def);
+    }
+
+    pushSSANameScope() {
+        this.definitionsPerScope.push(new Set());
+    }
+
+    popSSANameScope() {
+        for (const def of this.definitionsPerScope.pop()) {
+            this.values.delete(def);
+        }
+    }
+};
+
 _.Parser = class {
 
     constructor(state, context) {
         this.state = state;
         this.context = context;
-        this.isolatedNameScopes = [new Map()];
     }
 
     async parse() {
@@ -1983,50 +2004,6 @@ _.Parser = class {
         return value;
     }
 
-    parseOperation() {
-        const resultIDs = [];
-        if (this.match('%')) {
-            const parseNextResult = () => {
-                const name = this.parseOperand().name;
-                const index = name.indexOf(':');
-                if (index === -1) {
-                    resultIDs.push({ name });
-                } else {
-                    const id = name.substring(0, index);
-                    const length = parseInt(name.substring(index + 1), 10);
-                    for (let i = 0; i < length; i++) {
-                        resultIDs.push({ name: `${id}#${i}` });
-                    }
-                }
-                return true;
-            };
-            this.parseCommaSeparatedList('none', parseNextResult);
-            this.expect('=');
-        }
-        let op = null;
-        if (this.match('id')) {
-            op = this.parseCustomOperation(resultIDs);
-        } else if (this.match('string')) {
-            op = this.parseGenericOperation();
-        } else {
-            throw new mlir.Error(`Unexpected operation name '${this.getToken().value}' ${this.location()}`);
-        }
-        if (!op) {
-            throw new mlir.Error(`Failed to parse operation ${this.location()}`);
-        }
-        for (let i = 0; i < resultIDs.length && i < op.results.length; i++) {
-            const resultID = resultIDs[i];
-            const result = op.results[i];
-            if (result.name) {
-                throw new mlir.Error(`Result '${result.name}' already has name ${this.location()}`);
-            }
-            // Workaround: Visualization-specific addition is to store name on result for display
-            result.name = resultID.name;
-            this.addDefinition({ name: resultID.name, number: 0 }, result);
-        }
-        return op;
-    }
-
     parseOptionalSSAUseList(results) {
         if (!this.match('%')) {
             return;
@@ -2052,78 +2029,15 @@ _.Parser = class {
         return this.parseCommaSeparatedList(delimiter, parseOneOperand);
     }
 
-    getSSAValueEntry(name) {
-        const scope = this.isolatedNameScopes[this.isolatedNameScopes.length - 1];
-        if (!scope.has(name)) {
-            scope.set(name, []);
-        }
-        return scope.get(name);
-    }
-
     addDefinition(useInfo, value) {
         const entries = this.getSSAValueEntry(useInfo.name);
+        // Make sure there is a slot for this value.
         if (entries.length <= useInfo.number) {
             entries.length = useInfo.number + 1;
         }
+        // Record this definition for the current scope.
         entries[useInfo.number] = { value, loc: useInfo.location };
-    }
-
-    resolveSSAUse(unresolvedOperand, type) {
-        if (unresolvedOperand instanceof _.UnresolvedOperand) {
-            const entries = this.getSSAValueEntry(unresolvedOperand.name);
-            if (unresolvedOperand.number < entries.length && entries[unresolvedOperand.number]) {
-                const entry = entries[unresolvedOperand.number];
-                if (type && entry.value) {
-                    entry.value.type = type;
-                }
-                return entry.value;
-            }
-            const value = new _.Value(unresolvedOperand.toString(), type);
-            if (entries.length <= unresolvedOperand.number) {
-                entries.length = unresolvedOperand.number + 1;
-            }
-            entries[unresolvedOperand.number] = { value, loc: unresolvedOperand.location };
-            return value;
-        }
-        throw new mlir.Error(`UnresolvedOperand expected, got '${JSON.stringify(unresolvedOperand)}' ${this.location()}`);
-    }
-
-    resolveOperand(operand, type, result) {
-        const resolved = this.resolveSSAUse(operand, type);
-        if (result) {
-            result.push(resolved);
-        }
-        return resolved;
-    }
-
-    resolveOperands(operands, types, result) {
-        if (!Array.isArray(operands)) {
-            throw new mlir.Error(`resolveOperands expects array of operands, got ${typeof operands}`);
-        }
-        if (!Array.isArray(types)) {
-            return;
-        }
-        const count = Math.min(operands.length, types.length);
-        if (result) {
-            for (let i = 0; i < count; i++) {
-                const operand = operands[i];
-                const type = types[i];
-                const resolved = this.resolveSSAUse(operand, type);
-                result.push(resolved);
-            }
-        } else {
-            for (let i = 0; i < count; i++) {
-                const operand = operands[i];
-                const type = types[i];
-                if (operand && type) {
-                    if (operand instanceof _.Value) {
-                        operand.type = type;
-                    } else if (typeof operand === 'object') {
-                        operand.type = type;
-                    }
-                }
-            }
-        }
+        this.recordDefinition(useInfo.name);
     }
 
     parseSuccessors(successors) {
@@ -2132,120 +2046,6 @@ _.Parser = class {
         });
         for (const s of parsed) {
             successors.push(s);
-        }
-    }
-
-    parseGenericOperationAfterOpName(op) {
-        this.expect('(');
-        const unresolvedOperands = [];
-        this.parseOptionalSSAUseList(unresolvedOperands);
-        this.expect(')');
-        if (this.match('[')) {
-            op.successors = [];
-            this.parseSuccessors(op.successors);
-        }
-        if (this.accept('<')) {
-            op.propertiesAttr = this.parseAttribute();
-            this.expect('>');
-        }
-        if (this.accept('(')) {
-            do {
-                const region = op.addRegion();
-                this.parseRegion(region);
-            } while (this.accept(','));
-            this.expect(')');
-        }
-        if (this.match('{')) {
-            this.parseAttributeDict(op.attributes);
-        }
-        this.expect(':');
-        const fnType = this.parseType();
-        if (fnType instanceof _.FunctionType === false) {
-            throw new mlir.Error(`Expected function type ${this.location()}`);
-        }
-        this.resolveOperands(unresolvedOperands, fnType.inputs, op.operands);
-        op.addTypes(fnType.results);
-        op.loc = this.parseLocation();
-        return op;
-    }
-
-    parseCustomOperation(resultIDs) {
-        const opNameInfo = this.parseCustomOperationName();
-        const state = new _.OperationState(opNameInfo);
-        let opName = this.context.resolveOpName(state.name);
-        const index = opName.indexOf('.');
-        if (index === -1) {
-            throw new mlir.Error(`No dialect found '${opName}' ${this.location()}`);
-        }
-        const dialectName = opName.substring(0, index);
-        const dialect = this.context.getDialect(dialectName);
-        if (!dialect) {
-            throw new mlir.Error(`Unsupported dialect '${dialectName}'.`);
-        }
-        // Normalize operation name to canonical dialect name for metadata lookup
-        // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
-        opName = dialectName === dialect.name ? opName : opName.replace(`${dialectName}.`, `${dialect.name}.`);
-        const opInfo = dialect.getOperation(opName);
-        if (!opInfo) {
-            // Do not remove and address the underlying root cause.
-            throw new mlir.Error(`Unsupported operation '${state.name}'.`);
-        }
-        state.metadata = opInfo.metadata;
-        const defaultDialect = (opInfo && opInfo.metadata && opInfo.metadata.defaultDialect) || '';
-        this.state.defaultDialectStack.push(defaultDialect);
-        const customParser = new _.CustomOpAsmParser(this.state, this.context, resultIDs);
-        if (!dialect.parseOperation(customParser, opName, state)) {
-            this.state.defaultDialectStack.pop();
-            throw new mlir.Error(`Unsupported custom operation '${state.name}' ${this.location()}`);
-        }
-        if (!dialect.hasParser(opName) && !dialect.hasCustomAssemblyFormat(opName) && dialect.hasAssemblyFormat(opName) && dialect.hasParseOperation(opName) !== false) {
-            throw new mlir.Error(`Operation '${state.name}' has assembly format but was handled by custom dialect code.`);
-        }
-        state.loc = this.parseLocation() || {};
-        this.state.defaultDialectStack.pop();
-        return _.Operation.create(state);
-    }
-
-    parseCustomOperationName() {
-        let opName = this.expect('id');
-        if (opName.indexOf('.') === -1) {
-            for (let i = this.state.defaultDialectStack.length - 1; i >= 0; i--) {
-                let dialect = this.state.defaultDialectStack[i];
-                if (dialect) {
-                    // Workaround: old std.constant should be arith.constant
-                    if (dialect === 'func' && opName === 'constant' && !this.match('@')) {
-                        dialect = 'arith';
-                    }
-                    opName = `${dialect}.${opName}`;
-                    break;
-                }
-            }
-        }
-        return opName;
-    }
-
-    parseGenericOperation() {
-        const name = this.expect('string');
-        const state = new _.OperationState(name);
-        const index = name.indexOf('.');
-        if (index !== -1) {
-            const dialectName = name.substring(0, index);
-            const dialect = this.context.getDialect(dialectName);
-            if (dialect) {
-                const opInfo = dialect.getOperation(name);
-                if (opInfo) {
-                    state.metadata = opInfo.metadata;
-                }
-            }
-        }
-        this.parseGenericOperationAfterOpName(state);
-        return _.Operation.create(state);
-    }
-
-    parseOptionalVisibilityKeyword(attributes) {
-        if (this.match('id', 'private') || this.match('id', 'public') || this.match('id', 'nested')) {
-            const value = this.expect();
-            attributes.set('sym_visibility', value);
         }
     }
 
@@ -2295,115 +2095,6 @@ _.Parser = class {
                 }
             }
         }
-    }
-
-    parseRegion(region, entryArguments) {
-        region.blocks = Array.isArray(region.blocks) ? region.blocks : [];
-        // Register SSA entries for entry arguments BEFORE parsing the block
-        // This ensures operations that reference %arg0 find the pre-registered entries
-        const resolvedEntryArgs = [];
-        if (entryArguments && entryArguments.length > 0) {
-            for (let i = 0; i < entryArguments.length; i++) {
-                const arg = entryArguments[i];
-                // Use explicit name if provided, otherwise generate %arg0, %arg1, etc.
-                const name = arg.name || `%arg${i}`;
-                const operand = new _.Value(name, arg.type);
-                // Register in SSA scope so operations can find it
-                this.addDefinition({ name, number: 0, location: arg.loc || null }, operand);
-                resolvedEntryArgs.push(operand);
-            }
-        }
-        const block = {};
-        this.parseBlock(block);
-        if (resolvedEntryArgs.length > 0) {
-            if (block.arguments.length === 0) {
-                block.arguments = resolvedEntryArgs;
-            } else if (block.arguments.length !== resolvedEntryArgs.length) {
-                throw new mlir.Error(`Entry block has ${block.arguments.length} arguments, but function signature has ${resolvedEntryArgs.length} ${this.location()}`);
-            }
-        }
-        region.blocks.push(block);
-        let hasMultipleBlocks = false;
-        while ((this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) && !this.match('}')) {
-            hasMultipleBlocks = true;
-            const nextBlock = {};
-            nextBlock.operations = [];
-            nextBlock.arguments = [];
-            if (this.getToken().kind === '^') {
-                nextBlock.name = this.expect('^');
-            } else {
-                nextBlock.name = this.expect('id');
-            }
-            if (this.accept('(')) {
-                while (!this.accept(')')) {
-                    const value = this.parseOperand().name;
-                    this.expect(':');
-                    const type = this.parseType();
-                    const arg = { value, type };
-                    const loc = this.parseLocation();
-                    if (loc) {
-                        arg.loc = loc;
-                    }
-                    nextBlock.arguments.push(arg);
-                    this.accept(',');
-                }
-            }
-            if (nextBlock.name && nextBlock.name.endsWith(':')) {
-                nextBlock.name = nextBlock.name.slice(0, -1);
-            } else {
-                this.expect(':');
-            }
-            while (!(this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) && !this.match('}')) {
-                const op = this.parseOperation();
-                nextBlock.operations.push(op);
-            }
-            region.blocks.push(nextBlock);
-        }
-        if (hasMultipleBlocks) {
-            this.accept('}');
-        }
-        return region;
-    }
-
-    parseBlock(block) {
-        block.operations = Array.isArray(block.operations) ? block.operations : [];
-        block.arguments = Array.isArray(block.arguments) ? block.arguments : [];
-        this.expect('{');
-        if (this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) {
-            if (this.getToken().kind === '^') {
-                block.name = this.expect('^');
-            } else {
-                block.name = this.expect('id');
-            }
-            if (this.accept('(')) {
-                while (!this.accept(')') && !this.match('^')) {
-                    const value = this.parseOperand().name;
-                    this.expect(':');
-                    const type = this.parseType();
-                    const arg = { value, type };
-                    const loc = this.parseLocation();
-                    if (loc) {
-                        arg.loc = loc;
-                    }
-                    block.arguments.push(arg);
-                    this.accept(',');
-                }
-            }
-            if (block.name && block.name.endsWith(':')) {
-                block.name = block.name.slice(0, -1);
-            } else {
-                this.expect(':');
-            }
-        }
-        while (!this.accept('}')) {
-            if (this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) {
-                break;
-            }
-            const op = this.parseOperation();
-            block.operations.push(op);
-        }
-        block.loc = this.parseLocation();
-        return block;
     }
 
     parseOptionalLocationSpecifier() {
@@ -3507,6 +3198,349 @@ _.Parser = class {
     }
 };
 
+_.OperationParser = class extends _.Parser {
+
+    constructor(state, context) {
+        super(state, context);
+        this.isolatedNameScopes = [];
+        this.pushSSANameScope(/* isIsolated */ true);
+    }
+
+    parseOperation() {
+        const resultIDs = [];
+        if (this.match('%')) {
+            const parseNextResult = () => {
+                const name = this.parseOperand().name;
+                const index = name.indexOf(':');
+                if (index === -1) {
+                    resultIDs.push({ name });
+                } else {
+                    const id = name.substring(0, index);
+                    const length = parseInt(name.substring(index + 1), 10);
+                    for (let i = 0; i < length; i++) {
+                        resultIDs.push({ name: `${id}#${i}` });
+                    }
+                }
+                return true;
+            };
+            this.parseCommaSeparatedList('none', parseNextResult);
+            this.expect('=');
+        }
+        let op = null;
+        if (this.match('id')) {
+            op = this.parseCustomOperation(resultIDs);
+        } else if (this.match('string')) {
+            op = this.parseGenericOperation();
+        } else {
+            throw new mlir.Error(`Unexpected operation name '${this.getToken().value}' ${this.location()}`);
+        }
+        if (!op) {
+            throw new mlir.Error(`Failed to parse operation ${this.location()}`);
+        }
+        for (let i = 0; i < resultIDs.length && i < op.results.length; i++) {
+            const resultID = resultIDs[i];
+            const result = op.results[i];
+            if (result.name) {
+                throw new mlir.Error(`Result '${result.name}' already has name ${this.location()}`);
+            }
+            // Workaround: Visualization-specific addition is to store name on result for display
+            result.name = resultID.name;
+            this.addDefinition({ name: resultID.name, number: 0 }, result);
+        }
+        return op;
+    }
+
+    parseCustomOperation(resultIDs) {
+        const opNameInfo = this.parseCustomOperationName();
+        const state = new _.OperationState(opNameInfo);
+        let opName = this.context.resolveOpName(state.name);
+        const index = opName.indexOf('.');
+        if (index === -1) {
+            throw new mlir.Error(`No dialect found '${opName}' ${this.location()}`);
+        }
+        const dialectName = opName.substring(0, index);
+        const dialect = this.context.getDialect(dialectName);
+        if (!dialect) {
+            throw new mlir.Error(`Unsupported dialect '${dialectName}'.`);
+        }
+        // Normalize operation name to canonical dialect name for metadata lookup
+        // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
+        opName = dialectName === dialect.name ? opName : opName.replace(`${dialectName}.`, `${dialect.name}.`);
+        const opInfo = dialect.getOperation(opName);
+        if (!opInfo) {
+            // Do not remove and address the underlying root cause.
+            throw new mlir.Error(`Unsupported operation '${state.name}'.`);
+        }
+        state.metadata = opInfo.metadata;
+        const defaultDialect = (opInfo && opInfo.metadata && opInfo.metadata.defaultDialect) || '';
+        this.state.defaultDialectStack.push(defaultDialect);
+        const customParser = new _.CustomOpAsmParser(this.state, this.context, resultIDs, this);
+        if (!dialect.parseOperation(customParser, opName, state)) {
+            this.state.defaultDialectStack.pop();
+            throw new mlir.Error(`Unsupported custom operation '${state.name}' ${this.location()}`);
+        }
+        if (!dialect.hasParser(opName) && !dialect.hasCustomAssemblyFormat(opName) && dialect.hasAssemblyFormat(opName) && dialect.hasParseOperation(opName) !== false) {
+            throw new mlir.Error(`Operation '${state.name}' has assembly format but was handled by custom dialect code.`);
+        }
+        state.loc = this.parseLocation() || {};
+        this.state.defaultDialectStack.pop();
+        return _.Operation.create(state);
+    }
+
+    parseCustomOperationName() {
+        let opName = this.expect('id');
+        if (opName.indexOf('.') === -1) {
+            for (let i = this.state.defaultDialectStack.length - 1; i >= 0; i--) {
+                let dialect = this.state.defaultDialectStack[i];
+                if (dialect) {
+                    // Workaround: old std.constant should be arith.constant
+                    if (dialect === 'func' && opName === 'constant' && !this.match('@')) {
+                        dialect = 'arith';
+                    }
+                    opName = `${dialect}.${opName}`;
+                    break;
+                }
+            }
+        }
+        return opName;
+    }
+
+    parseGenericOperation() {
+        const name = this.expect('string');
+        const state = new _.OperationState(name);
+        const index = name.indexOf('.');
+        if (index !== -1) {
+            const dialectName = name.substring(0, index);
+            const dialect = this.context.getDialect(dialectName);
+            if (dialect) {
+                const opInfo = dialect.getOperation(name);
+                if (opInfo) {
+                    state.metadata = opInfo.metadata;
+                }
+            }
+        }
+        this.parseGenericOperationAfterOpName(state);
+        return _.Operation.create(state);
+    }
+
+    parseGenericOperationAfterOpName(op) {
+        this.expect('(');
+        const unresolvedOperands = [];
+        this.parseOptionalSSAUseList(unresolvedOperands);
+        this.expect(')');
+        if (this.match('[')) {
+            op.successors = [];
+            this.parseSuccessors(op.successors);
+        }
+        if (this.accept('<')) {
+            op.propertiesAttr = this.parseAttribute();
+            this.expect('>');
+        }
+        if (this.accept('(')) {
+            // Check if the operation is IsolatedFromAbove
+            const opName = op.name;
+            const dotIndex = opName.indexOf('.');
+            let isIsolated = false;
+            if (dotIndex !== -1) {
+                const dialectName = opName.substring(0, dotIndex);
+                const dialect = this.context.getDialect(dialectName);
+                if (dialect) {
+                    isIsolated = dialect.isIsolatedFromAbove(opName);
+                }
+            }
+            do {
+                const region = op.addRegion();
+                this.parseRegion(region, undefined, isIsolated);
+            } while (this.accept(','));
+            this.expect(')');
+        }
+        if (this.match('{')) {
+            this.parseAttributeDict(op.attributes);
+        }
+        this.expect(':');
+        const fnType = this.parseType();
+        if (fnType instanceof _.FunctionType === false) {
+            throw new mlir.Error(`Expected function type ${this.location()}`);
+        }
+        const operandTypes = fnType.inputs;
+        for (let i = 0; i < unresolvedOperands.length; i++) {
+            const unresolvedOperand = unresolvedOperands[i];
+            const type = operandTypes[i] || null;
+            const value = this.resolveSSAUse(unresolvedOperand, type);
+            op.operands.push(value);
+        }
+        op.addTypes(fnType.results);
+        op.loc = this.parseLocation();
+        return op;
+    }
+
+    pushSSANameScope(isIsolated) {
+        // Push back a new name definition scope.
+        if (isIsolated) {
+            this.isolatedNameScopes.push(new _.IsolatedSSANameScope());
+        }
+        this.isolatedNameScopes[this.isolatedNameScopes.length - 1].pushSSANameScope();
+    }
+
+    popSSANameScope() {
+        // Pop the next nested namescope. If there is only one internal namescope,
+        // just pop the isolated scope.
+        const currentNameScope = this.isolatedNameScopes[this.isolatedNameScopes.length - 1];
+        if (currentNameScope.definitionsPerScope.length === 1) {
+            this.isolatedNameScopes.pop();
+        } else {
+            currentNameScope.popSSANameScope();
+        }
+    }
+
+    // Record that a definition was added at the current scope.
+    recordDefinition(def) {
+        this.isolatedNameScopes[this.isolatedNameScopes.length - 1].recordDefinition(def);
+    }
+
+    // Get the value entry for the given SSA name.
+    getSSAValueEntry(name) {
+        const scope = this.isolatedNameScopes[this.isolatedNameScopes.length - 1];
+        if (!scope.values.has(name)) {
+            scope.values.set(name, []);
+        }
+        return scope.values.get(name);
+    }
+
+    resolveSSAUse(unresolvedOperand, type) {
+        if (unresolvedOperand instanceof _.UnresolvedOperand) {
+            const entries = this.getSSAValueEntry(unresolvedOperand.name);
+            if (unresolvedOperand.number < entries.length && entries[unresolvedOperand.number]) {
+                const entry = entries[unresolvedOperand.number];
+                if (type && entry.value) {
+                    entry.value.type = type;
+                }
+                return entry.value;
+            }
+            const value = new _.Value(unresolvedOperand.toString(), type);
+            if (entries.length <= unresolvedOperand.number) {
+                entries.length = unresolvedOperand.number + 1;
+            }
+            entries[unresolvedOperand.number] = { value, loc: unresolvedOperand.location };
+            return value;
+        }
+        throw new mlir.Error(`UnresolvedOperand expected, got '${JSON.stringify(unresolvedOperand)}' ${this.location()}`);
+    }
+
+    parseBlock(block) {
+        block.operations = Array.isArray(block.operations) ? block.operations : [];
+        block.arguments = Array.isArray(block.arguments) ? block.arguments : [];
+        this.expect('{');
+        if (this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) {
+            if (this.getToken().kind === '^') {
+                block.name = this.expect('^');
+            } else {
+                block.name = this.expect('id');
+            }
+            if (this.accept('(')) {
+                while (!this.accept(')') && !this.match('^')) {
+                    const value = this.parseOperand().name;
+                    this.expect(':');
+                    const type = this.parseType();
+                    const arg = { value, type };
+                    const loc = this.parseLocation();
+                    if (loc) {
+                        arg.loc = loc;
+                    }
+                    block.arguments.push(arg);
+                    this.accept(',');
+                }
+            }
+            if (block.name && block.name.endsWith(':')) {
+                block.name = block.name.slice(0, -1);
+            } else {
+                this.expect(':');
+            }
+        }
+        while (!this.accept('}')) {
+            if (this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) {
+                break;
+            }
+            const op = this.parseOperation();
+            block.operations.push(op);
+        }
+        block.loc = this.parseLocation();
+        return block;
+    }
+
+    parseRegion(region, entryArguments, isIsolatedNameScope) {
+        // Push a new name scope for this region
+        this.pushSSANameScope(isIsolatedNameScope || false);
+
+        region.blocks = Array.isArray(region.blocks) ? region.blocks : [];
+        // Register SSA entries for entry arguments BEFORE parsing the block
+        // This ensures operations that reference %arg0 find the pre-registered entries
+        const resolvedEntryArgs = [];
+        if (entryArguments && entryArguments.length > 0) {
+            for (let i = 0; i < entryArguments.length; i++) {
+                const arg = entryArguments[i];
+                // Use explicit name if provided, otherwise generate %arg0, %arg1, etc.
+                const name = arg.name || `%arg${i}`;
+                const operand = new _.Value(name, arg.type);
+                // Register in SSA scope so operations can find it
+                this.addDefinition({ name, number: 0, location: arg.loc || null }, operand);
+                resolvedEntryArgs.push(operand);
+            }
+        }
+        const block = {};
+        this.parseBlock(block);
+        if (resolvedEntryArgs.length > 0) {
+            if (block.arguments.length === 0) {
+                block.arguments = resolvedEntryArgs;
+            } else if (block.arguments.length !== resolvedEntryArgs.length) {
+                throw new mlir.Error(`Entry block has ${block.arguments.length} arguments, but function signature has ${resolvedEntryArgs.length} ${this.location()}`);
+            }
+        }
+        region.blocks.push(block);
+        let hasMultipleBlocks = false;
+        while ((this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) && !this.match('}')) {
+            hasMultipleBlocks = true;
+            const nextBlock = {};
+            nextBlock.operations = [];
+            nextBlock.arguments = [];
+            if (this.getToken().kind === '^') {
+                nextBlock.name = this.expect('^');
+            } else {
+                nextBlock.name = this.expect('id');
+            }
+            if (this.accept('(')) {
+                while (!this.accept(')')) {
+                    const value = this.parseOperand().name;
+                    this.expect(':');
+                    const type = this.parseType();
+                    const arg = { value, type };
+                    const loc = this.parseLocation();
+                    if (loc) {
+                        arg.loc = loc;
+                    }
+                    nextBlock.arguments.push(arg);
+                    this.accept(',');
+                }
+            }
+            if (nextBlock.name && nextBlock.name.endsWith(':')) {
+                nextBlock.name = nextBlock.name.slice(0, -1);
+            } else {
+                this.expect(':');
+            }
+            while (!(this.getToken().kind === '^' || (this.getToken().kind === 'id' && this.getToken().value && this.getToken().value.startsWith('^'))) && !this.match('}')) {
+                const op = this.parseOperation();
+                nextBlock.operations.push(op);
+            }
+            region.blocks.push(nextBlock);
+        }
+        if (hasMultipleBlocks) {
+            this.accept('}');
+        }
+        this.popSSANameScope();
+        return region;
+    }
+};
+
 _.AsmParser = class extends _.Parser {
 
     parseKeyword(keyword) {
@@ -3692,7 +3726,8 @@ _.OpAsmParser = class extends _.AsmParser {
         this.parseOptionalAttrDictWithKeyword(op.attributes);
         if (this.match('{')) {
             const region = op.addRegion();
-            this.parseRegion(region, sig.arguments);
+            // Functions are IsolatedFromAbove, so pass true for isIsolatedNameScope
+            this.parseRegion(region, sig.arguments, /* isIsolatedNameScope */ true);
         }
     }
 
@@ -3807,12 +3842,18 @@ _.OpAsmParser = class extends _.AsmParser {
         });
     }
 
-    // Parses: attributeName = [values]
     parseDenseI64ArrayAttr(attributeName, attributes) {
         this.parseKeyword(attributeName);
         this.parseEqual();
         const value = this.skip('[');
         attributes.set(attributeName, value);
+    }
+
+    parseOptionalVisibilityKeyword(attributes) {
+        if (this.match('id', 'private') || this.match('id', 'public') || this.match('id', 'nested')) {
+            const value = this.expect();
+            attributes.set('sym_visibility', value);
+        }
     }
 };
 
@@ -3832,44 +3873,31 @@ _.OpAsmParser.Argument = class {
     get value() {
         return this.ssaName ? this.ssaName.toString() : null;
     }
-
-    // Alias for compatibility with code expecting 'attributes'
-    get attributes() {
-        // DO NOT REMOVE fix client code
-        throw new mlir.Error("OpAsmParser.Argument.attributes is deprecated, use .attrs instead.");
-    }
-
-    set attributes(value) {
-        // DO NOT REMOVE fix client code
-        throw new mlir.Error("OpAsmParser.Argument.attributes is deprecated, use .attrs instead.");
-    }
 };
 
-// Holds resultIDs and provides methods to access result info
 _.CustomOpAsmParser = class extends _.OpAsmParser {
 
-    constructor(state, context, resultIDs) {
+    constructor(state, context, resultIDs, parser) {
         super(state, context);
-        this._resultIDs = resultIDs || [];
+        this.resultIDs = resultIDs || [];
+        this.parser = parser;
     }
 
-    // Returns the number of results declared for the operation being parsed
+    parseOperation() {
+        return this.parser.parseOperation();
+    }
+
     getNumResults() {
-        return this._resultIDs.length;
+        return this.resultIDs.length;
     }
 
-    // Returns the name of the result at the given index
     getResultName(index) {
-        if (index < this._resultIDs.length) {
-            return this._resultIDs[index].name;
+        if (index < this.resultIDs.length) {
+            return this.resultIDs[index].name;
         }
         return null;
     }
 
-    // Parses a single argument: %name [: type] [attr-dict] [loc]
-    // When allowType=true, colon+type is REQUIRED (uses parseColonType)
-    // When allowAttrs=true, optional attr-dict is parsed
-    // Returns OpAsmParser.Argument
     parseArgument(allowType, allowAttrs) {
         const ssaName = this.parseOperand();
         let type = null;
@@ -3889,10 +3917,8 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
         return new _.OpAsmParser.Argument(ssaName, type, attrs, loc);
     }
 
-    parseArgumentList(delimiter, allowType, allowAttrs) {
+    parseArgumentList(delimiter, allowType = false, allowAttrs = false) {
         delimiter = delimiter || 'none';
-        allowType = allowType === true; // default to false (matching ref impl)
-        allowAttrs = allowAttrs === true; // default to false
         if (delimiter === 'none') {
             if (!this.match('%')) {
                 return [];
@@ -3905,6 +3931,56 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
             return null;
         };
         return this.parseCommaSeparatedList(delimiter, parseOneArgument);
+    }
+
+    parseRegion(region, entryArguments, enableNameShadowing) {
+        return this.parser.parseRegion(region, entryArguments, enableNameShadowing);
+    }
+
+    resolveOperand(operand, type, result) {
+        const resolved = this.parser.resolveSSAUse(operand, type);
+        if (result) {
+            result.push(resolved);
+        }
+        return resolved;
+    }
+
+    resolveOperands(operands, types, result) {
+        if (!Array.isArray(operands)) {
+            throw new mlir.Error(`resolveOperands expects array of operands, got ${typeof operands}`);
+        }
+        if (!Array.isArray(types)) {
+            return;
+        }
+        const count = Math.min(operands.length, types.length);
+        if (result) {
+            for (let i = 0; i < count; i++) {
+                const operand = operands[i];
+                const type = types[i];
+                const resolved = this.parser.resolveSSAUse(operand, type);
+                result.push(resolved);
+            }
+        } else {
+            for (let i = 0; i < count; i++) {
+                const operand = operands[i];
+                const type = types[i];
+                if (operand && type) {
+                    if (operand instanceof _.Value) {
+                        operand.type = type;
+                    } else if (typeof operand === 'object') {
+                        operand.type = type;
+                    }
+                }
+            }
+        }
+    }
+
+    parseGenericOperation() {
+        return this.parser.parseGenericOperation();
+    }
+
+    parseCustomOperationName() {
+        return this.parser.parseCustomOperationName();
     }
 };
 
@@ -6110,6 +6186,45 @@ _.Dialect = class {
         return this._name;
     }
 
+    // Check if an operation has the IsolatedFromAbove trait
+    // This determines whether its regions create new SSA name scopes
+    isIsolatedFromAbove(opName) {
+        // Known operations with IsolatedFromAbove trait
+        const isolatedOps = new Set([
+            'builtin.module',
+            'func.func',
+            'gpu.module', 'gpu.func', 'gpu.launch',
+            'llvm.func', 'llvm.mlir.global',
+            'spirv.module', 'spirv.func',
+            'cir.func', 'cir.global',
+            'emitc.func',
+            'async.func', 'async.execute',
+            'omp.target', 'omp.parallel', 'omp.task',
+            'acc.parallel', 'acc.kernels', 'acc.serial', 'acc.loop',
+            'transform.named_sequence', 'transform.sequence',
+            'test.isolated_region_op', 'test.isolated_one_region_op',
+            'test.two_region_op', 'test.affine_scope',
+            'pdl_interp.func',
+            'ml_program.func', 'ml_program.subgraph',
+            'vm.func', 'vm.rodata',
+            'hal.executable', 'hal.executable.variant',
+        ]);
+        if (isolatedOps.has(opName)) {
+            return true;
+        }
+        // Check if operation metadata includes IsolatedFromAbove trait
+        const opInfo = this._operations.get(opName);
+        if (opInfo && opInfo.metadata && Array.isArray(opInfo.metadata.traits)) {
+            for (const trait of opInfo.metadata.traits) {
+                const traitName = trait.type?.name || trait.type || trait;
+                if (traitName === 'IsolatedFromAbove' || traitName === 'OpTrait::IsIsolatedFromAbove') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     parseConstraint(value) {
         if (!value || typeof value !== 'string') {
             return null;
@@ -6667,16 +6782,17 @@ _.Dialect = class {
             case 'region_ref': {
                 const regionMeta = opInfo.metadata && opInfo.metadata.regions && opInfo.metadata.regions.find((r) => r.name === directive.name);
                 const isVariadicRegion = regionMeta && regionMeta.type && regionMeta.type.name === 'VariadicRegion';
+                const isIsolated = this.isIsolatedFromAbove(op.name);
                 if (isVariadicRegion) {
                     if (parser.match('{')) {
                         do {
                             const region = op.addRegion();
-                            parser.parseRegion(region);
+                            parser.parseRegion(region, undefined, isIsolated);
                         } while (parser.parseOptionalComma() && parser.match('{'));
                     }
                 } else {
                     const region = op.addRegion();
-                    parser.parseRegion(region);
+                    parser.parseRegion(region, undefined, isIsolated);
                 }
                 break;
             }
@@ -6808,12 +6924,13 @@ _.Dialect = class {
                     if (!isActualOperand) {
                         const regionMeta = opInfo.metadata?.regions?.find((r) => r.name === name);
                         const isVariadicRegion = regionMeta?.type?.name === 'VariadicRegion';
+                        const isIsolated = this.isIsolatedFromAbove(op.name);
                         if (isVariadicRegion) {
                             do {
-                                parser.parseRegion(op.addRegion());
+                                parser.parseRegion(op.addRegion(), undefined, isIsolated);
                             } while (parser.parseOptionalComma() && parser.match('{'));
                         } else {
-                            parser.parseRegion(op.addRegion());
+                            parser.parseRegion(op.addRegion(), undefined, isIsolated);
                         }
                     }
                 } else if (parser.match('@')) {
@@ -6974,15 +7091,17 @@ _.Dialect = class {
                     parser.parseGreater();
                 }
                 break;
-            case 'regions':
+            case 'regions': {
+                const isIsolated = this.isIsolatedFromAbove(op.name);
                 while (parser.match('{')) {
                     const region = op.addRegion();
-                    parser.parseRegion(region);
+                    parser.parseRegion(region, undefined, isIsolated);
                     if (!parser.parseOptionalComma()) {
                         break;
                     }
                 }
                 break;
+            }
             case 'successors': {
                 op.successors = op.successors || [];
                 if (parser.match('^')) {
@@ -8748,12 +8867,11 @@ _.AffineDialect = class extends _.Dialect {
     }
 
     parseParallelOp(parser, op) {
-        // Parse induction variables as block arguments
         const ivArgs = parser.parseArgumentList('paren', false);
-        const ivs = ivArgs.map((arg) => {
-            const resolved = parser.resolveSSAUse(arg.ssaName, arg.type);
-            return resolved;
-        });
+        const indexType = new _.PrimitiveType('index');
+        for (const iv of ivArgs) {
+            iv.type = indexType;
+        }
         if (!parser.parseOptionalEqual()) {
             return false;
         }
@@ -8783,15 +8901,9 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseFunctionResultList(resultTypes, resultAttrs);
         }
         if (parser.match('{')) {
-            const region = {};
-            parser.parseRegion(region);
-            if (region.blocks && region.blocks.length > 0) {
-                if (!region.blocks[0].arguments) {
-                    region.blocks[0].arguments = [];
-                }
-                region.blocks[0].arguments = ivs;
-            }
-            op.regions.push(region);
+            // Pass iv arguments to parseRegion - they become block arguments
+            const region = op.addRegion();
+            parser.parseRegion(region, ivArgs);
         }
         parser.parseOptionalAttrDict(op.attributes);
         return true;
@@ -10739,18 +10851,12 @@ _.FlowDialect = class extends _.IREEDialect {
         }
         // Parse region with arguments: = (%arg2: type, %arg3: type) { ... }
         if (parser.parseOptionalEqual()) {
-            const region = {};
-            region.blocks = [];
-            const block = {};
-            block.operations = [];
-            block.arguments = [];
             // Parse region arguments
+            const args = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
-                    const value = parser.parseOperand();
-                    parser.parseColon();
-                    const type = parser.parseType();
-                    block.arguments.push({ value, type });
+                    const arg = parser.parseArgument(true, false);
+                    args.push(arg);
                     parser.parseOptionalComma();
                 }
             }
@@ -10758,10 +10864,9 @@ _.FlowDialect = class extends _.IREEDialect {
             if (parser.parseOptionalArrow() || parser.accept('id', 'to')) {
                 parser.parseType();
             }
-            // Parse region body
-            parser.parseBlock(block);
-            region.blocks.push(block);
-            op.regions.push(region);
+            // Parse region body using parseRegion (matches ref impl)
+            const region = op.addRegion();
+            parser.parseRegion(region, args, /* enableNameShadowing */ true);
         }
         return true;
     }
@@ -13794,7 +13899,8 @@ _.SPIRVDialect = class extends _.Dialect {
             }
             if (parser.match('{')) {
                 const region = op.addRegion();
-                parser.parseRegion(region);
+                // spirv.func is IsolatedFromAbove
+                parser.parseRegion(region, undefined, /* isIsolatedNameScope */ true);
             }
             return true;
         }
@@ -15820,7 +15926,8 @@ _.GpuDialect = class extends _.Dialect {
             parser.parseOptionalAttrDictWithKeyword(op.attributes);
             if (parser.match('{')) {
                 const region = op.addRegion();
-                parser.parseRegion(region, allArgs);
+                // gpu.func is IsolatedFromAbove
+                parser.parseRegion(region, allArgs, /* isIsolatedNameScope */ true);
             }
             return true;
         }
@@ -15891,7 +15998,8 @@ _.GpuDialect = class extends _.Dialect {
             }
             if (parser.match('{')) {
                 const region = op.addRegion();
-                parser.parseRegion(region);
+                // gpu.launch is IsolatedFromAbove
+                parser.parseRegion(region, undefined, /* isIsolatedNameScope */ true);
             }
             parser.parseOptionalAttrDict(op.attributes);
             return true;
@@ -17886,7 +17994,8 @@ _.LLVMDialect = class extends _.Dialect {
         parser.parseOptionalAttrDictWithKeyword(op.attributes);
         if (parser.match('{')) {
             const region = op.addRegion();
-            parser.parseRegion(region, argResult.arguments);
+            // llvm.func is IsolatedFromAbove
+            parser.parseRegion(region, argResult.arguments, /* isIsolatedNameScope */ true);
         }
         return true;
     }
@@ -18280,10 +18389,9 @@ _.VMDialect = class extends _.Dialect {
                 resultType = parser.parseType();
                 op.addTypes([resultType]);
             }
-            // Resolve operands
+            // Resolve operands using resolveOperand (OpAsmParser interface method)
             for (const unresolved of unresolvedOperands) {
-                const resolved = parser.resolveSSAUse(unresolved, resultType);
-                op.operands.push(resolved);
+                parser.resolveOperand(unresolved, resultType, op.operands);
             }
             return true;
         }
