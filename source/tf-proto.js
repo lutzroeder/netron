@@ -6215,9 +6215,9 @@ tensorflow.TensorSliceProto = class TensorSliceProto {
 
 tensorflow.TensorSliceProto.Extent = class Extent {
 
-    get has_length() {
-        tensorflow.TensorSliceProto.Extent.has_lengthSet = tensorflow.TensorSliceProto.Extent.has_lengthSet || new Set(["length"]);
-        return Object.keys(this).find((key) => tensorflow.TensorSliceProto.Extent.has_lengthSet.has(key) && this[key] !== null);
+    get has_length_hack() {
+        tensorflow.TensorSliceProto.Extent.has_length_hackSet = tensorflow.TensorSliceProto.Extent.has_length_hackSet || new Set(["length"]);
+        return Object.keys(this).find((key) => tensorflow.TensorSliceProto.Extent.has_length_hackSet.has(key) && this[key] !== null);
     }
 
     static decode(reader, length) {
