@@ -4232,474 +4232,211 @@ _.TensorLiteralParser = class {
     }
 };
 
-_.AttrTypeReader = class {
+_.DialectBytecodeReader = class {
+};
 
-    constructor(bytecodeReader) {
-        this._bytecodeReader = bytecodeReader;
-        this._attrEntries = [];
-        this._typeEntries = [];
-        this._dataStart = 0;
+_.DialectReader = class extends _.DialectBytecodeReader {
+
+    constructor(attrTypeReader, stringReader, reader) {
+        super();
+        this.attrTypeReader = attrTypeReader;
+        this.stringReader = stringReader;
+        this.reader = reader;
+        this._floatBuffer = new ArrayBuffer(8);
+        this._floatView = new DataView(this._floatBuffer);
+        this._floatBitWidths = { f16: 16, bf16: 16, f32: 32, f64: 64, f80: 80, f128: 128 };
     }
 
-    initialize(attrEntries, typeEntries, dataStart) {
-        this._attrEntries = attrEntries;
-        this._typeEntries = typeEntries;
-        this._dataStart = dataStart;
+    readType() {
+        const index = this.reader.parseVarInt().toNumber();
+        return this.attrTypeReader.readType(index);
+    }
+
+    readAttribute() {
+        const index = this.reader.parseVarInt().toNumber();
+        return this.attrTypeReader.readAttribute(index);
+    }
+
+    readString() {
+        const index = this.reader.parseVarInt().toNumber();
+        return this.stringReader.getString(index);
+    }
+
+    readVarInt() {
+        return this.reader.parseVarInt().toNumber();
+    }
+
+    readSignedVarInt() {
+        return this.reader.parseSignedVarInt();
+    }
+
+    readByte() {
+        return this.reader.parseByte();
+    }
+
+    readBlob() {
+        const size = this.reader.parseVarInt().toNumber();
+        return this.reader.parseBytes(size);
+    }
+
+    readSignedVarInts() {
+        const count = this.reader.parseVarInt().toNumber();
+        const result = new Array(count);
+        for (let i = 0; i < count; i++) {
+            result[i] = this.reader.parseSignedVarInt().toNumber();
+        }
+        return result;
+    }
+
+    readAPIntWithKnownWidth(bitWidth) {
+        if (bitWidth <= 8) {
+            return BigInt(this.reader.parseByte());
+        }
+        if (bitWidth <= 64) {
+            return this.reader.parseSignedVarInt();
+        }
+        const numWords = this.reader.parseVarInt().toNumber();
+        let value = 0n;
+        for (let i = 0; i < numWords; i++) {
+            const word = this.reader.parseSignedVarInt();
+            value |= (word << BigInt(i * 64));
+        }
+        return value;
+    }
+
+    readAPFloatWithKnownSemantics(type) {
+        const bitWidth = this._floatBitWidths[type.name];
+        if (!bitWidth) {
+            throw new mlir.Error(`Unsupported float type '${type.name}'.`);
+        }
+        const bits = this.readAPIntWithKnownWidth(bitWidth);
+        if (bitWidth <= 32) {
+            this._floatView.setUint32(0, Number(bits), true);
+        } else {
+            this._floatView.setBigUint64(0, bits, true);
+        }
+        switch (type.name) {
+            case 'f16': return this._floatView.getFloat16(0, true);
+            case 'f32': return this._floatView.getFloat32(0, true);
+            case 'f64': return this._floatView.getFloat64(0, true);
+            case 'bf16': return this._floatView.getBfloat16(0, true);
+            default: throw new mlir.Error(`Unsupported float type '${type.name}'.`);
+        }
+    }
+};
+
+_.AttrTypeReader = class {
+
+    constructor(stringReader, resourceReader, context, dialects) {
+        this.stringReader = stringReader;
+        this.resourceReader = resourceReader;
+        this._context = context;
+        this._dialects = dialects;
+        this._attrEntries = [];
+        this._typeEntries = [];
+    }
+
+    initialize(sectionData, offsetSectionData) {
+        this._sectionData = sectionData;
+        const offsetReader = new _.EncodingReader(offsetSectionData);
+
+        // Parse the number of attribute and type entries
+        const numAttributes = offsetReader.parseVarInt().toNumber();
+        const numTypes = offsetReader.parseVarInt().toNumber();
+        this._attrEntries = new Array(numAttributes);
+        this._typeEntries = new Array(numTypes);
+
+        // Parse entries for a given range
+        let currentOffset = 0;
+        const parseEntries = (entries) => {
+            let currentIndex = 0;
+            const endIndex = entries.length;
+            while (currentIndex < endIndex) {
+                // Parse dialect grouping: dialect index + number of entries
+                const dialectIndex = offsetReader.parseVarInt().toNumber();
+                const dialect = this._dialects[dialectIndex];
+                const numEntries = offsetReader.parseVarInt().toNumber();
+                for (let i = 0; i < numEntries; i++) {
+                    const entry = {};
+                    const entrySizeWithFlag = offsetReader.parseVarInt();
+                    entry.hasCustomEncoding = (entrySizeWithFlag & 1n) === 1n;
+                    const entrySize = (entrySizeWithFlag >> 1n).toNumber();
+                    // Store offset like old code (don't bound reading to entry size)
+                    entry.offset = currentOffset;
+                    entry.size = entrySize;
+                    entry.dialect = dialect;
+                    entry.resolved = null;
+                    currentOffset += entrySize;
+                    entries[currentIndex++] = entry;
+                }
+            }
+        };
+
+        // Process attributes, then types
+        parseEntries(this._attrEntries);
+        parseEntries(this._typeEntries);
     }
 
     readAttribute(index) {
-        if (index >= this._attrEntries.length) {
-            return { name: 'local', value: `<local attr ${index}>` };
+        return this.readEntry(this._attrEntries, index, 'attr');
+    }
+
+    readType(index) {
+        return this.readEntry(this._typeEntries, index, 'type');
+    }
+
+    readEntry(entries, index, entryType) {
+        if (index >= entries.length) {
+            return this.parseAsmEntry(`<local ${entryType} ${index}>`, entryType);
         }
-        const entry = this._attrEntries[index];
+        const entry = entries[index];
         if (entry.resolved !== null) {
             return entry.resolved;
         }
         // Set placeholder to break cycles before parsing
-        entry.resolved = { name: 'pending', value: `<attr ${index}>` };
-        const reader = this._bytecodeReader._reader;
-        const savedPosition = reader.position;
-        reader.seek(this._dataStart + entry.offset);
+        entry.resolved = { name: 'pending', value: `<${entryType} ${index}>` };
+        // Create a reader and seek to entry offset (like old code)
+        const reader = new _.EncodingReader(this._sectionData);
+        reader.seek(entry.offset);
         if (entry.hasCustomEncoding) {
-            if (entry.dialect.name === 'builtin') {
-                entry.resolved = this.parseBuiltinAttribute(reader);
-            } else {
-                entry.resolved = { name: 'custom', value: `<${entry.dialect.name}>` };
-            }
+            entry.resolved = this.parseCustomEntry(entry, reader, entryType);
         } else {
-            // ASM format - null-terminated string
-            let str = '';
-            let c = '';
-            while ((c = reader.byte()) !== 0) {
-                str += String.fromCharCode(c);
-            }
-            entry.resolved = { name: 'asm', value: str };
+            entry.resolved = this.parseAsmEntry(reader, entryType);
         }
-        reader.seek(savedPosition);
         return entry.resolved;
     }
 
-    readType(index) {
-        if (index >= this._typeEntries.length) {
-            return new _.Type(`<local type ${index}>`);
+    parseCustomEntry(entry, reader, entryType) {
+        // Lazy load the dialect interface (like BytecodeDialect::load)
+        if (entry.dialect.interface === undefined) {
+            entry.dialect.interface = this._context.getDialect(entry.dialect.name);
         }
-        const entry = this._typeEntries[index];
-        if (entry.resolved !== null) {
-            return entry.resolved;
+        const dialect = entry.dialect.interface;
+        if (!dialect) {
+            throw new mlir.Error(`Dialect '${entry.dialect.name}' is unknown.`);
         }
-        const reader = this._bytecodeReader._reader;
-        const savedPosition = reader.position;
-        reader.seek(this._dataStart + entry.offset);
-        if (entry.hasCustomEncoding) {
-            if (entry.dialect.name === 'builtin') {
-                entry.resolved = this.parseBuiltinType(reader);
-            } else {
-                entry.resolved = new _.Type(`!${entry.dialect.name}.custom`);
-            }
+        const dialectReader = new _.DialectReader(this, this.stringReader, reader);
+        switch (entryType) {
+            case 'type':
+                return dialect.readType(dialectReader);
+            case 'attr':
+                return dialect.readAttribute(dialectReader);
+            default:
+                throw new mlir.Error(`Unknown entry type '${entryType}'.`);
+        }
+    }
+
+    parseAsmEntry(reader, entryType) {
+        let str = '';
+        if (typeof reader === 'string') {
+            str = reader;
         } else {
-            // ASM format - null-terminated string
-            let str = '';
             let c = '';
-            while ((c = reader.byte()) !== 0) {
+            while ((c = reader.parseByte()) !== 0) {
                 str += String.fromCharCode(c);
             }
-            entry.resolved = new _.Type(str);
         }
-        reader.seek(savedPosition);
-        return entry.resolved;
-    }
-
-    parseBuiltinAttribute(reader) {
-        // Builtin dialect attribute type codes (from BuiltinDialectBytecode.td):
-        // 0 = ArrayAttr, 1 = DictionaryAttr, 2 = StringAttr, 3 = StringAttrWithType,
-        // 4 = FlatSymbolRefAttr, 5 = SymbolRefAttr, 6 = TypeAttr, 7 = UnitAttr,
-        // 8 = IntegerAttr, 9 = FloatAttr, 10-16 = locations, 17 = DenseArrayAttr,
-        // 18 = DenseElementsAttr, 19 = DenseStringElementsAttr, 20 = DenseResourceElementsAttr
-        const typeCode = reader.varintNum();
-        switch (typeCode) {
-            case 0: { // ArrayAttr
-                const count = reader.varintNum();
-                const elements = [];
-                for (let i = 0; i < count; i++) {
-                    const attrIdx = reader.varintNum();
-                    elements.push(this.readAttribute(attrIdx));
-                }
-                return new _.ArrayAttr(elements);
-            }
-            case 1: { // DictionaryAttr
-                const count = reader.varintNum();
-                const attrs = new Map();
-                for (let i = 0; i < count; i++) {
-                    const nameAttrIdx = reader.varintNum();
-                    const nameAttr = this.readAttribute(nameAttrIdx);
-                    const valueAttrIdx = reader.varintNum();
-                    const valueAttr = this.readAttribute(valueAttrIdx);
-                    const name = nameAttr && nameAttr.value ? nameAttr.value : `attr_${i}`;
-                    attrs.set(name, valueAttr);
-                }
-                return { name: 'dictionary', value: attrs };
-            }
-            case 2: { // StringAttr
-                const strIdx = reader.varintNum();
-                const value = this._bytecodeReader._stringReader.getString(strIdx);
-                return new _.StringAttr(value);
-            }
-            case 3: { // StringAttrWithType
-                const strIdx = reader.varintNum();
-                const typeIdx = reader.varintNum();
-                const value = this._bytecodeReader._stringReader.getString(strIdx);
-                const type = this.readType(typeIdx);
-                return new _.StringAttr(value, type);
-            }
-            case 4: { // FlatSymbolRefAttr
-                const strIdx = reader.varintNum();
-                const value = this._bytecodeReader._stringReader.getString(strIdx);
-                return new _.SymbolRefAttr(`@${value}`);
-            }
-            case 5: { // SymbolRefAttr
-                const rootIdx = reader.varintNum();
-                const root = this._bytecodeReader._stringReader.getString(rootIdx);
-                const numNested = reader.varintNum();
-                let value = `@${root}`;
-                for (let i = 0; i < numNested; i++) {
-                    const nestedIdx = reader.varintNum();
-                    const nested = this._bytecodeReader._stringReader.getString(nestedIdx);
-                    value += `::@${nested}`;
-                }
-                return new _.SymbolRefAttr(value);
-            }
-            case 6: { // TypeAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                return new _.TypeAttrOf(type);
-            }
-            case 7: { // UnitAttr
-                return new _.UnitAttr();
-            }
-            case 8: { // IntegerAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                // Read value based on bit width (ref: BytecodeReader.cpp:1145-1171)
-                // - bitWidth <= 8: single byte
-                // - bitWidth <= 64: signed varint
-                // - larger: word count + words
-                const bitWidth = this._getIntegerBitWidth(type);
-                let value = null;
-                if (bitWidth <= 8) {
-                    value = BigInt(reader.byte());
-                } else if (bitWidth <= 64) {
-                    value = reader.svarint();
-                } else {
-                    // Large integers: read word count, then words
-                    const numWords = reader.varintNum();
-                    value = 0n;
-                    for (let i = 0; i < numWords; i++) {
-                        const word = reader.svarint();
-                        value |= (word << BigInt(i * 64));
-                    }
-                }
-                return new _.IntegerAttr(value, type);
-            }
-            case 9: { // FloatAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                const value = this._readFloatValue(reader, type.toString());
-                return new _.FloatAttr(value, type);
-            }
-            case 10: { // CallSiteLoc
-                const callerIdx = reader.varintNum();
-                const calleeIdx = reader.varintNum();
-                const caller = this.readAttribute(callerIdx);
-                const callee = this.readAttribute(calleeIdx);
-                const callerStr = caller && caller.value ? caller.value : `<${callerIdx}>`;
-                const calleeStr = callee && callee.value ? callee.value : `<${calleeIdx}>`;
-                return { name: 'loc', value: `callsite(${callerStr} at ${calleeStr})` };
-            }
-            case 11: { // FileLineColLoc
-                const filenameIdx = reader.varintNum();
-                const filename = this._bytecodeReader._stringReader.getString(filenameIdx);
-                const line = reader.varintNum();
-                const col = reader.varintNum();
-                return { name: 'loc', value: `${filename}:${line}:${col}` };
-            }
-            case 12: { // FusedLoc
-                const count = reader.varintNum();
-                const locations = [];
-                for (let i = 0; i < count; i++) {
-                    const locIdx = reader.varintNum();
-                    const location = this.readAttribute(locIdx);
-                    const locStr = location && location.value ? location.value : `<${locIdx}>`;
-                    locations.push(locStr);
-                }
-                return { name: 'loc', value: `fused[${locations.join(', ')}]` };
-            }
-            case 13: { // FusedLocWithMetadata
-                const metadataIdx = reader.varintNum();
-                const metadata = this.readAttribute(metadataIdx);
-                const count = reader.varintNum();
-                const locations = [];
-                for (let i = 0; i < count; i++) {
-                    const locIdx = reader.varintNum();
-                    const location = this.readAttribute(locIdx);
-                    const locStr = location && location.value ? location.value : `<${locIdx}>`;
-                    locations.push(locStr);
-                }
-                const metaStr = metadata && metadata.value !== undefined ? metadata.value : `<${metadataIdx}>`;
-                return { name: 'loc', value: `fused<${metaStr}>[${locations.join(', ')}]` };
-            }
-            case 14: { // NameLoc
-                const nameAttrIdx = reader.varintNum();
-                const childLocIdx = reader.varintNum();
-                const nameAttr = this.readAttribute(nameAttrIdx);
-                const childLoc = this.readAttribute(childLocIdx);
-                const nameStr = nameAttr && nameAttr.value !== undefined ? nameAttr.value : `<${nameAttrIdx}>`;
-                const childStr = childLoc && childLoc.value ? childLoc.value : `<${childLocIdx}>`;
-                return { name: 'loc', value: `#loc(${nameStr}(${childStr}))` };
-            }
-            case 15: { // OpaqueLoc
-                const underlyingIdx = reader.varintNum();
-                const fallbackIdx = reader.varintNum();
-                const fallback = this.readAttribute(fallbackIdx);
-                const fallbackStr = fallback && fallback.value ? fallback.value : `<${fallbackIdx}>`;
-                return { name: 'loc', value: `opaque<${underlyingIdx}, ${fallbackStr}>` };
-            }
-            case 16: { // UnknownLoc
-                return { name: 'loc', value: 'unknown' };
-            }
-            case 17: { // DenseArrayAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                const size = reader.varintNum();
-                const blobLen = reader.varintNum();
-                const blob = reader.read(blobLen);
-                return this.parseDenseArrayData(blob, type, size);
-            }
-            case 18: { // DenseElementsAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                const blobLen = reader.varintNum();
-                const blob = reader.read(blobLen);
-                return new _.DenseElementsAttr(blob, type);
-            }
-            case 19: { // DenseStringElementsAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                const isSplat = reader.varintNum() !== 0;
-                const count = reader.varintNum();
-                const strings = [];
-                for (let i = 0; i < count; i++) {
-                    const strIdx = reader.varintNum();
-                    strings.push(this._bytecodeReader._stringReader.getString(strIdx));
-                }
-                return { name: 'dense_string', value: strings, type, isSplat };
-            }
-            case 20: { // DenseResourceElementsAttr
-                const typeIdx = reader.varintNum();
-                const type = this.readType(typeIdx);
-                const handleIdx = reader.varintNum();
-                return new _.DenseResourceElementsAttr(`resource<${handleIdx}>`, type);
-            }
-            default: {
-                return { name: 'builtin', value: `<builtin code ${typeCode}>` };
-            }
-        }
-    }
-
-    parseDenseArrayData(blob, type, size) {
-        const typeStr = type.toString();
-        const view = new DataView(blob.buffer, blob.byteOffset, blob.length);
-        const values = [];
-        if (typeStr.startsWith('i') || typeStr.startsWith('si') || typeStr.startsWith('ui')) {
-            const match = typeStr.match(/[su]?i(\d+)/);
-            const bitWidth = match ? parseInt(match[1], 10) : 64;
-            const byteWidth = Math.ceil(bitWidth / 8);
-            for (let i = 0; i < size && i * byteWidth < blob.length; i++) {
-                if (bitWidth <= 8) {
-                    values.push(view.getInt8(i * byteWidth));
-                } else if (bitWidth <= 16) {
-                    values.push(view.getInt16(i * byteWidth, true));
-                } else if (bitWidth <= 32) {
-                    values.push(view.getInt32(i * byteWidth, true));
-                } else {
-                    values.push(view.getBigInt64(i * byteWidth, true));
-                }
-            }
-        } else if (typeStr === 'f32') {
-            for (let i = 0; i < size && i * 4 < blob.length; i++) {
-                values.push(view.getFloat32(i * 4, true));
-            }
-        } else if (typeStr === 'f64') {
-            for (let i = 0; i < size && i * 8 < blob.length; i++) {
-                values.push(view.getFloat64(i * 8, true));
-            }
-        } else if (typeStr === 'f16') {
-            for (let i = 0; i < size && i * 2 < blob.length; i++) {
-                values.push(view.getUint16(i * 2, true)); // Store raw bits for f16
-            }
-        } else {
-            // Default to raw bytes
-            return new _.DenseArrayAttr(blob, type);
-        }
-        return new _.DenseArrayAttr(values, type);
-    }
-
-    _getIntegerBitWidth(type) {
-        // Extract bit width from integer type (i1, i8, i16, i32, i64, si32, ui64, etc.)
-        const typeStr = type ? type.toString() : '';
-        const match = typeStr.match(/^[su]?i(\d+)$/);
-        if (match) {
-            return parseInt(match[1], 10);
-        }
-        // Default to 64-bit for index and unknown types
-        return 64;
-    }
-
-    _readFloatValue(reader, typeStr) {
-        if (typeStr === 'f16' || typeStr === 'bf16') {
-            const bits = reader.read(2);
-            const view = new DataView(bits.buffer, bits.byteOffset, 2);
-            return view.getUint16(0, true);
-        }
-        if (typeStr === 'f32') {
-            const bits = reader.read(4);
-            const view = new DataView(bits.buffer, bits.byteOffset, 4);
-            return view.getFloat32(0, true);
-        }
-        // Default to 64-bit (f64, f80, f128)
-        const bits = reader.read(8);
-        const view = new DataView(bits.buffer, bits.byteOffset, 8);
-        return view.getFloat64(0, true);
-    }
-
-    parseBuiltinType(reader) {
-        // Builtin dialect type codes (from BuiltinDialectBytecode.td):
-        // See BuiltinDialectTypes enum
-        const typeCode = reader.varintNum();
-        switch (typeCode) {
-            case 0: { // IntegerType
-                const widthAndSign = reader.varintNum();
-                const width = widthAndSign >> 2;
-                const signedness = widthAndSign & 0x3;
-                if (signedness === 0) {
-                    return new _.Type(`i${width}`);
-                }
-                if (signedness === 1) {
-                    return new _.Type(`si${width}`);
-                }
-                return new _.Type(`ui${width}`);
-            }
-            case 1: { // IndexType
-                return new _.Type('index');
-            }
-            case 2: { // FunctionType
-                const numInputs = reader.varintNum();
-                const inputs = [];
-                for (let i = 0; i < numInputs; i++) {
-                    const typeIdx = reader.varintNum();
-                    inputs.push(this.readType(typeIdx));
-                }
-                const numResults = reader.varintNum();
-                const results = [];
-                for (let i = 0; i < numResults; i++) {
-                    const typeIdx = reader.varintNum();
-                    results.push(this.readType(typeIdx));
-                }
-                const type = new _.FunctionType(inputs, results);
-                return type;
-            }
-            case 3: { // BFloat16Type
-                return new _.Type('bf16');
-            }
-            case 4: { // Float16Type
-                return new _.Type('f16');
-            }
-            case 5: { // Float32Type
-                return new _.Type('f32');
-            }
-            case 6: { // Float64Type
-                return new _.Type('f64');
-            }
-            case 7: { // Float80Type
-                return new _.Type('f80');
-            }
-            case 8: { // Float128Type
-                return new _.Type('f128');
-            }
-            case 9: { // ComplexType
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                return new _.Type(`complex<${elementType.toString()}>`);
-            }
-            case 10: { // MemRefType
-                const shape = this._readShape(reader);
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                // Skip layout and memory space for now
-                return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
-            }
-            case 11: { // MemRefTypeWithLayout - skip for now
-                return new _.Type('memref<?>');
-            }
-            case 12: { // NoneType
-                return new _.Type('none');
-            }
-            case 13: { // RankedTensorType
-                const shape = this._readShape(reader);
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                return new _.RankedTensorType(shape, elementType, null);
-            }
-            case 14: { // RankedTensorTypeWithEncoding
-                const encodingAttrIdx = reader.varintNum();
-                const encoding = this.readAttribute(encodingAttrIdx);
-                const shape = this._readShape(reader);
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                return new _.RankedTensorType(shape, elementType, encoding);
-            }
-            case 15: { // TupleType
-                const numTypes = reader.varintNum();
-                const types = [];
-                for (let i = 0; i < numTypes; i++) {
-                    const typeIdx = reader.varintNum();
-                    types.push(this.readType(typeIdx));
-                }
-                return new _.Type(`tuple<${types.map((t) => t.toString()).join(', ')}>`);
-            }
-            case 16: { // UnrankedMemRefType
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                return new _.Type(`memref<*x${elementType.toString()}>`);
-            }
-            case 17: { // UnrankedTensorType
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                return new _.Type(`tensor<*x${elementType.toString()}>`);
-            }
-            case 18: { // VectorType
-                const shape = this._readShape(reader);
-                const elementTypeIdx = reader.varintNum();
-                const elementType = this.readType(elementTypeIdx);
-                return new _.VectorType(shape, elementType);
-            }
-            case 19: { // VectorTypeWithScalableDims - simplified
-                return new _.Type('vector<?>');
-            }
-            default: {
-                return new _.Type(`<builtin type ${typeCode}>`);
-            }
-        }
-    }
-
-    _readShape(reader) {
-        const rank = reader.varintNum();
-        const shape = [];
-        for (let i = 0; i < rank; i++) {
-            // Dimensions are encoded as signed varints
-            const dim = reader.svarint().toNumber();
-            shape.push(dim);
-        }
-        return shape;
+        return entryType === 'type' ? new _.Type(str) : { name: 'asm', value: str };
     }
 };
 
@@ -4709,17 +4446,17 @@ _.StringSectionReader = class {
         this._strings = [];
     }
 
-    initialize(reader, section) {
-        reader.seek(section.start);
-        const lengths = new Array(reader.varintNum());
+    initialize(sectionData) {
+        const reader = new _.EncodingReader(sectionData);
+        const lengths = new Array(reader.parseVarInt().toNumber());
         for (let i = 0; i < lengths.length; i++) {
-            lengths[i] = reader.varintNum();
+            lengths[i] = reader.parseVarInt().toNumber();
         }
         const decoder = new TextDecoder('utf-8');
         this._strings = new Array(lengths.length);
         for (let i = 0; i < this._strings.length; i++) {
             const size = lengths[lengths.length - 1 - i];
-            const buffer = reader.read(size);
+            const buffer = reader.parseBytes(size);
             // Strings are null-terminated in bytecode, exclude the null character
             this._strings[i] = decoder.decode(buffer.subarray(0, size - 1));
         }
@@ -4736,19 +4473,19 @@ _.ResourceSectionReader = class {
         this._resources = [];
     }
 
-    initialize(reader, section) {
-        if (!section) {
+    initialize(sectionData) {
+        if (!sectionData) {
             return;
         }
-        reader.seek(section.start);
-        const numExternalResourceGroups = reader.varintNum();
+        const reader = new _.EncodingReader(sectionData);
+        const numExternalResourceGroups = reader.parseVarInt().toNumber();
         for (let i = 0; i < numExternalResourceGroups; i++) {
-            reader.varint(); // key
-            const numResources = reader.varintNum();
+            reader.parseVarInt(); // key
+            const numResources = reader.parseVarInt().toNumber();
             for (let j = 0; j < numResources; j++) {
-                reader.varint(); // key
-                reader.varint(); // offset
-                reader.byte(); // kind
+                reader.parseVarInt(); // key
+                reader.parseVarInt(); // offset
+                reader.parseByte(); // kind
             }
         }
     }
@@ -4757,47 +4494,47 @@ _.ResourceSectionReader = class {
 _.BytecodeReader = class {
 
     constructor(reader, context) {
-        this._reader = new _.BinaryReader(reader);
+        this._reader = new _.EncodingReader(reader);
         this._context = context;
         this._valueScopes = [];
     }
 
     read() {
         const reader = this._reader;
-        reader.read(4); // signature 'ML\xEFR'
-        this.version = reader.varintNum();
-        this.producer = reader.string();
+        reader.parseBytes(4); // signature 'ML\xEFR'
+        this.version = reader.parseVarInt().toNumber();
+        this.producer = reader.parseNullTerminatedString();
         this._sections = new Map();
         while (reader.position < reader.length) {
             // https://mlir.llvm.org/docs/BytecodeFormat/
             // https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
-            const sectionIDAndHasAlignment = reader.byte();
+            const sectionIDAndHasAlignment = reader.parseByte();
             const sectionID = sectionIDAndHasAlignment & 0x7F;
-            const length = reader.varintNum();
+            const length = reader.parseVarInt().toNumber();
             const hasAlignment = sectionIDAndHasAlignment & 0x80;
             if (sectionID >= 9) {
                 throw new mlir.Error(`Unsupported section identifier '${sectionID}'.`);
             }
             if (hasAlignment) {
-                const alignment = reader.varintNum();
-                while (reader.position % alignment !== 0) {
-                    reader.byte(); // skip 0xCB padding bytes
+                const alignment = reader.parseVarInt().toNumber();
+                while (reader.absolutePosition % alignment !== 0) {
+                    reader.parseByte(); // skip 0xCB padding bytes
                 }
             }
-            const offset = reader.position;
-            reader.skip(length);
-            this._sections.set(sectionID, { start: offset, end: reader.position });
+            // Store section data as a view (like ref impl)
+            const sectionData = reader.parseBytes(length);
+            this._sections.set(sectionID, sectionData);
         }
         if (!this._sections.has(0) || !this._sections.has(1) ||
             !this._sections.has(2) || !this._sections.has(3) ||
             !this._sections.has(4) || (this.version >= 5 && !this._sections.has(8))) {
             throw new mlir.Error('Missing required section.');
         }
-        // Initialize section readers
-        this._stringReader = new _.StringSectionReader();
-        this._stringReader.initialize(reader, this._sections.get(0));
-        this._resourceReader = new _.ResourceSectionReader();
-        this._resourceReader.initialize(reader, this._sections.get(6));
+        // Initialize section readers (pass section data views like ref impl)
+        this.stringReader = new _.StringSectionReader();
+        this.stringReader.initialize(this._sections.get(0));
+        this.resourceReader = new _.ResourceSectionReader();
+        this.resourceReader.initialize(this._sections.get(6));
         this.parseDialectSection();
         this.parseAttrTypeSection();
         if (this._sections.has(8)) {
@@ -4807,44 +4544,43 @@ _.BytecodeReader = class {
     }
 
     parseDialectSection() {
-        const section = this._sections.get(1);
-        const reader = this._reader;
-        reader.seek(section.start);
-        const numDialects = reader.varintNum();
+        const sectionData = this._sections.get(1);
+        const reader = new _.EncodingReader(sectionData);
+        const numDialects = reader.parseVarInt().toNumber();
         this._dialects = new Array(numDialects);
         for (let i = 0; i < this._dialects.length; i++) {
             this._dialects[i] = {};
             if (this.version < 1) { // kDialectVersioning
-                const entryIdx = reader.varintNum(`dialect ${i} name idx`);
-                this._dialects[i].name = this._stringReader.getString(entryIdx);
+                const entryIdx = reader.parseVarInt().toNumber();
+                this._dialects[i].name = this.stringReader.getString(entryIdx);
                 continue;
             }
-            const nameAndIsVersioned = reader.varint();
+            const nameAndIsVersioned = reader.parseVarInt();
             const dialectNameIdx = (nameAndIsVersioned >> 1n).toNumber();
-            this._dialects[i].name = this._stringReader.getString(dialectNameIdx);
+            this._dialects[i].name = this.stringReader.getString(dialectNameIdx);
             if (nameAndIsVersioned & 1n) {
-                const size = reader.varintNum(`dialect ${i} version size`);
-                this._dialects[i].version = reader.read(size);
+                const size = reader.parseVarInt().toNumber();
+                this._dialects[i].version = reader.parseBytes(size);
             }
         }
         let numOps = -1;
         this._opNames = [];
         if (this.version > 4) { // kElideUnknownBlockArgLocation
-            numOps = reader.varintNum();
+            numOps = reader.parseVarInt().toNumber();
             this._opNames = new Array(numOps);
         }
         let i = 0;
-        while (reader.position < section.end) {
-            const dialect = this._dialects[reader.varintNum()];
-            const numEntries = reader.varintNum();
+        while (reader.position < sectionData.length) {
+            const dialect = this._dialects[reader.parseVarInt().toNumber()];
+            const numEntries = reader.parseVarInt().toNumber();
             for (let j = 0; j < numEntries; j++) {
                 const opName = {};
                 if (this.version < 5) { // kNativePropertiesEncoding
-                    opName.name = this._stringReader.getString(reader.varintNum());
+                    opName.name = this.stringReader.getString(reader.parseVarInt().toNumber());
                     opName.dialect = dialect;
                 } else {
-                    const nameAndIsRegistered = reader.varint();
-                    opName.name = this._stringReader.getString((nameAndIsRegistered >> 1n).toNumber());
+                    const nameAndIsRegistered = reader.parseVarInt();
+                    opName.name = this.stringReader.getString((nameAndIsRegistered >> 1n).toNumber());
                     opName.dialect = dialect;
                     opName.isRegistered = (nameAndIsRegistered & 1n) === 1n;
                 }
@@ -4858,54 +4594,28 @@ _.BytecodeReader = class {
     }
 
     parseAttrTypeSection() {
-        const section = this._sections.get(3);
-        const reader = this._reader;
-        reader.seek(section.start);
-        const attrEntries = new Array(reader.varintNum());
-        const typeEntries = new Array(reader.varintNum());
-        let offset = 0;
-        const parseEntries = (range) => {
-            for (let i = 0; i < range.length;) {
-                const dialect = this._dialects[reader.varintNum()];
-                const numEntries = reader.varintNum();
-                for (let j = 0; j < numEntries; j++) {
-                    const entry = {};
-                    const entrySizeWithFlag = reader.varint();
-                    entry.hasCustomEncoding = (entrySizeWithFlag & 1n) === 1n;
-                    entry.size = (entrySizeWithFlag >> 1n).toNumber();
-                    entry.offset = offset;
-                    entry.dialect = dialect;
-                    entry.resolved = null;
-                    offset += entry.size;
-                    range[i++] = entry;
-                }
-            }
-        };
-        parseEntries(attrEntries);
-        parseEntries(typeEntries);
-        const dataStart = this._sections.get(2).start;
-        // Initialize AttrTypeReader
-        this._attrTypeReader = new _.AttrTypeReader(this);
-        this._attrTypeReader.initialize(attrEntries, typeEntries, dataStart);
+        // Section 2 = kAttrType (data), Section 3 = kAttrTypeOffset (offsets)
+        const sectionData = this._sections.get(2);
+        const offsetSectionData = this._sections.get(3);
+        this.attrTypeReader = new _.AttrTypeReader(this.stringReader, this.resourceReader, this._context, this._dialects);
+        this.attrTypeReader.initialize(sectionData, offsetSectionData);
     }
 
     parsePropertiesSection() {
-        const section = this._sections.get(8);
-        const reader = this._reader;
-        reader.seek(section.start);
-        const count = reader.varintNum();
+        const sectionData = this._sections.get(8);
+        const reader = new _.EncodingReader(sectionData);
+        const count = reader.parseVarInt().toNumber();
         this._properties = new Array(count);
         for (let i = 0; i < this._properties.length; i++) {
-            const size = reader.varintNum(`property ${i} size`);
-            const data = reader.read(size);
+            const size = reader.parseVarInt().toNumber();
+            const data = reader.parseBytes(size);
             this._properties[i] = data;
         }
     }
 
     parseIRSection() {
-        const section = this._sections.get(4);
-        const reader = this._reader;
-        reader.seek(section.start);
+        const sectionData = this._sections.get(4);
+        const reader = new _.EncodingReader(sectionData);
         const block = { operations: [] };
         this._valueScopes = [[]];
         const regionStack = [{
@@ -4944,22 +4654,22 @@ _.BytecodeReader = class {
                         const region = op.regions[i];
                         const regionReader = reader;
                         if (this.version >= 2 && isIsolatedFromAbove) {
-                            const sectionIDAndHasAlignment = reader.byte();
+                            const sectionIDAndHasAlignment = reader.parseByte();
                             /* const sectionID = sectionIDAndHasAlignment & 0x7F; */
-                            reader.varint(); // section length
+                            reader.parseVarInt(); // section length
                             const hasAlignment = sectionIDAndHasAlignment & 0x80;
                             if (hasAlignment) {
-                                const alignment = reader.varint().toNumber();
-                                while (reader.position % alignment !== 0) {
-                                    reader.byte(); // skip 0xCB padding bytes
+                                const alignment = reader.parseVarInt().toNumber();
+                                while (reader.absolutePosition % alignment !== 0) {
+                                    reader.parseByte(); // skip 0xCB padding bytes
                                 }
                             }
                         }
-                        const numBlocks = regionReader.varint().toNumber();
+                        const numBlocks = regionReader.parseVarInt().toNumber();
                         if (numBlocks === 0) {
                             continue;
                         }
-                        const numValues = regionReader.varint().toNumber();
+                        const numValues = regionReader.parseVarInt().toNumber();
                         const blocks = [];
                         for (let j = 0; j < numBlocks; j++) {
                             blocks.push({ operations: [], arguments: [] });
@@ -5033,26 +4743,26 @@ _.BytecodeReader = class {
     }
 
     parseBlockHeader(reader) {
-        const numOpsAndHasArgs = reader.varint();
+        const numOpsAndHasArgs = reader.parseVarInt();
         const numOps = (numOpsAndHasArgs >> 1n).toNumber();
         const hasArgs = (numOpsAndHasArgs & 1n) === 1n;
         return { numOps, hasArgs };
     }
 
     parseBlockArguments(reader, block, scope, valueOffset) {
-        const numArgs = reader.varintNum();
+        const numArgs = reader.parseVarInt().toNumber();
         block.arguments = [];
         for (let i = 0; i < numArgs; i++) {
             // Parse type and location flag: (typeIdx << 1) | hasLocation
-            const typeAndLocation = reader.varintNum();
+            const typeAndLocation = reader.parseVarInt().toNumber();
             const typeIdx = typeAndLocation >> 1;
             const hasLocation = (typeAndLocation & 1) === 1;
-            const type = this._attrTypeReader.readType(typeIdx);
+            const type = this.attrTypeReader.readType(typeIdx);
             // Parse location if present
             let location = null;
             if (hasLocation) {
-                const locIdx = reader.varintNum();
-                location = this._attrTypeReader.readAttribute(locIdx);
+                const locIdx = reader.parseVarInt().toNumber();
+                location = this.attrTypeReader.readAttribute(locIdx);
             }
             // Create block argument with name and value for graph linking
             const argName = `%${valueOffset + i}`;
@@ -5067,7 +4777,7 @@ _.BytecodeReader = class {
         // Use-list ordering (version >= 3) - stored after all arguments
         // If hasUseListOrders byte is 0, no use-list orders exist
         if (this.version >= 3 && numArgs > 0) {
-            const hasUseListOrders = reader.byte();
+            const hasUseListOrders = reader.parseByte();
             if (hasUseListOrders !== 0) {
                 this.parseUseListOrdersForRange(reader, numArgs);
             }
@@ -5079,27 +4789,27 @@ _.BytecodeReader = class {
         // For single value, default count is 1
         let numToRead = 1;
         if (numValues > 1) {
-            numToRead = reader.varintNum();
+            numToRead = reader.parseVarInt().toNumber();
         }
         for (let i = 0; i < numToRead; i++) {
             // Read the value index if there are multiple values
             if (numValues > 1) {
-                /* const valueIndex = */ reader.varint();
+                /* const valueIndex = */ reader.parseVarInt();
             }
             // Parse use-list order: numUsesAndIndexPairs, then indices
-            const numUsesAndFlag = reader.varint();
+            const numUsesAndFlag = reader.parseVarInt();
             const numUses = (numUsesAndFlag >> 1n).toNumber();
             const useIndexPairEncoding = (numUsesAndFlag & 1n) === 1n;
             if (useIndexPairEncoding) {
                 // Index pairs: read pairs of (from, to) indices
                 for (let j = 0; j < numUses; j++) {
-                    reader.varint(); // from index
-                    reader.varint(); // to index
+                    reader.parseVarInt(); // from index
+                    reader.parseVarInt(); // to index
                 }
             } else {
                 // Direct indices: read permutation
                 for (let j = 0; j < numUses; j++) {
-                    reader.varint(); // permuted index
+                    reader.parseVarInt(); // permuted index
                 }
             }
         }
@@ -5107,7 +4817,7 @@ _.BytecodeReader = class {
 
     parseOpWithoutRegions(reader, state) {
         // Parse operation name index
-        const opNameIdx = reader.varintNum();
+        const opNameIdx = reader.parseVarInt().toNumber();
         const opNameEntry = this._opNames[opNameIdx];
         if (!opNameEntry) {
             throw new mlir.Error(`Invalid operation name index '${opNameIdx}' (have ${this._opNames.length} ops) at position ${reader.position}.`);
@@ -5115,7 +4825,7 @@ _.BytecodeReader = class {
         const fullName = `${opNameEntry.dialect.name}.${opNameEntry.name}`;
 
         // Parse operation mask
-        const opMask = reader.byte();
+        const opMask = reader.parseByte();
         const kHasAttrs = 0x01;
         const kHasResults = 0x02;
         const kHasOperands = 0x04;
@@ -5135,13 +4845,13 @@ _.BytecodeReader = class {
         }
 
         // Parse location
-        const locIdx = reader.varintNum();
-        op.location = this._attrTypeReader.readAttribute(locIdx);
+        const locIdx = reader.parseVarInt().toNumber();
+        op.location = this.attrTypeReader.readAttribute(locIdx);
 
         // Parse attributes
         if (opMask & kHasAttrs) {
-            const dictAttrIdx = reader.varintNum();
-            const dictAttr = this._attrTypeReader.readAttribute(dictAttrIdx);
+            const dictAttrIdx = reader.parseVarInt().toNumber();
+            const dictAttr = this.attrTypeReader.readAttribute(dictAttrIdx);
             if (dictAttr && dictAttr.value) {
                 if (dictAttr.value instanceof Map) {
                     // Already parsed as Map from custom-encoded DictionaryAttr
@@ -5157,7 +4867,7 @@ _.BytecodeReader = class {
         if (opMask & kHasProperties) {
             if (opNameEntry.isRegistered) {
                 // Native properties - read index into properties table
-                const propIdx = reader.varintNum();
+                const propIdx = reader.parseVarInt().toNumber();
                 if (propIdx < this._properties.length) {
                     const propData = this._properties[propIdx];
                     if (propData.length > 0) {
@@ -5166,8 +4876,8 @@ _.BytecodeReader = class {
                 }
             } else {
                 // Unregistered operations store properties as a single dictionary attribute
-                const propAttrIdx = reader.varintNum();
-                const propAttr = this._attrTypeReader.readAttribute(propAttrIdx);
+                const propAttrIdx = reader.parseVarInt().toNumber();
+                const propAttr = this.attrTypeReader.readAttribute(propAttrIdx);
                 if (propAttr && propAttr.value) {
                     const propAttrs = this.parseAttributeDict(propAttr.value);
                     for (const [key, value] of propAttrs) {
@@ -5180,11 +4890,11 @@ _.BytecodeReader = class {
         // Parse results - add types to OperationState.types, track values in scope
         const resultNames = [];
         if (opMask & kHasResults) {
-            const numResults = reader.varintNum();
+            const numResults = reader.parseVarInt().toNumber();
             const scope = this._valueScopes[this._valueScopes.length - 1];
             for (let i = 0; i < numResults; i++) {
-                const typeIdx = reader.varintNum();
-                const type = this._attrTypeReader.readType(typeIdx);
+                const typeIdx = reader.parseVarInt().toNumber();
+                const type = this.attrTypeReader.readType(typeIdx);
                 // Add type to OperationState.types (reference pattern)
                 op.addTypes([type]);
                 // Track result name for later assignment (Netron display)
@@ -5203,9 +4913,9 @@ _.BytecodeReader = class {
 
         // Parse operands
         if (opMask & kHasOperands) {
-            const numOperands = reader.varintNum();
+            const numOperands = reader.parseVarInt().toNumber();
             for (let i = 0; i < numOperands; i++) {
-                const valueIdx = reader.varintNum();
+                const valueIdx = reader.parseVarInt().toNumber();
                 const scope = this._valueScopes[this._valueScopes.length - 1];
                 if (valueIdx < scope.length && scope[valueIdx]) {
                     op.operands.push(scope[valueIdx]);
@@ -5217,10 +4927,10 @@ _.BytecodeReader = class {
 
         // Parse successors
         if (opMask & kHasSuccessors) {
-            const numSuccessors = reader.varintNum();
+            const numSuccessors = reader.parseVarInt().toNumber();
             op.successors = [];
             for (let i = 0; i < numSuccessors; i++) {
-                const blockIdx = reader.varintNum();
+                const blockIdx = reader.parseVarInt().toNumber();
                 op.successors.push(blockIdx);
             }
         }
@@ -5228,11 +4938,11 @@ _.BytecodeReader = class {
         if (this.version >= 3 && (opMask & kHasUseListOrders)) {
             const numResults = op.types.length;
             for (let i = 0; i < numResults; i++) {
-                const indexBitWidth = reader.varintNum();
+                const indexBitWidth = reader.parseVarInt().toNumber();
                 if (indexBitWidth > 0) {
-                    const numUses = reader.varintNum();
+                    const numUses = reader.parseVarInt().toNumber();
                     for (let j = 0; j < numUses; j++) {
-                        reader.varint(); // use index
+                        reader.parseVarInt(); // use index
                     }
                 }
             }
@@ -5240,7 +4950,7 @@ _.BytecodeReader = class {
         // Parse inline regions
         let isIsolatedFromAbove = false;
         if (opMask & kHasInlineRegions) {
-            const numRegionsAndIsIsolated = reader.varint();
+            const numRegionsAndIsIsolated = reader.parseVarInt();
             const numRegions = (numRegionsAndIsIsolated >> 1n).toNumber();
             isIsolatedFromAbove = (numRegionsAndIsIsolated & 1n) === 1n;
             for (let i = 0; i < numRegions; i++) {
@@ -5326,18 +5036,18 @@ _.BytecodeReader = class {
     parseNativeProperties(data, op, fullName) {
         // Native properties encoding is operation-specific (generated by tablegen).
         // Without the generated code, we can only safely parse known operation types.
-        const propReader = new _.BufferReader(data);
+        const propReader = new _.EncodingReader(data);
         // Function operations: sym_name (required), function_type (required), then optional attrs
         if (fullName.endsWith('.func') || /\.func_v\d+$/.test(fullName)) {
-            const symNameIdx = propReader.varint().toNumber();
-            const symNameAttr = this._attrTypeReader.readAttribute(symNameIdx);
+            const symNameIdx = propReader.parseVarInt().toNumber();
+            const symNameAttr = this.attrTypeReader.readAttribute(symNameIdx);
             if (symNameAttr && symNameAttr.value !== undefined) {
                 const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
                 op.addAttribute('sym_name', new _.StringAttr(name));
             }
             if (propReader.position < data.length) {
-                const funcTypeIdx = propReader.varint().toNumber();
-                const funcTypeAttr = this._attrTypeReader.readAttribute(funcTypeIdx);
+                const funcTypeIdx = propReader.parseVarInt().toNumber();
+                const funcTypeAttr = this.attrTypeReader.readAttribute(funcTypeIdx);
                 if (funcTypeAttr instanceof _.TypeAttrOf && funcTypeAttr.type instanceof _.FunctionType) {
                     op.addAttribute('function_type', funcTypeAttr);
                 }
@@ -5346,8 +5056,8 @@ _.BytecodeReader = class {
         }
         // Constant operations: single required 'value' attribute
         if (fullName.includes('.constant.') || fullName.includes('.const')) {
-            const attrIdx = propReader.varint().toNumber();
-            const attr = this._attrTypeReader.readAttribute(attrIdx);
+            const attrIdx = propReader.parseVarInt().toNumber();
+            const attr = this.attrTypeReader.readAttribute(attrIdx);
             if (attr !== null && attr !== undefined) {
                 op.addAttribute('value', attr);
             }
@@ -5357,10 +5067,16 @@ _.BytecodeReader = class {
     }
 };
 
-_.BinaryReader = class {
+_.EncodingReader = class {
 
-    constructor(reader) {
-        this._reader = reader;
+    constructor(data) {
+        if (data instanceof Uint8Array) {
+            this._data = data;
+            this._reader = base.BinaryReader.open(data);
+        } else {
+            this._data = null;
+            this._reader = data;
+        }
     }
 
     get length() {
@@ -5371,23 +5087,26 @@ _.BinaryReader = class {
         return this._reader.position;
     }
 
-    skip(length) {
-        this._reader.skip(length);
+    get absolutePosition() {
+        // Returns position relative to the underlying ArrayBuffer for alignment calculations
+        // When data is a Uint8Array subarray, byteOffset gives its position in the ArrayBuffer
+        const byteOffset = this._data ? this._data.byteOffset : 0;
+        return byteOffset + this._reader.position;
     }
 
     seek(offset) {
         this._reader.seek(offset);
     }
 
-    read(length) {
+    skipBytes(length) {
+        this._reader.skip(length);
+    }
+
+    parseBytes(length) {
         return this._reader.read(length);
     }
 
-    stream(length) {
-        return this._reader.stream(length);
-    }
-
-    byte() {
+    parseByte() {
         return this._reader.byte();
     }
 
@@ -5398,11 +5117,7 @@ _.BinaryReader = class {
         return value;
     }
 
-    uint64() {
-        return this._reader.uint64();
-    }
-
-    varint() {
+    parseVarInt() {
         let result = this._reader.byte();
         if (result & 1) {
             return BigInt(result >> 1);
@@ -5424,22 +5139,18 @@ _.BinaryReader = class {
         return result;
     }
 
-    // Returns varint as number, with bounds check for indices/counts
-    varintNum() {
-        const value = this.varint();
-        if (value > Number.MAX_SAFE_INTEGER) {
-            throw new mlir.Error(`Varint value 0x${value.toString(16)} exceeds safe integer.`);
-        }
-        return Number(value);
-    }
-
-    svarint() {
+    parseSignedVarInt() {
         // Signed varint using zigzag encoding: (n >> 1) ^ -(n & 1)
-        const n = this.varint();
+        const n = this.parseVarInt();
         return (n >> 1n) ^ -(n & 1n);
     }
 
-    string() {
+    parseVarIntWithFlag() {
+        const result = this.parseVarInt();
+        return { value: result >> 1n, flag: (result & 1n) === 1n };
+    }
+
+    parseNullTerminatedString() {
         const reader = this._reader;
         let result = '';
         let value = -1;
@@ -5451,78 +5162,6 @@ _.BinaryReader = class {
             result += String.fromCharCode(value);
         }
         return result;
-    }
-};
-
-_.BufferReader = class {
-
-    constructor(data) {
-        this._data = data;
-        this._position = 0;
-    }
-
-    get length() {
-        return this._data.length;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    skip(length) {
-        this._position += length;
-    }
-
-    seek(offset) {
-        this._position = offset;
-    }
-
-    read(length) {
-        const result = this._data.subarray(this._position, this._position + length);
-        this._position += length;
-        return result;
-    }
-
-    byte() {
-        return this._data[this._position++];
-    }
-
-    peek() {
-        return this._data[this._position];
-    }
-
-    uint64() {
-        const view = new DataView(this._data.buffer, this._data.byteOffset + this._position, 8);
-        this._position += 8;
-        return view.getBigUint64(0, true);
-    }
-
-    varint() {
-        let result = this.byte();
-        if (result & 1) {
-            return BigInt(result >> 1);
-        }
-        if (result === 0) {
-            return this.uint64();
-        }
-        result = BigInt(result);
-        let mask = 1n;
-        let numBytes = 0n;
-        let shift = 8n;
-        while (result > 0n && (result & mask) === 0n) {
-            result |= (BigInt(this.byte()) << shift);
-            mask <<= 1n;
-            shift += 8n;
-            numBytes++;
-        }
-        result >>= numBytes + 1n;
-        return result;
-    }
-
-    svarint() {
-        // Signed varint using zigzag encoding: (n >> 1) ^ -(n & 1)
-        const n = this.varint();
-        return (n >> 1n) ^ -(n & 1n);
     }
 };
 
@@ -6186,10 +5825,15 @@ _.Dialect = class {
         return this._name;
     }
 
-    // Check if an operation has the IsolatedFromAbove trait
-    // This determines whether its regions create new SSA name scopes
+    readType(/* reader */) {
+        throw new mlir.Error(`Bytecode dialect '${this._name}' does not support bytecode types.`);
+    }
+
+    readAttribute(/* reader */) {
+        throw new mlir.Error(`Dialect '${this._name}' does not support bytecode attributes.`);
+    }
+
     isIsolatedFromAbove(opName) {
-        // Known operations with IsolatedFromAbove trait
         const isolatedOps = new Set([
             'builtin.module',
             'func.func',
@@ -6212,7 +5856,6 @@ _.Dialect = class {
         if (isolatedOps.has(opName)) {
             return true;
         }
-        // Check if operation metadata includes IsolatedFromAbove trait
         const opInfo = this._operations.get(opName);
         if (opInfo && opInfo.metadata && Array.isArray(opInfo.metadata.traits)) {
             for (const trait of opInfo.metadata.traits) {
@@ -14978,6 +14621,323 @@ _.BuiltinDialect = class extends _.Dialect {
             return true;
         }
         return super.parseOperation(parser, opName, op);
+    }
+
+    readType(reader) {
+        const typeCode = reader.readVarInt();
+        switch (typeCode) {
+            case 0: { // IntegerType
+                const widthAndSign = reader.readVarInt();
+                const width = widthAndSign >> 2;
+                const signedness = widthAndSign & 0x3;
+                if (signedness === 0) {
+                    return new _.Type(`i${width}`);
+                }
+                if (signedness === 1) {
+                    return new _.Type(`si${width}`);
+                }
+                return new _.Type(`ui${width}`);
+            }
+            case 1: // IndexType
+                return new _.Type('index');
+            case 2: { // FunctionType
+                const numInputs = reader.readVarInt();
+                const inputs = [];
+                for (let i = 0; i < numInputs; i++) {
+                    inputs.push(reader.readType());
+                }
+                const numResults = reader.readVarInt();
+                const results = [];
+                for (let i = 0; i < numResults; i++) {
+                    results.push(reader.readType());
+                }
+                return new _.FunctionType(inputs, results);
+            }
+            case 3: return new _.Type('bf16');  // BFloat16Type
+            case 4: return new _.Type('f16');   // Float16Type
+            case 5: return new _.Type('f32');   // Float32Type
+            case 6: return new _.Type('f64');   // Float64Type
+            case 7: return new _.Type('f80');   // Float80Type
+            case 8: return new _.Type('f128');  // Float128Type
+            case 9: { // ComplexType
+                const elementType = reader.readType();
+                return new _.Type(`complex<${elementType.toString()}>`);
+            }
+            case 10: { // MemRefType
+                const shape = reader.readSignedVarInts();
+                const elementType = reader.readType();
+                reader.readAttribute(); // layout
+                return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
+            }
+            case 11: { // MemRefTypeWithMemSpace
+                reader.readAttribute(); // memorySpace
+                const shape = reader.readSignedVarInts();
+                const elementType = reader.readType();
+                reader.readAttribute(); // layout
+                return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
+            }
+            case 12: // NoneType
+                return new _.Type('none');
+            case 13: { // RankedTensorType
+                const shape = reader.readSignedVarInts();
+                const elementType = reader.readType();
+                return new _.RankedTensorType(shape, elementType, null);
+            }
+            case 14: { // RankedTensorTypeWithEncoding
+                const encoding = reader.readAttribute();
+                const shape = reader.readSignedVarInts();
+                const elementType = reader.readType();
+                return new _.RankedTensorType(shape, elementType, encoding);
+            }
+            case 15: { // TupleType
+                const numTypes = reader.readVarInt();
+                const types = [];
+                for (let i = 0; i < numTypes; i++) {
+                    types.push(reader.readType());
+                }
+                return new _.Type(`tuple<${types.map((t) => t.toString()).join(', ')}>`);
+            }
+            case 16: { // UnrankedMemRefType
+                const elementType = reader.readType();
+                return new _.Type(`memref<*x${elementType.toString()}>`);
+            }
+            case 17: { // UnrankedMemRefTypeWithMemSpace
+                reader.readAttribute(); // memorySpace
+                const elementType = reader.readType();
+                return new _.Type(`memref<*x${elementType.toString()}>`);
+            }
+            case 18: { // UnrankedTensorType
+                const elementType = reader.readType();
+                return new _.Type(`tensor<*x${elementType.toString()}>`);
+            }
+            case 19: { // VectorType
+                const shape = reader.readSignedVarInts();
+                const elementType = reader.readType();
+                return new _.VectorType(shape, elementType);
+            }
+            case 20: { // VectorTypeWithScalableDims
+                const numScalable = reader.readVarInt();
+                for (let i = 0; i < numScalable; i++) {
+                    reader.readByte(); // scalableDims flags
+                }
+                const shape = reader.readSignedVarInts();
+                const elementType = reader.readType();
+                return new _.VectorType(shape, elementType);
+            }
+            default:
+                throw new mlir.Error(`Unsupported built-in type code '${typeCode}'.`);
+        }
+    }
+
+    readAttribute(reader) {
+        const typeCode = reader.readVarInt();
+        switch (typeCode) {
+            case 0: { // ArrayAttr
+                const count = reader.readVarInt();
+                const elements = [];
+                for (let i = 0; i < count; i++) {
+                    elements.push(reader.readAttribute());
+                }
+                return new _.ArrayAttr(elements);
+            }
+            case 1: { // DictionaryAttr
+                const count = reader.readVarInt();
+                const attrs = new Map();
+                for (let i = 0; i < count; i++) {
+                    const nameAttr = reader.readAttribute();
+                    const valueAttr = reader.readAttribute();
+                    const name = nameAttr && nameAttr.value ? nameAttr.value : `attr_${i}`;
+                    attrs.set(name, valueAttr);
+                }
+                return { name: 'dictionary', value: attrs };
+            }
+            case 2: { // StringAttr
+                const value = reader.readString();
+                return new _.StringAttr(value);
+            }
+            case 3: { // StringAttrWithType
+                const value = reader.readString();
+                const type = reader.readType();
+                return new _.StringAttr(value, type);
+            }
+            case 4: { // FlatSymbolRefAttr
+                const value = reader.readString();
+                return new _.SymbolRefAttr(`@${value}`);
+            }
+            case 5: { // SymbolRefAttr
+                const root = reader.readString();
+                const numNested = reader.readVarInt();
+                let value = `@${root}`;
+                for (let i = 0; i < numNested; i++) {
+                    value += `::@${reader.readString()}`;
+                }
+                return new _.SymbolRefAttr(value);
+            }
+            case 6: { // TypeAttr
+                const type = reader.readType();
+                return new _.TypeAttrOf(type);
+            }
+            case 7: // UnitAttr
+                return new _.UnitAttr();
+            case 8: { // IntegerAttr
+                const type = reader.readType();
+                const bitWidth = this._getIntegerBitWidth(type);
+                let value = null;
+                if (bitWidth <= 8) {
+                    value = BigInt(reader.readByte());
+                } else if (bitWidth <= 64) {
+                    value = reader.readSignedVarInt();
+                } else {
+                    const numWords = reader.readVarInt();
+                    value = 0n;
+                    for (let i = 0; i < numWords; i++) {
+                        const word = reader.readSignedVarInt();
+                        value |= (word << BigInt(i * 64));
+                    }
+                }
+                return new _.IntegerAttr(value, type);
+            }
+            case 9: { // FloatAttr
+                const type = reader.readType();
+                const value = reader.readAPFloatWithKnownSemantics(type);
+                return new _.FloatAttr(value, type);
+            }
+            case 10: { // CallSiteLoc
+                const caller = reader.readAttribute();
+                const callee = reader.readAttribute();
+                const callerStr = caller && caller.value ? caller.value : '<caller>';
+                const calleeStr = callee && callee.value ? callee.value : '<callee>';
+                return { name: 'loc', value: `callsite(${callerStr} at ${calleeStr})` };
+            }
+            case 11: { // FileLineColLoc
+                const filename = reader.readString();
+                const line = reader.readVarInt();
+                const col = reader.readVarInt();
+                return { name: 'loc', value: `${filename}:${line}:${col}` };
+            }
+            case 12: { // FusedLoc
+                const count = reader.readVarInt();
+                const locations = [];
+                for (let i = 0; i < count; i++) {
+                    const loc = reader.readAttribute();
+                    locations.push(loc && loc.value ? loc.value : '<loc>');
+                }
+                return { name: 'loc', value: `fused[${locations.join(', ')}]` };
+            }
+            case 13: { // FusedLocWithMetadata
+                const metadata = reader.readAttribute();
+                const count = reader.readVarInt();
+                const locations = [];
+                for (let i = 0; i < count; i++) {
+                    const loc = reader.readAttribute();
+                    locations.push(loc && loc.value ? loc.value : '<loc>');
+                }
+                const metaStr = metadata && metadata.value !== undefined ? metadata.value : '<meta>';
+                return { name: 'loc', value: `fused<${metaStr}>[${locations.join(', ')}]` };
+            }
+            case 14: { // NameLoc
+                const nameAttr = reader.readAttribute();
+                const childLoc = reader.readAttribute();
+                const nameStr = nameAttr && nameAttr.value !== undefined ? nameAttr.value : '<name>';
+                const childStr = childLoc && childLoc.value ? childLoc.value : '<loc>';
+                return { name: 'loc', value: `#loc(${nameStr}(${childStr}))` };
+            }
+            case 15: // UnknownLoc
+                return { name: 'loc', value: 'unknown' };
+            case 16: { // DenseResourceElementsAttr
+                const type = reader.readType();
+                const handleIdx = reader.readVarInt();
+                return new _.DenseResourceElementsAttr(`resource<${handleIdx}>`, type);
+            }
+            case 17: { // DenseArrayAttr
+                const type = reader.readType();
+                const size = reader.readVarInt();
+                const blob = reader.readBlob();
+                return this._parseDenseArrayData(blob, type, size);
+            }
+            case 18: { // DenseIntOrFPElementsAttr
+                const type = reader.readType();
+                const blob = reader.readBlob();
+                return new _.DenseElementsAttr(blob, type);
+            }
+            case 19: { // DenseStringElementsAttr
+                const type = reader.readType();
+                const isSplat = reader.readVarInt() !== 0;
+                const count = reader.readVarInt();
+                const strings = [];
+                for (let i = 0; i < count; i++) {
+                    strings.push(reader.readString());
+                }
+                return { name: 'dense_string', value: strings, type, isSplat };
+            }
+            case 20: { // SparseElementsAttr
+                const type = reader.readType();
+                const indices = reader.readAttribute();
+                const values = reader.readAttribute();
+                return { name: 'sparse', type, indices, values };
+            }
+            case 21: { // DistinctAttr
+                const referencedAttr = reader.readAttribute();
+                return { name: 'distinct', value: referencedAttr };
+            }
+            case 22: { // FileLineColRange
+                const filename = reader.readString();
+                const numLocs = reader.readVarInt();
+                const locs = [];
+                for (let i = 0; i < numLocs; i++) {
+                    locs.push(reader.readVarInt());
+                }
+                return { name: 'loc', value: `${filename}:${locs.join(':')}` };
+            }
+            default:
+                return { name: 'builtin', value: `<builtin code ${typeCode}>` };
+        }
+    }
+
+    _getIntegerBitWidth(type) {
+        const typeStr = type ? type.toString() : '';
+        const match = typeStr.match(/^[su]?i(\d+)$/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        return 64; // Default for index type
+    }
+
+    _parseDenseArrayData(blob, type, size) {
+        const typeStr = type.toString();
+        const view = new DataView(blob.buffer, blob.byteOffset, blob.length);
+        const values = [];
+        if (typeStr.startsWith('i') || typeStr.startsWith('si') || typeStr.startsWith('ui')) {
+            const match = typeStr.match(/[su]?i(\d+)/);
+            const bitWidth = match ? parseInt(match[1], 10) : 64;
+            const byteWidth = Math.ceil(bitWidth / 8);
+            for (let i = 0; i < size && i * byteWidth < blob.length; i++) {
+                if (bitWidth <= 8) {
+                    values.push(view.getInt8(i * byteWidth));
+                } else if (bitWidth <= 16) {
+                    values.push(view.getInt16(i * byteWidth, true));
+                } else if (bitWidth <= 32) {
+                    values.push(view.getInt32(i * byteWidth, true));
+                } else {
+                    values.push(view.getBigInt64(i * byteWidth, true));
+                }
+            }
+        } else if (typeStr === 'f32') {
+            for (let i = 0; i < size && i * 4 < blob.length; i++) {
+                values.push(view.getFloat32(i * 4, true));
+            }
+        } else if (typeStr === 'f64') {
+            for (let i = 0; i < size && i * 8 < blob.length; i++) {
+                values.push(view.getFloat64(i * 8, true));
+            }
+        } else if (typeStr === 'f16') {
+            for (let i = 0; i < size && i * 2 < blob.length; i++) {
+                values.push(view.getUint16(i * 2, true));
+            }
+        } else {
+            return new _.DenseArrayAttr(blob, type);
+        }
+        return new _.DenseArrayAttr(values, type);
     }
 };
 
