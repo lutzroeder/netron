@@ -3967,6 +3967,9 @@ view.DocumentationSidebar = class extends view.Control {
     constructor(context, type) {
         super(context);
         this._type = type;
+        this._escapeReplacementsMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        this._escapeTestNoEncodeRegExp = /[<>"']|&(?!#?\w+;)/;
+        this._escapeReplaceNoEncodeRegExp = /[<>"']|&(?!#?\w+;)/g;
     }
 
     get identifier() {
@@ -3988,7 +3991,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(this.element, 'h2', 'Attributes');
                 const attributes = this._append(this.element, 'dl');
                 for (const attribute of type.attributes) {
-                    this._append(attributes, 'dt', attribute.name + (attribute.type ? `: <tt>${attribute.type}</tt>` : ''));
+                    this._append(attributes, 'dt', attribute.name + (attribute.type ? `: <tt>${this._escape(attribute.type)}</tt>` : ''));
                     this._append(attributes, 'dd', attribute.description);
                 }
                 this.element.appendChild(attributes);
@@ -3997,7 +4000,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(this.element, 'h2', `Inputs${type.inputs_range ? ` (${type.inputs_range})` : ''}`);
                 const inputs = this._append(this.element, 'dl');
                 for (const input of type.inputs) {
-                    this._append(inputs, 'dt', input.name + (input.type ? `: <tt>${input.type}</tt>` : '') + (input.option ? ` (${input.option})` : ''));
+                    this._append(inputs, 'dt', input.name + (input.type ? `: <tt>${this._escape(input.type)}</tt>` : '') + (input.option ? ` (${input.option})` : ''));
                     this._append(inputs, 'dd', input.description);
                 }
             }
@@ -4005,7 +4008,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(this.element, 'h2', `Outputs${type.outputs_range ? ` (${type.outputs_range})` : ''}`);
                 const outputs = this._append(this.element, 'dl');
                 for (const output of type.outputs) {
-                    this._append(outputs, 'dt', output.name + (output.type ? `: <tt>${output.type}</tt>` : '') + (output.option ? ` (${output.option})` : ''));
+                    this._append(outputs, 'dt', output.name + (output.type ? `: <tt>${this._escape(output.type)}</tt>` : '') + (output.option ? ` (${output.option})` : ''));
                     this._append(outputs, 'dd', output.description);
                 }
             }
@@ -4052,6 +4055,13 @@ view.DocumentationSidebar = class extends view.Control {
         }
         parent.appendChild(element);
         return element;
+    }
+
+    _escape(content) {
+        if (this._escapeTestNoEncodeRegExp.test(content)) {
+            return content.replace(this._escapeReplaceNoEncodeRegExp, (ch) => this._escapeReplacementsMap[ch]);
+        }
+        return content;
     }
 
     error(error, fatal) {
@@ -4468,7 +4478,7 @@ view.Documentation = class {
                     const target = {};
                     target.name = source.name;
                     if (source.type !== undefined) {
-                        target.type = source.type;
+                        target.type = source.type === null || typeof source.type === 'string' ? source.type : source.type.toString();
                     }
                     if (source.option !== undefined) {
                         target.option = source.option;
@@ -4505,7 +4515,7 @@ view.Documentation = class {
                     const target = {};
                     target.name = source.name;
                     if (source.type !== undefined) {
-                        target.type = source.type;
+                        target.type = source.type === null || typeof source.type === 'string' ? source.type : source.type.toString();
                     }
                     if (source.description) {
                         target.description = generator.html(source.description);
@@ -4548,7 +4558,7 @@ view.Documentation = class {
                     const target = {};
                     target.name = source.name;
                     if (source.type) {
-                        target.type = source.type;
+                        target.type = source.type === null || typeof source.type === 'string' ? source.type : source.type.toString();
                     }
                     if (source.description) {
                         target.description = generator.html(source.description);

@@ -2,6 +2,7 @@
 // Experimental
 
 import * as base from './base.js';
+import * as text from './text.js';
 
 const mlir = {};
 const _ = {};
@@ -3196,6 +3197,40 @@ _.Parser = class {
     location() {
         return this.getToken().loc.toString();
     }
+
+    static parseSymbol(inputStr, context, parserFn) {
+        const decoder = text.Decoder.open(inputStr);
+        const state = new _.ParserState(decoder);
+        const parser = new _.Parser(state, context);
+        const startPos = state.curToken.position || 0;
+        const symbol = parserFn(parser);
+        if (!symbol) {
+            return { symbol: null, numRead: 0 };
+        }
+        const endPos = parser.getToken().loc.position;
+        const numRead = endPos - startPos;
+        return { symbol, numRead };
+    }
+
+    static parseAttribute(attrStr, context, type = null) {
+        const result = _.Parser.parseSymbol(attrStr, context, (parser) => {
+            return parser.parseAttribute(type);
+        });
+        if (!result.symbol) {
+            return { attribute: null, numRead: 0 };
+        }
+        return { attribute: result.symbol, numRead: result.numRead };
+    }
+
+    static parseType(typeStr, context) {
+        const result = _.Parser.parseSymbol(typeStr, context, (parser) => {
+            return parser.parseType();
+        });
+        if (!result.symbol) {
+            return { type: null, numRead: 0 };
+        }
+        return { type: result.symbol, numRead: result.numRead };
+    }
 };
 
 _.OperationParser = class extends _.Parser {
@@ -4232,16 +4267,143 @@ _.TensorLiteralParser = class {
     }
 };
 
+_.EncodingReader = class {
+
+    constructor(data) {
+        if (data instanceof Uint8Array) {
+            this._data = data;
+            this._reader = base.BinaryReader.open(data);
+        } else {
+            this._data = null;
+            this._reader = data;
+        }
+    }
+
+    get length() {
+        return this._reader.length;
+    }
+
+    get position() {
+        return this._reader.position;
+    }
+
+    size() {
+        return this._reader.length - this._reader.position;
+    }
+
+    get absolutePosition() {
+        const byteOffset = this._data ? this._data.byteOffset : 0;
+        return byteOffset + this._reader.position;
+    }
+
+    seek(offset) {
+        this._reader.seek(offset);
+    }
+
+    skipBytes(length) {
+        this._reader.skip(length);
+    }
+
+    parseBytes(length) {
+        return this._reader.read(length);
+    }
+
+    parseByte() {
+        return this._reader.byte();
+    }
+
+    peek() {
+        const position = this._reader.position;
+        const value = this._reader.byte();
+        this._reader.seek(position);
+        return value;
+    }
+
+    parseVarInt() {
+        let result = this._reader.byte();
+        if (result & 1) {
+            return BigInt(result >> 1);
+        }
+        if (result === 0) {
+            return this._reader.uint64();
+        }
+        result = BigInt(result);
+        let mask = 1n;
+        let numBytes = 0n;
+        let shift = 8n;
+        while (result > 0n && (result & mask) === 0n) {
+            if (numBytes >= 7n) {
+                throw new mlir.Error('Invalid varint.');
+            }
+            result |= (BigInt(this._reader.byte()) << shift);
+            mask <<= 1n;
+            shift += 8n;
+            numBytes++;
+        }
+        if (numBytes === 0n || numBytes > 7n) {
+            throw new mlir.Error(`Invalid varint.`);
+        }
+        result >>= numBytes + 1n;
+        return result;
+    }
+
+    parseSignedVarInt() {
+        const n = this.parseVarInt();
+        return (n >> 1n) ^ -(n & 1n);
+    }
+
+    parseVarIntWithFlag() {
+        const result = this.parseVarInt();
+        return [result >> 1n, (result & 1n) === 1n];
+    }
+
+    parseNullTerminatedString() {
+        const reader = this._reader;
+        let result = '';
+        let value = -1;
+        const maxLength = reader.length - reader.position;
+        let bytesRead = 0;
+        for (; ;) {
+            if (bytesRead >= maxLength) {
+                throw new mlir.Error('Malformed null-terminated string, no null character found.');
+            }
+            value = reader.byte();
+            bytesRead++;
+            if (value === 0x00) {
+                break;
+            }
+            result += String.fromCharCode(value);
+        }
+        return result;
+    }
+
+    parseEntry(entries, entryStr) {
+        const entryIdx = this.parseVarInt().toNumber();
+        return this.resolveEntry(entries, entryIdx, entryStr);
+    }
+
+    resolveEntry(entries, entryIdx, entryStr) {
+        if (entryIdx >= entries.length) {
+            throw new mlir.Error(`Invalid '${entryStr}' index.`);
+        }
+        return entries[entryIdx];
+    }
+};
+
 _.DialectBytecodeReader = class {
 };
 
 _.DialectReader = class extends _.DialectBytecodeReader {
 
-    constructor(attrTypeReader, stringReader, reader) {
+    constructor(attrTypeReader, stringReader, resourceReader, dialectsMap, reader, bytecodeVersion, depth = 0) {
         super();
         this.attrTypeReader = attrTypeReader;
         this.stringReader = stringReader;
+        this.resourceReader = resourceReader;
+        this.dialectsMap = dialectsMap;
         this.reader = reader;
+        this.bytecodeVersion = bytecodeVersion;
+        this.depth = depth;
         this._floatBuffer = new ArrayBuffer(8);
         this._floatView = new DataView(this._floatBuffer);
         this._floatBitWidths = { f16: 16, bf16: 16, f32: 32, f64: 64, f80: 80, f128: 128 };
@@ -4249,17 +4411,30 @@ _.DialectReader = class extends _.DialectBytecodeReader {
 
     readType() {
         const index = this.reader.parseVarInt().toNumber();
-        return this.attrTypeReader.readType(index);
+        if (this.attrTypeReader.isResolving() && this.depth > this.maxAttrTypeDepth) {
+            const existing = this.attrTypeReader.getTypeOrSentinel(index);
+            if (!existing) {
+                throw new mlir.Error(`Exceeded maximum type depth at '${index}'.`);
+            }
+            return existing;
+        }
+        return this.attrTypeReader.readType(index, this.depth + 1);
     }
 
     readAttribute() {
         const index = this.reader.parseVarInt().toNumber();
-        return this.attrTypeReader.readAttribute(index);
+        if (this.attrTypeReader.isResolving() && this.depth > this.maxAttrTypeDepth) {
+            const existing = this.attrTypeReader.getAttributeOrSentinel(index);
+            if (!existing) {
+                throw new mlir.Error(`Exceeded maximum attribute depth at '${index}'.`);
+            }
+            return existing;
+        }
+        return this.attrTypeReader.readAttribute(index, this.depth + 1);
     }
 
     readString() {
-        const index = this.reader.parseVarInt().toNumber();
-        return this.stringReader.getString(index);
+        return this.stringReader.parseString(this.reader);
     }
 
     readVarInt() {
@@ -4323,38 +4498,41 @@ _.DialectReader = class extends _.DialectBytecodeReader {
             default: throw new mlir.Error(`Unsupported float type '${type.name}'.`);
         }
     }
+
+    withEncodingReader(encodingReader) {
+        return new _.DialectReader(this.attrTypeReader, this.stringReader, this.resourceReader, this.dialectsMap, encodingReader, this.bytecodeVersion, this.depth);
+    }
 };
 
 _.AttrTypeReader = class {
 
-    constructor(stringReader, resourceReader, context, dialects) {
+    constructor(stringReader, resourceReader, dialectsMap, bytecodeVersion, fileLoc, config) {
         this.stringReader = stringReader;
         this.resourceReader = resourceReader;
-        this._context = context;
-        this._dialects = dialects;
-        this._attrEntries = [];
-        this._typeEntries = [];
+        this.dialectsMap = dialectsMap;
+        this.fileLoc = fileLoc;
+        this.bytecodeVersion = bytecodeVersion;
+        this.parserConfig = config;
+        this.attributes = [];
+        this.types = [];
+        this._resolving = false; // Track if we're currently resolving (for deferred parsing)
+        this.maxAttrTypeDepth = 5;
     }
 
-    initialize(sectionData, offsetSectionData) {
+    initialize(dialects, sectionData, offsetSectionData) {
         this._sectionData = sectionData;
         const offsetReader = new _.EncodingReader(offsetSectionData);
-
-        // Parse the number of attribute and type entries
         const numAttributes = offsetReader.parseVarInt().toNumber();
         const numTypes = offsetReader.parseVarInt().toNumber();
-        this._attrEntries = new Array(numAttributes);
-        this._typeEntries = new Array(numTypes);
-
-        // Parse entries for a given range
+        this.attributes = new Array(numAttributes);
+        this.types = new Array(numTypes);
         let currentOffset = 0;
         const parseEntries = (entries) => {
             let currentIndex = 0;
             const endIndex = entries.length;
             while (currentIndex < endIndex) {
-                // Parse dialect grouping: dialect index + number of entries
                 const dialectIndex = offsetReader.parseVarInt().toNumber();
-                const dialect = this._dialects[dialectIndex];
+                const dialect = dialects[dialectIndex];
                 const numEntries = offsetReader.parseVarInt().toNumber();
                 for (let i = 0; i < numEntries; i++) {
                     const entry = {};
@@ -4373,49 +4551,108 @@ _.AttrTypeReader = class {
         };
 
         // Process attributes, then types
-        parseEntries(this._attrEntries);
-        parseEntries(this._typeEntries);
+        parseEntries(this.attributes);
+        parseEntries(this.types);
     }
 
-    readAttribute(index) {
-        return this.readEntry(this._attrEntries, index, 'attr');
+    isResolving() {
+        return this._resolving;
     }
 
-    readType(index) {
-        return this.readEntry(this._typeEntries, index, 'type');
+    getAttributeOrSentinel(index) {
+        if (index >= this.attributes.length) {
+            return null;
+        }
+        return this.attributes[index].resolved;
     }
 
-    readEntry(entries, index, entryType) {
+    getTypeOrSentinel(index) {
+        if (index >= this.types.length) {
+            return null;
+        }
+        return this.types[index].resolved;
+    }
+
+    readAttribute(index, depth = 0) {
+        return this.readEntry(this.attributes, index, 'attr', depth);
+    }
+
+    readType(index, depth = 0) {
+        return this.readEntry(this.types, index, 'type', depth);
+    }
+
+    resolveAttribute(index, depth = 0) {
+        // Resolve an attribute at the given index (equivalent to resolveEntry in C++)
+        return this.resolveEntry(this.attributes, index, 'attr', depth);
+    }
+
+    resolveType(index, depth = 0) {
+        // Resolve a type at the given index (equivalent to resolveEntry in C++)
+        return this.resolveEntry(this.types, index, 'type', depth);
+    }
+
+    parseAttribute(reader) {
+        // Parse an attribute reference from the reader (varint index)
+        const index = reader.parseVarInt().toNumber();
+        return this.resolveAttribute(index);
+    }
+
+    parseType(reader) {
+        // Parse a type reference from the reader (varint index)
+        const index = reader.parseVarInt().toNumber();
+        return this.resolveType(index);
+    }
+
+    resolveEntry(entries, index, entryType, depth = 0) {
+        // Simplified version of C++ resolveEntry - doesn't handle deferred worklists
+        // but does track recursion depth
+        const oldResolving = this._resolving;
+        this._resolving = true;
+        try {
+            const result = this.readEntry(entries, index, entryType, depth);
+            return result;
+        } finally {
+            this._resolving = oldResolving;
+        }
+    }
+
+    readEntry(entries, index, entryType, depth = 0) {
         if (index >= entries.length) {
-            return this.parseAsmEntry(`<local ${entryType} ${index}>`, entryType);
+            throw new mlir.Error(`Invalid '${entryType}' index '${index}'.`);
         }
         const entry = entries[index];
         if (entry.resolved !== null) {
             return entry.resolved;
         }
-        // Set placeholder to break cycles before parsing
+        if (depth > this.maxAttrTypeDepth) {
+            throw new mlir.Error(`Exceeded maximum '${entryType}' depth.`);
+        }
         entry.resolved = { name: 'pending', value: `<${entryType} ${index}>` };
-        // Create a reader and seek to entry offset (like old code)
-        const reader = new _.EncodingReader(this._sectionData);
-        reader.seek(entry.offset);
+        const entryData = this._sectionData.subarray(entry.offset, entry.offset + entry.size);
+        const reader = new _.EncodingReader(entryData);
+        const startPosition = reader.position;
         if (entry.hasCustomEncoding) {
-            entry.resolved = this.parseCustomEntry(entry, reader, entryType);
+            entry.resolved = this.parseCustomEntry(entry, reader, entryType, index, depth);
         } else {
             entry.resolved = this.parseAsmEntry(reader, entryType);
+        }
+        const bytesRead = reader.position - startPosition;
+        if (bytesRead > entry.size) {
+            throw new mlir.Error(`Read ${bytesRead} bytes but entry size is ${entry.size} bytes.`);
         }
         return entry.resolved;
     }
 
-    parseCustomEntry(entry, reader, entryType) {
+    parseCustomEntry(entry, reader, entryType, index, depth) {
         // Lazy load the dialect interface (like BytecodeDialect::load)
         if (entry.dialect.interface === undefined) {
-            entry.dialect.interface = this._context.getDialect(entry.dialect.name);
+            entry.dialect.interface = this.fileLoc.context.getDialect(entry.dialect.name);
         }
         const dialect = entry.dialect.interface;
         if (!dialect) {
             throw new mlir.Error(`Dialect '${entry.dialect.name}' is unknown.`);
         }
-        const dialectReader = new _.DialectReader(this, this.stringReader, reader);
+        const dialectReader = new _.DialectReader(this, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.version, depth);
         switch (entryType) {
             case 'type':
                 return dialect.readType(dialectReader);
@@ -4427,43 +4664,127 @@ _.AttrTypeReader = class {
     }
 
     parseAsmEntry(reader, entryType) {
-        let str = '';
-        if (typeof reader === 'string') {
-            str = reader;
-        } else {
-            let c = '';
-            while ((c = reader.parseByte()) !== 0) {
-                str += String.fromCharCode(c);
+        const asmStr = reader.parseNullTerminatedString();
+        const context = this.fileLoc.context;
+        if (entryType === 'type') {
+            const { type, numRead } = _.Parser.parseType(asmStr, context);
+            if (!type || numRead !== asmStr.length) {
+                throw new mlir.Error(`Failed to parse type '${asmStr}'.`);
             }
+            return type;
         }
-        return entryType === 'type' ? new _.Type(str) : { name: 'asm', value: str };
+        const { attribute, numRead } = _.Parser.parseAttribute(asmStr, context, null);
+        if (!attribute || numRead !== asmStr.length) {
+            throw new mlir.Error(`Failed to parse attribute '${asmStr}'.`);
+        }
+        return attribute;
     }
 };
 
 _.StringSectionReader = class {
 
+    initialize(sectionData) {
+        const decoder = new TextDecoder('utf-8');
+        const stringReader = new _.EncodingReader(sectionData);
+        const numStrings = stringReader.parseVarInt().toNumber();
+        this.strings = new Array(numStrings);
+        let stringDataEndOffset = sectionData.length;
+        for (let i = numStrings - 1; i >= 0; i--) {
+            const stringSize = stringReader.parseVarInt().toNumber();
+            if (stringDataEndOffset < stringSize) {
+                throw new mlir.Error('String size exceeds the available data size.');
+            }
+            const stringOffset = stringDataEndOffset - stringSize;
+            const buffer = sectionData.subarray(stringOffset, stringOffset + stringSize - 1);
+            this.strings[i] = decoder.decode(buffer);
+            stringDataEndOffset = stringOffset;
+        }
+        if ((sectionData.length - stringReader.size()) !== stringDataEndOffset) {
+            throw new mlir.Error('Unexpected trailing data between the offsets for strings and their data.');
+        }
+    }
+
+    parseString(reader) {
+        return reader.parseEntry(this.strings, 'string');
+    }
+
+    parseStringWithFlag(reader) {
+        const [entryIdx, flag] = reader.parseVarIntWithFlag();
+        const str = this.parseStringAtIndex(reader, entryIdx.toNumber());
+        return [str, flag];
+    }
+
+    parseStringAtIndex(reader, index) {
+        if (index >= this.strings.length) {
+            throw new mlir.Error('Invalid string index.');
+        }
+        return this.strings[index];
+    }
+};
+
+_.PropertiesSectionReader = class {
+
     constructor() {
-        this._strings = [];
+        this._properties = new Map();
     }
 
     initialize(sectionData) {
         const reader = new _.EncodingReader(sectionData);
-        const lengths = new Array(reader.parseVarInt().toNumber());
-        for (let i = 0; i < lengths.length; i++) {
-            lengths[i] = reader.parseVarInt().toNumber();
-        }
-        const decoder = new TextDecoder('utf-8');
-        this._strings = new Array(lengths.length);
-        for (let i = 0; i < this._strings.length; i++) {
-            const size = lengths[lengths.length - 1 - i];
-            const buffer = reader.parseBytes(size);
-            // Strings are null-terminated in bytecode, exclude the null character
-            this._strings[i] = decoder.decode(buffer.subarray(0, size - 1));
+        const count = reader.parseVarInt().toNumber();
+        this._properties = new Array(count);
+        for (let i = 0; i < this._properties.length; i++) {
+            const size = reader.parseVarInt().toNumber();
+            const data = reader.parseBytes(size);
+            this._properties[i] = data;
         }
     }
 
-    getString(index) {
-        return index < this._strings.length ? this._strings[index] : '';
+    read(fileLoc, dialectReader, opName, opState) {
+        const propIdx = dialectReader.readVarInt();
+        if (propIdx < this._properties.length) {
+            const propData = this._properties[propIdx];
+            if (propData.length > 0) {
+                const propReader = dialectReader.withEncodingReader(new _.EncodingReader(propData));
+                // Reference: https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
+                // Function operations: sym_name (required), function_type (required), arg_attrs (optional), res_attrs (optional)
+                if (opName.endsWith('.func') || /\.func_v\d+$/.test(opName)) {
+                    if (propReader.reader.position < propData.length) {
+                        const symNameAttr = propReader.readAttribute();
+                        if (symNameAttr && symNameAttr.value !== undefined) {
+                            const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
+                            opState.addAttribute('sym_name', new _.StringAttr(name));
+                        }
+                    }
+                    if (propReader.reader.position < propData.length) {
+                        const funcTypeAttr = propReader.readAttribute();
+                        if (funcTypeAttr instanceof _.TypeAttrOf && funcTypeAttr.type instanceof _.FunctionType) {
+                            opState.addAttribute('function_type', funcTypeAttr);
+                        }
+                    }
+                    if (propReader.reader.position < propData.length) {
+                        const argAttrs = propReader.readAttribute();
+                        if (argAttrs) {
+                            opState.addAttribute('arg_attrs', argAttrs);
+                        }
+                    }
+                    if (propReader.reader.position < propData.length) {
+                        const resAttrs = propReader.readAttribute();
+                        if (resAttrs) {
+                            opState.addAttribute('res_attrs', resAttrs);
+                        }
+                    }
+                    return;
+                }
+                if (opName.includes('.constant') || opName.endsWith('.const')) {
+                    if (propReader.reader.position < propData.length) {
+                        const attr = propReader.readAttribute();
+                        if (attr !== null && attr !== undefined) {
+                            opState.addAttribute('value', attr);
+                        }
+                    }
+                }
+            }
+        }
     }
 };
 
@@ -4473,7 +4794,7 @@ _.ResourceSectionReader = class {
         this._resources = [];
     }
 
-    initialize(sectionData) {
+    initialize(fileLoc, config, dialects, sectionData /*, offsetSectionData, dialectReader, bufferOwnerRef */) {
         if (!sectionData) {
             return;
         }
@@ -4491,23 +4812,56 @@ _.ResourceSectionReader = class {
     }
 };
 
+_.Location = class {
+
+    constructor(context) {
+        this.context = context;
+    }
+};
+
 _.BytecodeReader = class {
 
     constructor(reader, context) {
-        this._reader = new _.EncodingReader(reader);
-        this._context = context;
-        this._valueScopes = [];
+        this.reader = new _.EncodingReader(reader);
+        this.fileLoc = new _.Location(context);
+        this.valueScopes = [];
+        this.opNames = [];
+        this.dialects = [];
+        this.dialectsMap = new Map();
+        this.resourceReader = new _.ResourceSectionReader();
+        this.stringReader = new _.StringSectionReader();
+        this.propertiesReader = new _.PropertiesSectionReader();
+        this.attrTypeReader = new _.AttrTypeReader(this.stringReader, this.resourceReader, this.dialectsMap, this.version, this.fileLoc, this.config);
+        // Store buffer start address for alignment validation
+        this._bufferStart = reader instanceof Uint8Array ? reader.byteOffset : 0;
+    }
+
+    checkSectionAlignment(alignment) {
+        // Check that the bytecode buffer meets the requested section alignment.
+        // In JavaScript, we validate the byteOffset within the ArrayBuffer.
+        // This ensures the buffer offset is aligned to the requested alignment.
+        if (!Number.isInteger(alignment) || alignment <= 0 || (alignment & (alignment - 1)) !== 0) {
+            throw new mlir.Error(`Invalid alignment value: ${alignment} (must be a power of 2).`);
+        }
+        const isGloballyAligned = (this._bufferStart & (alignment - 1)) === 0;
+        if (!isGloballyAligned) {
+            throw new mlir.Error(`Expected section alignment ${alignment} but bytecode buffer offset 0x${this._bufferStart.toString(16)} is not aligned.`);
+        }
     }
 
     read() {
-        const reader = this._reader;
-        reader.parseBytes(4); // signature 'ML\xEFR'
+        const reader = this.reader;
+        const signature = reader.parseBytes(4);
+        if (String.fromCharCode(...signature) !== 'ML\xEFR') {
+            throw new mlir.Error('Invalid MLIR bytecode signature.');
+        }
         this.version = reader.parseVarInt().toNumber();
+        if (this.version < 0 || this.version > 6) { // kMinSupportedVersion and kVersion
+            throw new mlir.Error(`Invalid MLIR bytecode version '${this.version}'.`);
+        }
         this.producer = reader.parseNullTerminatedString();
-        this._sections = new Map();
+        const sectionDatas = new Map();
         while (reader.position < reader.length) {
-            // https://mlir.llvm.org/docs/BytecodeFormat/
-            // https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
             const sectionIDAndHasAlignment = reader.parseByte();
             const sectionID = sectionIDAndHasAlignment & 0x7F;
             const length = reader.parseVarInt().toNumber();
@@ -4517,107 +4871,96 @@ _.BytecodeReader = class {
             }
             if (hasAlignment) {
                 const alignment = reader.parseVarInt().toNumber();
+                // Validate that the buffer can satisfy the requested alignment
+                this.checkSectionAlignment(alignment);
+                // Align the reader position and validate padding bytes
                 while (reader.absolutePosition % alignment !== 0) {
-                    reader.parseByte(); // skip 0xCB padding bytes
+                    const padding = reader.parseByte();
+                    if (padding !== 0xCB) {
+                        throw new mlir.Error(`Expected alignment byte (0xCB), but got: 0x${padding.toString(16)}.`);
+                    }
                 }
             }
-            // Store section data as a view (like ref impl)
             const sectionData = reader.parseBytes(length);
-            this._sections.set(sectionID, sectionData);
+            sectionDatas.set(sectionID, sectionData);
         }
-        if (!this._sections.has(0) || !this._sections.has(1) ||
-            !this._sections.has(2) || !this._sections.has(3) ||
-            !this._sections.has(4) || (this.version >= 5 && !this._sections.has(8))) {
-            throw new mlir.Error('Missing required section.');
-        }
-        // Initialize section readers (pass section data views like ref impl)
-        this.stringReader = new _.StringSectionReader();
-        this.stringReader.initialize(this._sections.get(0));
-        this.resourceReader = new _.ResourceSectionReader();
-        this.resourceReader.initialize(this._sections.get(6));
-        this.parseDialectSection();
-        this.parseAttrTypeSection();
-        if (this._sections.has(8)) {
-            this.parsePropertiesSection();
-        }
-        return this.parseIRSection();
-    }
-
-    parseDialectSection() {
-        const sectionData = this._sections.get(1);
-        const reader = new _.EncodingReader(sectionData);
-        const numDialects = reader.parseVarInt().toNumber();
-        this._dialects = new Array(numDialects);
-        for (let i = 0; i < this._dialects.length; i++) {
-            this._dialects[i] = {};
-            if (this.version < 1) { // kDialectVersioning
-                const entryIdx = reader.parseVarInt().toNumber();
-                this._dialects[i].name = this.stringReader.getString(entryIdx);
+        for (let sectionID = 0; sectionID < 9; sectionID++) {
+            if (sectionDatas.has(sectionID)) {
                 continue;
             }
-            const nameAndIsVersioned = reader.parseVarInt();
-            const dialectNameIdx = (nameAndIsVersioned >> 1n).toNumber();
-            this._dialects[i].name = this.stringReader.getString(dialectNameIdx);
-            if (nameAndIsVersioned & 1n) {
-                const size = reader.parseVarInt().toNumber();
-                this._dialects[i].version = reader.parseBytes(size);
+            if (sectionID <= 4 || (sectionID === 8 && this.version >= 5)) { // kString, kDialect, kAttrType, kAttrTypeOffset, kIR, kProperties + kNativePropertiesEncoding
+                throw new mlir.Error(`Missing section '${sectionID}'.`);
             }
         }
+        this.stringReader.initialize(sectionDatas.get(0));
+        if (sectionDatas.has(8)) {
+            this.propertiesReader.initialize(sectionDatas.get(8));
+        }
+        this.parseDialectSection(sectionDatas.get(1));
+        this.parseResourceSection(sectionDatas.get(5), sectionDatas.get(6));
+        this.attrTypeReader.initialize(this.dialects, sectionDatas.get(2), sectionDatas.get(3));
+        return this.parseIRSection(sectionDatas.get(4));
+    }
+
+    parseDialectSection(sectionData) {
+        const sectionReader = new _.EncodingReader(sectionData);
+        const numDialects = sectionReader.parseVarInt().toNumber();
+        const checkSectionAlignment = (alignment) => {
+            this.checkSectionAlignment(alignment);
+        };
+        for (let i = 0; i < numDialects; i++) {
+            this.dialects.push({});
+            if (this.version < 1) { // kDialectVersioning
+                this.dialects[i].name = this.stringReader.parseString();
+                continue;
+            }
+            const [dialectNameIdx, versionAvailable] = sectionReader.parseVarIntWithFlag();
+            this.dialects[i].name = this.stringReader.parseStringAtIndex(sectionReader, dialectNameIdx.toNumber());
+            if (versionAvailable) {
+                const [sectionID, versionBuffer] = sectionReader.parseSection(checkSectionAlignment);
+                this.dialects[i].versionBuffer = versionBuffer;
+                if (sectionID !== 7) { // kDialectVersion
+                    throw new mlir.Error(`Expected dialect version section.`);
+                }
+            }
+        }
+        let index = 0;
         let numOps = -1;
-        this._opNames = [];
-        if (this.version > 4) { // kElideUnknownBlockArgLocation
-            numOps = reader.parseVarInt().toNumber();
-            this._opNames = new Array(numOps);
-        }
-        let i = 0;
-        while (reader.position < sectionData.length) {
-            const dialect = this._dialects[reader.parseVarInt().toNumber()];
-            const numEntries = reader.parseVarInt().toNumber();
-            for (let j = 0; j < numEntries; j++) {
-                const opName = {};
-                if (this.version < 5) { // kNativePropertiesEncoding
-                    opName.name = this.stringReader.getString(reader.parseVarInt().toNumber());
-                    opName.dialect = dialect;
-                } else {
-                    const nameAndIsRegistered = reader.parseVarInt();
-                    opName.name = this.stringReader.getString((nameAndIsRegistered >> 1n).toNumber());
-                    opName.dialect = dialect;
-                    opName.isRegistered = (nameAndIsRegistered & 1n) === 1n;
-                }
-                if (numOps < 0) {
-                    this._opNames.push(opName);
-                } else {
-                    this._opNames[i++] = opName;
-                }
+        const parseOpName = (dialect) => {
+            const opName = {};
+            opName.dialect = dialect;
+            if (this.version < 5) { // kNativePropertiesEncoding
+                opName.name = this.stringReader.parseString(sectionReader);
+            } else {
+                [opName.name, opName.wasRegistered] = this.stringReader.parseStringWithFlag(sectionReader);
             }
+            if (numOps < 0) {
+                this.opNames.push(opName);
+            } else {
+                this.opNames[index++] = opName;
+            }
+        };
+        if (this.version > 4) { // kElideUnknownBlockArgLocation
+            numOps = sectionReader.parseVarInt().toNumber();
+            this.opNames = new Array(numOps);
+        }
+        while (sectionReader.position < sectionData.length) {
+            _.BytecodeReader.parseDialectGrouping(sectionReader, this.dialects, parseOpName);
         }
     }
 
-    parseAttrTypeSection() {
-        // Section 2 = kAttrType (data), Section 3 = kAttrTypeOffset (offsets)
-        const sectionData = this._sections.get(2);
-        const offsetSectionData = this._sections.get(3);
-        this.attrTypeReader = new _.AttrTypeReader(this.stringReader, this.resourceReader, this._context, this._dialects);
-        this.attrTypeReader.initialize(sectionData, offsetSectionData);
-    }
-
-    parsePropertiesSection() {
-        const sectionData = this._sections.get(8);
-        const reader = new _.EncodingReader(sectionData);
-        const count = reader.parseVarInt().toNumber();
-        this._properties = new Array(count);
-        for (let i = 0; i < this._properties.length; i++) {
-            const size = reader.parseVarInt().toNumber();
-            const data = reader.parseBytes(size);
-            this._properties[i] = data;
+    parseResourceSection(reader, resourceData, resourceOffsetData) {
+        if (!resourceData) {
+            return true;
         }
+        const dialectReader = new _.DialectReader(this.attrTypeReader, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.version);
+        return this.resourceReader.initialize(this.fileLoc, this.config, this.stringReader, resourceData, resourceOffsetData, dialectReader, this.bufferOwnerRef);
     }
 
-    parseIRSection() {
-        const sectionData = this._sections.get(4);
+    parseIRSection(sectionData) {
         const reader = new _.EncodingReader(sectionData);
         const block = { operations: [] };
-        this._valueScopes = [[]];
+        this.valueScopes = [[]];
         const regionStack = [{
             block,
             curRegion: 0,
@@ -4633,7 +4976,7 @@ _.BytecodeReader = class {
         const firstBlockHeader = this.parseBlockHeader(reader);
         regionStack[0].numOpsRemaining = firstBlockHeader.numOps;
         if (firstBlockHeader.hasArgs) {
-            const [scope] = this._valueScopes;
+            const [scope] = this.valueScopes;
             this.parseBlockArguments(reader, block, scope, 0);
             regionStack[0].nextValueIdx = block.arguments ? block.arguments.length : 0;
         }
@@ -4642,26 +4985,41 @@ _.BytecodeReader = class {
             let pushedRegions = false;
             while (state.numOpsRemaining > 0 && !pushedRegions) {
                 state.numOpsRemaining--;
-                const { state: opState, resultNames, isIsolatedFromAbove } = this.parseOpWithoutRegions(reader, state);
+                const { state: opState, resultNames, isIsolatedFromAbove, resultIndices } = this.parseOpWithoutRegions(reader, state);
                 const op = _.Operation.create(opState);
                 // Assign result names for Netron display (reference: names are in parser symbol table)
+                // Also update the value scope to replace placeholders with actual OpResult objects
+                const scope = this.valueScopes[this.valueScopes.length - 1];
                 for (let i = 0; i < resultNames.length && i < op.results.length; i++) {
                     op.results[i].name = resultNames[i];
+                    // Replace placeholder in scope with actual result
+                    if (resultIndices && i < resultIndices.length) {
+                        const valueIdx = resultIndices[i];
+                        if (valueIdx < scope.length) {
+                            scope[valueIdx] = op.results[i];
+                        }
+                    }
                 }
                 state.blocks[state.curBlock].operations.push(op);
                 if (op.regions && op.regions.length > 0) {
                     for (let i = op.regions.length - 1; i >= 0; i--) {
                         const region = op.regions[i];
                         const regionReader = reader;
-                        if (this.version >= 2 && isIsolatedFromAbove) {
+                        if (this.version >= 2 && isIsolatedFromAbove) { // kLazyLoading
                             const sectionIDAndHasAlignment = reader.parseByte();
                             /* const sectionID = sectionIDAndHasAlignment & 0x7F; */
                             reader.parseVarInt(); // section length
                             const hasAlignment = sectionIDAndHasAlignment & 0x80;
                             if (hasAlignment) {
                                 const alignment = reader.parseVarInt().toNumber();
+                                // Validate that the buffer can satisfy the requested alignment
+                                this.checkSectionAlignment(alignment);
+                                // Align the reader position and validate padding bytes
                                 while (reader.absolutePosition % alignment !== 0) {
-                                    reader.parseByte(); // skip 0xCB padding bytes
+                                    const padding = reader.parseByte();
+                                    if (padding !== 0xCB) {
+                                        throw new mlir.Error(`Expected alignment byte (0xCB), but got: 0x${padding.toString(16)}.`);
+                                    }
                                 }
                             }
                         }
@@ -4676,9 +5034,9 @@ _.BytecodeReader = class {
                         }
                         region.blocks = blocks;
                         if (isIsolatedFromAbove) {
-                            this._valueScopes.push([]);
+                            this.valueScopes.push([]);
                         }
-                        const scope = this._valueScopes[this._valueScopes.length - 1];
+                        const scope = this.valueScopes[this.valueScopes.length - 1];
                         const valueOffset = scope.length;
                         for (let j = 0; j < numValues; j++) {
                             scope.push(null);
@@ -4719,7 +5077,7 @@ _.BytecodeReader = class {
                     const blockHeader = this.parseBlockHeader(reader);
                     state.numOpsRemaining = blockHeader.numOps;
                     if (blockHeader.hasArgs) {
-                        const scope = this._valueScopes[this._valueScopes.length - 1];
+                        const scope = this.valueScopes[this.valueScopes.length - 1];
                         // Block arguments start at current nextValueIdx
                         const argOffset = state.nextValueIdx ?? 0;
                         this.parseBlockArguments(reader, state.blocks[state.curBlock], scope, argOffset);
@@ -4732,7 +5090,7 @@ _.BytecodeReader = class {
                 } else {
                     // Pop this region
                     if (state.isIsolated) {
-                        this._valueScopes.pop();
+                        this.valueScopes.pop();
                     }
                     regionStack.pop();
                 }
@@ -4776,10 +5134,16 @@ _.BytecodeReader = class {
         }
         // Use-list ordering (version >= 3) - stored after all arguments
         // If hasUseListOrders byte is 0, no use-list orders exist
-        if (this.version >= 3 && numArgs > 0) {
+        if (this.version >= 3 && numArgs > 0) { // kUseListOrdering
             const hasUseListOrders = reader.parseByte();
             if (hasUseListOrders !== 0) {
-                this.parseUseListOrdersForRange(reader, numArgs);
+                const orders = this.parseUseListOrdersForRange(reader, numArgs);
+                // Store ordering information on block arguments
+                for (const order of orders) {
+                    if (order.argIndex < block.arguments.length) {
+                        block.arguments[order.argIndex].useListOrder = order.ordering;
+                    }
+                }
             }
         }
     }
@@ -4787,38 +5151,44 @@ _.BytecodeReader = class {
     parseUseListOrdersForRange(reader, numValues) {
         // For multiple values, read how many have custom orders
         // For single value, default count is 1
+        const orders = [];
         let numToRead = 1;
         if (numValues > 1) {
             numToRead = reader.parseVarInt().toNumber();
         }
         for (let i = 0; i < numToRead; i++) {
             // Read the value index if there are multiple values
+            let argIndex = i;
             if (numValues > 1) {
-                /* const valueIndex = */ reader.parseVarInt();
+                argIndex = reader.parseVarInt().toNumber();
             }
             // Parse use-list order: numUsesAndIndexPairs, then indices
             const numUsesAndFlag = reader.parseVarInt();
             const numUses = (numUsesAndFlag >> 1n).toNumber();
             const useIndexPairEncoding = (numUsesAndFlag & 1n) === 1n;
+            const ordering = { pairs: useIndexPairEncoding, indices: [] };
             if (useIndexPairEncoding) {
                 // Index pairs: read pairs of (from, to) indices
                 for (let j = 0; j < numUses; j++) {
-                    reader.parseVarInt(); // from index
-                    reader.parseVarInt(); // to index
+                    const from = reader.parseVarInt().toNumber();
+                    const to = reader.parseVarInt().toNumber();
+                    ordering.indices.push({ from, to });
                 }
             } else {
                 // Direct indices: read permutation
                 for (let j = 0; j < numUses; j++) {
-                    reader.parseVarInt(); // permuted index
+                    ordering.indices.push(reader.parseVarInt().toNumber());
                 }
             }
+            orders.push({ argIndex, ordering });
         }
+        return orders;
     }
 
     parseOpWithoutRegions(reader, state) {
         // Parse operation name index
         const opNameIdx = reader.parseVarInt().toNumber();
-        const opNameEntry = this._opNames[opNameIdx];
+        const opNameEntry = this.opNames[opNameIdx];
         if (!opNameEntry) {
             throw new mlir.Error(`Invalid operation name index '${opNameIdx}' (have ${this._opNames.length} ops) at position ${reader.position}.`);
         }
@@ -4836,7 +5206,7 @@ _.BytecodeReader = class {
 
         const op = new _.OperationState(fullName);
         const [dialectName] = fullName.split('.');
-        const dialect = this._context.getDialect(dialectName);
+        const dialect = this.fileLoc.context.getDialect(dialectName);
         if (dialect) {
             const opInfo = dialect.getOperation(fullName);
             if (opInfo) {
@@ -4862,18 +5232,11 @@ _.BytecodeReader = class {
                 }
             }
         }
-
         // Parse properties (version >= 5)
         if (opMask & kHasProperties) {
-            if (opNameEntry.isRegistered) {
-                // Native properties - read index into properties table
-                const propIdx = reader.parseVarInt().toNumber();
-                if (propIdx < this._properties.length) {
-                    const propData = this._properties[propIdx];
-                    if (propData.length > 0) {
-                        this.parseNativeProperties(propData, op, fullName);
-                    }
-                }
+            if (opNameEntry.wasRegistered) {
+                const dialectReader = new _.DialectReader(this.attrTypeReader, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.version);
+                this.propertiesReader.read(this.fileLoc, dialectReader, fullName, op);
             } else {
                 // Unregistered operations store properties as a single dictionary attribute
                 const propAttrIdx = reader.parseVarInt().toNumber();
@@ -4889,19 +5252,21 @@ _.BytecodeReader = class {
 
         // Parse results - add types to OperationState.types, track values in scope
         const resultNames = [];
+        const resultIndices = [];
         if (opMask & kHasResults) {
             const numResults = reader.parseVarInt().toNumber();
-            const scope = this._valueScopes[this._valueScopes.length - 1];
+            const scope = this.valueScopes[this.valueScopes.length - 1];
             for (let i = 0; i < numResults; i++) {
                 const typeIdx = reader.parseVarInt().toNumber();
                 const type = this.attrTypeReader.readType(typeIdx);
                 // Add type to OperationState.types (reference pattern)
                 op.addTypes([type]);
-                // Track result name for later assignment (Netron display)
+                // Track result name and index for later assignment
                 const valueIdx = state && state.nextValueIdx !== undefined ? state.nextValueIdx++ : scope.length;
                 const valueName = `%${valueIdx}`;
                 resultNames.push(valueName);
-                // Create placeholder in scope (will be replaced after Operation creation)
+                resultIndices.push(valueIdx);
+                // Create placeholder in scope (will be replaced after Operation creation with actual OpResult)
                 const placeholder = new _.Value(valueName, type);
                 if (valueIdx < scope.length) {
                     scope[valueIdx] = placeholder;
@@ -4916,7 +5281,7 @@ _.BytecodeReader = class {
             const numOperands = reader.parseVarInt().toNumber();
             for (let i = 0; i < numOperands; i++) {
                 const valueIdx = reader.parseVarInt().toNumber();
-                const scope = this._valueScopes[this._valueScopes.length - 1];
+                const scope = this.valueScopes[this.valueScopes.length - 1];
                 if (valueIdx < scope.length && scope[valueIdx]) {
                     op.operands.push(scope[valueIdx]);
                 } else {
@@ -4935,17 +5300,25 @@ _.BytecodeReader = class {
             }
         }
         // Parse use-list orders (version >= 3)
-        if (this.version >= 3 && (opMask & kHasUseListOrders)) {
+        // Use-list ordering specifies the order in which uses of a value should appear.
+        // This is stored but not currently applied to the IR structure.
+        const useListOrders = [];
+        if (this.version >= _.BytecodeReader.kUseListOrdering && (opMask & kHasUseListOrders)) {
             const numResults = op.types.length;
             for (let i = 0; i < numResults; i++) {
                 const indexBitWidth = reader.parseVarInt().toNumber();
                 if (indexBitWidth > 0) {
                     const numUses = reader.parseVarInt().toNumber();
+                    const ordering = [];
                     for (let j = 0; j < numUses; j++) {
-                        reader.parseVarInt(); // use index
+                        ordering.push(reader.parseVarInt().toNumber());
                     }
+                    useListOrders.push({ resultIndex: i, ordering });
                 }
             }
+        }
+        if (useListOrders.length > 0) {
+            op.useListOrders = useListOrders;
         }
         // Parse inline regions
         let isIsolatedFromAbove = false;
@@ -4957,7 +5330,7 @@ _.BytecodeReader = class {
                 op.regions.push({ blocks: [] });
             }
         }
-        return { state: op, resultNames, isIsolatedFromAbove };
+        return { state: op, resultNames, isIsolatedFromAbove, resultIndices };
     }
 
     parseAttributeDict(str) {
@@ -5033,139 +5406,344 @@ _.BytecodeReader = class {
         return attrs;
     }
 
-    parseNativeProperties(data, op, fullName) {
-        // Native properties encoding is operation-specific (generated by tablegen).
-        // Without the generated code, we can only safely parse known operation types.
-        const propReader = new _.EncodingReader(data);
-        // Function operations: sym_name (required), function_type (required), then optional attrs
-        if (fullName.endsWith('.func') || /\.func_v\d+$/.test(fullName)) {
-            const symNameIdx = propReader.parseVarInt().toNumber();
-            const symNameAttr = this.attrTypeReader.readAttribute(symNameIdx);
-            if (symNameAttr && symNameAttr.value !== undefined) {
-                const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
-                op.addAttribute('sym_name', new _.StringAttr(name));
+    static parseDialectGrouping(reader, dialects, entryCallback) {
+        const dialect = reader.parseEntry(dialects, 'dialect');
+        const numEntries = reader.parseVarInt().toNumber();
+        for (let i = 0; i < numEntries; i++) {
+            entryCallback(dialect);
+        }
+    }
+};
+
+_.Constraint = class {
+
+    constructor(name, args, values) {
+        this.name = name;
+        this.args = args || null;
+        this.values = values || null;
+    }
+
+    static parse(value) {
+        const tokens = _.Constraint.tokenize(value);
+        const result = _.Constraint.parseTokens(tokens, 0);
+        const { name, args, values } = result.value;
+        return new _.Constraint(name, args, values);
+    }
+
+    toString() {
+        if (this.args && this.args.length > 0) {
+            const args = this.args.map((arg) => arg.name).join(', ');
+            return `${this.name}<${args}>`;
+        }
+        if (this.values && this.values.length > 0) {
+            return `${this.name}{${this.values.join(' | ')}}`;
+        }
+        return this.name;
+    }
+
+    static tokenize(str) {
+        const tokens = [];
+        let i = 0;
+        while (i < str.length) {
+            const ch = str[i];
+            if (/\s/.test(ch)) {
+                i++;
+                continue;
             }
-            if (propReader.position < data.length) {
-                const funcTypeIdx = propReader.parseVarInt().toNumber();
-                const funcTypeAttr = this.attrTypeReader.readAttribute(funcTypeIdx);
-                if (funcTypeAttr instanceof _.TypeAttrOf && funcTypeAttr.type instanceof _.FunctionType) {
-                    op.addAttribute('function_type', funcTypeAttr);
+            if ('<>={}[](),|'.indexOf(ch) !== -1) {
+                tokens.push({ type: ch, value: ch, pos: i });
+                i++;
+                continue;
+            }
+            if (ch === ':' && i + 1 < str.length && str[i + 1] === ':') {
+                tokens.push({ type: '::', value: '::', pos: i });
+                i += 2;
+                continue;
+            }
+            if (ch === ':') {
+                i++;
+                continue;
+            }
+            if (ch === '"' || ch === "'") {
+                const quote = ch;
+                let j = i + 1;
+                while (j < str.length && str[j] !== quote) {
+                    if (str[j] === '\\' && j + 1 < str.length) {
+                        j += 2;
+                    } else {
+                        j++;
+                    }
+                }
+                if (j < str.length) {
+                    tokens.push({ type: 'string', value: str.substring(i + 1, j), pos: i });
+                    i = j + 1;
+                } else {
+                    tokens.push({ type: 'ident', value: str.substring(i), pos: i });
+                    break;
+                }
+                continue;
+            }
+            if (/[a-zA-Z_0-9-]/.test(ch)) {
+                let j = i;
+                while (j < str.length && /[a-zA-Z_0-9-]/.test(str[j])) {
+                    j++;
+                }
+                const ident = str.substring(i, j);
+                tokens.push({ type: 'ident', value: ident, pos: i });
+                i = j;
+                continue;
+            }
+            i++;
+        }
+        return tokens;
+    }
+
+    static parseTokens(tokens, pos) {
+        if (pos >= tokens.length) {
+            return null;
+        }
+        const token = tokens[pos];
+        if (token.type === '::') {
+            let name = '';
+            let nextPos = pos;
+            while (nextPos < tokens.length) {
+                if (tokens[nextPos].type === '::') {
+                    name += '::';
+                    nextPos++;
+                } else if (tokens[nextPos].type === 'ident') {
+                    name += tokens[nextPos].value;
+                    nextPos++;
+                } else {
+                    break;
                 }
             }
-            return;
-        }
-        // Constant operations: single required 'value' attribute
-        if (fullName.includes('.constant.') || fullName.includes('.const')) {
-            const attrIdx = propReader.parseVarInt().toNumber();
-            const attr = this.attrTypeReader.readAttribute(attrIdx);
-            if (attr !== null && attr !== undefined) {
-                op.addAttribute('value', attr);
+            if (!name) {
+                return null;
             }
+            if (nextPos < tokens.length) {
+                const nextToken = tokens[nextPos];
+                if (nextToken.type === '{') {
+                    return _.Constraint._parseEnum(tokens, pos, name);
+                }
+                if (nextToken.type === '<') {
+                    return _.Constraint._parseGeneric(tokens, pos, name);
+                }
+            }
+            return { value: { name }, nextPos };
+
         }
-        // For all other operations, skip native property parsing.
-        // The encoding is operation-specific and we don't have the generated code.
-    }
-};
-
-_.EncodingReader = class {
-
-    constructor(data) {
-        if (data instanceof Uint8Array) {
-            this._data = data;
-            this._reader = base.BinaryReader.open(data);
-        } else {
-            this._data = null;
-            this._reader = data;
+        if (token.type !== 'ident') {
+            return null;
         }
-    }
-
-    get length() {
-        return this._reader.length;
-    }
-
-    get position() {
-        return this._reader.position;
-    }
-
-    get absolutePosition() {
-        // Returns position relative to the underlying ArrayBuffer for alignment calculations
-        // When data is a Uint8Array subarray, byteOffset gives its position in the ArrayBuffer
-        const byteOffset = this._data ? this._data.byteOffset : 0;
-        return byteOffset + this._reader.position;
-    }
-
-    seek(offset) {
-        this._reader.seek(offset);
-    }
-
-    skipBytes(length) {
-        this._reader.skip(length);
-    }
-
-    parseBytes(length) {
-        return this._reader.read(length);
-    }
-
-    parseByte() {
-        return this._reader.byte();
-    }
-
-    peek() {
-        const position = this._reader.position;
-        const value = this._reader.byte();
-        this._reader.seek(position);
-        return value;
-    }
-
-    parseVarInt() {
-        let result = this._reader.byte();
-        if (result & 1) {
-            return BigInt(result >> 1);
-        }
-        if (result === 0) {
-            return this._reader.uint64();
-        }
-        result = BigInt(result);
-        let mask = 1n;
-        let numBytes = 0n;
-        let shift = 8n;
-        while (result > 0n && (result & mask) === 0n) {
-            result |= (BigInt(this._reader.byte()) << shift);
-            mask <<= 1n;
-            shift += 8n;
-            numBytes++;
-        }
-        result >>= numBytes + 1n;
-        return result;
-    }
-
-    parseSignedVarInt() {
-        // Signed varint using zigzag encoding: (n >> 1) ^ -(n & 1)
-        const n = this.parseVarInt();
-        return (n >> 1n) ^ -(n & 1n);
-    }
-
-    parseVarIntWithFlag() {
-        const result = this.parseVarInt();
-        return { value: result >> 1n, flag: (result & 1n) === 1n };
-    }
-
-    parseNullTerminatedString() {
-        const reader = this._reader;
-        let result = '';
-        let value = -1;
-        for (; ;) {
-            value = reader.byte();
-            if (value === 0x00) {
+        let name = token.value;
+        let nextPos = pos + 1;
+        while (nextPos < tokens.length && tokens[nextPos].type === '::') {
+            nextPos++;
+            if (nextPos < tokens.length && tokens[nextPos].type === 'ident') {
+                const value = tokens[nextPos++].value;
+                name += `::${value}`;
+            } else {
                 break;
             }
-            result += String.fromCharCode(value);
         }
-        return result;
+        if (nextPos >= tokens.length) {
+            return { value: { name }, nextPos };
+        }
+        const nextToken = tokens[nextPos];
+        if (nextToken.type === '{') {
+            return _.Constraint._parseEnum(tokens, pos, name);
+        }
+        if (nextToken.type === '<') {
+            return _.Constraint._parseGeneric(tokens, pos, name);
+        }
+        return { value: { name }, nextPos };
+    }
+
+    static _parseEnum(tokens, startPos, name) {
+        let pos = startPos;
+        while (pos < tokens.length && (tokens[pos].type === 'ident' || tokens[pos].type === '::')) {
+            pos++;
+        }
+        if (pos >= tokens.length || tokens[pos].type !== '{') {
+            return null;
+        }
+        pos++;
+        const values = [];
+        let currentValue = '';
+        while (pos < tokens.length && tokens[pos].type !== '}') {
+            const token = tokens[pos];
+            if (token.type === '|') {
+                if (currentValue.trim()) {
+                    values.push(currentValue.trim());
+                    currentValue = '';
+                }
+                pos++;
+            } else if (token.type === 'ident') {
+                if (currentValue) {
+                    currentValue += ' ';
+                }
+                currentValue += token.value;
+                pos++;
+            } else if (token.type === '::') {
+                currentValue += '::';
+                pos++;
+            } else {
+                pos++;
+            }
+        }
+        if (currentValue.trim()) {
+            values.push(currentValue.trim());
+        }
+        if (pos < tokens.length && tokens[pos].type === '}') {
+            pos++;
+        }
+        return { value: { name, values }, nextPos: pos };
+    }
+
+    static _parseGeneric(tokens, startPos, name) {
+        let pos = startPos;
+        while (pos < tokens.length && (tokens[pos].type === 'ident' || tokens[pos].type === '::')) {
+            pos++;
+        }
+        if (pos >= tokens.length || tokens[pos].type !== '<') {
+            return null;
+        }
+        pos++;
+        const args = [];
+        let angleDepth = 1;
+        let bracketDepth = 0;
+        let currentArg = [];
+        while (pos < tokens.length && (angleDepth > 0 || bracketDepth > 0)) {
+            const token = tokens[pos];
+            if (token.type === '<') {
+                angleDepth++;
+                currentArg.push(token);
+                pos++;
+            } else if (token.type === '>') {
+                angleDepth--;
+                if (angleDepth === 0 && bracketDepth === 0) {
+                    if (currentArg.length > 0) {
+                        const parsed = _.Constraint.parseArgumentTokens(currentArg);
+                        if (parsed !== null) {
+                            args.push(parsed);
+                        }
+                    }
+                    pos++;
+                    break;
+                }
+                currentArg.push(token);
+                pos++;
+            } else if (token.type === '[') {
+                bracketDepth++;
+                currentArg.push(token);
+                pos++;
+            } else if (token.type === ']') {
+                bracketDepth--;
+                currentArg.push(token);
+                pos++;
+            } else if (token.type === ',' && angleDepth === 1 && bracketDepth === 0) {
+                if (currentArg.length > 0) {
+                    const parsed = _.Constraint.parseArgumentTokens(currentArg);
+                    if (parsed !== null) {
+                        args.push(parsed);
+                    }
+                    currentArg = [];
+                }
+                pos++;
+            } else {
+                currentArg.push(token);
+                pos++;
+            }
+        }
+        return { value: { name, args }, nextPos: pos };
+    }
+
+    static parseArgumentTokens(tokens) {
+        if (!tokens || tokens.length === 0) {
+            return null;
+        }
+        tokens = tokens.filter((t) => t.type !== undefined);
+        if (tokens[0].type === '[') {
+            return _.Constraint.parseListArgument(tokens);
+        }
+        if (tokens[0].type === 'string') {
+            return tokens[0].value;
+        }
+        if (tokens[0].type === 'ident' || tokens[0].type === '::') {
+            const result = _.Constraint.parseTokens(tokens, 0);
+            if (result && result.nextPos === tokens.length) {
+                return result.value;
+            }
+        }
+        let literal = '';
+        for (const token of tokens) {
+            if (token.type === 'ident' || token.type === 'string') {
+                if (literal && !/^[,[\]():.]$/.test(literal[literal.length - 1])) {
+                    literal += ' ';
+                }
+                literal += token.value;
+            } else if (token.type === '::') {
+                literal += '::';
+            } else if ('{}[](),.'.indexOf(token.type) !== -1) {
+                literal += token.value;
+            }
+        }
+        return literal.trim() || null;
+    }
+
+    static parseListArgument(tokens) {
+        if (!tokens || tokens.length === 0 || tokens[0].type !== '[') {
+            return null;
+        }
+        let pos = 1;
+        const items = [];
+        let bracketDepth = 1;
+        let angleDepth = 0;
+        let currentItem = [];
+        while (pos < tokens.length && (bracketDepth > 0 || angleDepth > 0)) {
+            const token = tokens[pos];
+            if (token.type === '[') {
+                bracketDepth++;
+                currentItem.push(token);
+                pos++;
+            } else if (token.type === ']') {
+                bracketDepth--;
+                if (bracketDepth === 0 && angleDepth === 0) {
+                    if (currentItem.length > 0) {
+                        const parsed = _.Constraint.parseArgumentTokens(currentItem);
+                        if (parsed !== null) {
+                            items.push(parsed);
+                        }
+                    }
+                    break;
+                }
+                currentItem.push(token);
+                pos++;
+            } else if (token.type === '<') {
+                angleDepth++;
+                currentItem.push(token);
+                pos++;
+            } else if (token.type === '>') {
+                angleDepth--;
+                currentItem.push(token);
+                pos++;
+            } else if (token.type === ',' && bracketDepth === 1 && angleDepth === 0) {
+                if (currentItem.length > 0) {
+                    const parsed = _.Constraint.parseArgumentTokens(currentItem);
+                    if (parsed !== null) {
+                        items.push(parsed);
+                    }
+                    currentItem = [];
+                }
+                pos++;
+            } else {
+                currentItem.push(token);
+                pos++;
+            }
+        }
+        return items;
     }
 };
-
-// Dialect Plugin System
 
 _.AssemblyFormatParser = class {
 
@@ -5868,374 +6446,41 @@ _.Dialect = class {
         return false;
     }
 
-    parseConstraint(value) {
-        if (!value || typeof value !== 'string') {
-            return null;
-        }
-        value = value.trim();
-        if (!value) {
-            return null;
-        }
-
-        // Tokenize
-        const tokenize = (str) => {
-            const tokens = [];
-            let i = 0;
-            while (i < str.length) {
-                const ch = str[i];
-                if (/\s/.test(ch)) {
-                    i++;
-                    continue;
-                }
-                if ('<>={}[](),|'.indexOf(ch) !== -1) {
-                    tokens.push({ type: ch, value: ch, pos: i });
-                    i++;
-                    continue;
-                }
-                if (ch === ':' && i + 1 < str.length && str[i + 1] === ':') {
-                    tokens.push({ type: '::', value: '::', pos: i });
-                    i += 2;
-                    continue;
-                }
-                if (ch === ':') {
-                    i++;
-                    continue;
-                }
-                if (ch === '"' || ch === "'") {
-                    const quote = ch;
-                    let j = i + 1;
-                    while (j < str.length && str[j] !== quote) {
-                        if (str[j] === '\\' && j + 1 < str.length) {
-                            j += 2;
-                        } else {
-                            j++;
-                        }
-                    }
-                    if (j < str.length) {
-                        tokens.push({ type: 'string', value: str.substring(i + 1, j), pos: i });
-                        i = j + 1;
-                    } else {
-                        tokens.push({ type: 'ident', value: str.substring(i), pos: i });
-                        break;
-                    }
-                    continue;
-                }
-                if (/[a-zA-Z_0-9-]/.test(ch)) {
-                    let j = i;
-                    while (j < str.length && /[a-zA-Z_0-9-]/.test(str[j])) {
-                        j++;
-                    }
-                    const ident = str.substring(i, j);
-                    tokens.push({ type: 'ident', value: ident, pos: i });
-                    i = j;
-                    continue;
-                }
-                i++;
-            }
-            return tokens;
-        };
-
-        // Parse tokens into constraint structure
-        const parseTokens = (tokens, pos) => {
-            if (pos >= tokens.length) {
-                return null;
-            }
-            const token = tokens[pos];
-            if (token.type === '::') {
-                // eslint-disable-next-line no-use-before-define
-                return parseScopedIdentifier(tokens, pos);
-            }
-            if (token.type !== 'ident') {
-                return null;
-            }
-            let name = token.value;
-            let nextPos = pos + 1;
-            while (nextPos < tokens.length && tokens[nextPos].type === '::') {
-                nextPos++;
-                if (nextPos < tokens.length && tokens[nextPos].type === 'ident') {
-                    const value = tokens[nextPos++].value;
-                    name += `::${value}`;
-                } else {
-                    break;
-                }
-            }
-            if (nextPos >= tokens.length) {
-                return { value: { name }, nextPos };
-            }
-            const nextToken = tokens[nextPos];
-            if (nextToken.type === '{') {
-                // eslint-disable-next-line no-use-before-define
-                return parseEnum(tokens, pos, name);
-            }
-            if (nextToken.type === '<') {
-                // eslint-disable-next-line no-use-before-define
-                return parseGeneric(tokens, pos, name);
-            }
-            return { value: { name }, nextPos };
-        };
-        const parseScopedIdentifier = (tokens, pos) => {
-            let name = '';
-            let nextPos = pos;
-            while (nextPos < tokens.length) {
-                if (tokens[nextPos].type === '::') {
-                    name += '::';
-                    nextPos++;
-                } else if (tokens[nextPos].type === 'ident') {
-                    name += tokens[nextPos].value;
-                    nextPos++;
-                } else {
-                    break;
-                }
-            }
-            if (!name) {
-                return null;
-            }
-            if (nextPos < tokens.length) {
-                const nextToken = tokens[nextPos];
-                if (nextToken.type === '{') {
-                    // eslint-disable-next-line no-use-before-define
-                    return parseEnum(tokens, pos, name);
-                }
-                if (nextToken.type === '<') {
-                    // eslint-disable-next-line no-use-before-define
-                    return parseGeneric(tokens, pos, name);
-                }
-            }
-            return { value: { name }, nextPos };
-        };
-
-        const parseEnum = (tokens, startPos, name) => {
-            let pos = startPos;
-            while (pos < tokens.length && (tokens[pos].type === 'ident' || tokens[pos].type === '::')) {
-                pos++;
-            }
-            if (pos >= tokens.length || tokens[pos].type !== '{') {
-                return null;
-            }
-            pos++;
-            const values = [];
-            let currentValue = '';
-            while (pos < tokens.length && tokens[pos].type !== '}') {
-                const token = tokens[pos];
-                if (token.type === '|') {
-                    if (currentValue.trim()) {
-                        values.push(currentValue.trim());
-                        currentValue = '';
-                    }
-                    pos++;
-                } else if (token.type === 'ident') {
-                    if (currentValue) {
-                        currentValue += ' ';
-                    }
-                    currentValue += token.value;
-                    pos++;
-                } else if (token.type === '::') {
-                    currentValue += '::';
-                    pos++;
-                } else {
-                    pos++;
-                }
-            }
-            if (currentValue.trim()) {
-                values.push(currentValue.trim());
-            }
-            if (pos < tokens.length && tokens[pos].type === '}') {
-                pos++;
-            }
-            return { value: { name, values }, nextPos: pos };
-        };
-
-        const parseGeneric = (tokens, startPos, name) => {
-            let pos = startPos;
-            while (pos < tokens.length && (tokens[pos].type === 'ident' || tokens[pos].type === '::')) {
-                pos++;
-            }
-            if (pos >= tokens.length || tokens[pos].type !== '<') {
-                return null;
-            }
-            pos++;
-            const args = [];
-            let angleDepth = 1;
-            let bracketDepth = 0;
-            let currentArg = [];
-            while (pos < tokens.length && (angleDepth > 0 || bracketDepth > 0)) {
-                const token = tokens[pos];
-                if (token.type === '<') {
-                    angleDepth++;
-                    currentArg.push(token);
-                    pos++;
-                } else if (token.type === '>') {
-                    angleDepth--;
-                    if (angleDepth === 0 && bracketDepth === 0) {
-                        if (currentArg.length > 0) {
-                            // eslint-disable-next-line no-use-before-define
-                            const parsed = parseArgumentTokens(currentArg);
-                            if (parsed !== null) {
-                                args.push(parsed);
-                            }
-                        }
-                        pos++;
-                        break;
-                    } else {
-                        currentArg.push(token);
-                        pos++;
-                    }
-                } else if (token.type === '[') {
-                    bracketDepth++;
-                    currentArg.push(token);
-                    pos++;
-                } else if (token.type === ']') {
-                    bracketDepth--;
-                    currentArg.push(token);
-                    pos++;
-                } else if (token.type === ',' && angleDepth === 1 && bracketDepth === 0) {
-                    if (currentArg.length > 0) {
-                        // eslint-disable-next-line no-use-before-define
-                        const parsed = parseArgumentTokens(currentArg);
-                        if (parsed !== null) {
-                            args.push(parsed);
-                        }
-                        currentArg = [];
-                    }
-                    pos++;
-                } else {
-                    currentArg.push(token);
-                    pos++;
-                }
-            }
-            return { value: { name, args }, nextPos: pos };
-        };
-        const parseArgumentTokens = (tokens) => {
-            if (!tokens || tokens.length === 0) {
-                return null;
-            }
-            tokens = tokens.filter((t) => t.type !== undefined);
-            if (tokens[0].type === '[') {
-                // eslint-disable-next-line no-use-before-define
-                return parseListArgument(tokens);
-            }
-            if (tokens[0].type === 'string') {
-                return tokens[0].value;
-            }
-            if (tokens[0].type === 'ident' || tokens[0].type === '::') {
-                const result = parseTokens(tokens, 0);
-                if (result && result.nextPos === tokens.length) {
-                    return result.value;
-                }
-            }
-            let literal = '';
-            for (const token of tokens) {
-                if (token.type === 'ident' || token.type === 'string') {
-                    if (literal && !/^[,[]\(\):\.]$/.test(literal[literal.length - 1])) {
-                        literal += ' ';
-                    }
-                    literal += token.value;
-                } else if (token.type === '::') {
-                    literal += '::';
-                } else if ('{}[](),.'.indexOf(token.type) !== -1) {
-                    literal += token.value;
-                }
-            }
-            return literal.trim() || null;
-        };
-
-        const parseListArgument = (tokens) => {
-            if (!tokens || tokens.length === 0 || tokens[0].type !== '[') {
-                return null;
-            }
-            let pos = 1;
-            const items = [];
-            let bracketDepth = 1;
-            let angleDepth = 0;
-            let currentItem = [];
-            while (pos < tokens.length && (bracketDepth > 0 || angleDepth > 0)) {
-                const token = tokens[pos];
-                if (token.type === '[') {
-                    bracketDepth++;
-                    currentItem.push(token);
-                    pos++;
-                } else if (token.type === ']') {
-                    bracketDepth--;
-                    if (bracketDepth === 0 && angleDepth === 0) {
-                        if (currentItem.length > 0) {
-                            const parsed = parseArgumentTokens(currentItem);
-                            if (parsed !== null) {
-                                items.push(parsed);
-                            }
-                        }
-                        break;
-                    } else {
-                        currentItem.push(token);
-                        pos++;
-                    }
-                } else if (token.type === '<') {
-                    angleDepth++;
-                    currentItem.push(token);
-                    pos++;
-                } else if (token.type === '>') {
-                    angleDepth--;
-                    currentItem.push(token);
-                    pos++;
-                } else if (token.type === ',' && bracketDepth === 1 && angleDepth === 0) {
-                    if (currentItem.length > 0) {
-                        const parsed = parseArgumentTokens(currentItem);
-                        if (parsed !== null) {
-                            items.push(parsed);
-                        }
-                        currentItem = [];
-                    }
-                    pos++;
-                } else {
-                    currentItem.push(token);
-                    pos++;
-                }
-            }
-            return items;
-        };
-
-        const tokens = tokenize(value);
-        if (!tokens || tokens.length === 0) {
-            return null;
-        }
-        const result = parseTokens(tokens, 0);
-        return result ? result.value : null;
-    }
-
     getOperation(opName) {
         const op = this._operations.get(opName);
         if (op && !op.metadata._) {
             if (Array.isArray(op.metadata.operands)) {
                 for (const input of op.metadata.operands) {
                     if (input && input.type) {
-                        input.type = this.parseConstraint(input.type);
+                        input.type = _.Constraint.parse(input.type);
                     }
                 }
             }
             if (Array.isArray(op.metadata.results)) {
                 for (const output of op.metadata.results) {
                     if (output && output.type) {
-                        output.type = this.parseConstraint(output.type);
+                        output.type = _.Constraint.parse(output.type);
                     }
                 }
             }
             if (Array.isArray(op.metadata.attributes)) {
                 for (const attribute of op.metadata.attributes) {
                     if (attribute && attribute.type) {
-                        attribute.type = this.parseConstraint(attribute.type);
+                        attribute.type = _.Constraint.parse(attribute.type);
                     }
                 }
             }
             if (Array.isArray(op.metadata.regions)) {
                 for (const region of op.metadata.regions) {
                     if (region && region.type) {
-                        region.type = this.parseConstraint(region.type);
+                        region.type = _.Constraint.parse(region.type);
                     }
                 }
             }
             if (Array.isArray(op.metadata.traits)) {
                 for (const trait of op.metadata.traits) {
                     if (trait && trait.type) {
-                        trait.type = this.parseConstraint(trait.type);
+                        trait.type = _.Constraint.parse(trait.type);
                     }
                 }
             }

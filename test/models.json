@@ -3544,6 +3544,7 @@
     "target":   "squeezenet.mlir",
     "source":   "https://github.com/user-attachments/files/24284768/squeezenet.mlir.zip[squeezenet.mlir]",
     "format":   "MLIR",
+    "assert":   "model.functions[0].nodes.length == 71",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
@@ -3551,6 +3552,7 @@
     "target":   "squeezenet.mlirbc",
     "source":   "https://github.com/user-attachments/files/24284768/squeezenet.mlir.zip[squeezenet.mlirbc]",
     "format":   "MLIR Bytecode v1",
+    "assert":   "model.functions[0].nodes.length == 71",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
