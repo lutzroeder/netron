@@ -29,7 +29,7 @@ zip.Archive = class {
                     return new zlib.Archive(stream);
                 }
             }
-            if ((!format || format === 'gzip') && buffer.length > 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) { // gzip
+            if ((!format || format === 'gzip') && buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) { // gzip
                 return new gzip.Archive(stream);
             }
             if (!format || format === 'zip') {
