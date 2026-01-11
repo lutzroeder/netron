@@ -698,7 +698,7 @@ const schema = async () => {
                 operation.regions = list;
             }
         }
-        // Extract traits (defaultDialect and type inference traits like AllTypesMatch, TypesMatchWith)
+        // Extract traits (isolation, type inference, operand segments, and interface traits)
         const traits = [];
         const extractTraitsFromList = (traitsArg) => {
             if (!traitsArg) {
@@ -739,8 +739,13 @@ const schema = async () => {
                         }
                     }
                     // Extract AttrSizedOperandSegments trait
-                    if (traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') {
+                    if ((traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') &&
+                        traits.every((t) => t.type !== 'AttrSizedOperandSegments')) {
                         traits.push({ type: 'AttrSizedOperandSegments' });
+                    }
+                    // Extract IsolatedFromAbove trait
+                    if (traitName === 'IsolatedFromAbove' && traits.every((trait) => trait.type !== 'IsolatedFromAbove')) {
+                        traits.push({ type: 'IsolatedFromAbove' });
                     }
                     // Extract defaultDialect from OpAsmOpInterface
                     if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
@@ -878,6 +883,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
         'third_party/source/mlir/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
@@ -886,6 +892,7 @@ const test = async (pattern) => {
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/test/mlir/sample.mlir',
     ]);
     return new Promise((resolve, reject) => {

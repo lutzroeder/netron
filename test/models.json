@@ -3603,7 +3603,7 @@
     "target":   "torch_mlir_3423.mlir",
     "source":   "https://github.com/user-attachments/files/17775259/torch-mlir-3423.mlir.zip[torch-mlir-3423.mlir]",
     "format":   "MLIR",
-    "assert":   "model.functions[0].nodes[0].type.name == 'select'",
+    "assert":   "model.functions[0].nodes[0].type.name == 'aten.select'",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {

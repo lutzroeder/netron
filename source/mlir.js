@@ -58,18 +58,20 @@ mlir.ModelFactory = class {
         switch (context.type) {
             case 'mlir.text': {
                 const decoder = await context.read('text.decoder');
-                const state = new _.ParserState(decoder);
-                const parser = new _.OperationParser(state, new _.DialectContext(metadata));
+                const config = new _.ParserConfig(new _.DialectContext(metadata));
+                const state = new _.ParserState(decoder, config);
+                const parser = new _.OperationParser(state);
                 const block = await parser.parse();
-                return new mlir.Model(metadata, 'MLIR', '', block, state.attributeAliasDefinitions);
+                return new mlir.Model(config, 'MLIR', '', block, state.attributeAliasDefinitions);
             }
             case 'mlir.binary': {
                 const binary = await context.read('binary');
-                const reader = new _.BytecodeReader(binary, new _.DialectContext(metadata));
+                const config = new _.ParserConfig(new _.DialectContext(metadata));
+                const reader = new _.BytecodeReader(binary, config);
                 const block = reader.read();
                 const format = `MLIR Bytecode v${reader.version}`;
                 const producer = reader.producer;
-                const model = new mlir.Model(metadata, format, producer, block, new Map());
+                const model = new mlir.Model(config, format, producer, block, new Map());
                 return model;
             }
             default: {
@@ -81,7 +83,7 @@ mlir.ModelFactory = class {
 
 mlir.Model = class {
 
-    constructor(metadata, format, producer, block, attributeAliasDefinitions) {
+    constructor(config, format, producer, block, attributeAliasDefinitions) {
         this.format = format;
         this.producer = producer || '';
         this.modules = [];
@@ -95,9 +97,9 @@ mlir.Model = class {
             const funcs = [];
             const ops = [];
             for (const op of operations) {
-                if (isFunc(op.name)) {
+                if (isFunc(op.name.getStringRef())) {
                     funcs.push(op);
-                } else if (isModule(op.name)) {
+                } else if (isModule(op.name.getStringRef())) {
                     let name = op.getAttr('sym_name');
                     name = name ? name.value : `$${identifier++}`;
                     const modulePath = [...path, name];
@@ -141,7 +143,7 @@ mlir.Model = class {
                 functions.set(name, { func, prefix, base, module });
             }
         }
-        const context = new mlir.Context(metadata, functions);
+        const context = new mlir.Context(functions);
         for (const [name, info] of functions) {
             const graph = context.graph(info.func, name);
             this.functions.push(graph);
@@ -149,7 +151,8 @@ mlir.Model = class {
         for (const module of modules) {
             if (module.ops.length > 0 || module.attributes.size > 0) {
                 const name = formatPrefix(module.path, module.symName) || '';
-                const state = new _.OperationState('builtin.module');
+                const opName = _.RegisteredOperationName.lookup('builtin.module', config.context);
+                const state = new _.OperationState(opName);
                 state.attributes = module.attributes;
                 state.regions = [{ blocks: [{ operations: module.ops, arguments: [] }] }];
                 const op = _.Operation.create(state);
@@ -170,14 +173,14 @@ mlir.Model = class {
 
 mlir.Graph = class {
 
-    constructor(metadata, func, context, name) {
+    constructor(func, context, name) {
         this.name = name || '';
         if (!name && func.attributes.has('sym_name')) {
             const sym_name = func.attributes.get('sym_name');
             this.name = sym_name.value;
         }
         this.type = 'graph';
-        if (func.name === 'func' || func.name.endsWith('.func') || /\.func_v\d+$/.test(func.name)) {
+        if (func.name === 'func' || func.name.getStringRef().endsWith('.func') || /\.func_v\d+$/.test(func.name.getStringRef())) {
             this.type = 'function';
         }
         this.inputs = [];
@@ -222,6 +225,7 @@ mlir.Graph = class {
             for (const block of region.blocks) {
                 for (const op of block.operations) {
                     const operation = {
+                        identifier: op.identifier,
                         name: op.name,
                         label: op.label,
                         attributes: op.getAttrDictionary(),
@@ -232,7 +236,7 @@ mlir.Graph = class {
                         regions: op.regions,
                         delete: false,
                     };
-                    const opMetadata = op.metadata;
+                    const opMetadata = op.name.metadata;
                     const operands = op.operands;
                     // Find the last variadic operand in metadata (if any) for overflow handling
                     let lastVariadicIndex = -1;
@@ -331,7 +335,7 @@ mlir.Graph = class {
             'mhlo.constant', 'torch.constant.tensor', 'onnx.Constant'
         ]);
         for (const op of operations) {
-            if (constantTypes.has(op.name) &&
+            if (constantTypes.has(op.name.getStringRef()) &&
                 op.operands.length === 0 &&
                 op.attributes.size === 1 &&
                 op.results.length === 1) {
@@ -353,11 +357,12 @@ mlir.Graph = class {
         // Fold torch.constant.* operations with single use into their consumers
         const torchConstantMap = new Map();
         for (const op of operations) {
-            if (op.name === 'torch.constant.int' ||
-                op.name === 'torch.constant.bool' ||
-                op.name === 'torch.constant.float' ||
-                op.name === 'torch.constant.str' ||
-                op.name === 'torch.constant.none') {
+            const opName = op.name.getStringRef();
+            if (opName === 'torch.constant.int' ||
+                opName === 'torch.constant.bool' ||
+                opName === 'torch.constant.float' ||
+                opName === 'torch.constant.str' ||
+                opName === 'torch.constant.none') {
                 if (op.operands.length === 0 &&
                     op.results.length === 1) {
                     const result = op.results[0];
@@ -366,19 +371,19 @@ mlir.Graph = class {
                         let type = null;
                         const attr = op.attributes.get('value');
                         const attrValue = attr && typeof attr === 'object' ? attr.value : attr;
-                        if (op.name === 'torch.constant.int') {
+                        if (opName === 'torch.constant.int') {
                             value = attrValue === undefined ? 0 : attrValue;
                             type = 'int64';
-                        } else if (op.name === 'torch.constant.bool') {
+                        } else if (opName === 'torch.constant.bool') {
                             value = attrValue === undefined ? false : attrValue;
                             type = 'boolean';
-                        } else if (op.name === 'torch.constant.float') {
+                        } else if (opName === 'torch.constant.float') {
                             value = attrValue === undefined ? 0.0 : attrValue;
                             type = 'float64';
-                        } else if (op.name === 'torch.constant.str') {
+                        } else if (opName === 'torch.constant.str') {
                             value = attrValue === undefined ? '' : attrValue;
                             type = 'string';
-                        } else if (op.name === 'torch.constant.none') {
+                        } else if (opName === 'torch.constant.none') {
                             value = null;
                             type = 'none';
                         }
@@ -432,7 +437,7 @@ mlir.Graph = class {
             }
         }
         // Find return operation and connect its operands to graph outputs
-        const returnOp = operations.find((op) => op.name === 'return' || op.name.endsWith('.return'));
+        const returnOp = operations.find((op) => op.name.getStringRef().endsWith('.return'));
         if (returnOp) {
             // operands is now a flat array - iterate directly
             for (let i = 0; i < this.outputs.length && i < returnOp.operands.length; i++) {
@@ -456,7 +461,7 @@ mlir.Graph = class {
             }
         }
         for (const op of operations.filter((op) => !op.delete)) {
-            const node = new mlir.Node(metadata, op, context, tensor, torchConstantMap);
+            const node = new mlir.Node(op, context, tensor, torchConstantMap);
             this.nodes.push(node);
         }
         for (const [name, value] of func.attributes) {
@@ -538,14 +543,14 @@ mlir.Value = class {
 
 mlir.Node = class {
 
-    constructor(metadata, op, context, tensor, torchConstantMap) {
+    constructor(op, context, tensor, torchConstantMap) {
         if (!op.name) {
             throw new mlir.Error('Undefined node type.');
         }
         this.name = '';
-        this.type = { ...metadata.type(op.name || '') };
-        this.type.name = op.label || op.name || '';
-        this.type.identifier = op.name || '';
+        this.type = { ...op.name.getRegisteredInfo()?.metadata };
+        this.type.name = op.label || op.identifier || '';
+        this.type.identifier = op.name.getStringRef() || '';
         this.inputs = [];
         this.outputs = [];
         this.attributes = [];
@@ -684,8 +689,8 @@ mlir.Node = class {
                 if (region.blocks && region.blocks.length > 0) {
                     const name = (opMetadata.regions && opMetadata.regions[i] ? opMetadata.regions[i].name : null) || i.toString();
                     const blockName = region.blocks[0].name || '';
-                    const func = { name: '', attributes: new Map(), regions: [region] };
-                    const graph = new mlir.Graph(metadata, func, context, blockName);
+                    const func = { name: 'func', attributes: new Map(), regions: [region] };
+                    const graph = new mlir.Graph(func, context, blockName);
                     const argument = new mlir.Argument(name, graph, 'graph');
                     this.blocks.push(argument);
                 }
@@ -731,8 +736,7 @@ mlir.TensorShape = class {
 
 mlir.Context = class {
 
-    constructor(metadata, functions) {
-        this._metadata = metadata;
+    constructor(functions) {
         this._functions = functions; // Map of fullName -> {func, prefix, base, module}
         this._graphs = new Map();
         this._constructing = new Set();
@@ -741,7 +745,7 @@ mlir.Context = class {
     graph(module, name) {
         if (!this._graphs.has(name)) {
             this._constructing.add(name);
-            const graph = new mlir.Graph(this._metadata, module, this, name);
+            const graph = new mlir.Graph(module, this, name);
             this._graphs.set(name, graph);
             this._constructing.delete(name);
         }
@@ -955,11 +959,20 @@ _.OperationState = class {
 
     constructor(name) {
         this.name = name;
+        if (this.name instanceof _.OperationName === false) {
+            throw new mlir.Error('Invalid operation name.');
+        }
+        this.identifier = name.identifier || name.getStringRef();
+        delete name.identifier;
         this.attributes = new Map();
         this.operands = [];
         this.types = [];
         this.regions = [];
         this.propertiesAttr = null;
+    }
+
+    get op() {
+        return this.name.getStringRef(); // Workaround
     }
 
     addRegion() {
@@ -1006,6 +1019,61 @@ _.OperationState = class {
     }
 };
 
+_.OperationName = class {
+
+    constructor(dialect, name) {
+        this.dialect = dialect;
+        this.name = name;
+    }
+
+    getStringRef() {
+        return this.name;
+    }
+
+    getRegisteredInfo() {
+        return null;
+    }
+};
+
+_.RegisteredOperationName = class extends _.OperationName {
+
+    constructor(dialect, name, metadata) {
+        super(dialect, name);
+        this.metadata = metadata;
+        if (metadata.assemblyFormat) {
+            const parser = new _.AssemblyFormatParser(metadata);
+            this.directives = parser.parse();
+        }
+    }
+
+    static lookup(name, context) {
+        const index = name.indexOf('.');
+        if (index !== -1) {
+            const dialectName = name.substring(0, index);
+            const dialect = context.getDialect(dialectName);
+            if (dialect) {
+                return dialect.getOperation(name);
+            }
+        }
+        return null;
+    }
+
+    getRegisteredInfo() {
+        return this;
+    }
+
+    hasTrait(type) {
+        if (this.metadata && Array.isArray(this.metadata.traits)) {
+            for (const trait of this.metadata.traits) {
+                if (trait.type && trait.type.name === type) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+
 _.Operation = class {
 
     static create(state) {
@@ -1013,14 +1081,14 @@ _.Operation = class {
     }
 
     constructor(state) {
-        this.name = state.name;
-        this.label = state.label;
+        this.name = state.name; // registered operation name
+        this.identifier = state.identifier; // original parsed identifier
+        this.label = state.label; // human-readable name
         this.attributes = state.attributes;
         this.operands = state.operands;
         this.regions = state.regions;
         this.propertiesAttr = state.propertiesAttr;
         this.loc = state.loc;
-        this.metadata = state.metadata;
         this.results = [];
         if (state.types && Array.isArray(state.types)) {
             for (let i = 0; i < state.types.length; i++) {
@@ -1859,9 +1927,17 @@ _.Lexer = class {
     }
 };
 
+_.ParserConfig = class {
+
+    constructor(context) {
+        this.context = context;
+    }
+};
+
 _.ParserState = class {
 
-    constructor(decoder) {
+    constructor(decoder, config) {
+        this.config = config;
         this.defaultDialectStack = ['builtin'];
         this.attributeAliasDefinitions = new Map();
         this.typeAliasDefinitions = new Map();
@@ -1894,9 +1970,12 @@ _.IsolatedSSANameScope = class {
 
 _.Parser = class {
 
-    constructor(state, context) {
+    constructor(state) {
         this.state = state;
-        this.context = context;
+    }
+
+    get context() {
+        return this.state.config.context;
     }
 
     async parse() {
@@ -2222,17 +2301,6 @@ _.Parser = class {
             return location;
         }
         throw new mlir.Error(`Expected location content, got '${this.getToken().value}' ${this.location()}`);
-    }
-
-    parseOperationName() {
-        switch (this.getToken().kind) {
-            case 'string':
-                return this.expect();
-            case 'id':
-                return this.expect('id');
-            default:
-                throw new mlir.Error(`Unexpected operation name '${this.getToken().value}' ${this.location()}`);
-        }
     }
 
     parseElementTypeFromPrefix(prefix, dimensions) {
@@ -3200,7 +3268,8 @@ _.Parser = class {
 
     static parseSymbol(inputStr, context, parserFn) {
         const decoder = text.Decoder.open(inputStr);
-        const state = new _.ParserState(decoder);
+        const config = new _.ParserConfig(context);
+        const state = new _.ParserState(decoder, config);
         const parser = new _.Parser(state, context);
         const startPos = state.curToken.position || 0;
         const symbol = parserFn(parser);
@@ -3235,10 +3304,65 @@ _.Parser = class {
 
 _.OperationParser = class extends _.Parser {
 
-    constructor(state, context) {
-        super(state, context);
+    constructor(state) {
+        super(state);
         this.isolatedNameScopes = [];
         this.pushSSANameScope(/* isIsolated */ true);
+        this._redirect = new Map([
+            ['builtin.func', 'func.func'],
+            ['builtin.constant', 'arith.constant'],
+            ['builtin.return', 'func.return'],
+            ['builtin.select', 'arith.select'],
+            ['scf.select', 'arith.select'],
+            ['scf.call', 'func.call'],
+            ['builtin.view', 'memref.view'],
+            ['builtin.dealloc', 'memref.dealloc'], ['func.dealloc', 'memref.dealloc'],
+            // Arith operations (from both builtin and func default dialects)
+            ['builtin.addi', 'arith.addi'], ['func.addi', 'arith.addi'],
+            ['builtin.subi', 'arith.subi'], ['func.subi', 'arith.subi'],
+            ['builtin.muli', 'arith.muli'], ['func.muli', 'arith.muli'],
+            ['builtin.divi_signed', 'arith.divsi'], ['func.divi_signed', 'arith.divsi'],
+            ['builtin.divi_unsigned', 'arith.divui'], ['func.divi_unsigned', 'arith.divui'],
+            ['builtin.divsi', 'arith.divsi'], ['func.divsi', 'arith.divsi'],
+            ['builtin.divui', 'arith.divui'], ['func.divui', 'arith.divui'],
+            ['builtin.remi_signed', 'arith.remsi'], ['func.remi_signed', 'arith.remsi'],
+            ['builtin.remi_unsigned', 'arith.remui'], ['func.remi_unsigned', 'arith.remui'],
+            ['builtin.andi', 'arith.andi'], ['func.andi', 'arith.andi'],
+            ['builtin.ori', 'arith.ori'], ['func.ori', 'arith.ori'],
+            ['builtin.xori', 'arith.xori'], ['func.xori', 'arith.xori'],
+            ['builtin.shli', 'arith.shli'], ['func.shli', 'arith.shli'],
+            ['builtin.shrsi', 'arith.shrsi'], ['func.shrsi', 'arith.shrsi'],
+            ['builtin.shrui', 'arith.shrui'], ['func.shrui', 'arith.shrui'],
+            ['builtin.addf', 'arith.addf'], ['func.addf', 'arith.addf'],
+            ['builtin.subf', 'arith.subf'], ['func.subf', 'arith.subf'],
+            ['builtin.mulf', 'arith.mulf'], ['func.mulf', 'arith.mulf'],
+            ['builtin.divf', 'arith.divf'], ['func.divf', 'arith.divf'],
+            ['builtin.cmpi', 'arith.cmpi'], ['func.cmpi', 'arith.cmpi'],
+            ['builtin.cmpf', 'arith.cmpf'], ['func.cmpf', 'arith.cmpf'],
+            ['builtin.index_cast', 'arith.index_cast'], ['func.index_cast', 'arith.index_cast'],
+            ['builtin.sitofp', 'arith.sitofp'], ['func.sitofp', 'arith.sitofp'],
+            ['builtin.fptosi', 'arith.fptosi'], ['func.fptosi', 'arith.fptosi'],
+            ['builtin.truncf', 'arith.truncf'], ['func.truncf', 'arith.truncf'],
+            ['builtin.extf', 'arith.extf'], ['func.extf', 'arith.extf'],
+            ['builtin.splat', 'vector.splat'],
+            ['func.splat', 'vector.splat'],
+            ['scf.splat', 'vector.splat'],
+            // Memref operations
+            ['builtin.alloc', 'memref.alloc'], ['func.alloc', 'memref.alloc'],
+            ['builtin.load', 'memref.load'], ['func.load', 'memref.load'],
+            ['builtin.store', 'memref.store'], ['func.store', 'memref.store'],
+            ['builtin.subview', 'memref.subview'], ['func.subview', 'memref.subview'],
+            ['builtin.dim', 'memref.dim'], ['func.dim', 'memref.dim'],
+            ['builtin.view', 'memref.view'], ['func.view', 'memref.view'],
+            // Control flow operations
+            ['builtin.cond_br', 'cf.cond_br'], ['func.cond_br', 'cf.cond_br'],
+            ['builtin.br', 'cf.br'], ['func.br', 'cf.br'],
+            ['builtin.switch', 'cf.switch'], ['func.switch', 'cf.switch'],
+            ['builtin.assert', 'cf.assert'], ['func.assert', 'cf.assert'],
+            // Other redirects
+            ['flow.constant', 'flow.tensor.constant'],
+            ['util.initializer.return', 'util.return']
+        ]);
     }
 
     parseOperation() {
@@ -3287,9 +3411,47 @@ _.OperationParser = class extends _.Parser {
 
     parseCustomOperation(resultIDs) {
         const opNameInfo = this.parseCustomOperationName();
-        const state = new _.OperationState(opNameInfo);
-        let opName = this.context.resolveOpName(state.name);
-        const index = opName.indexOf('.');
+        const opState = new _.OperationState(opNameInfo);
+        delete opNameInfo.identifier; // Workaround
+        const defaultDialect = (opNameInfo && opNameInfo.metadata && opNameInfo.metadata.defaultDialect) || '';
+        this.state.defaultDialectStack.push(defaultDialect);
+        const customParser = new _.CustomOpAsmParser(this.state, resultIDs, this);
+        if (!opNameInfo.dialect.parseOperation(customParser, opState)) {
+            this.state.defaultDialectStack.pop();
+            throw new mlir.Error(`Unsupported custom operation '${opState.identifier}' ${this.location()}`);
+        }
+        if (!opNameInfo.metadata.hasParser && !opNameInfo.metadata.hasCustomAssemblyFormat && opNameInfo.metadata.assemblyFormat && opState.compatibility !== true) {
+            throw new mlir.Error(`Operation '${opState.identifier}' has assembly format but was handled by custom dialect code.`);
+        }
+        opState.loc = this.parseLocation() || {};
+        this.state.defaultDialectStack.pop();
+        return _.Operation.create(opState);
+    }
+
+    parseCustomOperationName() {
+        let identifier = this.expect('id');
+        let index = identifier.indexOf('.');
+        if (index === -1) {
+            for (let i = this.state.defaultDialectStack.length - 1; i >= 0; i--) {
+                const dialect = this.state.defaultDialectStack[i];
+                if (dialect) {
+                    identifier = `${dialect}.${identifier}`;
+                    break;
+                }
+            }
+        }
+        let opName = identifier;
+        if (opName === 'func.constant' && !this.match('@')) {
+            // Workaround: old std.constant should be arith.constant
+            opName = 'arith.constant';
+        } else if (opName.startsWith('check.')) {
+            // Workaround: Handle conflicting dialects from stablehlo and iree
+            const dialect = this.match('(') || this.match('<') ? 'iree' : 'stablehlo';
+            opName = opName.replace('check.', `check.<${dialect}>.`);
+        } else if (this._redirect.has(opName)) {
+            opName = this._redirect.get(opName);
+        }
+        index = opName.indexOf('.');
         if (index === -1) {
             throw new mlir.Error(`No dialect found '${opName}' ${this.location()}`);
         }
@@ -3301,96 +3463,49 @@ _.OperationParser = class extends _.Parser {
         // Normalize operation name to canonical dialect name for metadata lookup
         // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
         opName = dialectName === dialect.name ? opName : opName.replace(`${dialectName}.`, `${dialect.name}.`);
-        const opInfo = dialect.getOperation(opName);
-        if (!opInfo) {
+        const name = _.RegisteredOperationName.lookup(opName, this.context);
+        if (!name) {
             // Do not remove and address the underlying root cause.
-            throw new mlir.Error(`Unsupported operation '${state.name}'.`);
+            throw new mlir.Error(`Unsupported operation '${opName}'.`);
         }
-        state.metadata = opInfo.metadata;
-        const defaultDialect = (opInfo && opInfo.metadata && opInfo.metadata.defaultDialect) || '';
-        this.state.defaultDialectStack.push(defaultDialect);
-        const customParser = new _.CustomOpAsmParser(this.state, this.context, resultIDs, this);
-        if (!dialect.parseOperation(customParser, opName, state)) {
-            this.state.defaultDialectStack.pop();
-            throw new mlir.Error(`Unsupported custom operation '${state.name}' ${this.location()}`);
-        }
-        if (!dialect.hasParser(opName) && !dialect.hasCustomAssemblyFormat(opName) && dialect.hasAssemblyFormat(opName) && dialect.hasParseOperation(opName) !== false) {
-            throw new mlir.Error(`Operation '${state.name}' has assembly format but was handled by custom dialect code.`);
-        }
-        state.loc = this.parseLocation() || {};
-        this.state.defaultDialectStack.pop();
-        return _.Operation.create(state);
-    }
-
-    parseCustomOperationName() {
-        let opName = this.expect('id');
-        if (opName.indexOf('.') === -1) {
-            for (let i = this.state.defaultDialectStack.length - 1; i >= 0; i--) {
-                let dialect = this.state.defaultDialectStack[i];
-                if (dialect) {
-                    // Workaround: old std.constant should be arith.constant
-                    if (dialect === 'func' && opName === 'constant' && !this.match('@')) {
-                        dialect = 'arith';
-                    }
-                    opName = `${dialect}.${opName}`;
-                    break;
-                }
-            }
-        }
-        return opName;
+        name.identifier = identifier; // Workaround
+        return name;
     }
 
     parseGenericOperation() {
         const name = this.expect('string');
-        const state = new _.OperationState(name);
-        const index = name.indexOf('.');
-        if (index !== -1) {
-            const dialectName = name.substring(0, index);
-            const dialect = this.context.getDialect(dialectName);
-            if (dialect) {
-                const opInfo = dialect.getOperation(name);
-                if (opInfo) {
-                    state.metadata = opInfo.metadata;
-                }
-            }
+        let opName = _.RegisteredOperationName.lookup(name, this.context);
+        if (!opName) {
+            opName = new _.OperationName(null, name);
         }
+        opName.identifier = name; // Workaround
+        const state = new _.OperationState(opName);
         this.parseGenericOperationAfterOpName(state);
         return _.Operation.create(state);
     }
 
-    parseGenericOperationAfterOpName(op) {
+    parseGenericOperationAfterOpName(result) {
         this.expect('(');
         const unresolvedOperands = [];
         this.parseOptionalSSAUseList(unresolvedOperands);
         this.expect(')');
         if (this.match('[')) {
-            op.successors = [];
-            this.parseSuccessors(op.successors);
+            result.successors = [];
+            this.parseSuccessors(result.successors);
         }
         if (this.accept('<')) {
-            op.propertiesAttr = this.parseAttribute();
+            result.propertiesAttr = this.parseAttribute();
             this.expect('>');
         }
         if (this.accept('(')) {
-            // Check if the operation is IsolatedFromAbove
-            const opName = op.name;
-            const dotIndex = opName.indexOf('.');
-            let isIsolated = false;
-            if (dotIndex !== -1) {
-                const dialectName = opName.substring(0, dotIndex);
-                const dialect = this.context.getDialect(dialectName);
-                if (dialect) {
-                    isIsolated = dialect.isIsolatedFromAbove(opName);
-                }
-            }
             do {
-                const region = op.addRegion();
-                this.parseRegion(region, undefined, isIsolated);
+                const region = result.addRegion();
+                this.parseRegion(region, undefined, false);
             } while (this.accept(','));
             this.expect(')');
         }
         if (this.match('{')) {
-            this.parseAttributeDict(op.attributes);
+            this.parseAttributeDict(result.attributes);
         }
         this.expect(':');
         const fnType = this.parseType();
@@ -3402,11 +3517,10 @@ _.OperationParser = class extends _.Parser {
             const unresolvedOperand = unresolvedOperands[i];
             const type = operandTypes[i] || null;
             const value = this.resolveSSAUse(unresolvedOperand, type);
-            op.operands.push(value);
+            result.operands.push(value);
         }
-        op.addTypes(fnType.results);
-        op.loc = this.parseLocation();
-        return op;
+        result.addTypes(fnType.results);
+        result.loc = this.parseLocation();
     }
 
     pushSSANameScope(isIsolated) {
@@ -3912,8 +4026,8 @@ _.OpAsmParser.Argument = class {
 
 _.CustomOpAsmParser = class extends _.OpAsmParser {
 
-    constructor(state, context, resultIDs, parser) {
-        super(state, context);
+    constructor(state, resultIDs, parser) {
+        super(state);
         this.resultIDs = resultIDs || [];
         this.parser = parser;
     }
@@ -4821,9 +4935,9 @@ _.Location = class {
 
 _.BytecodeReader = class {
 
-    constructor(reader, context) {
+    constructor(reader, config) {
         this.reader = new _.EncodingReader(reader);
-        this.fileLoc = new _.Location(context);
+        this.fileLoc = new _.Location(config.context);
         this.valueScopes = [];
         this.opNames = [];
         this.dialects = [];
@@ -5203,8 +5317,8 @@ _.BytecodeReader = class {
         const kHasInlineRegions = 0x10;
         const kHasUseListOrders = 0x20;
         const kHasProperties = 0x40;
-
-        const op = new _.OperationState(fullName);
+        const opName = _.RegisteredOperationName.lookup(fullName, this.fileLoc.context);
+        const op = new _.OperationState(opName);
         const [dialectName] = fullName.split('.');
         const dialect = this.fileLoc.context.getDialect(dialectName);
         if (dialect) {
@@ -5213,12 +5327,8 @@ _.BytecodeReader = class {
                 op.metadata = opInfo.metadata;
             }
         }
-
-        // Parse location
         const locIdx = reader.parseVarInt().toNumber();
         op.location = this.attrTypeReader.readAttribute(locIdx);
-
-        // Parse attributes
         if (opMask & kHasAttrs) {
             const dictAttrIdx = reader.parseVarInt().toNumber();
             const dictAttr = this.attrTypeReader.readAttribute(dictAttrIdx);
@@ -6194,7 +6304,7 @@ _.DialectContext = class {
         this._dialects.set('tpu', new _.Dialect(operations, 'tpu'));
         this._dialects.set('sdfg', new _.SdfgDialect(operations));
         this._dialects.set('sdir', this._dialects.get('sdfg'));
-        this._dialects.set('check', new _.CheckDialect(operations));
+        this._dialects.set('check', new _.Dialect(operations, 'check'));
         this._dialects.set('tt', new _.TritonDialect(operations));
         this._dialects.set('ttg', new _.TritonGPUDialect(operations));
         this._dialects.set('triton_gpu', this._dialects.get('ttg'));
@@ -6253,68 +6363,13 @@ _.DialectContext = class {
         this._dialects.set('vifrt', new _.Dialect(operations, 'vifrt'));
         this._dialects.set('triton_xla', new _.TritonXlaDialect(operations));
         this._dialects.set('xtile', new _.XTileDialect(operations));
-        this._redirect = new Map([
-            ['builtin.func', 'func.func'],
-            ['builtin.constant', 'arith.constant'],
-            ['builtin.return', 'func.return'],
-            ['builtin.select', 'arith.select'],
-            ['scf.select', 'arith.select'],
-            ['scf.call', 'func.call'],
-            ['builtin.view', 'memref.view'],
-            ['builtin.dealloc', 'memref.dealloc'], ['func.dealloc', 'memref.dealloc'],
-            // Arith operations (from both builtin and func default dialects)
-            ['builtin.addi', 'arith.addi'], ['func.addi', 'arith.addi'],
-            ['builtin.subi', 'arith.subi'], ['func.subi', 'arith.subi'],
-            ['builtin.muli', 'arith.muli'], ['func.muli', 'arith.muli'],
-            ['builtin.divi_signed', 'arith.divsi'], ['func.divi_signed', 'arith.divsi'],
-            ['builtin.divi_unsigned', 'arith.divui'], ['func.divi_unsigned', 'arith.divui'],
-            ['builtin.divsi', 'arith.divsi'], ['func.divsi', 'arith.divsi'],
-            ['builtin.divui', 'arith.divui'], ['func.divui', 'arith.divui'],
-            ['builtin.remi_signed', 'arith.remsi'], ['func.remi_signed', 'arith.remsi'],
-            ['builtin.remi_unsigned', 'arith.remui'], ['func.remi_unsigned', 'arith.remui'],
-            ['builtin.andi', 'arith.andi'], ['func.andi', 'arith.andi'],
-            ['builtin.ori', 'arith.ori'], ['func.ori', 'arith.ori'],
-            ['builtin.xori', 'arith.xori'], ['func.xori', 'arith.xori'],
-            ['builtin.shli', 'arith.shli'], ['func.shli', 'arith.shli'],
-            ['builtin.shrsi', 'arith.shrsi'], ['func.shrsi', 'arith.shrsi'],
-            ['builtin.shrui', 'arith.shrui'], ['func.shrui', 'arith.shrui'],
-            ['builtin.addf', 'arith.addf'], ['func.addf', 'arith.addf'],
-            ['builtin.subf', 'arith.subf'], ['func.subf', 'arith.subf'],
-            ['builtin.mulf', 'arith.mulf'], ['func.mulf', 'arith.mulf'],
-            ['builtin.divf', 'arith.divf'], ['func.divf', 'arith.divf'],
-            ['builtin.cmpi', 'arith.cmpi'], ['func.cmpi', 'arith.cmpi'],
-            ['builtin.cmpf', 'arith.cmpf'], ['func.cmpf', 'arith.cmpf'],
-            ['builtin.index_cast', 'arith.index_cast'], ['func.index_cast', 'arith.index_cast'],
-            ['builtin.sitofp', 'arith.sitofp'], ['func.sitofp', 'arith.sitofp'],
-            ['builtin.fptosi', 'arith.fptosi'], ['func.fptosi', 'arith.fptosi'],
-            ['builtin.truncf', 'arith.truncf'], ['func.truncf', 'arith.truncf'],
-            ['builtin.extf', 'arith.extf'], ['func.extf', 'arith.extf'],
-            ['builtin.splat', 'vector.splat'],
-            ['func.splat', 'vector.splat'],
-            ['scf.splat', 'vector.splat'],
-            // Memref operations
-            ['builtin.alloc', 'memref.alloc'], ['func.alloc', 'memref.alloc'],
-            ['builtin.load', 'memref.load'], ['func.load', 'memref.load'],
-            ['builtin.store', 'memref.store'], ['func.store', 'memref.store'],
-            ['builtin.subview', 'memref.subview'], ['func.subview', 'memref.subview'],
-            ['builtin.dim', 'memref.dim'], ['func.dim', 'memref.dim'],
-            ['builtin.view', 'memref.view'], ['func.view', 'memref.view'],
-            // Control flow operations
-            ['builtin.cond_br', 'cf.cond_br'], ['func.cond_br', 'cf.cond_br'],
-            ['builtin.br', 'cf.br'], ['func.br', 'cf.br'],
-            ['builtin.switch', 'cf.switch'], ['func.switch', 'cf.switch'],
-            ['builtin.assert', 'cf.assert'], ['func.assert', 'cf.assert'],
-            // Other redirects
-            ['flow.constant', 'flow.tensor.constant'],
-            ['util.initializer.return', 'util.return']
-        ]);
     }
 
     getDialect(name) {
         return this._dialects.get(name);
     }
 
-    resolveOpName(name) {
+    redirect(name) {
         return this._redirect.has(name) ? this._redirect.get(name) : name;
     }
 };
@@ -6390,12 +6445,7 @@ _.Dialect = class {
         this.registerCustomTrait('AttrSizedOperandSegments', this._applyAttrSizedOperandSegments.bind(this));
         this.registerCustomTrait('TypesMatchWith', this._applyTypesMatchWith.bind(this));
         for (const metadata of operations.get(name) || []) {
-            const opInfo = { metadata };
-            if (metadata.assemblyFormat) {
-                const parser = new _.AssemblyFormatParser(metadata);
-                opInfo.directives = parser.parse();
-            }
-            this._operations.set(metadata.name, opInfo);
+            this.registerOperandName(metadata.name, metadata);
         }
     }
 
@@ -6409,41 +6459,6 @@ _.Dialect = class {
 
     readAttribute(/* reader */) {
         throw new mlir.Error(`Dialect '${this._name}' does not support bytecode attributes.`);
-    }
-
-    isIsolatedFromAbove(opName) {
-        const isolatedOps = new Set([
-            'builtin.module',
-            'func.func',
-            'gpu.module', 'gpu.func', 'gpu.launch',
-            'llvm.func', 'llvm.mlir.global',
-            'spirv.module', 'spirv.func',
-            'cir.func', 'cir.global',
-            'emitc.func',
-            'async.func', 'async.execute',
-            'omp.target', 'omp.parallel', 'omp.task',
-            'acc.parallel', 'acc.kernels', 'acc.serial', 'acc.loop',
-            'transform.named_sequence', 'transform.sequence',
-            'test.isolated_region_op', 'test.isolated_one_region_op',
-            'test.two_region_op', 'test.affine_scope',
-            'pdl_interp.func',
-            'ml_program.func', 'ml_program.subgraph',
-            'vm.func', 'vm.rodata',
-            'hal.executable', 'hal.executable.variant',
-        ]);
-        if (isolatedOps.has(opName)) {
-            return true;
-        }
-        const opInfo = this._operations.get(opName);
-        if (opInfo && opInfo.metadata && Array.isArray(opInfo.metadata.traits)) {
-            for (const trait of opInfo.metadata.traits) {
-                const traitName = trait.type?.name || trait.type || trait;
-                if (traitName === 'IsolatedFromAbove' || traitName === 'OpTrait::IsIsolatedFromAbove') {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     getOperation(opName) {
@@ -6489,24 +6504,9 @@ _.Dialect = class {
         return op || null;
     }
 
-    hasParser(opName) {
-        const opInfo = this.getOperation(opName);
-        return opInfo ? opInfo.metadata.parser : null;
-    }
-
-    hasAssemblyFormat(opName) {
-        const opInfo = this.getOperation(opName);
-        return opInfo ? opInfo.metadata.assemblyFormat : false;
-    }
-
-    hasCustomAssemblyFormat(opName) {
-        const opInfo = this.getOperation(opName);
-        return opInfo ? opInfo.metadata.hasCustomAssemblyFormat : false;
-    }
-
-    hasParseOperation(opName) {
-        const opInfo = this.getOperation(opName);
-        return opInfo ? opInfo.hasParseOperation : false;
+    registerOperandName(opName, metadata) {
+        const opInfo = new _.RegisteredOperationName(this, opName, metadata);
+        this._operations.set(opName, opInfo);
     }
 
     registerCustomDirective(name, parserFn) {
@@ -6670,7 +6670,7 @@ _.Dialect = class {
             case 'region_ref': {
                 const regionMeta = opInfo.metadata && opInfo.metadata.regions && opInfo.metadata.regions.find((r) => r.name === directive.name);
                 const isVariadicRegion = regionMeta && regionMeta.type && regionMeta.type.name === 'VariadicRegion';
-                const isIsolated = this.isIsolatedFromAbove(op.name);
+                const isIsolated = op.name.getRegisteredInfo().hasTrait('IsolatedFromAbove');
                 if (isVariadicRegion) {
                     if (parser.match('{')) {
                         do {
@@ -6812,7 +6812,7 @@ _.Dialect = class {
                     if (!isActualOperand) {
                         const regionMeta = opInfo.metadata?.regions?.find((r) => r.name === name);
                         const isVariadicRegion = regionMeta?.type?.name === 'VariadicRegion';
-                        const isIsolated = this.isIsolatedFromAbove(op.name);
+                        const isIsolated = op.info.hasTrait('IsolatedFromAbove');
                         if (isVariadicRegion) {
                             do {
                                 parser.parseRegion(op.addRegion(), undefined, isIsolated);
@@ -6980,7 +6980,7 @@ _.Dialect = class {
                 }
                 break;
             case 'regions': {
-                const isIsolated = this.isIsolatedFromAbove(op.name);
+                const isIsolated = op.name.hasTrait('IsolatedFromAbove');
                 while (parser.match('{')) {
                     const region = op.addRegion();
                     parser.parseRegion(region, undefined, isIsolated);
@@ -7359,17 +7359,17 @@ _.Dialect = class {
         }
     }
 
-    parseOperation(parser, opName, op) {
-        const opInfo = this.getOperation(opName);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
         if (!opInfo) {
             return false;
         }
-        if ((this.hasParser(opName) || this.hasCustomAssemblyFormat(opName)) && !this.hasAssemblyFormat(opName)) {
-            throw new mlir.Error(`Operation parser '${opName}' not implemented.`);
+        if ((opInfo.metadata.hasParser || opInfo.metadata.hasCustomAssemblyFormat) && !opInfo.metadata.assemblyFormat) {
+            throw new mlir.Error(`Operation parser '${result.op}' not implemented.`);
         }
         // Mark as using assembly format parsing (bypasses validation check)
-        if (opInfo.hasParseOperation === undefined && this.hasAssemblyFormat(opName)) {
-            opInfo.hasParseOperation = false;
+        if (result.compatibility === undefined && opInfo.metadata.assemblyFormat) {
+            result.compatibility = true;
         }
         // ctx is a Map: name -> { operands: [], types: [] }
         // Resolution happens at END via genParserTypeResolution (line 1425)
@@ -7378,33 +7378,33 @@ _.Dialect = class {
         for (const input of opInfo.metadata?.operands || []) {
             ctx.set(input.name, { operands: [], types: [] });
         }
-        for (const result of opInfo.metadata?.results || []) {
-            ctx.set(result.name, { types: [] });
+        for (const resultInfo of opInfo.metadata?.results || []) {
+            ctx.set(resultInfo.name, { types: [] });
         }
         // Parse all directives
         const directives = opInfo.directives || [];
         for (let i = 0; i < directives.length; i++) {
-            this.parseDirective(directives[i], parser, op, opInfo, directives, i, ctx);
+            this.parseDirective(directives[i], parser, result, opInfo, directives, i, ctx);
         }
         // Resolve all operands at END in one pass
         for (const [, vars] of ctx) {
             if (vars.operands?.length > 0 && vars.types?.length > 0) {
-                parser.resolveOperands(vars.operands, vars.types, op.operands);
-            } else if (vars.operands?.length > 0 && op.types.length > 0) {
+                parser.resolveOperands(vars.operands, vars.types, result.operands);
+            } else if (vars.operands?.length > 0 && result.types.length > 0) {
                 // SameOperandsAndResultType: use result type for operands
-                const types = vars.operands.map(() => op.types[0]);
-                parser.resolveOperands(vars.operands, types, op.operands);
+                const types = vars.operands.map(() => result.types[0]);
+                parser.resolveOperands(vars.operands, types, result.operands);
             } else if (vars.operands?.length > 0) {
                 // No explicit type - resolve from scope (type from definition)
                 for (const operand of vars.operands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
         }
         // Apply traits (AttrSizedOperandSegments, TypesMatchWith, etc.)
-        this._applyTraits(parser, op, opInfo, ctx);
+        this._applyTraits(parser, result, opInfo, ctx);
         // Fallback: infer result types from buildable type constraints
-        if (op.types.length === 0 && opInfo.metadata?.results) {
+        if (result.types.length === 0 && opInfo.metadata.results) {
             const concreteTypes = new Map([
                 ['Index', 'index'], ['I1', 'i1'], ['I8', 'i8'], ['I16', 'i16'], ['I32', 'i32'], ['I64', 'i64'],
                 ['SI8', 'si8'], ['SI16', 'si16'], ['SI32', 'si32'], ['SI64', 'si64'],
@@ -7415,14 +7415,14 @@ _.Dialect = class {
                 ['Torch_NumberType', '!torch.number']
             ]);
             const inferredTypes = [];
-            for (const result of opInfo.metadata.results) {
-                const typeName = result.type?.name;
+            for (const resultInfo of opInfo.metadata.results) {
+                const typeName = resultInfo.type?.name;
                 if (typeName && concreteTypes.has(typeName)) {
                     inferredTypes.push(new _.Type(concreteTypes.get(typeName)));
                 }
             }
             if (inferredTypes.length > 0) {
-                op.addTypes(inferredTypes);
+                result.addTypes(inferredTypes);
             }
         }
         return true;
@@ -7730,8 +7730,8 @@ _.Dialect = class {
         }
     }
 
-    parseCopyOpRegion(parser, op) {
-        op.regions.push({ blocks: [] });
+    parseCopyOpRegion(parser, result) {
+        result.regions.push({ blocks: [] });
     }
 
     parseEnumFlags(parser, type, separator) {
@@ -8139,38 +8139,38 @@ _.StableHLODialect = class extends _.HLODialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'stablehlo.constant') {
+    parseOperation(parser, result) {
+        if (result.op === 'stablehlo.constant') {
             if (parser.parseOptionalLParen() && parser.parseOptionalRParen()) {
                 if (parser.parseOptionalLess()) {
-                    op.propertiesAttr = parser.parseAttribute();
+                    result.propertiesAttr = parser.parseAttribute();
                     parser.parseGreater();
                 }
-                parser.parseOptionalAttrDict(op.attributes);
+                parser.parseOptionalAttrDict(result.attributes);
                 parser.parseColon();
                 parser.parseLParen();
                 parser.parseRParen();
                 parser.expect('->');
                 const type = parser.parseType();
-                op.addTypes([type.toString()]);
+                result.addTypes([type.toString()]);
             } else {
                 // Custom form: {attrs} value : type
-                parser.parseOptionalAttrDict(op.attributes);
+                parser.parseOptionalAttrDict(result.attributes);
                 const value = parser.parseAttribute();
                 if (value) {
-                    op.addAttribute('value', value);
+                    result.addAttribute('value', value);
                 }
                 // Parse result type - either explicit `: type` or from value's type
                 const types = parser.parseOptionalColonTypeList();
                 if (types.length > 0) {
-                    op.addTypes([types[0].toString()]);
+                    result.addTypes([types[0].toString()]);
                 } else if (value && value.type) {
-                    op.addTypes([value.type.toString()]);
+                    result.addTypes([value.type.toString()]);
                 }
             }
             return true;
         }
-        if (opName === 'stablehlo.while' && parser.match('(')) {
+        if (result.op === 'stablehlo.while' && parser.match('(')) {
             // Parse while operands: (%arg0 = %init_i, %arg1 = %init_sum)
             // %arg0/%arg1 are block argument names, %init_i/%init_sum are actual operands
             const unresolvedOperands = [];
@@ -8191,35 +8191,35 @@ _.StableHLODialect = class extends _.HLODialect {
                         break;
                     }
                 }
-                // Resolve operands with types and push to op.operands
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
+                // Resolve operands with types and push to result.operands
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
                 // Add result types (same as operand types for while)
                 for (const type of types) {
-                    op.addTypes([type]);
+                    result.addTypes([type]);
                 }
             }
             if (parser.accept('id', 'attributes')) {
                 if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
             }
             if (parser.accept('id', 'cond')) {
-                const cond = op.addRegion();
+                const cond = result.addRegion();
                 parser.parseRegion(cond);
             }
             if (parser.accept('id', 'do')) {
-                const body = op.addRegion();
+                const body = result.addRegion();
                 parser.parseRegion(body);
             }
             return true;
         }
-        if ((opName === 'stablehlo.reduce' || opName === 'stablehlo.scan') && parser.match('(')) {
-            return this.parseReduceLikeOp(parser, op);
+        if ((result.op === 'stablehlo.reduce' || result.op === 'stablehlo.scan') && parser.match('(')) {
+            return this.parseReduceLikeOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseReduceLikeOp(parser, op) {
+    parseReduceLikeOp(parser, result) {
         // Handle formats:
         // 1. (%input init: %init) - single group
         // 2. (%input1 init: %init1), (%input2 init: %init2) - multiple groups
@@ -8270,19 +8270,19 @@ _.StableHLODialect = class extends _.HLODialect {
         }
         if (parser.accept('id', 'applies')) {
             const innerOpName = parser.expect('id');
-            op.addAttribute('body_op', innerOpName);
+            result.addAttribute('body_op', innerOpName);
             if (parser.accept('id', 'across')) {
                 if (parser.accept('id', 'dimensions')) {
                     parser.parseOptionalEqual();
                     const dims = parser.parseAttribute();
-                    op.addAttribute('dimensions', dims);
+                    result.addAttribute('dimensions', dims);
                 }
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
-            op.addTypes(parser.parseOptionalArrowTypeList());
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
+            result.addTypes(parser.parseOptionalArrowTypeList());
             return true;
         }
         if (parser.match('(')) {
@@ -8295,7 +8295,7 @@ _.StableHLODialect = class extends _.HLODialect {
                     if (!parser.match('{')) {
                         throw new mlir.Error(`Expected '{' for region in region-list, got '${parser.getToken().value}' at ${parser.location()}`);
                     }
-                    const region = op.addRegion();
+                    const region = result.addRegion();
                     parser.parseRegion(region);
                     if (!parser.parseOptionalComma() && !parser.match(')')) {
                         throw new mlir.Error(`Expected ',' or ')' after region, got '${parser.getToken().value}' at ${parser.location()}`);
@@ -8304,12 +8304,12 @@ _.StableHLODialect = class extends _.HLODialect {
                 parser.parseRParen();
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.parseOptionalArrow() || parser.accept('id', 'to')) {
                 const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
+                result.addTypes(types);
             }
 
             return true;
@@ -8318,26 +8318,26 @@ _.StableHLODialect = class extends _.HLODialect {
             if (parser.accept('id', 'dimensions')) {
                 parser.parseEqual();
                 const dims = parser.parseAttribute();
-                op.addAttribute('dimensions', dims.value);
+                result.addAttribute('dimensions', dims.value);
             }
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Handle `: (operand-types) -> result-types` functional type format
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             if (type instanceof _.FunctionType) {
-                parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
-                op.addTypes(type.results);
+                parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
+                result.addTypes(type.results);
             } else {
                 const types = Array.isArray(type) ? type : [type];
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
             }
         }
         if (parser.parseOptionalArrow() || parser.accept('id', 'to')) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
         }
         if (parser.match('id') && !parser.match('keyword', 'loc')) {
             const label = parser.expect('id');
@@ -8359,13 +8359,13 @@ _.StableHLODialect = class extends _.HLODialect {
             }
             block.loc = parser.parseLocation();
             region.blocks.push(block);
-            op.regions.push(region);
+            result.regions.push(region);
         } else if (parser.parseOptionalLParen() && parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
             parser.parseRParen();
         } else if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
@@ -8379,30 +8379,30 @@ _.VhloDialect = class extends _.Dialect {
         this.registerCustomDirective('FunctionBody', this.parseFunctionBody.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'vhlo.constant_v1') {
+    parseOperation(parser, result) {
+        if (result.op === 'vhlo.constant_v1') {
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             const value = parser.parseAttribute();
             if (value) {
-                op.addAttribute('value', value);
+                result.addAttribute('value', value);
             }
-            op.addTypes(parser.parseOptionalColonTypeList());
+            result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
 
-        if (opName === 'vhlo.return_v1') {
+        if (result.op === 'vhlo.return_v1') {
             const unresolvedOperands = parser.parseOperandList();
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             return true;
         }
 
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseFunctionBody(parser, op) {
-        parser.parseFunctionOp(op, false);
+    parseFunctionBody(parser, result) {
+        parser.parseFunctionOp(result, false);
     }
 };
 
@@ -8419,32 +8419,32 @@ _.AffineDialect = class extends _.Dialect {
         super(operations, 'affine');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'affine.parallel') {
-            return this.parseParallelOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'affine.parallel') {
+            return this.parseParallelOp(parser, result);
         }
         // Special handling for affine.for - similar to scf.for but with affine expressions
-        if (opName === 'affine.for') {
-            return this.parseForOp(parser, op);
+        if (result.op === 'affine.for') {
+            return this.parseForOp(parser, result);
         }
         // Special handling for affine.if - has condition before region
-        if (opName === 'affine.if') {
+        if (result.op === 'affine.if') {
             // affine.if #set(dims)[symbols] [-> (type)] { region }
             // Or: affine.if affine_set<(d0) : (constraint)>(dims)[symbols]
             if (parser.match('#')) {
                 const condition = parser.parseAttribute();
-                op.addAttribute('condition', condition);
+                result.addAttribute('condition', condition);
             } else if (parser.match('id', 'affine_set')) {
                 parser.expect('id', 'affine_set');
                 const content = parser.skip('<');
-                op.addAttribute('condition', `affine_set${content}`);
+                result.addAttribute('condition', `affine_set${content}`);
             }
             const indexType = new _.PrimitiveType('index');
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
                     if (parser.match('%')) {
                         const operand = parser.parseOperand();
-                        parser.resolveOperand(operand, indexType, op.operands);
+                        parser.resolveOperand(operand, indexType, result.operands);
                     }
                     parser.parseOptionalComma();
                 }
@@ -8453,73 +8453,73 @@ _.AffineDialect = class extends _.Dialect {
                 while (!parser.parseOptionalRSquare()) {
                     if (parser.match('%')) {
                         const operand = parser.parseOperand();
-                        parser.resolveOperand(operand, indexType, op.operands);
+                        parser.resolveOperand(operand, indexType, result.operands);
                     }
                     parser.parseOptionalComma();
                 }
             }
-            op.addTypes(parser.parseOptionalArrowTypeList());
-            const region = op.addRegion();
+            result.addTypes(parser.parseOptionalArrowTypeList());
+            const region = result.addRegion();
             parser.parseRegion(region);
             if (parser.accept('id', 'else')) {
                 const elseRegion = {};
                 parser.parseRegion(elseRegion);
-                op.regions.push(elseRegion);
+                result.regions.push(elseRegion);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
         // Special handling for affine.apply, affine.min, and affine.max
-        if (opName === 'affine.apply' || opName === 'affine.min' || opName === 'affine.max') {
+        if (result.op === 'affine.apply' || result.op === 'affine.min' || result.op === 'affine.max') {
             if (parser.match('#') || parser.match('id', 'affine_map') || parser.match('id', 'affine_set')) {
                 const value = parser.parseAttribute();
-                op.addAttribute('map', value);
+                result.addAttribute('map', value);
             }
             const indexType = new _.PrimitiveType('index');
             if (parser.match('(')) {
                 const unresolvedDims = parser.parseOperandList('paren');
-                parser.resolveOperands(unresolvedDims, unresolvedDims.map(() => indexType), op.operands);
+                parser.resolveOperands(unresolvedDims, unresolvedDims.map(() => indexType), result.operands);
             }
             const unresolvedSyms = parser.parseOperandList('optionalSquare');
-            parser.resolveOperands(unresolvedSyms, unresolvedSyms.map(() => indexType), op.operands);
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.resolveOperands(unresolvedSyms, unresolvedSyms.map(() => indexType), result.operands);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (opName === 'affine.store') {
-            return this.parseStoreOp(parser, op);
+        if (result.op === 'affine.store') {
+            return this.parseStoreOp(parser, result);
         }
-        if (opName === 'affine.load') {
-            return this.parseLoadOp(parser, op);
+        if (result.op === 'affine.load') {
+            return this.parseLoadOp(parser, result);
         }
-        if (opName === 'affine.vector_load') {
-            return this.parseVectorLoadOp(parser, op);
+        if (result.op === 'affine.vector_load') {
+            return this.parseVectorLoadOp(parser, result);
         }
-        if (opName === 'affine.vector_store') {
-            return this.parseVectorStoreOp(parser, op);
+        if (result.op === 'affine.vector_store') {
+            return this.parseVectorStoreOp(parser, result);
         }
-        if (opName === 'affine.prefetch') {
+        if (result.op === 'affine.prefetch') {
             const memref = parser.parseOperand();
             parser.skip('[');
             parser.parseComma();
             const rwSpecifier = parser.parseOptionalKeyword();
-            op.addAttribute('isWrite', rwSpecifier === 'write');
+            result.addAttribute('isWrite', rwSpecifier === 'write');
             parser.parseComma();
             parser.expect('id', 'locality');
             parser.parseLess();
             const locality = parser.expect('int');
-            op.addAttribute('localityHint', locality);
+            result.addAttribute('localityHint', locality);
             parser.parseGreater();
             parser.parseComma();
             const cacheType = parser.parseOptionalKeyword();
-            op.addAttribute('isDataCache', cacheType === 'data');
-            parser.parseOptionalAttrDict(op.attributes);
+            result.addAttribute('isDataCache', cacheType === 'data');
+            parser.parseOptionalAttrDict(result.attributes);
             const type = parser.parseColonType();
-            parser.resolveOperand(memref, type, op.operands);
+            parser.resolveOperand(memref, type, result.operands);
             return true;
         }
         // C++-only operation: affine.dma_start
         // Defined in mlir/lib/Dialect/Affine/IR/AffineOps.cpp
-        if (opName === 'affine.dma_start') {
+        if (result.op === 'affine.dma_start') {
             const indexType = new _.PrimitiveType('index');
             const unresolvedOperands = [];
             while (!parser.match(':') && !parser.match('{')) {
@@ -8531,7 +8531,7 @@ _.AffineDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalComma();
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             const types = [];
             if (parser.parseOptionalColon()) {
                 do {
@@ -8540,10 +8540,10 @@ _.AffineDialect = class extends _.Dialect {
             }
             // Resolve operands with types, use index for any operands beyond type count
             const resolveTypes = unresolvedOperands.map((_, i) => i < types.length ? types[i] : indexType);
-            parser.resolveOperands(unresolvedOperands, resolveTypes, op.operands);
+            parser.resolveOperands(unresolvedOperands, resolveTypes, result.operands);
             return true;
         }
-        if (opName === 'affine.dma_wait') {
+        if (result.op === 'affine.dma_wait') {
             const indexType = new _.PrimitiveType('index');
             const unresolvedOperands = [];
             while (!parser.match(':') && !parser.match('{')) {
@@ -8555,30 +8555,30 @@ _.AffineDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalComma();
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             let memrefType = null;
             if (parser.parseOptionalColon()) {
                 memrefType = parser.parseType();
             }
             // First operand is tag (memref type), rest are indices (index type)
             const resolveTypes = unresolvedOperands.map((_, i) => i === 0 ? memrefType : indexType);
-            parser.resolveOperands(unresolvedOperands, resolveTypes, op.operands);
+            parser.resolveOperands(unresolvedOperands, resolveTypes, result.operands);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseForOp(parser, op) {
+    parseForOp(parser, result) {
         const inductionVar = parser.parseOperand();
         parser.parseLocation();
         parser.parseEqual();
-        this.parseAffineBound(parser, op, 'lowerBound');
+        this.parseAffineBound(parser, result, 'lowerBound');
         parser.expect('id', 'to');
-        this.parseAffineBound(parser, op, 'upperBound');
+        this.parseAffineBound(parser, result, 'upperBound');
         if (parser.accept('id', 'step')) {
             if (parser.match('int')) {
                 const step = parser.expect('int');
-                op.addAttribute('step', step);
+                result.addAttribute('step', step);
             }
         }
         if (parser.accept('id', 'iter_args')) {
@@ -8601,9 +8601,9 @@ _.AffineDialect = class extends _.Dialect {
                 }
             }
             const iterTypes = parser.parseOptionalArrowTypeList();
-            op.addTypes(iterTypes);
+            result.addTypes(iterTypes);
             // Resolve iter operands with the parsed types
-            parser.resolveOperands(unresolvedIterOperands, iterTypes, op.operands);
+            parser.resolveOperands(unresolvedIterOperands, iterTypes, result.operands);
         }
         if (parser.match('{')) {
             const region = {};
@@ -8618,9 +8618,9 @@ _.AffineDialect = class extends _.Dialect {
                     region.blocks[0].arguments.push({ value: inductionVar });
                 }
             }
-            op.regions.push(region);
+            result.regions.push(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
@@ -8684,7 +8684,7 @@ _.AffineDialect = class extends _.Dialect {
         throw new mlir.Error(`Expected loop bound (SSA value, integer, or affine map) in affine.for ${parser.location()}`);
     }
 
-    parseStoreOp(parser, op) {
+    parseStoreOp(parser, result) {
         let unresolvedValue = null;
         if (parser.match('%')) {
             unresolvedValue = parser.parseOperand();
@@ -8700,61 +8700,61 @@ _.AffineDialect = class extends _.Dialect {
             // Value type is element type of memref
             const valueType = memrefType.elementType || memrefType;
             if (unresolvedValue) {
-                parser.resolveOperands([unresolvedValue], [valueType], op.operands);
+                parser.resolveOperands([unresolvedValue], [valueType], result.operands);
             }
-            parser.resolveOperands([unresolvedAddress], [memrefType], op.operands);
+            parser.resolveOperands([unresolvedAddress], [memrefType], result.operands);
         }
         return true;
     }
 
-    parseLoadOp(parser, op) {
+    parseLoadOp(parser, result) {
         const memref = parser.parseOperand();
         parser.skip('[');
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         const type = parser.parseColonType();
-        parser.resolveOperand(memref, type, op.operands);
+        parser.resolveOperand(memref, type, result.operands);
         // Result type is element type of memref
-        op.addTypes([type.elementType || type]);
+        result.addTypes([type.elementType || type]);
         return true;
     }
 
-    parseVectorLoadOp(parser, op) {
+    parseVectorLoadOp(parser, result) {
         const memref = parser.parseOperand();
         parser.skip('[');
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const memrefType = parser.parseType();
-            parser.resolveOperand(memref, memrefType, op.operands);
+            parser.resolveOperand(memref, memrefType, result.operands);
             parser.parseComma();
             const vectorType = parser.parseType();
-            op.addTypes([vectorType]);
+            result.addTypes([vectorType]);
         } else {
-            parser.resolveOperand(memref, null, op.operands);
+            parser.resolveOperand(memref, null, result.operands);
         }
         return true;
     }
 
-    parseVectorStoreOp(parser, op) {
+    parseVectorStoreOp(parser, result) {
         const value = parser.parseOperand();
         parser.parseComma();
         const memref = parser.parseOperand();
         parser.skip('[');
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const memrefType = parser.parseType();
             parser.parseComma();
             const vectorType = parser.parseType();
             // Resolve operands: value first, then memref
-            parser.resolveOperand(value, vectorType, op.operands);
-            parser.resolveOperand(memref, memrefType, op.operands);
+            parser.resolveOperand(value, vectorType, result.operands);
+            parser.resolveOperand(memref, memrefType, result.operands);
         } else {
-            parser.resolveOperand(value, null, op.operands);
-            parser.resolveOperand(memref, null, op.operands);
+            parser.resolveOperand(value, null, result.operands);
+            parser.resolveOperand(memref, null, result.operands);
         }
         return true;
     }
 
-    parseParallelOp(parser, op) {
+    parseParallelOp(parser, result) {
         const ivArgs = parser.parseArgumentList('paren', false);
         const indexType = new _.PrimitiveType('index');
         for (const iv of ivArgs) {
@@ -8790,10 +8790,10 @@ _.AffineDialect = class extends _.Dialect {
         }
         if (parser.match('{')) {
             // Pass iv arguments to parseRegion - they become block arguments
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, ivArgs);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 };
@@ -8834,48 +8834,48 @@ _.MemRefDialect = class extends _.Dialect {
         }
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'memref.tensor_load') {
+    parseOperation(parser, result) {
+        if (result.op === 'memref.tensor_load') {
             const unresolvedOperands = parser.parseOperandList();
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             return true;
         }
-        if (opName === 'memref.store') {
-            this._operations.get(opName).hasParseOperation = false; // compatibility
-            return this.parseStoreOp(parser, op);
+        if (result.op === 'memref.store') {
+            result.compatibility = true;
+            return this.parseStoreOp(parser, result);
         }
-        if (opName === 'memref.alloca_scope') {
-            return this.parseAllocaScopeOp(parser, op);
+        if (result.op === 'memref.alloca_scope') {
+            return this.parseAllocaScopeOp(parser, result);
         }
-        if (opName === 'memref.transpose') {
-            return this.parseTransposeOp(parser, op);
+        if (result.op === 'memref.transpose') {
+            return this.parseTransposeOp(parser, result);
         }
-        if (opName === 'memref.generic_atomic_rmw') {
-            return this.parseGenericAtomicRMWOp(parser, op);
+        if (result.op === 'memref.generic_atomic_rmw') {
+            return this.parseGenericAtomicRMWOp(parser, result);
         }
-        if (opName === 'memref.prefetch') {
+        if (result.op === 'memref.prefetch') {
             const memref = parser.parseOperand();
             const indices = parser.parseOperandList('square');
             parser.parseComma();
             const readOrWrite = parser.expect('id');
-            op.addAttribute('isWrite', readOrWrite === 'write');
+            result.addAttribute('isWrite', readOrWrite === 'write');
             parser.parseComma();
             parser.expect('id', 'locality');
             parser.parseLess();
             const localityHint = parseInt(parser.expect('int'), 10);
-            op.addAttribute('localityHint', localityHint);
+            result.addAttribute('localityHint', localityHint);
             parser.parseGreater();
             parser.parseComma();
             const cacheType = parser.expect('id');
-            op.addAttribute('isDataCache', cacheType === 'data');
+            result.addAttribute('isDataCache', cacheType === 'data');
             const type = parser.parseColonType();
-            parser.resolveOperand(memref, type, op.operands);
+            parser.resolveOperand(memref, type, result.operands);
             const indexType = new _.PrimitiveType('index');
             const indexTypes = indices.map(() => indexType);
-            parser.resolveOperands(indices, indexTypes, op.operands);
+            parser.resolveOperands(indices, indexTypes, result.operands);
             return true;
         }
-        if (opName === 'memref.dma_start' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'memref.dma_start') {
             const srcMemRef = parser.parseOperand();
             const srcIndices = parser.parseOperandList('square');
             parser.parseComma();
@@ -8892,46 +8892,46 @@ _.MemRefDialect = class extends _.Dialect {
             }
             const types = parser.parseColonTypeList();
             const indexType = 'index';
-            parser.resolveOperand(srcMemRef, types[0], op.operands);
+            parser.resolveOperand(srcMemRef, types[0], result.operands);
             const srcIndexTypes = srcIndices.map(() => indexType);
-            parser.resolveOperands(srcIndices, srcIndexTypes, op.operands);
-            parser.resolveOperand(dstMemRef, types[1], op.operands);
+            parser.resolveOperands(srcIndices, srcIndexTypes, result.operands);
+            parser.resolveOperand(dstMemRef, types[1], result.operands);
             const dstIndexTypes = dstIndices.map(() => indexType);
-            parser.resolveOperands(dstIndices, dstIndexTypes, op.operands);
-            parser.resolveOperand(numElements, indexType, op.operands);
-            parser.resolveOperand(tagMemRef, types[2], op.operands);
+            parser.resolveOperands(dstIndices, dstIndexTypes, result.operands);
+            parser.resolveOperand(numElements, indexType, result.operands);
+            parser.resolveOperand(tagMemRef, types[2], result.operands);
             const tagIndexTypes = tagIndices.map(() => indexType);
-            parser.resolveOperands(tagIndices, tagIndexTypes, op.operands);
+            parser.resolveOperands(tagIndices, tagIndexTypes, result.operands);
             if (strideInfo.length > 0) {
                 const strideTypes = strideInfo.map(() => indexType);
-                parser.resolveOperands(strideInfo, strideTypes, op.operands);
+                parser.resolveOperands(strideInfo, strideTypes, result.operands);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseGenericAtomicRMWOp(parser, op) {
+    parseGenericAtomicRMWOp(parser, result) {
         // Collect unresolved operands first
         const memref = parser.parseOperand();
         const indices = parser.parseOperandList('square');
         parser.parseColon();
         const memrefType = parser.parseType();
-        // Resolve operands with types and push to op.operands
-        parser.resolveOperand(memref, memrefType, op.operands);
+        // Resolve operands with types and push to result.operands
+        parser.resolveOperand(memref, memrefType, result.operands);
         const indexType = new _.PrimitiveType('index');
         const indexTypes = indices.map(() => indexType);
-        parser.resolveOperands(indices, indexTypes, op.operands);
-        const region = op.addRegion();
+        parser.resolveOperands(indices, indexTypes, result.operands);
+        const region = result.addRegion();
         parser.parseRegion(region);
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (memrefType && memrefType.elementType) {
-            op.addTypes([memrefType.elementType]);
+            result.addTypes([memrefType.elementType]);
         }
         return true;
     }
 
-    parseTransposeOp(parser, op) {
+    parseTransposeOp(parser, result) {
         const operand = parser.parseOperand();
         // Parse affine map permutation: (d0, d1) -> (d1, d0)
         // This is a bare affine map, not wrapped in affine_map<...>
@@ -8939,25 +8939,25 @@ _.MemRefDialect = class extends _.Dialect {
         parser.expect('->');
         const results = parser.skip('(');
         const permutation = `affine_map<${dims} -> ${results}>`;
-        op.addAttribute('permutation', permutation);
-        parser.parseOptionalAttrDict(op.attributes);
+        result.addAttribute('permutation', permutation);
+        parser.parseOptionalAttrDict(result.attributes);
         const srcType = parser.parseColonType();
-        parser.resolveOperand(operand, srcType, op.operands);
+        parser.resolveOperand(operand, srcType, result.operands);
         const dstType = parser.parseKeywordType('to');
-        op.addTypes([dstType]);
+        result.addTypes([dstType]);
         return true;
     }
 
-    parseAllocaScopeOp(parser, op) {
+    parseAllocaScopeOp(parser, result) {
         const resultTypes = parser.parseOptionalArrowTypeList();
-        op.addTypes(resultTypes);
-        const region = op.addRegion();
+        result.addTypes(resultTypes);
+        const region = result.addRegion();
         parser.parseRegion(region);
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseStoreOp(parser, op) {
+    parseStoreOp(parser, result) {
         // or old: value to memref[indices] : type
         let valueOperand = null;
         if (parser.match('%')) {
@@ -8965,7 +8965,7 @@ _.MemRefDialect = class extends _.Dialect {
         } else {
             // Non-standard: constant value - store as attribute
             const value = parser.parseAttribute();
-            op.addAttribute('value', value);
+            result.addAttribute('value', value);
         }
         // Accept either ',' (new) or 'to' (old)
         if (!parser.accept('id', 'to')) {
@@ -8973,15 +8973,15 @@ _.MemRefDialect = class extends _.Dialect {
         }
         const memrefOperand = parser.parseOperand();
         parser.skip('[');
-        parser.parseAttributeDict(op.attributes);
+        parser.parseAttributeDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const memrefType = parser.parseType();
             // Value type is element type of memref
             const valueType = memrefType.elementType || memrefType;
             if (valueOperand) {
-                parser.resolveOperand(valueOperand, valueType, op.operands);
+                parser.resolveOperand(valueOperand, valueType, result.operands);
             }
-            parser.resolveOperand(memrefOperand, memrefType, op.operands);
+            parser.resolveOperand(memrefOperand, memrefType, result.operands);
         }
         return true;
     }
@@ -8995,29 +8995,29 @@ _.VectorDialect = class extends _.Dialect {
         this.registerCustomAttribute('Arith_FastMathAttr', this.parseEnumFlagsAngleBracketComma.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'vector.splat') {
+    parseOperation(parser, result) {
+        if (result.op === 'vector.splat') {
             const unresolvedOperands = parser.parseOperandList();
             const types = parser.parseOptionalColonTypeList();
-            parser.resolveOperands(unresolvedOperands, types, op.operands);
-            op.addTypes(types);
+            parser.resolveOperands(unresolvedOperands, types, result.operands);
+            result.addTypes(types);
             return true;
         }
-        if (opName === 'vector.contract') {
+        if (result.op === 'vector.contract') {
             if (parser.match('{')) {
                 parser.skip('{');
             } else if (parser.match('#')) {
                 parser.expect('#');
             }
             const unresolvedOperands = parser.parseOperandList();
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             const types = parser.parseColonTypeList();
-            parser.resolveOperands(unresolvedOperands, types, op.operands);
+            parser.resolveOperands(unresolvedOperands, types, result.operands);
             const resultType = parser.parseKeywordType('into');
-            op.addTypes([resultType]);
+            result.addTypes([resultType]);
             return true;
         }
-        if (opName === 'vector.mask') {
+        if (result.op === 'vector.mask') {
             // Parse operands into local variables
             let mask = null;
             let passthru = null;
@@ -9030,38 +9030,38 @@ _.VectorDialect = class extends _.Dialect {
                 passthru = parser.parseOperand();
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             // Parse types
             const [maskType] = parser.parseOptionalColonTypeList();
             const resultTypes = parser.parseOptionalArrowTypeList();
-            // Resolve operands - append to op.operands
+            // Resolve operands - append to result.operands
             if (mask) {
-                parser.resolveOperand(mask, maskType, op.operands);
+                parser.resolveOperand(mask, maskType, result.operands);
             }
             if (hasPassthru && passthru) {
-                parser.resolveOperand(passthru, resultTypes[0], op.operands);
+                parser.resolveOperand(passthru, resultTypes[0], result.operands);
             }
             // Resolve results
-            op.addTypes(resultTypes);
+            result.addTypes(resultTypes);
             return true;
         }
-        if (opName === 'vector.outerproduct') {
-            return this.parseOuterProductOp(parser, op);
+        if (result.op === 'vector.outerproduct') {
+            return this.parseOuterProductOp(parser, result);
         }
-        if (opName === 'vector.transfer_read' || opName === 'vector.transfer_write') {
-            return this.parseTransferOp(parser, op);
+        if (result.op === 'vector.transfer_read' || result.op === 'vector.transfer_write') {
+            return this.parseTransferOp(parser, result);
         }
-        if (opName === 'vector.extract' && !op.isGeneric) {
-            this._operations.get(opName).hasParseOperation = false; // compatibility
-            return this.parseExtractOp(parser, op);
+        if (result.op === 'vector.extract' && !result.isGeneric) {
+            result.compatibility = true; // compatibility
+            return this.parseExtractOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseOuterProductOp(parser, op) {
+    parseOuterProductOp(parser, result) {
         const unresolvedLhs = parser.parseOperand();
         parser.parseComma();
         const unresolvedRhs = parser.parseOperand();
@@ -9069,22 +9069,22 @@ _.VectorDialect = class extends _.Dialect {
         if (parser.parseOptionalComma()) {
             unresolvedAcc = parser.parseOperand();
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const lhsType = parser.parseType();
             parser.parseComma();
             const rhsType = parser.parseType();
-            parser.resolveOperand(unresolvedLhs, lhsType, op.operands);
-            parser.resolveOperand(unresolvedRhs, rhsType, op.operands);
+            parser.resolveOperand(unresolvedLhs, lhsType, result.operands);
+            parser.resolveOperand(unresolvedRhs, rhsType, result.operands);
             if (unresolvedAcc) {
                 // Accumulator type - typically same as result, use rhs type as approximation
-                parser.resolveOperand(unresolvedAcc, rhsType, op.operands);
+                parser.resolveOperand(unresolvedAcc, rhsType, result.operands);
             }
         }
         return true;
     }
 
-    parseExtractOp(parser, op) {
+    parseExtractOp(parser, result) {
         // Old syntax (pre-2023): %r = vector.extract %v[0] : vector<4xf32>
         // New syntax: %r = vector.extract %v[0] : f32 from vector<4xf32>
         const unresolvedSource = parser.parseOperand();
@@ -9107,7 +9107,7 @@ _.VectorDialect = class extends _.Dialect {
             parser.parseOptionalRSquare();
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Parse type signature: : result_type [from source_type]
         if (parser.parseOptionalColon()) {
@@ -9116,20 +9116,20 @@ _.VectorDialect = class extends _.Dialect {
             // Check for 'from' keyword (new syntax)
             if (parser.accept('id', 'from')) {
                 const sourceType = parser.parseType();
-                parser.resolveOperand(unresolvedSource, sourceType, op.operands);
-                op.addTypes([resultType]);
+                parser.resolveOperand(unresolvedSource, sourceType, result.operands);
+                result.addTypes([resultType]);
             } else {
                 // Old syntax: the type after ':' is the source type
-                parser.resolveOperand(unresolvedSource, resultType, op.operands);
+                parser.resolveOperand(unresolvedSource, resultType, result.operands);
             }
             // Resolve dynamic indices with index type
-            parser.resolveOperands(unresolvedDynIndices, unresolvedDynIndices.map(() => indexType), op.operands);
+            parser.resolveOperands(unresolvedDynIndices, unresolvedDynIndices.map(() => indexType), result.operands);
         }
 
         return true;
     }
 
-    parseTransferOp(parser, op) {
+    parseTransferOp(parser, result) {
         //    or: vector.transfer_read %source[%i, %j, ...], %padding, %mask {attrs} : memref_type, vector_type
         //    or: vector.transfer_write %value, %dest[%i, %j, ...] {attrs} : vector_type, memref_type
         //    or: vector.transfer_write %value, %dest[%i, %j, ...], %mask {attrs} : vector_type, memref_type
@@ -9151,7 +9151,7 @@ _.VectorDialect = class extends _.Dialect {
             unresolvedMask = parser.parseOperand();
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Type signature: : memref_type, vector_type
         if (parser.parseOptionalColon()) {
@@ -9159,15 +9159,15 @@ _.VectorDialect = class extends _.Dialect {
             parser.parseOptionalComma();
             const type2 = parser.parseType();
             // Resolve operands with types
-            parser.resolveOperand(unresolvedFirst, type1, op.operands);
-            parser.resolveOperand(unresolvedSecond, type2, op.operands);
+            parser.resolveOperand(unresolvedFirst, type1, result.operands);
+            parser.resolveOperand(unresolvedSecond, type2, result.operands);
             if (unresolvedMask) {
                 // Mask type would be a vector of i1, use type2 as approximation
-                parser.resolveOperand(unresolvedMask, type2, op.operands);
+                parser.resolveOperand(unresolvedMask, type2, result.operands);
             }
             // For transfer_read, type2 is the result type
-            if (op.types.length > 0) {
-                op.types[0] = type2.toString();
+            if (result.types.length > 0) {
+                result.types[0] = type2.toString();
             }
         }
 
@@ -9181,35 +9181,35 @@ _.TensorDialect = class extends _.Dialect {
         super(operations, 'tensor');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tensor.expand_shape') {
+    parseOperation(parser, result) {
+        if (result.op === 'tensor.expand_shape') {
             // The new tensor.expand_shape format includes 'output_shape':
             //   $src $reassociation `output_shape` custom<DynamicIndexList>(...) attr-dict `:` type($src) `into` type($result)
             // Old format (deprecated):
             //   $src $reassociation attr-dict `:` type($src) `into` type($result)
-            this.getOperation(opName).hasParseOperation = false; // compatibility
+            result.compatibility = true;
             // Parse operand
             const unresolvedOperand = parser.parseOperand();
             // Parse reassociation attribute [[...]]
             const reassociation = parser.parseAttribute();
-            op.addAttribute('reassociation', reassociation);
+            result.addAttribute('reassociation', reassociation);
             // Check for new vs old format
             if (parser.accept('id', 'output_shape')) {
                 // New format: parse output_shape dynamic index list
-                this.parseDynamicIndexList(parser, op, ['$output_shape', '$static_output_shape']);
+                this.parseDynamicIndexList(parser, result, ['$output_shape', '$static_output_shape']);
             }
             // Both formats: attr-dict `:` type($src) `into` type($result)
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const srcType = parser.parseType();
             // Now resolve the operand with its type
-            parser.resolveOperands([unresolvedOperand], [srcType], op.operands);
+            parser.resolveOperands([unresolvedOperand], [srcType], result.operands);
             parser.expect('id', 'into');
             const resultType = parser.parseType();
-            op.addTypes([resultType]);
+            result.addTypes([resultType]);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -9243,51 +9243,51 @@ _.TorchDialect = class extends _.Dialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName.startsWith('torch.constant.')) {
-            op.label = 'constant';
-        } else if (opName.startsWith('torch.aten.') || opName.startsWith('torch.prim.') || opName.startsWith('torch.prims.') || opName.startsWith('torch.torchvision.')) {
-            op.label = opName.split('.')[2];
+    parseOperation(parser, result) {
+        if (result.op.startsWith('torch.constant.')) {
+            result.label = 'torch.constant';
+        } else if (result.op.startsWith('torch.aten.') || result.op.startsWith('torch.prim.') || result.op.startsWith('torch.prims.') || result.op.startsWith('torch.torchvision.')) {
+            result.label = `${result.op.split('.')[1]}.${result.op.split('.')[2]}`;
         }
-        if (opName === 'torch.constant.int') {
+        if (result.op === 'torch.constant.int') {
             if (parser.match('int')) {
                 const value = parser.expect('int');
-                op.addAttribute('value', value);
+                result.addAttribute('value', value);
             }
-            parser.parseOptionalAttrDict(op.attributes);
-            op.addTypes([new _.Type('!torch.int')]);
+            parser.parseOptionalAttrDict(result.attributes);
+            result.addTypes([new _.Type('!torch.int')]);
             return true;
         }
-        if (opName === 'torch.onnx.rotary_embedding') {
+        if (result.op === 'torch.onnx.rotary_embedding') {
             const unresolvedOperands = parser.parseOperandList();
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.parseOptionalArrow()) {
                 const resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
             return true;
         }
-        if (opName === 'torch.bind_symbolic_shape') {
+        if (result.op === 'torch.bind_symbolic_shape') {
             const unresolved = parser.parseOperand();
             parser.parseOptionalComma();
             const shapeSymbols = parser.parseOperandList('square');
             parser.parseOptionalComma();
             const shapeExpr = parser.parseAttribute();
-            op.addAttribute('shape_expressions', shapeExpr.value || shapeExpr);
-            parser.parseOptionalAttrDict(op.attributes);
+            result.addAttribute('shape_expressions', shapeExpr.value || shapeExpr);
+            parser.parseOptionalAttrDict(result.attributes);
             let type = null;
             if (parser.parseOptionalColon()) {
                 type = parser.parseType();
             }
             // Resolve operands at end
-            parser.resolveOperand(unresolved, type, op.operands);
+            parser.resolveOperand(unresolved, type, result.operands);
             for (const sym of shapeSymbols) {
-                parser.resolveOperand(sym, null, op.operands);
+                parser.resolveOperand(sym, null, result.operands);
             }
             return true;
         }
-        if (opName === 'torch.initialize.global_slots') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'torch.initialize.global_slots') {
+            parser.parseOptionalAttrDict(result.attributes);
             parser.parseLSquare();
             const slotSymNames = [];
             while (!parser.parseOptionalRSquare()) {
@@ -9297,41 +9297,42 @@ _.TorchDialect = class extends _.Dialect {
                 const unresolved = parser.parseOperand();
                 parser.parseColon();
                 const type = parser.parseType();
-                parser.resolveOperand(unresolved, type, op.operands);
+                parser.resolveOperand(unresolved, type, result.operands);
                 parser.parseRParen();
             }
-            op.addAttribute('slotSymNames', slotSymNames);
+            result.addAttribute('slotSymNames', slotSymNames);
             return true;
         }
-        if (this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseDefaultTorchOp(parser, op);
+        const opInfo = result.name.getRegisteredInfo();
+        if (opInfo.metadata.hasCustomAssemblyFormat && !opInfo.metadata.assemblyFormats) {
+            return this.parseDefaultTorchOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseDefaultTorchOp(parser, op) {
+    parseDefaultTorchOp(parser, result) {
         const unresolvedOperands = parser.parseOperandList();
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
-            parser.resolveOperands(unresolvedOperands, parser.parseTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseTypeList(), result.operands);
         } else {
             // Resolve operands without types
             for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
         }
         if (parser.parseOptionalArrow()) {
             // Handle both -> (type, type) and -> type, type syntaxes
             const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
-            op.addTypes(types);
+            result.addTypes(types);
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
             if (parser.accept('id', 'else') && parser.match('{')) {
                 const elseRegion = {};
                 parser.parseRegion(elseRegion);
-                op.regions.push(elseRegion);
+                result.regions.push(elseRegion);
             }
         }
         return true;
@@ -9490,7 +9491,7 @@ _.IREEDialect = class extends _.Dialect {
         }
     }
 
-    parseWorkgroupCountRegion(parser, op) {
+    parseWorkgroupCountRegion(parser, result) {
         if (!parser.match('id', 'workgroups')) {
             return;
         }
@@ -9533,7 +9534,7 @@ _.IREEDialect = class extends _.Dialect {
             parser.parseRBrace();
         }
         region.blocks.push(block);
-        op.regions.push(region);
+        result.regions.push(region);
     }
 };
 
@@ -9561,31 +9562,32 @@ _.HALDialect = class extends _.IREEDialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'hal.tensor.cast') {
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        if (result.op === 'hal.tensor.cast') {
             const unresolvedOperands = parser.parseOperandList();
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperands(unresolvedOperands, [type], op.operands);
+                parser.resolveOperands(unresolvedOperands, [type], result.operands);
             } else {
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             if (parser.parseOptionalArrow()) {
                 const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
+                result.addTypes(types);
             }
             return true;
         }
-        if (opName === 'hal.constant') {
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        if (result.op === 'hal.constant') {
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             const value = parser.parseAttribute();
-            op.addAttribute('value', value.value === undefined ? value : value.value);
-            op.addTypes(parser.parseOptionalColonTypeList());
+            result.addAttribute('value', value.value === undefined ? value : value.value);
+            result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
-        if (opName === 'hal.device.switch') {
+        if (result.op === 'hal.device.switch') {
             if (parser.parseOptionalLess()) {
                 while (!parser.parseOptionalGreater()) {
                     const operand = parser.parseOperand();
@@ -9593,13 +9595,13 @@ _.HALDialect = class extends _.IREEDialect {
                     if (parser.parseOptionalColon()) {
                         type = parser.parseType();
                     }
-                    parser.resolveOperand(operand, type, op.operands);
+                    parser.resolveOperand(operand, type, result.operands);
                     parser.parseOptionalComma();
                 }
             }
             if (parser.parseOptionalArrow() || parser.parseOptionalColon()) {
                 const resultType = parser.parseType();
-                op.types = [resultType];
+                result.types = [resultType];
             }
             while (parser.match('#')) {
                 const region = {};
@@ -9608,19 +9610,19 @@ _.HALDialect = class extends _.IREEDialect {
                 if (parser.match('{')) {
                     parser.parseRegion(region);
                 }
-                op.regions.push(region);
+                result.regions.push(region);
                 parser.parseOptionalComma();
             }
             return true;
         }
-        if (opName === 'hal.executable.constant.block' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'hal.executable.constant.block') {
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
                     if (parser.match('%')) {
                         const arg = parser.parseOperand();
                         parser.parseColon();
                         const type = parser.parseType();
-                        parser.resolveOperand(arg, type, op.operands);
+                        parser.resolveOperand(arg, type, result.operands);
                     }
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -9630,7 +9632,7 @@ _.HALDialect = class extends _.IREEDialect {
             }
             if (parser.parseOptionalArrow()) {
                 const resultTypes = parser.parseFunctionResultTypes();
-                op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], resultTypes)));
+                result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], resultTypes)));
             }
             if (parser.accept('id', 'as')) {
                 if (parser.match('(')) {
@@ -9645,22 +9647,21 @@ _.HALDialect = class extends _.IREEDialect {
                         }
                     }
                     parser.parseRParen();
-                    op.addAttribute('keys', keys);
+                    result.addAttribute('keys', keys);
                 } else if (parser.match('string')) {
                     const key = parser.expect('string');
-                    op.addAttribute('keys', [key]);
+                    result.addAttribute('keys', [key]);
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
         // Handle hal.executable.create with both old (layouts) and new (affinity) syntax
-        if (opName === 'hal.executable.create') {
-            const opInfo = this.getOperation(opName);
-            opInfo.hasParseOperation = false; // compatibility?
+        if (result.op === 'hal.executable.create') {
+            result.compatibility = true;
             const inputNames = new Set(opInfo.metadata.operands.map((input) => input.name));
             // Parse named parameters: device(...), target(...), and either layouts(...) or affinity(...)
             while (parser.match('id') && !parser.match(':') && !parser.match('loc')) {
@@ -9675,14 +9676,14 @@ _.HALDialect = class extends _.IREEDialect {
                             operandType = parser.parseType();
                         }
                         parser.parseRParen();
-                        parser.resolveOperand(operand, operandType, op.operands);
+                        parser.resolveOperand(operand, operandType, result.operands);
                     } else if (inputNames.has(paramName) && parser.match('[')) {
                         // Parse as a variadic operand: [%v1, %v2, ...]
                         parser.parseLSquare();
                         while (!parser.match(']')) {
                             if (parser.match('%')) {
                                 const operand = parser.parseOperand();
-                                parser.resolveOperand(operand, null, op.operands);
+                                parser.resolveOperand(operand, null, result.operands);
                             }
                             parser.parseOptionalComma();
                         }
@@ -9709,44 +9710,44 @@ _.HALDialect = class extends _.IREEDialect {
                         }
                         // Normalize old 'layouts' parameter to 'affinity' for consistency
                         const normalizedName = paramName === 'layouts' ? 'affinity' : paramName;
-                        op.addAttribute(normalizedName, paramValue);
+                        result.addAttribute(normalizedName, paramValue);
                     }
                 } else {
                     break;
                 }
             }
-            op.addTypes(parser.parseOptionalColonTypeList());
+            result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
         // Handle operations with <%operand : type> syntax and/or named parameters
         // e.g., hal.allocator.compute_size<%allocator : !hal.allocator> shape([...]) type(...) encoding(...) : index
         // or hal.executable_layout.lookup device(%device : !hal.device) layouts([[...]]) : !hal.executable_layout
         // Exclude hal.executable, hal.interface, and hal.device.switch which have special handling
-        if ((opName.startsWith('hal.allocator.') || opName.startsWith('hal.buffer.') || opName.startsWith('hal.buffer_view.') ||
-            opName.startsWith('hal.command_buffer.') || opName.startsWith('hal.executable_layout') ||
-            opName.startsWith('hal.executable.') || opName.startsWith('hal.descriptor_set_layout') ||
-            opName.startsWith('hal.device.')) &&
-            opName !== 'hal.device.allocator' &&
-            opName !== 'hal.buffer_view.buffer' &&
-            opName !== 'hal.executable' &&
-            opName !== 'hal.interface' &&
-            opName !== 'hal.device.switch' &&
-            opName !== 'hal.device.memoize' &&
-            opName !== 'hal.command_buffer.execution_barrier' &&
-            opName !== 'hal.executable.entry_point' &&
-            opName !== 'hal.executable.variant' &&
-            opName !== 'hal.executable.lookup' &&
-            opName !== 'hal.interface.binding' &&
-            opName !== 'hal.executable.create' &&
-            opName !== 'hal.executable.export' &&
-            opName !== 'hal.executable.binary' &&
-            opName !== 'hal.executable.source' &&
-            opName !== 'hal.executable.condition' &&
-            opName !== 'hal.executable.constant.block' &&
-            opName !== 'hal.executable.constant.load') {
+        if ((result.op.startsWith('hal.allocator.') || result.op.startsWith('hal.buffer.') || result.op.startsWith('hal.buffer_view.') ||
+            result.op.startsWith('hal.command_buffer.') || result.op.startsWith('hal.executable_layout') ||
+            result.op.startsWith('hal.executable.') || result.op.startsWith('hal.descriptor_set_layout') ||
+            result.op.startsWith('hal.device.')) &&
+            result.op !== 'hal.device.allocator' &&
+            result.op !== 'hal.buffer_view.buffer' &&
+            result.op !== 'hal.executable' &&
+            result.op !== 'hal.interface' &&
+            result.op !== 'hal.device.switch' &&
+            result.op !== 'hal.device.memoize' &&
+            result.op !== 'hal.command_buffer.execution_barrier' &&
+            result.op !== 'hal.executable.entry_point' &&
+            result.op !== 'hal.executable.variant' &&
+            result.op !== 'hal.executable.lookup' &&
+            result.op !== 'hal.interface.binding' &&
+            result.op !== 'hal.executable.create' &&
+            result.op !== 'hal.executable.export' &&
+            result.op !== 'hal.executable.binary' &&
+            result.op !== 'hal.executable.source' &&
+            result.op !== 'hal.executable.condition' &&
+            result.op !== 'hal.executable.constant.block' &&
+            result.op !== 'hal.executable.constant.load') {
             // Parse <%operand : type> if present
-            if (opName === 'hal.allocator.allocate' || opName === 'hal.command_buffer.create' || opName === 'hal.buffer_view.create' || opName === 'hal.command_buffer.device' || opName === 'hal.command_buffer.dispatch' || opName === 'hal.device.query') {
-                this.getOperation(opName).hasParseOperation = false; // compatibility?
+            if (result.op === 'hal.allocator.allocate' || result.op === 'hal.command_buffer.create' || result.op === 'hal.buffer_view.create' || result.op === 'hal.command_buffer.device' || result.op === 'hal.command_buffer.dispatch' || result.op === 'hal.device.query') {
+                result.compatibility = true;
             }
             if (parser.parseOptionalLess()) {
                 while (!parser.parseOptionalGreater()) {
@@ -9755,7 +9756,7 @@ _.HALDialect = class extends _.IREEDialect {
                     if (parser.parseOptionalColon()) {
                         type = parser.parseType();
                     }
-                    parser.resolveOperand(operand, type, op.operands);
+                    parser.resolveOperand(operand, type, result.operands);
                     parser.parseOptionalComma();
                 }
             }
@@ -9774,8 +9775,7 @@ _.HALDialect = class extends _.IREEDialect {
                 const paramName = parser.expect('id');
                 if (parser.parseOptionalLParen()) {
                     // Check if this named parameter is actually an input from the operation metadata
-                    const opInfo = this.getOperation(opName);
-                    const inputNames = new Set((opInfo && opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
+                    const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
                     if (inputNames.has(paramName) && parser.match('%')) {
                         // Parse as a simple operand: %value : type
                         const operand = parser.parseOperand();
@@ -9784,14 +9784,14 @@ _.HALDialect = class extends _.IREEDialect {
                             operandType = parser.parseType();
                         }
                         parser.parseRParen();
-                        parser.resolveOperand(operand, operandType, op.operands);
+                        parser.resolveOperand(operand, operandType, result.operands);
                     } else if (inputNames.has(paramName) && parser.match('[')) {
                         // Parse as a variadic operand: [%v1, %v2, ...]
                         parser.parseLSquare();
                         while (!parser.match(']')) {
                             if (parser.match('%')) {
                                 const operand = parser.parseOperand();
-                                parser.resolveOperand(operand, null, op.operands);
+                                parser.resolveOperand(operand, null, result.operands);
                             }
                             parser.parseOptionalComma();
                         }
@@ -9816,7 +9816,7 @@ _.HALDialect = class extends _.IREEDialect {
                                 paramValue += parser.expect();
                             }
                         }
-                        op.addAttribute(paramName, paramValue);
+                        result.addAttribute(paramName, paramValue);
                     }
                 } else {
                     // Not a named parameter - we've consumed an id token that doesn't belong to us
@@ -9824,44 +9824,44 @@ _.HALDialect = class extends _.IREEDialect {
                     break;
                 }
             }
-            op.addTypes(parser.parseOptionalColonTypeList());
+            result.addTypes(parser.parseOptionalColonTypeList());
             // Handle old IREE format: !hal.buffer{%size} where {%size} follows the type
             if (parser.match('{')) {
                 parser.skip('{');
             }
             if (parser.parseOptionalEqual()) {
                 const value = parser.parseAttribute();
-                op.addAttribute('default', value.value);
+                result.addAttribute('default', value.value);
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
-        if (opName === 'hal.executable.condition' || opName === 'hal.executable.constant.block') {
+        if (result.op === 'hal.executable.condition' || result.op === 'hal.executable.constant.block') {
             const sig = parser.parseFunctionSignatureWithArguments(false);
             const argTypes = sig.arguments.map((a) => a.type);
             const type = new _.FunctionType(argTypes, sig.resultTypes);
-            op.addAttribute('function_type', new _.TypeAttrOf(type));
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            result.addAttribute('function_type', new _.TypeAttrOf(type));
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region, sig.arguments);
             }
             return true;
         }
         // Handle operations with visibility + symbol (similar to flow dialect)
-        if (opName === 'hal.executable' || opName === 'hal.executable.source' || opName === 'hal.interface' || opName === 'hal.executable.binary') {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'hal.executable' || result.op === 'hal.executable.source' || result.op === 'hal.interface' || result.op === 'hal.executable.binary') {
+            result.compatibility = true;
             if (parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested')) {
                 parser.expect('id');
             }
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
@@ -9869,11 +9869,11 @@ _.HALDialect = class extends _.IREEDialect {
         // Handle hal.interface.binding.subspan with old syntax (symbol reference)
         // Old syntax: hal.interface.binding.subspan @io::@binding[operand] : type
         // New syntax: hal.interface.binding.subspan layout(...) binding(...) : type
-        if (opName === 'hal.interface.binding.subspan' && parser.match('@')) {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'hal.interface.binding.subspan' && parser.match('@')) {
+            result.compatibility = true;
             // Old syntax - parse symbol reference and bracket expression
             const symbolRef = parser.expect('@');
-            op.addAttribute('layout', symbolRef);
+            result.addAttribute('layout', symbolRef);
             const unresolvedOperands = [];
             const indexType = new _.PrimitiveType('index');
             if (parser.parseOptionalLSquare()) {
@@ -9888,11 +9888,11 @@ _.HALDialect = class extends _.IREEDialect {
                 }
             }
             // Resolve bracket operands with index type
-            parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
+            parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), result.operands);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (type) {
-                    op.addTypes([type.toString()]);
+                    result.addTypes([type.toString()]);
                 }
                 if (parser.parseOptionalLBrace()) {
                     const dynamicDimOperands = [];
@@ -9904,19 +9904,19 @@ _.HALDialect = class extends _.IREEDialect {
                     }
                     parser.parseRBrace();
                     // Resolve dynamic dims with index type
-                    parser.resolveOperands(dynamicDimOperands, dynamicDimOperands.map(() => indexType), op.operands);
+                    parser.resolveOperands(dynamicDimOperands, dynamicDimOperands.map(() => indexType), result.operands);
                 }
             }
             return true;
         }
         // Handle operations with named parameters: hal.interface.binding, hal.executable.variant, etc.
-        if (opName === 'hal.interface.binding' || opName === 'hal.executable.variant' || opName === 'hal.executable.entry_point' || opName === 'hal.executable.export') {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'hal.interface.binding' || result.op === 'hal.executable.variant' || result.op === 'hal.executable.entry_point' || result.op === 'hal.executable.export') {
+            result.compatibility = true;
             if (parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested')) {
                 parser.expect('id');
             }
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
                 parser.parseOptionalComma();
             }
             while (parser.match('id') && !parser.match('id', 'attributes') && !parser.match('{') && !parser.match('loc')) {
@@ -9944,7 +9944,7 @@ _.HALDialect = class extends _.IREEDialect {
                     parser.parseType();
                     const conditionRegion = { arguments: regionArgs };
                     parser.parseRegion(conditionRegion);
-                    op.regions.push(conditionRegion);
+                    result.regions.push(conditionRegion);
                     continue;
                 }
                 if (parser.parseOptionalLParen()) {
@@ -9965,18 +9965,18 @@ _.HALDialect = class extends _.IREEDialect {
                             paramValue += parser.expect();
                         }
                     }
-                    op.addAttribute(paramName, paramValue);
+                    result.addAttribute(paramName, paramValue);
                     parser.parseOptionalComma();
                 } else if (parser.parseOptionalEqual()) {
                     if (parser.match('#')) {
                         const value = parser.parseAttribute();
-                        op.addAttribute(paramName, value.value);
+                        result.addAttribute(paramName, value.value);
                     } else if (parser.match('string')) {
                         const value = parser.expect('string');
-                        op.addAttribute(paramName, value);
+                        result.addAttribute(paramName, value);
                     } else {
                         const value = parser.expect();
-                        op.addAttribute(paramName, value);
+                        result.addAttribute(paramName, value);
                     }
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -9991,24 +9991,24 @@ _.HALDialect = class extends _.IREEDialect {
                 parser.parseFunctionResultList(resultTypes, resultAttrs);
             }
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.accept('id', 'count')) {
-                this.parseWorkgroupCountRegion(parser, op);
+                this.parseWorkgroupCountRegion(parser, result);
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.accept('id', 'count')) {
-                this.parseWorkgroupCountRegion(parser, op);
+                this.parseWorkgroupCountRegion(parser, result);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parsePipelineLayoutAttr(parser) {
@@ -10019,7 +10019,7 @@ _.HALDialect = class extends _.IREEDialect {
         return parser.parseOptionalAttribute();
     }
 
-    parseExportConditionRegion(parser, op) {
+    parseExportConditionRegion(parser, result) {
         parser.parseLParen();
         const regionArgs = [];
         while (!parser.match(')')) {
@@ -10038,17 +10038,17 @@ _.HALDialect = class extends _.IREEDialect {
         parser.parseType();
         const region = { arguments: regionArgs };
         parser.parseRegion(region);
-        op.regions.push(region);
+        result.regions.push(region);
     }
 
-    parseTargetConditionObjects(parser, op) {
+    parseTargetConditionObjects(parser, result) {
         // #target if(...) { region } ordinal(N) = [objects], ...
         do {
             if (parser.match('#')) {
                 parser.parseAttribute();
             }
             if (parser.accept('id', 'if')) {
-                this.parseTargetConditionRegion(parser, op);
+                this.parseTargetConditionRegion(parser, result);
             }
             if (parser.accept('id', 'ordinal')) {
                 parser.parseLParen();
@@ -10063,7 +10063,7 @@ _.HALDialect = class extends _.IREEDialect {
         } while (parser.parseOptionalComma());
     }
 
-    parseTargetConditionRegion(parser, op) {
+    parseTargetConditionRegion(parser, result) {
         parser.parseLParen();
         while (!parser.match(')') && !parser.match('eof')) {
             parser.parseOperand();
@@ -10079,12 +10079,12 @@ _.HALDialect = class extends _.IREEDialect {
             parser.parseType();
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
     }
 
-    parseWorkgroupCountRegion(parser, op) {
+    parseWorkgroupCountRegion(parser, result) {
         // (args) -> (index, index, index) { region }
         const region = { blocks: [] };
         const block = { arguments: [], operations: [] };
@@ -10115,7 +10115,7 @@ _.HALDialect = class extends _.IREEDialect {
         if (parser.match('{')) {
             parser.parseRegion(region);
         }
-        op.regions.push(region);
+        result.regions.push(region);
     }
 };
 
@@ -10125,8 +10125,8 @@ _.IREECodegenDialect = class extends _.Dialect {
         super(operations, 'iree_codegen');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'iree_codegen.workgroup_count_hint' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+    parseOperation(parser, result) {
+        if (result.op === 'iree_codegen.workgroup_count_hint') {
             const staticSizes = [];
             const unresolvedSizes = [];
             parser.accept('id', 'sizes');
@@ -10147,15 +10147,15 @@ _.IREECodegenDialect = class extends _.Dialect {
             // Resolve operands with index type (sizes are typically index)
             const indexType = new _.PrimitiveType('index');
             for (const unresolved of unresolvedSizes) {
-                parser.resolveOperand(unresolved, indexType, op.operands);
+                parser.resolveOperand(unresolved, indexType, result.operands);
             }
             if (staticSizes.length > 0) {
-                op.addAttribute('static_sizes', staticSizes);
+                result.addAttribute('static_sizes', staticSizes);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -10166,7 +10166,7 @@ _.HALLoaderDialect = class extends _.Dialect {
         this.registerCustomDirective('DispatchBindings', this.parseDispatchBindings.bind(this));
     }
 
-    parseDispatchBindings(parser, op) {
+    parseDispatchBindings(parser, result) {
         const unresolvedBuffers = [];
         const bufferTypes = [];
         const unresolvedOffsets = [];
@@ -10186,13 +10186,13 @@ _.HALLoaderDialect = class extends _.Dialect {
         // Resolve all operands
         const indexType = new _.PrimitiveType('index');
         for (let i = 0; i < unresolvedBuffers.length; i++) {
-            parser.resolveOperand(unresolvedBuffers[i], bufferTypes[i], op.operands);
+            parser.resolveOperand(unresolvedBuffers[i], bufferTypes[i], result.operands);
         }
         for (const unresolved of unresolvedOffsets) {
-            parser.resolveOperand(unresolved, indexType, op.operands);
+            parser.resolveOperand(unresolved, indexType, result.operands);
         }
         for (const unresolved of unresolvedLengths) {
-            parser.resolveOperand(unresolved, indexType, op.operands);
+            parser.resolveOperand(unresolved, indexType, result.operands);
         }
     }
 };
@@ -10314,53 +10314,53 @@ _.UtilDialect = class extends _.IREEDialect {
         }
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'util.assume.int') {
-            return this.parseAssumeIntOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'util.assume.int') {
+            return this.parseAssumeIntOp(parser, result);
         }
-        if (opName === 'util.initializer') {
+        if (result.op === 'util.initializer') {
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'util.unreachable') {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'util.unreachable') {
+            result.compatibility = true;
             if (parser.match('string')) {
                 const message = parser.expect('string');
-                op.addAttribute('message', message);
+                result.addAttribute('message', message);
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             return true;
         }
-        if (opName === 'util.func') {
-            this.parseUtilFuncOp(parser, op);
+        if (result.op === 'util.func') {
+            this.parseUtilFuncOp(parser, result);
             return true;
         }
-        if (opName === 'util.unfoldable_constant') {
+        if (result.op === 'util.unfoldable_constant') {
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             const value = parser.parseAttribute();
-            op.addAttribute('value', value);
+            result.addAttribute('value', value);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addTypes([type]);
+                result.addTypes([type]);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseUtilFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
+    parseUtilFuncOp(parser, result) {
+        parser.parseOptionalVisibilityKeyword(result.attributes);
+        parser.parseSymbolName('sym_name', result.attributes);
         const argResult = parser.parseFunctionArgumentList(false);
         const resultTypes = [];
         const resultAttrs = [];
@@ -10416,25 +10416,25 @@ _.UtilDialect = class extends _.IREEDialect {
         }
         const argTypes = argResult.arguments.filter((a) => a.value !== '...').map((a) => a.type);
         const type = new _.FunctionType(argTypes, resultTypes);
-        op.addAttribute('function_type', new _.TypeAttrOf(type));
+        result.addAttribute('function_type', new _.TypeAttrOf(type));
         if (tiedOperandIndices.some((i) => i >= 0)) {
-            op.addAttribute('tied_operands', tiedOperandIndices);
+            result.addAttribute('tied_operands', tiedOperandIndices);
         }
         if (resultAttrs.some((a) => a !== null)) {
-            op.addAttribute('res_attrs', resultAttrs);
+            result.addAttribute('res_attrs', resultAttrs);
         }
         const argAttrs = argResult.arguments.filter((a) => a.value !== '...').map((a) => a.attrs || null);
         if (argAttrs.some((a) => a !== null)) {
-            op.addAttribute('arg_attrs', argAttrs);
+            result.addAttribute('arg_attrs', argAttrs);
         }
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, argResult.arguments);
         }
     }
 
-    parseAssumeIntOp(parser, op) {
+    parseAssumeIntOp(parser, result) {
         const allOperandAssumptions = [];
         const unresolvedOperands = [];
 
@@ -10463,16 +10463,16 @@ _.UtilDialect = class extends _.IREEDialect {
             parsedOperandTypes.push(type);
         } while (parser.parseOptionalComma());
         // Resolve operands with types
-        parser.resolveOperands(unresolvedOperands, parsedOperandTypes, op.operands);
+        parser.resolveOperands(unresolvedOperands, parsedOperandTypes, result.operands);
         // Add result types (same as operand types for this op)
         for (const type of parsedOperandTypes) {
-            op.addTypes([type || null]);
+            result.addTypes([type || null]);
         }
 
-        op.addAttribute('assumptions', allOperandAssumptions);
+        result.addAttribute('assumptions', allOperandAssumptions);
 
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
 
         return true;
@@ -10565,7 +10565,7 @@ _.UtilDialect = class extends _.IREEDialect {
         }
     }
 
-    parseValueTypeList(parser, op) {
+    parseValueTypeList(parser, result) {
         parser.parseLSquare();
         if (!parser.match(']')) {
             const unresolvedOperands = [];
@@ -10575,7 +10575,7 @@ _.UtilDialect = class extends _.IREEDialect {
                 parser.parseColon();
                 types.push(parser.parseType());
             } while (parser.parseOptionalComma());
-            parser.resolveOperands(unresolvedOperands, types, op.operands);
+            parser.resolveOperands(unresolvedOperands, types, result.operands);
         }
         parser.parseRSquare();
     }
@@ -10610,42 +10610,42 @@ _.FlowDialect = class extends _.IREEDialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'flow.ex.stream.fragment') {
-            return this.parseDispatchWorkgroupsOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'flow.ex.stream.fragment') {
+            return this.parseDispatchWorkgroupsOp(parser, result);
         }
-        if (opName === 'flow.dispatch.region') {
-            return this.parseDispatchRegionOp(parser, op);
+        if (result.op === 'flow.dispatch.region') {
+            return this.parseDispatchRegionOp(parser, result);
         }
-        if (opName === 'flow.dispatch.tensor.load' || opName === 'flow.dispatch.tensor.store') {
-            return this.parseTensorLoadStoreOp(parser, op);
+        if (result.op === 'flow.dispatch.tensor.load' || result.op === 'flow.dispatch.tensor.store') {
+            return this.parseTensorLoadStoreOp(parser, result);
         }
         // Handle operations with visibility + symbol that aren't in schema or need manual parsing
-        if (opName === 'flow.dispatch.entry') {
+        if (result.op === 'flow.dispatch.entry') {
             if (parser.match('id', 'private') || parser.match('id', 'public') || parser.match('id', 'nested')) {
                 parser.expect('id');
             }
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'flow.func') {
-            return this.parseFlowFuncOp(parser, op);
+        if (result.op === 'flow.func') {
+            return this.parseFlowFuncOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseFlowFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
+    parseFlowFuncOp(parser, result) {
+        parser.parseOptionalVisibilityKeyword(result.attributes);
+        parser.parseSymbolName('sym_name', result.attributes);
         const argResult = parser.parseFunctionArgumentList();
         const inputs = argResult.arguments.map((a) => a.type);
         const results = [];
@@ -10679,19 +10679,19 @@ _.FlowDialect = class extends _.IREEDialect {
                 parser.parseRParen();
             }
         }
-        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
     }
 
-    parseDispatchRegionOp(parser, op) {
+    parseDispatchRegionOp(parser, result) {
         const workloadOperands = parser.parseOperandList('optionalSquare');
         for (const workload of workloadOperands) {
-            parser.resolveOperand(workload, null, op.operands);
+            parser.resolveOperand(workload, null, result.operands);
         }
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
@@ -10700,26 +10700,26 @@ _.FlowDialect = class extends _.IREEDialect {
                     if (parser.parseOptionalLBrace()) {
                         while (!parser.parseOptionalRBrace()) {
                             const tied = parser.parseOperand();
-                            parser.resolveOperand(tied, null, op.operands);
+                            parser.resolveOperand(tied, null, result.operands);
                             parser.parseOptionalComma();
                         }
                     }
-                    op.types.push(type);
+                    result.types.push(type);
                     parser.parseOptionalComma();
                 }
             }
         }
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         // Parse optional count region
-        this.parseDispatchWorkgroupsCountRegion(parser, op);
+        this.parseDispatchWorkgroupsCountRegion(parser, result);
         return true;
     }
 
-    parseDispatchWorkgroupsOp(parser, op) {
+    parseDispatchWorkgroupsOp(parser, result) {
         // Parse subscript values: [%c32, %c112, %c112]
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
@@ -10728,14 +10728,14 @@ _.FlowDialect = class extends _.IREEDialect {
             }
         }
         const unresolvedOperands = parser.parseOperandList('paren');
-        parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+        parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
         }
         // Parse optional attributes before =
         if (parser.accept('id', 'attributes')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Parse region with arguments: = (%arg2: type, %arg3: type) { ... }
         if (parser.parseOptionalEqual()) {
@@ -10753,7 +10753,7 @@ _.FlowDialect = class extends _.IREEDialect {
                 parser.parseType();
             }
             // Parse region body using parseRegion (matches ref impl)
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, args, /* enableNameShadowing */ true);
         }
         return true;
@@ -10832,7 +10832,7 @@ _.FlowDialect = class extends _.IREEDialect {
         }
     }
 
-    parseTensorLoadStoreOp(parser, op) {
+    parseTensorLoadStoreOp(parser, result) {
         //    or: store %26, %arg4, offsets = [...] : type -> type
         const unresolvedOperands = [];
         while (parser.match('%')) {
@@ -10858,14 +10858,14 @@ _.FlowDialect = class extends _.IREEDialect {
                     } else {
                         parser.expect();
                     }
-                    op.addAttribute(paramName, paramName);
+                    result.addAttribute(paramName, paramName);
                 }
             } else {
                 break;
             }
         }
         const types = parser.parseOptionalColonTypeList();
-        parser.resolveOperands(unresolvedOperands, types, op.operands);
+        parser.resolveOperands(unresolvedOperands, types, result.operands);
         // For tensor.load, there's a -> result type
         // For tensor.store, the -> is followed by the output tensor type (not a result)
         if (parser.parseOptionalArrow() || parser.accept('id', 'to')) {
@@ -10926,7 +10926,7 @@ _.FlowDialect = class extends _.IREEDialect {
         op.regions.push(region);
     }
 
-    parseShapedOperandList(parser, op) {
+    parseShapedOperandList(parser, result) {
         const unresolvedValues = [];
         const valueTypes = [];
         const unresolvedDims = [];
@@ -10951,11 +10951,11 @@ _.FlowDialect = class extends _.IREEDialect {
         } while (parser.parseOptionalComma());
         // Resolve all operands
         for (let i = 0; i < unresolvedValues.length; i++) {
-            parser.resolveOperand(unresolvedValues[i], valueTypes[i], op.operands);
+            parser.resolveOperand(unresolvedValues[i], valueTypes[i], result.operands);
         }
         const indexType = new _.PrimitiveType('index');
         for (const unresolved of unresolvedDims) {
-            parser.resolveOperand(unresolved, indexType, op.operands);
+            parser.resolveOperand(unresolved, indexType, result.operands);
         }
     }
 };
@@ -11254,14 +11254,8 @@ _.StreamDialect = class extends _.IREEDialect {
         }
     }
 
-    // The param is optional and depends on the collective operation type (op attribute).
-    // For all_gather/all_reduce: no param needed (returns without parsing)
-    // For broadcast/reduce/send/recv/send_recv: parses keyword(operand) syntax
-    // Since we can't easily determine op type here, we parse optional keyword(operand) pattern
     parseCollectiveParam(parser, op /*, args */) {
-        // Check for keyword(operand) pattern: source(%val), target(%val), or source_target_pair(%val)
-        const keywords = ['source', 'target', 'source_target_pair'];
-        for (const keyword of keywords) {
+        for (const keyword of ['source', 'target', 'source_target_pair']) {
             if (parser.match('id', keyword)) {
                 parser.expect('id', keyword);
                 parser.parseLParen();
@@ -11528,10 +11522,6 @@ _.StreamDialect = class extends _.IREEDialect {
         return new _.Type(type);
     }
 
-    parseOperation(parser, opName, op) {
-        return super.parseOperation(parser, opName, op);
-    }
-
     parseDispatchOperands(parser, op /*, args */) {
         // args would be: [$resource_operands, $resource_operand_offsets, $resource_operand_ends, $resource_operand_lengths]
         parser.parseLParen();
@@ -11583,7 +11573,7 @@ _.PCFDialect = class extends _.Dialect {
     parseInferNumIndexArgs() {
     }
 
-    parseParallelExecutionBody(parser, op) {
+    parseParallelExecutionBody(parser, result) {
         const inits = [];
         const dynamicSizes = [];
         const resultTypes = [];
@@ -11596,7 +11586,7 @@ _.PCFDialect = class extends _.Dialect {
                 const arg = parser.parseOperand();
                 parser.parseColon();
                 const argType = parser.parseType();
-                op.addAttribute('num_leading_args', (op.attributes.get('num_leading_args') || 0) + 1);
+                result.addAttribute('num_leading_args', (result.attributes.get('num_leading_args') || 0) + 1);
                 regionRefArgs.push({ value: arg, type: argType });
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -11635,7 +11625,7 @@ _.PCFDialect = class extends _.Dialect {
         parser.parseRSquare();
         if (regionRefArgs.length > 0 && parser.parseOptionalColon()) {
             parser.parseLParen();
-            let refIdx = op.attributes.get('num_leading_args') || 0;
+            let refIdx = result.attributes.get('num_leading_args') || 0;
             while (!parser.match(')')) {
                 const refType = parser.parseType();
                 if (refIdx < regionRefArgs.length) {
@@ -11652,7 +11642,7 @@ _.PCFDialect = class extends _.Dialect {
             while (!parser.match(')')) {
                 const resType = parser.parseType();
                 resultTypes.push(resType);
-                op.addTypes([resType]);
+                result.addTypes([resType]);
                 if (parser.parseOptionalLBrace()) {
                     while (!parser.match('}')) {
                         const dim = parser.parseOperand();
@@ -11670,17 +11660,17 @@ _.PCFDialect = class extends _.Dialect {
             parser.parseRParen();
         }
         for (const init of inits) {
-            parser.resolveOperand(init.value, null, op.operands);
+            parser.resolveOperand(init.value, null, result.operands);
         }
         for (const dim of dynamicSizes) {
-            parser.resolveOperand(dim.value, null, op.operands);
+            parser.resolveOperand(dim.value, null, result.operands);
         }
         if (isTied.length > 0) {
-            op.addAttribute('is_tied', isTied);
+            result.addAttribute('is_tied', isTied);
         }
         const region = { blocks: [{ arguments: [...regionRefArgs, ...indexArgs], operations: [] }] };
         parser.parseRegion(region);
-        op.regions.push(region);
+        result.regions.push(region);
     }
 };
 
@@ -11690,8 +11680,8 @@ _.IREEVectorExtDialect = class extends _.Dialect {
         super(operations, 'iree_vector_ext');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'iree_vector_ext.transfer_gather') {
+    parseOperation(parser, result) {
+        if (result.op === 'iree_vector_ext.transfer_gather') {
             // Parse source operand
             const unresolvedSource = parser.parseOperand();
             const unresolvedIndices = [];
@@ -11720,10 +11710,10 @@ _.IREEVectorExtDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalComma();
             }
-            op.addAttribute('indexed', indexed);
+            result.addAttribute('indexed', indexed);
             parser.parseComma();
             const padding = parser.parseAttribute();
-            op.addAttribute('padding', padding);
+            result.addAttribute('padding', padding);
             let unresolvedMask = null;
             if (parser.parseOptionalComma()) {
                 if (parser.match('%')) {
@@ -11731,30 +11721,30 @@ _.IREEVectorExtDialect = class extends _.Dialect {
                 }
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             let sourceType = null;
             if (parser.parseOptionalColon()) {
                 sourceType = parser.parseType();
                 parser.parseComma();
                 const resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
             // Resolve all operands
-            parser.resolveOperand(unresolvedSource, sourceType, op.operands);
+            parser.resolveOperand(unresolvedSource, sourceType, result.operands);
             const indexType = new _.PrimitiveType('index');
             for (const idx of unresolvedIndices) {
-                parser.resolveOperand(idx, indexType, op.operands);
+                parser.resolveOperand(idx, indexType, result.operands);
             }
             for (let i = 0; i < unresolvedIndexVecs.length; i++) {
-                parser.resolveOperand(unresolvedIndexVecs[i], indexVecTypes[i], op.operands);
+                parser.resolveOperand(unresolvedIndexVecs[i], indexVecTypes[i], result.operands);
             }
             if (unresolvedMask) {
-                parser.resolveOperand(unresolvedMask, null, op.operands);
+                parser.resolveOperand(unresolvedMask, null, result.operands);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -11804,11 +11794,12 @@ _.LinalgDialect = class extends _.Dialect {
         ]);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'linalg.generic') {
-            return this.parseGenericOp(parser, op);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        if (result.op === 'linalg.generic') {
+            return this.parseGenericOp(parser, result);
         }
-        if (op.name === 'linalg.init_tensor') {
+        if (result.op === 'linalg.init_tensor') {
             if (parser.parseOptionalLSquare()) {
                 const dims = [];
                 while (!parser.match(']')) {
@@ -11820,15 +11811,15 @@ _.LinalgDialect = class extends _.Dialect {
                     parser.parseOptionalComma();
                 }
                 parser.parseRSquare();
-                op.addAttribute('static_sizes', dims);
+                result.addAttribute('static_sizes', dims);
             }
-            op.addTypes(parser.parseOptionalColonTypeList());
+            result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
-        if (opName === 'linalg.fill') {
+        if (result.op === 'linalg.fill') {
             // Form 1: ins/outs format - use parseNamedStructuredOp
             if (parser.match('id', 'ins') || parser.match('{') || parser.match('<')) {
-                return this.parseNamedStructuredOp(parser, op);
+                return this.parseNamedStructuredOp(parser, result);
             }
             let unresolvedOperands = [];
             if (parser.parseOptionalLParen()) {
@@ -11836,57 +11827,57 @@ _.LinalgDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.parseOptionalArrow()) {
                 const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
+                result.addTypes(types);
             }
             return true;
         }
-        if (opName === 'linalg.conv') {
+        if (result.op === 'linalg.conv') {
             let unresolvedOperands = [];
             if (parser.parseOptionalLParen()) {
                 unresolvedOperands = parser.parseOperandList();
                 parser.parseRParen();
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             return true;
         }
-        if (opName === 'linalg.yield') {
+        if (result.op === 'linalg.yield') {
             const unresolvedOperands = parser.parseOperandList();
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             return true;
         }
-        if (opName === 'linalg.transpose') {
-            return this.parseDstStyleOp(parser, op, (parser, attributes) => {
+        if (result.op === 'linalg.transpose') {
+            return this.parseDstStyleOp(parser, result, (parser, attributes) => {
                 parser.parseDenseI64ArrayAttr('permutation', attributes);
             });
         }
-        if (opName === 'linalg.reduce') {
+        if (result.op === 'linalg.reduce') {
             // Optional short form: { payload_op attr-dict }
             let payloadOpName = null;
             const payloadOpAttrs = new Map();
             if (parser.parseOptionalLBrace()) {
-                payloadOpName = parser.parseOperationName();
+                payloadOpName = parser.parseCustomOperationName();
                 if (parser.match('{')) {
                     parser.parseAttributeDict(payloadOpAttrs);
                 }
                 parser.parseRBrace();
             }
             // parseDstStyleOp with parseAttrsFn for dimensions
-            if (!this.parseDstStyleOp(parser, op, (parser, attributes) => {
+            if (!this.parseDstStyleOp(parser, result, (parser, attributes) => {
                 parser.parseDenseI64ArrayAttr('dimensions', attributes);
             })) {
                 return false;
             }
             // Parse block arguments and region (or add body with payload op)
             if (payloadOpName) {
-                this.addBodyWithPayloadOp(op, payloadOpName, payloadOpAttrs, true, true);
+                this.addBodyWithPayloadOp(result, payloadOpName, payloadOpAttrs, true, true);
             } else {
                 // Parse argument list and region inline
                 const regionArgs = [];
@@ -11903,61 +11894,60 @@ _.LinalgDialect = class extends _.Dialect {
                     }
                     parser.parseRParen();
                 }
-                const region = op.addRegion();
+                const region = result.addRegion();
                 if (parser.match('{')) {
                     parser.parseRegion(region, regionArgs);
                 }
             }
             return true;
         }
-        if (opName === 'linalg.broadcast') {
-            return this.parseDstStyleOp(parser, op, (parser, attributes) => {
+        if (result.op === 'linalg.broadcast') {
+            return this.parseDstStyleOp(parser, result, (parser, attributes) => {
                 parser.parseDenseI64ArrayAttr('dimensions', attributes);
             });
         }
-        if (opName === 'linalg.elementwise') {
+        if (result.op === 'linalg.elementwise') {
             // Parse required kind = <attr>
             parser.expect('id', 'kind');
             parser.parseEqual();
             const kind = parser.parseAttribute();
-            op.addAttribute('kind', kind.value);
+            result.addAttribute('kind', kind.value);
             // Parse optional indexing_maps
             const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
             if (indexingMapsAttr !== null) {
-                op.addAttribute('indexing_maps', indexingMapsAttr);
+                result.addAttribute('indexing_maps', indexingMapsAttr);
             }
-            return this.parseNamedStructuredOp(parser, op);
+            return this.parseNamedStructuredOp(parser, result);
         }
-        if (opName === 'linalg.map') {
-            return this.parseMapOp(parser, op);
+        if (result.op === 'linalg.map') {
+            return this.parseMapOp(parser, result);
         }
-        if (opName === 'linalg.contract') {
+        if (result.op === 'linalg.contract') {
             const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
             if (!indexingMapsAttr) {
                 throw new mlir.Error(`Expected 'indexing_maps' attribute ${parser.location()}`);
             }
-            op.addAttribute('indexing_maps', indexingMapsAttr);
-            return this.parseNamedStructuredOp(parser, op);
+            result.addAttribute('indexing_maps', indexingMapsAttr);
+            return this.parseNamedStructuredOp(parser, result);
         }
-        if (this._namedStructuredOps.has(opName)) {
+        if (this._namedStructuredOps.has(result.op)) {
             const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
             if (indexingMapsAttr) {
-                op.addAttribute('indexing_maps', indexingMapsAttr);
+                result.addAttribute('indexing_maps', indexingMapsAttr);
             }
-            return this.parseNamedStructuredOp(parser, op);
+            return this.parseNamedStructuredOp(parser, result);
         }
-        const opInfo = this.getOperation(opName);
-        if (opInfo && opInfo.metadata.assemblyFormat) {
-            return super.parseOperation(parser, opName, op);
+        if (opInfo.metadata && opInfo.metadata.assemblyFormat) {
+            return super.parseOperation(parser, result);
         }
         if (parser.match('{') || parser.match('id', 'ins') || parser.match('id', 'outs')) {
-            if (!this.parseCommonStructuredOpParts(parser, op)) {
+            if (!this.parseCommonStructuredOpParts(parser, result)) {
                 return false;
             }
             // Parse optional attr-dict (for generic ops: attrs = {...})
             if (parser.accept('id', 'attrs')) {
                 parser.parseEqual();
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             } else if (parser.match('{') && !parser.match('{', '^')) {
                 // Inline attr-dict without 'attrs =' prefix (but not a region starting with ^bb)
                 const saved = parser.save();
@@ -11966,17 +11956,17 @@ _.LinalgDialect = class extends _.Dialect {
                     parser.restore(saved);
                 } else {
                     parser.restore(saved);
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
             }
             // Parse optional result types -> type (for named ops like linalg.matmul)
             if (parser.parseOptionalArrow()) {
                 const types = parser.parseFunctionResultTypes();
-                op.addTypes(types);
+                result.addTypes(types);
             }
             // Parse region (for generic ops)
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region, []);
             }
             return true;
@@ -11986,15 +11976,15 @@ _.LinalgDialect = class extends _.Dialect {
 
     // "Common parsing used for both named structured ops created by ods-gen and by
     // manually defined C++ ops. Does not handle regions."
-    parseCommonStructuredOpParts(parser, op) {
+    parseCommonStructuredOpParts(parser, result) {
         // Parse optional properties <{...}>
         if (parser.parseOptionalLess()) {
-            op.propertiesAttr = parser.parseAttribute();
+            result.propertiesAttr = parser.parseAttribute();
             parser.parseGreater();
         }
         // Parse optional attr-dict
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Parse ins(...) operands
         if (parser.accept('id', 'ins')) {
@@ -12016,7 +12006,7 @@ _.LinalgDialect = class extends _.Dialect {
                         break;
                     }
                 }
-                parser.resolveOperands(unresolvedIns, insTypes, op.operands);
+                parser.resolveOperands(unresolvedIns, insTypes, result.operands);
             }
             if (!parser.parseOptionalRParen()) {
                 return false;
@@ -12042,7 +12032,7 @@ _.LinalgDialect = class extends _.Dialect {
                         break;
                     }
                 }
-                parser.resolveOperands(unresolvedOuts, outsTypes, op.operands);
+                parser.resolveOperands(unresolvedOuts, outsTypes, result.operands);
             }
             if (!parser.parseOptionalRParen()) {
                 return false;
@@ -12051,18 +12041,18 @@ _.LinalgDialect = class extends _.Dialect {
         return true;
     }
 
-    parseNamedStructuredOp(parser, op) {
-        if (!this.parseCommonStructuredOpParts(parser, op)) {
+    parseNamedStructuredOp(parser, result) {
+        if (!this.parseCommonStructuredOpParts(parser, result)) {
             return false;
         }
         // Parse optional trailing attribute dict
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Parse optional result types -> type
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
         }
         return true;
     }
@@ -12114,31 +12104,31 @@ _.LinalgDialect = class extends _.Dialect {
             payloadState.attributes.set(name, value);
         }
         block.operations.push(_.Operation.create(payloadState));
-        const yieldState = new _.OperationState('linalg.yield');
+        const yieldState = new _.OperationState(this.getOperation('linalg.yield'));
         block.operations.push(_.Operation.create(yieldState));
         region.blocks = [block];
     }
 
-    parseMapOp(parser, op) {
+    parseMapOp(parser, result) {
         let payloadOpName = null;
         const payloadOpAttrs = new Map();
         if (parser.parseOptionalLBrace()) {
-            payloadOpName = parser.parseOperationName();
+            payloadOpName = parser.parseCustomOperationName();
             if (parser.match('{')) {
                 parser.parseAttributeDict(payloadOpAttrs);
             }
             parser.parseRBrace();
         }
         // parseDstStyleOp (no parseAttrsFn for MapOp)
-        if (!this.parseDstStyleOp(parser, op)) {
+        if (!this.parseDstStyleOp(parser, result)) {
             return false;
         }
         // Parse block arguments and region (or add body with payload op)
         if (payloadOpName) {
-            if (op.operands.length > 0) {
-                this.addBodyWithPayloadOp(op, payloadOpName, payloadOpAttrs, false, false);
+            if (result.operands.length > 0) {
+                this.addBodyWithPayloadOp(result, payloadOpName, payloadOpAttrs, false, false);
             } else {
-                op.addRegion();
+                result.addRegion();
             }
         } else {
             // Parse argument list and region inline
@@ -12156,7 +12146,7 @@ _.LinalgDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            const region = op.addRegion();
+            const region = result.addRegion();
             if (parser.match('{')) {
                 parser.parseRegion(region, regionArgs);
             }
@@ -12164,17 +12154,17 @@ _.LinalgDialect = class extends _.Dialect {
         return true;
     }
 
-    parseGenericOp(parser, op) {
+    parseGenericOp(parser, result) {
         if (parser.match('{') || parser.match('#')) {
             if (parser.match('#')) {
                 const attrRef = parser.expect('#');
-                op.addAttribute('trait', attrRef);
+                result.addAttribute('trait', attrRef);
             } else {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.accept('id', 'ins')) {
             parser.parseLParen();
@@ -12193,7 +12183,7 @@ _.LinalgDialect = class extends _.Dialect {
                         break;
                     }
                 }
-                parser.resolveOperands(unresolvedIns, insTypes, op.operands);
+                parser.resolveOperands(unresolvedIns, insTypes, result.operands);
             }
             parser.parseRParen();
         }
@@ -12214,22 +12204,22 @@ _.LinalgDialect = class extends _.Dialect {
                         break;
                     }
                 }
-                parser.resolveOperands(unresolvedOuts, outsTypes, op.operands);
+                parser.resolveOperands(unresolvedOuts, outsTypes, result.operands);
             }
             parser.parseRParen();
         }
         if (parser.accept('id', 'attrs')) {
             parser.parseEqual();
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         if (parser.parseOptionalArrow()) {
             const hasParens = parser.match('(');
             const types = hasParens ? parser.parseTypeListParens() : parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
         }
         return true;
     }
@@ -12241,41 +12231,41 @@ _.ONNXDialect = class extends _.Dialect {
         super(operations, 'onnx');
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // onnx.Constant has custom assembly format: dense<...> : type
         // Similar to stablehlo.constant
-        if (opName === 'onnx.Constant') {
+        if (result.op === 'onnx.Constant') {
             // Parse attribute (e.g., dense<"0x...">, dense<[1, 2, 3]>, etc.)
             const value = parser.parseAttribute();
             if (value) {
-                op.addAttribute('value', value);
+                result.addAttribute('value', value);
             }
             // Parse result type - either explicit `: type` or from value's type
             // Note: dense<...> : type has the type consumed by parseAttribute
             const types = parser.parseOptionalColonTypeList();
             if (types.length > 0) {
-                op.addTypes([types[0].toString()]);
+                result.addTypes([types[0].toString()]);
             } else if (value && value.type) {
-                op.addTypes([value.type.toString()]);
+                result.addTypes([value.type.toString()]);
             }
             return true;
         }
-        if (opName === 'onnx.ConstantOfShape') {
+        if (result.op === 'onnx.ConstantOfShape') {
             parser.parseLParen();
             const unresolved = parser.parseOperand();
             parser.parseRParen();
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             parser.parseLParen();
             const inputType = parser.parseType();
-            parser.resolveOperand(unresolved, inputType, op.operands);
+            parser.resolveOperand(unresolved, inputType, result.operands);
             parser.parseRParen();
             parser.expect('->');
             const outputType = parser.parseType();
-            op.addTypes([outputType.toString()]);
+            result.addTypes([outputType.toString()]);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -12285,15 +12275,15 @@ _.KrnlDialect = class extends _.Dialect {
         super(operations, 'krnl');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'krnl.define_loops') {
+    parseOperation(parser, result) {
+        if (result.op === 'krnl.define_loops') {
             if (parser.match('int')) {
                 const count = parser.expect('int');
-                op.addAttribute('num_loops', count);
+                result.addAttribute('num_loops', count);
             }
             return true;
         }
-        if (opName === 'krnl.get_linear_offset_index') {
+        if (result.op === 'krnl.get_linear_offset_index') {
             const unresolvedOperands = [];
             const staticIndices = [];
             const memref = parser.parseOperand();
@@ -12316,7 +12306,7 @@ _.KrnlDialect = class extends _.Dialect {
                 }
                 parser.parseRSquare();
                 if (staticIndices.length > 0) {
-                    op.addAttribute('static_indices', staticIndices);
+                    result.addAttribute('static_indices', staticIndices);
                 }
             }
             let type = null;
@@ -12325,11 +12315,11 @@ _.KrnlDialect = class extends _.Dialect {
             }
             // Resolve operands
             for (const unresolved of unresolvedOperands) {
-                parser.resolveOperand(unresolved, type, op.operands);
+                parser.resolveOperand(unresolved, type, result.operands);
             }
             return true;
         }
-        if (opName === 'krnl.prefetch' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'krnl.prefetch') {
             const unresolvedOperands = [];
             const memref = parser.parseOperand();
             unresolvedOperands.push(memref);
@@ -12345,35 +12335,35 @@ _.KrnlDialect = class extends _.Dialect {
             }
             parser.parseComma();
             const readOrWrite = parser.expect('id');
-            op.addAttribute('isWrite', readOrWrite === 'write');
+            result.addAttribute('isWrite', readOrWrite === 'write');
             parser.parseComma();
             parser.expect('id', 'locality');
             parser.parseLess();
             const localityHint = parser.parseInteger();
-            op.addAttribute('localityHint', localityHint);
+            result.addAttribute('localityHint', localityHint);
             parser.parseGreater();
             parser.parseComma();
             const cacheType = parser.expect('id');
-            op.addAttribute('isDataCache', cacheType === 'data');
-            parser.parseOptionalAttrDict(op.attributes);
+            result.addAttribute('isDataCache', cacheType === 'data');
+            parser.parseOptionalAttrDict(result.attributes);
             let type = null;
             if (parser.parseOptionalColon()) {
                 type = parser.parseType();
             }
             // Resolve operands
             for (const unresolved of unresolvedOperands) {
-                parser.resolveOperand(unresolved, type, op.operands);
+                parser.resolveOperand(unresolved, type, result.operands);
             }
             return true;
         }
-        if (opName === 'krnl.iterate') {
+        if (result.op === 'krnl.iterate') {
             const unresolvedOperands = parser.parseOperandList('paren');
             for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
             if (parser.accept('id', 'with')) {
                 parser.parseLParen();
-                const numOptimizedLoops = op.operands.length;
+                const numOptimizedLoops = result.operands.length;
                 while (!parser.match(')')) {
                     parser.parseOperand();
                     parser.expect('->');
@@ -12409,7 +12399,7 @@ _.KrnlDialect = class extends _.Dialect {
                     }
                 }
                 parser.parseRParen();
-                op.addAttribute('num_optimized_loops', numOptimizedLoops);
+                result.addAttribute('num_optimized_loops', numOptimizedLoops);
             }
             if (parser.accept('id', 'iter_args')) {
                 parser.parseLParen();
@@ -12424,17 +12414,17 @@ _.KrnlDialect = class extends _.Dialect {
                 parser.parseRParen();
                 if (parser.parseOptionalArrow()) {
                     const types = parser.parseFunctionResultTypes();
-                    op.addTypes(types);
+                    result.addTypes(types);
                 }
             }
             if (parser.match('{')) {
                 const region = {};
                 parser.parseRegion(region);
-                op.regions = [region];
+                result.regions = [region];
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -12444,70 +12434,70 @@ _.MhloDialect = class extends _.HLODialect {
         super(operations, 'mhlo');
     }
 
-    parseOperation(parser, opName, op) {
-        const opInfo = this.getOperation(opName);
-        if (opInfo && opInfo.metadata.parser && opInfo.metadata.parser.includes('parseOneResultSameOperandTypeOp')) {
-            return this.parseOneResultSameOperandTypeOp(parser, op);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        if (opInfo.metadata && opInfo.metadata.parser && opInfo.metadata.parser.includes('parseOneResultSameOperandTypeOp')) {
+            return this.parseOneResultSameOperandTypeOp(parser, result);
         }
-        if (opName === 'mhlo.constant') {
+        if (result.op === 'mhlo.constant') {
             if (parser.parseOptionalLParen() && parser.parseOptionalRParen()) {
                 if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
-                parser.resolveOperands(op.operands, parser.parseOptionalColonTypeList());
-                op.addTypes(parser.parseOptionalArrowTypeList());
+                parser.resolveOperands(result.operands, parser.parseOptionalColonTypeList());
+                result.addTypes(parser.parseOptionalArrowTypeList());
             } else {
                 if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
                 const value = parser.parseAttribute();
                 if (value) {
-                    op.addAttribute('value', value);
+                    result.addAttribute('value', value);
                 }
-                op.addTypes(parser.parseOptionalColonTypeList());
+                result.addTypes(parser.parseOptionalColonTypeList());
             }
             return true;
         }
-        if (opName === 'mhlo.compare') {
+        if (result.op === 'mhlo.compare') {
             // Use modern assemblyFormat if available, but only if this is modern syntax
             // Old format has 'attributes' keyword, new format has attr-dict directly
-            if (opInfo && opInfo.metadata.assemblyFormat && !parser.match('id', 'attributes')) {
-                return super.parseOperation(parser, opName, op);
+            if (opInfo.metadata && opInfo.metadata.assemblyFormat && !parser.match('id', 'attributes')) {
+                return super.parseOperation(parser, result);
             }
             // Legacy parser for old mhlo.compare without assembly format
             if (parser.match('id')) {
                 const comparisonDirection = parser.expect('id');
-                op.addAttribute('comparison_direction', comparisonDirection);
+                result.addAttribute('comparison_direction', comparisonDirection);
                 parser.parseComma();
                 const unresolvedOperands = parser.parseOperandList();
                 // Check for optional compare_type
                 if (parser.parseOptionalComma() && parser.match('id')) {
                     const compareType = parser.expect('id');
-                    op.addAttribute('compare_type', compareType);
+                    result.addAttribute('compare_type', compareType);
                 }
-                parser.parseOptionalAttrDict(op.attributes);
+                parser.parseOptionalAttrDict(result.attributes);
                 if (parser.parseOptionalColon()) {
                     const type = parser.parseType();
                     if (type instanceof _.FunctionType) {
-                        parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
-                        op.addTypes(type.results);
+                        parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
+                        result.addTypes(type.results);
                     } else {
                         // Single type applied to all operands
                         const types = unresolvedOperands.map(() => type);
-                        parser.resolveOperands(unresolvedOperands, types, op.operands);
+                        parser.resolveOperands(unresolvedOperands, types, result.operands);
                     }
                 } else {
                     for (const operand of unresolvedOperands) {
-                        parser.resolveOperand(operand, null, op.operands);
+                        parser.resolveOperand(operand, null, result.operands);
                     }
                 }
                 return true;
             }
         }
-        if (opName === 'mhlo.reduce') {
-            return this.parseReduceOp(parser, op);
+        if (result.op === 'mhlo.reduce') {
+            return this.parseReduceOp(parser, result);
         }
-        if (opName === 'mhlo.while') {
+        if (result.op === 'mhlo.while') {
             // mhlo.while always uses parenthesized form with named arguments
             parser.parseLParen();
             const unresolvedOperands = [];
@@ -12532,32 +12522,32 @@ _.MhloDialect = class extends _.HLODialect {
                 }
             }
             // Resolve operands with their types
-            parser.resolveOperands(unresolvedOperands, types.slice(0, unresolvedOperands.length), op.operands);
+            parser.resolveOperands(unresolvedOperands, types.slice(0, unresolvedOperands.length), result.operands);
             // Add result types (types are operand types then result types)
             for (let i = unresolvedOperands.length; i < types.length; i++) {
-                op.addTypes([types[i]]);
+                result.addTypes([types[i]]);
             }
             if (parser.accept('id', 'attributes')) {
                 if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
             }
             if (parser.accept('id', 'cond')) {
                 const condRegion = {};
                 parser.parseRegion(condRegion);
-                op.regions.push(condRegion);
+                result.regions.push(condRegion);
             }
             if (parser.accept('id', 'do')) {
                 const bodyRegion = {};
                 parser.parseRegion(bodyRegion);
-                op.regions.push(bodyRegion);
+                result.regions.push(bodyRegion);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseReduceOp(parser, op) {
+    parseReduceOp(parser, result) {
         const unresolvedOperands = [];
         const unresolvedInitOperands = [];
         while (true) {
@@ -12574,8 +12564,6 @@ _.MhloDialect = class extends _.HLODialect {
             parser.parseOptionalComma();
         }
         const allUnresolved = unresolvedOperands.concat(unresolvedInitOperands);
-
-        // Check if compact syntax: "applies <inner-op>"
         if (parser.accept('id', 'applies')) {
             const innerOpName = parser.parseCustomOperationName();
             parser.expect('id', 'across');
@@ -12594,31 +12582,31 @@ _.MhloDialect = class extends _.HLODialect {
                 }
             }
             parser.parseRSquare();
-            op.addAttribute('dimensions', dimensions);
-            parser.parseOptionalAttrDict(op.attributes);
+            result.addAttribute('dimensions', dimensions);
+            parser.parseOptionalAttrDict(result.attributes);
             // Parse function type: (input types) -> result types
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (type instanceof _.FunctionType) {
-                    parser.resolveOperands(allUnresolved, type.inputs, op.operands);
-                    op.addTypes(type.results);
+                    parser.resolveOperands(allUnresolved, type.inputs, result.operands);
+                    result.addTypes(type.results);
                 } else {
                     // Single type or type list for operands
                     if (Array.isArray(type)) {
-                        parser.resolveOperands(allUnresolved, type, op.operands);
+                        parser.resolveOperands(allUnresolved, type, result.operands);
                     } else {
                         // Single type applied to all operands
-                        parser.resolveOperands(allUnresolved, allUnresolved.map(() => type), op.operands);
+                        parser.resolveOperands(allUnresolved, allUnresolved.map(() => type), result.operands);
                     }
                     // Check for arrow followed by result types
                     if (parser.parseOptionalArrow()) {
                         const resultTypes = parser.parseFunctionResultTypes();
-                        op.addTypes(resultTypes);
+                        result.addTypes(resultTypes);
                     }
                 }
             } else {
                 // No types - resolve with null types
-                parser.resolveOperands(allUnresolved, allUnresolved.map(() => null), op.operands);
+                parser.resolveOperands(allUnresolved, allUnresolved.map(() => null), result.operands);
             }
 
             // Create a region with the inner operation
@@ -12626,12 +12614,12 @@ _.MhloDialect = class extends _.HLODialect {
             const block = { operations: [], arguments: [] };
             // Get element type from first input
             let elementType = null;
-            if (op.operands.length > 0 && op.operands[0].type) {
-                const tensorMatch = op.operands[0].type.toString().match(/tensor<.*?x([^>]+)>/);
+            if (result.operands.length > 0 && result.operands[0].type) {
+                const tensorMatch = result.operands[0].type.toString().match(/tensor<.*?x([^>]+)>/);
                 if (tensorMatch) {
                     [, elementType] = tensorMatch;
                 } else {
-                    const scalarMatch = op.operands[0].type.toString().match(/tensor<([^>]+)>/);
+                    const scalarMatch = result.operands[0].type.toString().match(/tensor<([^>]+)>/);
                     if (scalarMatch) {
                         [, elementType] = scalarMatch;
                     }
@@ -12641,16 +12629,15 @@ _.MhloDialect = class extends _.HLODialect {
             block.arguments.push({ value: '%lhs', type: tensorType });
             block.arguments.push({ value: '%rhs', type: tensorType });
             const innerOp = new _.OperationState(innerOpName);
-            // Use proper _.Value instances for synthetic operands
             innerOp.operands.push(new _.Value('%lhs', tensorType));
             innerOp.operands.push(new _.Value('%rhs', tensorType));
             innerOp.addTypes([tensorType]);
             block.operations.push(_.Operation.create(innerOp));
-            const returnOp = new _.OperationState('mhlo.return');
+            const returnOp = new _.OperationState(this.getOperation('mhlo.return'));
             returnOp.operands.push(new _.Value('%0', tensorType));
             block.operations.push(_.Operation.create(returnOp));
             region.blocks.push(block);
-            op.regions.push(region);
+            result.regions.push(region);
             return true;
         }
 
@@ -12671,17 +12658,17 @@ _.MhloDialect = class extends _.HLODialect {
             }
         }
         parser.parseRSquare();
-        op.addAttribute('dimensions', dimensions);
+        result.addAttribute('dimensions', dimensions);
 
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
 
         if (parser.parseOptionalColon()) {
             const fnType = parser.parseFunctionType();
-            parser.resolveOperands(allUnresolved, fnType.inputs, op.operands);
-            op.addTypes(fnType.results);
+            parser.resolveOperands(allUnresolved, fnType.inputs, result.operands);
+            result.addTypes(fnType.results);
         } else {
             // No types - resolve with null types
-            parser.resolveOperands(allUnresolved, allUnresolved.map(() => null), op.operands);
+            parser.resolveOperands(allUnresolved, allUnresolved.map(() => null), result.operands);
         }
         parser.expect('id', 'reducer');
         const reducerArgs = [];
@@ -12705,23 +12692,23 @@ _.MhloDialect = class extends _.HLODialect {
             block.operations.push(innerOp);
         }
         region.blocks.push(block);
-        op.regions.push(region);
+        result.regions.push(region);
         return true;
     }
 
-    parseOneResultSameOperandTypeOp(parser, op) {
+    parseOneResultSameOperandTypeOp(parser, result) {
         const unresolvedOperands = parser.parseOperandList();
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             const types = unresolvedOperands.map(() => type);
-            parser.resolveOperands(unresolvedOperands, types, op.operands);
-            if (op.types.length > 0) {
-                op.types[0] = type;
+            parser.resolveOperands(unresolvedOperands, types, result.operands);
+            if (result.types.length > 0) {
+                result.types[0] = type;
             }
         } else {
             for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
         }
         return true;
@@ -12734,9 +12721,10 @@ _.THLODialect = class extends _.Dialect {
         super(operations, 'thlo');
     }
 
-    parseOperation(parser, opName, op) {
-        if (this.hasAssemblyFormat(opName)) {
-            return super.parseOperation(parser, opName, op);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        if (opInfo.metadata.assemblyFormat) {
+            return super.parseOperation(parser, result);
         }
         if (parser.accept('id', 'ins')) {
             parser.parseLParen();
@@ -12746,7 +12734,7 @@ _.THLODialect = class extends _.Dialect {
                 if (parser.parseOptionalColon()) {
                     type = parser.parseType();
                 }
-                parser.resolveOperand(operand, type, op.operands);
+                parser.resolveOperand(operand, type, result.operands);
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -12762,7 +12750,7 @@ _.THLODialect = class extends _.Dialect {
                 if (parser.parseOptionalColon()) {
                     type = parser.parseType();
                 }
-                parser.resolveOperand(operand, type, op.operands);
+                parser.resolveOperand(operand, type, result.operands);
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -12770,7 +12758,7 @@ _.THLODialect = class extends _.Dialect {
             parser.parseRParen();
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         // Parse block arguments and region: (%arg1: type, ...) { body }
         const blockArguments = [];
@@ -12796,7 +12784,7 @@ _.THLODialect = class extends _.Dialect {
                 block.operations.push(_.Operation.create(operation));
             }
             region.blocks.push(block);
-            op.regions.push(region);
+            result.regions.push(region);
         }
         return true;
     }
@@ -12852,20 +12840,23 @@ _.TosaDialect = class extends _.Dialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tosa.variable' && !this.hasAssemblyFormat(opName)) {
-            parser.parseSymbolName('sym_name', op.attributes);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        /*
+        if (result.op === 'tosa.variable' && !opInfo.metadata.assemblyFormat) {
+            parser.parseSymbolName('sym_name', result.attributes);
             if (parser.parseOptionalEqual()) {
                 const initialValue = parser.parseAttribute();
-                op.addAttribute('initial_value', initialValue);
+                result.addAttribute('initial_value', initialValue);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addAttribute('type', type);
+                result.addAttribute('type', type);
             }
             return true;
         }
-        if (this._regionOps.has(opName) && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        */
+        if (this._regionOps.has(result.op)) {
             let hasBlockArgs = false;
             const unresolvedCond = [];
             const unresolvedInputs = [];
@@ -12891,47 +12882,46 @@ _.TosaDialect = class extends _.Dialect {
                 const condType = parser.parseType();
                 // Resolve condition operand
                 if (unresolvedCond.length > 0) {
-                    parser.resolveOperands(unresolvedCond, [condType], op.operands);
+                    parser.resolveOperands(unresolvedCond, [condType], result.operands);
                 }
                 // If block args present, parse function type for inputs/outputs
                 if (hasBlockArgs && parser.match('(')) {
                     const functionType = parser.parseFunctionType();
                     if (functionType) {
-                        parser.resolveOperands(unresolvedInputs, functionType.inputs, op.operands);
-                        op.addTypes(functionType.results);
+                        parser.resolveOperands(unresolvedInputs, functionType.inputs, result.operands);
+                        result.addTypes(functionType.results);
                     }
                 } else if (parser.parseOptionalArrow()) {
                     const resultTypes = parser.parseFunctionResultTypes();
-                    op.addTypes(resultTypes);
+                    result.addTypes(resultTypes);
                 }
             } else {
                 // No type info - still need to resolve operands
                 for (const cond of unresolvedCond) {
-                    parser.resolveOperand(cond, null, op.operands);
+                    parser.resolveOperand(cond, null, result.operands);
                 }
                 for (const input of unresolvedInputs) {
-                    parser.resolveOperand(input, null, op.operands);
+                    parser.resolveOperand(input, null, result.operands);
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             if (parser.accept('id', 'else') || parser.accept('id', 'do')) {
                 if (parser.match('{')) {
                     const secondRegion = {};
                     parser.parseRegion(secondRegion);
-                    op.regions.push(secondRegion);
+                    result.regions.push(secondRegion);
                 }
             }
             return true;
         }
-        if (this._customOps.has(opName) && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (this._customOps.has(result.op)) {
             const unresolvedOperands = parser.parseOperandList();
             if (parser.match('{')) {
                 // Parse attribute dict but check if any are actually inputs
-                const opInfo = this.getOperation(opName);
-                const inputNames = new Set((opInfo && opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
+                const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
                 const tempAttrs = new Map();
                 parser.parseAttributeDict(tempAttrs);
                 for (const [name, value] of tempAttrs) {
@@ -12943,31 +12933,31 @@ _.TosaDialect = class extends _.Dialect {
                         const unresolvedOperand = new _.UnresolvedOperand(value.value, 0, null);
                         unresolvedOperands.push(unresolvedOperand);
                     } else {
-                        op.attributes.set(name, value);
+                        result.attributes.set(name, value);
                     }
                 }
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (type instanceof _.FunctionType) {
-                    parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
-                    op.addTypes(type.results);
+                    parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
+                    result.addTypes(type.results);
                 } else {
                     const types = unresolvedOperands.map(() => type);
-                    parser.resolveOperands(unresolvedOperands, types, op.operands);
+                    parser.resolveOperands(unresolvedOperands, types, result.operands);
                     if (parser.parseOptionalArrow()) {
                         const resultTypes = parser.parseFunctionResultTypes();
-                        op.addTypes(resultTypes);
+                        result.addTypes(resultTypes);
                     }
                 }
             } else {
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseVariableOpTypeOrInitialValue(parser, op /*, args */) {
@@ -12989,29 +12979,6 @@ _.IRDLDialect = class extends _.Dialect {
         this.registerCustomDirective('NamedValueList', this.parseNamedValueList.bind(this));
         this.registerCustomDirective('NamedValueListWithVariadicity', this.parseNamedValueListWithVariadicity.bind(this));
         this.registerCustomDirective('AttributesOp', this.parseAttributesOp.bind(this));
-    }
-
-    parseOperation(parser, opName, op) {
-        // Only use custom parsing for operations that don't have assemblyFormat
-        // Operations with assemblyFormat should be handled by the base class
-        if ((opName === 'irdl.operands' || opName === 'irdl.results' ||
-            opName === 'irdl.parameters' || opName === 'irdl.attributes' ||
-            opName === 'irdl.regions') && !this.hasAssemblyFormat(opName)) {
-            if (parser.parseOptionalLParen()) {
-                while (!parser.parseOptionalRParen()) {
-                    if (parser.match('id') || parser.match('string')) {
-                        const paramName = parser.expect();
-                        parser.parseColon();
-                        const paramValue = parser.expect(); // Read the SSA value like %tensor
-                        op.addAttribute(paramName, paramValue);
-                    }
-                    parser.parseOptionalComma();
-                }
-            }
-            op.loc = parser.parseLocation();
-            return true;
-        }
-        return super.parseOperation(parser, opName, op);
     }
 
     parseSingleBlockRegion(parser, op, /* args */) {
@@ -13208,7 +13175,7 @@ _.SPIRVDialect = class extends _.Dialect {
         this.registerCustomAttribute('SPIRV_KHR_CooperativeMatrixOperandsAttr', this.parseEnumFlagsAngleBracketPipe.bind(this));
     }
 
-    parseSwitchOpCases(parser, op) {
+    parseSwitchOpCases(parser, result) {
         if (!parser.accept('id', 'default')) {
             return;
         }
@@ -13241,8 +13208,8 @@ _.SPIRVDialect = class extends _.Dialect {
             }
             parser.parseOptionalRParen();
         }
-        op.successors = op.successors || [];
-        op.successors.push(defaultDest);
+        result.successors = result.successors || [];
+        result.successors.push(defaultDest);
         const caseValues = [];
         while (parser.parseOptionalComma()) {
             if (!parser.match('int') && !parser.match('-')) {
@@ -13279,10 +13246,10 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalRParen();
             }
-            op.successors.push(caseDest);
+            result.successors.push(caseDest);
         }
         if (caseValues.length > 0) {
-            op.addAttribute('literals', caseValues);
+            result.addAttribute('literals', caseValues);
         }
     }
 
@@ -13315,7 +13282,7 @@ _.SPIRVDialect = class extends _.Dialect {
         return new _.Type(type);
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // Operations with '->' in their assembly format should use assembly format parsing
         const arrowFormatOps = new Set([
             'spirv.GL.Distance', 'spirv.GL.FMix', 'spirv.GL.FrexpStruct', 'spirv.GL.Ldexp',
@@ -13331,7 +13298,7 @@ _.SPIRVDialect = class extends _.Dialect {
             'spv.GLSL.Length', 'spv.GLSL.PackHalf2x16', 'spv.GLSL.UnpackHalf2x16',
             'spv.GLSL.PackSnorm4x8', 'spv.GLSL.UnpackSnorm4x8'
         ]);
-        if ((opName.startsWith('spirv.GLSL.') || opName.startsWith('spv.GLSL.') || opName.startsWith('spirv.GL.') || opName.startsWith('spv.GL.')) && !arrowFormatOps.has(opName)) {
+        if ((result.op.startsWith('spirv.GLSL.') || result.op.startsWith('spv.GLSL.') || result.op.startsWith('spirv.GL.') || result.op.startsWith('spv.GL.')) && !arrowFormatOps.has(result.op)) {
             const unresolvedOperands = [];
             while (!parser.match(':')) {
                 unresolvedOperands.push(parser.parseOperand());
@@ -13342,18 +13309,18 @@ _.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 for (const unresolvedOp of unresolvedOperands) {
-                    parser.resolveOperand(unresolvedOp, type, op.operands);
+                    parser.resolveOperand(unresolvedOp, type, result.operands);
                 }
-                op.types.push(type);
+                result.types.push(type);
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
-                    parser.resolveOperand(unresolvedOp, null, op.operands);
+                    parser.resolveOperand(unresolvedOp, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'spirv.SpecConstantComposite' || opName === 'spv.SpecConstantComposite') {
-            parser.parseSymbolName('sym_name', op.attributes);
+        if (result.op === 'spirv.SpecConstantComposite' || result.op === 'spv.SpecConstantComposite') {
+            parser.parseSymbolName('sym_name', result.attributes);
             parser.parseLParen();
             const constituents = [];
             while (!parser.match(')')) {
@@ -13365,57 +13332,57 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            op.addAttribute('constituents', constituents);
+            result.addAttribute('constituents', constituents);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addAttribute('type', type.toString());
+                result.addAttribute('type', type.toString());
             }
             return true;
         }
-        if (opName.endsWith('.SpecConstantCompositeReplicate')) {
-            parser.parseSymbolName('sym_name', op.attributes);
+        if (result.op.endsWith('.SpecConstantCompositeReplicate')) {
+            parser.parseSymbolName('sym_name', result.attributes);
             parser.parseLParen();
             if (parser.match('@')) {
                 const constituent = parser.expect('@');
-                op.addAttribute('constituent', constituent);
+                result.addAttribute('constituent', constituent);
             }
             parser.parseRParen();
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addAttribute('type', type.toString());
+                result.addAttribute('type', type.toString());
             }
             return true;
         }
-        if (opName === 'spirv.SpecConstantOperation' || opName === 'spv.SpecConstantOperation') {
+        if (result.op === 'spirv.SpecConstantOperation' || result.op === 'spv.SpecConstantOperation') {
             parser.expect('id', 'wraps');
             const wrappedOp = parser.parseGenericOperation();
             if (wrappedOp) {
                 const region = { blocks: [{ operations: [wrappedOp] }] };
-                op.regions.push(region);
+                result.regions.push(region);
                 if (wrappedOp.results && wrappedOp.results.length > 0) {
-                    op.addTypes([wrappedOp.results[0].type]);
+                    result.addTypes([wrappedOp.results[0].type]);
                 }
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (opName === 'spirv.Constant' || opName === 'spv.Constant') {
+        if (result.op === 'spirv.Constant' || result.op === 'spv.Constant') {
             const value = parser.parseAttribute();
             if (parser.parseOptionalColon()) {
                 const valueType = parser.parseType();
-                op.addAttribute('value', { ...value, valueType });
+                result.addAttribute('value', { ...value, valueType });
             } else {
-                op.addAttribute('value', value);
+                result.addAttribute('value', value);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addTypes([type]);
+                result.addTypes([type]);
             }
             return true;
         }
-        if (opName === 'spirv.Load' || opName === 'spv.Load') {
+        if (result.op === 'spirv.Load' || result.op === 'spv.Load') {
             const storageClass = parser.expect('string');
-            op.addAttribute('storage_class', storageClass);
+            result.addAttribute('storage_class', storageClass);
             const ptrOperand = parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 const memoryAccess = [];
@@ -13431,19 +13398,19 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRSquare();
                 if (memoryAccess.length > 0) {
-                    op.addAttribute('memory_access', memoryAccess.join(', '));
+                    result.addAttribute('memory_access', memoryAccess.join(', '));
                 }
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperand(ptrOperand, null, op.operands);
-                op.types.push(type);
+                parser.resolveOperand(ptrOperand, null, result.operands);
+                result.types.push(type);
             } else {
-                parser.resolveOperand(ptrOperand, null, op.operands);
+                parser.resolveOperand(ptrOperand, null, result.operands);
             }
             return true;
         }
-        if (opName === 'spirv.CompositeExtract' || opName === 'spv.CompositeExtract') {
+        if (result.op === 'spirv.CompositeExtract' || result.op === 'spv.CompositeExtract') {
             const compositeOperand = parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 const indices = [];
@@ -13459,20 +13426,20 @@ _.SPIRVDialect = class extends _.Dialect {
                     }
                 }
                 parser.parseRSquare();
-                op.addAttribute('indices', indices);
+                result.addAttribute('indices', indices);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperand(compositeOperand, null, op.operands);
-                op.types.push(type);
+                parser.resolveOperand(compositeOperand, null, result.operands);
+                result.types.push(type);
             } else {
-                parser.resolveOperand(compositeOperand, null, op.operands);
+                parser.resolveOperand(compositeOperand, null, result.operands);
             }
             return true;
         }
         // Handle AccessChain with old syntax (no -> for result type)
-        if (opName === 'spirv.AccessChain' || opName === 'spv.AccessChain') {
-            this._operations.get('spirv.AccessChain').hasParseOperation = false; // compatibility
+        if (result.op === 'spirv.AccessChain' || result.op === 'spv.AccessChain') {
+            result.compatibility = true;
             const unresolvedOperands = [];
             unresolvedOperands.push(parser.parseOperand());
             if (parser.parseOptionalLSquare()) {
@@ -13484,7 +13451,7 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRSquare();
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 // Parse base pointer type
                 const types = [parser.parseType()];
@@ -13493,21 +13460,21 @@ _.SPIRVDialect = class extends _.Dialect {
                     types.push(parser.parseType());
                 }
                 // Resolve operands with their types
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
                 // Check for optional -> result_type (newer syntax)
                 if (parser.parseOptionalArrow()) {
                     const resultType = parser.parseType();
-                    op.types.push(resultType);
+                    result.types.push(resultType);
                 }
             } else {
                 // No types - resolve with null types
                 for (const unresolvedOp of unresolvedOperands) {
-                    parser.resolveOperand(unresolvedOp, null, op.operands);
+                    parser.resolveOperand(unresolvedOp, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'spirv.Variable' || opName === 'spv.Variable') {
+        if (result.op === 'spirv.Variable' || result.op === 'spv.Variable') {
             let unresolvedInit = null;
             if (parser.accept('id', 'init')) {
                 parser.parseLParen();
@@ -13515,24 +13482,24 @@ _.SPIRVDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addTypes([type]);
+                result.addTypes([type]);
                 // Resolve init operand with the pointer's pointee type
                 if (unresolvedInit) {
                     // The init value type should match the element type of the pointer result
-                    parser.resolveOperand(unresolvedInit, null, op.operands);
+                    parser.resolveOperand(unresolvedInit, null, result.operands);
                 }
             } else if (unresolvedInit) {
-                parser.resolveOperand(unresolvedInit, null, op.operands);
+                parser.resolveOperand(unresolvedInit, null, result.operands);
             }
             return true;
         }
-        if (opName === 'spirv.Store' || opName === 'spv.Store') {
+        if (result.op === 'spirv.Store' || result.op === 'spv.Store') {
             const storageClass = parser.expect('string');
-            op.addAttribute('storage_class', storageClass);
+            result.addAttribute('storage_class', storageClass);
             const unresolvedOperands = [];
             unresolvedOperands.push(parser.parseOperand());
             parser.parseComma();
@@ -13551,20 +13518,20 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRSquare();
                 if (memoryAccess.length > 0) {
-                    op.addAttribute('memory_access', memoryAccess.join(', '));
+                    result.addAttribute('memory_access', memoryAccess.join(', '));
                 }
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperands(unresolvedOperands, [type, type], op.operands);
+                parser.resolveOperands(unresolvedOperands, [type, type], result.operands);
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
-                    parser.resolveOperand(unresolvedOp, null, op.operands);
+                    parser.resolveOperand(unresolvedOp, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'spirv.CompositeInsert' || opName === 'spv.CompositeInsert') {
+        if (result.op === 'spirv.CompositeInsert' || result.op === 'spv.CompositeInsert') {
             const unresolvedOperands = [];
             unresolvedOperands.push(parser.parseOperand());
             parser.parseComma();
@@ -13583,28 +13550,28 @@ _.SPIRVDialect = class extends _.Dialect {
                     }
                 }
                 parser.parseRSquare();
-                op.addAttribute('indices', indices);
+                result.addAttribute('indices', indices);
             }
             if (parser.parseOptionalColon()) {
                 const objType = parser.parseType();
-                parser.resolveOperand(unresolvedOperands[0], objType, op.operands);
+                parser.resolveOperand(unresolvedOperands[0], objType, result.operands);
                 if (parser.accept('id', 'into')) {
                     const compositeType = parser.parseType();
-                    parser.resolveOperand(unresolvedOperands[1], compositeType, op.operands);
-                    op.types.push(compositeType);
+                    parser.resolveOperand(unresolvedOperands[1], compositeType, result.operands);
+                    result.types.push(compositeType);
                 } else {
-                    parser.resolveOperand(unresolvedOperands[1], null, op.operands);
+                    parser.resolveOperand(unresolvedOperands[1], null, result.operands);
                 }
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
-                    parser.resolveOperand(unresolvedOp, null, op.operands);
+                    parser.resolveOperand(unresolvedOp, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'spirv.BranchConditional' || opName === 'spv.BranchConditional') {
+        if (result.op === 'spirv.BranchConditional' || result.op === 'spv.BranchConditional') {
             const conditionOperand = parser.parseOperand();
-            parser.resolveOperand(conditionOperand, null, op.operands);
+            parser.resolveOperand(conditionOperand, null, result.operands);
             // Parse optional branch weights [trueWeight, falseWeight]
             if (parser.parseOptionalLSquare()) {
                 const weights = [];
@@ -13616,12 +13583,12 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRSquare();
                 if (weights.length > 0) {
-                    op.addAttribute('branch_weights', weights);
+                    result.addAttribute('branch_weights', weights);
                 }
             }
             parser.parseComma();
-            if (!op.successors) {
-                op.successors = [];
+            if (!result.successors) {
+                result.successors = [];
             }
             // Parse true branch successor
             const trueLabel = parser.expect('^');
@@ -13646,7 +13613,7 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            op.successors.push(trueSucc);
+            result.successors.push(trueSucc);
             parser.parseComma();
             // Parse false branch successor
             const falseLabel = parser.expect('^');
@@ -13671,11 +13638,11 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            op.successors.push(falseSucc);
+            result.successors.push(falseSucc);
             return true;
         }
-        if (opName === 'spirv.CompositeConstruct' || opName === 'spv.CompositeConstruct') {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'spirv.CompositeConstruct' || result.op === 'spv.CompositeConstruct') {
+            result.compatibility = true;
             const unresolvedOperands = [];
             while (!parser.match(':')) {
                 unresolvedOperands.push(parser.parseOperand());
@@ -13688,84 +13655,84 @@ _.SPIRVDialect = class extends _.Dialect {
                     const types = parser.parseTypeList();
                     parser.parseRParen();
                     parser.expect('->');
-                    parser.resolveOperands(unresolvedOperands, types, op.operands);
+                    parser.resolveOperands(unresolvedOperands, types, result.operands);
                 } else {
                     for (const unresolvedOp of unresolvedOperands) {
-                        parser.resolveOperand(unresolvedOp, null, op.operands);
+                        parser.resolveOperand(unresolvedOp, null, result.operands);
                     }
                 }
                 const type = parser.parseType();
-                op.types.push(type);
+                result.types.push(type);
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
-                    parser.resolveOperand(unresolvedOp, null, op.operands);
+                    parser.resolveOperand(unresolvedOp, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'spirv.SpecConstant' || opName === 'spv.SpecConstant') {
-            parser.parseSymbolName('sym_name', op.attributes);
+        if (result.op === 'spirv.SpecConstant' || result.op === 'spv.SpecConstant') {
+            parser.parseSymbolName('sym_name', result.attributes);
             if (parser.match('id', 'spec_id')) {
                 parser.expect('id', 'spec_id');
                 parser.parseLParen();
                 const specId = parser.parseAttribute();
-                op.addAttribute('spec_id', specId);
+                result.addAttribute('spec_id', specId);
                 parser.parseRParen();
             }
             if (parser.parseOptionalEqual()) {
                 const defaultValue = parser.parseAttribute();
-                op.addAttribute('default_value', defaultValue);
+                result.addAttribute('default_value', defaultValue);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addAttribute('type', type);
+                result.addAttribute('type', type);
             }
             return true;
         }
-        if (opName === 'spirv.module' || opName === 'spv.module') {
+        if (result.op === 'spirv.module' || result.op === 'spv.module') {
             // Optional symbol name: spirv.module @Name ...
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.match('id')) {
                 const addressingModel = parser.expect('id');
-                op.addAttribute('addressing_model', addressingModel);
+                result.addAttribute('addressing_model', addressingModel);
             }
             if (parser.match('id')) {
                 const memoryModel = parser.expect('id');
-                op.addAttribute('memory_model', memoryModel);
+                result.addAttribute('memory_model', memoryModel);
             }
             if (parser.accept('id', 'requires')) {
                 const vce = parser.parseAttribute();
-                op.addAttribute('vce_triple', vce);
+                result.addAttribute('vce_triple', vce);
             }
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'spirv.ARM.Graph') {
-            parser.parseFunctionOp(op, false);
+        if (result.op === 'spirv.ARM.Graph') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'spirv.ARM.GraphEntryPoint') {
+        if (result.op === 'spirv.ARM.GraphEntryPoint') {
             const fn = parser.expect('@');
-            op.addAttribute('fn', fn);
+            result.addAttribute('fn', fn);
             const interfaceVars = [];
             while (parser.parseOptionalComma()) {
                 const varSymbol = parser.expect('@');
                 interfaceVars.push(varSymbol);
             }
-            op.addAttribute('interface', interfaceVars);
+            result.addAttribute('interface', interfaceVars);
             return true;
         }
-        if (opName === 'spirv.func' || opName === 'spv.func') {
+        if (result.op === 'spirv.func' || result.op === 'spv.func') {
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
             let inputs = [];
             const results = [];
@@ -13777,36 +13744,36 @@ _.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalArrow()) {
                 parser.parseFunctionResultList(results, resultAttrs);
             }
-            op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
+            result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
             if (parser.match('string')) {
                 const control = parser.expect('string');
-                op.addAttribute('function_control', control);
+                result.addAttribute('function_control', control);
             }
             if (parser.accept('id', 'attributes')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 // spirv.func is IsolatedFromAbove
                 parser.parseRegion(region, undefined, /* isIsolatedNameScope */ true);
             }
             return true;
         }
-        if (opName === 'spirv.GlobalVariable' || opName === 'spv.GlobalVariable') {
+        if (result.op === 'spirv.GlobalVariable' || result.op === 'spv.GlobalVariable') {
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.accept('id', 'initializer')) {
                 parser.parseLParen();
                 const initSymbol = parser.expect('@');
                 parser.parseRParen();
-                op.addAttribute('initializer', initSymbol);
+                result.addAttribute('initializer', initSymbol);
             }
             if (parser.accept('id', 'built_in')) {
                 parser.parseLParen();
                 const builtIn = parser.expect('string');
                 parser.parseRParen();
-                op.addAttribute('built_in', builtIn);
+                result.addAttribute('built_in', builtIn);
             }
             if (parser.accept('id', 'bind')) {
                 parser.parseLParen();
@@ -13814,40 +13781,40 @@ _.SPIRVDialect = class extends _.Dialect {
                 parser.parseOptionalComma();
                 const set = parser.expect();
                 parser.parseRParen();
-                op.addAttribute('descriptor_set', set);
-                op.addAttribute('binding', binding);
+                result.addAttribute('descriptor_set', set);
+                result.addAttribute('binding', binding);
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.types = [type];
+                result.types = [type];
             }
             return true;
         }
-        if (opName === 'spirv.EntryPoint' || opName === 'spv.EntryPoint') {
+        if (result.op === 'spirv.EntryPoint' || result.op === 'spv.EntryPoint') {
             // Parse execution model string ("GLCompute", "Vertex", "Fragment", etc.)
             if (parser.match('string')) {
                 const executionModel = parser.expect('string');
-                op.addAttribute('execution_model', executionModel);
+                result.addAttribute('execution_model', executionModel);
             }
-            op.operands = [];
+            result.operands = [];
             while (parser.match('@')) {
                 const symbol = parser.expect('@');
-                op.addAttribute('fn', new _.SymbolRefAttr(symbol));
+                result.addAttribute('fn', new _.SymbolRefAttr(symbol));
                 parser.parseOptionalComma();
             }
             return true;
         }
-        if (opName === 'spirv.ExecutionMode' || opName === 'spv.ExecutionMode') {
+        if (result.op === 'spirv.ExecutionMode' || result.op === 'spv.ExecutionMode') {
             if (parser.match('@')) {
                 const symbol = parser.expect('@');
-                op.addAttribute('fn', new _.SymbolRefAttr(symbol));
+                result.addAttribute('fn', new _.SymbolRefAttr(symbol));
             }
             if (parser.match('string')) {
                 const mode = parser.expect('string');
-                op.addAttribute('execution_mode', mode);
+                result.addAttribute('execution_mode', mode);
             }
             const params = [];
             while (parser.parseOptionalComma()) {
@@ -13859,27 +13826,27 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
             }
             if (params.length > 0) {
-                op.addAttribute('values', params);
+                result.addAttribute('values', params);
             }
             return true;
         }
-        if (opName === 'spirv.mlir.loop' || opName === 'spv.mlir.loop' || opName === 'spirv.mlir.selection' || opName === 'spv.mlir.selection') {
+        if (result.op === 'spirv.mlir.loop' || result.op === 'spv.mlir.loop' || result.op === 'spirv.mlir.selection' || result.op === 'spv.mlir.selection') {
             // Parse optional control(EnumValue) attribute
             if (parser.accept('id', 'control')) {
                 parser.parseLParen();
                 const controlValue = parser.parseOptionalKeyword();
-                op.addAttribute('selection_control', controlValue);
+                result.addAttribute('selection_control', controlValue);
                 parser.parseRParen();
             }
-            op.addTypes(parser.parseOptionalArrowTypeList());
+            result.addTypes(parser.parseOptionalArrowTypeList());
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
         // spirv.CompositeInsert with 'into' keyword
-        if (opName === 'spirv.CompositeInsert' || opName === 'spv.CompositeInsert') {
+        if (result.op === 'spirv.CompositeInsert' || result.op === 'spv.CompositeInsert') {
             // Parse operands (object and composite)
             const unresolvedOperands = parser.parseOperandList();
             // Parse indices as attributes
@@ -13893,12 +13860,12 @@ _.SPIRVDialect = class extends _.Dialect {
                     indices.push(index);
                     parser.parseOptionalComma();
                 }
-                op.addAttribute('indices', indices);
+                result.addAttribute('indices', indices);
             }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.accept('id', 'into')) {
                 const resultType = parser.parseType();
-                op.types = [resultType];
+                result.types = [resultType];
             }
             return true;
         }
@@ -13908,23 +13875,23 @@ _.SPIRVDialect = class extends _.Dialect {
             'spirv.SMulExtended', 'spv.SMulExtended',
             'spirv.UMulExtended', 'spv.UMulExtended'
         ]);
-        if (arithmeticExtendedOps.has(opName)) {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (arithmeticExtendedOps.has(result.op)) {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedOperands = parser.parseOperandList();
             if (parser.parseOptionalColon()) {
                 const resultType = parser.parseType();
-                parser.resolveOperands(unresolvedOperands, [resultType, resultType], op.operands);
-                op.addTypes([resultType]);
+                parser.resolveOperands(unresolvedOperands, [resultType, resultType], result.operands);
+                result.addTypes([resultType]);
             } else {
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'spirv.INTEL.SubgroupBlockWrite' || opName === 'spv.INTEL.SubgroupBlockWrite') {
+        if (result.op === 'spirv.INTEL.SubgroupBlockWrite' || result.op === 'spv.INTEL.SubgroupBlockWrite') {
             const storageClass = parser.expect('string');
-            op.addAttribute('storage_class', storageClass);
+            result.addAttribute('storage_class', storageClass);
             const ptrUnresolved = parser.parseOperand();
             parser.parseComma();
             const valueUnresolved = parser.parseOperand();
@@ -13934,17 +13901,17 @@ _.SPIRVDialect = class extends _.Dialect {
                 valueType = parser.parseType();
                 ptrType = `!spirv.ptr<${valueType}, ${storageClass}>`;
             }
-            parser.resolveOperand(ptrUnresolved, ptrType, op.operands);
-            parser.resolveOperand(valueUnresolved, valueType, op.operands);
+            parser.resolveOperand(ptrUnresolved, ptrType, result.operands);
+            parser.resolveOperand(valueUnresolved, valueType, result.operands);
             return true;
         }
-        if ((opName === 'spirv.CopyMemory' || opName === 'spv.CopyMemory') && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if ((result.op === 'spirv.CopyMemory' || result.op === 'spv.CopyMemory')) {
             const targetStorageClass = parser.expect('string');
-            op.addAttribute('target_storage_class', targetStorageClass);
+            result.addAttribute('target_storage_class', targetStorageClass);
             const targetUnresolved = parser.parseOperand();
             parser.parseComma();
             const sourceStorageClass = parser.expect('string');
-            op.addAttribute('source_storage_class', sourceStorageClass);
+            result.addAttribute('source_storage_class', sourceStorageClass);
             const sourceUnresolved = parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 const memoryAccess = [];
@@ -13960,7 +13927,7 @@ _.SPIRVDialect = class extends _.Dialect {
                 }
                 parser.parseRSquare();
                 if (memoryAccess.length > 0) {
-                    op.addAttribute('memory_access', memoryAccess.join(', '));
+                    result.addAttribute('memory_access', memoryAccess.join(', '));
                 }
             }
             if (parser.parseOptionalComma()) {
@@ -13978,7 +13945,7 @@ _.SPIRVDialect = class extends _.Dialect {
                     }
                     parser.parseRSquare();
                     if (sourceMemoryAccess.length > 0) {
-                        op.addAttribute('source_memory_access', sourceMemoryAccess.join(', '));
+                        result.addAttribute('source_memory_access', sourceMemoryAccess.join(', '));
                     }
                 }
             }
@@ -13989,11 +13956,11 @@ _.SPIRVDialect = class extends _.Dialect {
                 targetType = `!spirv.ptr<${elementType}, ${targetStorageClass}>`;
                 sourceType = `!spirv.ptr<${elementType}, ${sourceStorageClass}>`;
             }
-            parser.resolveOperand(targetUnresolved, targetType, op.operands);
-            parser.resolveOperand(sourceUnresolved, sourceType, op.operands);
+            parser.resolveOperand(targetUnresolved, targetType, result.operands);
+            parser.resolveOperand(sourceUnresolved, sourceType, result.operands);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -14016,46 +13983,46 @@ _.WasmSSADialect = class extends _.Dialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'wasmssa.import_global') {
+    parseOperation(parser, result) {
+        if (result.op === 'wasmssa.import_global') {
             const importName = parser.expect('string');
-            op.addAttribute('importName', importName);
+            result.addAttribute('importName', importName);
             parser.expect('id', 'from');
             const moduleName = parser.expect('string');
-            op.addAttribute('moduleName', moduleName);
+            result.addAttribute('moduleName', moduleName);
             parser.expect('id', 'as');
-            parser.parseSymbolName('sym_name', op.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
             if (parser.accept('id', 'mutable')) {
-                op.addAttribute('isMutable', new _.UnitAttr());
+                result.addAttribute('isMutable', new _.UnitAttr());
             }
             parser.parseColon();
             const type = parser.parseType();
-            op.addAttribute('type', type);
+            result.addAttribute('type', type);
             return true;
         }
-        if (opName === 'wasmssa.global') {
+        if (result.op === 'wasmssa.global') {
             if (parser.accept('id', 'exported')) {
-                op.addAttribute('exported', new _.UnitAttr());
+                result.addAttribute('exported', new _.UnitAttr());
             }
-            parser.parseSymbolName('sym_name', op.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
             const type = parser.parseType();
-            op.addAttribute('type', type);
+            result.addAttribute('type', type);
             if (parser.accept('id', 'mutable')) {
-                op.addAttribute('isMutable', new _.UnitAttr());
+                result.addAttribute('isMutable', new _.UnitAttr());
             }
             parser.parseColon();
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
             return true;
         }
-        if (opName === 'wasmssa.func') {
+        if (result.op === 'wasmssa.func') {
             if (parser.accept('id', 'exported')) {
-                op.addAttribute('exported', new _.UnitAttr());
+                result.addAttribute('exported', new _.UnitAttr());
             }
-            parser.parseFunctionOp(op, false);
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     // Parse WasmSSA LocalRef type in bare format: `ref to <elementType>`
@@ -14070,10 +14037,10 @@ _.WasmSSADialect = class extends _.Dialect {
     }
 
     // Parse ElseRegion directive: `else { ... }` or empty
-    parseElseRegion(parser, op) {
+    parseElseRegion(parser, result) {
         // The else region is optional
         if (parser.accept('id', 'else')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
     }
@@ -14086,7 +14053,7 @@ _.CFDialect = class extends _.Dialect {
         this.registerCustomDirective('SwitchOpCases', this.parseSwitchOpCases.bind(this));
     }
 
-    parseSwitchOpCases(parser, op) {
+    parseSwitchOpCases(parser, result) {
         if (!parser.accept('id', 'default')) {
             return false;
         }
@@ -14119,8 +14086,8 @@ _.CFDialect = class extends _.Dialect {
             }
             parser.parseOptionalRParen();
         }
-        op.successors = op.successors || [];
-        op.successors.push(defaultDest);
+        result.successors = result.successors || [];
+        result.successors.push(defaultDest);
         const caseValues = [];
         const caseOperandSegments = [defaultDest.arguments.length];
         while (parser.parseOptionalComma()) {
@@ -14158,12 +14125,12 @@ _.CFDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalRParen();
             }
-            op.successors.push(caseDest);
+            result.successors.push(caseDest);
             caseOperandSegments.push(caseDest.arguments.length);
         }
         if (caseValues.length > 0) {
-            op.addAttribute('case_values', caseValues);
-            op.addAttribute('case_operand_segments', caseOperandSegments);
+            result.addAttribute('case_values', caseValues);
+            result.addAttribute('case_operand_segments', caseOperandSegments);
         }
         return true;
     }
@@ -14179,18 +14146,18 @@ _.PDLDialect = class extends _.Dialect {
         this._customParse = new Set(['pdl.operation']);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'pdl.operation') {
-            this._operations.get(opName).hasParseOperation = false;
-            return this.parseOperationOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'pdl.operation') {
+            result.compatibility = true;
+            return this.parseOperationOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseOperationOp(parser, op) {
+    parseOperationOp(parser, result) {
         if (parser.match('string')) {
             const opNameValue = parser.expect('string');
-            op.addAttribute('opName', opNameValue);
+            result.addAttribute('opName', opNameValue);
         }
         // Parse operand values: (%operand1, %operand2 : type1, type2)
         if (parser.parseOptionalLParen()) {
@@ -14210,11 +14177,11 @@ _.PDLDialect = class extends _.Dialect {
             }
             // Resolve operands with types
             for (let i = 0; i < unresolvedOperands.length; i++) {
-                parser.resolveOperand(unresolvedOperands[i], types[i] || null, op.operands);
+                parser.resolveOperand(unresolvedOperands[i], types[i] || null, result.operands);
             }
             parser.parseOptionalRParen();
         }
-        this.parseOperationOpAttributes(parser, op);
+        this.parseOperationOpAttributes(parser, result);
         // Parse result type values: -> (%type1, %type2 : !pdl.type, !pdl.type)
         if (parser.parseOptionalArrow()) {
             parser.parseOptionalLParen();
@@ -14234,14 +14201,14 @@ _.PDLDialect = class extends _.Dialect {
             }
             // Resolve type value operands
             for (let i = 0; i < unresolvedTypeValues.length; i++) {
-                parser.resolveOperand(unresolvedTypeValues[i], types[i] || null, op.operands);
+                parser.resolveOperand(unresolvedTypeValues[i], types[i] || null, result.operands);
             }
             parser.parseOptionalRParen();
         }
         return true;
     }
 
-    parseOperationOpAttributes(parser, op) {
+    parseOperationOpAttributes(parser, result) {
         if (!parser.parseOptionalLBrace()) {
             return true;
         }
@@ -14252,7 +14219,7 @@ _.PDLDialect = class extends _.Dialect {
                 break;
             }
             const unresolvedValue = parser.parseOperand();
-            parser.resolveOperand(unresolvedValue, null, op.operands);
+            parser.resolveOperand(unresolvedValue, null, result.operands);
             attributeNames.push(name);
             if (!parser.parseOptionalComma()) {
                 break;
@@ -14260,18 +14227,18 @@ _.PDLDialect = class extends _.Dialect {
         }
         parser.parseOptionalRBrace();
         if (attributeNames.length > 0) {
-            op.addAttribute('attributeValueNames', attributeNames);
+            result.addAttribute('attributeValueNames', attributeNames);
         }
         return true;
     }
 
-    parseRangeType(parser, op) {
+    parseRangeType(parser, result) {
         // If arguments were provided, infer the result type from the argument list.
         // Otherwise, parse the type as a trailing type.
-        const hasArguments = op.operands.length > 0;
+        const hasArguments = result.operands.length > 0;
         if (hasArguments) {
             // Infer result type from first operand's element type
-            const firstType = op.operands[0]?.type;
+            const firstType = result.operands[0]?.type;
             if (firstType) {
                 // Extract element type from range type if needed
                 let elementType = firstType;
@@ -14279,26 +14246,26 @@ _.PDLDialect = class extends _.Dialect {
                     elementType = elementType.replace(/^!pdl\.range</, '').replace(/>$/, '');
                 }
                 const resultType = `!pdl.range<${elementType}>`;
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
         } else if (parser.parseOptionalColon()) {
             // Parse `: type` for empty range
             const type = parser.parseType();
-            op.addTypes([type]);
+            result.addTypes([type]);
         }
         return true;
     }
 
-    parseResultsValueType(parser, op) {
+    parseResultsValueType(parser, result) {
         // Parses `-> type` for pdl.results operation
         // If index is present, type can be !pdl.value or !pdl.range<value>
         // If index is absent, type is always !pdl.range<value> (full result range)
         if (parser.parseOptionalArrow()) {
             const type = parser.parseType();
-            op.addTypes([type]);
+            result.addTypes([type]);
         } else {
             // Default to !pdl.range<value> when no explicit type is given
-            op.addTypes(['!pdl.range<!pdl.value>']);
+            result.addTypes(['!pdl.range<!pdl.value>']);
         }
         return true;
     }
@@ -14313,40 +14280,40 @@ _.PDLInterpDialect = class extends _.Dialect {
         this.registerCustomDirective('RangeType', this.parseRangeType.bind(this));
     }
 
-    parseRangeType(parser, op) {
-        if (op.operands.length > 0 && op.operands[0].type) {
-            let elementType = op.operands[0].type;
+    parseRangeType(parser, result) {
+        if (result.operands.length > 0 && result.operands[0].type) {
+            let elementType = result.operands[0].type;
             if (typeof elementType === 'string' && elementType.startsWith('!pdl.range<')) {
                 elementType = elementType.replace(/^!pdl\.range</, '').replace(/>$/, '');
             }
             const resultType = `!pdl.range<${elementType}>`;
-            op.addTypes([resultType]);
+            result.addTypes([resultType]);
             return;
         }
         if (parser.parseOptionalColon()) {
             const resultType = parser.parseType();
-            op.addTypes([resultType]);
+            result.addTypes([resultType]);
         }
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'pdl_interp.func' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'pdl_interp.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'pdl_interp.foreach' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseForeachOp(parser, op);
+        if (result.op === 'pdl_interp.foreach') {
+            return this.parseForeachOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseForeachOp(parser, op) {
+    parseForeachOp(parser, result) {
         const loopVar = parser.parseOperand();
         parser.parseColon();
         const loopVarType = parser.parseType();
         parser.expect('id', 'in');
         const range = parser.parseOperand();
-        parser.resolveOperand(range, null, op.operands);
+        parser.resolveOperand(range, null, result.operands);
         if (parser.match('{')) {
             const region = {};
             parser.parseRegion(region);
@@ -14356,16 +14323,16 @@ _.PDLInterpDialect = class extends _.Dialect {
                 }
                 region.blocks[0].arguments.push({ value: loopVar, type: loopVarType });
             }
-            op.regions.push(region);
+            result.regions.push(region);
         }
         if (parser.parseOptionalArrow()) {
             parser.expect('^');
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseCreateOperationOpAttributes(parser, op) {
+    parseCreateOperationOpAttributes(parser, result) {
         const attrNames = [];
         if (parser.parseOptionalLBrace()) {
             while (!parser.match('}')) {
@@ -14373,7 +14340,7 @@ _.PDLInterpDialect = class extends _.Dialect {
                 parser.parseEqual();
                 const operand = parser.parseOperand();
                 // Resolve the operand properly
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
                 attrNames.push(nameAttr);
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -14382,18 +14349,18 @@ _.PDLInterpDialect = class extends _.Dialect {
             parser.parseRBrace();
         }
         if (attrNames.length > 0) {
-            op.addAttribute('inputAttributeNames', attrNames);
+            result.addAttribute('inputAttributeNames', attrNames);
         }
     }
 
-    parseCreateOperationOpResults(parser, op) {
+    parseCreateOperationOpResults(parser, result) {
         if (!parser.parseOptionalArrow()) {
             return;
         }
         if (parser.parseOptionalLess()) {
             parser.expect('id', 'inferred');
             parser.parseGreater();
-            op.addAttribute('inferredResultTypes', true);
+            result.addAttribute('inferredResultTypes', true);
             return;
         }
         parser.parseLParen();
@@ -14415,7 +14382,7 @@ _.PDLInterpDialect = class extends _.Dialect {
         // Resolve all operands
         for (let i = 0; i < unresolvedOperands.length; i++) {
             const type = i < types.length ? types[i] : null;
-            parser.resolveOperand(unresolvedOperands[i], type, op.operands);
+            parser.resolveOperand(unresolvedOperands[i], type, result.operands);
         }
         parser.parseRParen();
     }
@@ -14461,35 +14428,35 @@ _.EmitCDialect = class extends _.Dialect {
         this.registerCustomDirective('EmitCFieldOpTypeAndInitialValue', this.parseTypeAndInitialValue.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'emitc.include') {
+    parseOperation(parser, result) {
+        if (result.op === 'emitc.include') {
             if (parser.parseOptionalLess()) {
                 const include = parser.expect('string');
                 parser.parseGreater();
-                op.addAttribute('is_standard_include', true);
-                op.addAttribute('include', include);
+                result.addAttribute('is_standard_include', true);
+                result.addAttribute('include', include);
             } else {
                 const include = parser.expect('string');
-                op.addAttribute('include', include);
+                result.addAttribute('include', include);
             }
             return true;
         }
-        if (opName === 'emitc.func') {
-            parser.parseFunctionOp(op, false);
+        if (result.op === 'emitc.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'emitc.expression') {
+        if (result.op === 'emitc.expression') {
             // Parse operands
             while (parser.match('%')) {
                 const operand = parser.parseOperand();
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
             }
             // Parse optional noinline
             if (parser.accept('id', 'noinline')) {
-                op.addAttribute('do_not_inline', true);
+                result.addAttribute('do_not_inline', true);
             }
             // Parse function type
             if (parser.parseOptionalColon()) {
@@ -14497,69 +14464,69 @@ _.EmitCDialect = class extends _.Dialect {
                 // Function type is (inputs) -> outputs
                 // We extract the result type from the function type
                 if (type && type.value) {
-                    op.addAttribute('type', type);
+                    result.addAttribute('type', type);
                     // Try to extract result type from function type
                     const match = type.value.match(/\) -> (.+)$/);
                     if (match) {
-                        op.addTypes([new _.Type(match[1])]);
+                        result.addTypes([new _.Type(match[1])]);
                     }
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'emitc.if') {
+        if (result.op === 'emitc.if') {
             const cond = parser.parseOperand();
-            parser.resolveOperand(cond, null, op.operands);
+            parser.resolveOperand(cond, null, result.operands);
             const thenRegion = {};
             parser.parseRegion(thenRegion);
-            op.regions.push(thenRegion);
+            result.regions.push(thenRegion);
             if (parser.accept('id', 'else')) {
                 const elseRegion = {};
                 parser.parseRegion(elseRegion);
-                op.regions.push(elseRegion);
+                result.regions.push(elseRegion);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (opName === 'emitc.do') {
+        if (result.op === 'emitc.do') {
             const bodyRegion = {};
             parser.parseRegion(bodyRegion);
-            op.regions.push(bodyRegion);
+            result.regions.push(bodyRegion);
             parser.expect('id', 'while');
             const condRegion = {};
             parser.parseRegion(condRegion);
-            op.regions.push(condRegion);
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            result.regions.push(condRegion);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
-        if (opName === 'emitc.for') {
+        if (result.op === 'emitc.for') {
             const iterVar = parser.parseOperand();
             parser.parseEqual();
             const lb = parser.parseOperand();
-            parser.resolveOperand(lb, null, op.operands);
+            parser.resolveOperand(lb, null, result.operands);
             parser.expect('id', 'to');
             const ub = parser.parseOperand();
-            parser.resolveOperand(ub, null, op.operands);
+            parser.resolveOperand(ub, null, result.operands);
             parser.expect('id', 'step');
             const step = parser.parseOperand();
-            parser.resolveOperand(step, null, op.operands);
+            parser.resolveOperand(step, null, result.operands);
             // Parse optional type
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addAttribute('type', type.toString());
+                result.addAttribute('type', type.toString());
             }
-            op.addAttribute('iterVar', { value: iterVar, hidden: true });
+            result.addAttribute('iterVar', { value: iterVar, hidden: true });
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseLValueType(parser) {
@@ -14605,11 +14572,11 @@ _.AsukaDialect = class extends _.Dialect {
         this._customParse = new Set(['asuka.dot', 'asuka.add', 'asuka.split', 'asuka.softmax', 'asuka.reduce']);
     }
 
-    parseOperation(parser, opName, op) {
-        if (this._customParse.has(opName)) {
-            this._operations.get(opName).hasParseOperation = false;
+    parseOperation(parser, result) {
+        if (this._customParse.has(result.op)) {
+            result.compatibility = true;
             // Parse operands (only actual SSA values starting with %)
-            op.operands = parser.parseOperandList();
+            result.operands = parser.parseOperandList();
             // Parse attributes like: dim = 3, batch_dims = [0] x [], etc.
             while (parser.match('id') && !parser.match(':') && !parser.match('{')) {
                 const attrName = parser.expect('id');
@@ -14627,20 +14594,20 @@ _.AsukaDialect = class extends _.Dialect {
                     } else {
                         attrValue = parser.parseAttribute();
                     }
-                    op.addAttribute(attrName, attrValue);
+                    result.addAttribute(attrName, attrValue);
                     parser.parseOptionalComma();
                 }
             }
             if (parser.parseOptionalColon()) {
                 const funcType = parser.parseFunctionType();
-                parser.resolveOperands(op.operands, funcType.inputs);
+                parser.resolveOperands(result.operands, funcType.inputs);
                 for (const resultType of funcType.results) {
-                    op.addTypes([resultType]);
+                    result.addTypes([resultType]);
                 }
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -14686,21 +14653,21 @@ _.AsyncDialect = class extends _.Dialect {
         return new _.Type(type);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'async.execute') {
-            return this.parseExecuteOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'async.execute') {
+            return this.parseExecuteOp(parser, result);
         }
-        if (opName === 'async.func') {
-            return this.parseFuncOp(parser, op);
+        if (result.op === 'async.func') {
+            return this.parseFuncOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseExecuteOp(parser, op) {
+    parseExecuteOp(parser, result) {
         const tokenArgs = parser.parseOperandList('optionalSquare');
         // Resolve async token dependencies
         const tokenTypes = tokenArgs.map(() => null);
-        parser.resolveOperands(tokenArgs, tokenTypes, op.operands);
+        parser.resolveOperands(tokenArgs, tokenTypes, result.operands);
         if (parser.parseOptionalLParen()) {
             while (!parser.match(')')) {
                 const operand = parser.parseOperand();
@@ -14711,7 +14678,7 @@ _.AsyncDialect = class extends _.Dialect {
                 if (parser.parseOptionalColon()) {
                     type = parser.parseType();
                 }
-                parser.resolveOperand(operand, type, op.operands);
+                parser.resolveOperand(operand, type, result.operands);
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -14722,10 +14689,10 @@ _.AsyncDialect = class extends _.Dialect {
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
                     const resultType = parser.parseType();
-                    if (op.types.length < 1) {
-                        op.addTypes(['!async.token']);
+                    if (result.types.length < 1) {
+                        result.addTypes(['!async.token']);
                     }
-                    op.addTypes([resultType]);
+                    result.addTypes([resultType]);
                     if (!parser.parseOptionalComma()) {
                         break;
                     }
@@ -14733,37 +14700,37 @@ _.AsyncDialect = class extends _.Dialect {
                 parser.parseRParen();
             } else {
                 const resultType = parser.parseType();
-                if (op.types.length < 1) {
-                    op.addTypes(['!async.token']);
+                if (result.types.length < 1) {
+                    result.addTypes(['!async.token']);
                 }
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
-        } else if (op.types.length === 1 && !op.types[0]) {
-            op.types[0] = '!async.token';
+        } else if (result.types.length === 1 && !result.types[0]) {
+            result.types[0] = '!async.token';
         }
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
     }
 
-    parseFuncOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
+    parseFuncOp(parser, result) {
+        parser.parseOptionalVisibilityKeyword(result.attributes);
+        parser.parseSymbolName('sym_name', result.attributes);
         const argResult = parser.parseFunctionArgumentList();
         const inputs = argResult.arguments.map((a) => a.type);
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         const results = [];
         const resultAttrs = [];
         if (parser.parseOptionalArrow()) {
             parser.parseFunctionResultList(results, resultAttrs);
         }
-        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
@@ -14806,42 +14773,42 @@ _.ArithDialect = class extends _.Dialect {
         this.registerCustomAttribute('Arith_IntegerOverflowAttr', this.parseEnumFlagsAngleBracketComma.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'arith.select') {
-            return this.parseSelectOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'arith.select') {
+            return this.parseSelectOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseSelectOp(parser, op) {
+    parseSelectOp(parser, result) {
         const unresolvedOperands = parser.parseOperandList();
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const condType = parser.parseType();
             if (parser.parseOptionalComma()) {
                 const resultType = parser.parseType();
                 const types = [condType, resultType, resultType];
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
-                if (op.types.length > 0) {
-                    op.types[0] = resultType;
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
+                if (result.types.length > 0) {
+                    result.types[0] = resultType;
                 } else {
-                    op.addTypes([resultType]);
+                    result.addTypes([resultType]);
                 }
             } else {
                 // Single type for all
                 const types = unresolvedOperands.map(() => condType);
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
-                if (op.types.length > 0) {
-                    op.types[0] = condType;
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
+                if (result.types.length > 0) {
+                    result.types[0] = condType;
                 } else {
-                    op.addTypes([condType]);
+                    result.addTypes([condType]);
                 }
             }
         } else {
             for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
         }
         return true;
@@ -14854,18 +14821,18 @@ _.BuiltinDialect = class extends _.Dialect {
         super(operations, 'builtin');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'builtin.call' || opName === 'builtin.call_indirect') {
-            parser.parseSymbolName('callee', op.attributes);
+    parseOperation(parser, result) {
+        if (result.op === 'builtin.call' || result.op === 'builtin.call_indirect') {
+            parser.parseSymbolName('callee', result.attributes);
             const unresolvedOperands = parser.parseOperandList();
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.parseOptionalArrow()) {
                 const resultTypes = parser.parseFunctionResultTypes();
-                op.addTypes(resultTypes);
+                result.addTypes(resultTypes);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     readType(reader) {
@@ -15192,8 +15159,8 @@ _.BufferizationDialect = class extends _.Dialect {
         super(operations, 'bufferization');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'bufferization.alloc_tensor') {
+    parseOperation(parser, result) {
+        if (result.op === 'bufferization.alloc_tensor') {
             if (!parser.parseOptionalLParen()) {
                 return false;
             }
@@ -15220,53 +15187,53 @@ _.BufferizationDialect = class extends _.Dialect {
                 parser.parseEqual();
                 unresolvedSizeHint = parser.parseOperand();
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const resultType = parser.parseType();
                 // Resolve dynamic dim operands - their type is index
                 const indexType = new _.PrimitiveType('index');
-                parser.resolveOperands(unresolvedDynamicDims, unresolvedDynamicDims.map(() => indexType), op.operands);
+                parser.resolveOperands(unresolvedDynamicDims, unresolvedDynamicDims.map(() => indexType), result.operands);
                 // Resolve copy operand if present - its type is the result type
                 if (unresolvedCopy) {
-                    parser.resolveOperand(unresolvedCopy, resultType, op.operands);
+                    parser.resolveOperand(unresolvedCopy, resultType, result.operands);
                 }
                 // Resolve size_hint if present - its type is index
                 if (unresolvedSizeHint) {
-                    parser.resolveOperand(unresolvedSizeHint, indexType, op.operands);
+                    parser.resolveOperand(unresolvedSizeHint, indexType, result.operands);
                 }
-                if (op.types.length === 0) {
-                    op.types.push(resultType);
+                if (result.types.length === 0) {
+                    result.types.push(resultType);
                 } else {
-                    op.types[0] = resultType;
+                    result.types[0] = resultType;
                 }
             }
             return true;
         }
         // bufferization.to_memref %tensor read_only : tensor_type to memref_type
-        if (opName === 'bufferization.to_memref') {
+        if (result.op === 'bufferization.to_memref') {
             let unresolvedOperand = null;
             if (parser.match('%')) {
                 unresolvedOperand = parser.parseOperand();
             }
             if (parser.accept('id', 'read_only')) {
-                op.addAttribute('read_only', true);
+                result.addAttribute('read_only', true);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const sourceType = parser.parseType();
-                op.addAttribute('source_type', sourceType);
+                result.addAttribute('source_type', sourceType);
                 if (unresolvedOperand) {
-                    parser.resolveOperand(unresolvedOperand, sourceType, op.operands);
+                    parser.resolveOperand(unresolvedOperand, sourceType, result.operands);
                 }
                 parser.expect('id', 'to');
                 const destType = parser.parseType();
-                op.addTypes([destType]);
+                result.addTypes([destType]);
             } else if (unresolvedOperand) {
-                parser.resolveOperand(unresolvedOperand, null, op.operands);
+                parser.resolveOperand(unresolvedOperand, null, result.operands);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -15277,34 +15244,34 @@ _.SCFDialect = class extends _.Dialect {
         this.registerCustomDirective('SwitchCases', this.parseSwitchCases.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'scf.for') {
-            return this.parseForOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'scf.for') {
+            return this.parseForOp(parser, result);
         }
-        if (opName === 'scf.if') {
-            return this.parseIfOp(parser, op);
+        if (result.op === 'scf.if') {
+            return this.parseIfOp(parser, result);
         }
-        if (opName === 'scf.while') {
-            return this.parseWhileOp(parser, op);
+        if (result.op === 'scf.while') {
+            return this.parseWhileOp(parser, result);
         }
-        if (opName === 'scf.forall') {
-            return this.parseForallOp(parser, op);
+        if (result.op === 'scf.forall') {
+            return this.parseForallOp(parser, result);
         }
-        if (opName === 'scf.forall.in_parallel') {
-            return this.parseInParallelOp(parser, op);
+        if (result.op === 'scf.forall.in_parallel') {
+            return this.parseInParallelOp(parser, result);
         }
-        if (opName === 'scf.parallel') {
-            return this.parseParallelOp(parser, op);
+        if (result.op === 'scf.parallel') {
+            return this.parseParallelOp(parser, result);
         }
-        if (opName === 'scf.execute_region') {
-            return this.parseExecuteRegionOp(parser, op);
+        if (result.op === 'scf.execute_region') {
+            return this.parseExecuteRegionOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseForOp(parser, op) {
+    parseForOp(parser, result) {
         if (parser.accept('id', 'unsigned')) {
-            op.addAttribute('unsignedCmp', true);
+            result.addAttribute('unsignedCmp', true);
         }
         if (!parser.match('%')) {
             return false;
@@ -15339,7 +15306,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         // Resolve lb, ub, step operands with index type
-        parser.resolveOperands([unresolvedLb, unresolvedUb, unresolvedStep], [indexType, indexType, indexType], op.operands);
+        parser.resolveOperands([unresolvedLb, unresolvedUb, unresolvedStep], [indexType, indexType, indexType], result.operands);
         let initArgsCount = 0;
         if (parser.accept('id', 'iter_args')) {
             const unresolvedIterArgs = [];
@@ -15361,10 +15328,10 @@ _.SCFDialect = class extends _.Dialect {
                     parser.parseOptionalComma();
                 }
             }
-            op.addTypes(parser.parseArrowTypeList());
+            result.addTypes(parser.parseArrowTypeList());
             // Resolve iter_args operands with inferred types from result types
-            const iterArgTypes = op.types.map((t) => t || indexType);
-            parser.resolveOperands(unresolvedIterArgs, iterArgTypes, op.operands);
+            const iterArgTypes = result.types.map((t) => t || indexType);
+            parser.resolveOperands(unresolvedIterArgs, iterArgTypes, result.operands);
             initArgsCount = unresolvedIterArgs.length;
         }
         if (parser.parseOptionalColon()) {
@@ -15383,15 +15350,15 @@ _.SCFDialect = class extends _.Dialect {
                     region.blocks[0].arguments.push({ value: inductionVar });
                 }
             }
-            op.regions.push(region);
+            result.regions.push(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         // Set operandSegmentSizes: [lowerBound:1, upperBound:1, step:1, initArgs:N]
-        op.addAttribute('operandSegmentSizes', [1, 1, 1, initArgsCount]);
+        result.addAttribute('operandSegmentSizes', [1, 1, 1, initArgsCount]);
         return true;
     }
 
-    parseIfOp(parser, op) {
+    parseIfOp(parser, result) {
         // Reference impl: condition operand is of type i1
         let unresolvedCond = null;
         if (parser.match('%')) {
@@ -15400,10 +15367,10 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         const i1Type = new _.PrimitiveType('i1');
-        parser.resolveOperands([unresolvedCond], [i1Type], op.operands);
-        op.addTypes(parser.parseOptionalArrowTypeList());
+        parser.resolveOperands([unresolvedCond], [i1Type], result.operands);
+        result.addTypes(parser.parseOptionalArrowTypeList());
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         } else {
             return false;
@@ -15411,15 +15378,15 @@ _.SCFDialect = class extends _.Dialect {
         // Parse optional else region
         if (parser.accept('id', 'else')) {
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseWhileOp(parser, op) {
+    parseWhileOp(parser, result) {
         const unresolvedOperands = [];
         if (parser.parseOptionalLParen()) {
             while (!parser.parseOptionalRParen()) {
@@ -15445,24 +15412,24 @@ _.SCFDialect = class extends _.Dialect {
             } else {
                 types.push(parser.parseType());
             }
-            parser.resolveOperands(unresolvedOperands, types, op.operands);
-            op.addTypes(parser.parseOptionalArrowTypeList());
+            parser.resolveOperands(unresolvedOperands, types, result.operands);
+            result.addTypes(parser.parseOptionalArrowTypeList());
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         if (parser.accept('id', 'do')) {
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
         }
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         return true;
     }
 
-    parseForallOp(parser, op) {
+    parseForallOp(parser, result) {
         const indexType = new _.PrimitiveType('index');
         const inductionVars = [];
         if (!parser.parseOptionalLParen()) {
@@ -15505,21 +15472,21 @@ _.SCFDialect = class extends _.Dialect {
         if (isNormalized) {
             // Normalized form: in (bounds)
             const bounds = parseBoundsList();
-            parser.resolveOperands(bounds, bounds.map(() => indexType), op.operands);
+            parser.resolveOperands(bounds, bounds.map(() => indexType), result.operands);
         } else {
             // Range form: = (lb) to (ub) step (step)
             const lowerBounds = parseBoundsList();
-            parser.resolveOperands(lowerBounds, lowerBounds.map(() => indexType), op.operands);
+            parser.resolveOperands(lowerBounds, lowerBounds.map(() => indexType), result.operands);
             if (!parser.accept('id', 'to')) {
                 return false;
             }
             const upperBounds = parseBoundsList();
-            parser.resolveOperands(upperBounds, upperBounds.map(() => indexType), op.operands);
+            parser.resolveOperands(upperBounds, upperBounds.map(() => indexType), result.operands);
             if (!parser.accept('id', 'step')) {
                 return false;
             }
             const steps = parseBoundsList();
-            parser.resolveOperands(steps, steps.map(() => indexType), op.operands);
+            parser.resolveOperands(steps, steps.map(() => indexType), result.operands);
         }
         if (parser.accept('id', 'shared_outs')) {
             if (!parser.parseOptionalLParen()) {
@@ -15532,7 +15499,7 @@ _.SCFDialect = class extends _.Dialect {
                 if (parser.parseOptionalEqual()) {
                     if (parser.match('%')) {
                         const operand = parser.parseOperand();
-                        parser.resolveOperand(operand, null, op.operands);
+                        parser.resolveOperand(operand, null, result.operands);
                     } else {
                         parser.parseAttribute(); // Skip attribute value
                     }
@@ -15544,25 +15511,25 @@ _.SCFDialect = class extends _.Dialect {
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
                     const type = parser.parseType();
-                    op.addTypes([type]);
+                    result.addTypes([type]);
                     parser.parseOptionalComma();
                 }
             } else {
                 const type = parser.parseType();
-                op.addTypes([type]);
+                result.addTypes([type]);
             }
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         } else {
             return false;
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseParallelOp(parser, op) {
+    parseParallelOp(parser, result) {
         const indexType = new _.PrimitiveType('index');
         const inductionVars = [];
         if (!parser.parseOptionalLParen()) {
@@ -15592,7 +15559,7 @@ _.SCFDialect = class extends _.Dialect {
             }
             parser.parseOptionalComma();
         }
-        parser.resolveOperands(lowerBounds, lowerBounds.map(() => indexType), op.operands);
+        parser.resolveOperands(lowerBounds, lowerBounds.map(() => indexType), result.operands);
         if (!parser.accept('id', 'to')) {
             return false;
         }
@@ -15609,7 +15576,7 @@ _.SCFDialect = class extends _.Dialect {
             }
             parser.parseOptionalComma();
         }
-        parser.resolveOperands(upperBounds, upperBounds.map(() => indexType), op.operands);
+        parser.resolveOperands(upperBounds, upperBounds.map(() => indexType), result.operands);
         if (!parser.accept('id', 'step')) {
             return false;
         }
@@ -15626,7 +15593,7 @@ _.SCFDialect = class extends _.Dialect {
             }
             parser.parseOptionalComma();
         }
-        parser.resolveOperands(steps, steps.map(() => indexType), op.operands);
+        parser.resolveOperands(steps, steps.map(() => indexType), result.operands);
         // Parse init values
         if (parser.accept('id', 'init')) {
             const initVals = [];
@@ -15645,18 +15612,18 @@ _.SCFDialect = class extends _.Dialect {
                 parser.parseOptionalComma();
             }
             // Init values type inferred from definition
-            parser.resolveOperands(initVals, initVals.map(() => null), op.operands);
+            parser.resolveOperands(initVals, initVals.map(() => null), result.operands);
         }
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
                     const type = parser.parseType();
-                    op.addTypes([type]);
+                    result.addTypes([type]);
                     parser.parseOptionalComma();
                 }
             } else {
                 const type = parser.parseType();
-                op.addTypes([type]);
+                result.addTypes([type]);
             }
         }
         if (parser.match('{')) {
@@ -15670,23 +15637,23 @@ _.SCFDialect = class extends _.Dialect {
                     region.blocks[0].arguments.push({ value: iv });
                 }
             }
-            op.regions.push(region);
+            result.regions.push(region);
         } else {
             return false;
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseInParallelOp(parser, op) {
+    parseInParallelOp(parser, result) {
         // scf.forall.in_parallel { region }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         } else {
             return false;
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
@@ -15710,16 +15677,16 @@ _.SCFDialect = class extends _.Dialect {
         }
     }
 
-    parseExecuteRegionOp(parser, op) {
-        op.addTypes(parser.parseOptionalArrowTypeList());
+    parseExecuteRegionOp(parser, result) {
+        result.addTypes(parser.parseOptionalArrowTypeList());
         if (parser.accept('id', 'no_inline')) {
-            op.addAttribute('no_inline', true);
+            result.addAttribute('no_inline', true);
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
@@ -15749,58 +15716,58 @@ _.ShapeDialect = class extends _.Dialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'shape.func') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'shape.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'shape.assuming') {
-            return this.parseAssumingOp(parser, op);
+        if (result.op === 'shape.assuming') {
+            return this.parseAssumingOp(parser, result);
         }
-        if (opName === 'shape.const_shape') {
-            return this.parseConstShapeOp(parser, op);
+        if (result.op === 'shape.const_shape') {
+            return this.parseConstShapeOp(parser, result);
         }
-        if (opName === 'shape.reduce') {
-            return this.parseReduceOp(parser, op);
+        if (result.op === 'shape.reduce') {
+            return this.parseReduceOp(parser, result);
         }
-        if (opName === 'shape.function_library') {
-            return this.parseFunctionLibraryOp(parser, op);
+        if (result.op === 'shape.function_library') {
+            return this.parseFunctionLibraryOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseAssumingOp(parser, op) {
+    parseAssumingOp(parser, result) {
         if (!parser.match('%')) {
             return false;
         }
         const unresolvedWitness = parser.parseOperand();
         // Witness has type !shape.witness
         const witnessType = new _.Type('!shape.witness');
-        parser.resolveOperand(unresolvedWitness, witnessType, op.operands);
+        parser.resolveOperand(unresolvedWitness, witnessType, result.operands);
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseConstShapeOp(parser, op) {
-        parser.parseOptionalAttrDict(op.attributes);
+    parseConstShapeOp(parser, result) {
+        parser.parseOptionalAttrDict(result.attributes);
         const extents = parser.parseAttribute();
-        op.addAttribute('shape', extents);
+        result.addAttribute('shape', extents);
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
-            op.addTypes([type]);
+            result.addTypes([type]);
         }
         return true;
     }
 
-    parseReduceOp(parser, op) {
+    parseReduceOp(parser, result) {
         if (!parser.match('(')) {
             return false;
         }
@@ -15820,35 +15787,35 @@ _.ShapeDialect = class extends _.Dialect {
         const resultTypes = [];
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
             resultTypes.push(...types);
         }
         // First operand is the shape, rest are init values with result types
         if (unresolvedOperands.length > 0) {
-            parser.resolveOperand(unresolvedOperands[0], shapeType, op.operands);
+            parser.resolveOperand(unresolvedOperands[0], shapeType, result.operands);
             for (let i = 1; i < unresolvedOperands.length; i++) {
                 const initType = resultTypes[i - 1] || null;
-                parser.resolveOperand(unresolvedOperands[i], initType, op.operands);
+                parser.resolveOperand(unresolvedOperands[i], initType, result.operands);
             }
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseFunctionLibraryOp(parser, op) {
-        parser.parseSymbolName('sym_name', op.attributes);
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+    parseFunctionLibraryOp(parser, result) {
+        parser.parseSymbolName('sym_name', result.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         if (parser.accept('id', 'mapping')) {
             const mapping = parser.parseAttribute();
-            op.addAttribute('mapping', mapping);
+            result.addAttribute('mapping', mapping);
         }
         return true;
     }
@@ -15870,17 +15837,17 @@ _.SparseTensorDialect = class extends _.Dialect {
         }
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'sparse_tensor.iterate') {
-            return this.parseIterateOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'sparse_tensor.iterate') {
+            return this.parseIterateOp(parser, result);
         }
-        if (opName === 'sparse_tensor.coiterate') {
-            return this.parseCoIterateOp(parser, op);
+        if (result.op === 'sparse_tensor.coiterate') {
+            return this.parseCoIterateOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseIterateOp(parser, op) {
+    parseIterateOp(parser, result) {
         if (!parser.match('%')) {
             return false;
         }
@@ -15927,7 +15894,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         const resultTypes = [];
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
             resultTypes.push(...types);
         }
         // Add iter_args to region args with their result types
@@ -15936,21 +15903,21 @@ _.SparseTensorDialect = class extends _.Dialect {
             regionArgs.push({ name: iterArgNames[i], type: argType });
         }
         // Resolve operands
-        parser.resolveOperand(unresolvedTensor, tensorType, op.operands);
+        parser.resolveOperand(unresolvedTensor, tensorType, result.operands);
         // iter_args block args don't go to operands, but init values do
         for (let i = 0; i < initValues.length; i++) {
             const initType = resultTypes[i] || null;
-            parser.resolveOperand(initValues[i], initType, op.operands);
+            parser.resolveOperand(initValues[i], initType, result.operands);
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, regionArgs);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseCoIterateOp(parser, op) {
+    parseCoIterateOp(parser, result) {
         if (!parser.parseOptionalLParen()) {
             return false;
         }
@@ -16002,7 +15969,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         const resultTypes = [];
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            op.addTypes(types);
+            result.addTypes(types);
             resultTypes.push(...types);
         }
         // Build region args from iter_args
@@ -16014,12 +15981,12 @@ _.SparseTensorDialect = class extends _.Dialect {
         // Resolve tensor operands
         for (let i = 0; i < unresolvedTensors.length; i++) {
             const tensorType = tensorTypes[i] || null;
-            parser.resolveOperand(unresolvedTensors[i], tensorType, op.operands);
+            parser.resolveOperand(unresolvedTensors[i], tensorType, result.operands);
         }
         // Resolve init values with result types
         for (let i = 0; i < initValues.length; i++) {
             const initType = resultTypes[i] || null;
-            parser.resolveOperand(initValues[i], initType, op.operands);
+            parser.resolveOperand(initValues[i], initType, result.operands);
         }
         while (parser.accept('id', 'case')) {
             // Parse case pattern - these define additional block args for this case
@@ -16034,11 +16001,11 @@ _.SparseTensorDialect = class extends _.Dialect {
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region, caseArgs);
             }
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 };
@@ -16049,12 +16016,12 @@ _.FuncDialect = class extends _.Dialect {
         super(operations, 'func');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'func.func') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'func.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -16107,14 +16074,14 @@ _.GpuDialect = class extends _.Dialect {
         }
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'gpu.func') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
-            parser.parseSymbolName('sym_name', op.attributes);
+    parseOperation(parser, result) {
+        if (result.op === 'gpu.func') {
+            parser.parseOptionalVisibilityKeyword(result.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
             const sig = parser.parseFunctionSignatureWithArguments(false);
             const argTypes = sig.arguments.map((a) => a.type);
             const type = new _.FunctionType(argTypes, sig.resultTypes);
-            op.addAttribute('function_type', new _.TypeAttrOf(type));
+            result.addAttribute('function_type', new _.TypeAttrOf(type));
             const allArgs = [...sig.arguments];
             if (parser.accept('id', 'workgroup')) {
                 const workgroupResult = parser.parseFunctionArgumentList(false);
@@ -16126,55 +16093,55 @@ _.GpuDialect = class extends _.Dialect {
             }
             if (parser.match('id', 'kernel')) {
                 parser.expect();
-                op.addAttribute('gpu.kernel', true);
+                result.addAttribute('gpu.kernel', true);
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 // gpu.func is IsolatedFromAbove
                 parser.parseRegion(region, allArgs, /* isIsolatedNameScope */ true);
             }
             return true;
         }
-        if (opName === 'gpu.launch') {
+        if (result.op === 'gpu.launch') {
             const indexType = new _.PrimitiveType('index');
             if (parser.accept('id', 'async')) {
                 if (parser.getNumResults() === 0) {
-                    throw new mlir.Error(`Operation '${opName}' needs to be named when marked 'async' ${parser.location()}`);
+                    throw new mlir.Error(`Operation '${result.op}' needs to be named when marked 'async' ${parser.location()}`);
                 }
-                op.addTypes(['!gpu.async.token']);
+                result.addTypes(['!gpu.async.token']);
             }
             const asyncDeps = parser.parseOperandList('optionalSquare');
             // Resolve with null type (async token type will be inferred)
             const asyncTypes = asyncDeps.map(() => null);
-            parser.resolveOperands(asyncDeps, asyncTypes, op.operands);
+            parser.resolveOperands(asyncDeps, asyncTypes, result.operands);
             if (parser.accept('id', 'clusters')) {
-                this.parseSizeAssignment(parser, op, indexType);
+                this.parseSizeAssignment(parser, result, indexType);
                 parser.expect('id', 'in');
-                this.parseSizeAssignment(parser, op, indexType);
+                this.parseSizeAssignment(parser, result, indexType);
             }
             parser.expect('id', 'blocks');
-            this.parseSizeAssignment(parser, op, indexType);
+            this.parseSizeAssignment(parser, result, indexType);
             parser.expect('id', 'in');
-            this.parseSizeAssignment(parser, op, indexType);
+            this.parseSizeAssignment(parser, result, indexType);
             parser.expect('id', 'threads');
-            this.parseSizeAssignment(parser, op, indexType);
+            this.parseSizeAssignment(parser, result, indexType);
             parser.expect('id', 'in');
-            this.parseSizeAssignment(parser, op, indexType);
+            this.parseSizeAssignment(parser, result, indexType);
             if (parser.accept('id', 'dynamic_shared_memory_size')) {
                 const operand = parser.parseOperand();
-                parser.resolveOperand(operand, indexType, op.operands);
+                parser.resolveOperand(operand, indexType, result.operands);
             }
             if (parser.accept('id', 'module')) {
                 parser.parseLParen();
                 const moduleSymbol = parser.expect('@');
-                op.addAttribute('module', moduleSymbol);
+                result.addAttribute('module', moduleSymbol);
                 parser.parseRParen();
             }
             if (parser.accept('id', 'function')) {
                 parser.parseLParen();
                 const funcSymbol = parser.expect('@');
-                op.addAttribute('function', funcSymbol);
+                result.addAttribute('function', funcSymbol);
                 parser.parseRParen();
             }
             if (parser.accept('id', 'workgroup')) {
@@ -16202,58 +16169,58 @@ _.GpuDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 // gpu.launch is IsolatedFromAbove
                 parser.parseRegion(region, undefined, /* isIsolatedNameScope */ true);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (opName === 'gpu.warp_execute_on_lane_0') {
-            return this.parseWarpExecuteOnLane0Op(parser, op);
+        if (result.op === 'gpu.warp_execute_on_lane_0') {
+            return this.parseWarpExecuteOnLane0Op(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseWarpExecuteOnLane0Op(parser, op) {
+    parseWarpExecuteOnLane0Op(parser, result) {
         parser.parseLParen();
         const unresolvedLaneId = parser.parseOperand();
         const indexType = new _.PrimitiveType('index');
-        parser.resolveOperand(unresolvedLaneId, indexType, op.operands);
+        parser.resolveOperand(unresolvedLaneId, indexType, result.operands);
         parser.parseRParen();
         parser.parseLSquare();
         const warpSize = parser.expect('int');
-        op.addAttribute('warp_size', parseInt(warpSize, 10));
+        result.addAttribute('warp_size', parseInt(warpSize, 10));
         parser.parseRSquare();
         if (parser.accept('id', 'args')) {
             parser.parseLParen();
             const unresolvedArgs = parser.parseOperandList('none');
             if (parser.parseOptionalColon()) {
                 const types = parser.parseTypeListNoParens();
-                parser.resolveOperands(unresolvedArgs, types, op.operands);
+                parser.resolveOperands(unresolvedArgs, types, result.operands);
             } else {
                 // No types provided, resolve with null
                 for (const arg of unresolvedArgs) {
-                    parser.resolveOperand(arg, null, op.operands);
+                    parser.resolveOperand(arg, null, result.operands);
                 }
             }
             parser.parseRParen();
         }
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
-            if (op.types.length > 0) {
-                op.addTypes(types);
+            if (result.types.length > 0) {
+                result.addTypes(types);
             } else {
                 for (const type of types) {
-                    op.addTypes([type]);
+                    result.addTypes([type]);
                 }
             }
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
@@ -16399,7 +16366,7 @@ _.NVVMDialect = class extends _.Dialect {
         super(operations, 'nvvm');
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // Helper to parse operand fragment like A[%a0, %a1]
         const parseOperandFragment = (name) => {
             parser.expect('id', name);
@@ -16419,22 +16386,22 @@ _.NVVMDialect = class extends _.Dialect {
 
         // Helper to resolve operands and add types from function type
         const finalizeMmaOp = (unresolvedOperands) => {
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const funcType = parser.parseFunctionType();
                 if (funcType instanceof _.FunctionType) {
-                    parser.resolveOperands(unresolvedOperands, funcType.inputs, op.operands);
-                    op.addTypes(funcType.results);
+                    parser.resolveOperands(unresolvedOperands, funcType.inputs, result.operands);
+                    result.addTypes(funcType.results);
                 }
             } else {
                 // No type info - resolve from scope
                 for (const unresolved of unresolvedOperands) {
-                    parser.resolveOperand(unresolved, null, op.operands);
+                    parser.resolveOperand(unresolved, null, result.operands);
                 }
             }
         };
 
-        if (opName === 'nvvm.mma.sync') {
+        if (result.op === 'nvvm.mma.sync') {
             const unresolvedOperands = [
                 ...parseOperandFragment('A'),
                 ...parseOperandFragment('B'),
@@ -16443,7 +16410,7 @@ _.NVVMDialect = class extends _.Dialect {
             finalizeMmaOp(unresolvedOperands);
             return true;
         }
-        if (opName === 'nvvm.mma.sp.sync' || opName === 'nvvm.mma.sp.block_scale') {
+        if (result.op === 'nvvm.mma.sp.sync' || result.op === 'nvvm.mma.sp.block_scale') {
             const unresolvedOperands = [
                 ...parseOperandFragment('A'),
                 ...parseOperandFragment('B'),
@@ -16451,14 +16418,14 @@ _.NVVMDialect = class extends _.Dialect {
                 ...parseOperandFragment('sparseMetadata'),
                 ...parseOperandFragment('selector')
             ];
-            if (opName === 'nvvm.mma.sp.block_scale') {
+            if (result.op === 'nvvm.mma.sp.block_scale') {
                 unresolvedOperands.push(...parseOperandFragment('scaleA'));
                 unresolvedOperands.push(...parseOperandFragment('scaleB'));
             }
             finalizeMmaOp(unresolvedOperands);
             return true;
         }
-        if (opName === 'nvvm.mma.block_scale' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'nvvm.mma.block_scale') {
             const unresolvedOperands = [
                 ...parseOperandFragment('A'),
                 ...parseOperandFragment('B'),
@@ -16469,7 +16436,7 @@ _.NVVMDialect = class extends _.Dialect {
             finalizeMmaOp(unresolvedOperands);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -16488,9 +16455,9 @@ _.NVWSDialect = class extends _.Dialect {
         return parser.parseType();
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'nvws.warp_group') {
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+    parseOperation(parser, result) {
+        if (result.op === 'nvws.warp_group') {
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             const numWarps = [];
             let partitionIndex = 0;
             while (parser.accept('id', `partition${partitionIndex}`)) {
@@ -16499,14 +16466,14 @@ _.NVWSDialect = class extends _.Dialect {
                 const n = parseInt(parser.expect('int'), 10);
                 numWarps.push(n);
                 parser.parseRParen();
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
                 partitionIndex++;
             }
-            op.addAttribute('numWarps', numWarps);
+            result.addAttribute('numWarps', numWarps);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -16545,24 +16512,24 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomAttribute('OrderModifierAttr', this.parseParenthesizedEnumAttr.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'omp.loop_nest') {
-            return this.parseLoopNestOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'omp.loop_nest') {
+            return this.parseLoopNestOp(parser, result);
         }
-        if (opName === 'omp.canonical_loop') {
-            return this.parseCanonicalLoopOp(parser, op);
+        if (result.op === 'omp.canonical_loop') {
+            return this.parseCanonicalLoopOp(parser, result);
         }
-        if (opName === 'omp.unroll_heuristic') {
-            return this.parseUnrollHeuristicOp(parser, op);
+        if (result.op === 'omp.unroll_heuristic') {
+            return this.parseUnrollHeuristicOp(parser, result);
         }
-        if (opName === 'omp.target_allocmem' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'omp.target_allocmem') {
             const unresolvedDevice = parser.parseOperand();
             parser.parseColon();
             const deviceType = parser.parseType();
-            parser.resolveOperand(unresolvedDevice, deviceType, op.operands);
+            parser.resolveOperand(unresolvedDevice, deviceType, result.operands);
             parser.parseComma();
             const inType = parser.parseType();
-            op.addAttribute('in_type', { value: inType, type: 'type' });
+            result.addAttribute('in_type', { value: inType, type: 'type' });
             const unresolvedTypeparams = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
@@ -16573,7 +16540,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
                 parser.parseColon();
                 const types = parser.parseTypeList();
-                parser.resolveOperands(unresolvedTypeparams, types, op.operands);
+                parser.resolveOperands(unresolvedTypeparams, types, result.operands);
                 parser.parseRParen();
             }
             const unresolvedShape = [];
@@ -16582,33 +16549,21 @@ _.OpenMPDialect = class extends _.Dialect {
             }
             const indexType = new _.PrimitiveType('index');
             for (const s of unresolvedShape) {
-                parser.resolveOperand(s, indexType, op.operands);
+                parser.resolveOperand(s, indexType, result.operands);
             }
-            parser.parseOptionalAttrDict(op.attributes);
-            op.addAttribute('operandSegmentSizes', [1, unresolvedTypeparams.length, unresolvedShape.length]);
-            op.addTypes(['i64']);
+            parser.parseOptionalAttrDict(result.attributes);
+            result.addAttribute('operandSegmentSizes', [1, unresolvedTypeparams.length, unresolvedShape.length]);
+            result.addTypes(['i64']);
             return true;
         }
-        if (opName === 'omp.target_freemem' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            const unresolvedDevice = parser.parseOperand();
-            parser.parseComma();
-            const unresolvedPtr = parser.parseOperand();
-            parser.parseColon();
-            const deviceType = parser.parseType();
-            parser.parseComma();
-            const ptrType = parser.parseType();
-            parser.resolveOperand(unresolvedDevice, deviceType, op.operands);
-            parser.resolveOperand(unresolvedPtr, ptrType, op.operands);
-            return true;
-        }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseCanonicalLoopOp(parser, op) {
+    parseCanonicalLoopOp(parser, result) {
         if (parser.parseOptionalLParen()) {
             const cliOperand = parser.parseOperand();
             // CLI operand is a loop handle, resolve with null type
-            parser.resolveOperand(cliOperand, null, op.operands);
+            parser.resolveOperand(cliOperand, null, result.operands);
             parser.parseRParen();
         }
         const inductionVar = parser.parseOperand();
@@ -16618,33 +16573,33 @@ _.OpenMPDialect = class extends _.Dialect {
         parser.expect('id', 'range');
         parser.parseLParen();
         const rangeOperand = parser.parseOperand();
-        parser.resolveOperand(rangeOperand, null, op.operands);
+        parser.resolveOperand(rangeOperand, null, result.operands);
         parser.parseRParen();
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             // Pass induction variable as region argument
             const regionArgs = [{ name: inductionVar.name, type: ivType }];
             parser.parseRegion(region, regionArgs);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseUnrollHeuristicOp(parser, op) {
+    parseUnrollHeuristicOp(parser, result) {
         parser.parseLParen();
         const applyee = parser.parseOperand();
         // Applyee is a loop handle, resolve with null type
-        parser.resolveOperand(applyee, null, op.operands);
+        parser.resolveOperand(applyee, null, result.operands);
         parser.parseRParen();
         if (parser.parseOptionalArrow()) {
             parser.parseLParen();
             parser.parseRParen();
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseLoopNestOp(parser, op) {
+    parseLoopNestOp(parser, result) {
         // Parse CLI operands (loop handles)
         const unresolvedCli = [];
         if (parser.parseOptionalLParen()) {
@@ -16667,7 +16622,7 @@ _.OpenMPDialect = class extends _.Dialect {
             }
         }
         // Resolve CLI operands
-        parser.resolveOperands(unresolvedCli, cliTypes, op.operands);
+        parser.resolveOperands(unresolvedCli, cliTypes, result.operands);
         if (parser.parseOptionalEqual()) {
             // Parse lower bounds: = (%lb, ...)
             if (parser.parseOptionalLParen()) {
@@ -16680,7 +16635,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
                 for (const lb of unresolvedLb) {
-                    parser.resolveOperand(lb, null, op.operands);
+                    parser.resolveOperand(lb, null, result.operands);
                 }
             }
             // Parse upper bounds: to (%ub, ...)
@@ -16695,7 +16650,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     }
                     parser.parseRParen();
                     for (const ub of unresolvedUb) {
-                        parser.resolveOperand(ub, null, op.operands);
+                        parser.resolveOperand(ub, null, result.operands);
                     }
                 }
             }
@@ -16712,7 +16667,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     }
                     parser.parseRParen();
                     for (const step of unresolvedStep) {
-                        parser.resolveOperand(step, null, op.operands);
+                        parser.resolveOperand(step, null, result.operands);
                     }
                 }
             }
@@ -16721,7 +16676,7 @@ _.OpenMPDialect = class extends _.Dialect {
         if (parser.accept('id', 'collapse')) {
             parser.parseLParen();
             const value = parser.expect('int');
-            op.addAttribute('collapse_num_loops', parseInt(value, 10));
+            result.addAttribute('collapse_num_loops', parseInt(value, 10));
             parser.parseRParen();
         }
         // Parse optional 'tiles(N, ...)'
@@ -16735,14 +16690,14 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            op.addAttribute('tile_sizes', tiles);
+            result.addAttribute('tile_sizes', tiles);
         }
         // Parse region BEFORE attr-dict (matches reference impl)
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
@@ -16755,7 +16710,7 @@ _.OpenMPDialect = class extends _.Dialect {
         return null;
     }
 
-    parseOrderClause(parser, op) {
+    parseOrderClause(parser, result) {
         const orderModifiers = ['reproducible', 'unconstrained'];
         const orderKinds = ['concurrent'];
         let orderMod = null;
@@ -16769,14 +16724,14 @@ _.OpenMPDialect = class extends _.Dialect {
             orderKind = keyword;
         }
         if (orderKind) {
-            op.addAttribute('order_kind', orderKind);
+            result.addAttribute('order_kind', orderKind);
         }
         if (orderMod) {
-            op.addAttribute('order_mod', orderMod);
+            result.addAttribute('order_mod', orderMod);
         }
     }
 
-    parseLinearClause(parser, op) {
+    parseLinearClause(parser, result) {
         const unresolvedLinearVars = [];
         const linearVarTypes = [];
         const unresolvedStepVars = [];
@@ -16791,9 +16746,9 @@ _.OpenMPDialect = class extends _.Dialect {
             const type = parser.parseType();
             linearVarTypes.push(type);
         } while (parser.parseOptionalComma());
-        parser.resolveOperands(unresolvedLinearVars, linearVarTypes, op.operands);
+        parser.resolveOperands(unresolvedLinearVars, linearVarTypes, result.operands);
         // Step vars typically have same type as linear vars
-        parser.resolveOperands(unresolvedStepVars, linearVarTypes, op.operands);
+        parser.resolveOperands(unresolvedStepVars, linearVarTypes, result.operands);
     }
 
     parseCopyprivate(parser, op, varsAttr, typesAttr, symsAttr) {
@@ -16830,7 +16785,7 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
-    parseAlignedClause(parser, op) {
+    parseAlignedClause(parser, result) {
         const unresolvedVars = [];
         const varTypes = [];
         const alignments = [];
@@ -16846,13 +16801,13 @@ _.OpenMPDialect = class extends _.Dialect {
             const alignment = parser.parseAttribute();
             alignments.push(alignment);
         } while (parser.parseOptionalComma());
-        parser.resolveOperands(unresolvedVars, varTypes, op.operands);
+        parser.resolveOperands(unresolvedVars, varTypes, result.operands);
         if (alignments.length > 0) {
-            op.addAttribute('alignments', alignments);
+            result.addAttribute('alignments', alignments);
         }
     }
 
-    parseScheduleClause(parser, op) {
+    parseScheduleClause(parser, result) {
         const scheduleKinds = ['static', 'dynamic', 'guided', 'auto', 'runtime', 'distribute'];
         let scheduleKind = null;
         for (const kind of scheduleKinds) {
@@ -16862,7 +16817,7 @@ _.OpenMPDialect = class extends _.Dialect {
             }
         }
         if (scheduleKind) {
-            op.addAttribute('schedule_kind', scheduleKind);
+            result.addAttribute('schedule_kind', scheduleKind);
         }
         if (parser.parseOptionalEqual()) {
             let unresolvedChunk = null;
@@ -16872,10 +16827,10 @@ _.OpenMPDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (unresolvedChunk) {
-                    parser.resolveOperand(unresolvedChunk, type, op.operands);
+                    parser.resolveOperand(unresolvedChunk, type, result.operands);
                 }
             } else if (unresolvedChunk) {
-                parser.resolveOperand(unresolvedChunk, null, op.operands);
+                parser.resolveOperand(unresolvedChunk, null, result.operands);
             }
         }
         const modifiers = [];
@@ -16886,11 +16841,11 @@ _.OpenMPDialect = class extends _.Dialect {
             }
         }
         if (modifiers.length > 0) {
-            op.addAttribute('schedule_modifiers', modifiers);
+            result.addAttribute('schedule_modifiers', modifiers);
         }
     }
 
-    parseAllocateAndAllocator(parser, op) {
+    parseAllocateAndAllocator(parser, result) {
         const unresolvedAllocators = [];
         const allocatorTypes = [];
         const unresolvedAllocates = [];
@@ -16907,8 +16862,8 @@ _.OpenMPDialect = class extends _.Dialect {
             parser.parseColon();
             allocateTypes.push(parser.parseType());
         } while (parser.parseOptionalComma());
-        parser.resolveOperands(unresolvedAllocators, allocatorTypes, op.operands);
-        parser.resolveOperands(unresolvedAllocates, allocateTypes, op.operands);
+        parser.resolveOperands(unresolvedAllocators, allocatorTypes, result.operands);
+        parser.resolveOperands(unresolvedAllocates, allocateTypes, result.operands);
     }
 
     parseSynchronizationHint(parser, op, hintAttr = 'hint') {
@@ -16949,11 +16904,11 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
-    parseTargetOpRegion(parser, op) {
+    parseTargetOpRegion(parser, result) {
         const unitAttrKeywords = ['nowait', 'bare'];
         for (const kw of unitAttrKeywords) {
             if (parser.accept('id', kw)) {
-                op.addAttribute(kw, true);
+                result.addAttribute(kw, true);
             }
         }
         if (parser.accept('id', 'depend')) {
@@ -16969,7 +16924,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     if (parser.parseOptionalColon()) {
                         opType = parser.parseType();
                     }
-                    parser.resolveOperand(unresolvedOperand, opType, op.operands);
+                    parser.resolveOperand(unresolvedOperand, opType, result.operands);
                 } else if (parser.parseOptionalColon()) {
                     parser.parseType();
                 }
@@ -17002,7 +16957,7 @@ _.OpenMPDialect = class extends _.Dialect {
             progress = false;
             // Handle private_barrier unit attribute
             if (parser.accept('id', 'private_barrier')) {
-                op.addAttribute('private_needs_barrier', true);
+                result.addAttribute('private_needs_barrier', true);
                 progress = true;
                 continue;
             }
@@ -17051,7 +17006,7 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         const region = {};
         parser.parseRegion(region);
-        op.regions.push(region);
+        result.regions.push(region);
     }
 
     parseMapClause(parser, op, attrName = 'map_type') {
@@ -17098,7 +17053,7 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
-    parsePrivateReductionRegion(parser, op) {
+    parsePrivateReductionRegion(parser, result) {
         // Parse optional clauses that appear before the region (oilist in assembly format)
         const singleValueClauses = ['if', 'num_threads', 'thread_limit', 'device', 'safelen', 'simdlen', 'priority', 'grainsize', 'num_tasks', 'final', 'filter'];
         const enumClauses = ['proc_bind', 'order', 'schedule', 'dist_schedule', 'memory_order', 'hint'];
@@ -17118,13 +17073,13 @@ _.OpenMPDialect = class extends _.Dialect {
                         unresolvedOp = parser.parseOperand();
                     } else if (parser.match('int')) {
                         const value = parser.expect('int');
-                        op.addAttribute(kw, value);
+                        result.addAttribute(kw, value);
                     }
                     if (parser.parseOptionalColon()) {
                         opType = parser.parseType();
                     }
                     if (unresolvedOp) {
-                        parser.resolveOperand(unresolvedOp, opType, op.operands);
+                        parser.resolveOperand(unresolvedOp, opType, result.operands);
                     }
                     parser.parseRParen();
                 }
@@ -17135,7 +17090,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     progress = true;
                     parser.parseLParen();
                     const value = parser.expect('id');
-                    op.addAttribute(kw, value);
+                    result.addAttribute(kw, value);
                     // Handle modifier syntax like schedule(static, value)
                     while (parser.parseOptionalComma()) {
                         if (parser.match('%')) {
@@ -17144,7 +17099,7 @@ _.OpenMPDialect = class extends _.Dialect {
                             if (parser.parseOptionalColon()) {
                                 opType = parser.parseType();
                             }
-                            parser.resolveOperand(unresolvedOp, opType, op.operands);
+                            parser.resolveOperand(unresolvedOp, opType, result.operands);
                         } else if (parser.match('id')) {
                             parser.expect('id');
                             if (parser.parseOptionalColon()) {
@@ -17198,7 +17153,7 @@ _.OpenMPDialect = class extends _.Dialect {
                                 }
                             }
                         }
-                        parser.resolveOperands(unresolvedOperands, types, op.operands);
+                        parser.resolveOperands(unresolvedOperands, types, result.operands);
                         parser.parseRParen();
                     }
                 }
@@ -17209,7 +17164,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     progress = true;
                     // private_barrier maps to private_needs_barrier attribute
                     const attrName = kw === 'private_barrier' ? 'private_needs_barrier' : kw;
-                    op.addAttribute(attrName, true);
+                    result.addAttribute(attrName, true);
                 }
             }
             // Handle map_entries clause: map_entries(%vars : types)
@@ -17237,7 +17192,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
                 for (let i = 0; i < unresolvedMapVars.length; i++) {
                     const type = i < mapTypes.length ? mapTypes[i] : null;
-                    parser.resolveOperand(unresolvedMapVars[i], type, op.operands);
+                    parser.resolveOperand(unresolvedMapVars[i], type, result.operands);
                 }
                 parser.parseRParen();
             }
@@ -17252,7 +17207,7 @@ _.OpenMPDialect = class extends _.Dialect {
                         if (parser.parseOptionalColon()) {
                             upperType = parser.parseType();
                         }
-                        parser.resolveOperand(upper, upperType, op.operands);
+                        parser.resolveOperand(upper, upperType, result.operands);
                     }
                 } else if (parser.match('%')) {
                     const lower = parser.parseOperand();
@@ -17260,7 +17215,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     if (parser.parseOptionalColon()) {
                         lowerType = parser.parseType();
                     }
-                    parser.resolveOperand(lower, lowerType, op.operands);
+                    parser.resolveOperand(lower, lowerType, result.operands);
                     parser.expect('id', 'to');
                     if (parser.match('%')) {
                         const upper = parser.parseOperand();
@@ -17268,7 +17223,7 @@ _.OpenMPDialect = class extends _.Dialect {
                         if (parser.parseOptionalColon()) {
                             upperType = parser.parseType();
                         }
-                        parser.resolveOperand(upper, upperType, op.operands);
+                        parser.resolveOperand(upper, upperType, result.operands);
                     }
                 }
                 parser.parseRParen();
@@ -17305,7 +17260,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     // Resolve operands
                     for (let i = 0; i < unresolvedOperands.length; i++) {
                         const type = i < types.length ? types[i] : null;
-                        parser.resolveOperand(unresolvedOperands[i], type, op.operands);
+                        parser.resolveOperand(unresolvedOperands[i], type, result.operands);
                     }
                     parser.parseRParen();
                 }
@@ -17314,7 +17269,7 @@ _.OpenMPDialect = class extends _.Dialect {
         if (parser.match('{')) {
             const region = {};
             parser.parseRegion(region);
-            op.regions.push(region);
+            result.regions.push(region);
         }
     }
 
@@ -17357,7 +17312,7 @@ _.OpenMPDialect = class extends _.Dialect {
 
     // Syntax 1: (generatees) <- (applyees) - generatees present (no leading <)
     // Syntax 2: <- (applyees) - generatees omitted (starts with <-)
-    parseLoopTransformClis(parser, op) {
+    parseLoopTransformClis(parser, result) {
         const generatees = [];
         const applyees = [];
         // Check if starts with '<' (syntax 2, no generatees) or '(' (syntax 1, has generatees)
@@ -17390,10 +17345,10 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         parser.parseRParen();
         for (const g of generatees) {
-            parser.resolveOperand(g, null, op.operands);
+            parser.resolveOperand(g, null, result.operands);
         }
         for (const a of applyees) {
-            parser.resolveOperand(a, null, op.operands);
+            parser.resolveOperand(a, null, result.operands);
         }
     }
 };
@@ -17631,65 +17586,66 @@ _.LLVMDialect = class extends _.Dialect {
         return new _.Type(type);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'llvm.func') {
-            return this.parseLLVMFuncOp(parser, op);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        if (result.op === 'llvm.func') {
+            return this.parseLLVMFuncOp(parser, result);
         }
-        if (opName === 'llvm.mlir.global') {
-            return this.parseLLVMGlobalOp(parser, op);
+        if (result.op === 'llvm.mlir.global') {
+            return this.parseLLVMGlobalOp(parser, result);
         }
-        if (opName === 'llvm.mlir.alias') {
-            return this.parseLLVMAliasOp(parser, op);
+        if (result.op === 'llvm.mlir.alias') {
+            return this.parseLLVMAliasOp(parser, result);
         }
-        if (opName === 'llvm.alloca') {
-            return this.parseLLVMAllocaOp(parser, op);
+        if (result.op === 'llvm.alloca') {
+            return this.parseLLVMAllocaOp(parser, result);
         }
-        if (opName === 'llvm.call') {
-            return this.parseLLVMCallOp(parser, op);
+        if (result.op === 'llvm.call') {
+            return this.parseLLVMCallOp(parser, result);
         }
-        if (opName === 'llvm.call_intrinsic') {
-            return this.parseLLVMCallIntrinsicOp(parser, op);
+        if (result.op === 'llvm.call_intrinsic') {
+            return this.parseLLVMCallIntrinsicOp(parser, result);
         }
-        if (opName === 'llvm.invoke') {
-            return this.parseLLVMInvokeOp(parser, op);
+        if (result.op === 'llvm.invoke') {
+            return this.parseLLVMInvokeOp(parser, result);
         }
-        if (opName === 'llvm.landingpad') {
-            return this.parseLLVMLandingpadOp(parser, op);
+        if (result.op === 'llvm.landingpad') {
+            return this.parseLLVMLandingpadOp(parser, result);
         }
-        if (opName === 'llvm.icmp' || opName === 'llvm.fcmp') {
-            return this.parseLLVMCmpOp(parser, op);
+        if (result.op === 'llvm.icmp' || result.op === 'llvm.fcmp') {
+            return this.parseLLVMCmpOp(parser, result);
         }
-        if (opName.startsWith('llvm.intr.')) {
+        if (result.op.startsWith('llvm.intr.')) {
             // Check if this intrinsic has assembly format - if so, use standard parsing
-            if (this.hasAssemblyFormat(opName)) {
-                return super.parseOperation(parser, opName, op);
+            if (opInfo.metadata.assemblyFormat) {
+                return super.parseOperation(parser, result);
             }
-            return this.parseLLVMIntrinsicOp(parser, op);
+            return this.parseLLVMIntrinsicOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseLLVMGlobalOp(parser, op) {
+    parseLLVMGlobalOp(parser, result) {
         const linkageKeywords = ['external', 'available_externally', 'linkonce', 'linkonce_odr', 'weak', 'weak_odr', 'appending', 'internal', 'private', 'extern_weak', 'common'];
         if (parser.match('id') && linkageKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('linkage', parser.expect('id'));
+            result.addAttribute('linkage', parser.expect('id'));
         }
         const visibilityKeywords = ['default', 'hidden', 'protected'];
         if (parser.match('id') && visibilityKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('visibility_', parser.expect('id'));
+            result.addAttribute('visibility_', parser.expect('id'));
         }
         if (parser.accept('id', 'thread_local')) {
-            op.addAttribute('thread_local_', true);
+            result.addAttribute('thread_local_', true);
         }
         const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
         if (parser.match('id') && unnamedAddrKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('unnamed_addr', parser.expect('id'));
+            result.addAttribute('unnamed_addr', parser.expect('id'));
         }
         if (parser.accept('id', 'constant')) {
-            op.addAttribute('constant', true);
+            result.addAttribute('constant', true);
         }
         if (parser.match('@')) {
-            parser.parseSymbolName('sym_name', op.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
         }
         parser.parseLParen();
         if (!parser.match(')')) {
@@ -17697,57 +17653,57 @@ _.LLVMDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 parser.parseType();
             }
-            op.addAttribute('value', value);
+            result.addAttribute('value', value);
         }
         parser.parseRParen();
         if (parser.accept('id', 'comdat')) {
             parser.parseLParen();
             const comdat = parser.expect('@');
             parser.parseRParen();
-            op.addAttribute('comdat', comdat);
+            result.addAttribute('comdat', comdat);
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
-            op.types = [type];
+            result.types = [type];
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
     }
 
-    parseLLVMAliasOp(parser, op) {
+    parseLLVMAliasOp(parser, result) {
         const linkageKeywords = ['external', 'available_externally', 'linkonce', 'linkonce_odr', 'weak', 'weak_odr', 'internal', 'private'];
         if (parser.match('id') && linkageKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('linkage', parser.expect('id'));
+            result.addAttribute('linkage', parser.expect('id'));
         }
         const visibilityKeywords = ['default', 'hidden', 'protected'];
         if (parser.match('id') && visibilityKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('visibility_', parser.expect('id'));
+            result.addAttribute('visibility_', parser.expect('id'));
         }
         if (parser.accept('id', 'thread_local')) {
-            op.addAttribute('thread_local_', true);
+            result.addAttribute('thread_local_', true);
         }
         const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
         if (parser.match('id') && unnamedAddrKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('unnamed_addr', parser.expect('id'));
+            result.addAttribute('unnamed_addr', parser.expect('id'));
         }
         if (parser.match('@')) {
-            parser.parseSymbolName('sym_name', op.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
-            op.addAttribute('alias_type', type);
+            result.addAttribute('alias_type', type);
         }
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
@@ -17820,45 +17776,45 @@ _.LLVMDialect = class extends _.Dialect {
         }
     }
 
-    parseLLVMAllocaOp(parser, op) {
+    parseLLVMAllocaOp(parser, result) {
         // llvm.alloca [inalloca] %arraySize x !elemType : (i64) -> !llvm.ptr
         if (parser.accept('id', 'inalloca')) {
-            op.addAttribute('inalloca', true);
+            result.addAttribute('inalloca', true);
         }
         const arraySize = parser.parseOperand();
         parser.expect('id', 'x');
         const elemType = parser.parseType();
-        op.addAttribute('elem_type', elemType);
+        result.addAttribute('elem_type', elemType);
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         const types = parser.parseColonTypeList();
-        parser.resolveOperands([arraySize], types, op.operands);
+        parser.resolveOperands([arraySize], types, result.operands);
         if (parser.parseOptionalArrow()) {
             const resultType = parser.parseType();
-            op.types = [resultType];
+            result.types = [resultType];
         }
         return true;
     }
 
-    parseLLVMCallOp(parser, op) {
+    parseLLVMCallOp(parser, result) {
         // llvm.call [cconv] [tailcall] @callee|%ptr (args) [vararg(type)] : func_type
         const cconvKeywords = ['ccc', 'fastcc', 'coldcc', 'cc', 'webkit_jscc', 'anyregcc', 'preserve_mostcc', 'preserve_allcc', 'preserve_nonecc', 'cxx_fast_tlscc', 'tailcc', 'swiftcc', 'swifttailcc', 'cfguard_checkcc', 'ghccc', 'arm_apcscc', 'arm_aapcscc', 'arm_aapcs_vfpcc', 'aarch64_vector_pcs', 'aarch64_sve_vector_pcs', 'aarch64_sme_preservemost_from_x0', 'aarch64_sme_preservemost_from_x2', 'msp430_intrcc', 'avr_intrcc', 'avr_signalcc', 'ptx_kernelcc', 'ptx_devicecc', 'spir_funccc', 'spir_kernelcc', 'intel_ocl_bicc', 'x86_64_sysvcc', 'win64cc', 'x86_fastcallcc', 'x86_stdcallcc', 'x86_thiscallcc', 'x86_vectorcallcc', 'x86_intrcc', 'amdgpu_vs', 'amdgpu_gs', 'amdgpu_ps', 'amdgpu_cs', 'amdgpu_kernel', 'amdgpu_kernelcc', 'x86_regcallcc', 'amdgpu_hs', 'msp430_builtincc', 'amdgpu_ls', 'amdgpu_es', 'aarch64_vfpcc', 'aarch64_sve_vfpcc', 'wasm_emscripten_invokecc', 'amdgpu_gfx', 'm68k_intrcc'];
         if (parser.match('id')) {
             const value = parser.getToken().value;
             if (cconvKeywords.includes(value) || /^cc_\d+$/.test(value)) {
-                op.addAttribute('CConv', parser.expect('id'));
+                result.addAttribute('CConv', parser.expect('id'));
             }
         }
         const tailcallKeywords = ['none', 'tail', 'musttail', 'notail'];
         if (parser.match('id') && tailcallKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('TailCallKind', parser.expect('id'));
+            result.addAttribute('TailCallKind', parser.expect('id'));
         }
         let isDirect = false;
         let calleePtr = null;
         if (parser.match('@')) {
             const callee = parser.expect('@');
-            op.addAttribute('callee', callee);
+            result.addAttribute('callee', callee);
             isDirect = true;
         } else if (parser.match('%')) {
             calleePtr = parser.parseOperand();
@@ -17874,7 +17830,7 @@ _.LLVMDialect = class extends _.Dialect {
         if (parser.accept('id', 'vararg')) {
             parser.parseLParen();
             const varCalleeType = parser.parseType();
-            op.addAttribute('var_callee_type', varCalleeType);
+            result.addAttribute('var_callee_type', varCalleeType);
             parser.parseRParen();
         }
         if (parser.parseOptionalLSquare()) {
@@ -17899,12 +17855,12 @@ _.LLVMDialect = class extends _.Dialect {
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
                 if (opBundles.length > 0) {
-                    op.addAttribute('op_bundle_tags', opBundles);
+                    result.addAttribute('op_bundle_tags', opBundles);
                 }
             }
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
         let calleePtrType = null;
@@ -17915,19 +17871,19 @@ _.LLVMDialect = class extends _.Dialect {
         const sig = parser.parseFunctionSignature();
         // Resolve callee pointer if indirect call
         if (calleePtr) {
-            parser.resolveOperand(calleePtr, calleePtrType, op.operands);
+            parser.resolveOperand(calleePtr, calleePtrType, result.operands);
         }
         // Resolve arguments with function signature types
-        parser.resolveOperands(unresolvedOperands, sig.argTypes, op.operands);
+        parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
         if (sig.resultTypes.length > 0) {
-            op.types = sig.resultTypes.map((t) => t.toString());
+            result.types = sig.resultTypes.map((t) => t.toString());
         }
         return true;
     }
 
-    parseLLVMCallIntrinsicOp(parser, op) {
+    parseLLVMCallIntrinsicOp(parser, result) {
         const intrinName = parser.expect('string');
-        op.addAttribute('intrin', intrinName);
+        result.addAttribute('intrin', intrinName);
 
         const unresolvedOperands = [];
         parser.parseLParen();
@@ -17961,42 +17917,42 @@ _.LLVMDialect = class extends _.Dialect {
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
                 if (opBundles.length > 0) {
-                    op.addAttribute('op_bundle_tags', opBundles);
+                    result.addAttribute('op_bundle_tags', opBundles);
                 }
             }
         }
 
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
 
         parser.parseColon();
         // Parse function signature: (arg_types {attrs}) -> (result_types {attrs})
         const sig = parser.parseFunctionSignature();
-        parser.resolveOperands(unresolvedOperands, sig.argTypes, op.operands);
+        parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
         if (sig.resultTypes.length > 0) {
-            op.types = sig.resultTypes.map((t) => t.toString());
+            result.types = sig.resultTypes.map((t) => t.toString());
         }
         return true;
     }
 
-    parseLLVMCmpOp(parser, op) {
+    parseLLVMCmpOp(parser, result) {
         // llvm.icmp "eq" %lhs, %rhs : i32
         const predicate = parser.expect('string');
-        op.addAttribute('predicate', predicate);
+        result.addAttribute('predicate', predicate);
         const lhs = parser.parseOperand();
         parser.parseComma();
         const rhs = parser.parseOperand();
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
         const type = parser.parseType();
-        parser.resolveOperands([lhs, rhs], [type, type], op.operands);
+        parser.resolveOperands([lhs, rhs], [type, type], result.operands);
         return true;
     }
 
-    parseLLVMIntrinsicOp(parser, op) {
+    parseLLVMIntrinsicOp(parser, result) {
         const unresolvedOperands = [];
         parser.parseLParen();
         while (!parser.match(')')) {
@@ -18006,23 +17962,23 @@ _.LLVMDialect = class extends _.Dialect {
         }
         parser.parseRParen();
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         const types = parser.parseColonTypeList();
-        parser.resolveOperands(unresolvedOperands, types, op.operands);
+        parser.resolveOperands(unresolvedOperands, types, result.operands);
         if (parser.parseOptionalArrow()) {
             const resultType = parser.parseType();
-            op.types = [resultType];
+            result.types = [resultType];
         }
         return true;
     }
 
-    parseLLVMInvokeOp(parser, op) {
+    parseLLVMInvokeOp(parser, result) {
         const cconvKeywords = ['ccc', 'fastcc', 'coldcc', 'cc', 'webkit_jscc', 'anyregcc', 'preserve_mostcc', 'preserve_allcc', 'preserve_nonecc', 'cxx_fast_tlscc', 'tailcc', 'swiftcc', 'swifttailcc', 'cfguard_checkcc', 'ghccc'];
         if (parser.match('id')) {
             const value = parser.getToken().value;
             if (cconvKeywords.includes(value) || /^cc_\d+$/.test(value)) {
-                op.addAttribute('CConv', parser.expect('id'));
+                result.addAttribute('CConv', parser.expect('id'));
             }
         }
         let isDirect = false;
@@ -18030,7 +17986,7 @@ _.LLVMDialect = class extends _.Dialect {
         if (parser.match('@')) {
             isDirect = true;
             const callee = parser.expect('@');
-            op.addAttribute('callee', callee);
+            result.addAttribute('callee', callee);
         } else if (parser.match('%')) {
             funcPtr = parser.parseOperand();
         }
@@ -18044,7 +18000,7 @@ _.LLVMDialect = class extends _.Dialect {
         parser.parseRParen();
         parser.expect('id', 'to');
         const normalDest = parser.expect('^');
-        op.successors = op.successors || [];
+        result.successors = result.successors || [];
         const normalSucc = { label: normalDest };
         // Parse optional successor operands: ^bb1(%operand : type)
         if (parser.parseOptionalLParen()) {
@@ -18059,7 +18015,7 @@ _.LLVMDialect = class extends _.Dialect {
             }
             parser.parseRParen();
         }
-        op.successors.push(normalSucc);
+        result.successors.push(normalSucc);
         parser.expect('id', 'unwind');
         const unwindDest = parser.expect('^');
         const unwindSucc = { label: unwindDest };
@@ -18075,11 +18031,11 @@ _.LLVMDialect = class extends _.Dialect {
             }
             parser.parseRParen();
         }
-        op.successors.push(unwindSucc);
+        result.successors.push(unwindSucc);
         if (parser.accept('id', 'vararg')) {
             parser.parseLParen();
             const varargType = parser.parseType();
-            op.addAttribute('var_callee_type', varargType);
+            result.addAttribute('var_callee_type', varargType);
             parser.parseRParen();
         }
         if (parser.parseOptionalLSquare()) {
@@ -18104,12 +18060,12 @@ _.LLVMDialect = class extends _.Dialect {
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
                 if (opBundles.length > 0) {
-                    op.addAttribute('op_bundle_tags', opBundles);
+                    result.addAttribute('op_bundle_tags', opBundles);
                 }
             }
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
         let calleePtrType = null;
@@ -18120,20 +18076,20 @@ _.LLVMDialect = class extends _.Dialect {
         const sig = parser.parseFunctionSignature();
         // Resolve func pointer if indirect call
         if (funcPtr) {
-            parser.resolveOperand(funcPtr, calleePtrType, op.operands);
+            parser.resolveOperand(funcPtr, calleePtrType, result.operands);
         }
         // Resolve arguments with function signature types
-        parser.resolveOperands(unresolvedOperands, sig.argTypes, op.operands);
+        parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
         if (sig.resultTypes.length > 0) {
-            op.types = sig.resultTypes.map((t) => t.toString());
+            result.types = sig.resultTypes.map((t) => t.toString());
         }
         return true;
     }
 
-    parseLLVMLandingpadOp(parser, op) {
+    parseLLVMLandingpadOp(parser, result) {
         // Parse optional cleanup
         if (parser.accept('id', 'cleanup')) {
-            op.addAttribute('cleanup', true);
+            result.addAttribute('cleanup', true);
         }
         // Parse clauses
         while (parser.match('(')) {
@@ -18142,36 +18098,36 @@ _.LLVMDialect = class extends _.Dialect {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
-            parser.resolveOperand(operand, type, op.operands);
+            parser.resolveOperand(operand, type, result.operands);
             parser.parseRParen();
         }
         parser.parseColon();
         const resultType = parser.parseType();
-        op.types = [resultType];
+        result.types = [resultType];
         return true;
     }
 
-    parseLLVMFuncOp(parser, op) {
+    parseLLVMFuncOp(parser, result) {
         const linkageKeywords = ['external', 'available_externally', 'linkonce', 'linkonce_odr', 'weak', 'weak_odr', 'appending', 'internal', 'private', 'extern_weak', 'common'];
         if (parser.match('id') && linkageKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('linkage', parser.expect('id'));
+            result.addAttribute('linkage', parser.expect('id'));
         }
         const visibilityKeywords = ['default', 'hidden', 'protected'];
         if (parser.match('id') && visibilityKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('visibility_', parser.expect('id'));
+            result.addAttribute('visibility_', parser.expect('id'));
         }
         const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
         if (parser.match('id') && unnamedAddrKeywords.includes(parser.getToken().value)) {
-            op.addAttribute('unnamed_addr', parser.expect('id'));
+            result.addAttribute('unnamed_addr', parser.expect('id'));
         }
         const cconvKeywords = ['ccc', 'fastcc', 'coldcc', 'cc', 'webkit_jscc', 'anyregcc', 'preserve_mostcc', 'preserve_allcc', 'preserve_nonecc', 'cxx_fast_tlscc', 'tailcc', 'swiftcc', 'swifttailcc', 'cfguard_checkcc', 'ghccc', 'arm_apcscc', 'arm_aapcscc', 'arm_aapcs_vfpcc', 'aarch64_vector_pcs', 'aarch64_sve_vector_pcs', 'aarch64_sme_preservemost_from_x0', 'aarch64_sme_preservemost_from_x2', 'msp430_intrcc', 'avr_intrcc', 'avr_signalcc', 'ptx_kernelcc', 'ptx_devicecc', 'spir_funccc', 'spir_kernelcc', 'intel_ocl_bicc', 'x86_64_sysvcc', 'win64cc', 'x86_fastcallcc', 'x86_stdcallcc', 'x86_thiscallcc', 'x86_vectorcallcc', 'x86_intrcc', 'amdgpu_vs', 'amdgpu_gs', 'amdgpu_ps', 'amdgpu_cs', 'amdgpu_kernel', 'amdgpu_kernelcc', 'x86_regcallcc', 'amdgpu_hs', 'msp430_builtincc', 'amdgpu_ls', 'amdgpu_es', 'aarch64_vfpcc', 'aarch64_sve_vfpcc', 'wasm_emscripten_invokecc', 'amdgpu_gfx', 'm68k_intrcc'];
         if (parser.match('id')) {
             const value = parser.getToken().value;
             if (cconvKeywords.includes(value) || /^cc_\d+$/.test(value)) {
-                op.addAttribute('CConv', parser.expect('id'));
+                result.addAttribute('CConv', parser.expect('id'));
             }
         }
-        parser.parseSymbolName('sym_name', op.attributes);
+        parser.parseSymbolName('sym_name', result.attributes);
         const argResult = parser.parseFunctionArgumentList(true);
         const params = argResult.arguments.map((a) => a.type);
         const results = [];
@@ -18181,24 +18137,24 @@ _.LLVMDialect = class extends _.Dialect {
         }
         const returnType = results.length > 0 ? results[0] : null;
         const type = new _.LLVMFunctionType(returnType, params, argResult.isVariadic);
-        op.addAttribute('function_type', new _.TypeAttrOf(type));
+        result.addAttribute('function_type', new _.TypeAttrOf(type));
         if (parser.accept('id', 'vscale_range')) {
             parser.parseLParen();
             const minRange = parser.expect();
             parser.parseComma();
             const maxRange = parser.expect();
             parser.parseRParen();
-            op.addAttribute('vscale_range', `(${minRange}, ${maxRange})`);
+            result.addAttribute('vscale_range', `(${minRange}, ${maxRange})`);
         }
         if (parser.accept('id', 'comdat')) {
             parser.parseLParen();
             const comdat = parser.expect('@');
             parser.parseRParen();
-            op.addAttribute('comdat', comdat);
+            result.addAttribute('comdat', comdat);
         }
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             // llvm.func is IsolatedFromAbove
             parser.parseRegion(region, argResult.arguments, /* isIsolatedNameScope */ true);
         }
@@ -18212,29 +18168,29 @@ _.ROCDLDialect = class extends _.LLVMDialect {
         super(operations, 'rocdl');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'rocdl.raw.buffer.load' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseRawBufferLoadOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'rocdl.raw.buffer.load') {
+            return this.parseRawBufferLoadOp(parser, result);
         }
-        if (opName === 'rocdl.raw.buffer.store' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseRawBufferStoreOp(parser, op);
+        if (result.op === 'rocdl.raw.buffer.store') {
+            return this.parseRawBufferStoreOp(parser, result);
         }
-        if (opName === 'rocdl.raw.buffer.atomic.fadd' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseRawBufferAtomicOp(parser, op);
+        if (result.op === 'rocdl.raw.buffer.atomic.fadd') {
+            return this.parseRawBufferAtomicOp(parser, result);
         }
-        if (opName === 'rocdl.raw.buffer.atomic.fmax' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseRawBufferAtomicOp(parser, op);
+        if (result.op === 'rocdl.raw.buffer.atomic.fmax') {
+            return this.parseRawBufferAtomicOp(parser, result);
         }
-        if (opName === 'rocdl.raw.buffer.atomic.smax' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseRawBufferAtomicOp(parser, op);
+        if (result.op === 'rocdl.raw.buffer.atomic.smax') {
+            return this.parseRawBufferAtomicOp(parser, result);
         }
-        if (opName === 'rocdl.raw.buffer.atomic.umin' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseRawBufferAtomicOp(parser, op);
+        if (result.op === 'rocdl.raw.buffer.atomic.umin') {
+            return this.parseRawBufferAtomicOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseRawBufferLoadOp(parser, op) {
+    parseRawBufferLoadOp(parser, result) {
         const unresolvedOperands = [];
         while (parser.match('%')) {
             unresolvedOperands.push(parser.parseOperand());
@@ -18242,15 +18198,15 @@ _.ROCDLDialect = class extends _.LLVMDialect {
         }
         parser.parseColon();
         const resultType = parser.parseType();
-        op.addTypes([resultType]);
+        result.addTypes([resultType]);
         // Resolve operands with null type (types are complex for buffer ops)
         for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, op.operands);
+            parser.resolveOperand(operand, null, result.operands);
         }
         return true;
     }
 
-    parseRawBufferStoreOp(parser, op) {
+    parseRawBufferStoreOp(parser, result) {
         const unresolvedOperands = [];
         while (parser.match('%')) {
             unresolvedOperands.push(parser.parseOperand());
@@ -18260,12 +18216,12 @@ _.ROCDLDialect = class extends _.LLVMDialect {
         parser.parseType();
         // Resolve operands
         for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, op.operands);
+            parser.resolveOperand(operand, null, result.operands);
         }
         return true;
     }
 
-    parseRawBufferAtomicOp(parser, op) {
+    parseRawBufferAtomicOp(parser, result) {
         const unresolvedOperands = [];
         while (parser.match('%')) {
             unresolvedOperands.push(parser.parseOperand());
@@ -18275,7 +18231,7 @@ _.ROCDLDialect = class extends _.LLVMDialect {
         parser.parseType();
         // Resolve operands
         for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, op.operands);
+            parser.resolveOperand(operand, null, result.operands);
         }
         return true;
     }
@@ -18287,17 +18243,18 @@ _.XSMMDialect = class extends _.Dialect {
         super(operations, 'xsmm');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'xsmm.unary.invoke' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseUnaryInvokeOp(parser, op);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
+        if (result.op === 'xsmm.unary.invoke') {
+            return this.parseUnaryInvokeOp(parser, result);
         }
-        if (opName.startsWith('xsmm.') && opName.includes('.invoke') && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseGemmInvokeOp(parser, op);
+        if (result.op.startsWith('xsmm.') && result.op.includes('.invoke') && opInfo.metadata.hasCustomAssemblyFormat && !opInfo.metadata.assemblyFormat) {
+            return this.parseGemmInvokeOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseUnaryInvokeOp(parser, op) {
+    parseUnaryInvokeOp(parser, result) {
         const unresolvedOperands = [];
         unresolvedOperands.push(parser.parseOperand());
         if (parser.parseOptionalLSquare()) {
@@ -18325,12 +18282,12 @@ _.XSMMDialect = class extends _.Dialect {
         parser.parseType();
         // Resolve operands
         for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, op.operands);
+            parser.resolveOperand(operand, null, result.operands);
         }
         return true;
     }
 
-    parseGemmInvokeOp(parser, op) {
+    parseGemmInvokeOp(parser, result) {
         const unresolvedOperands = [];
         unresolvedOperands.push(parser.parseOperand());
         parser.parseComma();
@@ -18378,7 +18335,7 @@ _.XSMMDialect = class extends _.Dialect {
                 const keyword = parser.expect('id');
                 parser.parseEqual();
                 const attrValue = parser.parseAttribute(new _.PrimitiveType('i64'));
-                op.addAttribute(keyword, attrValue);
+                result.addAttribute(keyword, attrValue);
             } else {
                 break;
             }
@@ -18387,7 +18344,7 @@ _.XSMMDialect = class extends _.Dialect {
         parser.parseType();
         // Resolve operands
         for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, op.operands);
+            parser.resolveOperand(operand, null, result.operands);
         }
         return true;
     }
@@ -18399,21 +18356,21 @@ _.StdxDialect = class extends _.Dialect {
         super(operations, 'stdx');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'stdx.closure') {
-            return this.parseClosureOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'stdx.closure') {
+            return this.parseClosureOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseClosureOp(parser, op) {
+    parseClosureOp(parser, result) {
         const sig = parser.parseFunctionSignatureWithArguments(false);
         const argTypes = sig.arguments.map((a) => a.type);
         const type = { inputs: argTypes, results: sig.resultTypes };
-        op.addAttribute('type', type);
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        result.addAttribute('type', type);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, sig.arguments);
         }
         return true;
@@ -18427,12 +18384,12 @@ _.VMDialect = class extends _.Dialect {
         this.registerCustomDirective('BranchTableCases', this.parseBranchTableCases.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'vm.func') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'vm.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'vm.cond_fail') {
+        if (result.op === 'vm.cond_fail') {
             // or: vm.cond_fail %status, "message"
             // or: vm.cond_fail %cond, %status
             // or: vm.cond_fail %status
@@ -18448,26 +18405,26 @@ _.VMDialect = class extends _.Dialect {
                     if (parser.parseOptionalComma()) {
                         if (parser.match('string')) {
                             const msg = parser.expect('string');
-                            op.addAttribute('message', msg);
+                            result.addAttribute('message', msg);
                         }
                     }
                 } else if (parser.match('string')) {
                     const msg = parser.expect('string');
-                    op.addAttribute('message', msg);
+                    result.addAttribute('message', msg);
                 }
             }
             // Resolve operands
             for (const unresolved of unresolvedOperands) {
-                parser.resolveOperand(unresolved, null, op.operands);
+                parser.resolveOperand(unresolved, null, result.operands);
             }
             return true;
         }
-        if (opName === 'vm.import') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
+        if (result.op === 'vm.import') {
+            parser.parseOptionalVisibilityKeyword(result.attributes);
             if (parser.accept('id', 'optional')) {
-                op.addAttribute('is_optional', true);
+                result.addAttribute('is_optional', true);
             }
-            parser.parseSymbolName('sym_name', op.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
             if (parser.match('(')) {
                 parser.skip('(');
             }
@@ -18477,67 +18434,67 @@ _.VMDialect = class extends _.Dialect {
             if (parser.parseOptionalArrow()) {
                 parser.parseFunctionResultList(results, resultAttrs);
             }
-            op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
-        if (opName === 'vm.export') {
+        if (result.op === 'vm.export') {
             const functionRef = parser.expect('@');
-            op.addAttribute('function_ref', functionRef);
+            result.addAttribute('function_ref', functionRef);
             if (parser.accept('id', 'as')) {
                 parser.parseLParen();
                 const exportName = parser.expect('string');
-                op.addAttribute('export_name', exportName);
+                result.addAttribute('export_name', exportName);
                 parser.parseRParen();
             } else {
-                op.addAttribute('export_name', functionRef);
+                result.addAttribute('export_name', functionRef);
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         // Handle vm.global.* declarations (but not store/load operations)
-        if (opName.startsWith('vm.global.') && !opName.startsWith('vm.global.store.') && !opName.startsWith('vm.global.load.')) {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
-            parser.parseOptionalVisibilityKeyword(op.attributes);
+        if (result.op.startsWith('vm.global.') && !result.op.startsWith('vm.global.store.') && !result.op.startsWith('vm.global.load.')) {
+            result.compatibility = true;
+            parser.parseOptionalVisibilityKeyword(result.attributes);
             if (parser.match('id', 'mutable')) {
                 const mutable = parser.expect('id');
-                op.addAttribute('is_mutable', mutable);
+                result.addAttribute('is_mutable', mutable);
             }
-            parser.parseSymbolName('sym_name', op.attributes);
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseSymbolName('sym_name', result.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addAttribute('type', type);
+                result.addAttribute('type', type);
             }
             if (parser.parseOptionalEqual()) {
                 const initialValue = parser.parseAttribute();
-                op.addAttribute('initial_value', initialValue);
+                result.addAttribute('initial_value', initialValue);
             }
             return true;
         }
-        if (opName === 'vm.initializer') {
-            parser.parseOptionalVisibilityKeyword(op.attributes);
+        if (result.op === 'vm.initializer') {
+            parser.parseOptionalVisibilityKeyword(result.attributes);
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'vm.rodata.inline') {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'vm.rodata.inline') {
+            result.compatibility = true;
             // Optional name (string)
             if (parser.match('string')) {
                 const name = parser.expect('string');
-                op.addAttribute('name', name);
+                result.addAttribute('name', name);
             }
             // Attr-dict
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             // : type = value
-            op.addTypes(parser.parseOptionalColonTypeList());
+            result.addTypes(parser.parseOptionalColonTypeList());
             if (parser.parseOptionalEqual()) {
                 const value = parser.parseAttribute();
                 // Handle type annotation after the value (e.g., dense<...> : vector<21xi8>)
@@ -18545,32 +18502,30 @@ _.VMDialect = class extends _.Dialect {
                     const valueType = parser.parseType();
                     value.type = valueType;
                 }
-                op.addAttribute('value', value);
+                result.addAttribute('value', value);
             }
             return true;
         }
         // Handle vm.const.* operations (e.g., vm.const.i32.zero : i32, vm.const.i32 1 : i32, vm.const.ref.rodata @symbol : !vm.buffer)
-        if (opName.startsWith('vm.const.') &&
-            opName !== 'vm.const.i32' &&
-            opName !== 'vm.const.ref.rodata' && opName !== 'vm.const.ref.zero') {
-            if (opName === 'vm.const.i32.zero') {
-                this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op.startsWith('vm.const.') && result.op !== 'vm.const.i32' && result.op !== 'vm.const.ref.rodata' && result.op !== 'vm.const.ref.zero') {
+            if (result.op === 'vm.const.i32.zero') {
+                result.compatibility = true;
             }
             // Optional value or symbol reference
             if (parser.match('int') || parser.match('float') || parser.match('string')) {
                 const value = parser.parseAttribute();
-                op.addAttribute('value', value.value === undefined ? value : value.value);
+                result.addAttribute('value', value.value === undefined ? value : value.value);
             } else if (parser.match('@')) {
                 // Handle symbol reference (e.g., @symbol_name)
                 const symbol = parser.expect('@');
-                op.addAttribute('rodata', symbol);
+                result.addAttribute('rodata', symbol);
             }
-            parser.parseOptionalAttrDict(op.attributes);
-            op.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDict(result.attributes);
+            result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
         // Handle vm.switch.ref operation
-        if (opName === 'vm.switch.ref' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'vm.switch.ref') {
             const unresolvedOperands = [];
             const indexUnresolved = parser.parseOperand();
             unresolvedOperands.push(indexUnresolved);
@@ -18588,25 +18543,25 @@ _.VMDialect = class extends _.Dialect {
             parser.expect('id', 'else');
             const defaultValueUnresolved = parser.parseOperand();
             unresolvedOperands.push(defaultValueUnresolved);
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             let resultType = null;
             if (parser.parseOptionalColon()) {
                 resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
             // Resolve operands using resolveOperand (OpAsmParser interface method)
             for (const unresolved of unresolvedOperands) {
-                parser.resolveOperand(unresolved, resultType, op.operands);
+                parser.resolveOperand(unresolved, resultType, result.operands);
             }
             return true;
         }
         // Handle vm.call and vm.call.variadic
         // Variadic has complex syntax like: @callee(op1, op2, [(tuple1), (tuple2)])
-        if (opName === 'vm.call' || opName === 'vm.call.variadic') {
-            this.getOperation(opName).hasParseOperation = false; // compatibility?
+        if (result.op === 'vm.call' || result.op === 'vm.call.variadic') {
+            result.compatibility = true;
             if (parser.match('@')) {
                 const callee = parser.expect('@');
-                op.addAttribute('callee', callee);
+                result.addAttribute('callee', callee);
             }
             // Parse operands - use skip for complex nested structures
             if (parser.parseOptionalLParen()) {
@@ -18617,7 +18572,7 @@ _.VMDialect = class extends _.Dialect {
                         parser.parseOptionalComma(); // consume trailing comma if present
                     } else if (parser.match('%')) {
                         const operand = parser.parseOperand();
-                        parser.resolveOperand(operand, null, op.operands);
+                        parser.resolveOperand(operand, null, result.operands);
                         parser.parseOptionalComma(); // consume trailing comma if present
                     } else {
                         // Unexpected token, break to avoid infinite loop
@@ -18626,27 +18581,27 @@ _.VMDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             // vm.call.variadic has special syntax with '...' ellipsis
             if (parser.parseOptionalColon()) {
-                if (opName === 'vm.call.variadic') {
+                if (result.op === 'vm.call.variadic') {
                     parser.skip('(');
                     if (parser.parseOptionalArrow()) {
                         const resultTypes = parser.parseFunctionResultTypes();
-                        op.addTypes(resultTypes);
+                        result.addTypes(resultTypes);
                     }
                 } else {
                     // Regular vm.call - Reference: uses functional-type(operands, results)
                     const type = parser.parseType();
                     if (type instanceof _.FunctionType) {
-                        parser.resolveOperands(op.operands, type.inputs);
-                        op.addTypes(type.results);
+                        parser.resolveOperands(result.operands, type.inputs);
+                        result.addTypes(type.results);
                     }
                 }
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseBranchTableCases(parser, op /*, args */) {
@@ -18740,15 +18695,15 @@ _.MLProgramDialect = class extends _.Dialect {
         this.registerCustomDirective('TokenOrdering', this.parseTokenOrdering.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'ml_program.func' || opName === 'ml_program.subgraph') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'ml_program.func' || result.op === 'ml_program.subgraph') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseTokenOrdering(parser, op) {
+    parseTokenOrdering(parser, result) {
         if (!parser.accept('id', 'ordering')) {
             return;
         }
@@ -18759,7 +18714,7 @@ _.MLProgramDialect = class extends _.Dialect {
         } else {
             while (parser.match('%')) {
                 const tok = parser.parseOperand();
-                parser.resolveOperand(tok, null, op.operands);
+                parser.resolveOperand(tok, null, result.operands);
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -18768,7 +18723,7 @@ _.MLProgramDialect = class extends _.Dialect {
         // Parse producer token type: -> type
         parser.expect('->');
         const produceType = parser.parseType();
-        op.addAttribute('produceTokenType', { value: produceType, hidden: true });
+        result.addAttribute('produceTokenType', { value: produceType, hidden: true });
         parser.parseRParen();
     }
 
@@ -18800,27 +18755,27 @@ _.TFDeviceDialect = class extends _.Dialect {
         super(operations, 'tf_device');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tf_device.replicate') {
-            return this.parseReplicateOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'tf_device.replicate') {
+            return this.parseReplicateOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseReplicateOp(parser, op) {
+    parseReplicateOp(parser, result) {
         if (!parser.parseOptionalLParen()) {
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
         if (parser.match(')')) {
             parser.parseRParen();
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
@@ -18842,7 +18797,7 @@ _.TFDeviceDialect = class extends _.Dialect {
                 const type = parser.parseType();
                 // Resolve all replicated inputs with the same type
                 for (const input of unresolvedInputs) {
-                    parser.resolveOperand(input, type, op.operands);
+                    parser.resolveOperand(input, type, result.operands);
                 }
             } else if (parser.match('%')) {
                 const unresolvedValue = parser.parseOperand();
@@ -18850,15 +18805,15 @@ _.TFDeviceDialect = class extends _.Dialect {
                 parser.parseOperand(); // block arg
                 parser.parseColon();
                 const type = parser.parseType();
-                parser.resolveOperand(unresolvedValue, type, op.operands);
+                parser.resolveOperand(unresolvedValue, type, result.operands);
             } else {
                 break;
             }
         } while (parser.parseOptionalComma());
         parser.parseRParen();
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
@@ -18874,21 +18829,21 @@ _.TFGDialect = class extends _.Dialect {
     getOperation(opName) {
         let op = super.getOperation(opName);
         if (!op) {
-            this._operations.set(opName, { metadata: {} });
+            this.registerOperandName(opName, {});
             op = super.getOperation(opName);
         }
         return op;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tfg.func') {
+    parseOperation(parser, result) {
+        if (result.op === 'tfg.func') {
             if (parser.accept('id', 'generic')) {
-                op.addAttribute('generic', true);
+                result.addAttribute('generic', true);
             }
-            parser.parseFunctionOp(op, false);
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'tfg.return') {
+        if (result.op === 'tfg.return') {
             let dataOperands = [];
             if (parser.match('(')) {
                 dataOperands = parser.parseOperandList('paren');
@@ -18915,26 +18870,27 @@ _.TFGDialect = class extends _.Dialect {
                 parser.parseRSquare();
             }
             if (controlRetAttrs.length > 0) {
-                op.addAttribute('control_ret_attrs', controlRetAttrs);
+                result.addAttribute('control_ret_attrs', controlRetAttrs);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const types = parser.parseTypeListNoParens();
-                parser.resolveOperands(dataOperands, types, op.operands);
+                parser.resolveOperands(dataOperands, types, result.operands);
             } else {
-                parser.resolveOperands(dataOperands, dataOperands.map(() => null), op.operands);
+                parser.resolveOperands(dataOperands, dataOperands.map(() => null), result.operands);
             }
-            parser.resolveOperands(controlOperands, controlOperands.map(() => null), op.operands);
+            parser.resolveOperands(controlOperands, controlOperands.map(() => null), result.operands);
             return true;
         }
-        if (!this.hasAssemblyFormat(opName)) {
-            this.parseTFGOperation(parser, op);
+        const opInfo = result.name.getRegisteredInfo();
+        if (!opInfo.metadata.assemblyFormat) {
+            this.parseTFGOperation(parser, result);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseTFGOperation(parser, op) {
+    parseTFGOperation(parser, result) {
         let unresolvedArgs = [];
         if (parser.match('(')) {
             unresolvedArgs = parser.parseOperandList('paren');
@@ -18955,36 +18911,36 @@ _.TFGDialect = class extends _.Dialect {
             parser.parseLParen();
             const device = parser.expect('string');
             parser.parseRParen();
-            op.addAttribute('device', device);
+            result.addAttribute('device', device);
         }
         if (parser.accept('id', 'name')) {
             parser.parseLParen();
             const name = parser.expect('string');
             parser.parseRParen();
-            op.addAttribute('_mlir_name', name);
+            result.addAttribute('_mlir_name', name);
         }
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             if (type instanceof _.FunctionType) {
-                parser.resolveOperands(unresolvedArgs, type.inputs, op.operands);
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
-                op.addTypes(type.results);
+                parser.resolveOperands(unresolvedArgs, type.inputs, result.operands);
+                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), result.operands);
+                result.addTypes(type.results);
             } else {
                 // Parse remaining types in the comma-separated list (for return-like operations)
                 const types = [type];
                 while (parser.parseOptionalComma()) {
                     types.push(parser.parseType());
                 }
-                parser.resolveOperands(unresolvedArgs, types, op.operands);
-                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
+                parser.resolveOperands(unresolvedArgs, types, result.operands);
+                parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), result.operands);
             }
         } else {
             // No types - resolve with null
-            parser.resolveOperands(unresolvedArgs, unresolvedArgs.map(() => null), op.operands);
-            parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), op.operands);
+            parser.resolveOperands(unresolvedArgs, unresolvedArgs.map(() => null), result.operands);
+            parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => '!tfg.control'), result.operands);
         }
     }
 };
@@ -19007,23 +18963,23 @@ _.TFExecutorDialect = class extends _.Dialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tf_executor.graph') {
-            return this.parseGraphOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'tf_executor.graph') {
+            return this.parseGraphOp(parser, result);
         }
-        if (opName === 'tf_executor.island') {
-            return this.parseIslandOp(parser, op);
+        if (result.op === 'tf_executor.island') {
+            return this.parseIslandOp(parser, result);
         }
-        if (opName === 'tf_executor.Enter') {
-            return this.parseEnterOp(parser, op);
+        if (result.op === 'tf_executor.Enter') {
+            return this.parseEnterOp(parser, result);
         }
-        if (opName === 'tf_executor._SwitchN') {
+        if (result.op === 'tf_executor._SwitchN') {
             const unresolvedData = parser.parseOperand();
             parser.parseComma();
             const unresolvedIndex = parser.parseOperand();
             parser.expect('id', 'of');
             const numOuts = parseInt(parser.expect('int'), 10);
-            op.addAttribute('num_outs', numOuts);
+            result.addAttribute('num_outs', numOuts);
             let unresolvedControlInputs = [];
             if (parser.match('(')) {
                 unresolvedControlInputs = parser.parseOperandList('paren');
@@ -19032,41 +18988,41 @@ _.TFExecutorDialect = class extends _.Dialect {
             const type = parser.parseType();
             const typeStr = type.toString();
             // Resolve operands with their types
-            parser.resolveOperand(unresolvedData, typeStr, op.operands);
-            parser.resolveOperand(unresolvedIndex, 'tensor<i32>', op.operands);
-            parser.resolveOperands(unresolvedControlInputs, unresolvedControlInputs.map(() => '!tf_executor.control'), op.operands);
+            parser.resolveOperand(unresolvedData, typeStr, result.operands);
+            parser.resolveOperand(unresolvedIndex, 'tensor<i32>', result.operands);
+            parser.resolveOperands(unresolvedControlInputs, unresolvedControlInputs.map(() => '!tf_executor.control'), result.operands);
             for (let i = 0; i < numOuts; i++) {
-                op.addTypes([typeStr]);
+                result.addTypes([typeStr]);
             }
-            op.addTypes(['!tf_executor.control']);
-            parser.parseOptionalAttrDict(op.attributes);
+            result.addTypes(['!tf_executor.control']);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (opName === 'tf_executor.Switch' || opName === 'tf_executor.Merge' ||
-            opName === 'tf_executor.LoopCond' || opName === 'tf_executor.Exit') {
+        if (result.op === 'tf_executor.Switch' || result.op === 'tf_executor.Merge' ||
+            result.op === 'tf_executor.LoopCond' || result.op === 'tf_executor.Exit') {
             // These ops have hasCustomAssemblyFormat: true but no assemblyFormat in metadata
             const unresolvedOperands = parser.parseOperandList();
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (type instanceof _.FunctionType) {
-                    parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
-                    op.addTypes(type.results);
+                    parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
+                    result.addTypes(type.results);
                 } else {
                     const typeStr = type.toString();
-                    parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => typeStr), op.operands);
-                    op.addTypes([typeStr]);
-                    op.addTypes(['!tf_executor.control']);
+                    parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => typeStr), result.operands);
+                    result.addTypes([typeStr]);
+                    result.addTypes(['!tf_executor.control']);
                 }
             } else {
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseEnterOp(parser, op) {
+    parseEnterOp(parser, result) {
         const unresolvedOperands = [];
         while (parser.match('%')) {
             unresolvedOperands.push(parser.parseOperand());
@@ -19076,35 +19032,35 @@ _.TFExecutorDialect = class extends _.Dialect {
         }
         parser.expect('id', 'frame');
         const frameName = parser.expect('string');
-        op.addAttribute('frame_name', frameName);
+        result.addAttribute('frame_name', frameName);
         if (parser.accept('id', 'parallel_iterations')) {
             const parallelIterations = parser.expect('int');
-            op.addAttribute('parallel_iterations', parseInt(parallelIterations, 10));
+            result.addAttribute('parallel_iterations', parseInt(parallelIterations, 10));
         } else {
-            op.addAttribute('parallel_iterations', 10);
+            result.addAttribute('parallel_iterations', 10);
         }
         const isConstant = parser.accept('id', 'constant');
-        op.addAttribute('is_constant', isConstant);
+        result.addAttribute('is_constant', isConstant);
         parser.parseColon();
         const type = parser.parseType();
         if (type instanceof _.FunctionType) {
-            parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
-            op.addTypes(type.results);
+            parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
+            result.addTypes(type.results);
         } else {
             const typeStr = type.toString();
             // First operand gets the parsed type, rest get control type
             const resolveTypes = unresolvedOperands.map((_, i) => i === 0 ? typeStr : '!tf_executor.control');
-            parser.resolveOperands(unresolvedOperands, resolveTypes, op.operands);
-            op.addTypes([typeStr]);
-            op.addTypes(['!tf_executor.control']);
+            parser.resolveOperands(unresolvedOperands, resolveTypes, result.operands);
+            result.addTypes([typeStr]);
+            result.addTypes(['!tf_executor.control']);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseGraphOp(parser, op) {
+    parseGraphOp(parser, result) {
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
             if (region.blocks && region.blocks.length > 0) {
                 const [block] = region.blocks;
@@ -19113,34 +19069,34 @@ _.TFExecutorDialect = class extends _.Dialect {
                     if (lastOp.name === 'tf_executor.fetch' && lastOp.operands) {
                         for (const operand of lastOp.operands) {
                             if (operand.type && operand.type !== '!tf_executor.control') {
-                                op.addTypes([operand.type]);
+                                result.addTypes([operand.type]);
                             }
                         }
                     }
                 }
             }
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 
-    parseIslandOp(parser, op) {
+    parseIslandOp(parser, result) {
         // or: tf_executor.island {...}
         // or: tf_executor.island(%control_inputs) {...}
         if (parser.match('(')) {
             const unresolvedOperands = parser.parseOperandList('paren');
             for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
         }
         if (parser.accept('id', 'wraps')) {
             const wrappedOp = parser.parseGenericOperation();
-            op.addAttribute('wrappedOp', wrappedOp);
+            result.addAttribute('wrappedOp', wrappedOp);
         } else if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 };
@@ -19158,12 +19114,12 @@ _.TFRDialect = class extends _.Dialect {
         super(operations, 'tfr');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tfr.func') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'tfr.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -19173,32 +19129,32 @@ _.CoreRTDialect = class extends _.Dialect {
         super(operations, 'corert');
     }
 
-    parseOperation(parser, opName, op) {
-        const opInfo = this.getOperation(opName);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
         if (!opInfo) {
             return false;
         }
-        if (opName === 'corert.executeop' || opName === 'corert.executeop.seq') {
+        if (result.op === 'corert.executeop' || result.op === 'corert.executeop.seq') {
             const opHandlerOperands = parser.parseOperandList('paren');
             for (const operand of opHandlerOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
             const opNameAttr = parser.expect('string');
-            op.addAttribute('op_name', opNameAttr);
+            result.addAttribute('op_name', opNameAttr);
             const operandOperands = parser.parseOperandList('paren');
             for (const operand of operandOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             if (parser.parseOptionalColon()) {
                 const resultCount = parser.expect();
-                op.addAttribute('result_count', parseInt(resultCount, 10));
+                result.addAttribute('result_count', parseInt(resultCount, 10));
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -19232,12 +19188,12 @@ _.TFRTDialect = class extends _.Dialect {
         return new _.Type(type);
     }
 
-    parseOperation(parser, opName, op) {
-        const opInfo = this.getOperation(opName);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
         if (!opInfo) {
             return false;
         }
-        if (opInfo.metadata?.assemblyFormat === 'operands attr-dict') {
+        if (opInfo.metadata.assemblyFormat === 'operands attr-dict') {
             const unresolvedOperands = [];
             while (parser.match('%')) {
                 unresolvedOperands.push(parser.parseOperand());
@@ -19246,49 +19202,49 @@ _.TFRTDialect = class extends _.Dialect {
                 }
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             // Resolve operands from scope (no explicit types)
             for (const unresolved of unresolvedOperands) {
-                parser.resolveOperand(unresolved, null, op.operands);
+                parser.resolveOperand(unresolved, null, result.operands);
             }
             return true;
         }
-        if (opName === 'tfrt.call') {
-            parser.parseSymbolName('callee', op.attributes);
+        if (result.op === 'tfrt.call') {
+            parser.parseSymbolName('callee', result.attributes);
             const unresolvedOperands = parser.parseOperandList('paren');
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseFunctionType();
                 if (type) {
                     if (type.inputs) {
-                        parser.resolveOperands(unresolvedOperands, type.inputs, op.operands);
+                        parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
                     }
                     if (type.results) {
                         type.results.forEach((resultType) => {
-                            op.addTypes([resultType]);
+                            result.addTypes([resultType]);
                         });
                     }
                 }
             } else {
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             return true;
         }
-        if (opName === 'tfrt.return') {
+        if (result.op === 'tfrt.return') {
             if (!parser.match('keyword', 'loc') && !parser.match('eof')) {
                 const unresolvedOperands = parser.parseOperandList();
-                parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+                parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             }
             return true;
         }
-        if (opName === 'tfrt.repeat.i32') {
+        if (result.op === 'tfrt.repeat.i32') {
             if (parser.match('%')) {
                 const unresolvedOperands = parser.parseOperandList();
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             if (parser.parseOptionalColon()) {
@@ -19297,48 +19253,48 @@ _.TFRTDialect = class extends _.Dialect {
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'tfrt.if') {
+        if (result.op === 'tfrt.if') {
             const unresolvedOperands = parser.parseOperandList();
             if (parser.accept('id', 'attributes')) {
-                parser.parseOptionalAttrDict(op.attributes);
+                parser.parseOptionalAttrDict(result.attributes);
             }
             if (parser.parseOptionalColon()) {
                 const funcType = parser.parseFunctionType();
                 if (funcType) {
                     if (funcType.inputs) {
-                        parser.resolveOperands(unresolvedOperands, funcType.inputs, op.operands);
+                        parser.resolveOperands(unresolvedOperands, funcType.inputs, result.operands);
                     }
                     if (funcType.results) {
                         for (const resultType of funcType.results) {
-                            op.addTypes([resultType]);
+                            result.addTypes([resultType]);
                         }
                     }
                 }
             } else {
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             if (parser.match('{')) {
                 const thenRegion = {};
                 parser.parseRegion(thenRegion);
-                op.regions.push(thenRegion);
+                result.regions.push(thenRegion);
             }
             if (parser.accept('id', 'else')) {
                 if (parser.match('{')) {
                     const elseRegion = {};
                     parser.parseRegion(elseRegion);
-                    op.regions.push(elseRegion);
+                    result.regions.push(elseRegion);
                 }
             }
             return true;
         }
-        if (opName === 'tfrt.parallel_for.i32') {
+        if (result.op === 'tfrt.parallel_for.i32') {
             const startUnresolved = parser.parseOperand();
             parser.expect('id', 'to');
             const endUnresolved = parser.parseOperand();
@@ -19350,39 +19306,39 @@ _.TFRTDialect = class extends _.Dialect {
             }
             const types = parser.parseOptionalColonTypeList();
             // Resolve fixed operands with i32 type
-            parser.resolveOperand(startUnresolved, 'i32', op.operands);
-            parser.resolveOperand(endUnresolved, 'i32', op.operands);
-            parser.resolveOperand(blockSizeUnresolved, 'i32', op.operands);
+            parser.resolveOperand(startUnresolved, 'i32', result.operands);
+            parser.resolveOperand(endUnresolved, 'i32', result.operands);
+            parser.resolveOperand(blockSizeUnresolved, 'i32', result.operands);
             // Resolve additional operands with parsed types
-            parser.resolveOperands(additionalArgs, types, op.operands);
-            op.addTypes(['!tfrt.chain']);
+            parser.resolveOperands(additionalArgs, types, result.operands);
+            result.addTypes(['!tfrt.chain']);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'tfrt.parallel_call.i32') {
+        if (result.op === 'tfrt.parallel_call.i32') {
             const startUnresolved = parser.parseOperand();
             parser.expect('id', 'to');
             const endUnresolved = parser.parseOperand();
             parser.expect('id', 'fixed');
             const blockSizeUnresolved = parser.parseOperand();
             const callee = parser.expect('@');
-            op.addAttribute('callee', callee);
+            result.addAttribute('callee', callee);
             const additionalArgs = parser.parseOperandList('paren');
             const types = parser.parseOptionalColonTypeList();
-            parser.resolveOperand(startUnresolved, 'i32', op.operands);
-            parser.resolveOperand(endUnresolved, 'i32', op.operands);
-            parser.resolveOperand(blockSizeUnresolved, 'i32', op.operands);
-            parser.resolveOperands(additionalArgs, types, op.operands);
-            op.addTypes(['!tfrt.chain']);
+            parser.resolveOperand(startUnresolved, 'i32', result.operands);
+            parser.resolveOperand(endUnresolved, 'i32', result.operands);
+            parser.resolveOperand(blockSizeUnresolved, 'i32', result.operands);
+            parser.resolveOperands(additionalArgs, types, result.operands);
+            result.addTypes(['!tfrt.chain']);
             return true;
         }
-        if (opName === 'tfrt.while') {
+        if (result.op === 'tfrt.while') {
             const condUnresolved = parser.parseOperand();
             const bodyFn = parser.expect('@');
-            op.addAttribute('body_fn', bodyFn);
+            result.addAttribute('body_fn', bodyFn);
             parser.parseLParen();
             const argsUnresolved = [];
             while (!parser.match(')')) {
@@ -19395,13 +19351,13 @@ _.TFRTDialect = class extends _.Dialect {
             parser.parseRParen();
             // Optional attr-dict
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             // Parse parallel_iterations(N)
             if (parser.accept('id', 'parallel_iterations')) {
                 parser.parseLParen();
                 const parallelIterations = parser.expect('int');
-                op.addAttribute('parallel_iterations', parseInt(parallelIterations, 10));
+                result.addAttribute('parallel_iterations', parseInt(parallelIterations, 10));
                 parser.parseRParen();
             }
             // Parse : (types) -> (types)
@@ -19410,14 +19366,14 @@ _.TFRTDialect = class extends _.Dialect {
             parser.expect('->');
             const resultTypes = parser.parseTypeListParens();
             // Resolve operands at end with parsed types
-            parser.resolveOperand(condUnresolved, 'i1', op.operands);
-            parser.resolveOperands(argsUnresolved, inputTypes, op.operands);
+            parser.resolveOperand(condUnresolved, 'i1', result.operands);
+            parser.resolveOperands(argsUnresolved, inputTypes, result.operands);
             for (const resultType of resultTypes) {
-                op.addTypes([resultType.toString()]);
+                result.addTypes([resultType.toString()]);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -19427,45 +19383,45 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
         super(operations, 'tfrt_fallback_async');
     }
 
-    parseOperation(parser, opName, op) {
-        const opInfo = this.getOperation(opName);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
         if (!opInfo) {
             return false;
         }
-        if (opName === 'tfrt_fallback_async.batch_function') {
+        if (result.op === 'tfrt_fallback_async.batch_function') {
             parser.expect('id', 'device');
             parser.parseLParen();
             const device = parser.expect('string');
             parser.parseRParen();
-            op.addAttribute('device', device);
+            result.addAttribute('device', device);
             const funcName = parser.expect('@');
-            op.addAttribute('f', funcName);
+            result.addAttribute('f', funcName);
             const unresolvedOperands = parser.parseOperandList('paren');
             for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, op.operands);
+                parser.resolveOperand(operand, null, result.operands);
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
                 if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
             }
             if (parser.parseOptionalColon()) {
                 const resultCount = parseInt(parser.expect(), 10);
                 for (let i = 0; i < resultCount; i++) {
-                    op.addTypes(['!tfrt_fallback.tf_tensor']);
+                    result.addTypes(['!tfrt_fallback.tf_tensor']);
                 }
             }
             return true;
         }
-        if (opName === 'tfrt_fallback_async.createop' || opName.startsWith('tfrt_fallback_async.executeop')) {
-            const isCreateOp = opName === 'tfrt_fallback_async.createop';
-            const hasChain = isCreateOp || opName.includes('.seq');
-            const hasAllocator = opName.includes('.allocator');
+        if (result.op === 'tfrt_fallback_async.createop' || result.op.startsWith('tfrt_fallback_async.executeop')) {
+            const isCreateOp = result.op === 'tfrt_fallback_async.createop';
+            const hasChain = isCreateOp || result.op.includes('.seq');
+            const hasAllocator = result.op.includes('.allocator');
             if ((hasChain || hasAllocator) && parser.match('(')) {
                 const chainOperands = parser.parseOperandList('paren');
                 for (const operand of chainOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             while (!parser.match(':') && !parser.match('{')) {
@@ -19474,15 +19430,15 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                     if (parser.parseOptionalLParen()) {
                         const value = parser.expect();
                         parser.parseRParen();
-                        op.addAttribute(key, value);
+                        result.addAttribute(key, value);
                     }
                 } else if (parser.match('string')) {
                     const opNameAttr = parser.expect('string');
-                    op.addAttribute('op_name', opNameAttr);
+                    result.addAttribute('op_name', opNameAttr);
                     if (parser.match('(')) {
                         const unresolvedOperands = parser.parseOperandList('paren');
                         for (const operand of unresolvedOperands) {
-                            parser.resolveOperand(operand, null, op.operands);
+                            parser.resolveOperand(operand, null, result.operands);
                         }
                     }
                     break;
@@ -19491,9 +19447,9 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                 }
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
                 if (parser.match('{')) {
-                    parser.parseAttributeDict(op.attributes);
+                    parser.parseAttributeDict(result.attributes);
                 }
             }
             if (isCreateOp) {
@@ -19502,15 +19458,15 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                     parser.parseLParen();
                     const numArgs = parser.expect();
                     parser.parseRParen();
-                    op.addAttribute('num_args', parseInt(numArgs, 10));
+                    result.addAttribute('num_args', parseInt(numArgs, 10));
                 }
             } else if (parser.parseOptionalColon()) {
                 const resultCount = parser.expect();
-                op.addAttribute('result_count', parseInt(resultCount, 10));
+                result.addAttribute('result_count', parseInt(resultCount, 10));
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -19520,34 +19476,34 @@ _.TileDialect = class extends _.Dialect {
         super(operations, 'tile');
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // tile.contract has format: tile.contract agg, combo, operands... attributes : types -> result
         // Example: %1 = tile.contract add, mul, %0, %arg0, %arg1 {sink = #map0, srcs = [#map1, #map2]} : tensor<f32>, tensor<1x256xf32>, tensor<256x512xf32> -> tensor<1x512xf32>
-        if (opName === 'tile.contract') {
+        if (result.op === 'tile.contract') {
             // Parse aggregation kind (add, mul, etc.)
             if (parser.match('id')) {
                 const agg = parser.expect('id');
-                op.addAttribute('agg', agg);
+                result.addAttribute('agg', agg);
             }
             parser.parseOptionalComma();
             // Parse combination kind (add, mul, etc.)
             if (parser.match('id')) {
                 const combo = parser.expect('id');
-                op.addAttribute('combo', combo);
+                result.addAttribute('combo', combo);
             }
             parser.parseOptionalComma();
             const unresolvedOperands = parser.parseOperandList();
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), op.operands);
+            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.parseOptionalArrow()) {
                 const resultTypes = parser.parseFunctionResultTypes();
-                op.addTypes(resultTypes);
+                result.addTypes(resultTypes);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -19557,45 +19513,45 @@ _.PXADialect = class extends _.Dialect {
         super(operations, 'pxa');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'pxa.reduce' || opName === 'pxa.vector_reduce') {
+    parseOperation(parser, result) {
+        if (result.op === 'pxa.reduce' || result.op === 'pxa.vector_reduce') {
             const agg = parser.expect('id');
-            op.addAttribute('agg', agg);
+            result.addAttribute('agg', agg);
             const unresolvedVal = parser.parseOperand();
             parser.parseOptionalComma();
             const unresolvedMemref = parser.parseOperand();
             parser.skip('[');
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             let memrefType = null;
             let valType = null;
             if (parser.parseOptionalColon()) {
                 memrefType = parser.parseType();
-                op.addTypes([memrefType]);
-                if (opName === 'pxa.vector_reduce' && parser.parseOptionalComma()) {
+                result.addTypes([memrefType]);
+                if (result.op === 'pxa.vector_reduce' && parser.parseOptionalComma()) {
                     valType = parser.parseType();
                 }
             }
             // Resolve operands with their types
-            parser.resolveOperand(unresolvedVal, valType, op.operands);
-            parser.resolveOperand(unresolvedMemref, memrefType, op.operands);
+            parser.resolveOperand(unresolvedVal, valType, result.operands);
+            parser.resolveOperand(unresolvedMemref, memrefType, result.operands);
             return true;
         }
-        if (opName === 'pxa.load' || opName === 'pxa.vector_load') {
+        if (result.op === 'pxa.load' || result.op === 'pxa.vector_load') {
             const unresolvedMemref = parser.parseOperand();
             parser.skip('[');
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             let memrefType = null;
             if (parser.parseOptionalColon()) {
                 memrefType = parser.parseType();
-                if (opName === 'pxa.vector_load' && parser.parseOptionalComma()) {
+                if (result.op === 'pxa.vector_load' && parser.parseOptionalComma()) {
                     const vectorType = parser.parseType();
-                    op.addTypes([vectorType]);
+                    result.addTypes([vectorType]);
                 }
             }
-            parser.resolveOperand(unresolvedMemref, memrefType, op.operands);
+            parser.resolveOperand(unresolvedMemref, memrefType, result.operands);
             return true;
         }
-        if (opName === 'pxa.generic') {
+        if (result.op === 'pxa.generic') {
             const unresolvedOperands = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
@@ -19615,11 +19571,11 @@ _.PXADialect = class extends _.Dialect {
             }
             if (parser.parseOptionalLess()) {
                 const reduction = parser.expect('id');
-                op.addAttribute('reduction', reduction);
+                result.addAttribute('reduction', reduction);
                 parser.parseGreater();
             }
             if (parser.match('@')) {
-                op.addAttribute('kernel', parser.expect('@'));
+                result.addAttribute('kernel', parser.expect('@'));
             }
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
@@ -19640,28 +19596,28 @@ _.PXADialect = class extends _.Dialect {
             if (parser.accept('id', 'tile')) {
                 parser.parseColon();
                 const tile = parser.skip('[');
-                op.addAttribute('tile', tile);
+                result.addAttribute('tile', tile);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const funcType = parser.parseFunctionType();
                 if (funcType && funcType.inputs) {
-                    parser.resolveOperands(unresolvedOperands, funcType.inputs, op.operands);
+                    parser.resolveOperands(unresolvedOperands, funcType.inputs, result.operands);
                 }
                 if (funcType && funcType.results) {
                     for (const resultType of funcType.results) {
-                        op.addTypes([resultType]);
+                        result.addTypes([resultType]);
                     }
                 }
             } else {
                 // No type info - resolve from scope
                 for (const unresolved of unresolvedOperands) {
-                    parser.resolveOperand(unresolved, null, op.operands);
+                    parser.resolveOperand(unresolved, null, result.operands);
                 }
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -19671,34 +19627,34 @@ _.ToyDialect = class extends _.HLODialect {
         super(operations, 'toy');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'toy.func') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'toy.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
         // toy.constant: {attrs} dense<...> : type
-        if (opName === 'toy.constant') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'toy.constant') {
+            parser.parseOptionalAttrDict(result.attributes);
             const value = parser.parseAttribute();
-            op.addAttribute('value', value.value === undefined ? value : value.value);
-            op.addTypes([value.type]);
+            result.addAttribute('value', value.value === undefined ? value : value.value);
+            result.addTypes([value.type]);
             return true;
         }
         // toy.mul, toy.add: %lhs, %rhs : type
-        if (opName === 'toy.mul' || opName === 'toy.add') {
-            op.operands = parser.parseOperandList();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        if (result.op === 'toy.mul' || result.op === 'toy.add') {
+            result.operands = parser.parseOperandList();
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             const types = parser.parseOptionalColonTypeList();
             if (types.length > 0) {
                 const [type] = types;
-                for (const operand of op.operands) {
+                for (const operand of result.operands) {
                     operand.type = type;
                 }
-                op.addTypes(types);
+                result.addTypes(types);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
 };
@@ -19732,29 +19688,29 @@ _.SdfgDialect = class extends _.Dialect {
         return null;
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'sdfg.sdfg' || opName === 'sdfg.nested_sdfg' || opName === 'sdir.sdfg') {
-            parser.parseOptionalAttrDict(op.attributes);
+    parseOperation(parser, result) {
+        if (result.op === 'sdfg.sdfg' || result.op === 'sdfg.nested_sdfg' || result.op === 'sdir.sdfg') {
+            parser.parseOptionalAttrDict(result.attributes);
             const inputResult = parser.parseFunctionArgumentList();
             const inputs = inputResult.arguments.map((a) => a.type);
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let results = [];
             if (parser.parseOptionalArrow()) {
                 const outputResult = parser.parseFunctionArgumentList();
                 results = outputResult.arguments.map((a) => a.type);
             }
-            op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'sdfg.tasklet' || opName === 'sdir.tasklet') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.tasklet' || result.op === 'sdir.tasklet') {
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
             const blockArgs = [];
             if (parser.parseOptionalLParen()) {
@@ -19771,7 +19727,7 @@ _.SdfgDialect = class extends _.Dialect {
                         type = parser.parseType();
                     }
                     // Resolve operand with type
-                    parser.resolveOperand(operand, type, op.operands);
+                    parser.resolveOperand(operand, type, result.operands);
                     blockArgs.push({ value: blockArgName, type });
                     parser.parseOptionalComma();
                 }
@@ -19780,22 +19736,22 @@ _.SdfgDialect = class extends _.Dialect {
                 if (parser.parseOptionalLParen()) {
                     while (!parser.parseOptionalRParen()) {
                         const type = parser.parseType();
-                        op.addTypes([type]);
+                        result.addTypes([type]);
                         parser.parseOptionalComma();
                     }
                 } else {
                     const type = parser.parseType();
-                    op.addTypes([type]);
+                    result.addTypes([type]);
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region, blockArgs);
             }
             return true;
         }
-        if (opName === 'sdfg.consume') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.consume') {
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
                 // Parse typed argument: %A : type
                 while (parser.match('%')) {
@@ -19804,14 +19760,14 @@ _.SdfgDialect = class extends _.Dialect {
                     if (parser.parseOptionalColon()) {
                         type = parser.parseType();
                     }
-                    parser.resolveOperand(operand, type, op.operands);
+                    parser.resolveOperand(operand, type, result.operands);
                     if (!parser.parseOptionalComma()) {
                         break;
                     }
                 }
                 parser.parseRParen();
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.parseOptionalArrow()) {
                 if (parser.parseOptionalLParen()) {
                     // Parse named results: (pe: %p, elem: %e)
@@ -19820,7 +19776,7 @@ _.SdfgDialect = class extends _.Dialect {
                             parser.expect('id'); // name like 'pe' or 'elem'
                             if (parser.parseOptionalColon()) {
                                 parser.parseOperand(); // Parse %p or %e but don't store
-                                op.types.push(null);
+                                result.types.push(null);
                             }
                         } else if (parser.match('%') || parser.match(')')) {
                             break;
@@ -19831,42 +19787,42 @@ _.SdfgDialect = class extends _.Dialect {
                     }
                 }
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'sdfg.state' || opName === 'sdir.state') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.state' || result.op === 'sdir.state') {
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.match('@')) {
-                parser.parseSymbolName('sym_name', op.attributes);
+                parser.parseSymbolName('sym_name', result.attributes);
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            const region = op.addRegion();
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            const region = result.addRegion();
             parser.parseRegion(region);
             return true;
         }
-        if (opName === 'sdfg.alloc' || opName === 'sdir.alloc' || opName === 'sdir.alloc_transient' || opName === 'sdir.alloc_stream') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.alloc' || result.op === 'sdir.alloc' || result.op === 'sdir.alloc_transient' || result.op === 'sdir.alloc_stream') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedOperands = [];
             if (parser.match('(')) {
                 unresolvedOperands.push(...parser.parseOperandList('paren'));
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let allocType = null;
             if (parser.parseOptionalColon()) {
                 allocType = parser.parseType();
-                op.addTypes([allocType]);
+                result.addTypes([allocType]);
             }
             // Resolve operands (these are likely dimension/size operands with index type)
             const indexType = new _.PrimitiveType('index');
-            parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
+            parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), result.operands);
             return true;
         }
-        if (opName === 'sdfg.store' || opName === 'sdir.store') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.store' || result.op === 'sdir.store') {
+            parser.parseOptionalAttrDict(result.attributes);
             const valueOp = parser.parseOperand();
             parser.parseOptionalComma();
             const arrayOp = parser.parseOperand();
@@ -19884,24 +19840,24 @@ _.SdfgDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalRSquare();
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.parseOptionalColon()) {
                 const valueType = parser.parseType();
                 parser.parseOptionalArrow();
                 const arrayType = parser.parseType();
-                parser.resolveOperand(valueOp, valueType, op.operands);
-                parser.resolveOperand(arrayOp, arrayType, op.operands);
+                parser.resolveOperand(valueOp, valueType, result.operands);
+                parser.resolveOperand(arrayOp, arrayType, result.operands);
                 const indexType = new _.PrimitiveType('index');
-                parser.resolveOperands(indices, indices.map(() => indexType), op.operands);
+                parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
             } else {
-                parser.resolveOperand(valueOp, null, op.operands);
-                parser.resolveOperand(arrayOp, null, op.operands);
-                parser.resolveOperands(indices, indices.map(() => null), op.operands);
+                parser.resolveOperand(valueOp, null, result.operands);
+                parser.resolveOperand(arrayOp, null, result.operands);
+                parser.resolveOperands(indices, indices.map(() => null), result.operands);
             }
             return true;
         }
-        if (opName === 'sdfg.load' || opName === 'sdir.load') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.load' || result.op === 'sdir.load') {
+            parser.parseOptionalAttrDict(result.attributes);
             const arrayOp = parser.parseOperand();
             const indices = [];
             if (parser.parseOptionalLSquare()) {
@@ -19917,23 +19873,23 @@ _.SdfgDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalRSquare();
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.parseOptionalColon()) {
                 const arrayType = parser.parseType();
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
-                parser.resolveOperand(arrayOp, arrayType, op.operands);
+                parser.resolveOperand(arrayOp, arrayType, result.operands);
                 const indexType = new _.PrimitiveType('index');
-                parser.resolveOperands(indices, indices.map(() => indexType), op.operands);
-                op.addTypes([resultType]);
+                parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
+                result.addTypes([resultType]);
             } else {
-                parser.resolveOperand(arrayOp, null, op.operands);
-                parser.resolveOperands(indices, indices.map(() => null), op.operands);
+                parser.resolveOperand(arrayOp, null, result.operands);
+                parser.resolveOperands(indices, indices.map(() => null), result.operands);
             }
             return true;
         }
-        if (opName === 'sdfg.map' || opName === 'sdir.map') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.map' || result.op === 'sdir.map') {
+            parser.parseOptionalAttrDict(result.attributes);
             const params = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
@@ -19957,15 +19913,15 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.accept('id', 'step');
                 parser.skip('(');
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'sdir.consume') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdir.consume') {
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
                 // Parse typed arguments
                 while (parser.match('%')) {
@@ -19974,7 +19930,7 @@ _.SdfgDialect = class extends _.Dialect {
                     if (parser.parseOptionalColon()) {
                         type = parser.parseType();
                     }
-                    parser.resolveOperand(operand, type, op.operands);
+                    parser.resolveOperand(operand, type, result.operands);
                     if (!parser.parseOptionalComma()) {
                         break;
                     }
@@ -19988,15 +19944,15 @@ _.SdfgDialect = class extends _.Dialect {
                     }
                 }
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'sdfg.edge' || opName === 'sdir.edge') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.edge' || result.op === 'sdir.edge') {
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
                     // Check for label: prefix
@@ -20010,7 +19966,7 @@ _.SdfgDialect = class extends _.Dialect {
                         if (parser.parseOptionalColon()) {
                             type = parser.parseType();
                         }
-                        parser.resolveOperand(operand, type, op.operands);
+                        parser.resolveOperand(operand, type, result.operands);
                     }
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -20018,33 +19974,33 @@ _.SdfgDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.match('@')) {
                 const src = parser.expect('@');
-                op.addAttribute('src', src);
+                result.addAttribute('src', src);
             }
             parser.parseOptionalArrow();
             if (parser.match('@')) {
                 const dst = parser.expect('@');
-                op.addAttribute('dst', dst);
+                result.addAttribute('dst', dst);
             }
             return true;
         }
-        if (opName === 'sdfg.sym' || opName === 'sdir.sym') {
+        if (result.op === 'sdfg.sym' || result.op === 'sdir.sym') {
             if (parser.parseOptionalLParen()) {
                 const expr = parser.expect('string');
-                op.addAttribute('expr', expr);
+                result.addAttribute('expr', expr);
                 parser.parseOptionalRParen();
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                op.addTypes([type]);
+                result.addTypes([type]);
             }
             return true;
         }
-        if (opName === 'sdfg.copy' || opName === 'sdir.copy') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.copy' || result.op === 'sdir.copy') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedSrc = parser.parseOperandList('none');
             const unresolvedDst = [];
             if (parser.parseOptionalArrow()) {
@@ -20053,18 +20009,18 @@ _.SdfgDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 const allUnresolved = unresolvedSrc.concat(unresolvedDst);
-                parser.resolveOperands(allUnresolved, allUnresolved.map(() => type), op.operands);
+                parser.resolveOperands(allUnresolved, allUnresolved.map(() => type), result.operands);
             } else {
                 const allUnresolved = unresolvedSrc.concat(unresolvedDst);
-                parser.resolveOperands(allUnresolved, allUnresolved.map(() => null), op.operands);
+                parser.resolveOperands(allUnresolved, allUnresolved.map(() => null), result.operands);
             }
             return true;
         }
-        if (opName === 'sdfg.libcall' || opName === 'sdir.libcall') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.libcall' || result.op === 'sdir.libcall') {
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.match('string')) {
                 const libname = parser.expect('string');
-                op.addAttribute('libname', libname);
+                result.addAttribute('libname', libname);
             }
             const unresolvedOperands = parser.parseOperandList('paren');
             const types = [];
@@ -20077,13 +20033,13 @@ _.SdfgDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalArrow()) {
                     const resultType = parser.parseType();
-                    op.addTypes([resultType]);
+                    result.addTypes([resultType]);
                 }
             }
-            parser.resolveOperands(unresolvedOperands, types.length > 0 ? types : unresolvedOperands.map(() => null), op.operands);
+            parser.resolveOperands(unresolvedOperands, types.length > 0 ? types : unresolvedOperands.map(() => null), result.operands);
             return true;
         }
-        if (opName === 'sdfg.get_access' || opName === 'sdir.get_access') {
+        if (result.op === 'sdfg.get_access' || result.op === 'sdir.get_access') {
             let unresolvedOperand = null;
             if (parser.match('%')) {
                 unresolvedOperand = parser.parseOperand();
@@ -20091,23 +20047,23 @@ _.SdfgDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const inputType = parser.parseType();
                 if (unresolvedOperand) {
-                    parser.resolveOperand(unresolvedOperand, inputType, op.operands);
+                    parser.resolveOperand(unresolvedOperand, inputType, result.operands);
                 }
                 if (parser.parseOptionalArrow()) {
                     const resultType = parser.parseType();
-                    op.addTypes([resultType]);
+                    result.addTypes([resultType]);
                 }
             }
             return true;
         }
-        if (opName === 'sdir.call') {
+        if (result.op === 'sdir.call') {
             const callee = parser.parseOptionalSymbolName();
             if (callee) {
-                op.addAttribute('callee', callee);
+                result.addAttribute('callee', callee);
             }
             if (parser.match('(')) {
                 const unresolvedOperands = parser.parseOperandList('paren');
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
             if (parser.parseOptionalColon()) {
                 if (parser.parseOptionalLParen()) {
@@ -20118,33 +20074,33 @@ _.SdfgDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalArrow()) {
                     const resultType = parser.parseType();
-                    op.addTypes([resultType]);
+                    result.addTypes([resultType]);
                 }
             }
             return true;
         }
-        if (opName === 'sdfg.alloc_symbol' || opName === 'sdir.alloc_symbol') {
+        if (result.op === 'sdfg.alloc_symbol' || result.op === 'sdir.alloc_symbol') {
             if (parser.parseOptionalLParen()) {
                 const sym = parser.expect('string');
-                op.addAttribute('sym', sym);
+                result.addAttribute('sym', sym);
                 parser.parseOptionalRParen();
             }
             return true;
         }
-        if (opName === 'sdfg.return') {
+        if (result.op === 'sdfg.return') {
             if (parser.match('%')) {
                 const unresolvedOperands = parser.parseOperandList('none');
                 const types = parser.parseOptionalColonTypeList();
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
             }
             return true;
         }
-        if (opName === 'sdfg.stream_push' || opName === 'sdir.stream_push') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.stream_push' || result.op === 'sdir.stream_push') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedValue = parser.parseOperand();
             parser.parseOptionalComma();
             const unresolvedStream = parser.parseOperand();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let valueType = null;
             let streamType = null;
             if (parser.parseOptionalColon()) {
@@ -20152,72 +20108,72 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.parseOptionalArrow();
                 streamType = parser.parseType();
             }
-            parser.resolveOperand(unresolvedValue, valueType, op.operands);
-            parser.resolveOperand(unresolvedStream, streamType, op.operands);
+            parser.resolveOperand(unresolvedValue, valueType, result.operands);
+            parser.resolveOperand(unresolvedStream, streamType, result.operands);
             return true;
         }
-        if (opName === 'sdfg.stream_pop' || opName === 'sdir.stream_pop') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.stream_pop' || result.op === 'sdir.stream_pop') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedStream = parser.parseOperand();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let streamType = null;
             if (parser.parseOptionalColon()) {
                 streamType = parser.parseType();
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
-            parser.resolveOperand(unresolvedStream, streamType, op.operands);
+            parser.resolveOperand(unresolvedStream, streamType, result.operands);
             return true;
         }
-        if (opName === 'sdfg.stream_length' || opName === 'sdir.stream_length') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.stream_length' || result.op === 'sdir.stream_length') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedStream = parser.parseOperand();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let streamType = null;
             if (parser.parseOptionalColon()) {
                 streamType = parser.parseType();
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
-            parser.resolveOperand(unresolvedStream, streamType, op.operands);
+            parser.resolveOperand(unresolvedStream, streamType, result.operands);
             return true;
         }
-        if (opName === 'sdfg.view_cast' || opName === 'sdir.view_cast') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.view_cast' || result.op === 'sdir.view_cast') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedInput = parser.parseOperand();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let inputType = null;
             if (parser.parseOptionalColon()) {
                 inputType = parser.parseType();
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
-            parser.resolveOperand(unresolvedInput, inputType, op.operands);
+            parser.resolveOperand(unresolvedInput, inputType, result.operands);
             return true;
         }
-        if (opName === 'sdfg.subview' || opName === 'sdir.subview') {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'sdfg.subview' || result.op === 'sdir.subview') {
+            parser.parseOptionalAttrDict(result.attributes);
             const unresolvedInput = parser.parseOperand();
             while (parser.parseOptionalLSquare()) {
                 while (!parser.parseOptionalRSquare()) {
                     parser.expect();
                 }
             }
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let inputType = null;
             if (parser.parseOptionalColon()) {
                 inputType = parser.parseType();
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
-                op.addTypes([resultType]);
+                result.addTypes([resultType]);
             }
-            parser.resolveOperand(unresolvedInput, inputType, op.operands);
+            parser.resolveOperand(unresolvedInput, inputType, result.operands);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -20233,26 +20189,26 @@ _.TFLDialect = class extends _.Dialect {
         ]);
     }
 
-    parseOperation(parser, opName, op) {
-        const opKind = opName.substring('tfl.'.length);
+    parseOperation(parser, result) {
+        const opKind = result.op.substring('tfl.'.length);
         if (opKind === 'control_node') {
             if (parser.parseOptionalLParen()) {
                 const unresolvedOperands = [];
                 parser.parseOptionalSSAUseList(unresolvedOperands);
                 parser.parseRParen();
                 // control_node operands don't have types parsed inline
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
             if (parser.accept('id', 'controls')) {
                 const region = { blocks: [{ operations: [] }] };
                 const innerOp = parser.parseGenericOperation();
                 region.blocks[0].operations.push(innerOp);
-                op.regions.push(region);
+                result.regions.push(region);
             } else if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
         if (this._binaryOps.has(opKind)) {
@@ -20263,39 +20219,39 @@ _.TFLDialect = class extends _.Dialect {
                 parser.parseOptionalSSAUseList(unresolvedOperands);
                 parser.parseRParen();
                 if (parser.parseOptionalLess()) {
-                    op.propertiesAttr = parser.parseAttribute();
+                    result.propertiesAttr = parser.parseAttribute();
                     parser.parseGreater();
                 }
-                parser.parseOptionalAttrDict(op.attributes);
+                parser.parseOptionalAttrDict(result.attributes);
                 if (parser.parseOptionalColon()) {
                     const fnType = parser.parseType();
                     if (fnType instanceof _.FunctionType) {
-                        parser.resolveOperands(unresolvedOperands, fnType.inputs, op.operands);
-                        op.addTypes(fnType.results.map((r) => r.toString()));
+                        parser.resolveOperands(unresolvedOperands, fnType.inputs, result.operands);
+                        result.addTypes(fnType.results.map((r) => r.toString()));
                     } else {
-                        parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => fnType), op.operands);
-                        op.addTypes([fnType]);
+                        parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => fnType), result.operands);
+                        result.addTypes([fnType]);
                     }
                 } else {
                     // No types - resolve with null
-                    parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                    parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
                 }
                 return true;
             }
             // Compact form: %a, %b attr-dict : type
             const unresolvedOperands = parser.parseOperandList('none');
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => type), op.operands);
-                op.addTypes([type]);
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => type), result.operands);
+                result.addTypes([type]);
             } else {
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
             return true;
         }
 
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -20371,26 +20327,6 @@ _.TFTypeDialect = class extends _.Dialect {
     }
 };
 
-_.CheckDialect = class extends _.Dialect {
-    constructor(operations) {
-        super(operations, 'check');
-        // Workaround: Handle conflicting dialects from stablehlo and iree
-        for (const [name] of this._operations.entries()) {
-            this._operations.set(name.replace(/<(stablehlo|iree)>\./, ''), { metadata: {} });
-        }
-    }
-
-    parseOperation(parser, opName, op) {
-        // Workaround: Handle conflicting dialects from stablehlo and iree
-        let dialect = 'stablehlo';
-        if (parser.match('(') || parser.match('<')) {
-            dialect = 'iree';
-        }
-        opName = opName.replace('check.', `check.<${dialect}>.`);
-        return super.parseOperation(parser, opName, op);
-    }
-};
-
 _.TransformDialect = class extends _.Dialect {
 
     constructor(operations) {
@@ -20406,21 +20342,21 @@ _.TransformDialect = class extends _.Dialect {
         this.registerCustomDirective('MultitileSizesTypes', this.parseMultitileSizesTypes.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'transform.named_sequence') {
-            return this.parseNamedSequenceOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'transform.named_sequence') {
+            return this.parseNamedSequenceOp(parser, result);
         }
         // C++-only operation: transform.test_transform_op ["message"]
         // Defined in mlir/test/lib/Dialect/Transform/TestTransformDialectExtension.cpp
-        if (opName === 'transform.test_transform_op') {
+        if (result.op === 'transform.test_transform_op') {
             if (parser.match('string')) {
                 const message = parser.expect('string');
-                op.addAttribute('message', message);
+                result.addAttribute('message', message);
             }
             return true;
         }
         // LinalgTransformOps.cpp:3009 SplitOp::parse
-        if (opName === 'transform.structured.split') {
+        if (result.op === 'transform.structured.split') {
             const unresolvedTarget = parser.parseOperand();
             parser.expect('id', 'after');
             let unresolvedDynamicChunk = null;
@@ -20428,23 +20364,23 @@ _.TransformDialect = class extends _.Dialect {
                 unresolvedDynamicChunk = parser.parseOperand();
             } else {
                 const staticChunkSizes = parser.parseInteger();
-                op.addAttribute('static_chunk_sizes', staticChunkSizes);
+                result.addAttribute('static_chunk_sizes', staticChunkSizes);
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const targetType = parser.parseType();
-            parser.resolveOperand(unresolvedTarget, targetType, op.operands);
-            op.addTypes([targetType]);
+            parser.resolveOperand(unresolvedTarget, targetType, result.operands);
+            result.addTypes([targetType]);
             if (unresolvedDynamicChunk && parser.parseOptionalComma()) {
                 const chunkType = parser.parseType();
-                parser.resolveOperand(unresolvedDynamicChunk, chunkType, op.operands);
+                parser.resolveOperand(unresolvedDynamicChunk, chunkType, result.operands);
             } else if (unresolvedDynamicChunk) {
                 // Default to index type if chunk type not specified
-                parser.resolveOperand(unresolvedDynamicChunk, null, op.operands);
+                parser.resolveOperand(unresolvedDynamicChunk, null, result.operands);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseSequenceOpOperands(parser, op /*, args */) {
@@ -20527,9 +20463,9 @@ _.TransformDialect = class extends _.Dialect {
         return new _.Type(type);
     }
 
-    parseNamedSequenceOp(parser, op) {
-        parser.parseOptionalVisibilityKeyword(op.attributes);
-        parser.parseSymbolName('sym_name', op.attributes);
+    parseNamedSequenceOp(parser, result) {
+        parser.parseOptionalVisibilityKeyword(result.attributes);
+        parser.parseSymbolName('sym_name', result.attributes);
         const argResult = parser.parseFunctionArgumentList();
         const inputs = argResult.arguments.map((a) => a.type);
         const results = [];
@@ -20537,10 +20473,10 @@ _.TransformDialect = class extends _.Dialect {
         if (parser.parseOptionalArrow()) {
             parser.parseFunctionResultList(results, resultAttrs);
         }
-        op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
-        parser.parseOptionalAttrDictWithKeyword(op.attributes);
+        result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
         return true;
@@ -20633,38 +20569,38 @@ _.TransformDialect = class extends _.Dialect {
         }
     }
 
-    parseContinuousTileSizeTypes(parser, op) {
+    parseContinuousTileSizeTypes(parser, result) {
         const funcType = parser.parseType();
         if (funcType && funcType.value) {
             const match = funcType.value.match(/^\((.*?)\)\s*->\s*(.+)$/);
             if (match) {
                 const [, inputType, resultType] = match;
-                if (op.operands.length > 0) {
-                    op.operands[0].type = new _.Type(inputType);
+                if (result.operands.length > 0) {
+                    result.operands[0].type = new _.Type(inputType);
                 }
-                op.addTypes([new _.Type(resultType)]);
-                op.addTypes([new _.Type(resultType)]);
+                result.addTypes([new _.Type(resultType)]);
+                result.addTypes([new _.Type(resultType)]);
             }
         }
     }
 
-    parseMultitileSizesTypes(parser, op) {
+    parseMultitileSizesTypes(parser, result) {
         const funcType = parser.parseType();
         if (funcType && funcType.value) {
             const match = funcType.value.match(/^\((.*?)\)\s*->\s*(.+)$/);
             if (match) {
                 const [, inputType, resultType] = match;
-                if (op.operands.length > 0) {
-                    op.operands[0].type = new _.Type(inputType);
+                if (result.operands.length > 0) {
+                    result.operands[0].type = new _.Type(inputType);
                 }
-                op.addTypes([new _.Type(resultType)]);
-                op.addTypes([new _.Type(resultType)]);
-                op.addTypes([new _.Type(resultType)]);
+                result.addTypes([new _.Type(resultType)]);
+                result.addTypes([new _.Type(resultType)]);
+                result.addTypes([new _.Type(resultType)]);
             }
         }
     }
 
-    parseApplyRegisteredPassOptions(parser, op) {
+    parseApplyRegisteredPassOptions(parser, result) {
         if (!parser.parseOptionalLBrace()) {
             return;
         }
@@ -20674,16 +20610,16 @@ _.TransformDialect = class extends _.Dialect {
             parser.parseEqual();
             if (parser.match('%')) {
                 const operand = parser.parseOperand();
-                parser.resolveOperand(operand, null, op.operands);
-                options[key] = `#transform.param_operand<${op.operands.length - 1}>`;
+                parser.resolveOperand(operand, null, result.operands);
+                options[key] = `#transform.param_operand<${result.operands.length - 1}>`;
             } else if (parser.match('[')) {
                 parser.parseOptionalLSquare();
                 const arr = [];
                 while (!parser.match(']')) {
                     if (parser.match('%')) {
                         const operand = parser.parseOperand();
-                        parser.resolveOperand(operand, null, op.operands);
-                        arr.push(`#transform.param_operand<${op.operands.length - 1}>`);
+                        parser.resolveOperand(operand, null, result.operands);
+                        arr.push(`#transform.param_operand<${result.operands.length - 1}>`);
                     } else {
                         const val = parser.parseAttribute();
                         arr.push(val);
@@ -20699,16 +20635,16 @@ _.TransformDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         parser.parseRBrace();
-        op.addAttribute('options', options);
+        result.addAttribute('options', options);
     }
 
-    parseAlternativesOpSelectedRegion(parser, op) {
+    parseAlternativesOpSelectedRegion(parser, result) {
         if (parser.match('int')) {
             const value = parser.parseInteger();
-            op.addAttribute('selected_region_attr', value);
+            result.addAttribute('selected_region_attr', value);
         } else if (parser.match('%')) {
             const operand = parser.parseOperand();
-            parser.resolveOperand(operand, null, op.operands);
+            parser.resolveOperand(operand, null, result.operands);
         }
     }
 };
@@ -20717,7 +20653,6 @@ _.TestDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'test');
-        // Enum attribute parsers for test dialect
         this.registerCustomDirective('CustomOptionalOperand', this.parseCustomOptionalOperand.bind(this));
         this.registerCustomDirective('CustomDirectiveOperands', this.parseCustomDirectiveOperands.bind(this));
         this.registerCustomDirective('CustomDirectiveOperandsAndTypes', this.parseCustomDirectiveOperandsAndTypes.bind(this));
@@ -20750,14 +20685,12 @@ _.TestDialect = class extends _.Dialect {
         this.registerCustomAttribute('TestBitEnumPropNamed', this.parseTestBitEnumPropNamed.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        // test.conversion_func_op is a function-like operation with FunctionOpInterface
-        // Parse it like func.func to handle argument and result attributes properly
-        if (opName === 'test.conversion_func_op') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'test.conversion_func_op') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        if (opName === 'test.region_if') {
+        if (result.op === 'test.region_if') {
             const unresolvedOperands = [];
             while (parser.match('%')) {
                 unresolvedOperands.push(parser.parseOperand());
@@ -20767,72 +20700,72 @@ _.TestDialect = class extends _.Dialect {
             }
             parser.parseColon();
             const inputTypes = parser.parseTypeList();
-            parser.resolveOperands(unresolvedOperands, inputTypes, op.operands);
+            parser.resolveOperands(unresolvedOperands, inputTypes, result.operands);
             parser.expect('->');
             const outputTypes = parser.parseFunctionResultTypes();
             for (const t of outputTypes) {
-                op.addTypes([t.toString()]);
+                result.addTypes([t.toString()]);
             }
             parser.expect('id', 'then');
             const thenRegion = {};
             parser.parseRegion(thenRegion);
-            op.regions.push(thenRegion);
+            result.regions.push(thenRegion);
             parser.expect('id', 'else');
             const elseRegion = {};
             parser.parseRegion(elseRegion);
-            op.regions.push(elseRegion);
+            result.regions.push(elseRegion);
             parser.expect('id', 'join');
             const joinRegion = {};
             parser.parseRegion(joinRegion);
-            op.regions.push(joinRegion);
+            result.regions.push(joinRegion);
             return true;
         }
-        if (opName === 'test.affine_scope' || opName === 'test.single_no_terminator_custom_asm_op') {
-            const region = op.addRegion();
+        if (result.op === 'test.affine_scope' || result.op === 'test.single_no_terminator_custom_asm_op') {
+            const region = result.addRegion();
             parser.parseRegion(region);
             return true;
         }
-        if (opName === 'test.with_nice_properties') {
+        if (result.op === 'test.with_nice_properties') {
             // PropertiesWithCustomPrint is a test-only type in MLIR's test dialect that exists
             // solely to test custom property print/parse. It uses format: "label" is <integer>
             // instead of the standard prop-dict <{...}> format. This is an exception, not a pattern.
-            this._operations.get(opName).hasParseOperation = false;
+            result.compatibility = true;
             const label = parser.match('string') ? parser.expect('string') : parser.expect('id');
             parser.expect('id', 'is');
             const negative = parser.accept('keyword', '-');
             const value = parser.parseInteger();
-            op.addAttribute('prop', { label, value: negative ? -value : value });
-            parser.parseOptionalAttrDict(op.attributes);
+            result.addAttribute('prop', { label, value: negative ? -value : value });
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
         // Test operation with default-valued properties and UnitProp
-        if (opName === 'test.with_default_valued_properties') {
-            this._operations.get(opName).hasParseOperation = false;
+        if (result.op === 'test.with_default_valued_properties') {
+            result.compatibility = true;
             if (parser.accept('id', 'na')) {
                 // All defaults
             } else {
                 const a = parser.parseInteger();
-                op.addAttribute('a', a);
+                result.addAttribute('a', a);
                 if (parser.match('string')) {
-                    op.addAttribute('b', parser.expect('string'));
+                    result.addAttribute('b', parser.expect('string'));
                 }
                 if (parser.match('int') || parser.match('keyword', '-')) {
                     const neg = parser.accept('keyword', '-');
                     const c = parser.parseInteger();
-                    op.addAttribute('c', neg ? -c : c);
+                    result.addAttribute('c', neg ? -c : c);
                 }
                 if (parser.accept('id', 'unit')) {
-                    op.addAttribute('unit', true);
+                    result.addAttribute('unit', true);
                 } else if (parser.accept('id', 'unit_absent')) {
-                    op.addAttribute('unit', false);
+                    result.addAttribute('unit', false);
                 }
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
         // Test operation with optional properties using some<...> syntax
-        if (opName === 'test.with_optional_properties') {
-            this._operations.get(opName).hasParseOperation = false;
+        if (result.op === 'test.with_optional_properties') {
+            result.compatibility = true;
             const parseOptionalValue = () => {
                 if (parser.accept('id', 'some')) {
                     parser.parseLess();
@@ -20869,91 +20802,91 @@ _.TestDialect = class extends _.Dialect {
                 }
                 const name = parser.expect('id');
                 if (name === 'hasUnit') {
-                    op.addAttribute(name, true);
+                    result.addAttribute(name, true);
                 } else if (parser.parseOptionalEqual()) {
-                    op.addAttribute(name, parseOptionalValue());
+                    result.addAttribute(name, parseOptionalValue());
                 } else {
                     break;
                 }
             }
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (opName === 'test.wrapping_region' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'test.wrapping_region') {
             parser.expect('id', 'wraps');
-            const region = op.addRegion();
+            const region = result.addRegion();
             const block = { operations: [] };
             region.blocks = [block];
             const wrappedOp = parser.parseGenericOperation();
             block.operations.push(wrappedOp);
             if (wrappedOp.results) {
-                for (const result of wrappedOp.results) {
-                    op.addTypes([result.type]);
+                for (const opResult of wrappedOp.results) {
+                    result.addTypes([opResult.type]);
                 }
             }
             return true;
         }
-        if (opName === 'test.pretty_printed_region' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            op.operands = parser.parseOperandList();
+        if (result.op === 'test.pretty_printed_region') {
+            result.operands = parser.parseOperandList();
             if (parser.accept('id', 'start')) {
-                const innerOpName = parser.parseOperationName();
-                op.addAttribute('inner_op', innerOpName);
+                const innerOpName = parser.parseCustomOperationName();
+                result.addAttribute('inner_op', innerOpName);
                 parser.expect('id', 'end');
                 parser.parseColon();
                 const fnType = parser.parseFunctionType();
                 if (fnType && fnType.inputs) {
-                    parser.resolveOperands(op.operands, fnType.inputs);
+                    parser.resolveOperands(result.operands, fnType.inputs);
                 }
                 if (fnType && fnType.results) {
                     for (let i = 0; i < fnType.results.length; i++) {
-                        op.addTypes([fnType.results[i].toString()]);
+                        result.addTypes([fnType.results[i].toString()]);
                     }
                 }
                 parser.parseLocation();
             } else {
                 parser.parseLParen();
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
                 parser.parseRParen();
                 parser.parseColon();
                 const fnType = parser.parseFunctionType();
                 if (fnType && fnType.inputs) {
-                    parser.resolveOperands(op.operands, fnType.inputs);
+                    parser.resolveOperands(result.operands, fnType.inputs);
                 }
                 if (fnType && fnType.results) {
                     for (let i = 0; i < fnType.results.length; i++) {
-                        op.addTypes([fnType.results[i].toString()]);
+                        result.addTypes([fnType.results[i].toString()]);
                     }
                 }
             }
             return true;
         }
-        if (opName === 'test.isolated_region' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
+        if (result.op === 'test.isolated_region') {
             const operand = parser.parseOperand();
             const indexType = new _.PrimitiveType('index');
-            parser.resolveOperand(operand, indexType, op.operands);
-            const region = op.addRegion();
+            parser.resolveOperand(operand, indexType, result.operands);
+            const region = result.addRegion();
             parser.parseRegion(region, [{ value: operand.toString(), type: 'index' }]);
             return true;
         }
-        if (opName === 'test.string_attr_pretty_name' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
-            for (let i = 0; i < op.types.length; i++) {
-                op.types[i] = 'i32';
+        if (result.op === 'test.string_attr_pretty_name') {
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            for (let i = 0; i < result.types.length; i++) {
+                result.types[i] = 'i32';
             }
             return true;
         }
-        if (opName === 'test.with_bounds_region' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            parser.parseOptionalAttrDict(op.attributes);
+        if (result.op === 'test.with_bounds_region') {
+            parser.parseOptionalAttrDict(result.attributes);
             const argName = parser.parseOperand();
             parser.parseColon();
             const argType = parser.parseType();
-            const region = op.addRegion();
+            const region = result.addRegion();
             const arg = { value: argName, type: argType.toString() };
             parser.parseRegion(region, [arg]);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseTestBitEnumProp(parser, type) {
@@ -21095,30 +21028,30 @@ _.TestDialect = class extends _.Dialect {
         op.addAttribute(attrName, dims);
     }
 
-    parseCustomOptionalOperand(parser, op) {
+    parseCustomOptionalOperand(parser, result) {
         if (parser.parseOptionalLParen()) {
             const unresolvedOperand = parser.parseOperand();
-            parser.resolveOperand(unresolvedOperand, null, op.operands);
+            parser.resolveOperand(unresolvedOperand, null, result.operands);
             parser.parseRParen();
         }
     }
 
     // Custom directive: operand [, optOperand] -> (varOperands)
-    parseCustomDirectiveOperands(parser, op) {
+    parseCustomDirectiveOperands(parser, result) {
         // Parse required operand
         const unresolvedRequired = parser.parseOperand();
-        parser.resolveOperand(unresolvedRequired, null, op.operands);
+        parser.resolveOperand(unresolvedRequired, null, result.operands);
         // Parse optional operand
         if (parser.parseOptionalComma()) {
             const unresolvedOptional = parser.parseOperand();
-            parser.resolveOperand(unresolvedOptional, null, op.operands);
+            parser.resolveOperand(unresolvedOptional, null, result.operands);
         }
         // Parse -> (varOperands)
         parser.expect('->');
         parser.parseLParen();
         while (parser.match('%')) {
             const unresolvedVar = parser.parseOperand();
-            parser.resolveOperand(unresolvedVar, null, op.operands);
+            parser.resolveOperand(unresolvedVar, null, result.operands);
             if (!parser.parseOptionalComma()) {
                 break;
             }
@@ -21127,23 +21060,23 @@ _.TestDialect = class extends _.Dialect {
     }
 
     // Custom directive: operands and types together
-    parseCustomDirectiveOperandsAndTypes(parser, op) {
-        this.parseCustomDirectiveOperands(parser, op);
-        this.parseCustomDirectiveResults(parser, op);
+    parseCustomDirectiveOperandsAndTypes(parser, result) {
+        this.parseCustomDirectiveOperands(parser, result);
+        this.parseCustomDirectiveResults(parser, result);
     }
 
     // Custom directive: : type [, optType] -> (varTypes)
-    parseCustomDirectiveResults(parser, op) {
+    parseCustomDirectiveResults(parser, result) {
         parser.parseColon();
         const type = parser.parseType();
         // Assign type to first operand/result if available
-        if (op.operands.length > 0) {
-            op.operands[0].type = type.toString();
+        if (result.operands.length > 0) {
+            result.operands[0].type = type.toString();
         }
         if (parser.parseOptionalComma()) {
             const optType = parser.parseType();
-            if (op.operands.length > 1) {
-                op.operands[1].type = optType.toString();
+            if (result.operands.length > 1) {
+                result.operands[1].type = optType.toString();
             }
         }
         parser.expect('->');
@@ -21151,8 +21084,8 @@ _.TestDialect = class extends _.Dialect {
         let idx = 2; // Start after first two operands
         while (!parser.match(')')) {
             const varType = parser.parseType();
-            if (op.operands.length > idx) {
-                op.operands[idx].type = varType.toString();
+            if (result.operands.length > idx) {
+                result.operands[idx].type = varType.toString();
             }
             idx++;
             if (!parser.parseOptionalComma()) {
@@ -21162,49 +21095,49 @@ _.TestDialect = class extends _.Dialect {
         parser.parseRParen();
     }
 
-    parseCustomDirectiveWithTypeRefs(parser, op) {
+    parseCustomDirectiveWithTypeRefs(parser, result) {
         // Parses: type_refs_capture : type [, type] -> (types)
         parser.expect('id', 'type_refs_capture');
-        this.parseCustomDirectiveResults(parser, op);
+        this.parseCustomDirectiveResults(parser, result);
     }
 
-    parseCustomDirectiveRegions(parser, op) {
+    parseCustomDirectiveRegions(parser, result) {
         // Parse first region
-        const region = op.addRegion();
+        const region = result.addRegion();
         parser.parseRegion(region);
         // Parse optional variadic regions
         while (parser.parseOptionalComma()) {
-            const varRegion = op.addRegion();
+            const varRegion = result.addRegion();
             parser.parseRegion(varRegion);
         }
     }
 
-    parseCustomDirectiveSuccessors(parser, op) {
-        if (!op.successors) {
-            op.successors = [];
+    parseCustomDirectiveSuccessors(parser, result) {
+        if (!result.successors) {
+            result.successors = [];
         }
         // Parse first successor
         const successor = {};
         successor.label = parser.expect('^');
-        op.successors.push(successor);
+        result.successors.push(successor);
         // Parse optional variadic successors
         while (parser.parseOptionalComma()) {
             const varSuccessor = {};
             varSuccessor.label = parser.expect('^');
-            op.successors.push(varSuccessor);
+            result.successors.push(varSuccessor);
         }
     }
 
-    parseCustomDirectiveAttrDict(parser, op) {
-        parser.parseAttributeDict(op.attributes);
+    parseCustomDirectiveAttrDict(parser, result) {
+        parser.parseAttributeDict(result.attributes);
     }
 
-    parseCustomDirectiveAttributes(parser, op) {
+    parseCustomDirectiveAttributes(parser, result) {
         const attr = parser.parseAttribute();
-        op.addAttribute('attr', attr);
+        result.addAttribute('attr', attr);
         if (parser.parseOptionalComma()) {
             const optAttr = parser.parseAttribute();
-            op.addAttribute('optAttr', optAttr);
+            result.addAttribute('optAttr', optAttr);
         }
     }
 
@@ -21222,16 +21155,16 @@ _.TestDialect = class extends _.Dialect {
         parser.parseInteger();
     }
 
-    parseSwitchCases(parser, op) {
+    parseSwitchCases(parser, result) {
         const caseValues = [];
         while (parser.match('id', 'case')) {
             parser.expect('id', 'case');
             const value = parser.parseInteger();
             caseValues.push(value);
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region);
         }
-        op.addAttribute('cases', `array<i64: ${caseValues.join(', ')}>`);
+        result.addAttribute('cases', `array<i64: ${caseValues.join(', ')}>`);
     }
 
     parseUsingPropertyInCustom(parser, op, propArg) {
@@ -21293,12 +21226,12 @@ _.TritonDialect = class extends _.Dialect {
         return new _.Type(type);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tt.func') {
-            parser.parseFunctionOp(op, false);
+    parseOperation(parser, result) {
+        if (result.op === 'tt.func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseTensorPtr(parser) {
@@ -21343,8 +21276,8 @@ _.TritonGPUDialect = class extends _.Dialect {
         return new _.Type(`!ttg.memdesc<${content}>`);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'ttg.warp_specialize') {
+    parseOperation(parser, result) {
+        if (result.op === 'ttg.warp_specialize') {
             const unresolvedOperands = [];
             parser.parseLParen();
             while (!parser.match(')')) {
@@ -21354,11 +21287,11 @@ _.TritonGPUDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            parser.parseOptionalAttrDictWithKeyword(op.attributes);
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
             parser.expect('id', 'default');
             const defaultRegion = {};
             parser.parseRegion(defaultRegion);
-            op.regions.push(defaultRegion);
+            result.regions.push(defaultRegion);
             const partitionNumWarps = [];
             let partitionIndex = 0;
             while (parser.match('id', `partition${partitionIndex}`)) {
@@ -21372,26 +21305,26 @@ _.TritonGPUDialect = class extends _.Dialect {
                 const partitionRegion = {};
                 partitionRegion.arguments = argResult.arguments;
                 parser.parseRegion(partitionRegion);
-                if (!op.regions[1]) {
-                    op.regions[1] = { blocks: [{ operations: [] }] };
+                if (!result.regions[1]) {
+                    result.regions[1] = { blocks: [{ operations: [] }] };
                 }
                 partitionIndex++;
             }
             parser.parseColon();
             const fnType = parser.parseType();
             if (fnType instanceof _.FunctionType) {
-                op.addAttribute('function_type', new _.TypeAttrOf(fnType));
-                parser.resolveOperands(unresolvedOperands, fnType.inputs, op.operands);
+                result.addAttribute('function_type', new _.TypeAttrOf(fnType));
+                parser.resolveOperands(unresolvedOperands, fnType.inputs, result.operands);
             } else {
-                op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], [fnType])));
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], [fnType])));
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
             if (partitionNumWarps.length > 0) {
-                op.addAttribute('partitionNumWarps', { type: 'array', element_type: 'i32', value: partitionNumWarps });
+                result.addAttribute('partitionNumWarps', { type: 'array', element_type: 'i32', value: partitionNumWarps });
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseType(parser, dialectName) {
@@ -21661,24 +21594,24 @@ _.TensorRTDialect = class extends _.Dialect {
         op.addAttribute(attrName, values);
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'tensorrt.for' && this.hasCustomAssemblyFormat(opName) && !this.hasAssemblyFormat(opName)) {
-            return this.parseForOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'tensorrt.for') {
+            return this.parseForOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseForOp(parser, op) {
+    parseForOp(parser, result) {
         const inductionVar = parser.parseOperand();
         parser.parseEqual();
         const unresolvedLb = parser.parseOperand();
-        parser.resolveOperand(unresolvedLb, null, op.operands);
+        parser.resolveOperand(unresolvedLb, null, result.operands);
         parser.expect('id', 'to');
         const unresolvedUb = parser.parseOperand();
-        parser.resolveOperand(unresolvedUb, null, op.operands);
+        parser.resolveOperand(unresolvedUb, null, result.operands);
         parser.expect('id', 'step');
         const unresolvedStep = parser.parseOperand();
-        parser.resolveOperand(unresolvedStep, null, op.operands);
+        parser.resolveOperand(unresolvedStep, null, result.operands);
         parser.expect('id', 'init');
         const regionArgs = [{ name: inductionVar.name, type: null }];
         if (parser.parseOptionalLParen()) {
@@ -21691,7 +21624,7 @@ _.TensorRTDialect = class extends _.Dialect {
                 if (parser.parseOptionalEqual()) {
                     if (parser.match('%')) {
                         const unresolvedInit = parser.parseOperand();
-                        parser.resolveOperand(unresolvedInit, null, op.operands);
+                        parser.resolveOperand(unresolvedInit, null, result.operands);
                         if (iterArgName) {
                             regionArgs.push({ name: iterArgName, type: null });
                         }
@@ -21700,12 +21633,12 @@ _.TensorRTDialect = class extends _.Dialect {
                 parser.parseOptionalComma();
             }
         }
-        op.addTypes(parser.parseOptionalArrowTypeList());
+        result.addTypes(parser.parseOptionalArrowTypeList());
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, regionArgs);
         }
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 };
@@ -21718,12 +21651,12 @@ _.ExecutorDialect = class extends _.Dialect {
         this.registerCustomDirective('ExecutorMixedIndices', this.parseExecutorMixedIndices.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'executor.func') {
-            parser.parseFunctionOp(op, true);
+    parseOperation(parser, result) {
+        if (result.op === 'executor.func') {
+            parser.parseFunctionOp(result, true);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseTable(parser) {
@@ -21774,12 +21707,12 @@ _.TFRTTestDialect = class extends _.Dialect {
     parseDummySuccessorRef() {
     }
 
-    parseOperation(parser, opName, op) {
-        const opInfo = this.getOperation(opName);
+    parseOperation(parser, result) {
+        const opInfo = result.name.getRegisteredInfo();
         if (!opInfo) {
             return false;
         }
-        if (opInfo.metadata?.assemblyFormat === 'operands attr-dict') {
+        if (opInfo.metadata.assemblyFormat === 'operands attr-dict') {
             const unresolvedOperands = [];
             while (parser.match('%')) {
                 unresolvedOperands.push(parser.parseOperand());
@@ -21788,37 +21721,37 @@ _.TFRTTestDialect = class extends _.Dialect {
                 }
             }
             if (parser.match('{')) {
-                parser.parseAttributeDict(op.attributes);
+                parser.parseAttributeDict(result.attributes);
             }
             // Resolve operands from scope (no explicit types)
             for (const unresolved of unresolvedOperands) {
-                parser.resolveOperand(unresolved, null, op.operands);
+                parser.resolveOperand(unresolved, null, result.operands);
             }
             return true;
         }
-        if (opName === 'tfrt_test.do.async') {
+        if (result.op === 'tfrt_test.do.async') {
             if (parser.match('%')) {
                 const unresolvedOperands = parser.parseOperandList('none');
-                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), op.operands);
+                parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseFunctionType();
                 if (type && type.results) {
                     type.results.forEach((resultType) => {
-                        op.addTypes([resultType]);
+                        result.addTypes([resultType]);
                     });
                 }
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        if (opName === 'tfrt_test.benchmark') {
+        if (result.op === 'tfrt_test.benchmark') {
             if (parser.match('string')) {
                 const name = parser.expect('string');
-                op.addAttribute('name', name);
+                result.addAttribute('name', name);
             }
             parser.parseLParen();
             while (parser.match('%')) {
@@ -21827,7 +21760,7 @@ _.TFRTTestDialect = class extends _.Dialect {
                 if (parser.parseOptionalColon()) {
                     type = parser.parseType();
                 }
-                parser.resolveOperand(unresolved, type, op.operands);
+                parser.resolveOperand(unresolved, type, result.operands);
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -21844,16 +21777,16 @@ _.TFRTTestDialect = class extends _.Dialect {
                 } else {
                     value = parser.expect('id');
                 }
-                op.addAttribute(name, value);
+                result.addAttribute(name, value);
                 parser.parseOptionalComma();
             }
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -22007,7 +21940,7 @@ _.ACCDialect = class extends _.Dialect {
         }
     }
 
-    parseLoopControl(parser, op) {
+    parseLoopControl(parser, result) {
         const inductionVars = [];
         if (parser.accept('id', 'control')) {
             parser.parseLParen();
@@ -22023,26 +21956,26 @@ _.ACCDialect = class extends _.Dialect {
             parser.parseLParen();
             const lowerbound = parser.parseOperandList();
             const lowerboundTypes = parser.parseColonTypeList();
-            parser.resolveOperands(lowerbound, lowerboundTypes, op.operands);
+            parser.resolveOperands(lowerbound, lowerboundTypes, result.operands);
             parser.parseRParen();
             parser.expect('id', 'to');
             parser.parseLParen();
             const upperbound = parser.parseOperandList();
             const upperboundTypes = parser.parseColonTypeList();
-            parser.resolveOperands(upperbound, upperboundTypes, op.operands);
+            parser.resolveOperands(upperbound, upperboundTypes, result.operands);
             parser.parseRParen();
             parser.expect('id', 'step');
             parser.parseLParen();
             const step = parser.parseOperandList();
             const stepTypes = parser.parseColonTypeList();
-            parser.resolveOperands(step, stepTypes, op.operands);
+            parser.resolveOperands(step, stepTypes, result.operands);
             parser.parseRParen();
         }
-        const region = op.addRegion();
+        const region = result.addRegion();
         parser.parseRegion(region, inductionVars);
     }
 
-    parseWaitClause(parser, op) {
+    parseWaitClause(parser, result) {
         if (!parser.match('(')) {
             return;
         }
@@ -22064,7 +21997,7 @@ _.ACCDialect = class extends _.Dialect {
                     const operand = parser.parseOperand();
                     parser.parseColon();
                     const type = parser.parseType();
-                    parser.resolveOperand(operand, type, op.operands);
+                    parser.resolveOperand(operand, type, result.operands);
                     parser.parseOptionalComma();
                 }
                 if (parser.parseOptionalLSquare()) {
@@ -22077,13 +22010,13 @@ _.ACCDialect = class extends _.Dialect {
         parser.parseRParen();
     }
 
-    parseNumGangs(parser, op) {
+    parseNumGangs(parser, result) {
         while (parser.parseOptionalLBrace()) {
             while (!parser.parseOptionalRBrace()) {
                 const operand = parser.parseOperand();
                 parser.parseColon();
                 const type = parser.parseType();
-                parser.resolveOperand(operand, type, op.operands);
+                parser.resolveOperand(operand, type, result.operands);
                 parser.parseOptionalComma();
             }
             if (parser.parseOptionalLSquare()) {
@@ -22094,12 +22027,12 @@ _.ACCDialect = class extends _.Dialect {
         }
     }
 
-    parseDeviceTypeOperands(parser, op) {
+    parseDeviceTypeOperands(parser, result) {
         while (parser.match('%')) {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
-            parser.resolveOperand(operand, type, op.operands);
+            parser.resolveOperand(operand, type, result.operands);
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
                 parser.parseRSquare();
@@ -22182,17 +22115,17 @@ _.ACCDialect = class extends _.Dialect {
         }
     }
 
-    parseCombinedConstructsLoop(parser, op) {
+    parseCombinedConstructsLoop(parser, result) {
         const attr = parser.parseAttribute();
-        op.addAttribute('combined', attr);
+        result.addAttribute('combined', attr);
     }
 
-    parseRecipeSym(parser, op) {
+    parseRecipeSym(parser, result) {
         const attr = parser.parseAttribute();
-        op.addAttribute('recipe', attr);
+        result.addAttribute('recipe', attr);
     }
 
-    parseOperandWithKeywordOnly(parser, op) {
+    parseOperandWithKeywordOnly(parser, result) {
         if (!parser.match('(')) {
             return;
         }
@@ -22210,7 +22143,7 @@ _.ACCDialect = class extends _.Dialect {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
-            parser.resolveOperand(operand, type, op.operands);
+            parser.resolveOperand(operand, type, result.operands);
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
                 parser.parseRSquare();
@@ -22220,7 +22153,7 @@ _.ACCDialect = class extends _.Dialect {
         parser.parseRParen();
     }
 
-    parseOperandsWithKeywordOnly(parser, op) {
+    parseOperandsWithKeywordOnly(parser, result) {
         // Handles format: (%v1, %v2 : t1, t2) where all operands are listed before colon
         // and all types are listed after colon
         if (!parser.match('(')) {
@@ -22246,27 +22179,27 @@ _.ACCDialect = class extends _.Dialect {
             }
             types.push(parser.parseType());
         }
-        parser.resolveOperands(unresolvedOperands, types, op.operands);
+        parser.resolveOperands(unresolvedOperands, types, result.operands);
         parser.parseRParen();
     }
 
-    parseDeviceTypeOperandsWithSegment(parser, op) {
-        this.parseNumGangs(parser, op);
+    parseDeviceTypeOperandsWithSegment(parser, result) {
+        this.parseNumGangs(parser, result);
     }
 
-    parseBindName(parser, op) {
+    parseBindName(parser, result) {
         while (!parser.match(')')) {
             const attr = parser.parseAttribute();
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
                 parser.parseRSquare();
             }
-            op.addAttribute('bind', attr);
+            result.addAttribute('bind', attr);
             parser.parseOptionalComma();
         }
     }
 
-    parseRoutineGangClause(parser, op) {
+    parseRoutineGangClause(parser, result) {
         if (parser.parseOptionalLParen()) {
             while (!parser.match(')')) {
                 if (parser.accept('id', 'dim')) {
@@ -22277,7 +22210,7 @@ _.ACCDialect = class extends _.Dialect {
                     parser.parseAttribute();
                     parser.parseRSquare();
                 }
-                op.addAttribute('gangDim', value);
+                result.addAttribute('gangDim', value);
                 parser.parseOptionalComma();
             }
             parser.parseRParen();
@@ -22305,45 +22238,45 @@ _.SMTDialect = class extends _.Dialect {
         super(operations, 'smt');
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'smt.eq' || opName === 'smt.distinct') {
-            return this.parseSameOperandTypeVariadicToBoolOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'smt.eq' || result.op === 'smt.distinct') {
+            return this.parseSameOperandTypeVariadicToBoolOp(parser, result);
         }
-        if (opName === 'smt.bv.repeat') {
-            return this.parseRepeatOp(parser, op);
+        if (result.op === 'smt.bv.repeat') {
+            return this.parseRepeatOp(parser, result);
         }
-        if (opName === 'smt.int.constant') {
-            return this.parseIntConstantOp(parser, op);
+        if (result.op === 'smt.int.constant') {
+            return this.parseIntConstantOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseSameOperandTypeVariadicToBoolOp(parser, op) {
+    parseSameOperandTypeVariadicToBoolOp(parser, result) {
         const unresolvedOperands = parser.parseOperandList();
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         parser.parseColon();
         const type = parser.parseType();
         const types = unresolvedOperands.map(() => type);
-        parser.resolveOperands(unresolvedOperands, types, op.operands);
+        parser.resolveOperands(unresolvedOperands, types, result.operands);
         return true;
     }
 
-    parseRepeatOp(parser, op) {
+    parseRepeatOp(parser, result) {
         const count = parser.parseInteger();
-        op.addAttribute('count', count);
+        result.addAttribute('count', count);
         parser.expect('id', 'times');
         const unresolvedOperand = parser.parseOperand();
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         parser.parseColon();
         const inputType = parser.parseType();
-        parser.resolveOperand(unresolvedOperand, inputType, op.operands);
+        parser.resolveOperand(unresolvedOperand, inputType, result.operands);
         return true;
     }
 
-    parseIntConstantOp(parser, op) {
+    parseIntConstantOp(parser, result) {
         const value = parser.parseInteger();
-        op.addAttribute('value', value);
-        parser.parseOptionalAttrDict(op.attributes);
+        result.addAttribute('value', value);
+        parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
 };
@@ -22355,40 +22288,40 @@ _.MPMDDialect = class extends _.Dialect {
         this.registerCustomType('mesh_tensor', this.parseMeshTensorType.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'mpmd.named_computation' && !this.hasAssemblyFormat(opName)) {
-            return this.parseNamedComputationOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'mpmd.named_computation') {
+            return this.parseNamedComputationOp(parser, result);
         }
-        if (opName === 'mpmd.fragment' && !this.hasAssemblyFormat(opName)) {
-            return this.parseFragmentOp(parser, op);
+        if (result.op === 'mpmd.fragment') {
+            return this.parseFragmentOp(parser, result);
         }
-        if (opName === 'mpmd.fragment_call' && !this.hasAssemblyFormat(opName)) {
-            return this.parseFragmentCallOp(parser, op);
+        if (result.op === 'mpmd.fragment_call') {
+            return this.parseFragmentCallOp(parser, result);
         }
-        if (opName === 'mpmd.for' && !this.hasAssemblyFormat(opName)) {
-            return this.parseForOp(parser, op);
+        if (result.op === 'mpmd.for') {
+            return this.parseForOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
-    parseNamedComputationOp(parser, op) {
+    parseNamedComputationOp(parser, result) {
         // mpmd.named_computation<"name"(count)> (%inputs) (%block_args) { region } : (types) -> types
         parser.parseLess();
         // Parse single UserOriginAttr in short format: "name"(count)
         const origin = this.parseUserOriginAttr(parser);
-        op.addAttribute('origin', origin);
+        result.addAttribute('origin', origin);
         parser.parseGreater();
         const unresolvedInputs = parser.parseOperandList('paren');
         const entryArguments = this.parseBlockArguments(parser);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, entryArguments);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             if (type instanceof _.FunctionType) {
-                parser.resolveOperands(unresolvedInputs, type.inputs, op.operands);
-                op.addTypes(type.results);
+                parser.resolveOperands(unresolvedInputs, type.inputs, result.operands);
+                result.addTypes(type.results);
             }
         }
         return true;
@@ -22398,7 +22331,7 @@ _.MPMDDialect = class extends _.Dialect {
         return parser.parseArgumentList('optionalParen', true);
     }
 
-    parseFragmentOp(parser, op) {
+    parseFragmentOp(parser, result) {
         // mpmd.fragment<mesh="m1", origin=["f1"], stage_id=N> (%inputs) {attrs} (%block_args) { region } : (types) -> type
         parser.parseLess();
         // Parse attributes inside <>
@@ -22407,28 +22340,28 @@ _.MPMDDialect = class extends _.Dialect {
             parser.parseEqual();
             // Use custom parser for origin attribute (array of UserOriginAttr)
             const attrValue = attrName === 'origin' ? this.parseOriginArray(parser) : parser.parseAttribute();
-            op.addAttribute(attrName, attrValue);
+            result.addAttribute(attrName, attrValue);
             parser.parseOptionalComma();
         }
         parser.parseGreater();
         const unresolvedInputs = parser.parseOperandList('paren');
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
         const entryArguments = this.parseBlockArguments(parser);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, entryArguments);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             if (type instanceof _.FunctionType) {
-                parser.resolveOperands(unresolvedInputs, type.inputs, op.operands);
-                op.addTypes(type.results);
+                parser.resolveOperands(unresolvedInputs, type.inputs, result.operands);
+                result.addTypes(type.results);
             }
         }
         return true;
     }
 
-    parseFragmentCallOp(parser, op) {
+    parseFragmentCallOp(parser, result) {
         // mpmd.fragment_call<mesh="m1", origin=["f1"]> @callee(%args) {attrs} : (types) -> type
         parser.parseLess();
         // Parse attributes inside <>
@@ -22437,36 +22370,36 @@ _.MPMDDialect = class extends _.Dialect {
             parser.parseEqual();
             // Use custom parser for origin attribute (array of UserOriginAttr)
             const attrValue = attrName === 'origin' ? this.parseOriginArray(parser) : parser.parseAttribute();
-            op.addAttribute(attrName, attrValue);
+            result.addAttribute(attrName, attrValue);
             parser.parseOptionalComma();
         }
         parser.parseGreater();
         const callee = parser.expect('@');
-        op.addAttribute('callee', callee);
+        result.addAttribute('callee', callee);
         const unresolvedArgs = parser.parseOperandList('paren');
         if (parser.match('{')) {
-            parser.parseAttributeDict(op.attributes);
+            parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             if (type instanceof _.FunctionType) {
-                parser.resolveOperands(unresolvedArgs, type.inputs, op.operands);
-                op.addTypes(type.results);
+                parser.resolveOperands(unresolvedArgs, type.inputs, result.operands);
+                result.addTypes(type.results);
             }
         }
         return true;
     }
 
-    parseForOp(parser, op) {
+    parseForOp(parser, result) {
         // Use parseOperandList for simple operand list (no types in syntax)
         const inputs = parser.parseOperandList('paren');
         // Resolve with null types (type inferred from definition)
         const types = inputs.map(() => null);
-        parser.resolveOperands(inputs, types, op.operands);
-        parser.parseOptionalAttrDict(op.attributes);
+        parser.resolveOperands(inputs, types, result.operands);
+        parser.parseOptionalAttrDict(result.attributes);
         const entryArguments = this.parseBlockArguments(parser);
         if (parser.match('{')) {
-            const region = op.addRegion();
+            const region = result.addRegion();
             parser.parseRegion(region, entryArguments);
         }
         if (parser.parseOptionalColon()) {
@@ -22474,7 +22407,7 @@ _.MPMDDialect = class extends _.Dialect {
             do {
                 resultTypes.push(parser.parseType());
             } while (parser.parseOptionalComma());
-            op.addTypes(resultTypes);
+            result.addTypes(resultTypes);
         }
         return true;
     }
@@ -22536,11 +22469,11 @@ _.SdyDialect = class extends _.Dialect {
         this.registerCustomAttribute('Sdy_AxisRefList', this.parseAxisRefListWrap.bind(this));
     }
 
-    parseOperation(parser, opName, op) {
-        if (opName === 'sdy.constant' && !this.hasAssemblyFormat(opName)) {
-            return this.parseConstantOp(parser, op);
+    parseOperation(parser, result) {
+        if (result.op === 'sdy.constant') {
+            return this.parseConstantOp(parser, result);
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     parseStrippedTensorShardingPerValueAttr(parser, op, attrName) {
@@ -22752,15 +22685,15 @@ _.SdyDialect = class extends _.Dialect {
         return { value: this.parseAxisRefList(parser) };
     }
 
-    parseConstantOp(parser, op) {
-        parser.parseOptionalAttrDict(op.attributes);
+    parseConstantOp(parser, result) {
+        parser.parseOptionalAttrDict(result.attributes);
         const attr = parser.parseDenseElementsAttr();
-        op.addAttribute('value', attr.value || attr);
+        result.addAttribute('value', attr.value || attr);
         if (attr.type) {
-            if (op.types.length === 0) {
-                op.addTypes([attr.type]);
+            if (result.types.length === 0) {
+                result.addTypes([attr.type]);
             } else {
-                op.types[0] = attr.type;
+                result.types[0] = attr.type;
             }
         }
         return true;
@@ -22773,13 +22706,13 @@ _.XlaDialect = class extends _.Dialect {
         super(operations, 'xla');
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // xla.apply_indexing #map (%dims)[%syms]
         // Variants: #map (%dims)[%syms], #map (%dims), #map [%syms]
-        if (opName === 'xla.apply_indexing') {
+        if (result.op === 'xla.apply_indexing') {
             // Parse the indexing map reference (e.g., #map0)
             const map = parser.parseAttribute();
-            op.addAttribute('map', map);
+            result.addAttribute('map', map);
             const unresolvedDims = [];
             const unresolvedSyms = [];
             // Parse optional dimensions in parentheses
@@ -22808,20 +22741,20 @@ _.XlaDialect = class extends _.Dialect {
             }
             // The result types are inferred from the number of results (all index type)
             const indexType = new _.PrimitiveType('index');
-            for (let i = 0; i < op.types.length; i++) {
-                op.types[i] = indexType;
+            for (let i = 0; i < result.types.length; i++) {
+                result.types[i] = indexType;
             }
             // Resolve operands with index type
             for (const dim of unresolvedDims) {
-                parser.resolveOperand(dim, indexType, op.operands);
+                parser.resolveOperand(dim, indexType, result.operands);
             }
             for (const sym of unresolvedSyms) {
-                parser.resolveOperand(sym, indexType, op.operands);
+                parser.resolveOperand(sym, indexType, result.operands);
             }
             return true;
         }
         // xla.loop (%dims)[%ivs] -> (%map_results) in #map iter_args(%args = %inits) -> (types) { body }
-        if (opName === 'xla.loop') {
+        if (result.op === 'xla.loop') {
             const unresolvedDims = [];
             const unresolvedInits = [];
             const regionArgs = [];
@@ -22867,7 +22800,7 @@ _.XlaDialect = class extends _.Dialect {
             // Parse 'in #map'
             parser.expect('id', 'in');
             const map = parser.parseAttribute();
-            op.addAttribute('indexing_map_attr', map);
+            result.addAttribute('indexing_map_attr', map);
             // Parse 'iter_args(%args = %inits)'
             const iterArgNames = [];
             if (parser.accept('id', 'iter_args')) {
@@ -22893,13 +22826,13 @@ _.XlaDialect = class extends _.Dialect {
                     const types = parser.parseTypeListNoParens();
                     parser.parseRParen();
                     for (const t of types) {
-                        op.addTypes([t.toString()]);
+                        result.addTypes([t.toString()]);
                         resultTypes.push(t);
                     }
                 } else {
                     // Single type without parentheses
                     const type = parser.parseType();
-                    op.addTypes([type.toString()]);
+                    result.addTypes([type.toString()]);
                     resultTypes.push(type);
                 }
             }
@@ -22910,22 +22843,22 @@ _.XlaDialect = class extends _.Dialect {
             }
             // Resolve operands
             for (const dim of unresolvedDims) {
-                parser.resolveOperand(dim, indexType, op.operands);
+                parser.resolveOperand(dim, indexType, result.operands);
             }
             for (let i = 0; i < unresolvedInits.length; i++) {
                 const initType = resultTypes[i] || null;
-                parser.resolveOperand(unresolvedInits[i], initType, op.operands);
+                parser.resolveOperand(unresolvedInits[i], initType, result.operands);
             }
             // Parse region body with block arguments
             if (parser.match('{')) {
-                const region = op.addRegion();
+                const region = result.addRegion();
                 parser.parseRegion(region, regionArgs);
             }
             // Parse optional attributes
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -22935,9 +22868,9 @@ _.XlaGpuDialect = class extends _.Dialect {
         super(operations, 'xla_gpu');
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // xla_gpu.shuffle_reduce(%ops) to N combiner=@func {attrs} : types
-        if (opName === 'xla_gpu.shuffle_reduce') {
+        if (result.op === 'xla_gpu.shuffle_reduce') {
             const unresolvedOperands = [];
             // Parse operands in parentheses
             if (parser.parseOptionalLParen()) {
@@ -22954,29 +22887,29 @@ _.XlaGpuDialect = class extends _.Dialect {
             // Parse 'to N'
             parser.expect('id', 'to');
             const maxDistance = parser.expect('int');
-            op.addAttribute('max_distance', parseInt(maxDistance, 10));
+            result.addAttribute('max_distance', parseInt(maxDistance, 10));
             // Parse 'combiner=@func'
             parser.expect('id', 'combiner');
             parser.parseEqual();
             const combiner = parser.expect('@');
-            op.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
+            result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             // Parse optional attributes
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             // Parse : types
             if (parser.parseOptionalColon()) {
                 const types = parser.parseTypeList();
-                parser.resolveOperands(unresolvedOperands, types, op.operands);
-                op.addTypes(types);
+                parser.resolveOperands(unresolvedOperands, types, result.operands);
+                result.addTypes(types);
             } else {
                 // No types, resolve with null
                 for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, op.operands);
+                    parser.resolveOperand(operand, null, result.operands);
                 }
             }
             return true;
         }
         // xla_gpu.reduce (%inputs) inits(%inits) dimensions=[...] combiner=@func {attrs} : in_types to out_types
-        if (opName === 'xla_gpu.reduce') {
+        if (result.op === 'xla_gpu.reduce') {
             const unresolvedInputs = [];
             const unresolvedInits = [];
             // Parse inputs in parentheses
@@ -23007,36 +22940,36 @@ _.XlaGpuDialect = class extends _.Dialect {
             parser.expect('id', 'dimensions');
             parser.parseEqual();
             const dimensions = parser.parseAttribute();
-            op.addAttribute('dimensions', dimensions);
+            result.addAttribute('dimensions', dimensions);
             // Parse 'combiner=@func'
             parser.expect('id', 'combiner');
             parser.parseEqual();
             const combiner = parser.expect('@');
-            op.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
+            result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             // Parse optional attributes
-            parser.parseOptionalAttrDict(op.attributes);
+            parser.parseOptionalAttrDict(result.attributes);
             // Parse : in_types to out_types
             if (parser.parseOptionalColon()) {
                 const inputTypes = parser.parseTypeList();
-                parser.resolveOperands(unresolvedInputs, inputTypes, op.operands);
+                parser.resolveOperands(unresolvedInputs, inputTypes, result.operands);
                 // Parse 'to' and output types
                 parser.expect('id', 'to');
                 const outputTypes = parser.parseTypeList();
-                op.addTypes(outputTypes);
+                result.addTypes(outputTypes);
                 // Init values have output types
-                parser.resolveOperands(unresolvedInits, outputTypes, op.operands);
+                parser.resolveOperands(unresolvedInits, outputTypes, result.operands);
             } else {
                 // No types, resolve with null
                 for (const input of unresolvedInputs) {
-                    parser.resolveOperand(input, null, op.operands);
+                    parser.resolveOperand(input, null, result.operands);
                 }
                 for (const init of unresolvedInits) {
-                    parser.resolveOperand(init, null, op.operands);
+                    parser.resolveOperand(init, null, result.operands);
                 }
             }
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -23046,13 +22979,13 @@ _.XTileDialect = class extends _.Dialect {
         super(operations, 'xtile');
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // xtile.entry_func - function-like op with custom format
-        if (opName === 'xtile.entry_func') {
-            parser.parseFunctionOp(op, false);
+        if (result.op === 'xtile.entry_func') {
+            parser.parseFunctionOp(result, false);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -23061,34 +22994,34 @@ _.TritonXlaDialect = class extends _.Dialect {
     constructor(operations) {
         super(operations, 'triton_xla');
         // Mark operations with custom directives as having custom assembly format
-        this._operations.set('triton_xla.extract', { metadata: { name: 'triton_xla.extract', hasCustomAssemblyFormat: true } });
-        this._operations.set('triton_xla.insert', { metadata: { name: 'triton_xla.insert', hasCustomAssemblyFormat: true } });
+        this.registerOperandName('triton_xla.extract', { name: 'triton_xla.extract', hasCustomAssemblyFormat: true });
+        this.registerOperandName('triton_xla.insert', { name: 'triton_xla.insert', hasCustomAssemblyFormat: true });
     }
 
-    parseOperation(parser, opName, op) {
+    parseOperation(parser, result) {
         // triton_xla.extract from $src as memref<shape, layout> [offsets] [sizes] [strides] : result_type
-        if (opName === 'triton_xla.extract') {
+        if (result.op === 'triton_xla.extract') {
             parser.expect('id', 'from');
             const unresolvedSrc = parser.parseOperand();
             parser.expect('id', 'as');
             // Parse AsMemRefType: memref<shape, layout> - the memref type describes the pointer's layout
             const memrefType = parser.parseType();
             // Extract shape and layout from the memref type
-            this._extractMemRefInfo(memrefType, op, 'src_shape', 'src_layout');
+            this._extractMemRefInfo(memrefType, result, 'src_shape', 'src_layout');
             // Parse offsets, sizes, strides using dynamic index lists
-            this.parseDynamicIndexList(parser, op, 'offsets', 'static_offsets');
-            this.parseDynamicIndexList(parser, op, 'sizes', 'static_sizes');
-            this.parseDynamicIndexList(parser, op, 'strides', 'static_strides');
-            parser.parseOptionalAttrDict(op.attributes);
+            this.parseDynamicIndexList(parser, result, 'offsets', 'static_offsets');
+            this.parseDynamicIndexList(parser, result, 'sizes', 'static_sizes');
+            this.parseDynamicIndexList(parser, result, 'strides', 'static_strides');
+            parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const resultType = parser.parseType();
             // Resolve src operand with memref type (the layout type)
-            parser.resolveOperand(unresolvedSrc, memrefType, op.operands);
-            op.addTypes([resultType.toString()]);
+            parser.resolveOperand(unresolvedSrc, memrefType, result.operands);
+            result.addTypes([resultType.toString()]);
             return true;
         }
         // triton_xla.insert $src into $dst as memref<shape, layout> [offsets] [sizes] [strides] : src_type
-        if (opName === 'triton_xla.insert') {
+        if (result.op === 'triton_xla.insert') {
             const unresolvedSrc = parser.parseOperand();
             parser.expect('id', 'into');
             const unresolvedDst = parser.parseOperand();
@@ -23096,20 +23029,20 @@ _.TritonXlaDialect = class extends _.Dialect {
             // Parse AsMemRefType: memref<shape, layout> - the memref type describes the pointer's layout
             const memrefType = parser.parseType();
             // Extract shape and layout from the memref type
-            this._extractMemRefInfo(memrefType, op, 'dst_shape', 'dst_layout');
+            this._extractMemRefInfo(memrefType, result, 'dst_shape', 'dst_layout');
             // Parse offsets, sizes, strides using dynamic index lists
-            this.parseDynamicIndexList(parser, op, 'offsets', 'static_offsets');
-            this.parseDynamicIndexList(parser, op, 'sizes', 'static_sizes');
-            this.parseDynamicIndexList(parser, op, 'strides', 'static_strides');
-            parser.parseOptionalAttrDict(op.attributes);
+            this.parseDynamicIndexList(parser, result, 'offsets', 'static_offsets');
+            this.parseDynamicIndexList(parser, result, 'sizes', 'static_sizes');
+            this.parseDynamicIndexList(parser, result, 'strides', 'static_strides');
+            parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const srcType = parser.parseType();
             // Resolve operands
-            parser.resolveOperand(unresolvedSrc, srcType, op.operands);
-            parser.resolveOperand(unresolvedDst, memrefType, op.operands);
+            parser.resolveOperand(unresolvedSrc, srcType, result.operands);
+            parser.resolveOperand(unresolvedDst, memrefType, result.operands);
             return true;
         }
-        return super.parseOperation(parser, opName, op);
+        return super.parseOperation(parser, result);
     }
 
     _extractMemRefInfo(memrefType, op, shapeAttrName, layoutAttrName) {
