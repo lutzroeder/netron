@@ -13994,7 +13994,10 @@ python.Execution = class {
             return field;
         });
         this.registerFunction('torch._C.meaningfulName', (name) => {
-            if (name.length === 0 && name[0] === '$') {
+            if (name.length === 0) {
+                return false;
+            }
+            if (name[0] === '$') {
                 return false;
             }
             if (name[0] !== '_') {
