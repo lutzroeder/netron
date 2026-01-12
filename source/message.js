@@ -109,7 +109,7 @@ message.Argument = class {
 message.Value = class {
 
     constructor(data) {
-        this.name = data.name ? data.name.toString() : '';
+        this.name = data.name !== undefined && data.name !== null ? data.name.toString() : '';
         this.initializer = data.initializer ? new message.Tensor(data.initializer) : null;
         if (this.initializer && this.initializer.type) {
             this.type = this.initializer.type;
