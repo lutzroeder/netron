@@ -528,18 +528,12 @@ mxnet.Node = class {
                         if (metadata.visible === false) {
                             visible = false;
                         } else if (metadata.default !== undefined) {
-                            let defaultValue = metadata.default;
+                            const defaultValue = metadata.default;
                             if (value === defaultValue) {
                                 visible = false;
                             } else if (Array.isArray(value) && Array.isArray(defaultValue)) {
-                                defaultValue = defaultValue.slice(0, defaultValue.length);
-                                if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] === null) {
-                                    defaultValue.pop();
-                                    while (defaultValue.length < value.length) {
-                                        defaultValue.push(defaultValue[defaultValue.length - 1]);
-                                    }
-                                }
-                                if (value.every((item, index) => item === defaultValue[index])) {
+                                const repeat = defaultValue.length > 1 && defaultValue[defaultValue.length - 1] === null;
+                                if (value.every((item, index) => item === (repeat && index >= defaultValue.length - 1 ? defaultValue[defaultValue.length - 2] : defaultValue[index]))) {
                                     visible = false;
                                 }
                             }
