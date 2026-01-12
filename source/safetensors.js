@@ -186,6 +186,7 @@ safetensors.Reader = class {
         const stream = context.stream;
         if (stream.length > 9) {
             const buffer = stream.peek(9);
+            // Safetensors implementation caps headers length at 100 MB.
             if (buffer[4] === 0 && buffer[5] === 0 && buffer[6] === 0 && buffer[7] === 0 && buffer[8] === 0x7b) {
                 const size = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24) >>> 0;
                 if (size < stream.length) {
