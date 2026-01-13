@@ -1305,19 +1305,65 @@ _.DictionaryAttr = class extends _.Attribute {
 
 _.DenseArrayAttr = class extends _.Attribute {
 
-    constructor(elements, type) {
+    constructor(type, size, data) {
         super();
-        this.elements = elements; // Array of values
-        this.type = type; // Element type (e.g., i64, f32)
+        this.type = type;
+        this.size = size;
+        if (data instanceof Uint8Array) {
+            this.values = null;
+            this.data = data;
+        } else {
+            this.values = data;
+        }
     }
 
     get value() {
-        return this.elements;
+        if (this.values === null) {
+            const blob = this.data;
+            const typeStr = this.type.toString();
+            const view = new DataView(blob.buffer, blob.byteOffset, blob.length);
+            const values = [];
+            if (typeStr.startsWith('i') || typeStr.startsWith('si') || typeStr.startsWith('ui') || typeStr === 'index') {
+                const match = typeStr.match(/[su]?i(\d+)/);
+                const bitWidth = match ? parseInt(match[1], 10) : 64;
+                const byteWidth = Math.ceil(bitWidth / 8);
+                const size = blob.length / byteWidth;
+                for (let i = 0; i < size; i++) {
+                    if (bitWidth <= 8) {
+                        values.push(view.getInt8(i * byteWidth));
+                    } else if (bitWidth <= 16) {
+                        values.push(view.getInt16(i * byteWidth, true));
+                    } else if (bitWidth <= 32) {
+                        values.push(view.getInt32(i * byteWidth, true));
+                    } else {
+                        values.push(view.getBigInt64(i * byteWidth, true));
+                    }
+                }
+            } else if (typeStr === 'f32') {
+                const size = blob.length / 4;
+                for (let i = 0; i < size; i++) {
+                    values.push(view.getFloat32(i * 4, true));
+                }
+            } else if (typeStr === 'f64') {
+                const size = blob.length / 8;
+                for (let i = 0; i < size; i++) {
+                    values.push(view.getFloat64(i * 8, true));
+                }
+            } else if (typeStr === 'f16') {
+                const size = blob.length / 2;
+                for (let i = 0; i < size; i++) {
+                    values.push(view.getUint16(i * 2, true));
+                }
+            }
+            this.values = values;
+            this.data = null;
+        }
+        return this.values;
     }
 
     toString() {
         const typeStr = this.type ? this.type.toString() : '';
-        return `array<${typeStr}: ${this.elements.join(', ')}>`;
+        return `array<${typeStr}: ${this.value.join(', ')}>`;
     }
 };
 
@@ -1362,6 +1408,26 @@ _.Type = class {
 };
 
 _.PrimitiveType = class extends _.Type {
+};
+
+_.IntegerType = class extends _.Type {
+};
+
+_.FloatType = class extends _.Type {
+};
+
+_.NoneType = class extends _.Type {
+
+    constructor() {
+        super('none');
+    }
+};
+
+_.IndexType = class extends _.Type {
+
+    constructor() {
+        super('index');
+    }
 };
 
 _.FunctionType = class extends _.Type {
@@ -1465,6 +1531,98 @@ _.VectorType = class extends _.Type {
         const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
         const prefix = shapeStr ? `${shapeStr}x` : '';
         return `vector<${prefix}${elementTypeStr}>`;
+    }
+};
+
+_.MemRefType = class extends _.Type {
+
+    constructor(shape, elementType, layout, memorySpace) {
+        super(null);
+        this.shape = shape || [];
+        this.elementType = elementType;
+        this.layout = layout || null;
+        this.memorySpace = memorySpace || null;
+    }
+
+    getElementType() {
+        return this.elementType;
+    }
+
+    getShape() {
+        return this.shape;
+    }
+
+    getNumElements() {
+        if (this.shape.some((d) => d < 0 || d === '?')) {
+            return 0;
+        }
+        return this.shape.length === 0 ? 1 : this.shape.reduce((a, b) => a * b, 1);
+    }
+
+    toString() {
+        const shapeStr = this.shape.map((d) => d < 0 ? '?' : d).join('x');
+        const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
+        const prefix = shapeStr ? `${shapeStr}x` : '';
+        let result = `memref<${prefix}${elementTypeStr}`;
+        if (this.layout) {
+            const layoutStr = typeof this.layout === 'object' ? JSON.stringify(this.layout) : this.layout;
+            result += `, ${layoutStr}`;
+        }
+        if (this.memorySpace) {
+            const memorySpaceStr = typeof this.memorySpace === 'object' ? JSON.stringify(this.memorySpace) : this.memorySpace;
+            result += `, ${memorySpaceStr}`;
+        }
+        result += '>';
+        return result;
+    }
+};
+
+_.UnrankedMemRefType = class extends _.Type {
+
+    constructor(elementType, memorySpace) {
+        super(null);
+        this.elementType = elementType;
+        this.memorySpace = memorySpace || null;
+    }
+
+    getElementType() {
+        return this.elementType;
+    }
+
+    toString() {
+        const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
+        let result = `memref<*x${elementTypeStr}`;
+        if (this.memorySpace) {
+            const memorySpaceStr = typeof this.memorySpace === 'object' ? JSON.stringify(this.memorySpace) : this.memorySpace;
+            result += `, ${memorySpaceStr}`;
+        }
+        result += '>';
+        return result;
+    }
+};
+
+_.TupleType = class extends _.Type {
+
+    constructor(types) {
+        super(null);
+        this.types = types || [];
+    }
+
+    getTypes() {
+        return this.types;
+    }
+
+    getNumTypes() {
+        return this.types.length;
+    }
+
+    getType(index) {
+        return this.types[index];
+    }
+
+    toString() {
+        const typeStrs = this.types.map((t) => t?.toString ? t.toString() : t);
+        return `tuple<${typeStrs.join(', ')}>`;
     }
 };
 
@@ -1743,6 +1901,7 @@ _.Lexer = class {
             }
             return;
         }
+        // Workaround: Block comments (/* */) are not in MLIR we support them for compatibility with test files that contain documentation
         if (this._current === '*') {
             this._read();
             while (this._current) {
@@ -1752,13 +1911,11 @@ _.Lexer = class {
                         this._read();
                         return;
                     }
-                } else {
-                    this._read();
                 }
+                this._read();
             }
-            return;
         }
-        throw new mlir.Error('Invalid comment.');
+        throw new mlir.Error(`Invalid comment.`);
     }
 
     lexNumber() {
@@ -1851,6 +2008,12 @@ _.Lexer = class {
         let result = '';
         while (this._current && (/[a-zA-Z_$.]/.test(this._current) || /[0-9]/.test(this._current))) {
             result += this._read();
+        }
+        // Check for integer-type: i123, si456, ui789 (reference Lexer.cpp:253-259)
+        const isAllDigit = (str) => /^[0-9]+$/.test(str);
+        if ((result.length > 1 && result[0] === 'i' && isAllDigit(result.slice(1))) ||
+            (result.length > 2 && result[1] === 'i' && (result[0] === 's' || result[0] === 'u') && isAllDigit(result.slice(2)))) {
+            return this.getToken('inttype', result);
         }
         switch (result) {
             case 'loc':
@@ -2146,7 +2309,7 @@ _.Parser = class {
         if (this.accept('{')) {
             while (!this.accept('}')) {
                 let name = null;
-                if (this.match('id') || this.match('string') || this.match('keyword') || this.match('boolean')) {
+                if (this.match('id') || this.match('string') || this.match('keyword') || this.match('boolean') || this.match('inttype')) {
                     name = this.expect();
                 } else if (this.match('[')) {
                     const arrayValue = this.parseAttribute();
@@ -2339,25 +2502,35 @@ _.Parser = class {
             }
         } else if (prefix === 'tensor' || prefix === 'vector' || prefix === 'memref') {
             if (this.accept('<')) {
-                const nestedDimInfo = this.parseDimensionListRanked();
+                let isUnranked = false;
+                let nestedDimensions = [];
                 let nestedElementType = null;
-                if (nestedDimInfo.elementTypePrefix) {
-                    nestedElementType = this.parseElementTypeFromPrefix(nestedDimInfo.elementTypePrefix, nestedDimInfo.dimensions);
-                    if (!nestedElementType) {
-                        if (this.match('?') || this.match('int')) {
-                            const moreDims = this.parseDimensionListRanked();
-                            nestedDimInfo.dimensions.push(...moreDims.dimensions);
-                            if (moreDims.elementTypePrefix) {
-                                nestedElementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, nestedDimInfo.dimensions);
+                // Check for unranked: tensor<*x...> or memref<*x...>
+                if (this.accept('*')) {
+                    isUnranked = true;
+                    this.parseXInDimensionList();
+                    nestedElementType = this.parseType();
+                } else {
+                    const nestedDimInfo = this.parseDimensionListRanked();
+                    nestedDimensions = nestedDimInfo.dimensions;
+                    if (nestedDimInfo.elementTypePrefix) {
+                        nestedElementType = this.parseElementTypeFromPrefix(nestedDimInfo.elementTypePrefix, nestedDimensions);
+                        if (!nestedElementType) {
+                            if (this.match('?') || this.match('int')) {
+                                const moreDims = this.parseDimensionListRanked();
+                                nestedDimensions.push(...moreDims.dimensions);
+                                if (moreDims.elementTypePrefix) {
+                                    nestedElementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, nestedDimensions);
+                                } else {
+                                    nestedElementType = this.parseType();
+                                }
                             } else {
                                 nestedElementType = this.parseType();
                             }
-                        } else {
-                            nestedElementType = this.parseType();
                         }
+                    } else {
+                        nestedElementType = this.parseType();
                     }
-                } else {
-                    nestedElementType = this.parseType();
                 }
                 // Parse optional extras for memref and tensor (layout, memory space, encoding)
                 const extras = [];
@@ -2367,10 +2540,10 @@ _.Parser = class {
                 }
                 this.expect('>');
                 let nestedTypeStr = `${prefix}<`;
-                if (nestedDimInfo.unranked) {
+                if (isUnranked) {
                     nestedTypeStr += '*x';
-                } else if (nestedDimInfo.dimensions.length > 0) {
-                    nestedTypeStr += `${nestedDimInfo.dimensions.join('x')}x`;
+                } else if (nestedDimensions.length > 0) {
+                    nestedTypeStr += `${nestedDimensions.join('x')}x`;
                 }
                 nestedTypeStr += nestedElementType;
                 for (const extra of extras) {
@@ -2384,27 +2557,121 @@ _.Parser = class {
                 return nestedTypeStr;
             }
         }
-        // Return as PrimitiveType for known primitive types
-        if (/^[su]?i[0-9]+$/.test(prefix) || /^[fb]f?[0-9]+/.test(prefix) || prefix === 'index') {
-            return new _.PrimitiveType(prefix);
+        if (prefix === 'index') {
+            return new _.IndexType();
+        }
+        if (/^[fb]f?[0-9]+/.test(prefix)) {
+            return new _.FloatType(prefix);
+        }
+        if (/^[su]?i[0-9]+$/.test(prefix)) {
+            return new _.IntegerType(prefix);
         }
         return prefix;
+    }
+
+    parseXInDimensionList() {
+        // Parse the 'x' in dimension list (e.g., after '*' in memref<*xf32>)
+        // Matches ref impl: if token is 'xf32', reset lexer to after 'x'
+        if (!this.match('id')) {
+            return false;
+        }
+        const token = this.getToken().value;
+        if (!token.startsWith('x')) {
+            return false;
+        }
+        // If we had a prefix of 'x' (e.g., 'xf32'), reset lexer to after the 'x'
+        if (token.length > 1) {
+            this.state.lexer.resetPointer(1);
+        }
+        // Consume the 'x'
+        this.state.curToken = this.state.lexer.lexToken();
+        return true;
+    }
+
+    parseVectorDimensionList() {
+        // Parse vector dimensions with scalable dimension support: vector<4x[8]xf32>
+        const dimensions = [];
+        const scalableDims = [];
+        const parseDim = () => {
+            if (this.accept('[')) {
+                // Scalable dimension: [n]
+                if (this.match('int')) {
+                    dimensions.push(this.parseInteger());
+                    scalableDims.push(true);
+                }
+                this.expect(']');
+                return true;
+            } else if (this.match('int')) {
+                const text = this.getToken().text;
+                if (text && text.length > 1 && text[1] === 'x') {
+                    dimensions.push(0);
+                    scalableDims.push(false);
+                    this.state.lexer.resetPointer(1);
+                    this.state.curToken = this.state.lexer.lexToken();
+                } else {
+                    dimensions.push(this.parseInteger());
+                    scalableDims.push(false);
+                }
+                return true;
+            }
+            return false;
+        };
+        const parseX = () => {
+            if (this.match('id')) {
+                const token = this.getToken().value;
+                if (token === 'x') {
+                    this.expect('id', 'x');
+                    return { consumed: true, elementTypePrefix: null };
+                } else if (token.startsWith('x')) {
+                    this.expect('id');
+                    const rest = token.substring(1);
+                    if (/^[0-9]/.test(rest)) {
+                        let remaining = rest;
+                        while (remaining.length > 0) {
+                            if (/^[0-9]/.test(remaining)) {
+                                let i = 0;
+                                while (i < remaining.length && /[0-9]/.test(remaining[i])) {
+                                    i++;
+                                }
+                                const numPart = remaining.substring(0, i);
+                                dimensions.push(parseInt(numPart, 10));
+                                scalableDims.push(false);
+                                remaining = remaining.substring(i);
+                                if (remaining.startsWith('x')) {
+                                    remaining = remaining.substring(1);
+                                    continue;
+                                }
+                                break;
+                            } else {
+                                return { consumed: true, elementTypePrefix: remaining };
+                            }
+                        }
+                        return { consumed: true, elementTypePrefix: null };
+                    }
+                    return { consumed: true, elementTypePrefix: rest };
+                }
+            }
+            return { consumed: false, elementTypePrefix: null };
+        };
+        while (true) {
+            if (!parseDim()) {
+                break;
+            }
+            const xResult = parseX();
+            if (!xResult.consumed) {
+                break;
+            }
+            if (xResult.elementTypePrefix) {
+                return { dimensions, scalableDims, elementTypePrefix: xResult.elementTypePrefix };
+            }
+        }
+        return { dimensions, scalableDims, elementTypePrefix: null };
     }
 
     parseDimensionListRanked(allowDynamic, withTrailingX) {
         allowDynamic = allowDynamic === false ? false : true;
         withTrailingX = withTrailingX === false ? false : true;
         const dimensions = [];
-        if (this.accept('*')) {
-            if (this.match('id')) {
-                const token = this.getToken().value;
-                if (token === 'x' || token.startsWith('x')) {
-                    this.expect('id');
-                    return { unranked: true, dimensions: [], elementTypePrefix: token === 'x' ? null : token.substring(1) };
-                }
-            }
-            return { unranked: true, dimensions: [], elementTypePrefix: null };
-        }
         const parseDim = () => {
             if (this.accept('[')) {
                 if (this.match('int')) {
@@ -2438,9 +2705,7 @@ _.Parser = class {
                 } else if (token.startsWith('x')) {
                     this.expect('id');
                     const rest = token.substring(1);
-                    // Check if rest is a dimension or type prefix
                     if (/^[0-9]/.test(rest) || (allowDynamic && rest === '?')) {
-                        // Dimension merged with x - need to parse it
                         let remaining = rest;
                         while (remaining.length > 0) {
                             if (/^[0-9]/.test(remaining)) {
@@ -2477,7 +2742,7 @@ _.Parser = class {
                     break;
                 }
                 if (xResult.elementTypePrefix) {
-                    return { unranked: false, dimensions, elementTypePrefix: xResult.elementTypePrefix };
+                    return { dimensions, elementTypePrefix: xResult.elementTypePrefix };
                 }
             }
         } else if (parseDim()) {
@@ -2487,9 +2752,8 @@ _.Parser = class {
                     break;
                 }
                 if (xResult.elementTypePrefix) {
-                    return { unranked: false, dimensions, elementTypePrefix: xResult.elementTypePrefix };
+                    return { dimensions, elementTypePrefix: xResult.elementTypePrefix };
                 }
-                // If parseX already consumed a merged dimension, don't call parseDim again
                 if (!this.match('int') && !(allowDynamic && this.match('?'))) {
                     break;
                 }
@@ -2498,111 +2762,126 @@ _.Parser = class {
                 }
             }
         }
-        return { unranked: false, dimensions, elementTypePrefix: null };
+        return { dimensions, elementTypePrefix: null };
     }
 
     parseTensorType() {
         this.expect('<');
-        const dimInfo = this.parseDimensionListRanked();
+        let isUnranked = false;
+        let dimensions = [];
         let elementType = null;
-        if (dimInfo.elementTypePrefix) {
-            elementType = this.parseElementTypeFromPrefix(dimInfo.elementTypePrefix, dimInfo.dimensions);
-            if (!elementType) {
-                if (this.match('?') || this.match('int')) {
-                    const moreDims = this.parseDimensionListRanked();
-                    dimInfo.dimensions.push(...moreDims.dimensions);
-                    if (moreDims.elementTypePrefix) {
-                        elementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, dimInfo.dimensions);
+        // Check for unranked tensor: tensor<*xelement_type>
+        if (this.accept('*')) {
+            isUnranked = true;
+            this.parseXInDimensionList();
+            elementType = this.parseType();
+        } else {
+            const dimInfo = this.parseDimensionListRanked();
+            dimensions = dimInfo.dimensions;
+            if (dimInfo.elementTypePrefix) {
+                elementType = this.parseElementTypeFromPrefix(dimInfo.elementTypePrefix, dimensions);
+                if (!elementType) {
+                    if (this.match('?') || this.match('int')) {
+                        const moreDims = this.parseDimensionListRanked();
+                        dimensions.push(...moreDims.dimensions);
+                        if (moreDims.elementTypePrefix) {
+                            elementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, dimensions);
+                        } else {
+                            elementType = this.parseType();
+                        }
                     } else {
                         elementType = this.parseType();
                     }
-                } else {
-                    elementType = this.parseType();
                 }
+            } else {
+                elementType = this.parseType();
             }
-        } else {
-            elementType = this.parseType();
         }
         let encoding = null;
         if (this.accept(',')) {
             encoding = this.parseAttribute();
         }
         this.expect('>');
-        if (dimInfo.unranked) {
-            // UnrankedTensorType - fall back to string for now
+        if (isUnranked) {
             const elementTypeStr = elementType instanceof _.Type ? elementType.toString() : elementType;
             return new _.Type(`tensor<*x${elementTypeStr}>`);
         }
-        return new _.RankedTensorType(dimInfo.dimensions, elementType, encoding);
+        return new _.RankedTensorType(dimensions, elementType, encoding);
     }
 
     parseMemRefType() {
         this.expect('<');
-        const dimInfo = this.parseDimensionListRanked();
+        let isUnranked = false;
+        let dimensions = [];
         let elementType = null;
-        if (dimInfo.elementTypePrefix) {
-            elementType = this.parseElementTypeFromPrefix(dimInfo.elementTypePrefix, dimInfo.dimensions);
-            if (!elementType) {
-                if (this.match('?') || this.match('int')) {
-                    const moreDims = this.parseDimensionListRanked();
-                    dimInfo.dimensions.push(...moreDims.dimensions);
-                    if (moreDims.elementTypePrefix) {
-                        elementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, dimInfo.dimensions);
+        // Check for unranked memref: memref<*xelement_type>
+        if (this.accept('*')) {
+            isUnranked = true;
+            this.parseXInDimensionList();
+            elementType = this.parseType();
+        } else {
+            const dimInfo = this.parseDimensionListRanked();
+            dimensions = dimInfo.dimensions;
+            if (dimInfo.elementTypePrefix) {
+                elementType = this.parseElementTypeFromPrefix(dimInfo.elementTypePrefix, dimensions);
+                if (!elementType) {
+                    if (this.match('?') || this.match('int')) {
+                        const moreDims = this.parseDimensionListRanked();
+                        dimensions.push(...moreDims.dimensions);
+                        if (moreDims.elementTypePrefix) {
+                            elementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, dimensions);
+                        } else {
+                            elementType = this.parseType();
+                        }
                     } else {
                         elementType = this.parseType();
                     }
-                } else {
-                    elementType = this.parseType();
                 }
+            } else {
+                elementType = this.parseType();
             }
-        } else {
-            elementType = this.parseType();
         }
-        const extras = [];
+        // Parse optional layout and memory space
+        let layout = null;
+        let memorySpace = null;
         while (this.accept(',')) {
-            const extra = this.parseAttribute();
-            extras.push(extra);
+            const attr = this.parseAttribute();
+            if (layout === null && !isUnranked) {
+                // First attribute could be layout (affine_map) or memory space
+                // Check if it looks like a layout attribute
+                const attrStr = typeof attr === 'object' ? JSON.stringify(attr) : String(attr);
+                if (attrStr.includes('affine_map') || attrStr.includes('strided')) {
+                    layout = attr;
+                } else {
+                    memorySpace = attr;
+                }
+            } else {
+                memorySpace = attr;
+            }
         }
         this.expect('>');
-        let typeStr = 'memref<';
-        if (dimInfo.unranked) {
-            typeStr += '*x';
-        } else if (dimInfo.dimensions.length > 0) {
-            typeStr += `${dimInfo.dimensions.join('x')}x`;
+        if (isUnranked) {
+            return new _.UnrankedMemRefType(elementType, memorySpace);
         }
-        typeStr += elementType instanceof _.Type ? elementType.toString() : elementType;
-        if (extras.length > 0) {
-            const content = extras.map((e) => typeof e === 'object' ? JSON.stringify(e) : e).join(', ');
-            typeStr += `, ${content}`;
-        }
-        typeStr += '>';
-        return new _.Type(typeStr);
+        return new _.MemRefType(dimensions, elementType, layout, memorySpace);
     }
 
     parseVectorType() {
         this.expect('<');
-        const dimInfo = this.parseDimensionListRanked();
+        // Parse dimensions with scalable dimension support
+        const dimInfo = this.parseVectorDimensionList();
+        // Parse element type
         let elementType = null;
         if (dimInfo.elementTypePrefix) {
             elementType = this.parseElementTypeFromPrefix(dimInfo.elementTypePrefix, dimInfo.dimensions);
             if (!elementType) {
-                if (this.match('?') || this.match('int')) {
-                    const moreDims = this.parseDimensionListRanked();
-                    dimInfo.dimensions.push(...moreDims.dimensions);
-                    if (moreDims.elementTypePrefix) {
-                        elementType = this.parseElementTypeFromPrefix(moreDims.elementTypePrefix, dimInfo.dimensions);
-                    } else {
-                        elementType = this.parseType();
-                    }
-                } else {
-                    elementType = this.parseType();
-                }
+                elementType = this.parseType();
             }
         } else {
             elementType = this.parseType();
         }
         this.expect('>');
-        return new _.VectorType(dimInfo.dimensions, elementType);
+        return new _.VectorType(dimInfo.dimensions, elementType, dimInfo.scalableDims);
     }
 
     parseComplexType() {
@@ -2620,8 +2899,7 @@ _.Parser = class {
             this.accept(',');
         }
         this.expect('>');
-        const typeStrs = types.map((t) => t instanceof _.Type ? t.toString() : t);
-        return new _.Type(`tuple<${typeStrs.join(', ')}>`);
+        return new _.TupleType(types);
     }
 
     parseCustomTypeWithFallback(typeT) {
@@ -2658,86 +2936,104 @@ _.Parser = class {
     }
 
     parseOptionalType() {
-        if (this.match('(') || this.match('!')) {
-            return this.parseType();
-        } else if (this.match('id')) {
-            switch (this.getToken().value) {
-                case 'memref':
-                case 'tensor':
-                case 'complex':
-                case 'tuple':
-                case 'vector':
-                case 'f4E2M1FN':
-                case 'f6E2M3FN':
-                case 'f6E3M2FN':
-                case 'f8E5M2':
-                case 'f8E4M3':
-                case 'f8E4M3FN':
-                case 'f8E5M2FNUZ':
-                case 'f8E4M3FNUZ':
-                case 'f8E4M3B11FNUZ':
-                case 'f8E3M4':
-                case 'f8E8M0FNU':
-                case 'bf16':
-                case 'f16':
-                case 'tf32':
-                case 'f32':
-                case 'f64':
-                case 'f80':
-                case 'f128':
-                case 'index':
-                case 'none':
-                    return this.parseType();
-                default:
-                    // Check for integer types (inttype in reference)
-                    if (/^[su]?i[0-9]+$/.test(this.getToken().value)) {
+        switch (this.getToken().kind) {
+            case '(':
+            case '!':
+            case 'inttype':
+                return this.parseType();
+            case 'id': {
+                switch (this.getToken().value) {
+                    case 'memref':
+                    case 'tensor':
+                    case 'complex':
+                    case 'tuple':
+                    case 'vector':
+                    case 'f4E2M1FN':
+                    case 'f6E2M3FN':
+                    case 'f6E3M2FN':
+                    case 'f8E5M2':
+                    case 'f8E4M3':
+                    case 'f8E4M3FN':
+                    case 'f8E5M2FNUZ':
+                    case 'f8E4M3FNUZ':
+                    case 'f8E4M3B11FNUZ':
+                    case 'f8E3M4':
+                    case 'f8E8M0FNU':
+                    case 'bf16':
+                    case 'f16':
+                    case 'tf32':
+                    case 'f32':
+                    case 'f64':
+                    case 'f80':
+                    case 'f128':
+                    case 'index':
+                    case 'none':
                         return this.parseType();
-                    }
-                    break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            default: {
+                break;
             }
         }
         return null;
     }
 
     parseNonFunctionType() {
-        if (this.match('id')) {
-            const value = this.expect('id');
-            switch (value) {
-                case 'tensor': return this.parseTensorType();
-                case 'vector': return this.parseVectorType();
-                case 'memref': return this.parseMemRefType();
-                case 'complex': return this.parseComplexType();
-                case 'tuple': return this.parseTupleType();
-                case 'none': return new _.PrimitiveType(value);
-                case 'index': return new _.PrimitiveType(value);
-                case 'bf16':
-                case 'f16':
-                case 'f32':
-                case 'f64':
-                case 'f80':
-                case 'f128':
-                case 'tf32':
-                case 'f8E5M2':
-                case 'f8E4M3':
-                case 'f8E4M3FN':
-                case 'f8E5M2FNUZ':
-                case 'f8E4M3FNUZ':
-                case 'f8E4M3B11FNUZ':
-                case 'f8E3M4':
-                case 'f8E8M0FNU':
-                case 'f4E2M1FN':
-                case 'f6E2M3FN':
-                case 'f6E3M2FN':
-                    return new _.PrimitiveType(value);
-                default:
-                    if (/^[su]?i[0-9]+$/.test(value)) {
-                        return new _.PrimitiveType(value);
-                    }
-                    break;
+        switch (this.getToken().kind) {
+            case 'inttype': {
+                const value = this.expect('inttype');
+                return new _.IntegerType(value);
             }
-        }
-        if (this.match('!')) {
-            return this.parseExtendedType();
+            case '!': {
+                return this.parseExtendedType();
+            }
+            case 'id': {
+                const value = this.expect('id');
+                switch (value) {
+                    case 'tensor':
+                        return this.parseTensorType();
+                    case 'vector':
+                        return this.parseVectorType();
+                    case 'memref':
+                        return this.parseMemRefType();
+                    case 'complex':
+                        return this.parseComplexType();
+                    case 'tuple':
+                        return this.parseTupleType();
+                    case 'none':
+                        return new _.PrimitiveType(value);
+                    case 'index':
+                        return new _.PrimitiveType(value);
+                    case 'bf16':
+                    case 'f16':
+                    case 'f32':
+                    case 'f64':
+                    case 'f80':
+                    case 'f128':
+                    case 'tf32':
+                    case 'f8E5M2':
+                    case 'f8E4M3':
+                    case 'f8E4M3FN':
+                    case 'f8E5M2FNUZ':
+                    case 'f8E4M3FNUZ':
+                    case 'f8E4M3B11FNUZ':
+                    case 'f8E3M4':
+                    case 'f8E8M0FNU':
+                    case 'f4E2M1FN':
+                    case 'f6E2M3FN':
+                    case 'f6E3M2FN':
+                        return new _.FloatType(value);
+                    default:
+                        break;
+                }
+                break;
+            }
+            default: {
+                break;
+            }
         }
         throw new mlir.Error(`Invalid type '${this.getToken().value}' ${this.location()}`);
     }
@@ -2802,7 +3098,10 @@ _.Parser = class {
             return this.parseTypeListParens();
         }
         const type = this.parseNonFunctionType();
-        return type ? [type] : [];
+        if (type) {
+            return [type];
+        }
+        return [];
     }
 
     parseCommaSeparatedList(delimiter, parseElement) {
@@ -2906,7 +3205,7 @@ _.Parser = class {
         }
         if (this.match('boolean')) {
             const value = this.expect();
-            return new _.TypedAttr(value, new _.PrimitiveType('i1'));
+            return new _.TypedAttr(value, new _.IntegerType('i1'));
         }
         if (this.match('id', 'dense')) {
             return this.parseDenseElementsAttr(type);
@@ -2937,24 +3236,24 @@ _.Parser = class {
         };
         if (this.match('float')) {
             const value = this.expect();
-            type = parseType(type, new _.PrimitiveType('f64'));
+            type = parseType(type, new _.FloatType('f64'));
             return new _.TypedAttr(value, type);
         }
         if (this.match('int')) {
             const value = this.expect();
-            type = parseType(type, new _.PrimitiveType('i64'));
+            type = parseType(type, new _.IntegerType('i64'));
             return new _.TypedAttr(value, type);
         }
         if (this.match('keyword', '-')) {
             this.expect();
             if (this.match('int')) {
                 const value = `-${this.expect()}`;
-                type = parseType(type, new _.PrimitiveType('i64'));
+                type = parseType(type, new _.IntegerType('i64'));
                 return new _.TypedAttr(value, type);
             }
             if (this.match('float')) {
                 const value = `-${this.expect()}`;
-                type = parseType(type, new _.PrimitiveType('f64'));
+                type = parseType(type, new _.FloatType('f64'));
                 return new _.TypedAttr(value, type);
             }
             throw new mlir.Error(`Expected integer or float after '-' ${this.location()}`);
@@ -3090,7 +3389,7 @@ _.Parser = class {
             }
         }
         this.expect('>');
-        return new _.DenseArrayAttr(arrayValues, arrayType);
+        return new _.DenseArrayAttr(arrayType, arrayValues.length, arrayValues);
     }
 
     parseSparseElementsAttr(attrType) {
@@ -6389,6 +6688,11 @@ _.Dialect = class {
         this.registerCustomDirective('TypeOrAttr', this.parseTypeOrAttr.bind(this));
         this.registerCustomDirective('CopyOpRegion', this.parseCopyOpRegion.bind(this));
         this.registerCustomDirective('SizeAwareType', this.parseSizeAwareType.bind(this));
+        this.registerCustomDirective('ResultTypeList', this.parseResultTypeList.bind(this));
+        this.registerCustomDirective('CmdParameterGatherOperations', this.parseCmdParameterGatherOperations.bind(this));
+        this.registerCustomDirective('AsyncParameterGatherOperations', this.parseAsyncParameterGatherOperations.bind(this));
+        this.registerCustomDirective('CmdParameterScatterOperations', this.parseCmdParameterScatterOperations.bind(this));
+        this.registerCustomDirective('AsyncParameterScatterOperations', this.parseAsyncParameterScatterOperations.bind(this));
         this.registerCustomAttribute('TypedAttrInterface', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('VM_ConstantIntegerValueAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('Util_AnySerializableAttr', this.parseTypedAttrInterface.bind(this));
@@ -6606,11 +6910,11 @@ _.Dialect = class {
         if (transformer === '::getI1SameShape($_self)') {
             // Same shape with i1 element type (comparison ops)
             if (sourceType instanceof _.VectorType) {
-                resultType = new _.VectorType(sourceType.dimensions, new _.PrimitiveType('i1'), sourceType.scalableDims);
+                resultType = new _.VectorType(sourceType.dimensions, new _.IntegerType('i1'), sourceType.scalableDims);
             } else if (sourceType instanceof mlir.TensorType) {
-                resultType = new mlir.TensorType(sourceType.dimensions, new _.PrimitiveType('i1'));
+                resultType = new mlir.TensorType(sourceType.dimensions, new _.IntegerType('i1'));
             } else {
-                resultType = new _.PrimitiveType('i1');
+                resultType = new _.IntegerType('i1');
             }
         } else if (transformer === '$_self') {
             resultType = sourceType;
@@ -6702,10 +7006,14 @@ _.Dialect = class {
                 // Also check context: if next directive is ')' literal, we're inside parentheses
                 const nextDir = i + 1 < directives.length ? directives[i + 1] : null;
                 const isVariadicContext = isVariadicSuccessor || (nextDir && nextDir.type === 'literal' && nextDir.value === ')');
+                // Check if next directive is a custom directive that handles the parentheses (like ResultTypeList)
+                const nextDirHandlesParens = nextDir && nextDir.type === 'custom' &&
+                    (nextDir.parser === 'ResultTypeList' || nextDir.parser === 'TypeList');
                 const parseOneSuccessor = () => {
                     const successor = {};
                     successor.label = parser.expect('^');
-                    if (parser.parseOptionalLParen()) {
+                    // Don't consume '(' if next directive handles it (e.g., custom<ResultTypeList>)
+                    if (!nextDirHandlesParens && parser.parseOptionalLParen()) {
                         successor.arguments = [];
                         while (!parser.match(':') && !parser.match(')')) {
                             if (parser.match('%')) {
@@ -7429,6 +7737,10 @@ _.Dialect = class {
     }
 
     parseCustomTypeWithFallback(parser, type) {
+        const optionalType = parser.parseOptionalType();
+        if (optionalType) {
+            return optionalType;
+        }
         if (type && this._customTypes.has(type.name)) {
             let typeT = this._customTypes.get(type.name);
             if (typeof typeT !== 'function') {
@@ -7436,7 +7748,7 @@ _.Dialect = class {
             }
             return parser.parseCustomTypeWithFallback(typeT);
         }
-        return parser.parseType();
+        throw new mlir.Error(`Unsupported type constraint '${type}'.`);
     }
 
     parseCustomAttributeWithFallback(parser, type) {
@@ -7633,7 +7945,7 @@ _.Dialect = class {
             parser.expect(closeDelim);
         }
         // Resolve dynamic operands with index type
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
         // Set static attribute
         if (staticAttrName && staticValues.length > 0) {
@@ -7732,6 +8044,280 @@ _.Dialect = class {
 
     parseCopyOpRegion(parser, result) {
         result.regions.push({ blocks: [] });
+    }
+
+    parseResultTypeList(parser, op) {
+        parser.parseLParen();
+        const types = [];
+        if (!parser.match(')')) {
+            do {
+                types.push(parser.parseType());
+            } while (parser.parseOptionalComma());
+        }
+        parser.parseRParen();
+        if (types.length > 0) {
+            op.addAttribute('result_types', types.map((t) => t.toString()));
+        }
+    }
+
+    parseCmdParameterGatherOperations(parser, op) {
+        const sourceKeys = [];
+        const sourceOffsets = [];
+        const targetOffsets = [];
+        const targetLengths = [];
+        let target = null;
+        let targetType = null;
+        let targetSize = null;
+        let sourceScope = null;
+        do {
+            // Parse parameter reference: "scope"::"key" or just "key"
+            const firstString = parser.expect('string');
+            let key = firstString;
+            // '::' is a single token in the lexer
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                sourceScope = firstString;
+            }
+            sourceKeys.push(key);
+            // Parse [%source_offset]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse -> %target
+            parser.expect('->');
+            const rowTarget = parser.parseOperand();
+            if (!target) {
+                target = rowTarget;
+            }
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.parseKeyword('for');
+            targetLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!targetType) {
+                targetType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!targetSize) {
+                targetSize = rowSize;
+            }
+            parser.parseRBrace();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.IndexType();
+        const i64Type = new _.IntegerType('i64');
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => i64Type), op.operands);
+        parser.resolveOperand(target, targetType, op.operands);
+        parser.resolveOperand(targetSize, indexType, op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(targetLengths, targetLengths.map(() => indexType), op.operands);
+        // Set attributes
+        if (sourceScope) {
+            op.addAttribute('source_scope', sourceScope);
+        }
+        op.addAttribute('source_keys', sourceKeys);
+    }
+
+    // custom<AsyncParameterGatherOperations>(...)
+    // Parses: "scope"::"key"[%offset] -> %target[%offset to %end for %length] : type{%size}, ...
+    parseAsyncParameterGatherOperations(parser, op) {
+        const sourceKeys = [];
+        const sourceOffsets = [];
+        const targetOffsets = [];
+        const targetEnds = [];
+        const targetLengths = [];
+        let target = null;
+        let targetType = null;
+        let targetSize = null;
+        let sourceScope = null;
+        do {
+            // Parse parameter reference: "scope"::"key" or just "key"
+            const firstString = parser.expect('string');
+            let key = firstString;
+            // '::' is a single token in the lexer
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                sourceScope = firstString;
+            }
+            sourceKeys.push(key);
+            // Parse [%source_offset]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse -> %target
+            parser.expect('->');
+            const rowTarget = parser.parseOperand();
+            if (!target) {
+                target = rowTarget;
+            }
+            // Parse [%offset to %end for %length]
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.expect('id', 'to');
+            targetEnds.push(parser.parseOperand());
+            parser.expect('id', 'for');
+            targetLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse : type{%size}
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!targetType) {
+                targetType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!targetSize) {
+                targetSize = rowSize;
+            }
+            parser.parseRBrace();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.IndexType();
+        const i64Type = new _.IntegerType('i64');
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => i64Type), op.operands);
+        parser.resolveOperand(target, targetType, op.operands);
+        parser.resolveOperand(targetSize, indexType, op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(targetEnds, targetEnds.map(() => indexType), op.operands);
+        parser.resolveOperands(targetLengths, targetLengths.map(() => indexType), op.operands);
+        // Set attributes
+        if (sourceScope) {
+            op.addAttribute('source_scope', sourceScope);
+        }
+        op.addAttribute('source_keys', sourceKeys);
+    }
+
+    // custom<CmdParameterScatterOperations>(...)
+    // Parses: %source[%offset for %length] : type{%size} -> "scope"::"key"[%offset], ...
+    parseCmdParameterScatterOperations(parser, op) {
+        const targetKeys = [];
+        const sourceOffsets = [];
+        const sourceLengths = [];
+        const targetOffsets = [];
+        let source = null;
+        let sourceType = null;
+        let sourceSize = null;
+        let targetScope = null;
+        do {
+            // Parse source operand
+            const rowSource = parser.parseOperand();
+            if (!source) {
+                source = rowSource;
+            }
+            // Parse [%offset for %length]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.expect('id', 'for');
+            sourceLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse : type{%size}
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!sourceType) {
+                sourceType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!sourceSize) {
+                sourceSize = rowSize;
+            }
+            parser.parseRBrace();
+            // Parse -> "scope"::"key"[%offset]
+            parser.expect('->');
+            const firstString = parser.expect('string');
+            let key = firstString;
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                targetScope = firstString;
+            }
+            targetKeys.push(key);
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.IndexType();
+        const i64Type = new _.IntegerType('i64');
+        parser.resolveOperand(source, sourceType, op.operands);
+        parser.resolveOperand(sourceSize, indexType, op.operands);
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(sourceLengths, sourceLengths.map(() => indexType), op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => i64Type), op.operands);
+        // Set attributes
+        if (targetScope) {
+            op.addAttribute('target_scope', targetScope);
+        }
+        op.addAttribute('target_keys', targetKeys);
+    }
+
+    // custom<AsyncParameterScatterOperations>(...)
+    // Parses: %source[%offset to %end for %length] : type{%size} -> "scope"::"key"[%offset], ...
+    parseAsyncParameterScatterOperations(parser, op) {
+        const targetKeys = [];
+        const sourceOffsets = [];
+        const sourceEnds = [];
+        const sourceLengths = [];
+        const targetOffsets = [];
+        let source = null;
+        let sourceType = null;
+        let sourceSize = null;
+        let targetScope = null;
+        do {
+            // Parse source operand
+            const rowSource = parser.parseOperand();
+            if (!source) {
+                source = rowSource;
+            }
+            // Parse [%offset to %end for %length]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.expect('id', 'to');
+            sourceEnds.push(parser.parseOperand());
+            parser.expect('id', 'for');
+            sourceLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse : type{%size}
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!sourceType) {
+                sourceType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!sourceSize) {
+                sourceSize = rowSize;
+            }
+            parser.parseRBrace();
+            // Parse -> "scope"::"key"[%offset]
+            parser.expect('->');
+            const firstString = parser.expect('string');
+            let key = firstString;
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                targetScope = firstString;
+            }
+            targetKeys.push(key);
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.IndexType();
+        const i64Type = new _.IntegerType('i64');
+        parser.resolveOperand(source, sourceType, op.operands);
+        parser.resolveOperand(sourceSize, indexType, op.operands);
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(sourceEnds, sourceEnds.map(() => indexType), op.operands);
+        parser.resolveOperands(sourceLengths, sourceLengths.map(() => indexType), op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => i64Type), op.operands);
+        // Set attributes
+        if (targetScope) {
+            op.addAttribute('target_scope', targetScope);
+        }
+        op.addAttribute('target_keys', targetKeys);
     }
 
     parseEnumFlags(parser, type, separator) {
@@ -8439,7 +9025,7 @@ _.AffineDialect = class extends _.Dialect {
                 const content = parser.skip('<');
                 result.addAttribute('condition', `affine_set${content}`);
             }
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
                     if (parser.match('%')) {
@@ -8475,7 +9061,7 @@ _.AffineDialect = class extends _.Dialect {
                 const value = parser.parseAttribute();
                 result.addAttribute('map', value);
             }
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             if (parser.match('(')) {
                 const unresolvedDims = parser.parseOperandList('paren');
                 parser.resolveOperands(unresolvedDims, unresolvedDims.map(() => indexType), result.operands);
@@ -8520,7 +9106,7 @@ _.AffineDialect = class extends _.Dialect {
         // C++-only operation: affine.dma_start
         // Defined in mlir/lib/Dialect/Affine/IR/AffineOps.cpp
         if (result.op === 'affine.dma_start') {
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             const unresolvedOperands = [];
             while (!parser.match(':') && !parser.match('{')) {
                 if (parser.match('%')) {
@@ -8544,7 +9130,7 @@ _.AffineDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'affine.dma_wait') {
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             const unresolvedOperands = [];
             while (!parser.match(':') && !parser.match('{')) {
                 if (parser.match('%')) {
@@ -8627,7 +9213,7 @@ _.AffineDialect = class extends _.Dialect {
     parseAffineBound(parser, op, boundName) {
         // Parse affine bound following reference implementation in AffineOps.cpp parseBound()
         // All affine operands have type index
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
 
         // Try parsing SSA value first (shorthand for identity map)
         if (parser.match('%')) {
@@ -8756,7 +9342,7 @@ _.AffineDialect = class extends _.Dialect {
 
     parseParallelOp(parser, result) {
         const ivArgs = parser.parseArgumentList('paren', false);
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         for (const iv of ivArgs) {
             iv.type = indexType;
         }
@@ -8870,7 +9456,7 @@ _.MemRefDialect = class extends _.Dialect {
             result.addAttribute('isDataCache', cacheType === 'data');
             const type = parser.parseColonType();
             parser.resolveOperand(memref, type, result.operands);
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             const indexTypes = indices.map(() => indexType);
             parser.resolveOperands(indices, indexTypes, result.operands);
             return true;
@@ -8919,7 +9505,7 @@ _.MemRefDialect = class extends _.Dialect {
         const memrefType = parser.parseType();
         // Resolve operands with types and push to result.operands
         parser.resolveOperand(memref, memrefType, result.operands);
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         const indexTypes = indices.map(() => indexType);
         parser.resolveOperands(indices, indexTypes, result.operands);
         const region = result.addRegion();
@@ -9089,7 +9675,7 @@ _.VectorDialect = class extends _.Dialect {
         // New syntax: %r = vector.extract %v[0] : f32 from vector<4xf32>
         const unresolvedSource = parser.parseOperand();
         const unresolvedDynIndices = [];
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
 
         // Parse indices: [0, 1, ...]
         if (parser.parseOptionalLSquare()) {
@@ -9875,7 +10461,7 @@ _.HALDialect = class extends _.IREEDialect {
             const symbolRef = parser.expect('@');
             result.addAttribute('layout', symbolRef);
             const unresolvedOperands = [];
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             if (parser.parseOptionalLSquare()) {
                 while (!parser.parseOptionalRSquare()) {
                     if (parser.match('%')) {
@@ -10145,7 +10731,7 @@ _.IREECodegenDialect = class extends _.Dialect {
             }
             parser.parseRParen();
             // Resolve operands with index type (sizes are typically index)
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             for (const unresolved of unresolvedSizes) {
                 parser.resolveOperand(unresolved, indexType, result.operands);
             }
@@ -10184,7 +10770,7 @@ _.HALLoaderDialect = class extends _.Dialect {
             parser.parseRSquare();
         } while (parser.parseOptionalComma());
         // Resolve all operands
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         for (let i = 0; i < unresolvedBuffers.length; i++) {
             parser.resolveOperand(unresolvedBuffers[i], bufferTypes[i], result.operands);
         }
@@ -10506,7 +11092,7 @@ _.UtilDialect = class extends _.IREEDialect {
             parser.parseRSquare();
         } while (parser.parseOptionalComma());
         // Resolve all operands with index type
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         for (const unresolved of unresolvedOffsets) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
@@ -10953,7 +11539,7 @@ _.FlowDialect = class extends _.IREEDialect {
         for (let i = 0; i < unresolvedValues.length; i++) {
             parser.resolveOperand(unresolvedValues[i], valueTypes[i], result.operands);
         }
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         for (const unresolved of unresolvedDims) {
             parser.resolveOperand(unresolved, indexType, result.operands);
         }
@@ -11005,7 +11591,7 @@ _.StreamDialect = class extends _.IREEDialect {
             op.addAttribute('resource_access', accessMode);
             // Resolve operands
             parser.resolveOperand(unresolvedResource, resourceType, op.operands);
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             parser.resolveOperand(unresolvedOffset, indexType, op.operands);
             parser.resolveOperand(unresolvedLength, indexType, op.operands);
         } while (parser.parseOptionalComma());
@@ -11052,7 +11638,7 @@ _.StreamDialect = class extends _.IREEDialect {
         for (let i = 0; i < unresolvedOperands.length; i++) {
             parser.resolveOperand(unresolvedOperands[i], operandTypes[i] || null, op.operands);
         }
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         for (const unresolved of unresolvedSizes) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
@@ -11066,7 +11652,7 @@ _.StreamDialect = class extends _.IREEDialect {
         const unresolvedOperands = [];
         const operandTypes = [];
         const unresolvedSizes = [];
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         parser.parseLParen();
         if (!parser.match(')')) {
             do {
@@ -11139,7 +11725,7 @@ _.StreamDialect = class extends _.IREEDialect {
     }
 
     parseParameterLoadOperations(parser, op /*, args */) {
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         do {
             // Parse parameter reference: "scope"::"key" or just "key"
             const firstAttr = parser.expect('string');
@@ -11201,7 +11787,7 @@ _.StreamDialect = class extends _.IREEDialect {
         if (parser.parseOptionalLBrace()) {
             if (parser.match('%')) {
                 const unresolvedSize = parser.parseOperand();
-                const indexType = new _.PrimitiveType('index');
+                const indexType = new _.IndexType();
                 parser.resolveOperand(unresolvedSize, indexType, op.operands);
             }
             parser.parseRBrace();
@@ -11395,7 +11981,7 @@ _.StreamDialect = class extends _.IREEDialect {
     parseCmdCallOperands(parser, op /*, args */) {
         parser.parseLParen();
         if (!parser.match(')')) {
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             do {
                 // Check for access mode keyword (ro, rw, wo)
                 const accessMode = parser.accept('id', 'ro') || parser.accept('id', 'rw') || parser.accept('id', 'wo');
@@ -11732,7 +12318,7 @@ _.IREEVectorExtDialect = class extends _.Dialect {
             }
             // Resolve all operands
             parser.resolveOperand(unresolvedSource, sourceType, result.operands);
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             for (const idx of unresolvedIndices) {
                 parser.resolveOperand(idx, indexType, result.operands);
             }
@@ -14143,7 +14729,6 @@ _.PDLDialect = class extends _.Dialect {
         this.registerCustomDirective('OperationOpAttributes', this.parseOperationOpAttributes.bind(this));
         this.registerCustomDirective('RangeType', this.parseRangeType.bind(this));
         this.registerCustomDirective('ResultsValueType', this.parseResultsValueType.bind(this));
-        this._customParse = new Set(['pdl.operation']);
     }
 
     parseOperation(parser, result) {
@@ -14496,7 +15081,7 @@ _.EmitCDialect = class extends _.Dialect {
             const bodyRegion = {};
             parser.parseRegion(bodyRegion);
             result.regions.push(bodyRegion);
-            parser.expect('id', 'while');
+            parser.parseKeyword('while');
             const condRegion = {};
             parser.parseRegion(condRegion);
             result.regions.push(condRegion);
@@ -14566,14 +15151,13 @@ _.AsukaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'asuka');
-        // https://github.com/monellz/FlashTensor/blob/main/bench/ea.mlir
-        // uses batch_dims and reduce_dims not valid given the assemblyFormat spec.
-        // Custom parsing preserves compatibility with this file.
-        this._customParse = new Set(['asuka.dot', 'asuka.add', 'asuka.split', 'asuka.softmax', 'asuka.reduce']);
     }
 
     parseOperation(parser, result) {
-        if (this._customParse.has(result.op)) {
+        // https://github.com/monellz/FlashTensor/blob/main/bench/ea.mlir
+        // uses batch_dims and reduce_dims not valid given the assemblyFormat spec.
+        // Custom parsing preserves compatibility with this file.
+        if (result.op === 'asuka.dot' || result.op === 'asuka.add' || result.op === 'asuka.split' || result.op === 'asuka.softmax' || result.op === 'asuka.reduce') {
             result.compatibility = true;
             // Parse operands (only actual SSA values starting with %)
             result.operands = parser.parseOperandList();
@@ -14843,15 +15427,15 @@ _.BuiltinDialect = class extends _.Dialect {
                 const width = widthAndSign >> 2;
                 const signedness = widthAndSign & 0x3;
                 if (signedness === 0) {
-                    return new _.Type(`i${width}`);
+                    return new _.IntegerType(`i${width}`);
                 }
                 if (signedness === 1) {
-                    return new _.Type(`si${width}`);
+                    return new _.IntegerType(`si${width}`);
                 }
-                return new _.Type(`ui${width}`);
+                return new _.IntegerType(`ui${width}`);
             }
             case 1: // IndexType
-                return new _.Type('index');
+                return new _.IndexType();
             case 2: { // FunctionType
                 const numInputs = reader.readVarInt();
                 const inputs = [];
@@ -14865,12 +15449,12 @@ _.BuiltinDialect = class extends _.Dialect {
                 }
                 return new _.FunctionType(inputs, results);
             }
-            case 3: return new _.Type('bf16');  // BFloat16Type
-            case 4: return new _.Type('f16');   // Float16Type
-            case 5: return new _.Type('f32');   // Float32Type
-            case 6: return new _.Type('f64');   // Float64Type
-            case 7: return new _.Type('f80');   // Float80Type
-            case 8: return new _.Type('f128');  // Float128Type
+            case 3: return new _.FloatType('bf16');  // BFloat16Type
+            case 4: return new _.FloatType('f16');   // Float16Type
+            case 5: return new _.FloatType('f32');   // Float32Type
+            case 6: return new _.FloatType('f64');   // Float64Type
+            case 7: return new _.FloatType('f80');   // Float80Type
+            case 8: return new _.FloatType('f128');  // Float128Type
             case 9: { // ComplexType
                 const elementType = reader.readType();
                 return new _.Type(`complex<${elementType.toString()}>`);
@@ -14889,7 +15473,7 @@ _.BuiltinDialect = class extends _.Dialect {
                 return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
             }
             case 12: // NoneType
-                return new _.Type('none');
+                return new _.NoneType();
             case 13: { // RankedTensorType
                 const shape = reader.readSignedVarInts();
                 const elementType = reader.readType();
@@ -14992,8 +15576,19 @@ _.BuiltinDialect = class extends _.Dialect {
             case 7: // UnitAttr
                 return new _.UnitAttr();
             case 8: { // IntegerAttr
+                const getIntegerBitWidth = (type) => {
+                    const str = type ? type.toString() : '';
+                    const match = str.match(/^[su]?i(\d+)$/);
+                    if (match) {
+                        return parseInt(match[1], 10);
+                    }
+                    if (str === 'index') {
+                        return 64;
+                    }
+                    throw new mlir.Error(`Unsupported integer type '${str}'.`);
+                };
                 const type = reader.readType();
-                const bitWidth = this._getIntegerBitWidth(type);
+                const bitWidth = getIntegerBitWidth(type);
                 let value = null;
                 if (bitWidth <= 8) {
                     value = BigInt(reader.readByte());
@@ -15065,7 +15660,7 @@ _.BuiltinDialect = class extends _.Dialect {
                 const type = reader.readType();
                 const size = reader.readVarInt();
                 const blob = reader.readBlob();
-                return this._parseDenseArrayData(blob, type, size);
+                return new _.DenseArrayAttr(type, size, blob);
             }
             case 18: { // DenseIntOrFPElementsAttr
                 const type = reader.readType();
@@ -15104,52 +15699,6 @@ _.BuiltinDialect = class extends _.Dialect {
             default:
                 return { name: 'builtin', value: `<builtin code ${typeCode}>` };
         }
-    }
-
-    _getIntegerBitWidth(type) {
-        const typeStr = type ? type.toString() : '';
-        const match = typeStr.match(/^[su]?i(\d+)$/);
-        if (match) {
-            return parseInt(match[1], 10);
-        }
-        return 64; // Default for index type
-    }
-
-    _parseDenseArrayData(blob, type, size) {
-        const typeStr = type.toString();
-        const view = new DataView(blob.buffer, blob.byteOffset, blob.length);
-        const values = [];
-        if (typeStr.startsWith('i') || typeStr.startsWith('si') || typeStr.startsWith('ui')) {
-            const match = typeStr.match(/[su]?i(\d+)/);
-            const bitWidth = match ? parseInt(match[1], 10) : 64;
-            const byteWidth = Math.ceil(bitWidth / 8);
-            for (let i = 0; i < size && i * byteWidth < blob.length; i++) {
-                if (bitWidth <= 8) {
-                    values.push(view.getInt8(i * byteWidth));
-                } else if (bitWidth <= 16) {
-                    values.push(view.getInt16(i * byteWidth, true));
-                } else if (bitWidth <= 32) {
-                    values.push(view.getInt32(i * byteWidth, true));
-                } else {
-                    values.push(view.getBigInt64(i * byteWidth, true));
-                }
-            }
-        } else if (typeStr === 'f32') {
-            for (let i = 0; i < size && i * 4 < blob.length; i++) {
-                values.push(view.getFloat32(i * 4, true));
-            }
-        } else if (typeStr === 'f64') {
-            for (let i = 0; i < size && i * 8 < blob.length; i++) {
-                values.push(view.getFloat64(i * 8, true));
-            }
-        } else if (typeStr === 'f16') {
-            for (let i = 0; i < size && i * 2 < blob.length; i++) {
-                values.push(view.getUint16(i * 2, true));
-            }
-        } else {
-            return new _.DenseArrayAttr(blob, type);
-        }
-        return new _.DenseArrayAttr(values, type);
     }
 };
 
@@ -15191,7 +15740,7 @@ _.BufferizationDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const resultType = parser.parseType();
                 // Resolve dynamic dim operands - their type is index
-                const indexType = new _.PrimitiveType('index');
+                const indexType = new _.IndexType();
                 parser.resolveOperands(unresolvedDynamicDims, unresolvedDynamicDims.map(() => indexType), result.operands);
                 // Resolve copy operand if present - its type is the result type
                 if (unresolvedCopy) {
@@ -15280,7 +15829,7 @@ _.SCFDialect = class extends _.Dialect {
         if (!parser.parseOptionalEqual()) {
             return false;
         }
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         let unresolvedLb = null;
         if (parser.match('%')) {
             unresolvedLb = parser.parseOperand();
@@ -15366,7 +15915,7 @@ _.SCFDialect = class extends _.Dialect {
         } else {
             return false;
         }
-        const i1Type = new _.PrimitiveType('i1');
+        const i1Type = new _.IntegerType('i1');
         parser.resolveOperands([unresolvedCond], [i1Type], result.operands);
         result.addTypes(parser.parseOptionalArrowTypeList());
         if (parser.match('{')) {
@@ -15430,7 +15979,7 @@ _.SCFDialect = class extends _.Dialect {
     }
 
     parseForallOp(parser, result) {
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         const inductionVars = [];
         if (!parser.parseOptionalLParen()) {
             return false;
@@ -15530,7 +16079,7 @@ _.SCFDialect = class extends _.Dialect {
     }
 
     parseParallelOp(parser, result) {
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         const inductionVars = [];
         if (!parser.parseOptionalLParen()) {
             return false;
@@ -16051,7 +16600,7 @@ _.GpuDialect = class extends _.Dialect {
         // Parse optional `: type`, default to index type
         // typeArg1 = type($gridSizeX), typeArg2 = ref($clusterSizeX)
         // clusterTypeArg1/2/3 = type($clusterSizeX/Y/Z)
-        let dimType = new _.PrimitiveType('index');
+        let dimType = new _.IndexType();
         if (parser.parseOptionalColon()) {
             dimType = parser.parseType();
         }
@@ -16104,7 +16653,7 @@ _.GpuDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'gpu.launch') {
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             if (parser.accept('id', 'async')) {
                 if (parser.getNumResults() === 0) {
                     throw new mlir.Error(`Operation '${result.op}' needs to be named when marked 'async' ${parser.location()}`);
@@ -16185,7 +16734,7 @@ _.GpuDialect = class extends _.Dialect {
     parseWarpExecuteOnLane0Op(parser, result) {
         parser.parseLParen();
         const unresolvedLaneId = parser.parseOperand();
-        const indexType = new _.PrimitiveType('index');
+        const indexType = new _.IndexType();
         parser.resolveOperand(unresolvedLaneId, indexType, result.operands);
         parser.parseRParen();
         parser.parseLSquare();
@@ -16547,7 +17096,7 @@ _.OpenMPDialect = class extends _.Dialect {
             while (parser.parseOptionalComma()) {
                 unresolvedShape.push(parser.parseOperand());
             }
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             for (const s of unresolvedShape) {
                 parser.resolveOperand(s, indexType, result.operands);
             }
@@ -18334,7 +18883,7 @@ _.XSMMDialect = class extends _.Dialect {
             } else if (parser.match('id')) {
                 const keyword = parser.expect('id');
                 parser.parseEqual();
-                const attrValue = parser.parseAttribute(new _.PrimitiveType('i64'));
+                const attrValue = parser.parseAttribute(new _.IntegerType('i64'));
                 result.addAttribute(keyword, attrValue);
             } else {
                 break;
@@ -19817,7 +20366,7 @@ _.SdfgDialect = class extends _.Dialect {
                 result.addTypes([allocType]);
             }
             // Resolve operands (these are likely dimension/size operands with index type)
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), result.operands);
             return true;
         }
@@ -19847,7 +20396,7 @@ _.SdfgDialect = class extends _.Dialect {
                 const arrayType = parser.parseType();
                 parser.resolveOperand(valueOp, valueType, result.operands);
                 parser.resolveOperand(arrayOp, arrayType, result.operands);
-                const indexType = new _.PrimitiveType('index');
+                const indexType = new _.IndexType();
                 parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
             } else {
                 parser.resolveOperand(valueOp, null, result.operands);
@@ -19879,7 +20428,7 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
                 parser.resolveOperand(arrayOp, arrayType, result.operands);
-                const indexType = new _.PrimitiveType('index');
+                const indexType = new _.IndexType();
                 parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
                 result.addTypes([resultType]);
             } else {
@@ -20863,7 +21412,7 @@ _.TestDialect = class extends _.Dialect {
         }
         if (result.op === 'test.isolated_region') {
             const operand = parser.parseOperand();
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             parser.resolveOperand(operand, indexType, result.operands);
             const region = result.addRegion();
             parser.parseRegion(region, [{ value: operand.toString(), type: 'index' }]);
@@ -22740,7 +23289,7 @@ _.XlaDialect = class extends _.Dialect {
                 parser.parseRSquare();
             }
             // The result types are inferred from the number of results (all index type)
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             for (let i = 0; i < result.types.length; i++) {
                 result.types[i] = indexType;
             }
@@ -22758,7 +23307,7 @@ _.XlaDialect = class extends _.Dialect {
             const unresolvedDims = [];
             const unresolvedInits = [];
             const regionArgs = [];
-            const indexType = new _.PrimitiveType('index');
+            const indexType = new _.IndexType();
             // Parse optional dimensions in parentheses
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
