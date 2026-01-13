@@ -1364,6 +1364,9 @@ _.Type = class {
 _.PrimitiveType = class extends _.Type {
 };
 
+_.IntegerType = class extends _.Type {
+};
+
 _.FunctionType = class extends _.Type {
 
     constructor(inputs, results) {
@@ -1743,6 +1746,7 @@ _.Lexer = class {
             }
             return;
         }
+        // Workaround: Block comments (/* */) are not in MLIR we support them for compatibility with test files that contain documentation
         if (this._current === '*') {
             this._read();
             while (this._current) {
@@ -1752,13 +1756,11 @@ _.Lexer = class {
                         this._read();
                         return;
                     }
-                } else {
-                    this._read();
                 }
+                this._read();
             }
-            return;
         }
-        throw new mlir.Error('Invalid comment.');
+        throw new mlir.Error(`Invalid comment.`);
     }
 
     lexNumber() {
@@ -1851,6 +1853,12 @@ _.Lexer = class {
         let result = '';
         while (this._current && (/[a-zA-Z_$.]/.test(this._current) || /[0-9]/.test(this._current))) {
             result += this._read();
+        }
+        // Check for integer-type: i123, si456, ui789 (reference Lexer.cpp:253-259)
+        const isAllDigit = (str) => /^[0-9]+$/.test(str);
+        if ((result.length > 1 && result[0] === 'i' && isAllDigit(result.slice(1))) ||
+            (result.length > 2 && result[1] === 'i' && (result[0] === 's' || result[0] === 'u') && isAllDigit(result.slice(2)))) {
+            return this.getToken('inttype', result);
         }
         switch (result) {
             case 'loc':
@@ -2146,7 +2154,7 @@ _.Parser = class {
         if (this.accept('{')) {
             while (!this.accept('}')) {
                 let name = null;
-                if (this.match('id') || this.match('string') || this.match('keyword') || this.match('boolean')) {
+                if (this.match('id') || this.match('string') || this.match('keyword') || this.match('boolean') || this.match('inttype')) {
                     name = this.expect();
                 } else if (this.match('[')) {
                     const arrayValue = this.parseAttribute();
@@ -2658,86 +2666,97 @@ _.Parser = class {
     }
 
     parseOptionalType() {
-        if (this.match('(') || this.match('!')) {
-            return this.parseType();
-        } else if (this.match('id')) {
-            switch (this.getToken().value) {
-                case 'memref':
-                case 'tensor':
-                case 'complex':
-                case 'tuple':
-                case 'vector':
-                case 'f4E2M1FN':
-                case 'f6E2M3FN':
-                case 'f6E3M2FN':
-                case 'f8E5M2':
-                case 'f8E4M3':
-                case 'f8E4M3FN':
-                case 'f8E5M2FNUZ':
-                case 'f8E4M3FNUZ':
-                case 'f8E4M3B11FNUZ':
-                case 'f8E3M4':
-                case 'f8E8M0FNU':
-                case 'bf16':
-                case 'f16':
-                case 'tf32':
-                case 'f32':
-                case 'f64':
-                case 'f80':
-                case 'f128':
-                case 'index':
-                case 'none':
-                    return this.parseType();
-                default:
-                    // Check for integer types (inttype in reference)
-                    if (/^[su]?i[0-9]+$/.test(this.getToken().value)) {
+        switch (this.getToken().kind) {
+            case '(':
+            case '!':
+            case 'inttype':
+                return this.parseType();
+            case 'id': {
+                switch (this.getToken().value) {
+                    case 'memref':
+                    case 'tensor':
+                    case 'complex':
+                    case 'tuple':
+                    case 'vector':
+                    case 'f4E2M1FN':
+                    case 'f6E2M3FN':
+                    case 'f6E3M2FN':
+                    case 'f8E5M2':
+                    case 'f8E4M3':
+                    case 'f8E4M3FN':
+                    case 'f8E5M2FNUZ':
+                    case 'f8E4M3FNUZ':
+                    case 'f8E4M3B11FNUZ':
+                    case 'f8E3M4':
+                    case 'f8E8M0FNU':
+                    case 'bf16':
+                    case 'f16':
+                    case 'tf32':
+                    case 'f32':
+                    case 'f64':
+                    case 'f80':
+                    case 'f128':
+                    case 'index':
+                    case 'none':
                         return this.parseType();
-                    }
-                    break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            default: {
+                break;
             }
         }
         return null;
     }
 
     parseNonFunctionType() {
-        if (this.match('id')) {
-            const value = this.expect('id');
-            switch (value) {
-                case 'tensor': return this.parseTensorType();
-                case 'vector': return this.parseVectorType();
-                case 'memref': return this.parseMemRefType();
-                case 'complex': return this.parseComplexType();
-                case 'tuple': return this.parseTupleType();
-                case 'none': return new _.PrimitiveType(value);
-                case 'index': return new _.PrimitiveType(value);
-                case 'bf16':
-                case 'f16':
-                case 'f32':
-                case 'f64':
-                case 'f80':
-                case 'f128':
-                case 'tf32':
-                case 'f8E5M2':
-                case 'f8E4M3':
-                case 'f8E4M3FN':
-                case 'f8E5M2FNUZ':
-                case 'f8E4M3FNUZ':
-                case 'f8E4M3B11FNUZ':
-                case 'f8E3M4':
-                case 'f8E8M0FNU':
-                case 'f4E2M1FN':
-                case 'f6E2M3FN':
-                case 'f6E3M2FN':
-                    return new _.PrimitiveType(value);
-                default:
-                    if (/^[su]?i[0-9]+$/.test(value)) {
-                        return new _.PrimitiveType(value);
-                    }
-                    break;
+        switch (this.getToken().kind) {
+            case 'inttype': {
+                const value = this.expect('inttype');
+                return new _.IntegerType(value);
             }
-        }
-        if (this.match('!')) {
-            return this.parseExtendedType();
+            case '!': {
+                return this.parseExtendedType();
+            }
+            case 'id': {
+                const value = this.expect('id');
+                switch (value) {
+                    case 'tensor': return this.parseTensorType();
+                    case 'vector': return this.parseVectorType();
+                    case 'memref': return this.parseMemRefType();
+                    case 'complex': return this.parseComplexType();
+                    case 'tuple': return this.parseTupleType();
+                    case 'none': return new _.PrimitiveType(value);
+                    case 'index': return new _.PrimitiveType(value);
+                    case 'bf16':
+                    case 'f16':
+                    case 'f32':
+                    case 'f64':
+                    case 'f80':
+                    case 'f128':
+                    case 'tf32':
+                    case 'f8E5M2':
+                    case 'f8E4M3':
+                    case 'f8E4M3FN':
+                    case 'f8E5M2FNUZ':
+                    case 'f8E4M3FNUZ':
+                    case 'f8E4M3B11FNUZ':
+                    case 'f8E3M4':
+                    case 'f8E8M0FNU':
+                    case 'f4E2M1FN':
+                    case 'f6E2M3FN':
+                    case 'f6E3M2FN':
+                        return new _.PrimitiveType(value);
+                    default:
+                        break;
+                }
+                break;
+            }
+            default: {
+                break;
+            }
         }
         throw new mlir.Error(`Invalid type '${this.getToken().value}' ${this.location()}`);
     }
@@ -2802,7 +2821,10 @@ _.Parser = class {
             return this.parseTypeListParens();
         }
         const type = this.parseNonFunctionType();
-        return type ? [type] : [];
+        if (type) {
+            return [type];
+        }
+        return [];
     }
 
     parseCommaSeparatedList(delimiter, parseElement) {
@@ -6389,6 +6411,11 @@ _.Dialect = class {
         this.registerCustomDirective('TypeOrAttr', this.parseTypeOrAttr.bind(this));
         this.registerCustomDirective('CopyOpRegion', this.parseCopyOpRegion.bind(this));
         this.registerCustomDirective('SizeAwareType', this.parseSizeAwareType.bind(this));
+        this.registerCustomDirective('ResultTypeList', this.parseResultTypeList.bind(this));
+        this.registerCustomDirective('CmdParameterGatherOperations', this.parseCmdParameterGatherOperations.bind(this));
+        this.registerCustomDirective('AsyncParameterGatherOperations', this.parseAsyncParameterGatherOperations.bind(this));
+        this.registerCustomDirective('CmdParameterScatterOperations', this.parseCmdParameterScatterOperations.bind(this));
+        this.registerCustomDirective('AsyncParameterScatterOperations', this.parseAsyncParameterScatterOperations.bind(this));
         this.registerCustomAttribute('TypedAttrInterface', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('VM_ConstantIntegerValueAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('Util_AnySerializableAttr', this.parseTypedAttrInterface.bind(this));
@@ -6702,10 +6729,14 @@ _.Dialect = class {
                 // Also check context: if next directive is ')' literal, we're inside parentheses
                 const nextDir = i + 1 < directives.length ? directives[i + 1] : null;
                 const isVariadicContext = isVariadicSuccessor || (nextDir && nextDir.type === 'literal' && nextDir.value === ')');
+                // Check if next directive is a custom directive that handles the parentheses (like ResultTypeList)
+                const nextDirHandlesParens = nextDir && nextDir.type === 'custom' &&
+                    (nextDir.parser === 'ResultTypeList' || nextDir.parser === 'TypeList');
                 const parseOneSuccessor = () => {
                     const successor = {};
                     successor.label = parser.expect('^');
-                    if (parser.parseOptionalLParen()) {
+                    // Don't consume '(' if next directive handles it (e.g., custom<ResultTypeList>)
+                    if (!nextDirHandlesParens && parser.parseOptionalLParen()) {
                         successor.arguments = [];
                         while (!parser.match(':') && !parser.match(')')) {
                             if (parser.match('%')) {
@@ -7429,6 +7460,10 @@ _.Dialect = class {
     }
 
     parseCustomTypeWithFallback(parser, type) {
+        const optionalType = parser.parseOptionalType();
+        if (optionalType) {
+            return optionalType;
+        }
         if (type && this._customTypes.has(type.name)) {
             let typeT = this._customTypes.get(type.name);
             if (typeof typeT !== 'function') {
@@ -7436,7 +7471,7 @@ _.Dialect = class {
             }
             return parser.parseCustomTypeWithFallback(typeT);
         }
-        return parser.parseType();
+        throw new mlir.Error(`Unsupported type constraint '${type}'.`);
     }
 
     parseCustomAttributeWithFallback(parser, type) {
@@ -7732,6 +7767,280 @@ _.Dialect = class {
 
     parseCopyOpRegion(parser, result) {
         result.regions.push({ blocks: [] });
+    }
+
+    parseResultTypeList(parser, op) {
+        parser.parseLParen();
+        const types = [];
+        if (!parser.match(')')) {
+            do {
+                types.push(parser.parseType());
+            } while (parser.parseOptionalComma());
+        }
+        parser.parseRParen();
+        if (types.length > 0) {
+            op.addAttribute('result_types', types.map((t) => t.toString()));
+        }
+    }
+
+    parseCmdParameterGatherOperations(parser, op) {
+        const sourceKeys = [];
+        const sourceOffsets = [];
+        const targetOffsets = [];
+        const targetLengths = [];
+        let target = null;
+        let targetType = null;
+        let targetSize = null;
+        let sourceScope = null;
+        do {
+            // Parse parameter reference: "scope"::"key" or just "key"
+            const firstString = parser.expect('string');
+            let key = firstString;
+            // '::' is a single token in the lexer
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                sourceScope = firstString;
+            }
+            sourceKeys.push(key);
+            // Parse [%source_offset]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse -> %target
+            parser.expect('->');
+            const rowTarget = parser.parseOperand();
+            if (!target) {
+                target = rowTarget;
+            }
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.parseKeyword('for');
+            targetLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!targetType) {
+                targetType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!targetSize) {
+                targetSize = rowSize;
+            }
+            parser.parseRBrace();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.PrimitiveType('index');
+        const i64Type = new _.PrimitiveType('i64');
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => i64Type), op.operands);
+        parser.resolveOperand(target, targetType, op.operands);
+        parser.resolveOperand(targetSize, indexType, op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(targetLengths, targetLengths.map(() => indexType), op.operands);
+        // Set attributes
+        if (sourceScope) {
+            op.addAttribute('source_scope', sourceScope);
+        }
+        op.addAttribute('source_keys', sourceKeys);
+    }
+
+    // custom<AsyncParameterGatherOperations>(...)
+    // Parses: "scope"::"key"[%offset] -> %target[%offset to %end for %length] : type{%size}, ...
+    parseAsyncParameterGatherOperations(parser, op) {
+        const sourceKeys = [];
+        const sourceOffsets = [];
+        const targetOffsets = [];
+        const targetEnds = [];
+        const targetLengths = [];
+        let target = null;
+        let targetType = null;
+        let targetSize = null;
+        let sourceScope = null;
+        do {
+            // Parse parameter reference: "scope"::"key" or just "key"
+            const firstString = parser.expect('string');
+            let key = firstString;
+            // '::' is a single token in the lexer
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                sourceScope = firstString;
+            }
+            sourceKeys.push(key);
+            // Parse [%source_offset]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse -> %target
+            parser.expect('->');
+            const rowTarget = parser.parseOperand();
+            if (!target) {
+                target = rowTarget;
+            }
+            // Parse [%offset to %end for %length]
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.expect('id', 'to');
+            targetEnds.push(parser.parseOperand());
+            parser.expect('id', 'for');
+            targetLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse : type{%size}
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!targetType) {
+                targetType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!targetSize) {
+                targetSize = rowSize;
+            }
+            parser.parseRBrace();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.PrimitiveType('index');
+        const i64Type = new _.PrimitiveType('i64');
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => i64Type), op.operands);
+        parser.resolveOperand(target, targetType, op.operands);
+        parser.resolveOperand(targetSize, indexType, op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(targetEnds, targetEnds.map(() => indexType), op.operands);
+        parser.resolveOperands(targetLengths, targetLengths.map(() => indexType), op.operands);
+        // Set attributes
+        if (sourceScope) {
+            op.addAttribute('source_scope', sourceScope);
+        }
+        op.addAttribute('source_keys', sourceKeys);
+    }
+
+    // custom<CmdParameterScatterOperations>(...)
+    // Parses: %source[%offset for %length] : type{%size} -> "scope"::"key"[%offset], ...
+    parseCmdParameterScatterOperations(parser, op) {
+        const targetKeys = [];
+        const sourceOffsets = [];
+        const sourceLengths = [];
+        const targetOffsets = [];
+        let source = null;
+        let sourceType = null;
+        let sourceSize = null;
+        let targetScope = null;
+        do {
+            // Parse source operand
+            const rowSource = parser.parseOperand();
+            if (!source) {
+                source = rowSource;
+            }
+            // Parse [%offset for %length]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.expect('id', 'for');
+            sourceLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse : type{%size}
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!sourceType) {
+                sourceType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!sourceSize) {
+                sourceSize = rowSize;
+            }
+            parser.parseRBrace();
+            // Parse -> "scope"::"key"[%offset]
+            parser.expect('->');
+            const firstString = parser.expect('string');
+            let key = firstString;
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                targetScope = firstString;
+            }
+            targetKeys.push(key);
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.PrimitiveType('index');
+        const i64Type = new _.PrimitiveType('i64');
+        parser.resolveOperand(source, sourceType, op.operands);
+        parser.resolveOperand(sourceSize, indexType, op.operands);
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(sourceLengths, sourceLengths.map(() => indexType), op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => i64Type), op.operands);
+        // Set attributes
+        if (targetScope) {
+            op.addAttribute('target_scope', targetScope);
+        }
+        op.addAttribute('target_keys', targetKeys);
+    }
+
+    // custom<AsyncParameterScatterOperations>(...)
+    // Parses: %source[%offset to %end for %length] : type{%size} -> "scope"::"key"[%offset], ...
+    parseAsyncParameterScatterOperations(parser, op) {
+        const targetKeys = [];
+        const sourceOffsets = [];
+        const sourceEnds = [];
+        const sourceLengths = [];
+        const targetOffsets = [];
+        let source = null;
+        let sourceType = null;
+        let sourceSize = null;
+        let targetScope = null;
+        do {
+            // Parse source operand
+            const rowSource = parser.parseOperand();
+            if (!source) {
+                source = rowSource;
+            }
+            // Parse [%offset to %end for %length]
+            parser.parseLSquare();
+            sourceOffsets.push(parser.parseOperand());
+            parser.expect('id', 'to');
+            sourceEnds.push(parser.parseOperand());
+            parser.expect('id', 'for');
+            sourceLengths.push(parser.parseOperand());
+            parser.parseRSquare();
+            // Parse : type{%size}
+            parser.parseColon();
+            const rowType = parser.parseType();
+            if (!sourceType) {
+                sourceType = rowType;
+            }
+            parser.parseLBrace();
+            const rowSize = parser.parseOperand();
+            if (!sourceSize) {
+                sourceSize = rowSize;
+            }
+            parser.parseRBrace();
+            // Parse -> "scope"::"key"[%offset]
+            parser.expect('->');
+            const firstString = parser.expect('string');
+            let key = firstString;
+            if (parser.accept('::')) {
+                key = parser.expect('string');
+                targetScope = firstString;
+            }
+            targetKeys.push(key);
+            parser.parseLSquare();
+            targetOffsets.push(parser.parseOperand());
+            parser.parseRSquare();
+        } while (parser.parseOptionalComma());
+        // Resolve operands
+        const indexType = new _.PrimitiveType('index');
+        const i64Type = new _.PrimitiveType('i64');
+        parser.resolveOperand(source, sourceType, op.operands);
+        parser.resolveOperand(sourceSize, indexType, op.operands);
+        parser.resolveOperands(sourceOffsets, sourceOffsets.map(() => indexType), op.operands);
+        parser.resolveOperands(sourceEnds, sourceEnds.map(() => indexType), op.operands);
+        parser.resolveOperands(sourceLengths, sourceLengths.map(() => indexType), op.operands);
+        parser.resolveOperands(targetOffsets, targetOffsets.map(() => i64Type), op.operands);
+        // Set attributes
+        if (targetScope) {
+            op.addAttribute('target_scope', targetScope);
+        }
+        op.addAttribute('target_keys', targetKeys);
     }
 
     parseEnumFlags(parser, type, separator) {
@@ -14143,7 +14452,6 @@ _.PDLDialect = class extends _.Dialect {
         this.registerCustomDirective('OperationOpAttributes', this.parseOperationOpAttributes.bind(this));
         this.registerCustomDirective('RangeType', this.parseRangeType.bind(this));
         this.registerCustomDirective('ResultsValueType', this.parseResultsValueType.bind(this));
-        this._customParse = new Set(['pdl.operation']);
     }
 
     parseOperation(parser, result) {
@@ -14496,7 +14804,7 @@ _.EmitCDialect = class extends _.Dialect {
             const bodyRegion = {};
             parser.parseRegion(bodyRegion);
             result.regions.push(bodyRegion);
-            parser.expect('id', 'while');
+            parser.parseKeyword('while');
             const condRegion = {};
             parser.parseRegion(condRegion);
             result.regions.push(condRegion);
@@ -14566,14 +14874,13 @@ _.AsukaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'asuka');
-        // https://github.com/monellz/FlashTensor/blob/main/bench/ea.mlir
-        // uses batch_dims and reduce_dims not valid given the assemblyFormat spec.
-        // Custom parsing preserves compatibility with this file.
-        this._customParse = new Set(['asuka.dot', 'asuka.add', 'asuka.split', 'asuka.softmax', 'asuka.reduce']);
     }
 
     parseOperation(parser, result) {
-        if (this._customParse.has(result.op)) {
+        // https://github.com/monellz/FlashTensor/blob/main/bench/ea.mlir
+        // uses batch_dims and reduce_dims not valid given the assemblyFormat spec.
+        // Custom parsing preserves compatibility with this file.
+        if (result.op === 'asuka.dot' || result.op === 'asuka.add' || result.op === 'asuka.split' || result.op === 'asuka.softmax' || result.op === 'asuka.reduce') {
             result.compatibility = true;
             // Parse operands (only actual SSA values starting with %)
             result.operands = parser.parseOperandList();

@@ -810,7 +810,7 @@ const schema = async () => {
     }
     const sorted = Array.from(operations.values()).sort((a, b) => a.name.localeCompare(b.name));
     const output = JSON.stringify(sorted, null, 2);
-    let formatted = output.replace(/\{\s+"name":\s+"([^"]+)",\s+"type":\s+"([^"]+)"\s+\}/g, '{ "name": "$1", "type": "$2" }');
+    let formatted = output.replace(/\{\s+"name":\s+"([^"]+)",\s+"type":\s+"((?:[^"\\]|\\.)*)"\s+\}/g, '{ "name": "$1", "type": "$2" }');
     formatted = formatted.replace(/\{\s+"type":\s+"((?:[^"\\]|\\.)*)"\s+\}/g, '{ "type": "$1" }');
     await fs.writeFile(file, formatted, 'utf-8');
     if (count < 6300) {
