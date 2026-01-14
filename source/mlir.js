@@ -1050,7 +1050,7 @@ _.RegisteredOperationName = class extends _.OperationName {
         const index = name.indexOf('.');
         if (index !== -1) {
             const dialectName = name.substring(0, index);
-            const dialect = context.getDialect(dialectName);
+            const dialect = context.getOrLoadDialect(dialectName);
             if (dialect) {
                 return dialect.getOperation(name);
             }
@@ -1203,7 +1203,7 @@ _.IntegerAttr = class extends _.Attribute {
 
 _.FloatAttr = class extends _.Attribute {
 
-    constructor(value, type) {
+    constructor(type, value) {
         super();
         this.value = value;
         this.type = type;
@@ -1655,9 +1655,9 @@ _.LLVMFunctionType = class extends _.Type {
 
 _.SMLoc = class {
 
-    constructor(decoder) {
+    constructor(decoder, position) {
         this.decoder = decoder;
-        this.position = 0;
+        this.position = position || 0;
     }
 
     toString() {
@@ -2912,10 +2912,8 @@ _.Parser = class {
                 throw new mlir.Error(`Invalid type name '${typeT.name}.`);
             }
             const dialectName = typeT.name.substring(0, index);
-            const dialect = this.context.getDialect(dialectName);
-            if (!dialect) {
-                throw new mlir.Error(`Unsupported dialect '${dialectName}'.`);
-            }
+            const dialect = this.context.getOrLoadDialect(dialectName);
+            this.context.checkDialect(dialect, dialectName, 'custom type');
             return dialect.parseCustomTypeWithFallback(this, typeT.type);
         }
         return this.parseType();
@@ -3040,10 +3038,8 @@ _.Parser = class {
 
     parseExtendedType() {
         return this.parseExtendedSymbol('!', this.state.typeAliasDefinitions, (dialectName, symbolData) => {
-            const dialect = this.context.getDialect(dialectName);
-            if (!dialect) {
-                throw new mlir.Error(`Unsupported dialect '${dialectName}'.`);
-            }
+            const dialect = this.context.getOrLoadDialect(dialectName);
+            this.context.checkDialect(dialect, dialectName, 'type');
             if (symbolData) {
                 return new _.Type(`!${dialectName}${symbolData}`);
             }
@@ -3174,6 +3170,21 @@ _.Parser = class {
         return null;
     }
 
+    parseFloatAttr(type = null, isNegative = false) {
+        const value = `-${this.expect()}`;
+        if (!type) {
+            if (this.accept(':')) {
+                type = this.parseType();
+            } else {
+                type = new _.FloatType('f64');
+            }
+        }
+        if (type instanceof _.FloatType === false) {
+            throw new mlir.Error(`Floating point value not valid for specified type ${this.location()}`);
+        }
+        return new _.FloatAttr(type, isNegative ? `-${value}` : value);
+    }
+
     parseAttribute(type = null) {
         if (this.match('id', 'affine_map') || this.match('id', 'affine_set')) {
             const name = this.expect();
@@ -3235,9 +3246,7 @@ _.Parser = class {
             return this.accept(':') ? this.parseType() : defaultType;
         };
         if (this.match('float')) {
-            const value = this.expect();
-            type = parseType(type, new _.FloatType('f64'));
-            return new _.TypedAttr(value, type);
+            return this.parseFloatAttr(type, false);
         }
         if (this.match('int')) {
             const value = this.expect();
@@ -3252,9 +3261,7 @@ _.Parser = class {
                 return new _.TypedAttr(value, type);
             }
             if (this.match('float')) {
-                const value = `-${this.expect()}`;
-                type = parseType(type, new _.FloatType('f64'));
-                return new _.TypedAttr(value, type);
+                return this.parseFloatAttr(type, true);
             }
             throw new mlir.Error(`Expected integer or float after '-' ${this.location()}`);
         }
@@ -3755,10 +3762,8 @@ _.OperationParser = class extends _.Parser {
             throw new mlir.Error(`No dialect found '${opName}' ${this.location()}`);
         }
         const dialectName = opName.substring(0, index);
-        const dialect = this.context.getDialect(dialectName);
-        if (!dialect) {
-            throw new mlir.Error(`Unsupported dialect '${dialectName}'.`);
-        }
+        const dialect = this.context.getOrLoadDialect(dialectName);
+        this.context.checkDialect(dialect, dialectName, 'operation');
         // Normalize operation name to canonical dialect name for metadata lookup
         // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
         opName = dialectName === dialect.name ? opName : opName.replace(`${dialectName}.`, `${dialect.name}.`);
@@ -3871,6 +3876,10 @@ _.OperationParser = class extends _.Parser {
             }
             entries[unresolvedOperand.number] = { value, loc: unresolvedOperand.location };
             return value;
+        }
+        // Handle literal operands (e.g., integer literals for buildable types)
+        if (unresolvedOperand && unresolvedOperand.literal) {
+            return new _.Value(unresolvedOperand.name, type);
         }
         throw new mlir.Error(`UnresolvedOperand expected, got '${JSON.stringify(unresolvedOperand)}' ${this.location()}`);
     }
@@ -5058,13 +5067,12 @@ _.AttrTypeReader = class {
 
     parseCustomEntry(entry, reader, entryType, index, depth) {
         // Lazy load the dialect interface (like BytecodeDialect::load)
+        const context = this.fileLoc.context;
         if (entry.dialect.interface === undefined) {
-            entry.dialect.interface = this.fileLoc.context.getDialect(entry.dialect.name);
+            entry.dialect.interface = context.getOrLoadDialect(entry.dialect.name);
         }
+        context.checkDialect(entry.dialect.interface, entry.dialect.name, 'custom entry');
         const dialect = entry.dialect.interface;
-        if (!dialect) {
-            throw new mlir.Error(`Dialect '${entry.dialect.name}' is unknown.`);
-        }
         const dialectReader = new _.DialectReader(this, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.version, depth);
         switch (entryType) {
             case 'type':
@@ -5160,7 +5168,7 @@ _.PropertiesSectionReader = class {
                 const propReader = dialectReader.withEncodingReader(new _.EncodingReader(propData));
                 // Reference: https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
                 // Function operations: sym_name (required), function_type (required), arg_attrs (optional), res_attrs (optional)
-                if (opName.endsWith('.func') || /\.func_v\d+$/.test(opName)) {
+                if (opName.getStringRef().endsWith('.func') || /\.func_v\d+$/.test(opName.getStringRef())) {
                     if (propReader.reader.position < propData.length) {
                         const symNameAttr = propReader.readAttribute();
                         if (symNameAttr && symNameAttr.value !== undefined) {
@@ -5188,7 +5196,7 @@ _.PropertiesSectionReader = class {
                     }
                     return;
                 }
-                if (opName.includes('.constant') || opName.endsWith('.const')) {
+                if (opName.getStringRef().includes('.constant') || opName.getStringRef().endsWith('.const')) {
                     if (propReader.reader.position < propData.length) {
                         const attr = propReader.readAttribute();
                         if (attr !== null && attr !== undefined) {
@@ -5598,16 +5606,21 @@ _.BytecodeReader = class {
         return orders;
     }
 
+    parseOpName(reader) {
+        const opName = reader.parseEntry(this.opNames, 'operation name');
+        if (!opName.opName) {
+            const name = `${opName.dialect.name}.${opName.name}`;
+            opName.opName = _.RegisteredOperationName.lookup(name, this.fileLoc.context);
+            if (!opName.opName) {
+                throw new mlir.Error(`Unregistered bytecode operation '${name}'.`);
+            }
+        }
+        return [opName.opName, opName.wasRegistered];
+    }
+
     parseOpWithoutRegions(reader, state) {
         // Parse operation name index
-        const opNameIdx = reader.parseVarInt().toNumber();
-        const opNameEntry = this.opNames[opNameIdx];
-        if (!opNameEntry) {
-            throw new mlir.Error(`Invalid operation name index '${opNameIdx}' (have ${this._opNames.length} ops) at position ${reader.position}.`);
-        }
-        const fullName = `${opNameEntry.dialect.name}.${opNameEntry.name}`;
-
-        // Parse operation mask
+        const [opName, wasRegistered] = this.parseOpName(reader);
         const opMask = reader.parseByte();
         const kHasAttrs = 0x01;
         const kHasResults = 0x02;
@@ -5616,36 +5629,27 @@ _.BytecodeReader = class {
         const kHasInlineRegions = 0x10;
         const kHasUseListOrders = 0x20;
         const kHasProperties = 0x40;
-        const opName = _.RegisteredOperationName.lookup(fullName, this.fileLoc.context);
-        const op = new _.OperationState(opName);
-        const [dialectName] = fullName.split('.');
-        const dialect = this.fileLoc.context.getDialect(dialectName);
-        if (dialect) {
-            const opInfo = dialect.getOperation(fullName);
-            if (opInfo) {
-                op.metadata = opInfo.metadata;
-            }
-        }
+        const opState = new _.OperationState(opName);
         const locIdx = reader.parseVarInt().toNumber();
-        op.location = this.attrTypeReader.readAttribute(locIdx);
+        opState.location = this.attrTypeReader.readAttribute(locIdx);
         if (opMask & kHasAttrs) {
             const dictAttrIdx = reader.parseVarInt().toNumber();
             const dictAttr = this.attrTypeReader.readAttribute(dictAttrIdx);
             if (dictAttr && dictAttr.value) {
                 if (dictAttr.value instanceof Map) {
                     // Already parsed as Map from custom-encoded DictionaryAttr
-                    op.attributes = dictAttr.value;
+                    opState.attributes = dictAttr.value;
                 } else if (typeof dictAttr.value === 'string') {
                     // Parse dictionary attribute from ASM string format
-                    op.attributes = this.parseAttributeDict(dictAttr.value);
+                    opState.attributes = this.parseAttributeDict(dictAttr.value);
                 }
             }
         }
         // Parse properties (version >= 5)
         if (opMask & kHasProperties) {
-            if (opNameEntry.wasRegistered) {
+            if (wasRegistered) {
                 const dialectReader = new _.DialectReader(this.attrTypeReader, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.version);
-                this.propertiesReader.read(this.fileLoc, dialectReader, fullName, op);
+                this.propertiesReader.read(this.fileLoc, dialectReader, opName, opState);
             } else {
                 // Unregistered operations store properties as a single dictionary attribute
                 const propAttrIdx = reader.parseVarInt().toNumber();
@@ -5653,12 +5657,11 @@ _.BytecodeReader = class {
                 if (propAttr && propAttr.value) {
                     const propAttrs = this.parseAttributeDict(propAttr.value);
                     for (const [key, value] of propAttrs) {
-                        op.addAttribute(key, value);
+                        opState.addAttribute(key, value);
                     }
                 }
             }
         }
-
         // Parse results - add types to OperationState.types, track values in scope
         const resultNames = [];
         const resultIndices = [];
@@ -5668,9 +5671,7 @@ _.BytecodeReader = class {
             for (let i = 0; i < numResults; i++) {
                 const typeIdx = reader.parseVarInt().toNumber();
                 const type = this.attrTypeReader.readType(typeIdx);
-                // Add type to OperationState.types (reference pattern)
-                op.addTypes([type]);
-                // Track result name and index for later assignment
+                opState.addTypes([type]);
                 const valueIdx = state && state.nextValueIdx !== undefined ? state.nextValueIdx++ : scope.length;
                 const valueName = `%${valueIdx}`;
                 resultNames.push(valueName);
@@ -5692,9 +5693,9 @@ _.BytecodeReader = class {
                 const valueIdx = reader.parseVarInt().toNumber();
                 const scope = this.valueScopes[this.valueScopes.length - 1];
                 if (valueIdx < scope.length && scope[valueIdx]) {
-                    op.operands.push(scope[valueIdx]);
+                    opState.operands.push(scope[valueIdx]);
                 } else {
-                    op.operands.push(new _.Value(`%${valueIdx}`, null));
+                    opState.operands.push(new _.Value(`%${valueIdx}`, null));
                 }
             }
         }
@@ -5702,10 +5703,10 @@ _.BytecodeReader = class {
         // Parse successors
         if (opMask & kHasSuccessors) {
             const numSuccessors = reader.parseVarInt().toNumber();
-            op.successors = [];
+            opState.successors = [];
             for (let i = 0; i < numSuccessors; i++) {
                 const blockIdx = reader.parseVarInt().toNumber();
-                op.successors.push(blockIdx);
+                opState.successors.push(blockIdx);
             }
         }
         // Parse use-list orders (version >= 3)
@@ -5713,7 +5714,7 @@ _.BytecodeReader = class {
         // This is stored but not currently applied to the IR structure.
         const useListOrders = [];
         if (this.version >= _.BytecodeReader.kUseListOrdering && (opMask & kHasUseListOrders)) {
-            const numResults = op.types.length;
+            const numResults = opState.types.length;
             for (let i = 0; i < numResults; i++) {
                 const indexBitWidth = reader.parseVarInt().toNumber();
                 if (indexBitWidth > 0) {
@@ -5727,7 +5728,7 @@ _.BytecodeReader = class {
             }
         }
         if (useListOrders.length > 0) {
-            op.useListOrders = useListOrders;
+            opState.useListOrders = useListOrders;
         }
         // Parse inline regions
         let isIsolatedFromAbove = false;
@@ -5736,10 +5737,10 @@ _.BytecodeReader = class {
             const numRegions = (numRegionsAndIsIsolated >> 1n).toNumber();
             isIsolatedFromAbove = (numRegionsAndIsIsolated & 1n) === 1n;
             for (let i = 0; i < numRegions; i++) {
-                op.regions.push({ blocks: [] });
+                opState.regions.push({ blocks: [] });
             }
         }
-        return { state: op, resultNames, isIsolatedFromAbove, resultIndices };
+        return { state: opState, resultNames, isIsolatedFromAbove, resultIndices };
     }
 
     parseAttributeDict(str) {
@@ -6660,12 +6661,29 @@ _.DialectContext = class {
         this._dialects.set('xla_framework', new _.Dialect(operations, 'xla_framework'));
         this._dialects.set('ifrt', new _.Dialect(operations, 'ifrt'));
         this._dialects.set('vifrt', new _.Dialect(operations, 'vifrt'));
+        this._dialects.set('nir', new _.Dialect(operations, 'nir'));
         this._dialects.set('triton_xla', new _.TritonXlaDialect(operations));
         this._dialects.set('xtile', new _.XTileDialect(operations));
+        this._dialects.set('ensemble', new _.EnsembleDialect(operations));
+        this._dialects.set('poly', new _.PolyDialect(operations));
+        this._dialects.set('noisy', new _.NoisyDialect(operations));
     }
 
-    getDialect(name) {
+    getOrLoadDialect(name) {
         return this._dialects.get(name);
+    }
+
+    checkDialect(dialect, dialectName, context) {
+        if (!dialect) {
+            switch (dialectName) {
+                case 'common':
+                case 'torq_hl':
+                case 'xir':
+                    throw new mlir.Error(`Undocumented ${context} dialect '${dialectName}'.`);
+                default:
+                    throw new mlir.Error(`Unsupported ${context} dialect '${dialectName}'.`);
+            }
+        }
     }
 
     redirect(name) {
@@ -6704,6 +6722,7 @@ _.Dialect = class {
         this.registerCustomAttribute('F64ElementsAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('IndexElementsAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('AnyI32ElementsAttr', this.parseTypedAttrInterface.bind(this));
+        this.registerCustomAttribute('AnyIntElementsAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('StringElementsAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('RankedF32ElementsAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('RankedF64ElementsAttr', this.parseTypedAttrInterface.bind(this));
@@ -6969,6 +6988,22 @@ _.Dialect = class {
                 // Skip whitespace directives - they're just formatting hints
                 break;
             case 'literal':
+                // Make '[' optional when followed by a variadic operand with buildable type
+                if (directive.value === '[' && !parser.match('[')) {
+                    const nextDir = directives[i + 1];
+                    if (nextDir && nextDir.type === 'operand_ref') {
+                        const operandMeta = opInfo.metadata?.operands?.find((o) => o.name === nextDir.name);
+                        if (operandMeta && isVariadic(operandMeta.type)) {
+                            // Skip '[' and mark to skip ']' later
+                            ctx.set('_skipClosingBracket', true);
+                            break;
+                        }
+                    }
+                }
+                if (directive.value === ']' && ctx.get('_skipClosingBracket')) {
+                    ctx.delete('_skipClosingBracket');
+                    break;
+                }
                 parser.expect(null, directive.value);
                 break;
             case 'region_ref': {
@@ -7105,6 +7140,20 @@ _.Dialect = class {
                             if (!parser.parseOptionalComma()) {
                                 break;
                             }
+                        } else if (buildableType && (parser.match('int') || parser.match('keyword', '-'))) {
+                            // Handle integer literals for buildable integer types (e.g., I32)
+                            let value = '';
+                            if (parser.accept('keyword', '-')) {
+                                value = '-';
+                            }
+                            value += parser.expect('int');
+                            entry.operands.push({ name: value, literal: true });
+                            if (buildableType) {
+                                entry.types.push(buildableType);
+                            }
+                            if (!parser.parseOptionalComma()) {
+                                break;
+                            }
                         } else {
                             break;
                         }
@@ -7114,6 +7163,15 @@ _.Dialect = class {
                     if (buildableType) {
                         entry.types.push(buildableType);
                     }
+                } else if (buildableType && (parser.match('int') || parser.match('keyword', '-'))) {
+                    // Handle integer literals for buildable integer types (e.g., I32)
+                    let value = '';
+                    if (parser.accept('keyword', '-')) {
+                        value = '-';
+                    }
+                    value += parser.expect('int');
+                    entry.operands.push({ name: value, literal: true });
+                    entry.types.push(buildableType);
                 } else if (parser.match('{')) {
                     // Check if this is a region, not an operand
                     const isActualOperand = opInfo.metadata?.operands?.some((inp) => inp.name === name);
@@ -7467,60 +7525,35 @@ _.Dialect = class {
                         const attrInfo = opInfo.metadata && opInfo.metadata.attributes && opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
                         const attrType = attrInfo ? attrInfo.type : null;
                         // Check if attribute type is an array (TypedArrayAttrBase, ArrayAttr, etc.)
-                        const isArrayAttr = (function checkArrayAttr(t) {
-                            if (!t) {
-                                return false;
-                            }
-                            if (typeof t === 'string') {
-                                return /ArrayAttr|TypedArrayAttrBase/.test(t);
-                            }
-                            if (t.name && /ArrayAttr|TypedArrayAttrBase/.test(t.name)) {
-                                return true;
-                            }
-                            if (t.args && Array.isArray(t.args)) {
-                                return t.args.some((arg) => checkArrayAttr(arg));
-                            }
-                            return false;
-                        })(attrType);
-                        const isIntegerAttr = (function checkIntAttr(t) {
-                            if (!t) {
-                                return false;
-                            }
-                            if (typeof t === 'string') {
-                                return /I\d+Attr|SI\d+Attr|UI\d+Attr|IntegerAttr|IndexAttr/.test(t);
-                            }
-                            if (t.name && /I\d+Attr|SI\d+Attr|UI\d+Attr|IntegerAttr|IndexAttr/.test(t.name)) {
-                                return true;
-                            }
-                            if (t.args && Array.isArray(t.args)) {
-                                return t.args.some((arg) => checkIntAttr(arg));
-                            }
-                            return false;
-                        })(attrType);
-                        const isElementsAttr = (function checkElementsAttr(t) {
-                            if (!t) {
-                                return false;
-                            }
-                            if (typeof t === 'string') {
-                                return /ElementsAttr|DenseElementsAttr|SparseElementsAttr|DenseResourceElementsAttr/.test(t);
-                            }
-                            if (t.name && /ElementsAttr|DenseElementsAttr|SparseElementsAttr|DenseResourceElementsAttr/.test(t.name)) {
-                                return true;
-                            }
-                            if (t.args && Array.isArray(t.args)) {
-                                return t.args.some((arg) => checkElementsAttr(arg));
-                            }
-                            return false;
-                        })(attrType);
+                        // Handle both string types ("OptionalAttr<StrAttr>") and object types ({name: "OptionalAttr", args: [...]})
+                        let elementType = attrType;
+                        const getTypeName = (t) => typeof t === 'string' ? t : t?.name;
+                        const typeContains = (t, pattern) => {
+                            const name = typeof t === 'string' ? t : t?.name;
+                            return name && name.includes(pattern);
+                        };
+                        // Unwrap wrapper types
+                        if (typeContains(elementType, 'OptionalAttr')) {
+                            elementType = typeof elementType === 'string' ? elementType.replace(/OptionalAttr<(.+)>/, '$1') : elementType.args?.[0];
+                        }
+                        if (typeContains(elementType, 'DefaultValuedAttr') || typeContains(elementType, 'DefaultValuedStrAttr')) {
+                            elementType = typeof elementType === 'string' ? elementType.replace(/DefaultValuedAttr<(.+?)(?:,.*?)?>/, '$1') : elementType.args?.[0];
+                        }
+                        if (typeContains(elementType, 'ConfinedAttr')) {
+                            elementType = typeof elementType === 'string' ? elementType.replace(/ConfinedAttr<(.+?)(?:,.*?)?>/, '$1') : elementType.args?.[0];
+                        }
+                        const typeName = getTypeName(elementType);
                         let shouldTryParse = false;
-                        if (isArrayAttr) {
+                        if (typeContains(elementType, 'TypedArrayAttrBase') || typeContains(elementType, 'ArrayAttr')) {
                             shouldTryParse = parser.match('[');
-                        } else if (isIntegerAttr) {
+                        } else if (typeName && /^[SU]?I\d+Attr$|^IntegerAttr$|^IndexAttr$/.test(typeName)) {
                             shouldTryParse = parser.match('int') || parser.match('-');
-                        } else if (isElementsAttr) {
+                        } else if (typeContains(elementType, 'ElementsAttr')) {
                             // ElementsAttr values start with specific keywords: dense, sparse, array, dense_resource
                             shouldTryParse = parser.match('id', 'dense') || parser.match('id', 'sparse') ||
                                 parser.match('id', 'array') || parser.match('id', 'dense_resource');
+                        } else if (typeName === 'StrAttr' || typeName === 'StringAttr') {
+                            shouldTryParse = parser.match('string');
                         } else {
                             shouldTryParse = parser.match('id') || parser.match('#') || parser.match('@') || parser.match('string') || parser.match('[') || parser.match('int');
                         }
@@ -7765,33 +7798,6 @@ _.Dialect = class {
         return parser.parseOptionalAttribute(type);
     }
 
-    // Helper methods for type constraints
-    _isVariadic(type) {
-        if (!type) {
-            return false;
-        }
-        if (type.name === 'Variadic' || type.name === 'VariadicOfVariadic') {
-            return true;
-        }
-        if (Array.isArray(type.args) && type.args.length > 0) {
-            return this._isVariadic(type.args[0]);
-        }
-        return false;
-    }
-
-    _isOptional(type) {
-        if (!type) {
-            return false;
-        }
-        if (type.name === 'Optional') {
-            return true;
-        }
-        if (Array.isArray(type.args) && type.args.length > 0) {
-            return this._isOptional(type.args[0]);
-        }
-        return false;
-    }
-
     parseOptionalAttr(parser, type) {
         if (!Array.isArray(type.args) || type.args.length === 0) {
             throw new mlir.Error(`Invalid 'OptionalAttr' type.`);
@@ -7893,12 +7899,12 @@ _.Dialect = class {
     }
 
     parseIntegerAttr(typeName, parser) {
-        const type = new _.PrimitiveType(typeName);
+        const type = new _.IntegerType(typeName);
         return parser.parseAttribute(type);
     }
 
     parseFloatAttr(typeName, parser) {
-        const type = new _.PrimitiveType(typeName);
+        const type = new _.FloatType(typeName);
         return parser.parseAttribute(type);
     }
 
@@ -15607,7 +15613,7 @@ _.BuiltinDialect = class extends _.Dialect {
             case 9: { // FloatAttr
                 const type = reader.readType();
                 const value = reader.readAPFloatWithKnownSemantics(type);
-                return new _.FloatAttr(value, type);
+                return new _.FloatAttr(type, value);
             }
             case 10: { // CallSiteLoc
                 const caller = reader.readAttribute();
@@ -23630,6 +23636,54 @@ _.TritonXlaDialect = class extends _.Dialect {
         }
         parser.parseRSquare();
         op.addAttribute(staticName, staticValues);
+    }
+};
+
+_.EnsembleDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'ensemble');
+    }
+
+    parseType(parser, dialectName) {
+        const typeName = parser.parseOptionalKeyword();
+        if (!typeName) {
+            return null;
+        }
+        const type = `!${dialectName}.${typeName}`;
+        const simpleTypes = ['physical_qubit', 'virtual_qubit', 'cbit', 'gate', 'gate_distribution', 'connectivity_graph'];
+        if (simpleTypes.includes(typeName)) {
+            return new _.Type(type);
+        }
+        return null;
+    }
+};
+
+_.PolyDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'poly');
+    }
+
+    parseType(parser, dialectName) {
+        const typeName = parser.parseOptionalKeyword();
+        if (!typeName) {
+            return null;
+        }
+        let type = `!${dialectName}.${typeName}`;
+        // poly.poly<N> type has a degree bound parameter
+        if (typeName === 'poly' && parser.match('<')) {
+            const content = parser.skip('<');
+            type += content;
+        }
+        return new _.Type(type);
+    }
+};
+
+_.NoisyDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'noisy');
     }
 };
 
