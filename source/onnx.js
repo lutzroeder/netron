@@ -1073,7 +1073,7 @@ onnx.Context.Model = class {
             }
             if (metadata) {
                 if (metadata.default !== undefined) {
-                    const defaultValue = type === 'int64' ? BigInt(metadata.default) : metadata.default;
+                    const defaultValue = type === 'int64' && Number.isInteger(metadata.default) ? BigInt(metadata.default) : metadata.default;
                     if (value === defaultValue) {
                         visible = false;
                     }
