@@ -34,6 +34,7 @@ pickle.ModelFactory = class {
                 ['cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML'],
                 ['shap.explainers._linear.LinearExplainer', 'SHAP'],
                 ['gensim.models.word2vec.Word2Vec', 'Gensim'],
+                ['ray.rllib.algorithms.ppo.ppo.PPOConfig', 'Ray RLlib'],
                 ['builtins.bytearray', 'Pickle'],
                 ['builtins.dict', 'Pickle'],
                 ['collections.OrderedDict', 'Pickle'],

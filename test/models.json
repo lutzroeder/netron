@@ -5406,6 +5406,13 @@
   },
   {
     "type":     "pickle",
+    "target":   "algorithm_state.pkl",
+    "source":   "https://github.com/user-attachments/files/24619982/algorithm_state.pkl.zip[algorithm_state.pkl]",
+    "format":   "Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "batches.meta",
     "source":   "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
     "format":   "Pickle",
