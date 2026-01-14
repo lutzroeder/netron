@@ -37984,7 +37984,7 @@
       {
         "name": "Tcomplex",
         "type": "type",
-        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "description": "Should be `tf.complex64` when the type of `input` is `float32`.\nShould be `tf.complex128` when the type of `input` is `float64`. Must be one of the following: `complex64`, `complex128`.",
         "default": {
           "type": "type",
           "value": 8
@@ -37994,7 +37994,7 @@
     "inputs": [
       {
         "name": "input",
-        "description": "A float32 tensor.",
+        "description": "A float32 or float64 tensor.",
         "typeAttr": "Treal"
       },
       {
@@ -38028,7 +38028,7 @@
       {
         "name": "Tcomplex",
         "type": "type",
-        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "description": "Should be `tf.complex64` when the type of `input` is `float32`.\nShould be `tf.complex128` when the type of `input` is `float64`. Must be one of the following: `complex64`, `complex128`.",
         "default": {
           "type": "type",
           "value": 8
@@ -38038,7 +38038,7 @@
     "inputs": [
       {
         "name": "input",
-        "description": "A float32 tensor.",
+        "description": "A float32 or float64 tensor.",
         "typeAttr": "Treal"
       },
       {
@@ -38072,7 +38072,7 @@
       {
         "name": "Tcomplex",
         "type": "type",
-        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "description": "Should be `tf.complex64` when the type of `input` is `float32`.\nShould be `tf.complex128` when the type of `input` is `float64`. Must be one of the following: `complex64`, `complex128`.",
         "default": {
           "type": "type",
           "value": 8
@@ -38082,7 +38082,7 @@
     "inputs": [
       {
         "name": "input",
-        "description": "A float32 tensor.",
+        "description": "A float32 or float64 tensor.",
         "typeAttr": "Treal"
       },
       {
@@ -38116,7 +38116,7 @@
       {
         "name": "Tcomplex",
         "type": "type",
-        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "description": "Should be `tf.complex64` when the type of `input` is `float32`.\nShould be `tf.complex128` when the type of `input` is `float64`. Must be one of the following: `complex64`, `complex128`.",
         "default": {
           "type": "type",
           "value": 8
@@ -38126,7 +38126,7 @@
     "inputs": [
       {
         "name": "input",
-        "description": "A complex tensor.",
+        "description": "A float32 or float64 tensor.",
         "typeAttr": "Treal"
       },
       {
