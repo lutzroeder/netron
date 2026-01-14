@@ -102,6 +102,9 @@ const schema = async () => {
         path.join(source, 'clangir', 'clang', 'include'),
         path.join(source, 'rocMLIR'),
         path.join(source, 'rocMLIR', 'mlir', 'include'),
+        path.join(source, 'ensemble-compilation', 'lib', 'Dialect', 'Ensemble'),
+        path.join(source, 'mlir-tutorial', 'lib', 'Dialect', 'Poly'),
+        path.join(source, 'mlir-tutorial', 'lib', 'Dialect', 'Noisy'),
         path.join(source, '_', 'llvm-project', 'mlir', 'include'),
         path.join(source, '_', 'mlir-hlo'),
     ];
@@ -327,6 +330,9 @@ const schema = async () => {
         'xla/python/ifrt/ir/ifrt_ops.td',
         'xla/python/ifrt/ir/vifrt_ops.td',
         'xla/xla/mlir/framework/ir/xla_framework_ops.td',
+        'ensemble-compilation/lib/Dialect/Ensemble/EnsembleOps.td',
+        'mlir-tutorial/lib/Dialect/Poly/PolyOps.td',
+        'NoisyOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
@@ -826,6 +832,8 @@ const test = async (pattern) => {
     let currentFile = null;
     const validFiles = new Set();
     const invalidFiles = new Set([
+        'third_party/source/mlir/ensemble-compilation/tests/benchmarks/quantum_volume.mlir',
+        'third_party/source/mlir/ensemble-compilation/tests/ensemble_gate_distribution.mlir',
         'third_party/source/mlir/iree/compiler/src/iree/compiler/Codegen/Dialect/Codegen/IR/test/lowering_config_attr.mlir',
         'third_party/source/mlir/iree/samples/compiler_plugins/simple_io_sample/test/print.mlir',
         'third_party/source/mlir/lltz/mlir/dialect/irdl/michelson.irdl.mlir',
