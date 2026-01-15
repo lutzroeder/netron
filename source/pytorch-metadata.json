@@ -7201,16 +7201,58 @@
     "name": "executorch_prim::add.Scalar(Scalar a, Scalar b) -> Scalar"
   },
   {
+    "name": "executorch_prim::ceil.Scalar(Scalar a) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::eq.Scalar(Scalar a, Scalar b) -> bool"
+  },
+  {
     "name": "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)"
   },
   {
     "name": "executorch_prim::floordiv.Scalar(Scalar a, Scalar b) -> Scalar"
   },
   {
+    "name": "executorch_prim::ge.Scalar(Scalar a, Scalar b) -> bool"
+  },
+  {
+    "name": "executorch_prim::gt.Scalar(Scalar a, Scalar b) -> bool"
+  },
+  {
+    "name": "executorch_prim::le.Scalar(Scalar a, Scalar b) -> bool"
+  },
+  {
+    "name": "executorch_prim::lt.Scalar(Scalar a, Scalar b) -> bool"
+  },
+  {
+    "name": "executorch_prim::mod.Scalar(SymInt a, SymInt b) -> SymInt"
+  },
+  {
     "name": "executorch_prim::mul.Scalar(Scalar a, Scalar b) -> Scalar"
   },
   {
+    "name": "executorch_prim::neg.Scalar(Scalar a) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::round.Scalar(Scalar a) -> Scalar"
+  },
+  {
     "name": "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::sym_float.Scalar(Scalar a) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::sym_max.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::sym_min.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::truediv.Scalar(Scalar a, Scalar b) -> Scalar"
+  },
+  {
+    "name": "executorch_prim::trunc.Scalar(Scalar a) -> Scalar"
   },
   {
     "name": "fbgemm::asynchronous_complete_cumsum(Tensor t_in) -> Tensor"
