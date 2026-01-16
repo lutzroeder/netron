@@ -827,9 +827,41 @@ const schema = async () => {
 const test = async (pattern) => {
     pattern = pattern || './**/*.mlir';
     const errorTotals = new Map();
-    const filesByError = new Map();
-    const fileErrorDetails = new Map();
     let currentFile = null;
+    const fileErrors = new Map(); // file -> [error lines]
+    const allFiles = new Set();
+    await new Promise((resolve, reject) => {
+        const cmd = 'node';
+        const args = ['--max-old-space-size=8192', './test/models.js', 'continue', pattern];
+        const proc = child_process.spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+        const stdout = readline.createInterface({ input: proc.stdout, crlfDelay: Infinity });
+        const stderr = readline.createInterface({ input: proc.stderr, crlfDelay: Infinity });
+        const processLine = (line) => {
+            writeLine(line);
+            const stripped = line.trim();
+            if (!stripped) {
+                return;
+            }
+            if (stripped.startsWith('third_party/')) {
+                currentFile = stripped;
+                allFiles.add(currentFile);
+                return;
+            }
+            if (currentFile) {
+                if (/^\s*\d+\s*\/\s*\d+\s*=\s*[\d.]+%\s*$/.test(stripped)) {
+                    return;
+                }
+                if (!fileErrors.has(currentFile)) {
+                    fileErrors.set(currentFile, []);
+                }
+                fileErrors.get(currentFile).push(stripped);
+            }
+        };
+        stdout.on('line', processLine);
+        stderr.on('line', processLine);
+        proc.on('error', (error) => reject(new Error(`Failed to start process: ${error.message}`)));
+        proc.on('close', resolve);
+    });
     const validFiles = new Set();
     const invalidFiles = new Set([
         'third_party/source/mlir/ensemble-compilation/tests/benchmarks/quantum_volume.mlir',
@@ -865,6 +897,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/IR/dynamic.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-unregistered.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/parser.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/parser-string-literal-comment.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/zero_whitespace.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/mlir-tblgen/attr-or-type-format.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',
@@ -903,97 +936,86 @@ const test = async (pattern) => {
         'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/test/mlir/sample.mlir',
     ]);
-    return new Promise((resolve, reject) => {
-        const cmd = 'node';
-        const args = ['--max-old-space-size=8192', './test/models.js', 'continue', pattern];
-        const process = child_process.spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
-        const stdout = readline.createInterface({ input: process.stdout, crlfDelay: Infinity });
-        const stderr = readline.createInterface({ input: process.stderr, crlfDelay: Infinity });
-        const processLine = (line) => {
-            writeLine(line);
-            const stripped = line.trim();
-            if (!stripped) {
-                return;
-            }
-            if (stripped.startsWith('third_party/')) {
-                currentFile = stripped;
-                if (stripped.toLowerCase().includes('invalid') || stripped.startsWith('third_party/source/mlir/mlir-dace/design')) {
-                    invalidFiles.add(currentFile);
-                } else {
-                    validFiles.add(currentFile);
-                }
-                return;
-            }
-            if (currentFile && invalidFiles.has(currentFile)) {
-                return;
-            }
-            if (currentFile && !invalidFiles.has(currentFile)) {
-                // Skip summary lines (e.g., "123 / 456 = 78.9%")
-                if (/^\s*\d+\s*\/\s*\d+\s*=\s*[\d.]+%\s*$/.test(stripped)) {
-                    return;
-                }
-                // Normalize error message
-                const key = stripped.split(' at ', 1)[0].trim().replace(/\.$/, '').trim();
-                if (key) {
-                    errorTotals.set(key, (errorTotals.get(key) || 0) + 1);
-                    if (!filesByError.has(key)) {
-                        filesByError.set(key, new Map());
-                    }
-                    const fileCounts = filesByError.get(key);
-                    fileCounts.set(currentFile, (fileCounts.get(currentFile) || 0) + 1);
-                    if (!fileErrorDetails.has(key)) {
-                        fileErrorDetails.set(key, new Map());
-                    }
-                    const details = fileErrorDetails.get(key);
-                    if (!details.has(currentFile)) {
-                        details.set(currentFile, []);
-                    }
-                    details.get(currentFile).push(stripped);
-                }
-            }
-        };
-        stdout.on('line', processLine);
-        stderr.on('line', processLine);
-        process.on('error', (error) => {
-            reject(new Error(`Failed to start process: ${error.message}`));
-        });
-        process.on('close', (/* code */) => {
-            const totalValid = validFiles.size;
-            const filesWithErrors = new Set();
-            for (const [, fileCounts] of filesByError) {
-                for (const file of fileCounts.keys()) {
-                    filesWithErrors.add(file);
-                }
-            }
-            writeLine('');
-            writeLine('-'.repeat(75));
-            if (errorTotals.size > 0) {
-                const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
-                for (const [err, cnt] of sortedErrors) {
-                    const fileCounts = filesByError.get(err);
-                    const topFiles = Array.from(fileCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
-                    writeLine(`${cnt}  |  ${err}`);
-                    for (const [file,] of topFiles) {
-                        writeLine(`  ${file}`);
-                        const details = fileErrorDetails.get(err).get(file);
-                        for (const specificError of details) {
-                            writeLine(`    ${specificError}`);
-                        }
-                    }
-                    writeLine('');
-                }
-            }
-            if (totalValid > 0) {
-                const succeeded = totalValid - filesWithErrors.size;
-                const percentage = (succeeded * 100.0) / totalValid;
-                writeLine(`  ${succeeded} / ${totalValid} =  ${percentage.toPrecision(6)}%  - skipped ${invalidFiles.size} files`);
+    const readRunHeader = async (filePath) => {
+        const handle = await fs.open(filePath, 'r');
+        const buffer = Buffer.alloc(256);
+        await handle.read(buffer, 0, 256, 0);
+        await handle.close();
+        const content = buffer.toString('utf-8').split('\n')[0];
+        return content.startsWith('// RUN:') ? content : null;
+    };
+    for (const file of allFiles) {
+        if (file.toLowerCase().includes('invalid')) {
+            invalidFiles.add(file);
+        } else if (file.startsWith('third_party/source/mlir/mlir-dace/design')) {
+            invalidFiles.add(file);
+        } else {
+            // eslint-disable-next-line no-await-in-loop
+            const run = await readRunHeader(file);
+            if (run?.includes('mlir-translate --import-wasm')) {
+                invalidFiles.add(file);
             } else {
-                writeLine('  No valid files processed');
+                validFiles.add(file);
+            }
+        }
+    }
+    const filesByError = new Map();
+    const fileErrorDetails = new Map();
+    for (const [file, errors] of fileErrors) {
+        if (invalidFiles.has(file)) {
+            continue;
+        }
+        for (const error of errors) {
+            const key = error.split(' at ', 1)[0].trim().replace(/\.$/, '').trim();
+            if (key) {
+                errorTotals.set(key, (errorTotals.get(key) || 0) + 1);
+                if (!filesByError.has(key)) {
+                    filesByError.set(key, new Map());
+                }
+                filesByError.get(key).set(file, (filesByError.get(key).get(file) || 0) + 1);
+                if (!fileErrorDetails.has(key)) {
+                    fileErrorDetails.set(key, new Map());
+                }
+                if (!fileErrorDetails.get(key).has(file)) {
+                    fileErrorDetails.get(key).set(file, []);
+                }
+                fileErrorDetails.get(key).get(file).push(error);
+            }
+        }
+    }
+    const totalValid = validFiles.size;
+    const filesWithErrors = new Set();
+    for (const [, fileCounts] of filesByError) {
+        for (const file of fileCounts.keys()) {
+            filesWithErrors.add(file);
+        }
+    }
+    writeLine('');
+    writeLine('-'.repeat(75));
+    if (errorTotals.size > 0) {
+        const sortedErrors = Array.from(errorTotals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
+        for (const [err, cnt] of sortedErrors) {
+            const fileCounts = filesByError.get(err);
+            const topFiles = Array.from(fileCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 100);
+            writeLine(`${cnt}  |  ${err}`);
+            for (const [file,] of topFiles) {
+                writeLine(`  ${file}`);
+                const details = fileErrorDetails.get(err).get(file);
+                for (const specificError of details) {
+                    writeLine(`    ${specificError}`);
+                }
             }
             writeLine('');
-            resolve();
-        });
-    });
+        }
+    }
+    if (totalValid > 0) {
+        const succeeded = totalValid - filesWithErrors.size;
+        const percentage = (succeeded * 100.0) / totalValid;
+        writeLine(`  ${succeeded} / ${totalValid} =  ${percentage.toPrecision(6)}%  - skipped ${invalidFiles.size} files`);
+    } else {
+        writeLine('  No valid files processed');
+    }
+    writeLine('');
 };
 
 const main = async () => {
