@@ -58,7 +58,7 @@ zip.Archive = class {
                     return null;
                 };
                 const read = (signature, size) => {
-                    if ((stream.position - size) > 0) {
+                    if ((stream.position - size) >= 0) {
                         stream.skip(-size);
                         signature = Array.from(signature, (c) => c.charCodeAt(0));
                         const buffer = stream.peek(size);
