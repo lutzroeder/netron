@@ -29,13 +29,15 @@ node.FileStream = class {
 
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._length || this._position < 0) {
+            throw new Error(`Expected ${this._position - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
+        }
     }
 
     skip(offset) {
         this._position += offset;
-        if (this._position > this._length) {
-            const offset = this._position - this._length;
-            throw new Error(`Expected ${offset} more bytes. The file might be corrupted. Unexpected end of file.`);
+        if (this._position > this._length || this._position < 0) {
+            throw new Error(`Expected ${this._position - this._length} more bytes. The file might be corrupted. Unexpected end of file.`);
         }
     }
 
