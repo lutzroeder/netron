@@ -7085,7 +7085,7 @@ _.Dialect = class {
         this._customAttributes.set(name, parserFn);
     }
 
-    createType(constraint) {
+    createBuildableType(constraint) {
         switch (constraint) {
             case 'I1': return new _.IntegerType('i1');
             case 'I8': return new _.IntegerType('i8');
@@ -7106,8 +7106,22 @@ _.Dialect = class {
             case 'BF16': return new _.Type('bf16');
             case 'F80': return new _.Type('f80');
             case 'F128': return new _.Type('f128');
+            case 'TF32': return new _.Type('tf32');
+            case 'F4E2M1FN': return new _.Type('f4E2M1FN');
+            case 'F6E2M3FN': return new _.Type('f6E2M3FN');
+            case 'F6E3M2FN': return new _.Type('f6E3M2FN');
+            case 'F8E3M4': return new _.Type('f8E3M4');
+            case 'F8E4M3': return new _.Type('f8E4M3');
+            case 'F8E4M3B11FNUZ': return new _.Type('f8E4M3B11FNUZ');
+            case 'F8E4M3FN': return new _.Type('f8E4M3FN');
+            case 'F8E4M3FNUZ': return new _.Type('f8E4M3FNUZ');
+            case 'F8E5M2': return new _.Type('f8E5M2');
+            case 'F8E5M2FNUZ': return new _.Type('f8E5M2FNUZ');
+            case 'F8E8M0FNU': return new _.Type('f8E8M0FNU');
             case 'Index': return new _.IndexType();
+            case 'NoneType': return new _.Type('none');
             case 'LLVM_DefaultPointer': return new _.Type('!llvm.ptr');
+            case 'LLVM_TokenType': return new _.Type('!llvm.token');
             case 'Torch_IntType': return new _.Type('!torch.int');
             case 'Torch_FloatType': return new _.Type('!torch.float');
             case 'Torch_BoolType': return new _.Type('!torch.bool');
@@ -7117,33 +7131,54 @@ _.Dialect = class {
             case 'Torch_NumberType': return new _.Type('!torch.number');
             case 'GPU_AsyncToken': return new _.Type('!gpu.async.token');
             case 'Async_TokenType': return new _.Type('!async.token');
+            case 'Async_ValueType': return new _.Type('!async.value<memref<?xf32>>');
             case 'Shape_SizeType': return new _.Type('!shape.size');
             case 'Shape_WitnessType': return new _.Type('!shape.witness');
             case 'Shape_ValueShapeType': return new _.Type('!shape.value_shape');
             case 'Shape_ShapeType': return new _.Type('!shape.shape');
+            case 'Shape_ExtentTensorType': return new _.Type('tensor<?xindex>');
             case 'OpenACC_DataBoundsType': return new _.Type('!acc.data_bounds');
             case 'PDL_OperationType': return new _.Type('!pdl.operation');
             case 'PDL_TypeType': return new _.Type('!pdl.type');
             case 'PDL_ValueType': return new _.Type('!pdl.value');
+            case 'PDL_RangeType': return new _.Type('!pdl.range<type>');
             case 'Transform_AnyOpType': return new _.Type('!transform.any_op');
             case 'Transform_AnyValueType': return new _.Type('!transform.any_value');
-            case 'TFRT_ChainType': return new _.Type('!tfrt.chain');
+            case 'Transform_ParamType': return new _.Type('!transform.param<i64>');
+            case 'AnyIRModule': return new _.Type('!transform.any_op');
+            case 'TransformHandleTypeInterface': return new _.Type('!transform.any_op');
             case 'OMP_MapBoundsType': return new _.Type('!omp.map.bounds');
             case 'VM_CondValue': return new _.IntegerType('i32');
             case 'VM_RefType': return new _.Type('!vm.ref<?>');
-            case 'Shape_ExtentTensorType': return new _.Type('tensor<?xindex>');
-            case 'PDL_RangeType': return new _.Type('!pdl.range<type>');
             case 'SPIRV_AnyPtr': return new _.Type('!spirv.ptr<i32, StorageBuffer>');
             case 'CoreRT_TensorHandleType': return new _.Type('!corert.tensorhandle');
+            case 'CoreRT_OpHandlerType': return new _.Type('!corert.ophandler');
             case 'CoreRT_StringType': return new _.Type('!corert.string');
-            case 'TFFramework_JITCallableType': return new _.Type('!tf_framework.jit_callable');
+            case 'TFRT_ChainType': return new _.Type('!tfrt.chain');
+            case 'TFRT_DeviceType': return new _.Type('!tfrt.device');
+            case 'TFRT_StringType': return new _.Type('!tfrt.string');
+            case 'TFRT_TensorTypeType': return new _.Type('!tfrt.tensor_type');
             case 'TFRT_Fallback_TFTensorType': return new _.Type('!tfrt_fallback.tf_tensor');
+            case 'TFTensorType': return new _.Type('!tfrt_fallback.tf_tensor');
+            case 'TFAllocatorType': return new _.Type('!tfrt_fallback.tf_allocator');
+            case 'HostBufferType': return new _.Type('!tfrt_ht.host_buffer');
+            case 'TensorType': return new _.Type('!tfrt_tensor.tensor');
+            case 'TFFramework_JITCallableType': return new _.Type('!tf_framework.jit_callable');
+            case 'TFFramework_OpKernelContextType': return new _.Type('!tf_framework.op_kernel_context');
             case 'TF_MLRT_FutureType': return new _.Type('!tf_mlrt.tensor');
-            case 'Async_ValueType': return new _.Type('!async.value<memref<?xf32>>');
+            case 'TFDeviceType': return new _.Type('!tf_mlrt.device');
+            case 'MlrtAsyncHandleType': return new _.Type('!mlrt.async_handle');
+            case 'MlrtFutureType': return new _.Type('!mlrt.future');
+            case 'MlrtPromiseType': return new _.Type('!mlrt.promise');
+            case 'TFL_Control': return new _.Type('!tfl.control');
+            case 'TFL_Quint8': return new _.Type('!quant.uniform<u8:f32, 1.0>');
+            case 'TFL_Str': return new _.Type('!tf.string');
+            case 'TfeControlType': return new _.Type('!tfe.control');
+            case 'TfeTokenType': return new _.Type('!tfe.token');
+            case 'TS_PartialShape': return new _.Type('!ts.partial_shape');
+            case 'TS_Shape': return new _.Type('!ts.shape');
             case 'XLA_BufferType': return new _.Type('!xla_framework.buffer');
-            case 'AnyIRModule': return new _.Type('!transform.any_op');
-            case 'TransformHandleTypeInterface': return new _.Type('!transform.any_op');
-            case 'Transform_ParamType': return new _.Type('!transform.param<i64>');
+            case 'Executor_HostPtr': return new _.Type('!executor.ptr<host>');
             case 'IREE_Input_GlobalRefAttr': return new _.Type('!iree_input.global.ref');
             default: return null;
         }
@@ -7445,9 +7480,9 @@ _.Dialect = class {
                 // Check for buildable types using createType
                 let buildableType = null;
                 if (isVariadicOp && input?.type?.args?.[0]?.name) {
-                    buildableType = this.createType(input.type.args[0].name);
+                    buildableType = this.createBuildableType(input.type.args[0].name);
                 } else if (input?.type?.name) {
-                    buildableType = this.createType(input.type.name);
+                    buildableType = this.createBuildableType(input.type.name);
                 }
                 // Get or create ctx entry for this operand
                 if (!ctx.has(name)) {
@@ -8118,7 +8153,7 @@ _.Dialect = class {
                 const resultInfo = opInfo.metadata.results[i];
                 const name = resultInfo.type?.name;
                 if (name) {
-                    const type = this.createType(name);
+                    const type = this.createBuildableType(name);
                     if (type) {
                         inferredTypes.push(type);
                     }
@@ -10000,25 +10035,31 @@ _.VectorDialect = class extends _.Dialect {
     }
 
     parseOuterProductOp(parser, result) {
-        const unresolvedLhs = parser.parseOperand();
-        parser.parseComma();
-        const unresolvedRhs = parser.parseOperand();
-        let unresolvedAcc = null;
-        if (parser.parseOptionalComma()) {
-            unresolvedAcc = parser.parseOperand();
-        }
+        const operandsInfo = parser.parseOperandList();
         parser.parseOptionalAttrDict(result.attributes);
-        if (parser.parseOptionalColon()) {
-            const lhsType = parser.parseType();
-            parser.parseComma();
-            const rhsType = parser.parseType();
-            parser.resolveOperand(unresolvedLhs, lhsType, result.operands);
-            parser.resolveOperand(unresolvedRhs, rhsType, result.operands);
-            if (unresolvedAcc) {
-                // Accumulator type - typically same as result, use rhs type as approximation
-                parser.resolveOperand(unresolvedAcc, rhsType, result.operands);
-            }
+        const tLHS = parser.parseColonType();
+        parser.parseComma();
+        const tRHS = parser.parseType();
+        const vLHS = tLHS instanceof _.VectorType ? tLHS : null;
+        const vRHS = tRHS instanceof _.VectorType ? tRHS : null;
+        let resType = null;
+        if (vRHS) {
+            const scalableDimsRes = [
+                vLHS.scalableDims ? vLHS.scalableDims[0] : false,
+                vRHS.scalableDims ? vRHS.scalableDims[0] : false
+            ];
+            resType = new _.VectorType([vLHS.shape[0], vRHS.shape[0]], vLHS.elementType, scalableDimsRes);
+        } else {
+            // Scalar RHS operand
+            const scalableDimsRes = [vLHS.scalableDims ? vLHS.scalableDims[0] : false];
+            resType = new _.VectorType([vLHS.shape[0]], vLHS.elementType, scalableDimsRes);
         }
+        parser.resolveOperand(operandsInfo[0], tLHS, result.operands);
+        parser.resolveOperand(operandsInfo[1], tRHS, result.operands);
+        if (operandsInfo.length > 2) {
+            parser.resolveOperand(operandsInfo[2], resType, result.operands);
+        }
+        result.addTypes([resType]);
         return true;
     }
 
@@ -19575,17 +19616,12 @@ _.VMDialect = class extends _.Dialect {
             }
             return true;
         }
-        // Handle vm.const.* operations (e.g., vm.const.i32.zero : i32, vm.const.i32 1 : i32, vm.const.ref.rodata @symbol : !vm.buffer)
-        if (result.op.startsWith('vm.const.') && result.op !== 'vm.const.i32' && result.op !== 'vm.const.ref.rodata' && result.op !== 'vm.const.ref.zero') {
-            if (result.op === 'vm.const.i32.zero') {
-                result.compatibility = true;
-            }
-            // Optional value or symbol reference
+        if (result.op === 'vm.const.i32.zero') {
+            result.compatibility = true;
             if (parser.match('int') || parser.match('float') || parser.match('string')) {
                 const value = parser.parseAttribute();
                 result.addAttribute('value', value.value === undefined ? value : value.value);
             } else if (parser.match('@')) {
-                // Handle symbol reference (e.g., @symbol_name)
                 const symbol = parser.expect('@');
                 result.addAttribute('rodata', symbol);
             }
@@ -20222,10 +20258,6 @@ _.CoreRTDialect = class extends _.Dialect {
     }
 
     parseOperation(parser, result) {
-        const opInfo = result.name.getRegisteredInfo();
-        if (!opInfo) {
-            return false;
-        }
         if (result.op === 'corert.executeop' || result.op === 'corert.executeop.seq') {
             const opHandlerOperands = parser.parseOperandList('paren');
             for (const operand of opHandlerOperands) {
@@ -20240,9 +20272,19 @@ _.CoreRTDialect = class extends _.Dialect {
             if (parser.match('{')) {
                 parser.parseAttributeDict(result.attributes);
             }
+            // Parse optional second attr-dict for func attrs
+            if (parser.match('{')) {
+                const funcAttrs = new Map();
+                parser.parseAttributeDict(funcAttrs);
+                result.addAttribute('op_func_attrs', Object.fromEntries(funcAttrs));
+            }
             if (parser.parseOptionalColon()) {
-                const resultCount = parser.expect();
-                result.addAttribute('result_count', parseInt(resultCount, 10));
+                const resultCount = parseInt(parser.expect('int'), 10);
+                // Add result types - each result is a tensorhandle
+                const tensorHandleType = new _.Type('!corert.tensorhandle');
+                for (let i = 0; i < resultCount; i++) {
+                    result.addTypes([tensorHandleType]);
+                }
             }
             return true;
         }

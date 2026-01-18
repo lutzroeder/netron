@@ -21006,7 +21006,7 @@ python.Execution = class {
         if (!type) {
             if (!this._unresolved.has(name)) {
                 const moduleName = name.split('.').shift();
-                if (this._registry.has(moduleName) && moduleName !== '__main__') {
+                if (this._registry.has(moduleName) && moduleName !== '__main__' && moduleName !== '__torch__') {
                     this.emit('resolve', name);
                 }
                 const type = this._createType(name, class {});

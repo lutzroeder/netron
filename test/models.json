@@ -7198,7 +7198,7 @@
     "target":   "unknown_type_name.pt",
     "source":   "https://github.com/user-attachments/files/21330384/unknown_type_name.pt.zip[unknown_type_name.pt]",
     "format":   "TorchScript v1.6",
-    "error":    "Unknown type name '__torch__.models.test_model.TestModel'.\nUnknown type name '__torch__.models.test_model.TestModel'.\nUnknown type name '__torch__.models.test_model.CustomLayer'.\nUnknown type name '__torch__.models.test_model.___torch_mangle_2.CustomLayer'.",
+    "error":    "Unknown type name '__torch__.models.test_model.TestModel'.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
