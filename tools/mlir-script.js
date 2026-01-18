@@ -782,18 +782,12 @@ const schema = async () => {
                         traits.push({ type: 'IsolatedFromAbove' });
                     }
                     // Extract InferTypeOpInterface trait (for type inference)
-                    if (traitName === 'InferTypeOpInterface' && traits.every((trait) => trait.type !== 'InferTypeOpInterface')) {
+                    // Also check for InferTypeOpAdaptor which is a TraitList containing InferTypeOpInterface
+                    // Note: DeclareOpInterfaceMethods<InferTypeOpInterface> is NOT included here because
+                    // it just means the op declares custom implementations, not that we can infer types
+                    if ((traitName === 'InferTypeOpInterface' || traitName === 'InferTypeOpAdaptor') &&
+                        traits.every((trait) => trait.type !== 'InferTypeOpInterface')) {
                         traits.push({ type: 'InferTypeOpInterface' });
-                    }
-                    // Check for DeclareOpInterfaceMethods<InferTypeOpInterface>
-                    if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
-                        const interfaceOperand = trait.value.operands[0];
-                        if (interfaceOperand && interfaceOperand.value && interfaceOperand.value.type === 'def') {
-                            const interfaceName = interfaceOperand.value.value;
-                            if (interfaceName === 'InferTypeOpInterface' && traits.every((t) => t.type !== 'InferTypeOpInterface')) {
-                                traits.push({ type: 'InferTypeOpInterface' });
-                            }
-                        }
                     }
                     // Extract defaultDialect from OpAsmOpInterface
                     if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
@@ -823,10 +817,11 @@ const schema = async () => {
                     continue;
                 }
                 visited.add(parent.name);
-                // Extract traits from parent args
-                const possibleTraitArgs = parent.args && parent.args.length >= 2 ? [parent.args[1], parent.args[2]] : [];
-                for (const traitsArg of possibleTraitArgs) {
-                    extractTraitsFromList(traitsArg);
+                // Extract traits from parent args (check all args as traits can be at different positions)
+                if (parent.args) {
+                    for (const traitsArg of parent.args) {
+                        extractTraitsFromList(traitsArg);
+                    }
                 }
                 // Recursively look at parent class definition
                 const parentClass = parser.getClass(parent.name);
