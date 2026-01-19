@@ -8,6 +8,7 @@ json.TextReader = class {
 
     static open(data) {
         const decoder = text.Decoder.open(data);
+        const position = decoder.position;
         let state = '';
         for (let i = 0; i < 0x1000; i++) {
             const c = decoder.decode();
@@ -52,19 +53,20 @@ json.TextReader = class {
                     break;
             }
         }
+        decoder.position = position;
         return new json.TextReader(decoder);
     }
 
     constructor(decoder) {
         this._decoder = decoder;
-        this._decoder.position = 0;
+        this._start = decoder.position;
         this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
     }
 
     read() {
         const stack = [];
-        this._decoder.position = 0;
-        this._position = 0;
+        this._decoder.position = this._start;
+        this._position = this._start;
         this._char = this._decoder.decode();
         this._whitespace();
         let obj = null;
@@ -380,7 +382,7 @@ json.TextReader = class {
     _location() {
         let line = 1;
         let column = 1;
-        this._decoder.position = 0;
+        this._decoder.position = this._start;
         let c = '';
         do {
             if (this._decoder.position === this._position) {
