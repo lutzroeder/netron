@@ -202,6 +202,7 @@ const schema = async () => {
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVNonUniformOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVPrimitiveOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVStructureOps.td',
+        'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVTosaOps.td',
         'mlir/include/mlir/Dialect/Tensor/IR/TensorOps.td',
         'mlir/include/mlir/Dialect/Tensor/TransformOps/TensorTransformOps.td',
         'mlir/include/mlir/Dialect/Tosa/IR/TosaOps.td',
@@ -767,29 +768,25 @@ const schema = async () => {
                             }
                         }
                     }
-                    // Extract AttrSizedOperandSegments trait
-                    if ((traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') &&
-                        traits.every((t) => t.type !== 'AttrSizedOperandSegments')) {
+                    if ((traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') && traits.every((t) => t.type !== 'AttrSizedOperandSegments')) {
                         traits.push({ type: 'AttrSizedOperandSegments' });
                     }
-                    // Extract SameOperandsAndResultType trait (for type inference)
-                    if ((traitName === 'SameOperandsAndResultType' || traitDag === 'SameOperandsAndResultType') &&
-                        traits.every((t) => t.type !== 'SameOperandsAndResultType')) {
+                    if ((traitName === 'SameOperandsAndResultType' || traitDag === 'SameOperandsAndResultType') && traits.every((t) => t.type !== 'SameOperandsAndResultType')) {
                         traits.push({ type: 'SameOperandsAndResultType' });
                     }
-                    // Extract IsolatedFromAbove trait
+                    if (traitName === 'TensorRTInferTensorResultTypes' && traits.every((t) => t.type !== 'SameOperandsAndResultType')) {
+                        traits.push({ type: 'SameOperandsAndResultType' });
+                    }
                     if (traitName === 'IsolatedFromAbove' && traits.every((trait) => trait.type !== 'IsolatedFromAbove')) {
                         traits.push({ type: 'IsolatedFromAbove' });
                     }
-                    // Extract InferTypeOpInterface trait (for type inference)
-                    // Also check for InferTypeOpAdaptor which is a TraitList containing InferTypeOpInterface
-                    // Note: DeclareOpInterfaceMethods<InferTypeOpInterface> is NOT included here because
-                    // it just means the op declares custom implementations, not that we can infer types
+                    if ((traitName === 'FirstAttrDerivedResultType' || traitDag === 'FirstAttrDerivedResultType') && traits.every((t) => t.type !== 'FirstAttrDerivedResultType')) {
+                        traits.push({ type: 'FirstAttrDerivedResultType' });
+                    }
                     if ((traitName === 'InferTypeOpInterface' || traitName === 'InferTypeOpAdaptor') &&
                         traits.every((trait) => trait.type !== 'InferTypeOpInterface')) {
                         traits.push({ type: 'InferTypeOpInterface' });
                     }
-                    // Extract defaultDialect from OpAsmOpInterface
                     if (traitName === 'OpAsmOpInterface' || traitDag === 'DeclareOpInterfaceMethods') {
                         if (traitDag === 'DeclareOpInterfaceMethods' && trait.value && trait.value.operands) {
                             if (trait.value.operands.some((operand) => operand.value && operand.value.type === 'list' && operand.value.value.some((method) => method.type === 'string' && method.value === 'getDefaultDialect'))) {
