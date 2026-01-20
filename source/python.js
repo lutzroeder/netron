@@ -3838,6 +3838,9 @@ python.Execution = class {
                         }
                         case 103: { // GET 'g'
                             const index = parseInt(reader.line(), 10);
+                            if (index in memo === false) {
+                                throw new python.Error(`Memo value not found at index '${index}'.`);
+                            }
                             stack.push(memo[index]);
                             break;
                         }
@@ -3883,9 +3886,14 @@ python.Execution = class {
                             stack.push(obj);
                             break;
                         }
-                        case 104: // BINGET 'h'
-                            stack.push(memo[reader.byte()]);
+                        case 104: { // BINGET 'h'
+                            const index = reader.byte();
+                            if (index in memo === false) {
+                                throw new python.Error(`Memo value not found at index '${index}'.`);
+                            }
+                            stack.push(memo[index]);
                             break;
+                        }
                         case 105: { // INST 'i'
                             const module = reader.line();
                             const name = reader.line();
@@ -3897,9 +3905,14 @@ python.Execution = class {
                             stack.push(obj);
                             break;
                         }
-                        case 106: // LONG_BINGET 'j'
-                            stack.push(memo[reader.uint32()]);
+                        case 106: { // LONG_BINGET 'j'
+                            const index = reader.uint32();
+                            if (index in memo === false) {
+                                throw new python.Error(`Memo value not found at index '${index}'.`);
+                            }
+                            stack.push(memo[index]);
                             break;
+                        }
                         case 113: // BINPUT 'q'
                             if (stack.length === 0) {
                                 throw new python.Error(`Empty stack during 'BINPUT' operation.`);
