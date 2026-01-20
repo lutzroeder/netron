@@ -768,6 +768,49 @@ const schema = async () => {
                             }
                         }
                     }
+                    // Handle classes that inherit from TypesMatchWith (e.g., PointeeTypeMatchTrait)
+                    if (traitDag && traitDag !== 'TypesMatchWith' && trait.value && trait.value.operands) {
+                        const traitClass = parser.getClass(traitDag);
+                        if (traitClass) {
+                            // Check if this class inherits from TypesMatchWith
+                            for (const classParent of traitClass.parents || []) {
+                                if (classParent.name === 'TypesMatchWith' && classParent.args && classParent.args.length >= 4) {
+                                    // Build template bindings from trait operands to class template args
+                                    const bindings = new Map();
+                                    for (let i = 0; i < traitClass.templateArgs.length && i < trait.value.operands.length; i++) {
+                                        const paramName = traitClass.templateArgs[i].name;
+                                        const argValue = trait.value.operands[i];
+                                        if (argValue && argValue.value) {
+                                            bindings.set(paramName, argValue.value.type === 'string' ? argValue.value.value : argValue.value);
+                                        }
+                                    }
+                                    // Extract from, to, transformer from TypesMatchWith parent args (indices 1, 2, 3)
+                                    const resolveArg = (arg) => {
+                                        if (!arg) {
+                                            return null;
+                                        }
+                                        if (arg.type === 'string' || arg.type === 'code') {
+                                            return arg.value;
+                                        }
+                                        if (arg.type === 'def' && typeof arg.value === 'string') {
+                                            // Check if it's a template parameter reference
+                                            return bindings.has(arg.value) ? bindings.get(arg.value) : arg.value;
+                                        }
+                                        return null;
+                                    };
+                                    const from = resolveArg(classParent.args[1]);
+                                    const to = resolveArg(classParent.args[2]);
+                                    const transformer = resolveArg(classParent.args[3]);
+                                    if (from && to && transformer) {
+                                        const traitType = `TypesMatchWith<'${from}', '${to}', '${transformer}'>`;
+                                        if (traits.every((t) => t.type !== traitType)) {
+                                            traits.push({ type: traitType });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if ((traitName === 'AttrSizedOperandSegments' || traitDag === 'AttrSizedOperandSegments') && traits.every((t) => t.type !== 'AttrSizedOperandSegments')) {
                         traits.push({ type: 'AttrSizedOperandSegments' });
                     }
@@ -973,6 +1016,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
         'third_party/source/mlir/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
         'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
@@ -982,6 +1026,7 @@ const test = async (pattern) => {
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/test/mlir/sample.mlir',
     ]);

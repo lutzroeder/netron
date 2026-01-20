@@ -939,8 +939,21 @@ tablegen.Record = class {
                 if (casesArg && casesArg.type === 'list' && Array.isArray(casesArg.value)) {
                     const cases = [];
                     for (const caseValue of casesArg.value) {
-                        // Each case is a def reference
-                        if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
+                        // Each case can be either a DAG or a def reference
+                        if (caseValue.type === 'dag' && caseValue.value) {
+                            // DAG format: I32EnumAttrCase<"symbol", value>
+                            // The first operand is the symbol name
+                            const operands = caseValue.value.operands;
+                            if (operands && operands.length > 0) {
+                                const strOperand = operands[0];
+                                if (strOperand && strOperand.value) {
+                                    const str = this.evaluateValue(strOperand.value);
+                                    if (str && typeof str === 'string') {
+                                        cases.push(str);
+                                    }
+                                }
+                            }
+                        } else if (caseValue.type === 'def' && typeof caseValue.value === 'string') {
                             const caseDef = this.parser.getDef(caseValue.value) || this.parser.getClass(caseValue.value);
                             if (caseDef) {
                                 const str = caseDef.getValueAsString('str');
@@ -1517,8 +1530,29 @@ tablegen.Record = class {
                         return null;
                 }
             }
-            case 'dag':
-                return value.value;
+            case 'dag': {
+                const dag = value.value;
+                const evaluatedOperands = dag.operands.map((operand) => {
+                    if (!operand.value) {
+                        return operand;
+                    }
+                    const valType = operand.value.type;
+                    if (valType === 'def' || valType === 'id') {
+                        const refName = operand.value.value;
+                        if (this.templateBindings.has(refName)) {
+                            const evaluated = this.evaluateValue(operand.value, visited);
+                            if (typeof evaluated === 'string') {
+                                return {
+                                    value: { type: 'def', value: evaluated },
+                                    name: operand.name
+                                };
+                            }
+                        }
+                    }
+                    return operand;
+                });
+                return new tablegen.DAG(dag.operator, evaluatedOperands);
+            }
             case 'uninitialized':
                 return null;
             default:
