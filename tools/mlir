@@ -27,6 +27,7 @@ entries=(
     "https://github.com/ROCm/rocMLIR.git|develop|${src_dir}/rocMLIR|mlir/include/mlir/Dialect"
     "https://github.com/SashwatAnagolum/ensemble-compilation.git|main|${src_dir}/ensemble-compilation|"
     "https://github.com/j2kun/mlir-tutorial.git|main|${src_dir}/mlir-tutorial|"
+    "https://github.com/Xilinx/mlir-xten.git|feature/fused-ops|${src_dir}/mlir-xten|"
 )
 
 clean() {

@@ -652,6 +652,8 @@ mlir.Node = class {
                     type = 'tensor';
                 } else if (attr instanceof _.DenseArrayAttr) {
                     value = attr.value;
+                } else if (Array.isArray(attr)) {
+                    value = attr;
                 } else if (attr) {
                     value = attr.toString();
                 }
@@ -2457,158 +2459,116 @@ _.Parser = class {
         }
     }
 
-    parseLocation() {
-        if (this.accept('keyword', 'loc')) {
-            const location = {};
-            this.expect('(');
-            if (this.match('string')) {
-                const text = this.expect('string');
-                let content = `"${text}"`;
-                if (this.accept('(')) {
-                    const child = this.parseLocationContent();
-                    this.expect(')');
-                    content += `(${child})`;
-                } else if (this.accept(':')) {
-                    const line = this.expect('int');
-                    content += `:${line}`;
-                    if (this.accept(':')) {
-                        const col = this.expect('int');
-                        content += `:${col}`;
-                        if (this.accept('id', 'to')) {
-                            // File range location: loc("file":L:C to L:C) or loc("file":L:C to :C)
-                            if (this.accept(':')) {
-                                // loc("file":L:C to :endCol) - short form
-                                const endCol = this.expect('int');
-                                content += ` to :${endCol}`;
-                            } else if (this.match('int')) {
-                                // loc("file":L:C to endLine:endCol) - full form
-                                const endLine = this.expect('int');
-                                content += ` to ${endLine}`;
-                                if (this.accept(':')) {
-                                    const endCol = this.expect('int');
-                                    content += `:${endCol}`;
-                                }
-                            }
-                        }
-                    }
-                }
-                location.value = `loc(${content})`;
-            } else if (this.match('#')) {
-                // Check if it's a location alias (no dot) or dialect attribute (has dot)
-                const token = this.getToken().value;
-                if (token.includes('.')) {
-                    const attr = this.parseExtendedAttr();
-                    location.value = `loc(${attr.value})`;
-                } else {
-                    const locResult = this.parseLocationAlias();
-                    if (locResult.deferred) {
-                        location.deferred = locResult.deferred;
-                    } else {
-                        location.value = `loc(${locResult.alias})`;
-                    }
-                }
-            } else if (this.accept('id', 'unknown')) {
-                location.value = 'loc(unknown)';
-            } else if (this.accept('id', 'callsite')) {
-                this.expect('(');
-                location.type = 'callsite';
-                location.callee = this.parseLocationContent();
-                this.expect('id', 'at');
-                location.caller = this.parseLocationContent();
-                this.expect(')');
-            } else if (this.accept('id', 'fused')) {
-                location.type = 'fused';
-                if (this.accept('<')) {
-                    location.metadata = this.parseAttribute();
-                    this.expect('>');
-                }
-                location.locations = this.parseCommaSeparatedList('square', () => this.parseLocationContent());
-            } else {
-                throw new mlir.Error(`Unexpected location '${this.getToken().value}' ${this.location()}`);
-            }
-            this.expect(')');
-            return location;
-        }
-        return null;
-    }
-
-    parseLocationContent() {
+    parseLocationInstance() {
         if (this.match('#')) {
-            // Check if it's a location alias (no dot) or dialect attribute (has dot)
-            const token = this.getToken().value;
-            if (!token.includes('.')) {
-                return this.parseLocationAlias();
+            const locAttr = this.parseExtendedAttr();
+            if (locAttr instanceof _.LocationAttr) {
+                return locAttr;
             }
-            const attr = this.parseExtendedAttr();
-            return { alias: attr.value };
-        }
-        if (this.match('keyword', 'loc')) {
-            return this.parseLocation();
+            return locAttr;
         }
         if (this.accept('id', 'unknown')) {
-            return { type: 'unknown' };
+            return new _.UnknownLoc();
         }
         if (this.accept('id', 'callsite')) {
-            const location = { type: 'callsite' };
-            this.expect('(');
-            location.callee = this.parseLocationContent();
-            this.expect('id', 'at');
-            location.caller = this.parseLocationContent();
-            this.expect(')');
-            return location;
+            return this.parseCallSiteLocation();
         }
         if (this.accept('id', 'fused')) {
-            // Nested fused location inside location content
-            const location = { type: 'fused' };
-            if (this.accept('<')) {
-                location.metadata = this.parseAttribute();
-                this.expect('>');
-            }
-            location.locations = this.parseCommaSeparatedList('square', () => this.parseLocationContent());
-            return location;
+            return this.parseFusedLocation();
         }
         if (this.match('string')) {
-            const location = {};
-            location.file = this.expect('string');
+            return this.parseNameOrFileLineColRange();
+        }
+        throw new mlir.Error(`Expected location instance, got '${this.getToken().value}' ${this.location()}`);
+    }
+
+    parseCallSiteLocation() {
+        this.expect('(');
+        const callee = this.parseLocationInstance();
+        this.expect('id', 'at');
+        const caller = this.parseLocationInstance();
+        this.expect(')');
+        return new _.CallSiteLoc(callee, caller);
+    }
+
+    parseFusedLocation() {
+        let metadata = null;
+        if (this.accept('<')) {
+            metadata = this.parseAttribute();
+            this.expect('>');
+        }
+        const locations = this.parseCommaSeparatedList('square', () => this.parseLocationInstance());
+        return new _.FusedLoc(locations, metadata);
+    }
+
+    parseNameOrFileLineColRange() {
+        const str = this.expect('string');
+        // Check for file:line:col format
+        if (this.accept(':')) {
+            const startLine = parseInt(this.expect('int'), 10);
             if (this.accept(':')) {
-                location.line = this.expect('int');
-                if (this.accept(':')) {
-                    location.col = this.expect('int');
-                    // Handle file range in location content: "file":L:C to L:C
-                    if (this.accept('id', 'to')) {
+                const startCol = parseInt(this.expect('int'), 10);
+                // Check for range: "file":L:C to L:C or "file":L:C to :C
+                if (this.accept('id', 'to')) {
+                    if (this.accept(':')) {
+                        // Short form: to :endCol
+                        const endCol = parseInt(this.expect('int'), 10);
+                        return new _.FileLineColRange(str, startLine, startCol, undefined, endCol);
+                    } else if (this.match('int')) {
+                        // Full form: to endLine:endCol
+                        const endLine = parseInt(this.expect('int'), 10);
                         if (this.accept(':')) {
-                            location.endCol = this.expect('int');
-                        } else if (this.match('int')) {
-                            location.endLine = this.expect('int');
-                            if (this.accept(':')) {
-                                location.endCol = this.expect('int');
-                            }
+                            const endCol = parseInt(this.expect('int'), 10);
+                            return new _.FileLineColRange(str, startLine, startCol, endLine, endCol);
                         }
+                        return new _.FileLineColRange(str, startLine, startCol, endLine, undefined);
                     }
                 }
-            } else if (this.accept('(')) {
-                location.child = this.parseLocationContent();
-                this.expect(')');
+                return new _.FileLineColLoc(str, startLine, startCol);
             }
-            return location;
+            // Only file:line
+            return new _.FileLineColLoc(str, startLine, 0);
         }
-        throw new mlir.Error(`Expected location content, got '${this.getToken().value}' ${this.location()}`);
+        // Check for named location: "name"(childLoc)
+        if (this.accept('(')) {
+            const childLoc = this.parseLocationInstance();
+            this.expect(')');
+            return new _.NameLoc(str, childLoc);
+        }
+        // Just a name
+        return new _.NameLoc(str, null);
     }
 
     parseLocationAlias() {
         const tok = this.getToken();
         const token = this.expect();
         const identifier = token.substring(1); // drop_front - remove '#' prefix
-        // If this alias can be resolved, do it now
         const attr = this.state.attributeAliasDefinitions.get(token);
         if (attr) {
-            return { alias: attr.value || token };
+            if (attr instanceof _.LocationAttr) {
+                return attr;
+            }
+            return attr;
         }
-        // Otherwise, remember this and resolve later.
-        // In the meantime, use a DeferredLoc as a placeholder.
         const index = this.state.deferredLocsReferences.length;
         this.state.deferredLocsReferences.push({ loc: tok.loc, identifier });
-        return { deferred: new _.DeferredLoc(index, identifier) };
+        return new _.OpaqueLoc(index, identifier, new _.UnknownLoc());
+    }
+
+    parseOptionalLocationSpecifier() {
+        if (!this.accept('keyword', 'loc')) {
+            return null;
+        }
+        this.expect('(');
+        const tok = this.getToken();
+        let directLoc = null;
+        if (tok.kind === '#' && !tok.value.includes('.')) {
+            directLoc = this.parseLocationAlias();
+        } else {
+            directLoc = this.parseLocationInstance();
+        }
+        this.expect(')');
+        return directLoc;
     }
 
     parseXInDimensionList() {
@@ -3129,7 +3089,7 @@ _.Parser = class {
             throw new mlir.Error(`Expected integer or float after '-' ${this.location()}`);
         }
         if (this.match('keyword', 'loc')) {
-            return this.parseLocation();
+            return this.parseOptionalLocationSpecifier();
         }
         if (this.match('id', 'sparse')) {
             return this.parseSparseElementsAttr(type);
@@ -3550,49 +3510,35 @@ _.OperationParser = class extends _.Parser {
     }
 
     finalize(block) {
-        // Resolve the locations of any deferred operations.
         const attributeAliases = this.state.attributeAliasDefinitions;
         const deferredRefs = this.state.deferredLocsReferences;
-        const resolveLocation = (obj) => {
-            if (!obj || typeof obj !== 'object') {
-                return;
-            }
-            if (obj.deferred && obj.deferred instanceof _.DeferredLoc) {
-                const locInfo = deferredRefs[obj.deferred.index];
+        const resolveLocation = (opOrArgument) => {
+            const fwdLoc = opOrArgument.loc;
+            if (fwdLoc instanceof _.OpaqueLoc) {
+                const locInfo = deferredRefs[fwdLoc.index];
                 const identifier = `#${locInfo.identifier}`;
                 const attr = attributeAliases.get(identifier);
                 if (!attr) {
-                    throw new mlir.Error(`Operation location alias '${locInfo.identifier}' was never defined`);
+                    throw new mlir.Error(`Operation location alias '${locInfo.identifier}' was never defined.`);
                 }
-                delete obj.deferred;
-                obj.alias = attr.value || identifier;
-            }
-            if (obj.callee) {
-                resolveLocation(obj.callee);
-            }
-            if (obj.caller) {
-                resolveLocation(obj.caller);
-            }
-            if (obj.locations && Array.isArray(obj.locations)) {
-                for (const loc of obj.locations) {
-                    resolveLocation(loc);
+                if (attr instanceof _.LocationAttr === false) {
+                    throw new mlir.Error(`Expected location but found '${attr}'.`);
                 }
+                opOrArgument.loc = attr;
             }
         };
+        // Walk all operations and resolve locations on ops and block arguments
         const walk = (operations) => {
             for (const op of operations) {
                 if (op.loc) {
-                    resolveLocation(op.loc);
+                    resolveLocation(op);
                 }
                 if (op.body && op.body.blocks) {
                     for (const blk of op.body.blocks) {
-                        if (blk.loc) {
-                            resolveLocation(blk.loc);
-                        }
                         if (blk.arguments) {
                             for (const arg of blk.arguments) {
                                 if (arg.loc) {
-                                    resolveLocation(arg.loc);
+                                    resolveLocation(arg);
                                 }
                             }
                         }
@@ -3672,7 +3618,7 @@ _.OperationParser = class extends _.Parser {
         if (!opNameInfo.metadata.hasParser && !opNameInfo.metadata.hasCustomAssemblyFormat && opNameInfo.metadata.assemblyFormat && opState.compatibility !== true) {
             throw new mlir.Error(`Operation '${opState.identifier}' has assembly format but was handled by custom dialect code.`);
         }
-        opState.loc = this.parseLocation() || {};
+        opState.loc = this.parseTrailingLocationSpecifier() || {};
         this.state.defaultDialectStack.pop();
         return _.Operation.create(opState);
     }
@@ -3767,7 +3713,7 @@ _.OperationParser = class extends _.Parser {
             result.operands.push(value);
         }
         result.addTypes(fnType.results);
-        result.loc = this.parseLocation();
+        result.loc = this.parseTrailingLocationSpecifier();
     }
 
     pushSSANameScope(isIsolated) {
@@ -3876,7 +3822,7 @@ _.OperationParser = class extends _.Parser {
                     this.expect(':');
                     const type = this.parseType();
                     const arg = { value, type };
-                    const loc = this.parseLocation();
+                    const loc = this.parseTrailingLocationSpecifier();
                     if (loc) {
                         arg.loc = loc;
                     }
@@ -3897,7 +3843,7 @@ _.OperationParser = class extends _.Parser {
             const op = this.parseOperation();
             block.operations.push(op);
         }
-        block.loc = this.parseLocation();
+        block.loc = this.parseTrailingLocationSpecifier();
         return block;
     }
 
@@ -3947,7 +3893,7 @@ _.OperationParser = class extends _.Parser {
                     this.expect(':');
                     const type = this.parseType();
                     const arg = { value, type };
-                    const loc = this.parseLocation();
+                    const loc = this.parseTrailingLocationSpecifier();
                     if (loc) {
                         arg.loc = loc;
                     }
@@ -3971,6 +3917,28 @@ _.OperationParser = class extends _.Parser {
         }
         this.popSSANameScope();
         return region;
+    }
+
+    parseTrailingLocationSpecifier() {
+        // Ref impl: parseTrailingLocationSpecifier (Parser.cpp:2248)
+        // If there is a 'loc' we parse a trailing location
+        if (!this.accept('keyword', 'loc')) {
+            return null;
+        }
+        this.expect('(');
+        const tok = this.getToken();
+        let directLoc = null;
+        // Check to see if we are parsing a location alias. We are parsing a
+        // location alias if the token is a hash identifier *without* a dot in it -
+        // the dot signifies a dialect attribute. Otherwise, we parse the location
+        // directly. (Ref impl: Parser.cpp:2256-2265)
+        if (tok.kind === '#' && !tok.value.includes('.')) {
+            directLoc = this.parseLocationAlias();
+        } else {
+            directLoc = this.parseLocationInstance();
+        }
+        this.expect(')');
+        return directLoc;
     }
 };
 
@@ -4148,13 +4116,25 @@ _.AsmParser = class extends _.Parser {
         }
         return null;
     }
-
-    parseOptionalLocationSpecifier() {
-        return this.parser.parseLocation();
-    }
 };
 
 _.OpAsmParser = class extends _.AsmParser {
+
+    parseOptionalLocationSpecifier() {
+        if (!this.accept('keyword', 'loc')) {
+            return null;
+        }
+        this.expect('(');
+        const tok = this.getToken();
+        let directLoc = null;
+        if (tok.kind === '#' && !tok.value.includes('.')) {
+            directLoc = this.parseLocationAlias();
+        } else {
+            directLoc = this.parseLocationInstance();
+        }
+        this.expect(')');
+        return directLoc;
+    }
 
     parseFunctionOp(op, allowVariadic) {
         this.parseOptionalVisibilityKeyword(op.attributes);
@@ -4246,7 +4226,7 @@ _.OpAsmParser = class extends _.AsmParser {
                         attrs = new Map();
                         this.parseAttributeDict(attrs);
                     }
-                    const loc = this.parseLocation();
+                    const loc = this.parseOptionalLocationSpecifier();
                     inputs.push(new _.OpAsmParser.Argument(ssaName, type, attrs, loc));
                 } else {
                     // Type-only argument (no explicit name like %arg0)
@@ -4505,6 +4485,29 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
 
     parseCustomOperationName() {
         return this.parser.parseCustomOperationName();
+    }
+
+    parseOptionalLocationSpecifier() {
+        // Ref impl: CustomOpAsmParser::parseOptionalLocationSpecifier (Parser.cpp:2002)
+        // Separate implementation from parseTrailingLocationSpecifier
+        // If there is a 'loc' we parse a trailing location.
+        if (!this.parser.accept('keyword', 'loc')) {
+            return null;
+        }
+        this.parser.expect('(');
+        const tok = this.parser.getToken();
+        let directLoc = null;
+        // Check to see if we are parsing a location alias. We are parsing a
+        // location alias if the token is a hash identifier *without* a dot in it -
+        // the dot signifies a dialect attribute. Otherwise, we parse the location
+        // directly.
+        if (tok.kind === '#' && !tok.value.includes('.')) {
+            directLoc = this.parser.parseLocationAlias();
+        } else {
+            directLoc = this.parser.parseLocationInstance();
+        }
+        this.parser.expect(')');
+        return directLoc;
     }
 };
 
@@ -5465,11 +5468,133 @@ _.Location = class {
     }
 };
 
-_.DeferredLoc = class {
+_.LocationAttr = class {
 
-    constructor(index, identifier) {
+    constructor() {
+        this.name = 'loc';
+    }
+
+    get value() {
+        return 'unknown';
+    }
+};
+
+_.UnknownLoc = class extends _.LocationAttr {
+
+    get value() {
+        return 'unknown';
+    }
+};
+
+_.FileLineColLoc = class extends _.LocationAttr {
+
+    constructor(filename, line, col) {
+        super();
+        this.filename = filename;
+        this.line = line;
+        this.col = col;
+    }
+
+    get value() {
+        return `${this.filename}:${this.line}:${this.col}`;
+    }
+};
+
+_.FileLineColRange = class extends _.LocationAttr {
+
+    constructor(filename, startLine, startCol, endLine, endCol) {
+        super();
+        this.filename = filename;
+        this.startLine = startLine;
+        this.startCol = startCol;
+        this.endLine = endLine;
+        this.endCol = endCol;
+    }
+
+    get value() {
+        if (this.endLine !== undefined && this.endCol !== undefined) {
+            return `${this.filename}:${this.startLine}:${this.startCol} to ${this.endLine}:${this.endCol}`;
+        }
+        if (this.endCol !== undefined) {
+            return `${this.filename}:${this.startLine}:${this.startCol} to :${this.endCol}`;
+        }
+        return `${this.filename}:${this.startLine}:${this.startCol}`;
+    }
+};
+
+_.NameLoc = class extends _.LocationAttr {
+
+    constructor(name, childLoc) {
+        super();
+        this._name = name;
+        this.childLoc = childLoc;
+    }
+
+    get value() {
+        if (this.childLoc) {
+            const childStr = this.childLoc.value || this.childLoc;
+            return `"${this._name}"(${childStr})`;
+        }
+        return `"${this._name}"`;
+    }
+};
+
+_.CallSiteLoc = class extends _.LocationAttr {
+
+    constructor(callee, caller) {
+        super();
+        this.callee = callee;
+        this.caller = caller;
+    }
+
+    get value() {
+        const calleeStr = this.callee && this.callee.value ? this.callee.value : this.callee;
+        const callerStr = this.caller && this.caller.value ? this.caller.value : this.caller;
+        return `callsite(${calleeStr} at ${callerStr})`;
+    }
+};
+
+_.FusedLoc = class extends _.LocationAttr {
+
+    constructor(locations, metadata) {
+        super();
+        this.locations = locations;
+        this.metadata = metadata;
+    }
+
+    get value() {
+        const locStrs = this.locations.map((loc) => loc && loc.value ? loc.value : loc);
+        if (this.metadata) {
+            const metaStr = this.metadata.value === undefined ? this.metadata : this.metadata.value;
+            return `fused<${metaStr}>[${locStrs.join(', ')}]`;
+        }
+        return `fused[${locStrs.join(', ')}]`;
+    }
+};
+
+_.XtenNNDictLoc = class extends _.LocationAttr {
+
+    constructor(dictContent) {
+        super();
+        this.dictContent = dictContent;
+    }
+
+    get value() {
+        return `#xten_nn<dict_loc(${this.dictContent}`;
+    }
+};
+
+_.OpaqueLoc = class extends _.LocationAttr {
+
+    constructor(index, identifier, fallbackLoc) {
+        super();
         this.index = index;
         this.identifier = identifier;
+        this.fallbackLoc = fallbackLoc || new _.UnknownLoc();
+    }
+
+    get value() {
+        return this.fallbackLoc.value;
     }
 };
 
@@ -6911,6 +7036,7 @@ _.DialectContext = class {
         this._dialects.set('nir', new _.Dialect(operations, 'nir'));
         this._dialects.set('triton_xla', new _.TritonXlaDialect(operations));
         this._dialects.set('xtile', new _.XTileDialect(operations));
+        this._dialects.set('xten_nn', new _.XtenNNDialect(operations));
         this._dialects.set('ensemble', new _.EnsembleDialect(operations));
         this._dialects.set('poly', new _.PolyDialect(operations));
         this._dialects.set('noisy', new _.NoisyDialect(operations));
@@ -6927,9 +7053,16 @@ _.DialectContext = class {
     checkDialect(dialect, dialectName, context) {
         if (!dialect) {
             switch (dialectName) {
+                case 'bstnnx':
                 case 'common':
+                case 'dxgml':
+                case 'dxgml_pattern':
+                case 'gim':
+                case 'nir':
+                case 'nn':
                 case 'torq_hl':
                 case 'xir':
+                case 'xth':
                     throw new mlir.Error(`Undocumented ${context} dialect '${dialectName}'.`);
                 default:
                     throw new mlir.Error(`Unsupported ${context} dialect '${dialectName}'.`);
@@ -9718,7 +9851,7 @@ _.AffineDialect = class extends _.Dialect {
 
     parseForOp(parser, result) {
         const inductionVar = parser.parseOperand();
-        parser.parseLocation();
+        parser.parseOptionalLocationSpecifier();
         parser.parseEqual();
         this.parseAffineBound(parser, result, 'lowerBound');
         parser.expect('id', 'to');
@@ -13360,7 +13493,6 @@ _.LinalgDialect = class extends _.Dialect {
                 return null;
             }
         }
-        // Track segment sizes for reconstruction (like ref impl)
         if (addOperandSegmentSizes) {
             result.addAttribute('operandSegmentSizes', [inputTypes.length, outputTypes.length]);
         }
@@ -16888,7 +17020,6 @@ _.SCFDialect = class extends _.Dialect {
             result.regions.push(region);
         }
         parser.parseOptionalAttrDict(result.attributes);
-        // Set operandSegmentSizes: [lowerBound:1, upperBound:1, step:1, initArgs:N]
         result.addAttribute('operandSegmentSizes', [1, 1, 1, initArgsCount]);
         return true;
     }
@@ -22612,7 +22743,7 @@ _.TestDialect = class extends _.Dialect {
                         result.addTypes([fnType.results[i]]);
                     }
                 }
-                parser.parseLocation();
+                parser.parseOptionalLocationSpecifier();
             } else {
                 parser.parseLParen();
                 const region = result.addRegion();
@@ -22756,7 +22887,7 @@ _.TestDialect = class extends _.Dialect {
     }
 
     parseOptionalLoc(parser, op, attrName = 'loc') {
-        const loc = parser.parseLocation();
+        const loc = parser.parseOptionalLocationSpecifier();
         if (loc) {
             op.addAttribute(attrName, loc);
         } else {
@@ -23677,7 +23808,7 @@ _.TFRTTestDialect = class extends _.Dialect {
     }
 
     parseOptionalLoc(parser, op, attrName = 'loc') {
-        const loc = parser.parseLocation();
+        const loc = parser.parseOptionalLocationSpecifier();
         if (loc) {
             op.addAttribute(attrName, loc);
         } else {
@@ -25149,6 +25280,180 @@ _.NoisyDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         return null;
+    }
+};
+
+_.XtenNNDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'xten_nn');
+    }
+
+    parseAttribute(parser) {
+        const keyword = parser.parseOptionalKeyword();
+        if (keyword === 'dict_loc') {
+            parser.parseLParen();
+            const content = parser.skip('(');
+            return new _.XtenNNDictLoc(content);
+        }
+        return null;
+    }
+
+    parseOperation(parser, result) {
+        if (result.op === 'xten_nn.subgraph') {
+            return this.parseSubgraphOp(parser, result);
+        }
+        if (result.op === 'xten_nn.quantize' || result.op === 'xten_nn.dequantize') {
+            return this.parseQuantizeOp(parser, result);
+        }
+        if (result.op === 'xten_nn.kernel') {
+            return this.parseKernelOp(parser, result);
+        }
+        return super.parseOperation(parser, result);
+    }
+
+    // Parse: (%name = %value : type, ...) { body } -> result_types
+    // or: (%arg : type, ...) -> result_types (no body)
+    parseSubgraphOp(parser, result) {
+        const entryArgs = [];
+        if (parser.parseOptionalLParen()) {
+            while (!parser.parseOptionalRParen()) {
+                // Parse either (%name = %value : type) or (%value : type)
+                let blockArgName = null;
+                let operandRef = null;
+                if (parser.match('%')) {
+                    const firstOperand = parser.parseOperand();
+                    if (parser.parseOptionalEqual()) {
+                        // (%name = %value : type) form
+                        blockArgName = firstOperand;
+                        if (parser.match('%')) {
+                            operandRef = parser.parseOperand();
+                        }
+                    } else {
+                        // (%value : type) form - value is both operand and block arg name
+                        operandRef = firstOperand;
+                        blockArgName = firstOperand;
+                    }
+                }
+                parser.parseColon();
+                const type = parser.parseType();
+                if (operandRef) {
+                    parser.resolveOperands([operandRef], [type], result.operands);
+                }
+                entryArgs.push({ value: blockArgName, type });
+                if (!parser.parseOptionalComma()) {
+                    if (parser.match(')')) {
+                        parser.parseOptionalRParen();
+                    }
+                    break;
+                }
+            }
+        }
+        // Parse optional attributes (with 'attributes' keyword)
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
+        // Parse optional region
+        if (parser.match('{')) {
+            const region = result.addRegion();
+            parser.parseRegion(region, entryArgs, /* enableNameShadowing */ true);
+        }
+        // Parse result types - handle multiple types with or without parens
+        if (parser.parseOptionalArrow()) {
+            const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
+            result.addTypes(types);
+        }
+        return true;
+    }
+
+    // Parse: (%input: type) {attrs} -> type
+    parseQuantizeOp(parser, result) {
+        if (!parser.parseOptionalLParen()) {
+            return false;
+        }
+        const unresolvedOperands = [];
+        while (!parser.parseOptionalRParen()) {
+            if (parser.match('%')) {
+                unresolvedOperands.push(parser.parseOperand());
+            }
+            parser.parseColon();
+            const type = parser.parseType();
+            parser.resolveOperands(unresolvedOperands, [type], result.operands);
+            unresolvedOperands.length = 0;
+            if (!parser.parseOptionalComma()) {
+                if (parser.match(')')) {
+                    parser.parseOptionalRParen();
+                }
+                break;
+            }
+        }
+        // Parse attributes
+        parser.parseOptionalAttrDict(result.attributes);
+        // Parse result type
+        result.addTypes(parser.parseArrowTypeList());
+        return true;
+    }
+
+    // Parse: "name" (%arg : type, ...) instantiation_args [...] {attrs} -> result_types
+    parseKernelOp(parser, result) {
+        // Parse kernel name string
+        const nameAttr = parser.parseAttribute();
+        result.addAttribute('name', nameAttr);
+        // Parse operands
+        if (parser.parseOptionalLParen()) {
+            const unresolvedOperands = [];
+            const types = [];
+            while (!parser.parseOptionalRParen()) {
+                if (parser.match('%')) {
+                    unresolvedOperands.push(parser.parseOperand());
+                }
+                parser.parseColon();
+                types.push(parser.parseType());
+                if (!parser.parseOptionalComma()) {
+                    if (parser.match(')')) {
+                        parser.parseOptionalRParen();
+                    }
+                    break;
+                }
+            }
+            parser.resolveOperands(unresolvedOperands, types, result.operands);
+        }
+        // Parse optional instantiation_args
+        if (parser.accept('id', 'instantiation_args')) {
+            const instArgs = [];
+            const instArgNames = [];
+            if (parser.parseOptionalLSquare()) {
+                while (!parser.parseOptionalRSquare()) {
+                    // Parse either "name" = value or just value
+                    if (parser.match('string')) {
+                        const nameOrValue = parser.parseAttribute();
+                        if (parser.parseOptionalEqual()) {
+                            // "name" = value form
+                            instArgNames.push(nameOrValue);
+                            instArgs.push(parser.parseAttribute());
+                        } else {
+                            // Just a string value
+                            instArgs.push(nameOrValue);
+                        }
+                    } else {
+                        instArgs.push(parser.parseAttribute());
+                    }
+                    parser.parseOptionalComma();
+                }
+            }
+            if (instArgs.length > 0) {
+                result.addAttribute('instantiation_args', instArgs);
+            }
+            if (instArgNames.length > 0) {
+                result.addAttribute('instantiation_arg_names', instArgNames);
+            }
+        }
+        // Parse optional attributes
+        parser.parseOptionalAttrDict(result.attributes);
+        // Parse result types - handle multiple types with or without parens
+        if (parser.parseOptionalArrow()) {
+            const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
+            result.addTypes(types);
+        }
+        return true;
     }
 };
 
