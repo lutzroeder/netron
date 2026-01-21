@@ -8883,6 +8883,11 @@ python.Execution = class {
             tensor.requires_grad = requires_grad;
             return tensor;
         });
+        this.registerFunction('torch._utils._rebuild_device_tensor_from_cpu_tensor', (data, dtype, device, requires_grad) => {
+            data = data.clone();
+            data.requires_grad = requires_grad;
+            return data;
+        });
         this.registerFunction('torch._sparse_coo_tensor_unsafe', (indices, values, size) => {
             const tensor = self.invoke('torch.Tensor', []);
             tensor._layout = torch.sparse_coo;
@@ -20326,6 +20331,18 @@ python.Execution = class {
                 if (requires_grad !== undefined) {
                     this.requires_grad = requires_grad;
                 }
+            }
+            clone() {
+                const tensor = new torch.Tensor(this._storage, this._shape, this._dtype, this._layout, this._device, this.requires_grad);
+                tensor._storage_offset = this._storage_offset;
+                tensor._stride = this._stride;
+                tensor._values = this._values;
+                tensor._indices = this._indices;
+                tensor.__quantized__ = this.__quantized__;
+                tensor.__nested__ = this.__nested__;
+                tensor.data = this.data;
+                tensor._backward_hooks = this._backward_hooks;
+                return tensor;
             }
             get device() {
                 if (this._device !== undefined) {

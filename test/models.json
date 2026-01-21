@@ -6621,6 +6621,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "rebuild_device_tensor_from_cpu_tensor.pt",
+    "source":   "https://github.com/user-attachments/files/24772787/rebuild_device_tensor_from_cpu_tensor.pt.zip",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "refine_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6186158/refine_model.pt.zip[refine_model.pt]",
     "format":   "TorchScript v1.3",
