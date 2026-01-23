@@ -5353,9 +5353,18 @@ python.Execution = class {
         this.registerFunction('numpy.random._pickle.__randomstate_ctor', () => {
             return {};
         });
-        this.registerType('numpy.random.bit_generator.BitGenerator', class {});
+        this.registerType('numpy.random.bit_generator.BitGenerator', class {
+            __setstate__(state) {
+                if (state instanceof Map || !Array.isArray(state)) {
+                    this.state = state;
+                } else {
+                    [this.state, this._seed_seq] = state;
+                }
+            }
+        });
         this.registerType('numpy.random.bit_generator.SeedSequence', class extends builtins.object {
-            __setstate__(/* state */) {
+            __setstate__(state) {
+                [this.entropy, this.n_children_spawned, this.pool, this.pool_size, this.spawn_key] = state;
             }
         });
         this.registerFunction('numpy.random.bit_generator.__pyx_unpickle_SeedSequence', (cls, checksum, state) => {
@@ -5396,6 +5405,9 @@ python.Execution = class {
             throw new python.Error(`Unknown bit generator '${bit_generator}'.`);
         });
         this.registerFunction('numpy.random._pickle.__generator_ctor', (bit_generator_name, bit_generator_ctor) => {
+            if (bit_generator_name instanceof numpy.random.bit_generator.BitGenerator) {
+                return new numpy.random._generator.Generator(bit_generator_name);
+            }
             bit_generator_ctor = bit_generator_ctor || numpy.random._pickle.__bit_generator_ctor;
             return new numpy.random._generator.Generator(bit_generator_ctor(bit_generator_name));
         });
