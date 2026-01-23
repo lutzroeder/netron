@@ -1204,6 +1204,38 @@ _.FloatAttr = class extends _.Attribute {
     }
 };
 
+_.AffineMapAttr = class extends _.Attribute {
+
+    constructor(map) {
+        super();
+        this._map = map;
+    }
+
+    get value() {
+        return this._map;
+    }
+
+    toString() {
+        return `affine_map<${this._map.toString()}>`;
+    }
+};
+
+_.IntegerSetAttr = class extends _.Attribute {
+
+    constructor(set) {
+        super();
+        this._set = set;
+    }
+
+    get value() {
+        return this._set;
+    }
+
+    toString() {
+        return `affine_set<${this._set.toString()}>`;
+    }
+};
+
 _.SymbolRefAttr = class extends _.Attribute {
 
     constructor(rootReference, nestedReferences) {
@@ -1280,34 +1312,169 @@ _.OpaqueAttr = class extends _.Attribute {
     }
 };
 
-_.AffineMap = class {
+_.AffineExprKind = {
+    Add: 'Add',
+    Mul: 'Mul',
+    Mod: 'Mod',
+    FloorDiv: 'FloorDiv',
+    CeilDiv: 'CeilDiv',
+    Constant: 'Constant',
+    DimId: 'DimId',
+    SymbolId: 'SymbolId'
+};
 
-    constructor(numResults, str) {
-        this._numResults = numResults;
-        this._str = str;
+_.AffineExpr = class {
+
+    constructor(kind) {
+        this._kind = kind;
     }
 
-    getNumResults() {
-        return this._numResults;
+    getKind() {
+        return this._kind;
+    }
+
+    isSymbolicOrConstant() {
+        return this._kind === _.AffineExprKind.Constant || this._kind === _.AffineExprKind.SymbolId;
     }
 
     toString() {
-        return this._str;
+        return '';
+    }
+};
+
+// Affine dimension expression (d0, d1, ...)
+_.AffineDimExpr = class extends _.AffineExpr {
+
+    constructor(position) {
+        super(_.AffineExprKind.DimId);
+        this._position = position;
     }
 
+    getPosition() {
+        return this._position;
+    }
+
+    toString() {
+        return `d${this._position}`;
+    }
+};
+
+// Affine symbol expression (s0, s1, ...)
+_.AffineSymbolExpr = class extends _.AffineExpr {
+
+    constructor(position) {
+        super(_.AffineExprKind.SymbolId);
+        this._position = position;
+    }
+
+    getPosition() {
+        return this._position;
+    }
+
+    toString() {
+        return `s${this._position}`;
+    }
+};
+
+// Affine constant expression
+_.AffineConstantExpr = class extends _.AffineExpr {
+
+    constructor(value) {
+        super(_.AffineExprKind.Constant);
+        this._value = value;
+    }
+
+    getValue() {
+        return this._value;
+    }
+
+    toString() {
+        return String(this._value);
+    }
+};
+
+// Affine binary operation expression
+_.AffineBinaryOpExpr = class extends _.AffineExpr {
+
+    constructor(kind, lhs, rhs) {
+        super(kind);
+        this._lhs = lhs;
+        this._rhs = rhs;
+    }
+
+    getLHS() {
+        return this._lhs;
+    }
+
+    getRHS() {
+        return this._rhs;
+    }
+
+    toString() {
+        const opStr = {
+            [_.AffineExprKind.Add]: ' + ',
+            [_.AffineExprKind.Mul]: ' * ',
+            [_.AffineExprKind.Mod]: ' mod ',
+            [_.AffineExprKind.FloorDiv]: ' floordiv ',
+            [_.AffineExprKind.CeilDiv]: ' ceildiv '
+        };
+        return `${this._lhs.toString()}${opStr[this._kind]}${this._rhs.toString()}`;
+    }
+};
+
+// Helper functions to create affine expressions (matching reference API)
+_.getAffineDimExpr = (position) => new _.AffineDimExpr(position);
+_.getAffineSymbolExpr = (position) => new _.AffineSymbolExpr(position);
+_.getAffineConstantExpr = (constant) => new _.AffineConstantExpr(constant);
+_.getAffineBinaryOpExpr = (kind, lhs, rhs) => new _.AffineBinaryOpExpr(kind, lhs, rhs);
+
+_.AffineMap = class {
+
+    constructor(numDims, numSymbols, results) {
+        this._numDims = numDims;
+        this._numSymbols = numSymbols;
+        this._results = results; // Array of AffineExpr or string for backward compat
+    }
+
+    getNumResults() {
+        return this._results.length;
+    }
+
+    toString() {
+        const dims = [];
+        for (let i = 0; i < this._numDims; i++) {
+            dims.push(`d${i}`);
+        }
+        const symbols = [];
+        for (let i = 0; i < this._numSymbols; i++) {
+            symbols.push(`s${i}`);
+        }
+        const dimsStr = `(${dims.join(', ')})`;
+        const symbolsStr = symbols.length > 0 ? `[${symbols.join(', ')}]` : '';
+        const resultsStr = this._results.map((r) => r.toString ? r.toString() : String(r)).join(', ');
+        return `${dimsStr}${symbolsStr} -> (${resultsStr})`;
+    }
+
+    static get(numDims, numSymbols, results) {
+        return new _.AffineMap(numDims, numSymbols, results);
+    }
+
+    // Backward compatible string-based parse
     static parse(str) {
         const arrowIdx = str.indexOf('->');
         if (arrowIdx === -1) {
-            return new _.AffineMap(1, str);
+            return new _.AffineMap(0, 0, [str]);
         }
         let resultPart = str.substring(arrowIdx + 2).trim();
         const domainIdx = resultPart.indexOf(', domain:');
         if (domainIdx !== -1) {
             resultPart = resultPart.substring(0, domainIdx).trim();
         }
-        let numResults = 1;
+        // Parse result expressions from the result part (e.g., "(d0, d1 + s0)")
+        const results = [];
         if (resultPart.startsWith('(')) {
             let depth = 0;
+            let start = 1; // Skip opening paren
             for (let i = 0; i < resultPart.length; i++) {
                 const ch = resultPart[i];
                 if (ch === '(' || ch === '[') {
@@ -1315,14 +1482,81 @@ _.AffineMap = class {
                 } else if (ch === ')' || ch === ']') {
                     depth--;
                     if (depth === 0) {
+                        // End of results - capture last expression
+                        const expr = resultPart.substring(start, i).trim();
+                        if (expr) {
+                            results.push(expr);
+                        }
                         break;
                     }
                 } else if (ch === ',' && depth === 1) {
-                    numResults++;
+                    // Capture expression before comma
+                    const expr = resultPart.substring(start, i).trim();
+                    if (expr) {
+                        results.push(expr);
+                    }
+                    start = i + 1;
                 }
             }
+        } else {
+            // Single result without parens
+            results.push(resultPart);
         }
-        return new _.AffineMap(numResults, str);
+        // For backward compat, store string representation of results
+        return new _.AffineMap(0, 0, results.length > 0 ? results : [str]);
+    }
+};
+
+// Integer set for affine_set constraints
+_.IntegerSet = class {
+
+    constructor(numDims, numSymbols, constraints, eqFlags) {
+        this._numDims = numDims;
+        this._numSymbols = numSymbols;
+        this._constraints = constraints; // Array of AffineExpr
+        this._eqFlags = eqFlags; // Array of bool (true = equality, false = inequality)
+    }
+
+    getNumConstraints() {
+        return this._constraints.length;
+    }
+
+    getConstraints() {
+        return this._constraints;
+    }
+
+    getConstraint(idx) {
+        return this._constraints[idx];
+    }
+
+    getEqFlags() {
+        return this._eqFlags;
+    }
+
+    isEq(idx) {
+        return this._eqFlags[idx];
+    }
+
+    toString() {
+        const dims = [];
+        for (let i = 0; i < this._numDims; i++) {
+            dims.push(`d${i}`);
+        }
+        const symbols = [];
+        for (let i = 0; i < this._numSymbols; i++) {
+            symbols.push(`s${i}`);
+        }
+        const dimsStr = `(${dims.join(', ')})`;
+        const symbolsStr = symbols.length > 0 ? `[${symbols.join(', ')}]` : '';
+        const constraintsStr = this._constraints.map((c, i) => {
+            const exprStr = c.toString ? c.toString() : String(c);
+            return this._eqFlags[i] ? `${exprStr} == 0` : `${exprStr} >= 0`;
+        }).join(', ');
+        return `${dimsStr}${symbolsStr} : (${constraintsStr})`;
+    }
+
+    static get(numDims, numSymbols, constraints, eqFlags) {
+        return new _.IntegerSet(numDims, numSymbols, constraints, eqFlags);
     }
 };
 
@@ -3015,10 +3249,21 @@ _.Parser = class {
     }
 
     parseAttribute(type = null) {
-        if (this.match('id', 'affine_map') || this.match('id', 'affine_set')) {
-            const name = this.expect();
-            const args = this.skip('<');
-            return { value: `${name}${args}` };
+        // Parse affine_map<...> attribute
+        if (this.match('id', 'affine_map')) {
+            this.expect('id');
+            this.expect('<');
+            const map = this.parseAffineMapReference();
+            this.expect('>');
+            return new _.AffineMapAttr(map);
+        }
+        // Parse affine_set<...> attribute
+        if (this.match('id', 'affine_set')) {
+            this.expect('id');
+            this.expect('<');
+            const set = this.parseIntegerSetReference();
+            this.expect('>');
+            return new _.IntegerSetAttr(set);
         }
         if (this.match('[')) {
             this.expect('[');
@@ -3274,8 +3519,81 @@ _.Parser = class {
 
     parseStridedLayoutAttr() {
         this.expect('id', 'strided');
-        const body = this.skip('<');
-        return { value: `strided${body}`, type: 'strided' };
+        this.expect('<');
+        this.expect('[');
+        // Parse dimension list: integer, '?', or '*' separated by commas
+        const strides = [];
+        while (!this.match(']')) {
+            if (this.match('int')) {
+                strides.push(this.expect('int'));
+            } else if (this.accept('?')) {
+                strides.push('?');
+            } else if (this.accept('*')) {
+                strides.push('*');
+            } else {
+                throw new mlir.Error(`Expected integer, '?' or '*' in strided layout ${this.location()}`);
+            }
+            if (!this.match(']')) {
+                this.expect(',');
+            }
+        }
+        this.expect(']');
+        // Parse optional offset specification
+        let offset = null;
+        if (this.accept(',')) {
+            this.expect('id', 'offset');
+            this.expect(':');
+            if (this.match('int')) {
+                offset = this.expect('int');
+            } else if (this.accept('?')) {
+                offset = '?';
+            } else if (this.accept('*')) {
+                offset = '*';
+            } else {
+                throw new mlir.Error(`Expected integer, '?' or '*' for offset in strided layout ${this.location()}`);
+            }
+        }
+        this.expect('>');
+        // Build canonical string representation
+        const stridesStr = `[${strides.join(', ')}]`;
+        const offsetStr = offset === null ? '' : `, offset: ${offset}`;
+        return { value: `strided<${stridesStr}${offsetStr}>`, type: 'strided', strides, offset };
+    }
+
+    // Parse an affine map reference using AffineParser
+    // Following reference: Parser::parseAffineMapReference
+    parseAffineMapReference() {
+        const affineParser = new _.AffineParser(this.state);
+        const result = affineParser.parseAffineMapOrIntegerSetInline();
+        if (result.set) {
+            throw new mlir.Error(`Expected AffineMap, but got IntegerSet ${this.location()}`);
+        }
+        return result.map;
+    }
+
+    // Parse an integer set reference using AffineParser
+    // Following reference: Parser::parseIntegerSetReference
+    parseIntegerSetReference() {
+        const affineParser = new _.AffineParser(this.state);
+        const result = affineParser.parseAffineMapOrIntegerSetInline();
+        if (result.map) {
+            throw new mlir.Error(`Expected IntegerSet, but got AffineMap ${this.location()}`);
+        }
+        return result.set;
+    }
+
+    // Parse an AffineMap where dims/symbols are SSA ids
+    // Following reference: Parser::parseAffineMapOfSSAIds
+    parseAffineMapOfSSAIds(parseElement, delimiter = 'Paren') {
+        const affineParser = new _.AffineParser(this.state, true, parseElement);
+        return affineParser.parseAffineMapOfSSAIds(delimiter);
+    }
+
+    // Parse an AffineExpr where dims/symbols are SSA ids
+    // Following reference: Parser::parseAffineExprOfSSAIds
+    parseAffineExprOfSSAIds(parseElement) {
+        const affineParser = new _.AffineParser(this.state, true, parseElement);
+        return affineParser.parseAffineExprOfSSAIds();
     }
 
     parseDistinctAttr(type) {
@@ -3443,6 +3761,411 @@ _.Parser = class {
             return { type: null, numRead: 0 };
         }
         return { type: result.symbol, numRead: result.numRead };
+    }
+};
+
+// Specialized parser for affine structures (affine maps, affine expressions, integer sets)
+// Following the reference implementation in AffineParser.cpp
+_.AffineParser = class extends _.Parser {
+
+    constructor(state, allowParsingSSAIds = false, parseElement = null) {
+        super(state);
+        this.allowParsingSSAIds = allowParsingSSAIds;
+        this.parseElement = parseElement;
+        this.dimsAndSymbols = []; // Array of {name, expr} pairs
+        this.numDimOperands = 0;
+        this.numSymbolOperands = 0;
+    }
+
+    // Parse an ambiguous affine map or integer set inline
+    // affine-map-or-integer-set ::= dim-and-symbol-id-lists (`->` | `:`) ...
+    parseAffineMapOrIntegerSetInline() {
+        const { numDims, numSymbols } = this.parseDimAndOptionalSymbolIdList();
+        if (this.accept('->')) {
+            return { map: this.parseAffineMapRange(numDims, numSymbols), set: null };
+        }
+        if (!this.accept(':')) {
+            throw new mlir.Error(`Expected '->' or ':' ${this.location()}`);
+        }
+        return { map: null, set: this.parseIntegerSetConstraints(numDims, numSymbols) };
+    }
+
+    // Parse dimension and optional symbol identifier lists: (d0, d1, ...)[s0, s1, ...]
+    parseDimAndOptionalSymbolIdList() {
+        const numDims = this.parseDimIdList();
+        let numSymbols = 0;
+        if (this.match('[')) {
+            numSymbols = this.parseSymbolIdList();
+        }
+        return { numDims, numSymbols };
+    }
+
+    // Parse dimension identifier list: (d0, d1, ...)
+    parseDimIdList() {
+        let numDims = 0;
+        this.expect('(');
+        if (!this.match(')')) {
+            do {
+                const dimExpr = _.getAffineDimExpr(numDims);
+                this.parseIdentifierDefinition(dimExpr);
+                numDims++;
+            } while (this.accept(','));
+        }
+        this.expect(')');
+        return numDims;
+    }
+
+    // Parse symbol identifier list: [s0, s1, ...]
+    parseSymbolIdList() {
+        let numSymbols = 0;
+        this.expect('[');
+        if (!this.match(']')) {
+            do {
+                const symbolExpr = _.getAffineSymbolExpr(numSymbols);
+                this.parseIdentifierDefinition(symbolExpr);
+                numSymbols++;
+            } while (this.accept(','));
+        }
+        this.expect(']');
+        return numSymbols;
+    }
+
+    parseIdentifierDefinition(idExpr) {
+        let name = null;
+        if (this.match('id')) {
+            name = this.expect('id');
+        } else if (this.match('inttype')) {
+            name = this.expect('inttype');
+        } else if (this.match('keyword')) {
+            name = this.expect('keyword');
+        } else {
+            throw new mlir.Error(`Expected bare identifier ${this.location()}`);
+        }
+        for (const entry of this.dimsAndSymbols) {
+            if (entry.name === name) {
+                throw new mlir.Error(`Redefinition of identifier '${name}' ${this.location()}`);
+            }
+        }
+        this.dimsAndSymbols.push({ name, expr: idExpr });
+    }
+
+    parseAffineMapRange(numDims, numSymbols) {
+        const exprs = [];
+        this.expect('(');
+        if (!this.match(')')) {
+            do {
+                const expr = this.parseAffineExpr();
+                if (!expr) {
+                    throw new mlir.Error(`Failed to parse affine expression ${this.location()}`);
+                }
+                exprs.push(expr);
+            } while (this.accept(','));
+        }
+        this.expect(')');
+        return _.AffineMap.get(numDims, numSymbols, exprs);
+    }
+
+    parseIntegerSetConstraints(numDims, numSymbols) {
+        const constraints = [];
+        const isEqs = [];
+        this.expect('(');
+        if (!this.match(')')) {
+            do {
+                const { expr, isEq } = this.parseAffineConstraint();
+                constraints.push(expr);
+                isEqs.push(isEq);
+            } while (this.accept(','));
+        }
+        this.expect(')');
+        // If no constraints, return degenerate true set (0 == 0)
+        if (constraints.length === 0) {
+            const zero = _.getAffineConstantExpr(0);
+            return _.IntegerSet.get(numDims, numSymbols, [zero], [true]);
+        }
+        return _.IntegerSet.get(numDims, numSymbols, constraints, isEqs);
+    }
+
+    parseAffineConstraint() {
+        const lhsExpr = this.parseAffineExpr();
+        if (!lhsExpr) {
+            throw new mlir.Error(`Expected affine expression ${this.location()}`);
+        }
+        if (this.accept('>=')) {
+            const rhsExpr = this.parseAffineExpr();
+            return { expr: this.makeSubExpr(lhsExpr, rhsExpr), isEq: false };
+        }
+        if (this.accept('<=')) {
+            const rhsExpr = this.parseAffineExpr();
+            return { expr: this.makeSubExpr(rhsExpr, lhsExpr), isEq: false };
+        }
+        if (this.accept('==')) {
+            const rhsExpr = this.parseAffineExpr();
+            return { expr: this.makeSubExpr(lhsExpr, rhsExpr), isEq: true };
+        }
+        throw new mlir.Error(`Expected '>=', '<=', or '==' after affine expression ${this.location()}`);
+    }
+
+    makeSubExpr(lhs, rhs) {
+        const negOne = _.getAffineConstantExpr(-1);
+        const negRhs = _.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, rhs);
+        return _.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, negRhs);
+    }
+
+    parseAffineExpr() {
+        return this.parseAffineLowPrecOpExpr(null, null);
+    }
+
+    parseAffineLowPrecOpExpr(llhs, llhsOp) {
+        const lhs = this.parseAffineOperandExpr(llhs);
+        if (!lhs) {
+            return null;
+        }
+        const lOp = this.consumeIfLowPrecOp();
+        if (lOp) {
+            if (llhs) {
+                const sum = this.makeAffineBinaryOp(llhsOp, llhs, lhs);
+                return this.parseAffineLowPrecOpExpr(sum, lOp);
+            }
+            return this.parseAffineLowPrecOpExpr(lhs, lOp);
+        }
+        const hOp = this.consumeIfHighPrecOp();
+        if (hOp) {
+            const highRes = this.parseAffineHighPrecOpExpr(lhs, hOp);
+            if (!highRes) {
+                return null;
+            }
+            const expr = llhs ? this.makeAffineBinaryOp(llhsOp, llhs, highRes) : highRes;
+            const nextOp = this.consumeIfLowPrecOp();
+            if (nextOp) {
+                return this.parseAffineLowPrecOpExpr(expr, nextOp);
+            }
+            return expr;
+        }
+        if (llhs) {
+            return this.makeAffineBinaryOp(llhsOp, llhs, lhs);
+        }
+        return lhs;
+    }
+
+    parseAffineHighPrecOpExpr(llhs, llhsOp) {
+        const lhs = this.parseAffineOperandExpr(llhs);
+        if (!lhs) {
+            return null;
+        }
+        const op = this.consumeIfHighPrecOp();
+        if (op) {
+            if (llhs) {
+                const expr = this.makeAffineBinaryOp(llhsOp, llhs, lhs);
+                return this.parseAffineHighPrecOpExpr(expr, op);
+            }
+            return this.parseAffineHighPrecOpExpr(lhs, op);
+        }
+        if (llhs) {
+            return this.makeAffineBinaryOp(llhsOp, llhs, lhs);
+        }
+        return lhs;
+    }
+
+    consumeIfLowPrecOp() {
+        if (this.match('keyword', '+')) {
+            this.expect('keyword');
+            return _.AffineExprKind.Add;
+        }
+        if (this.match('keyword', '-')) {
+            this.expect('keyword');
+            return 'Sub'; // Special case for subtraction
+        }
+        if (this.match('int')) {
+            const token = this.getToken();
+            const val = typeof token.value === 'number' ? token.value : parseInt(token.value, 10);
+            if (val < 0) {
+                return 'SubNegInt';
+            }
+        }
+        return null;
+    }
+
+    consumeIfHighPrecOp() {
+        // * is lexed with kind '*' (single char token)
+        if (this.match('*')) {
+            this.expect('*');
+            return _.AffineExprKind.Mul;
+        }
+        if (this.match('id', 'floordiv')) {
+            this.expect('id');
+            return _.AffineExprKind.FloorDiv;
+        }
+        if (this.match('id', 'ceildiv')) {
+            this.expect('id');
+            return _.AffineExprKind.CeilDiv;
+        }
+        if (this.match('id', 'mod')) {
+            this.expect('id');
+            return _.AffineExprKind.Mod;
+        }
+        return null;
+    }
+
+    // Create affine binary op expression
+    makeAffineBinaryOp(op, lhs, rhs) {
+        if (op === 'Sub') {
+            // Subtraction: lhs - rhs = lhs + (-1 * rhs)
+            const negOne = _.getAffineConstantExpr(-1);
+            const negRhs = _.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, rhs);
+            return _.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, negRhs);
+        }
+        if (op === 'SubNegInt') {
+            // SubNegInt: rhs is already negative (e.g., -2), so just add it
+            // lhs - 2 was lexed as lhs, -2, so lhs + (-2) is correct
+            return _.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, rhs);
+        }
+        return _.getAffineBinaryOpExpr(op, lhs, rhs);
+    }
+
+    // Parse an operand of an affine expression
+    parseAffineOperandExpr(lhs) {
+        const token = this.getToken();
+        // symbol(value) construct
+        if (this.match('id', 'symbol')) {
+            return this.parseSymbolSSAIdExpr();
+        }
+        // SSA identifier %value
+        if (this.match('%')) {
+            return this.parseSSAIdExpr(false);
+        }
+        // Integer literal
+        if (this.match('int')) {
+            return this.parseIntegerExpr();
+        }
+        // Parenthesized expression
+        if (this.match('(')) {
+            return this.parseParentheticalExpr();
+        }
+        // Negation (- is lexed as 'keyword')
+        if (this.match('keyword', '-')) {
+            return this.parseNegateExpression(lhs);
+        }
+        // Bare identifier (dim or symbol name)
+        // Reference AffineParser.cpp:283-286: accepts bare_identifier, inttype, or keyword
+        if (this.match('id') || this.match('inttype')) {
+            return this.parseBareIdExpr();
+        }
+        // Keywords like 'loc' can also be identifiers (but not + or -)
+        if (this.match('keyword') && token.value !== '+' && token.value !== '-') {
+            return this.parseBareIdExpr();
+        }
+        // Error cases (+ is 'keyword', * is '*')
+        if (this.match('keyword', '+') || this.match('*')) {
+            if (lhs) {
+                throw new mlir.Error(`Missing right operand of binary operator ${this.location()}`);
+            }
+            throw new mlir.Error(`Missing left operand of binary operator ${this.location()}`);
+        }
+        if (lhs) {
+            throw new mlir.Error(`Missing right operand of binary operator ${this.location()}`);
+        }
+        throw new mlir.Error(`Expected affine expression ${this.location()}`);
+    }
+
+    // Parse symbol(value) construct
+    parseSymbolSSAIdExpr() {
+        this.expect('id', 'symbol');
+        this.expect('(');
+        const symbolExpr = this.parseSSAIdExpr(true);
+        this.expect(')');
+        return symbolExpr;
+    }
+
+    // Parse SSA identifier %value
+    parseSSAIdExpr(isSymbol) {
+        if (!this.allowParsingSSAIds) {
+            throw new mlir.Error(`Unexpected SSA identifier ${this.location()}`);
+        }
+        if (!this.match('%')) {
+            throw new mlir.Error(`Expected SSA identifier ${this.location()}`);
+        }
+        const name = this.expect('%');
+        // Check if already parsed
+        for (const entry of this.dimsAndSymbols) {
+            if (entry.name === name) {
+                return entry.expr;
+            }
+        }
+        // Parse and add new SSA id
+        if (this.parseElement) {
+            this.parseElement(isSymbol);
+        }
+        const idExpr = isSymbol
+            ? _.getAffineSymbolExpr(this.numSymbolOperands++)
+            : _.getAffineDimExpr(this.numDimOperands++);
+        this.dimsAndSymbols.push({ name, expr: idExpr });
+        return idExpr;
+    }
+
+    // Parse integer literal
+    parseIntegerExpr() {
+        const val = this.expect('int');
+        const intVal = typeof val === 'string' ? parseInt(val, 10) : val;
+        return _.getAffineConstantExpr(intVal);
+    }
+
+    // Parse parenthesized expression
+    parseParentheticalExpr() {
+        this.expect('(');
+        if (this.match(')')) {
+            throw new mlir.Error(`No expression inside parentheses ${this.location()}`);
+        }
+        const expr = this.parseAffineExpr();
+        this.expect(')');
+        return expr;
+    }
+
+    parseNegateExpression(lhs) {
+        this.expect('keyword', '-');
+        const operand = this.parseAffineOperandExpr(lhs);
+        if (!operand) {
+            throw new mlir.Error(`Missing operand of negation ${this.location()}`);
+        }
+        const negOne = _.getAffineConstantExpr(-1);
+        return _.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, operand);
+    }
+
+    parseBareIdExpr() {
+        let name = null;
+        if (this.match('id')) {
+            name = this.expect('id');
+        } else if (this.match('inttype')) {
+            name = this.expect('inttype');
+        } else if (this.match('keyword')) {
+            name = this.expect('keyword');
+        } else {
+            throw new mlir.Error(`Expected bare identifier ${this.location()}`);
+        }
+        for (const entry of this.dimsAndSymbols) {
+            if (entry.name === name) {
+                return entry.expr;
+            }
+        }
+        throw new mlir.Error(`Use of undeclared identifier '${name}' ${this.location()}`);
+    }
+
+    parseAffineMapOfSSAIds(delimiter = 'Paren') {
+        const exprs = [];
+        const open = delimiter === 'Paren' ? '(' : '[';
+        const close = delimiter === 'Paren' ? ')' : ']';
+        this.expect(open);
+        if (!this.match(close)) {
+            do {
+                const expr = this.parseAffineExpr();
+                exprs.push(expr);
+            } while (this.accept(','));
+        }
+        this.expect(close);
+        return _.AffineMap.get(this.numDimOperands, this.dimsAndSymbols.length - this.numDimOperands, exprs);
+    }
+
+    parseAffineExprOfSSAIds() {
+        return this.parseAffineExpr();
     }
 };
 
@@ -4365,7 +5088,11 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
     }
 
     getNumResults() {
-        return this.resultIDs.length;
+        let count = 0;
+        for (const entry of this.resultIDs) {
+            count += entry[1];
+        }
+        return count;
     }
 
     getResultName(index) {
@@ -7040,6 +7767,7 @@ _.DialectContext = class {
         this._dialects.set('ensemble', new _.EnsembleDialect(operations));
         this._dialects.set('poly', new _.PolyDialect(operations));
         this._dialects.set('noisy', new _.NoisyDialect(operations));
+        this._dialects.set('plugin', new _.Dialect(operations, 'plugin'));
     }
 
     getOrLoadDialect(name) {
