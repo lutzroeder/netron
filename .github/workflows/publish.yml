@@ -9,7 +9,7 @@ jobs:
   publish:
     runs-on: ${{ matrix.os }}
     permissions:
-      contents: read
+      contents: write
       id-token: write
 
     strategy:
