@@ -7030,13 +7030,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "test_complex.pt",
-    "source":   "https://github.com/user-attachments/files/24839070/test_complex.pt.zip[test_complex.pt]",
-    "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/720"
-  },
-  {
-    "type":     "pytorch",
     "target":   "test_model.pt2",
     "source":   "https://github.com/user-attachments/files/24445963/test_model.pt2.zip[test_model.pt2]",
     "format":   "PyTorch Export v8.15",
