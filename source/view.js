@@ -4698,6 +4698,8 @@ view.Formatter = class {
                 return value ? value.toString() : '(null)';
             case 'type[]':
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
+            case 'complex':
+                return value ? value.toString() : '(null)';
             default:
                 break;
         }

@@ -312,7 +312,7 @@ export class Target {
                     }
                     throw new Error(`Invalid property path '${parts[0]}'.`);
                 }
-                if (context !== value) {
+                if (context !== value && context.toString() !== value) {
                     throw new Error(`Invalid '${context}' != '${assert}'.`);
                 }
             }

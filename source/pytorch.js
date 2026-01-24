@@ -419,6 +419,9 @@ pytorch.Node = class {
                         if (value && value instanceof torch._C.IValue) {
                             value = pytorch.Utility.toString(value);
                         }
+                        if (value && value instanceof builtins.complex) {
+                            value = new base.Complex(value.real, value.imag);
+                        }
                         argument = new pytorch.Argument(name, value, type || 'attribute');
                     } else if (input.type() instanceof torch.ListType) {
                         if (input.node() && input.node().kind() === 'prim::ListConstruct' && input.uses().length === 1 &&
