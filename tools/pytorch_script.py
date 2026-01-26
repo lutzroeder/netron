@@ -60,6 +60,7 @@ known_legacy_schema_definitions = [
     "_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor", # noqa E501
     "aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)",
     "aten::_cat(Tensor[] tensors, int dim=0) -> Tensor",
+    "aten::_scaled_dot_product_flash_attention.quantized(Tensor query, Tensor key, Tensor value, Tensor? q_descale, Tensor? k_descale, Tensor? v_descale, float dropout_p=0., bool is_causal=False, bool return_debug_mask=False, *, float? scale=None) -> (Tensor output, Tensor logsumexp, Tensor cum_seq_q, Tensor cum_seq_k, SymInt max_q, SymInt max_k, Tensor rng_state, Tensor unused, Tensor debug_attn_mask)", # noqa E501
     "aten::arange.start_out_(Scalar start, Scalar end) -> Tensor",
     "aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor",
     "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor", # noqa E501
