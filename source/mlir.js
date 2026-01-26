@@ -1898,20 +1898,25 @@ _.ComplexType = class extends _.Type {
     }
 };
 
-_.RankedTensorType = class extends _.Type {
+_.ShapedType = class extends _.Type {
+
+    getNumElements() {
+        if (this.shape.some((d) => d < 0 || d === _.ShapedType.kDynamic)) {
+            return 0;
+        }
+        return this.shape.length === 0 ? 1 : this.shape.reduce((a, b) => a * b, 1);
+    }
+};
+
+_.ShapedType.kDynamic = Number.MIN_SAFE_INTEGER;
+
+_.RankedTensorType = class extends _.ShapedType {
 
     constructor(shape, elementType, encoding) {
         super(null);
         this.shape = shape || [];
         this.elementType = elementType;
         this.encoding = encoding;
-    }
-
-    getNumElements() {
-        if (this.shape.some((d) => d < 0 || d === '?')) {
-            return 0; // Dynamic dimensions
-        }
-        return this.shape.length === 0 ? 1 : this.shape.reduce((a, b) => a * b, 1);
     }
 
     toString() {
@@ -1938,20 +1943,13 @@ _.UnrankedTensorType = class extends _.Type {
     }
 };
 
-_.VectorType = class extends _.Type {
+_.VectorType = class extends _.ShapedType {
 
     constructor(shape, elementType, scalableDims) {
         super(null);
         this.shape = shape || [];
         this.elementType = elementType;
         this.scalableDims = scalableDims || [];
-    }
-
-    getNumElements() {
-        if (this.shape.some((d) => d < 0 || d === '?')) {
-            return 0; // Dynamic dimensions
-        }
-        return this.shape.length === 0 ? 1 : this.shape.reduce((a, b) => a * b, 1);
     }
 
     toString() {
@@ -1966,7 +1964,7 @@ _.VectorType = class extends _.Type {
     }
 };
 
-_.MemRefType = class extends _.Type {
+_.MemRefType = class extends _.ShapedType {
 
     constructor(shape, elementType, layout, memorySpace) {
         super(null);
@@ -1974,13 +1972,6 @@ _.MemRefType = class extends _.Type {
         this.elementType = elementType;
         this.layout = layout || null;
         this.memorySpace = memorySpace || null;
-    }
-
-    getNumElements() {
-        if (this.shape.some((d) => d < 0 || d === '?')) {
-            return 0;
-        }
-        return this.shape.length === 0 ? 1 : this.shape.reduce((a, b) => a * b, 1);
     }
 
     toString() {
@@ -9375,7 +9366,7 @@ _.Dialect = class {
                 const isScalable = parser.parseOptionalLSquare();
                 if (parser.match('%')) {
                     unresolvedOperands.push(parser.parseOperand());
-                    staticValues.push(-9223372036854775808); // ShapedType::kDynamic
+                    staticValues.push(_.ShapedType.kDynamic);
                     if (parser.parseOptionalColon()) {
                         parser.parseType();
                     }
@@ -14458,7 +14449,7 @@ _.LinalgDialect = class extends _.Dialect {
             if (parser.match('%')) {
                 const operand = parser.parseOperand();
                 dynamicTileOperands.push(operand);
-                staticInnerTiles.push(-9223372036854775808n); // ShapedType::kDynamic
+                staticInnerTiles.push(_.ShapedType.kDynamic);
             } else if (parser.match('int')) {
                 staticInnerTiles.push(BigInt(parser.expect('int')));
             }
@@ -15380,6 +15371,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         this.typesWithOptionalParams = new Set(['sampler', 'sampled_image', 'matrix', 'image', 'rtarray', 'ptr', 'array', 'struct', 'coopmatrix']);
         this.registerCustomDirective('ImageOperands', this.parseImageOperands.bind(this));
         this.registerCustomDirective('SwitchOpCases', this.parseSwitchOpCases.bind(this));
+        this.registerCustomDirective('SPIRV_I32_1DArmTensor', this.parseSPIRV_I32_1DArmTensor.bind(this));
         this.registerCustomAttribute('SPIRV_ScopeAttr', this.parseEnumFlagsAngleBracketPipe.bind(this));
         this.registerCustomAttribute('SPIRV_MemorySemanticsAttr', this.parseEnumFlagsAngleBracketPipe.bind(this));
         this.registerCustomAttribute('SPIRV_MemoryAccessAttr', this.parseEnumFlagsAngleBracketPipe.bind(this));
@@ -16235,6 +16227,24 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         return super.parseOperation(parser, result);
+    }
+
+    parseSPIRV_I32_1DArmTensor(parser, op, attrName) {
+        const values = [];
+        parser.parseLSquare();
+        while (!parser.match(']')) {
+            if (parser.match('int') || parser.match('-') || parser.match('number')) {
+                const value = parser.parseInteger();
+                values.push(value);
+            } else {
+                break;
+            }
+            if (!parser.parseOptionalComma()) {
+                break;
+            }
+        }
+        parser.parseRSquare();
+        op.addAttribute(attrName, values);
     }
 };
 
