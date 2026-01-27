@@ -246,6 +246,7 @@ executorch.TensorType = class {
             case ScalarType.HALF: this.dataType = 'float16'; break;
             case ScalarType.FLOAT: this.dataType = 'float32'; break;
             case ScalarType.DOUBLE: this.dataType = 'float64'; break;
+            case ScalarType.BFLOAT16: this.dataType = 'bfloat16'; break;
             case 8: this.dataType = 'complex<float16>'; break;
             case 9: this.dataType = 'complex<float32>'; break;
             case 10: this.dataType = 'complex<float64>'; break;
