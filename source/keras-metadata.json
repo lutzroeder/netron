@@ -574,15 +574,15 @@
         "name": "gamma_constraint"
       },
       {
-        "description": "Whether to use [Batch Renormalization](\n    https://arxiv.org/abs/1702.03275). This adds extra variables during\n      training. The inference is the same for either value of this parameter.",
+        "description": "Whether to use\n        [Batch Renormalization](https://arxiv.org/abs/1702.03275). This\n        adds extra variables during training. The inference is the same\n        for either value of this parameter.",
         "name": "renorm"
       },
       {
-        "description": "A dictionary that may map keys 'rmax', 'rmin', 'dmax' to\n    scalar `Tensors` used to clip the renorm correction. The correction `(r,\n    d)` is used as `corrected_value = normalized_value * r + d`, with `r`\n    clipped to [rmin, rmax], and `d` to [-dmax, dmax]. Missing rmax, rmin,\n    dmax are set to inf, 0, inf, respectively.",
+        "description": "Dictionary, valid only if `renorm = True`.\n        Maps optional keys `\"rmax\"`, `\"rmin\"`, `\"dmax\"` to floats used to\n        clip the renorm correction. The correction `(r, d)` is used as\n        `corrected_value = normalized_value * r + d`, with `r` clipped to\n        `[rmin, rmax]`, and `d` to `[-dmax, dmax]`. Missing `rmax`, `rmin`,\n        `dmax` are set to `inf`, `0`, `inf`, respectively.",
         "name": "renorm_clipping"
       },
       {
-        "description": "Momentum used to update the moving means and standard\n    deviations with renorm. Unlike `momentum`, this affects training and\n    should be neither too small (which would add noise) nor too large (which\n    would give stale estimates). Note that `momentum` is still applied to get\n    the means and variances for inference.",
+        "description": "Momentum used to update the moving means and standard\n        deviations with renorm. Valid only if `renorm= True`. Unlike\n        `momentum`, this affects training and should be neither too small\n        (which would add noise) nor too large (which would give stale\n        estimates). Note that `momentum` is still applied to get the means\n        and variances for inference.",
         "name": "renorm_momentum"
       },
       {
