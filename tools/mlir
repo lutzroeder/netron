@@ -28,6 +28,7 @@ entries=(
     "https://github.com/SashwatAnagolum/ensemble-compilation.git|main|${src_dir}/ensemble-compilation|"
     "https://github.com/j2kun/mlir-tutorial.git|main|${src_dir}/mlir-tutorial|"
     "https://github.com/Xilinx/mlir-xten.git|feature/fused-ops|${src_dir}/mlir-xten|"
+    "https://github.com/tenstorrent/tt-mlir.git|main|${src_dir}/tt-mlir|include"
 )
 
 clean() {

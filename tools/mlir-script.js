@@ -106,6 +106,12 @@ const schema = async () => {
         'mlir-tutorial/lib/Dialect/Poly',
         'mlir-tutorial/lib/Dialect/Noisy',
         'mlir-xten/include',
+        'tt-mlir/include',
+        'tt-mlir/include/ttmlir/Dialect/TTCore/IR',
+        'tt-mlir/include/ttmlir/Dialect/TTIR/IR',
+        'tt-mlir/include/ttmlir/Dialect/TTNN/IR',
+        'tt-mlir/include/ttmlir/Dialect/TTKernel/IR',
+        'tt-mlir/include/ttmlir/Dialect/TTMetal/IR',
         '_/llvm-project/mlir/include',
         '_/mlir-hlo',
     ];
@@ -337,6 +343,11 @@ const schema = async () => {
         'ensemble-compilation/lib/Dialect/Ensemble/EnsembleOps.td',
         'mlir-tutorial/lib/Dialect/Poly/PolyOps.td',
         'NoisyOps.td',
+        'ttmlir/Dialect/TTCore/IR/TTCoreOps.td',
+        'ttmlir/Dialect/TTIR/IR/TTIROps.td',
+        'ttmlir/Dialect/TTNN/IR/TTNNOps.td',
+        'ttmlir/Dialect/TTKernel/IR/TTKernelOps.td',
+        'ttmlir/Dialect/TTMetal/IR/TTMetalOps.td',
     ];
     const file = path.join(dirname, '..', 'source', 'mlir-metadata.json');
     const operations = new Map();
