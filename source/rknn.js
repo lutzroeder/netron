@@ -116,7 +116,7 @@ rknn.Graph = class {
                         values.set(name, value);
                     } else {
                         const type = new rknn.TensorType(dataType(const_tensor.dtype), shape);
-                        const tensor = new rknn.Tensor(type, const_tensor.offset, null);
+                        const tensor = new rknn.Tensor(type, const_tensor.offset, undefined, null);
                         const value = new rknn.Value(name, type, tensor);
                         values.set(name, value);
                     }
@@ -188,7 +188,7 @@ rknn.Graph = class {
                     const shape = new rknn.TensorShape(Array.from(tensor.shape));
                     const dataType = tensor.data_type < dataTypes.length ? dataTypes[tensor.data_type] : '?';
                     const type = new rknn.TensorType(dataType, shape);
-                    const initializer = tensor.kind !== 4 && tensor.kind !== 5 ? null : new rknn.Tensor(type, 0, null);
+                    const initializer = tensor.kind !== 4 && tensor.kind !== 5 ? null : new rknn.Tensor(type, 0, tensor.size, null);
                     return new rknn.Value(tensor.name, type, initializer);
                 });
                 const arg = (index) => {
@@ -340,7 +340,7 @@ rknn.Node = class {
 
 rknn.Tensor = class {
 
-    constructor(type, offset, weights) {
+    constructor(type, offset, size, weights) {
         this.type = type;
         this.values = null;
         let itemsize = 0;
@@ -350,17 +350,26 @@ rknn.Tensor = class {
             case 'int16': itemsize = 2; break;
             case 'int32': itemsize = 4; break;
             case 'int64': itemsize = 8; break;
+            case 'uint16': itemsize = 2; break;
+            case 'uint32': itemsize = 4; break;
+            case 'uint64': itemsize = 8; break;
             case 'float16': itemsize = 2; break;
+            case 'bfloat16': itemsize = 2; break;
             case 'float32': itemsize = 4; break;
             case 'float64': itemsize = 8; break;
+            case 'boolean': itemsize = 1; break;
             case 'vdata': itemsize = 1; break;
             default: throw new rknn.Error(`Unsupported tensor data type '${this.type.dataType}'.`);
         }
         if (weights) {
             const shape = type.shape.dimensions;
-            const size = itemsize * shape.reduce((a, b) => a * b, 1);
-            if (size > 0) {
-                this.values = weights.slice(offset, offset + size);
+            const count = shape.reduce((a, b) => a * b, 1);
+            const length = itemsize * count;
+            if (length > 0) {
+                if (size !== undefined && size !== length) {
+                    throw new rknn.Error(`Tensor size mismatch for '${this.type.dataType}'. Expected '${length}' bytes but got '${size}' bytes.`);
+                }
+                this.values = weights.slice(offset, offset + length);
             }
         }
     }
