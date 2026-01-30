@@ -9297,7 +9297,15 @@ python.Execution = class {
                 }
                 this._records = new Map(Array.from(entries).map(([name, value]) => [name.substring(prefix), value]));
                 this._version = 0;
-                const stream = this.get_record('.data/version') || this.get_record('version') || null;
+                this.init();
+            }
+            init() {
+                let stream = null;
+                if (this.has_record('.data/version')) {
+                    stream = this.get_record('.data/version');
+                } else if (this.has_record('version')) {
+                    stream = this.get_record('version');
+                }
                 if (stream) {
                     const decoder = new TextDecoder('utf-8');
                     const buffer = stream.peek();
@@ -9309,6 +9317,9 @@ python.Execution = class {
                 return this._records.has(name);
             }
             get_record(name) {
+                if (!this.has_record(name)) {
+                    throw new python.Error(`Record '${name}' not found.`);
+                }
                 return this._records.get(name);
             }
             get_all_records() {
@@ -9447,6 +9458,9 @@ python.Execution = class {
                                 }
                                 const name = `data/${key}`;
                                 const stream = entries.get(name);
+                                if (!stream) {
+                                    throw new python.Error(`Record '${name}' not found.`);
+                                }
                                 storage._set_cdata(stream);
                                 loaded_storages.set(key, storage);
                             }
