@@ -8,9 +8,6 @@ on:
 jobs:
   publish:
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
-      id-token: write
 
     strategy:
       matrix:
@@ -71,6 +68,9 @@ jobs:
 
       - if: startsWith(matrix.os, 'ubuntu')
         name: Publish Python
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_api_token }}
         run: npm run publish python
 
       - if: startsWith(matrix.os, 'ubuntu')
