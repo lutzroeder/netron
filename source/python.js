@@ -141,7 +141,6 @@ python.Execution = class {
         this.register('jax._src.array');
         this.register('jax._src.device_array');
         const functools = this.register('functools');
-        this.registerType('functools.partial', class {});
         const keras = this.register('keras');
         const catboost = this.register('catboost');
         this.register('lightgbm');
@@ -4610,6 +4609,16 @@ python.Execution = class {
             }
         });
         this.registerFunction('builtins.hash');
+        this.registerType('functools.partial', class {});
+        this.registerFunction('functools.reduce', (func, iterable, ...args) => {
+            const iter = Array.from(iterable);
+            let acc = args.length > 0 ? args[0] : iter.shift();
+            for (const item of iter) {
+                acc = func(acc, item);
+            }
+            return acc;
+        });
+        builtins.reduce = functools.reduce;
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', (name) => {
             return name;
         });
