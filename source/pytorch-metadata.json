@@ -3691,6 +3691,9 @@
     "name": "aten::index_select_backward(Tensor grad, SymInt[] self_sizes, int dim, Tensor index) -> Tensor"
   },
   {
+    "name": "aten::indices(Tensor(a) self) -> Tensor(a)"
+  },
+  {
     "name": "aten::insert.t(t[](a!) self, int idx, t(b -> *) el) -> ()"
   },
   {
