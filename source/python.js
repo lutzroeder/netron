@@ -3379,6 +3379,7 @@ python.Execution = class {
         });
         this.registerType('pandas.core.arrays.interval.IntervalArray', class {});
         this.registerType('pandas.core.arrays.integer.IntegerArray', class extends pandas.core.arrays.numeric.NumericArray {});
+        this.registerType('pandas.core.arrays.integer.Int64Dtype', class {});
         this.registerType('pandas._libs.tslibs.dtypes.PeriodDtypeBase', class {});
         this.registerType('pandas.core.dtypes.dtypes.PeriodDtype', class extends pandas._libs.tslibs.dtypes.PeriodDtypeBase {});
         this.registerType('pandas.core.dtypes.dtypes.IntervalDtype', class {});
