@@ -183,7 +183,7 @@ rknn.Graph = class {
             }
             case 'flatbuffers': {
                 const graph = obj;
-                const dataTypes = ['undefined', 'float32', 'uint8', 'int8', 'uint16', 'int16', 'int32', 'int64', 'string', 'boolean', 'float16', 'float64', 'uint32', 'uint64', 'complex<float32>', 'complex<float64>', 'bfloat16'];
+                const dataTypes = ['?', 'float32', 'uint8', 'int8', 'uint16', 'int16', 'int32', 'int64', 'string', 'boolean', 'float16', 'float64', 'uint32', 'uint64', 'complex<float32>', 'complex<float64>', 'bfloat16'];
                 const args = graph.tensors.map((tensor) => {
                     const shape = new rknn.TensorShape(Array.from(tensor.shape));
                     const dataType = tensor.data_type < dataTypes.length ? dataTypes[tensor.data_type] : '?';
@@ -359,6 +359,8 @@ rknn.Tensor = class {
             case 'float64': itemsize = 8; break;
             case 'boolean': itemsize = 1; break;
             case 'vdata': itemsize = 1; break;
+            case 'string': itemsize = 1; break;
+            case '?': itemsize = 0; break;
             default: throw new rknn.Error(`Unsupported tensor data type '${this.type.dataType}'.`);
         }
         if (weights) {
