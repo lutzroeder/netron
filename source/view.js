@@ -6308,7 +6308,7 @@ view.ModelFactoryService = class {
         this.register('./tf', ['.pb', '.meta', '.pbtxt', '.prototxt', '.txt', '.pt', '.json', '.index', '.ckpt', '.graphdef', '.pbmm', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./, /^.*group\d+-shard\d+of\d+(\.bin)?$/], ['.zip']);
         this.register('./tensorrt', ['.trt', '.trtmodel', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth', '.dnn', '.plan', '.pt', '.dat', '.bin'], [], [/^ptrt/, /^ftrt/]);
         this.register('./keras', ['.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt', '.pb', 'model.weights.npz', /^.*group\d+-shard\d+of\d+(\.bin)?$/], ['.zip'], [/^\x89HDF\r\n\x1A\n/]);
-        this.register('./safetensors', ['.safetensors', '.safetensors.index.json']);
+        this.register('./safetensors', ['.safetensors', '.safetensors.index.json', 'safetensors-index.json']);
         this.register('./numpy', ['.npz', '.npy', '.pkl', '.pickle', '.model', '.model2', '.mge', '.joblib', '']);
         this.register('./lasagne', ['.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z']);
         this.register('./lightgbm', ['.txt', '.pkl', '.model']);
@@ -6502,6 +6502,7 @@ view.ModelFactoryService = class {
                     { name: 'Trace Event data', tags: ['traceEvents'] },
                     { name: 'Trace Event data', tags: ['[].pid', '[].ph'] },
                     { name: 'Diffusers configuration', tags: ['_class_name', '_diffusers_version'] },
+                    { name: 'ModelScope configuration', tags: ['framework', 'task'] }, // https://github.com/modelscope/modelscope
                     { name: 'Tokenizer data', tags: ['<eos>', '<bos>'] },
                     { name: 'Jupyter Notebook data', tags: ['cells', 'nbformat'] },
                     { name: 'Kaggle credentials', tags: ['username','key'] },
@@ -6513,6 +6514,11 @@ view.ModelFactoryService = class {
                     { name: 'Keras configuration data', tags: ['floatx', 'epsilon', 'backend'] },
                     { name: 'PIMCOMP-NN model data', tags: ['node_list', 'reshape_info'] },
                     { name: 'AIMET encodings', tags: ['activation_encodings'] },
+                    { name: 'COCO annotations', tags: ['images', 'annotations', 'categories'] }, // https://cocodataset.org/
+                    { name: 'Sentence Transformers modules', tags: ['[].idx', '[].path', '[].type'] }, // https://www.sbert.net/
+                    { name: 'Sentence Transformers configuration', tags: ['__version__.sentence_transformers'] }, // https://www.sbert.net/
+                    { name: 'Lottie animation', tags: ['v', 'fr', 'ip', 'op', 'w', 'h', 'layers'] }, // https://lottiefiles.github.io/lottie-docs/
+                    { name: 'OCI image manifest', tags: ['schemaVersion', 'mediaType'] }, // https://github.com/opencontainers/image-spec
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
