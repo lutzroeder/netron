@@ -155,6 +155,9 @@ desktop.Host = class {
     }
 
     async start() {
+        electron.ipcRenderer.on('copy', () => {
+            this._view.copy();
+        });
         if (this._files) {
             const files = this._files;
             delete this._files;
@@ -180,9 +183,6 @@ desktop.Host = class {
         });
         electron.ipcRenderer.on('cut', () => {
             this.document.execCommand('cut');
-        });
-        electron.ipcRenderer.on('copy', () => {
-            this.document.execCommand('copy');
         });
         electron.ipcRenderer.on('paste', () => {
             if (this.document.queryCommandSupported('paste')) {
@@ -368,6 +368,10 @@ desktop.Host = class {
                 }
             });
         });
+    }
+
+    copy(text) {
+        electron.clipboard.writeText(text);
     }
 
     openURL(url) {

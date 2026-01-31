@@ -63,12 +63,21 @@ view.View = class {
                     this._target.select(null);
                 }
             });
+            this._host.document.addEventListener('copy', (e) => {
+                const selection = this._host.document.getSelection();
+                if (selection.toString().trim() === '') {
+                    const text = this._getTargetText();
+                    if (text) {
+                        e.clipboardData.setData('text/plain', text);
+                        e.preventDefault();
+                    }
+                }
+            });
             if (this._host.type === 'Electron') {
+                this._host._updateCopyState = () => this._updateCopyState();
                 this._host.update({ 'copy.enabled': false });
                 this._host.document.addEventListener('selectionchange', () => {
-                    const selection = this._host.document.getSelection();
-                    const selected = selection.rangeCount === 0 || selection.toString().trim() !== '';
-                    this._host.update({ 'copy.enabled': selected });
+                    this._updateCopyState();
                 });
             }
             const platform = this._host.environment('platform');
@@ -757,6 +766,66 @@ view.View = class {
                     await this.error(error);
                 }
             }
+        }
+    }
+
+    copy() {
+        const selection = this._host.document.getSelection();
+        if (selection.toString().trim() !== '') {
+            this._host.document.execCommand('copy');
+        } else {
+            const text = this._getTargetText();
+            if (text) {
+                if (this._host.copy) {
+                    this._host.copy(text);
+                } else {
+                    const textarea = this._host.document.createElement('textarea');
+                    textarea.value = text;
+                    this._host.document.body.appendChild(textarea);
+                    textarea.select();
+                    this._host.document.execCommand('copy');
+                    this._host.document.body.removeChild(textarea);
+                }
+            }
+        }
+    }
+
+    _getTargetText() {
+        const element = this._host.document.activeElement;
+        if (element && element.tagName === 'INPUT' && element.parentNode && element.parentNode.className === 'sidebar-item-name') {
+            const valueElement = element.parentNode.nextSibling;
+            if (valueElement && valueElement.className === 'sidebar-item-value-list') {
+                return valueElement.innerText;
+            }
+        }
+        return this._getSidebarName();
+    }
+
+    _getSidebarName() {
+        const stack = this._sidebar._stack;
+        if (stack.length > 0) {
+            const content = stack[stack.length - 1].content;
+            if (content && content.identifier === 'node' && content._node) {
+                return content._node.name;
+            } else if (content && content.identifier === 'connection' && content._value) {
+                const name = content._value.name;
+                return name ? name.split('\n')[0] : '';
+            } else if (content && content.identifier === 'tensor' && content._value) {
+                if (content._value.value && content._value.value.length > 0) {
+                    const value = content._value.value[0];
+                    const tensor = value.initializer;
+                    return tensor && tensor.name ? tensor.name : (value.name ? value.name.split('\n')[0] : null);
+                }
+            }
+        }
+        return null;
+    }
+
+    _updateCopyState() {
+        if (this._host.type === 'Electron') {
+            const selection = this._host.document.getSelection();
+            const selected = selection.rangeCount === 0 || selection.toString().trim() !== '' || this._getSidebarName() !== null || this._sidebar.identifier !== '';
+            this._host.update({ 'copy.enabled': selected });
         }
     }
 
@@ -2710,6 +2779,9 @@ view.Sidebar = class {
             element.parentNode.replaceChild(clone, element);
             container.style.width = '100%';
             container.focus();
+        }
+        if (this._host._updateCopyState) {
+            this._host._updateCopyState();
         }
     }
 };
