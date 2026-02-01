@@ -4,6 +4,7 @@ import * as grapher from './grapher.js';
 
 const view = {};
 const markdown = {};
+const png = {};
 const metadata = {};
 const metrics = {};
 
@@ -725,37 +726,68 @@ view.View = class {
                 await this._host.export(file, blob);
             }
             if (extension === 'png') {
-                try {
-                    const blob = await new Promise((resolve, reject) => {
-                        const image = new Image();
-                        image.onload = async () => {
-                            const max = Math.max(width, height);
-                            const scale = Math.min(24000.0 / max, 2.0);
+                const blob = await new Promise((resolve, reject) => {
+                    this.show('welcome spinner');
+                    this.progress(0);
+                    const image = new Image();
+                    image.onload = async () => {
+                        try {
+                            let targetWidth = Math.ceil(width * 2);
+                            let targetHeight = Math.ceil(height * 2);
+                            let scale = 1;
+                            if (targetWidth > 100000 || targetHeight > 100000) {
+                                scale = Math.min(scale, 100000 / Math.max(targetWidth, targetHeight));
+                            }
+                            if (targetWidth * targetHeight * scale * scale > 500000000) {
+                                scale = Math.min(scale, Math.sqrt(500000000 / (targetWidth * targetHeight)));
+                            }
+                            if (scale < 1) {
+                                targetWidth = Math.floor(targetWidth * scale);
+                                targetHeight = Math.floor(targetHeight * scale);
+                            }
+                            const drawScale = targetWidth / width;
+                            const size = Math.min(targetWidth, 4096);
+                            const encoder = new png.Encoder(targetWidth, targetHeight);
                             const canvas = this._host.document.createElement('canvas');
-                            canvas.width = Math.ceil(width * scale);
-                            canvas.height = Math.ceil(height * scale);
+                            canvas.width = size;
+                            canvas.height = 4096;
                             const context = canvas.getContext('2d');
-                            context.scale(scale, scale);
-                            context.drawImage(image, 0, 0);
-                            canvas.toBlob((blob) => {
-                                if (blob) {
-                                    resolve(blob);
-                                } else {
-                                    const error = new Error('Image may be too large to render as PNG.');
-                                    error.name = 'Error exporting image.';
-                                    reject(error);
+                            for (let y = 0; y < targetHeight; y += 4096) {
+                                const h = Math.min(4096, targetHeight - y);
+                                const data = new Uint8Array(targetWidth * h * 4);
+                                for (let x = 0; x < targetWidth; x += size) {
+                                    const w = Math.min(size, targetWidth - x);
+                                    context.setTransform(drawScale, 0, 0, drawScale, -x, -y);
+                                    context.drawImage(image, 0, 0);
+                                    const tileData = context.getImageData(0, 0, w, h);
+                                    for (let row = 0; row < h; row++) {
+                                        const src = row * w * 4;
+                                        const dst = row * targetWidth * 4 + x * 4;
+                                        data.set(tileData.data.subarray(src, src + w * 4), dst);
+                                    }
                                 }
-                            }, 'image/png');
-                        };
-                        image.onerror = (error) => {
+                                /* eslint-disable-next-line no-await-in-loop */
+                                await encoder.write(data, h);
+                                this.progress((y + h) / targetHeight * 100);
+                            }
+                            const buffer = await encoder.toBuffer();
+                            this.progress(0);
+                            this.show('default');
+                            resolve(new Blob([buffer], { type: 'image/png' }));
+                        } catch (error) {
+                            this.progress(0);
+                            this.show('default');
                             reject(error);
-                        };
-                        image.src = `data:image/svg+xml;base64,${this._host.window.btoa(unescape(encodeURIComponent(data)))}`;
-                    });
-                    await this._host.export(file, blob);
-                } catch (error) {
-                    await this.error(error);
-                }
+                        }
+                    };
+                    image.onerror = (error) => {
+                        this.progress(0);
+                        this.show('default');
+                        reject(error);
+                    };
+                    image.src = `data:image/svg+xml;base64,${this._host.window.btoa(unescape(encodeURIComponent(data)))}`;
+                });
+                await this._host.export(file, blob);
             }
         }
     }
@@ -5520,6 +5552,72 @@ markdown.Generator = class {
             return content.replace(this._escapeReplaceNoEncodeRegExp, (ch) => this._escapeReplacementsMap[ch]);
         }
         return content;
+    }
+};
+
+png.Encoder = class {
+
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        const compressor = new CompressionStream('deflate');
+        this.writer = compressor.writable.getWriter();
+        this.response = new Response(compressor.readable).blob();
+    }
+
+    async write(data, rows) {
+        const bytesPerRow = this.width * 4;
+        const filtered = new Uint8Array(rows * (1 + bytesPerRow));
+        let offset = 0;
+        let dataOffset = 0;
+        for (let i = 0; i < rows; i++) {
+            filtered[offset++] = 0;
+            filtered.set(data.subarray(dataOffset, dataOffset + bytesPerRow), offset);
+            offset += bytesPerRow;
+            dataOffset += bytesPerRow;
+        }
+        await this.writer.write(filtered);
+    }
+
+    async toBuffer() {
+        await this.writer.close();
+        const blob = await this.response;
+        const arrayBuffer = await blob.arrayBuffer();
+        const compressed = new Uint8Array(arrayBuffer);
+        const crc32Table = new Uint32Array(256);
+        for (let i = 0; i < 256; i++) {
+            let c = i;
+            for (let j = 0; j < 8; j++) {
+                c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+            }
+            crc32Table[i] = c;
+        }
+        const crc32 = (buffer, offset, length) => {
+            let crc = 0xFFFFFFFF;
+            for (let i = 0; i < length; i++) {
+                crc = crc32Table[(crc ^ buffer[offset + i]) & 0xFF] ^ (crc >>> 8);
+            }
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        };
+        const buffer = new Uint8Array(57 + compressed.length);
+        const view = new DataView(buffer.buffer);
+        // Signature
+        buffer.set([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A], 0);
+        // IHDR
+        view.setUint32(8, 13, false);
+        buffer.set([0x49, 0x48, 0x44, 0x52], 12);
+        view.setUint32(16, this.width, false);
+        view.setUint32(20, this.height, false);
+        buffer.set([8, 6, 0, 0, 0], 24);
+        view.setUint32(29, crc32(buffer, 12, 17), false);
+        // IDAT
+        view.setUint32(33, compressed.length, false);
+        buffer.set([0x49, 0x44, 0x41, 0x54], 37);
+        buffer.set(compressed, 41);
+        view.setUint32(41 + compressed.length, crc32(buffer, 37, 4 + compressed.length), false);
+        // IEND
+        buffer.set([0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82], 45 + compressed.length);
+        return buffer;
     }
 };
 
