@@ -6479,7 +6479,7 @@ view.ModelFactoryService = class {
         try {
             await this._openSignature(context);
             const content = new view.Context(context);
-            const model = await this._openContext(content);
+            let model = await this._openContext(content);
             if (!model) {
                 const check = (obj) => {
                     if (obj instanceof Error) {
@@ -6504,7 +6504,16 @@ view.ModelFactoryService = class {
                 if (!entryContext) {
                     await this._unsupported(content);
                 }
-                return this._openContext(entryContext);
+                model = await this._openContext(entryContext);
+            }
+            if (!model.format || typeof model.format !== 'string' || model.format.length === 0) {
+                throw new view.Error('Invalid model format name.');
+            }
+            if (!/^[a-zA-Z][a-zA-Z0-9-.]*( [a-zA-Z][a-zA-Z0-9-.]*)*( v\d+(\.\d+)*(b\d+)?([.+-][a-zA-Z0-9]+)?)?$/.test(model.format) || model.format.includes('undefined')) {
+                throw new view.Error(`Invalid model format name '${model.format}'.`);
+            }
+            if (model.producer && /[^\x20-\x7E\u00C0-\u00FF\u0370-\u03FF]/.test(model.producer)) {
+                throw new view.Error(`Invalid model producer name '${model.producer}'.`);
             }
             return model;
         } catch (error) {

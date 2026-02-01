@@ -1455,7 +1455,15 @@ tfjs.Container = class {
             throw new tfjs.Error('File format is not TensorFlow.js layers-model.');
         }
         const modelTopology = obj.modelTopology;
-        this.format = `TensorFlow.js ${obj.format ? obj.format : `Keras${modelTopology.keras_version ? (` v${modelTopology.keras_version}`) : ''}`}`;
+        if (obj.format) {
+            this.format = `TensorFlow.js ${obj.format}`;
+        } else if (modelTopology.keras_version) {
+            const match = modelTopology.keras_version.match(/^(.+)\s+(\d.*)$/);
+            const version = match ? `${match[1]} v${match[2]}` : `v${modelTopology.keras_version}`;
+            this.format = `TensorFlow.js Keras ${version}`;
+        } else {
+            this.format = 'TensorFlow.js Keras';
+        }
         this.producer = obj.convertedBy || obj.generatedBy || '';
         this.backend = modelTopology.backend || '';
         const manifests = obj.weightsManifest;

@@ -21,7 +21,7 @@ acuity.Model = class {
 
     constructor(metadata, model, data, quantization) {
         this.name = model.MetaData.Name;
-        this.format = `Acuity v${model.MetaData.AcuityVersion}`;
+        this.format = `Acuity${model.MetaData && model.MetaData.AcuityVersion ? ` v${model.MetaData.AcuityVersion}` : ''}`;
         this.runtime = model.MetaData.Platform;
         this.modules = [new acuity.Graph(metadata, model, data, quantization)];
     }
