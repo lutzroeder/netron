@@ -1199,6 +1199,19 @@ _.IntegerAttr = class extends _.Attribute {
     }
 };
 
+_.BoolAttr = class extends _.Attribute {
+
+    constructor(value) {
+        super();
+        this.value = value;
+        this.type = new _.IntegerType('i1');
+    }
+
+    toString() {
+        return this.value ? 'true' : 'false';
+    }
+};
+
 _.FloatAttr = class extends _.Attribute {
 
     constructor(type, value) {
@@ -1348,15 +1361,11 @@ _.AffineExprKind = {
 _.AffineExpr = class {
 
     constructor(kind) {
-        this._kind = kind;
-    }
-
-    getKind() {
-        return this._kind;
+        this.kind = kind;
     }
 
     isSymbolicOrConstant() {
-        return this._kind === _.AffineExprKind.Constant || this._kind === _.AffineExprKind.SymbolId;
+        return this.kind === _.AffineExprKind.Constant || this.kind === _.AffineExprKind.SymbolId;
     }
 
     toString() {
@@ -1402,15 +1411,11 @@ _.AffineConstantExpr = class extends _.AffineExpr {
 
     constructor(value) {
         super(_.AffineExprKind.Constant);
-        this._value = value;
-    }
-
-    getValue() {
-        return this._value;
+        this.value = value;
     }
 
     toString() {
-        return String(this._value);
+        return String(this.value);
     }
 };
 
@@ -2131,6 +2136,45 @@ _.Token = class {
         return this.spelling;
     }
 
+    getStringValue() {
+        let bytes = this.spelling.str();
+        bytes = bytes.slice(1);
+        bytes = bytes.slice(0, -1);
+        if (this.kind === _.Token.at_identifier) {
+            bytes = bytes.slice(1);
+        }
+        if (!bytes.includes('\\')) {
+            return bytes;
+        }
+        const parts = [];
+        for (let i = 0; i < bytes.length;) {
+            const c = bytes[i++];
+            if (c !== '\\') {
+                parts.push(c);
+                continue;
+            }
+            const c1 = bytes[i++];
+            switch (c1) {
+                case '"':
+                case '\\':
+                    parts.push(c1);
+                    continue;
+                case 'n':
+                    parts.push('\n');
+                    continue;
+                case 't':
+                    parts.push('\t');
+                    continue;
+                default:
+                    break;
+            }
+            const c2 = bytes[i++];
+            const hexValue = (parseInt(c1, 16) << 4) | parseInt(c2, 16);
+            parts.push(String.fromCharCode(hexValue));
+        }
+        return parts.join('');
+    }
+
     get value() {
         throw new mlir.Error('Token.value is deprecated. Use Token.getSpelling().str() instead.');
     }
@@ -2171,6 +2215,18 @@ _.Token.slash = '/';
 _.Token.star = '*';
 _.Token.string = 'string';
 _.Token.vertical_bar = '|';
+_.Token.kw_affine_map = 'kw_affine_map';
+_.Token.kw_affine_set = 'kw_affine_set';
+_.Token.kw_array = 'kw_array';
+_.Token.kw_dense = 'kw_dense';
+_.Token.kw_dense_resource = 'kw_dense_resource';
+_.Token.kw_distinct = 'kw_distinct';
+_.Token.kw_loc = 'kw_loc';
+_.Token.kw_sparse = 'kw_sparse';
+_.Token.kw_strided = 'kw_strided';
+_.Token.kw_unit = 'kw_unit';
+_.Token.kw_true = 'kw_true';
+_.Token.kw_false = 'kw_false';
 
 _.Lexer = class {
 
@@ -2264,11 +2320,6 @@ _.Lexer = class {
                     this._read();
                     return this.formToken('=', '=');
                 case ':':
-                    if (this._peek() === ':') {
-                        this._read();
-                        this._read();
-                        return this.formToken('::', '::');
-                    }
                     this._read();
                     return this.formToken(':', ':');
                 case ',':
@@ -2409,68 +2460,55 @@ _.Lexer = class {
     }
 
     lexString() {
-        // Reference: string-literal ::= '"' [^"\n\f\v\r]* '"'
-        // Forbidden characters inside string literals: \n, \v, \f (and implicitly \r, EOF)
-        let result = '';
+        const parts = ['"'];
         this._read();
+        let chunk = '';
         while (this._current && this._current !== '"') {
-            // Check for forbidden characters (reference Lexer.cpp:446-449)
             if (this._current === '\n' || this._current === '\v' ||
                 this._current === '\f' || this._current === '\r') {
                 throw new mlir.Error(`Expected '"' in string literal ${this.location()}`);
             }
-            if (this._eat('\\')) {
-                // Reference only supports: \", \\, \n, \t, and \XX (two hex digits)
-                const hexDigit = /[0-9a-fA-F]/;
-                if (this._current === '"' || this._current === '\\' ||
-                    this._current === 'n' || this._current === 't') {
-                    switch (this._current) {
-                        case 'n':
-                            result += '\n';
-                            break;
-                        case 't':
-                            result += '\t';
-                            break;
-                        default:
-                            result += this._current;
-                            break;
-                    }
+            if (this._current === '\\') {
+                if (chunk) {
+                    parts.push(chunk);
+                    chunk = '';
+                }
+                parts.push(this._current);
+                this._read();
+                if (this._current) {
+                    parts.push(this._current);
                     this._read();
-                } else if (hexDigit.test(this._current) && this._next && hexDigit.test(this._next)) {
-                    // Support \XX for two hex digits
-                    const hex = this._current + this._next;
-                    result += String.fromCharCode(parseInt(hex, 16));
-                    this._read();
-                    this._read();
-                } else {
-                    throw new mlir.Error(`Unknown escape in string literal ${this.location()}`);
                 }
             } else {
-                result += this._current;
+                chunk += this._current;
+                if (chunk.length >= 4096) {
+                    parts.push(chunk);
+                    chunk = '';
+                }
                 this._read();
             }
         }
+        if (chunk) {
+            parts.push(chunk);
+        }
         if (this._eat('"')) {
-            return this.formToken('string', result);
+            parts.push('"');
+            return this.formToken(_.Token.string, parts.join(''));
         }
         throw new mlir.Error('Unterminated string literal');
     }
 
     lexBareIdentifierOrKeyword() {
-        // Reference: bare-id ::= (letter|[_]) (letter|digit|[_$.])*
-        // Note: hyphen (-) is NOT allowed in bare identifiers, only in suffix-id (prefixed identifiers)
         let result = '';
         while (this._current && (/[a-zA-Z_$.]/.test(this._current) || /[0-9]/.test(this._current))) {
             result += this._read();
         }
-        // Check for integer-type: i123, si456, ui789 (reference Lexer.cpp:253-259)
         const isAllDigit = (str) => /^[0-9]+$/.test(str);
         if ((result.length > 1 && result[0] === 'i' && isAllDigit(result.slice(1))) ||
             (result.length > 2 && result[1] === 'i' && (result[0] === 's' || result[0] === 'u') && isAllDigit(result.slice(2)))) {
             return this.formToken('inttype', result);
         }
         switch (result) {
-            // Reference TokenKinds.def: TOK_KEYWORD(SPELLING) -> kw_##SPELLING
             case 'loc':
             case 'affine_map':
             case 'affine_set':
@@ -2488,8 +2526,9 @@ _.Lexer = class {
             case 'symbol':
                 return this.formToken(`kw_${result}`, result);
             case 'true':
+                return this.formToken(_.Token.kw_true, result);
             case 'false':
-                return this.formToken('boolean', result === 'true');
+                return this.formToken(_.Token.kw_false, result);
             case 'unknown':
                 return this.formToken(_.Token.bare_identifier, result);
             default:
@@ -2574,20 +2613,6 @@ _.ParsedResourceEntry = class {
         this.parser = parser;
     }
 
-    getKey() {
-        return this.key;
-    }
-
-    getKind() {
-        if (this.value.kind === 'boolean') {
-            return 'Bool';
-        }
-        if (this.value.kind === _.Token.string && this.value.value.startsWith('0x')) {
-            return 'Blob';
-        }
-        return 'String';
-    }
-
     parseAsBool() {
         if (this.value.kind === 'boolean') {
             return this.value.value;
@@ -2597,7 +2622,7 @@ _.ParsedResourceEntry = class {
 
     parseAsString() {
         if (this.value.kind === _.Token.string) {
-            return this.value.value;
+            return this.value.getStringValue();
         }
         throw new mlir.Error(`Expected string value for resource entry '${this.key}'`);
     }
@@ -2820,38 +2845,24 @@ _.Parser = class {
     }
 
     parseAttributeDict(attributes) {
-        if (this.accept('{')) {
-            while (!this.accept('}')) {
-                let name = null;
-                if (this.match(_.Token.bare_identifier) || this.match('string') || this.getToken().isKeyword() || this.match('boolean') || this.match('inttype')) {
-                    name = this.expect();
-                } else if (this.match('[')) {
-                    const arrayValue = this.parseAttribute();
-                    attributes.set('array', arrayValue.value);
-                    this.accept(',');
-                    continue;
-                } else if (!this.match('=') && !this.match(':') && !this.match('}')) {
-                    throw new mlir.Error(`Expected attribute name or '}', but got '${this.getTokenSpelling().str()}' ${this.location()}`);
-                }
-                let attribute = {};
-                if (this.accept('=') || this.accept(':')) {
-                    attribute = this.parseAttribute();
-                    if (this.accept(':')) {
-                        attribute.type = this.parseType();
-                    }
-                } else if (name === null) {
-                    break;
-                } else {
-                    attributes.set(name, new _.UnitAttr());
-                    this.accept(',');
-                    continue;
-                }
-                attributes.set(name, attribute);
-                if (!this.accept(',') && !this.match('}')) {
-                    throw new mlir.Error(`Expected ',' or '}' after attribute, but got '${this.getTokenSpelling().str()}' ${this.location()}`);
-                }
+        this.parseCommaSeparatedList('optionalBrace', () => {
+            // The name of an attribute can either be a bare identifier, or a string.
+            let name = null;
+            if (this.getToken().is(_.Token.string)) {
+                name = this.getToken().getStringValue();
+            } else if (this.getToken().isAny(_.Token.bare_identifier, _.Token.inttype) || this.getToken().isKeyword()) {
+                name = this.getTokenSpelling().str();
+            } else {
+                throw new mlir.Error(`Expected attribute name ${this.location()}`);
             }
-        }
+            this.consumeToken();
+            if (!this.consumeIf(_.Token.equal)) {
+                attributes.set(name, new _.UnitAttr());
+                return;
+            }
+            const attr = this.parseAttribute();
+            attributes.set(name, attr);
+        });
     }
 
     parseLocationInstance() {
@@ -3418,161 +3429,140 @@ _.Parser = class {
     }
 
     parseAttribute(type = null) {
-        // Parse affine_map<...> attribute
-        if (this.accept('kw_affine_map')) {
-            this.expect('<');
-            const map = this.parseAffineMapReference();
-            this.expect('>');
-            return new _.AffineMapAttr(map);
-        }
-        // Parse affine_set<...> attribute
-        if (this.accept('kw_affine_set')) {
-            this.expect('<');
-            const set = this.parseIntegerSetReference();
-            this.expect('>');
-            return new _.IntegerSetAttr(set);
-        }
-        if (this.match('[')) {
-            this.expect('[');
-            const elements = [];
-            while (!this.accept(']')) {
-                const item = this.parseAttribute();
-                elements.push(item);
-                this.accept(',');
+        switch (this.getToken().kind) {
+            case _.Token.kw_affine_map: {
+                this.consumeToken(_.Token.kw_affine_map);
+                this.parseToken(_.Token.less, "expected '<' in affine map");
+                const map = this.parseAffineMapReference();
+                this.parseToken(_.Token.greater, "expected '>' in affine map");
+                return new _.AffineMapAttr(map);
             }
-            // Handle special `[a] x [b]` syntax (dialect-specific)
-            if (this.accept(_.Token.bare_identifier, 'x')) {
-                const firstArray = new _.ArrayAttr(elements);
-                this.expect('[');
-                const second = [];
-                while (!this.accept(']')) {
-                    const item = this.parseAttribute();
-                    second.push(item);
-                    this.accept(',');
+            case _.Token.kw_affine_set: {
+                this.consumeToken(_.Token.kw_affine_set);
+                this.parseToken(_.Token.less, "expected '<' in integer set");
+                const set = this.parseIntegerSetReference();
+                this.parseToken(_.Token.greater, "expected '>' in integer set");
+                return new _.IntegerSetAttr(set);
+            }
+            case _.Token.l_square: {
+                this.consumeToken(_.Token.l_square);
+                const elements = [];
+                this.parseCommaSeparatedListUntil(_.Token.r_square, () => {
+                    elements.push(this.parseAttribute());
+                });
+                return new _.ArrayAttr(elements);
+            }
+            case _.Token.kw_false:
+                this.consumeToken(_.Token.kw_false);
+                return new _.BoolAttr(false);
+            case _.Token.kw_true:
+                this.consumeToken(_.Token.kw_true);
+                return new _.BoolAttr(true);
+            case _.Token.kw_dense:
+                return this.parseDenseElementsAttr(type);
+            case _.Token.kw_dense_resource:
+                return this.parseDenseResourceElementsAttr(type);
+            case _.Token.kw_array:
+                return this.parseDenseArrayAttr(type);
+            case _.Token.l_brace: {
+                const attributes = new Map();
+                this.parseAttributeDict(attributes);
+                return new _.DictionaryAttr(attributes);
+            }
+            case _.Token.hash_identifier:
+                return this.parseExtendedAttr(type);
+            case _.Token.floatliteral:
+                return this.parseFloatAttr(type, false);
+            case _.Token.integer:
+                return this.parseDecOrHexAttr(type, false);
+            case _.Token.minus: {
+                this.consumeToken(_.Token.minus);
+                if (this.getToken().is(_.Token.integer)) {
+                    return this.parseDecOrHexAttr(type, true);
                 }
-                const secondArray = new _.ArrayAttr(second);
-                return new _.ArrayAttr([firstArray, secondArray]);
-            }
-            return new _.ArrayAttr(elements);
-        }
-        if (this.match('boolean')) {
-            const value = this.expect();
-            return new _.TypedAttr(value, new _.IntegerType('i1'));
-        }
-        if (this.match('kw_dense')) {
-            return this.parseDenseElementsAttr(type);
-        }
-        if (this.match('kw_dense_resource')) {
-            return this.parseDenseResourceElementsAttr(type);
-        }
-        if (this.match('kw_array')) {
-            return this.parseDenseArrayAttr(type);
-        }
-        if (this.match('{')) {
-            const attributes = new Map();
-            this.parseAttributeDict(attributes);
-            return new _.DictionaryAttr(attributes);
-        }
-        if (this.match('#')) {
-            return this.parseExtendedAttr(type);
-        }
-        const parseType = (type, defaultType) => {
-            if (type) {
-                return type;
-            }
-            return this.accept(':') ? this.parseType() : defaultType;
-        };
-        if (this.match('float')) {
-            return this.parseFloatAttr(type, false);
-        }
-        if (this.match('int')) {
-            return this.parseDecOrHexAttr(type, false);
-        }
-        if (this.match('minus')) {
-            this.expect();
-            if (this.match('int')) {
-                const value = `-${this.expect()}`;
-                type = parseType(type, new _.IntegerType('i64'));
-                return new _.TypedAttr(value, type);
-            }
-            if (this.match('float')) {
-                return this.parseFloatAttr(type, true);
-            }
-            throw new mlir.Error(`Expected integer or float after '-' ${this.location()}`);
-        }
-        if (this.match('kw_loc')) {
-            return this.parseOptionalLocationSpecifier();
-        }
-        if (this.match('kw_sparse')) {
-            return this.parseSparseElementsAttr(type);
-        }
-        if (this.match('kw_strided')) {
-            return this.parseStridedLayoutAttr();
-        }
-        if (this.match('kw_distinct')) {
-            return this.parseDistinctAttr(type);
-        }
-        if (this.match('string')) {
-            const value = this.expect();
-            type = parseType(type, new _.PrimitiveType('string'));
-            return new _.TypedAttr(value, type);
-        }
-        if (this.match('@')) {
-            const nameStr = this.expect('@').substring(1);
-            // Handle scoped/nested symbol references like @module::@function
-            const nestedRefs = [];
-            while (this.accept('::')) {
-                if (this.match('@')) {
-                    const nested = this.accept('@').substring(1);
-                    nestedRefs.push(nested);
-                } else {
-                    break;
+                if (this.getToken().is(_.Token.floatliteral)) {
+                    return this.parseFloatAttr(type, true);
                 }
+                throw new mlir.Error(`Expected constant integer or floating point value ${this.location()}`);
             }
-            return new _.SymbolRefAttr(nameStr, nestedRefs);
-        }
-        if (this.match('kw_unit')) {
-            this.expect('kw_unit');
-            return { value: 'unit', type: new _.PrimitiveType('unit') };
-        }
-        if (this.getToken().kind === _.Token.bare_identifier) {
-            const tokenValue = this.getTokenSpelling().str();
-            if (tokenValue === 'tensor' || tokenValue === 'vector' || tokenValue === 'memref' ||
-                tokenValue === 'none' || tokenValue === 'index' || /^[su]?i[0-9]+$/.test(tokenValue) ||
-                /^f[0-9]+$/.test(tokenValue) || tokenValue === 'bf16' || tokenValue === 'tf32' ||
-                tokenValue.startsWith('f8')) {
-                const type = this.parseType();
-                return { value: type, type: new _.PrimitiveType('type') };
+            case _.Token.kw_loc:
+                return this.parseOptionalLocationSpecifier();
+            case _.Token.kw_sparse:
+                return this.parseSparseElementsAttr(type);
+            case _.Token.kw_strided:
+                return this.parseStridedLayoutAttr();
+            case _.Token.kw_distinct:
+                return this.parseDistinctAttr(type);
+            case _.Token.string: {
+                const value = this.getToken().getStringValue();
+                this.consumeToken(_.Token.string);
+                if (!type && this.consumeIf(_.Token.colon)) {
+                    type = this.parseType();
+                }
+                return new _.TypedAttr(value, type || new _.PrimitiveType('string'));
+            }
+            case _.Token.at_identifier: {
+                const nameStr = this.getTokenSpelling().str().substring(1);
+                this.consumeToken(_.Token.at_identifier);
+                const nestedRefs = [];
+                while (this.getToken().is(_.Token.colon)) {
+                    const curPointer = this.getToken().loc.position;
+                    this.consumeToken(_.Token.colon);
+                    if (!this.consumeIf(_.Token.colon)) {
+                        this.resetToken(curPointer);
+                        break;
+                    }
+                    if (this.getToken().isNot(_.Token.at_identifier)) {
+                        throw new mlir.Error(`Expected nested symbol reference identifier ${this.location()}`);
+                    }
+                    nestedRefs.push(this.getTokenSpelling().str().substring(1));
+                    this.consumeToken(_.Token.at_identifier);
+                }
+                return new _.SymbolRefAttr(nameStr, nestedRefs);
+            }
+            case _.Token.kw_unit:
+                this.consumeToken(_.Token.kw_unit);
+                return { value: 'unit', type: new _.PrimitiveType('unit') };
+            case _.Token.bare_identifier: {
+                const tokenValue = this.getTokenSpelling().str();
+                if (tokenValue === 'tensor' || tokenValue === 'vector' || tokenValue === 'memref' ||
+                    tokenValue === 'none' || tokenValue === 'index' || /^[su]?i[0-9]+$/.test(tokenValue) ||
+                    /^f[0-9]+$/.test(tokenValue) || tokenValue === 'bf16' || tokenValue === 'tf32' ||
+                    tokenValue.startsWith('f8')) {
+                    const parsedType = this.parseType();
+                    return { value: parsedType, type: new _.PrimitiveType('type') };
+                }
+                if (tokenValue === 'DEFAULT') {
+                    this.consumeToken(_.Token.bare_identifier);
+                    return { value: tokenValue };
+                }
+                this.consumeToken(_.Token.bare_identifier);
+                if (this.getToken().is(_.Token.less)) {
+                    return { value: tokenValue + this.skip('<') };
+                }
+                return { value: tokenValue };
+            }
+            case _.Token.exclamation_identifier: {
+                const parsedType = this.parseType();
+                return { value: parsedType, type: new _.PrimitiveType('type') };
+            }
+            case _.Token.percent_identifier: {
+                const value = this.getTokenSpelling().str();
+                this.consumeToken(_.Token.percent_identifier);
+                return { value };
+            }
+            case _.Token.less: {
+                const value = this.skip('<');
+                return { value };
+            }
+            default: {
+                const parsedType = this.parseOptionalType();
+                if (parsedType) {
+                    return new _.TypeAttrOf(parsedType);
+                }
+                throw new mlir.Error(`Unexpected attribute token '${this.getTokenSpelling().str()}' ${this.location()}`);
             }
         }
-        if (this.match('!')) {
-            const type = this.parseType();
-            return { value: type, type: new _.PrimitiveType('type') };
-        }
-        if (this.match('%')) {
-            const value = this.expect();
-            return { value };
-        }
-        if (this.match(_.Token.bare_identifier, 'DEFAULT')) {
-            const value = this.expect();
-            return { value };
-        }
-        if (this.match('<')) {
-            const value = this.skip('<');
-            return { value };
-        }
-        if (this.match(_.Token.bare_identifier)) {
-            const value = this.expect(_.Token.bare_identifier);
-            if (this.match('<')) {
-                return { value: value + this.skip('<') };
-            }
-            return { value };
-        }
-        const parsedType = this.parseOptionalType();
-        if (parsedType) {
-            return new _.TypeAttrOf(parsedType);
-        }
-        throw new mlir.Error(`Unexpected attribute token '${this.getTokenSpelling().str()}' ${this.location()}`);
     }
 
     parseExtendedAttr(type = null) {
@@ -3665,7 +3655,6 @@ _.Parser = class {
             this.expect(',');
             const valuesParser = new _.TensorLiteralParser(this);
             valuesParser.parse(/* allowHex */ true);
-            // Handle hex storage or regular storage
             if (valuesParser._hexStorage) {
                 values = valuesParser._hexStorage;
             } else {
@@ -3706,7 +3695,6 @@ _.Parser = class {
             }
         }
         this.expect(']');
-        // Parse optional offset specification
         let offset = null;
         if (this.consumeIf(',')) {
             this.expect('kw_offset');
@@ -3797,7 +3785,6 @@ _.Parser = class {
             case '{':
             case '<':
             case 'string':
-            case 'boolean':
                 return this.parseAttribute(type);
             case 'minus':
             case 'kw_loc':
@@ -3810,6 +3797,8 @@ _.Parser = class {
             case 'kw_strided':
             case 'kw_distinct':
             case 'kw_unit':
+            case _.Token.kw_true:
+            case _.Token.kw_false:
                 return this.parseAttribute(type);
             default: {
                 const value = this.parseOptionalType(type);
@@ -3859,7 +3848,7 @@ _.Parser = class {
         if (!this.getToken().is(_.Token.string)) {
             return null;
         }
-        const string = this.getToken().spelling;
+        const string = this.getToken().getStringValue();
         this.consumeToken();
         return string;
     }
@@ -4653,7 +4642,8 @@ _.OperationParser = class extends _.Parser {
 
     parseGenericOperation() {
         const srcLocation = this.getToken().loc.copy();
-        const name = this.expect('string');
+        const name = this.getToken().getStringValue();
+        this.consumeToken(_.Token.string);
         let opName = _.RegisteredOperationName.lookup(name, this.context);
         if (!opName) {
             opName = new _.OperationName(null, name);
@@ -5060,54 +5050,54 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseLSquare() {
-        this.expect('[');
+        return this.parseToken(_.Token.l_square);
     }
 
     parseRSquare() {
-        this.expect(']');
+        return this.parseToken(_.Token.r_square);
     }
 
     parseOptionalLSquare() {
-        return this.accept('[');
+        return this.consumeIf(_.Token.l_square);
     }
 
     parseOptionalRSquare() {
-        return this.accept(']');
+        return this.consumeIf(_.Token.r_square);
     }
 
     parseColon() {
-        this.expect(':');
+        this.parseToken(_.Token.colon);
     }
 
     parseOptionalColon() {
-        return this.accept(':');
+        return this.consumeIf(_.Token.colon);
     }
 
     parseLess() {
-        this.expect('<');
+        this.parseToken(_.Token.less);
     }
 
     parseGreater() {
-        this.expect('>');
+        this.parseToken(_.Token.greater);
     }
 
     parseOptionalLess() {
-        return this.accept('<');
+        return this.consumeIf(_.Token.less);
     }
 
     parseOptionalGreater() {
-        return this.accept('>');
+        return this.consumeIf(_.Token.greater);
     }
 
     parseOptionalAttrDict(attributes) {
-        if (this.match('{')) {
-            this.parseAttributeDict(attributes);
+        if (this.parser.getToken().is(_.Token.l_brace)) {
+            this.parser.parseAttributeDict(attributes);
         }
     }
 
     parseOptionalAttrDictWithKeyword(attributes) {
-        if (this.accept(_.Token.bare_identifier, 'attributes')) {
-            this.parseAttributeDict(attributes);
+        if (this.parseOptionalKeyword('attributes')) {
+            this.parser.parseAttributeDict(attributes);
         }
     }
 
@@ -5542,11 +5532,11 @@ _.TensorLiteralParser = class {
     }
 
     parse(allowHex) {
-        // If hex is allowed, check for a string literal.
         if (allowHex && this._parser.match('string')) {
-            const hexStr = this._parser.expect();
+            const hexStr = this._parser.getToken().getStringValue();
+            this._parser.consumeToken(_.Token.string);
             if (hexStr.startsWith('0x')) {
-                const cleanHex = hexStr.replace(/"/g, '').substring(2);
+                const cleanHex = hexStr.substring(2);
                 const data = new Uint8Array(cleanHex.length >> 1);
                 for (let i = 0; i < data.length; i++) {
                     const index = i << 1;
@@ -5609,52 +5599,51 @@ _.TensorLiteralParser = class {
     }
 
     parseElement() {
-        // Parse a complex element of the form '(' element ',' element ')'
-        if (this._parser.consumeIf('(')) {
-            this.parseElement();
-            this._parser.expect(',');
-            this.parseElement();
-            this._parser.expect(')');
-            return;
-        }
-        // Parse boolean elements (true/false)
-        if (this._parser.match('boolean')) {
-            const value = this._parser.expect();
-            this._storage.push({ isNegative: false, value, kind: 'boolean' });
-            return;
-        }
-        // Parse a signed integer or negative floating-point element
-        if (this._parser.consumeIf('minus')) {
-            if (this._parser.match('int')) {
-                const value = this._parser.expect();
-                this._storage.push({ isNegative: true, value, kind: 'int' });
-                return;
+        switch (this._parser.getToken().kind) {
+            // Parse a boolean element.
+            case _.Token.kw_true:
+            case _.Token.kw_false: {
+                const value = this._parser.getTokenSpelling().str();
+                this._parser.consumeToken(this._parser.getToken().kind);
+                this._storage.push({ isNegative: false, value, kind: 'boolean' });
+                break;
             }
-            if (this._parser.match('float')) {
-                const value = this._parser.expect();
-                this._storage.push({ isNegative: true, value, kind: 'float' });
-                return;
+            case _.Token.floatliteral:
+            case _.Token.integer: {
+                const value = this._parser.getTokenSpelling().str();
+                const kind = this._parser.getToken().kind === _.Token.floatliteral ? 'float' : 'int';
+                this._parser.consumeToken(this._parser.getToken().kind);
+                this._storage.push({ isNegative: false, value, kind });
+                break;
             }
-            throw new mlir.Error(`Expected integer or floating point literal ${this._parser.location()}`);
+            // Parse a signed integer or a negative floating-point element.
+            case _.Token.minus: {
+                this._parser.consumeToken(_.Token.minus);
+                if (!this._parser.getToken().isAny(_.Token.floatliteral, _.Token.integer)) {
+                    throw new mlir.Error(`Expected integer or floating point literal ${this._parser.location()}`);
+                }
+                const value = this._parser.getTokenSpelling().str();
+                const kind = this._parser.getToken().kind === _.Token.floatliteral ? 'float' : 'int';
+                this._parser.consumeToken(this._parser.getToken().kind);
+                this._storage.push({ isNegative: true, value, kind });
+                break;
+            }
+            case _.Token.string: {
+                const value = this._parser.getToken().getStringValue();
+                this._parser.consumeToken(_.Token.string);
+                this._storage.push({ isNegative: false, value, kind: 'string' });
+                break;
+            }
+            case _.Token.l_paren:
+                this._parser.consumeToken(_.Token.l_paren);
+                this.parseElement();
+                this._parser.parseToken(_.Token.comma, "expected ',' between complex elements");
+                this.parseElement();
+                this._parser.parseToken(_.Token.r_paren, "expected ')' after complex elements");
+                break;
+            default:
+                throw new mlir.Error(`Expected element literal of primitive type ${this._parser.location()}`);
         }
-        // Parse unsigned integer or positive floating-point element
-        if (this._parser.match('int')) {
-            const value = this._parser.expect();
-            this._storage.push({ isNegative: false, value, kind: 'int' });
-            return;
-        }
-        if (this._parser.match('float')) {
-            const value = this._parser.expect();
-            this._storage.push({ isNegative: false, value, kind: 'float' });
-            return;
-        }
-        // Parse string element
-        if (this._parser.match('string')) {
-            const value = this._parser.expect();
-            this._storage.push({ isNegative: false, value, kind: 'string' });
-            return;
-        }
-        throw new mlir.Error(`Expected element literal of primitive type ${this._parser.location()}`);
     }
 
     getShape() {
@@ -9809,10 +9798,10 @@ _.Dialect = class {
             // Parse parameter reference: "scope"::"key" or just "key"
             const firstString = parser.expect('string');
             let key = firstString;
-            // '::' is a single token in the lexer
-            if (parser.accept('::')) {
-                key = parser.expect('string');
+            if (parser.parseOptionalColon()) {
                 sourceScope = firstString;
+                parser.parseColon();
+                key = parser.expect('string');
             }
             sourceKeys.push(key);
             // Parse [%source_offset]
@@ -9871,10 +9860,10 @@ _.Dialect = class {
             // Parse parameter reference: "scope"::"key" or just "key"
             const firstString = parser.expect('string');
             let key = firstString;
-            // '::' is a single token in the lexer
-            if (parser.accept('::')) {
-                key = parser.expect('string');
+            if (parser.parseOptionalColon()) {
                 sourceScope = firstString;
+                parser.parseColon();
+                key = parser.expect('string');
             }
             sourceKeys.push(key);
             // Parse [%source_offset]
@@ -9890,9 +9879,9 @@ _.Dialect = class {
             // Parse [%offset to %end for %length]
             parser.parseLSquare();
             targetOffsets.push(parser.parseOperand());
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             targetEnds.push(parser.parseOperand());
-            parser.expect(_.Token.bare_identifier, 'for');
+            parser.parseKeyword('for');
             targetLengths.push(parser.parseOperand());
             parser.parseRSquare();
             // Parse : type{%size}
@@ -9942,7 +9931,7 @@ _.Dialect = class {
             // Parse [%offset for %length]
             parser.parseLSquare();
             sourceOffsets.push(parser.parseOperand());
-            parser.expect(_.Token.bare_identifier, 'for');
+            parser.parseKeyword('for');
             sourceLengths.push(parser.parseOperand());
             parser.parseRSquare();
             // Parse : type{%size}
@@ -9961,9 +9950,16 @@ _.Dialect = class {
             parser.expect('->');
             const firstString = parser.expect('string');
             let key = firstString;
-            if (parser.accept('::')) {
-                key = parser.expect('string');
-                targetScope = firstString;
+            // Check for '::' prefix
+            if (parser.getToken().is(_.Token.colon)) {
+                const curPointer = parser.getToken().loc.position;
+                parser.consumeToken(_.Token.colon);
+                if (parser.consumeIf(_.Token.colon)) {
+                    key = parser.expect('string');
+                    targetScope = firstString;
+                } else {
+                    parser.resetToken(curPointer);
+                }
             }
             targetKeys.push(key);
             parser.parseLSquare();
@@ -10004,9 +10000,9 @@ _.Dialect = class {
             // Parse [%offset to %end for %length]
             parser.parseLSquare();
             sourceOffsets.push(parser.parseOperand());
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             sourceEnds.push(parser.parseOperand());
-            parser.expect(_.Token.bare_identifier, 'for');
+            parser.parseKeyword('for');
             sourceLengths.push(parser.parseOperand());
             parser.parseRSquare();
             // Parse : type{%size}
@@ -10025,9 +10021,16 @@ _.Dialect = class {
             parser.expect('->');
             const firstString = parser.expect('string');
             let key = firstString;
-            if (parser.accept('::')) {
-                key = parser.expect('string');
-                targetScope = firstString;
+            // Check for '::' prefix
+            if (parser.getToken().is(_.Token.colon)) {
+                const curPointer = parser.getToken().loc.position;
+                parser.consumeToken(_.Token.colon);
+                if (parser.consumeIf(_.Token.colon)) {
+                    key = parser.expect('string');
+                    targetScope = firstString;
+                } else {
+                    parser.resetToken(curPointer);
+                }
             }
             targetKeys.push(key);
             parser.parseLSquare();
@@ -10204,7 +10207,7 @@ _.HLODialect = class extends _.Dialect {
 
     parseConvolutionDimensions(parser, op, attrName) {
         const input = this.parseDims(parser);
-        parser.expect(_.Token.bare_identifier, 'x');
+        parser.parseKeyword('x');
         const kernel = this.parseDims(parser);
         parser.expect('->');
         const output = this.parseDims(parser);
@@ -10227,9 +10230,6 @@ _.HLODialect = class extends _.Dialect {
                 const intValue = parser.parseOptionalInteger();
                 if (intValue !== null) {
                     return intValue;
-                }
-                if (parser.match('boolean')) {
-                    return parser.expect('boolean');
                 }
                 if (parser.match(_.Token.bare_identifier)) {
                     return parser.expect(_.Token.bare_identifier);
@@ -10311,7 +10311,7 @@ _.HLODialect = class extends _.Dialect {
             return;
         }
 
-        parser.expect(_.Token.bare_identifier, 'precision');
+        parser.parseKeyword('precision');
         parser.parseEqual();
         const precision = parser.parseCommaSeparatedList('square', () => {
             if (parser.match(_.Token.bare_identifier)) {
@@ -10502,8 +10502,8 @@ _.HLODialect = class extends _.Dialect {
         }
 
         // Non-compact syntax: parse "across dimensions = [...] : type reducer (args) { ... }"
-        parser.expect(_.Token.bare_identifier, 'across');
-        parser.expect(_.Token.bare_identifier, 'dimensions');
+        parser.parseKeyword('across');
+        parser.parseKeyword('dimensions');
         parser.parseEqual();
         parser.parseLSquare();
         const dimensions = [];
@@ -10526,7 +10526,7 @@ _.HLODialect = class extends _.Dialect {
                 parser.resolveOperands(allUnresolved, types, result.operands);
             }
         }
-        parser.expect(_.Token.bare_identifier, 'reducer');
+        parser.parseKeyword('reducer');
         // Parse block arguments: (%lhs : type, %rhs : type) (%linit : type, %rinit : type)
         const regionArgs = [];
         while (parser.parseOptionalLParen()) {
@@ -10560,7 +10560,7 @@ _.HLODialect = class extends _.Dialect {
         parser.parseRParen();
 
         // Parse inits: inits (%init1, %init2, ...)
-        parser.expect(_.Token.bare_identifier, 'inits');
+        parser.parseKeyword('inits');
         parser.parseLParen();
         const unresolvedInits = [];
         while (!parser.match(')')) {
@@ -10572,7 +10572,7 @@ _.HLODialect = class extends _.Dialect {
         parser.parseRParen();
 
         // Parse dimension attribute: dimension=0 or dimension = 0
-        parser.expect(_.Token.bare_identifier, 'dimension');
+        parser.parseKeyword('dimension');
         parser.parseOptionalEqual();
         const dimension = parser.expect('int');
         result.addAttribute('dimension', dimension);
@@ -10853,7 +10853,7 @@ _.AffineDialect = class extends _.Dialect {
             const rwSpecifier = parser.parseOptionalKeyword();
             result.addAttribute('isWrite', rwSpecifier === 'write');
             parser.parseComma();
-            parser.expect(_.Token.bare_identifier, 'locality');
+            parser.parseKeyword('locality');
             parser.parseLess();
             const locality = parser.expect('int');
             result.addAttribute('localityHint', locality);
@@ -10922,7 +10922,7 @@ _.AffineDialect = class extends _.Dialect {
         parser.parseOptionalLocationSpecifier();
         parser.parseEqual();
         this.parseAffineBound(parser, result, 'lowerBound');
-        parser.expect(_.Token.bare_identifier, 'to');
+        parser.parseKeyword('to');
         this.parseAffineBound(parser, result, 'upperBound');
         if (parser.parseOptionalKeyword('step')) {
             if (parser.match('int')) {
@@ -11221,7 +11221,7 @@ _.MemRefDialect = class extends _.Dialect {
             const readOrWrite = parser.expect(_.Token.bare_identifier);
             result.addAttribute('isWrite', readOrWrite === 'write');
             parser.parseComma();
-            parser.expect(_.Token.bare_identifier, 'locality');
+            parser.parseKeyword('locality');
             parser.parseLess();
             const localityHint = parseInt(parser.expect('int'), 10);
             result.addAttribute('localityHint', localityHint);
@@ -11614,7 +11614,7 @@ _.TensorDialect = class extends _.Dialect {
             const srcType = parser.parseType();
             // Now resolve the operand with its type
             parser.resolveOperands([unresolvedOperand], [srcType], result.operands);
-            parser.expect(_.Token.bare_identifier, 'into');
+            parser.parseKeyword('into');
             const resultType = parser.parseType();
             result.addTypes([resultType]);
             return true;
@@ -11802,10 +11802,16 @@ _.IREEDialect = class extends _.Dialect {
                 if (parser.match('@')) {
                     let symbol = parser.expect('@');
                     // Handle :: nested symbol reference
-                    if (parser.parseOptionalKeyword('::') || (parser.match(':') && parser.parseOptionalColon() && parser.parseOptionalColon())) {
-                        if (parser.match('@')) {
-                            const nested = parser.expect('@');
-                            symbol += `::${nested}`;
+                    if (parser.getToken().is(_.Token.colon)) {
+                        const curPointer = parser.getToken().loc.position;
+                        parser.consumeToken(_.Token.colon);
+                        if (parser.consumeIf(_.Token.colon)) {
+                            if (parser.match('@')) {
+                                const nested = parser.expect('@');
+                                symbol += `::${nested}`;
+                            }
+                        } else {
+                            parser.resetToken(curPointer);
                         }
                     }
                     entryPoints.push(symbol);
@@ -11816,10 +11822,16 @@ _.IREEDialect = class extends _.Dialect {
             // Parse single entry point
             let symbol = parser.expect('@');
             // Handle :: nested symbol reference
-            if (parser.parseOptionalKeyword('::') || (parser.match(':') && parser.parseOptionalColon() && parser.parseOptionalColon())) {
-                if (parser.match('@')) {
-                    const nested = parser.expect('@');
-                    symbol += `::${nested}`;
+            if (parser.getToken().is(_.Token.colon)) {
+                const curPointer = parser.getToken().loc.position;
+                parser.consumeToken(_.Token.colon);
+                if (parser.consumeIf(_.Token.colon)) {
+                    if (parser.match('@')) {
+                        const nested = parser.expect('@');
+                        symbol += `::${nested}`;
+                    }
+                } else {
+                    parser.resetToken(curPointer);
                 }
             }
             entryPoints.push(symbol);
@@ -11834,7 +11846,7 @@ _.IREEDialect = class extends _.Dialect {
         // or just: type{dims}
         if (parser.match('%')) {
             parser.parseOperand(); // tiedOperand - parsed but not stored in OperationState
-            parser.expect(_.Token.bare_identifier, 'as');
+            parser.parseKeyword('as');
         }
         const resultType = parser.parseType();
         op.types.push(resultType); // Only add the type
@@ -11896,7 +11908,7 @@ _.IREEDialect = class extends _.Dialect {
         if (!parser.match(_.Token.bare_identifier, 'workgroups')) {
             return;
         }
-        parser.expect(_.Token.bare_identifier, 'workgroups');
+        parser.parseKeyword('workgroups');
         const region = { blocks: [] };
         const block = { arguments: [], operations: [] };
         if (parser.parseOptionalLParen()) {
@@ -12924,7 +12936,7 @@ _.UtilDialect = class extends _.IREEDialect {
         do {
             parser.parseLSquare();
             unresolvedOffsets.push(parser.parseOperand());
-            parser.expect(_.Token.bare_identifier, 'for');
+            parser.parseKeyword('for');
             unresolvedLengths.push(parser.parseOperand());
             parser.parseRSquare();
         } while (parser.parseOptionalComma());
@@ -13444,7 +13456,7 @@ _.StreamDialect = class extends _.IREEDialect {
             const unresolvedResource = parser.parseOperand();
             parser.parseLSquare();
             const unresolvedOffset = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'for');
+            parser.parseKeyword('for');
             const unresolvedLength = parser.parseOperand();
             parser.parseRSquare();
             parser.parseColon();
@@ -13514,7 +13526,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 if (parser.match('%')) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
-                parser.expect(_.Token.bare_identifier, 'as');
+                parser.parseKeyword('as');
                 const arg = parser.parseOperand();
                 parser.parseColon();
                 const argType = parser.parseType();
@@ -13554,7 +13566,7 @@ _.StreamDialect = class extends _.IREEDialect {
             do {
                 const operand = parser.parseOperand();
                 unresolvedOperands.push(operand);
-                parser.expect(_.Token.bare_identifier, 'as');
+                parser.parseKeyword('as');
                 const arg = parser.parseOperand();
                 parser.parseColon();
                 const argType = parser.parseType();
@@ -13625,12 +13637,21 @@ _.StreamDialect = class extends _.IREEDialect {
         do {
             // Parse parameter reference: "scope"::"key" or just "key"
             const firstAttr = parser.expect('string');
-            // Check for :: (scope::key) pattern - the lexer produces '::' as a single token
-            if (parser.parseOptionalKeyword('::') || parser.accept('::')) {
-                const keyAttr = parser.expect('string');
-                op.addAttribute('source_scope', firstAttr);
-                op.addAttribute('source_key', keyAttr);
-            } else {
+            // Check for '::' prefix
+            let hasScope = false;
+            if (parser.getToken().is(_.Token.colon)) {
+                const curPointer = parser.getToken().loc.position;
+                parser.consumeToken(_.Token.colon);
+                if (parser.consumeIf(_.Token.colon)) {
+                    const keyAttr = parser.expect('string');
+                    op.addAttribute('source_scope', firstAttr);
+                    op.addAttribute('source_key', keyAttr);
+                    hasScope = true;
+                } else {
+                    parser.resetToken(curPointer);
+                }
+            }
+            if (!hasScope) {
                 op.addAttribute('source_key', firstAttr);
             }
             parser.parseLSquare();
@@ -13654,7 +13675,7 @@ _.StreamDialect = class extends _.IREEDialect {
             parser.parseColon();
             parser.parseType();
             parser.skip('{');
-            parser.expect(_.Token.bare_identifier, 'in');
+            parser.parseKeyword('in');
             parser.parseType();
             parser.skip('{');
         } while (parser.parseOptionalComma());
@@ -13676,7 +13697,7 @@ _.StreamDialect = class extends _.IREEDialect {
     parseShapedTiedResult(parser, op /*, args */) {
         if (parser.match('%')) {
             parser.parseOperand(); // tiedOperand - parsed but not stored in OperationState
-            parser.expect(_.Token.bare_identifier, 'as');
+            parser.parseKeyword('as');
         }
         const type = parser.parseType();
         op.types.push(type);
@@ -13912,7 +13933,7 @@ _.StreamDialect = class extends _.IREEDialect {
                     const unresolvedResource = parser.parseOperand();
                     parser.parseLSquare();
                     const unresolvedOffset = parser.parseOperand();
-                    parser.expect(_.Token.bare_identifier, 'for');
+                    parser.parseKeyword('for');
                     const unresolvedLength = parser.parseOperand();
                     parser.parseRSquare();
                     op.addAttribute('resource_access', accessMode);
@@ -13932,8 +13953,15 @@ _.StreamDialect = class extends _.IREEDialect {
 
     parseParameterReference(parser /*, op, args */) {
         parser.expect('string');
-        if (parser.accept('::')) {
-            parser.expect('string');
+        // Check for '::' prefix
+        if (parser.getToken().is(_.Token.colon)) {
+            const curPointer = parser.getToken().loc.position;
+            parser.consumeToken(_.Token.colon);
+            if (parser.consumeIf(_.Token.colon)) {
+                parser.expect('string');
+            } else {
+                parser.resetToken(curPointer);
+            }
         }
     }
 
@@ -13949,7 +13977,7 @@ _.StreamDialect = class extends _.IREEDialect {
             parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
-                parser.expect(_.Token.bare_identifier, 'for');
+                parser.parseKeyword('for');
                 parser.parseAttribute();
                 parser.parseRSquare();
             }
@@ -13967,7 +13995,7 @@ _.StreamDialect = class extends _.IREEDialect {
             parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
-                parser.expect(_.Token.bare_identifier, 'for');
+                parser.parseKeyword('for');
                 parser.parseAttribute();
                 parser.parseRSquare();
             }
@@ -14051,9 +14079,9 @@ _.StreamDialect = class extends _.IREEDialect {
             // Slice notation: [offset to end for length]
             if (parser.parseOptionalLSquare()) {
                 unresolvedOperands.push(parser.parseOperand()); // offset
-                parser.expect(_.Token.bare_identifier, 'to');
+                parser.parseKeyword('to');
                 unresolvedOperands.push(parser.parseOperand()); // end
-                parser.expect(_.Token.bare_identifier, 'for');
+                parser.parseKeyword('for');
                 unresolvedOperands.push(parser.parseOperand()); // length
                 parser.parseRSquare();
             }
@@ -14107,7 +14135,7 @@ _.PCFDialect = class extends _.Dialect {
             }
             parser.parseRParen();
         }
-        parser.expect(_.Token.bare_identifier, 'execute');
+        parser.parseKeyword('execute');
         if (parser.parseOptionalLParen()) {
             while (!parser.match(')')) {
                 const refArg = parser.parseOperand();
@@ -14426,7 +14454,7 @@ _.LinalgDialect = class extends _.Dialect {
         }
         if (result.op === 'linalg.elementwise') {
             // Parse required kind = <attr>
-            parser.expect(_.Token.bare_identifier, 'kind');
+            parser.parseKeyword('kind');
             parser.parseEqual();
             const kind = parser.parseAttribute();
             result.addAttribute('kind', kind.value);
@@ -14774,7 +14802,7 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseRSquare();
             result.addAttribute('outer_dims_perm', outerDimsPerm.map((v) => BigInt(v)));
         }
-        parser.expect(_.Token.bare_identifier, 'inner_dims_pos');
+        parser.parseKeyword('inner_dims_pos');
         parser.parseEqual();
         const innerDimsPos = [];
         parser.parseLSquare();
@@ -14786,7 +14814,7 @@ _.LinalgDialect = class extends _.Dialect {
         }
         parser.parseRSquare();
         result.addAttribute('inner_dims_pos', innerDimsPos.map((v) => BigInt(v)));
-        parser.expect(_.Token.bare_identifier, 'inner_tiles');
+        parser.parseKeyword('inner_tiles');
         parser.parseEqual();
         const staticInnerTiles = [];
         const dynamicTileOperands = [];
@@ -14805,7 +14833,7 @@ _.LinalgDialect = class extends _.Dialect {
         }
         parser.parseRSquare();
         result.addAttribute('static_inner_tiles', staticInnerTiles);
-        parser.expect(_.Token.bare_identifier, 'into');
+        parser.parseKeyword('into');
         const unresolvedDest = parser.parseOperand();
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
@@ -14843,7 +14871,7 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseRSquare();
             result.addAttribute('outer_dims_perm', outerDimsPerm.map((v) => BigInt(v)));
         }
-        parser.expect(_.Token.bare_identifier, 'inner_dims_pos');
+        parser.parseKeyword('inner_dims_pos');
         parser.parseEqual();
         const innerDimsPos = [];
         parser.parseLSquare();
@@ -14855,7 +14883,7 @@ _.LinalgDialect = class extends _.Dialect {
         }
         parser.parseRSquare();
         result.addAttribute('inner_dims_pos', innerDimsPos.map((v) => BigInt(v)));
-        parser.expect(_.Token.bare_identifier, 'inner_tiles');
+        parser.parseKeyword('inner_tiles');
         parser.parseEqual();
         const staticInnerTiles = [];
         const dynamicTileOperands = [];
@@ -14874,7 +14902,7 @@ _.LinalgDialect = class extends _.Dialect {
         }
         parser.parseRSquare();
         result.addAttribute('static_inner_tiles', staticInnerTiles);
-        parser.expect(_.Token.bare_identifier, 'into');
+        parser.parseKeyword('into');
         const unresolvedDest = parser.parseOperand();
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
@@ -15010,7 +15038,7 @@ _.KrnlDialect = class extends _.Dialect {
             const readOrWrite = parser.expect(_.Token.bare_identifier);
             result.addAttribute('isWrite', readOrWrite === 'write');
             parser.parseComma();
-            parser.expect(_.Token.bare_identifier, 'locality');
+            parser.parseKeyword('locality');
             parser.parseLess();
             const localityHint = parser.parseInteger();
             result.addAttribute('localityHint', localityHint);
@@ -15053,7 +15081,7 @@ _.KrnlDialect = class extends _.Dialect {
                     } else {
                         parser.parseAttribute();
                     }
-                    parser.expect(_.Token.bare_identifier, 'to');
+                    parser.parseKeyword('to');
                     parser.parseOptionalKeyword('min');
                     if (parser.match('kw_affine_map') || parser.match('kw_affine_set')) {
                         parser.parseAttribute();
@@ -15980,7 +16008,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.SpecConstantOperation' || result.op === 'spv.SpecConstantOperation') {
-            parser.expect(_.Token.bare_identifier, 'wraps');
+            parser.parseKeyword('wraps');
             const wrappedOp = parser.parseGenericOperation();
             if (wrappedOp) {
                 const region = { blocks: [{ operations: [wrappedOp] }] };
@@ -16302,7 +16330,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         if (result.op === 'spirv.SpecConstant' || result.op === 'spv.SpecConstant') {
             parser.parseSymbolName('sym_name', result.attributes);
             if (parser.match(_.Token.bare_identifier, 'spec_id')) {
-                parser.expect(_.Token.bare_identifier, 'spec_id');
+                parser.parseKeyword('spec_id');
                 parser.parseLParen();
                 const specId = parser.parseAttribute();
                 result.addAttribute('spec_id', specId);
@@ -16624,10 +16652,10 @@ _.WasmSSADialect = class extends _.Dialect {
         if (result.op === 'wasmssa.import_global') {
             const importName = parser.expect('string');
             result.addAttribute('importName', importName);
-            parser.expect(_.Token.bare_identifier, 'from');
+            parser.parseKeyword('from');
             const moduleName = parser.expect('string');
             result.addAttribute('moduleName', moduleName);
-            parser.expect(_.Token.bare_identifier, 'as');
+            parser.parseKeyword('as');
             parser.parseSymbolName('sym_name', result.attributes);
             if (parser.parseOptionalKeyword('mutable')) {
                 result.addAttribute('isMutable', new _.UnitAttr());
@@ -16664,9 +16692,9 @@ _.WasmSSADialect = class extends _.Dialect {
 
     parseType(parser) {
         if (parser.match(_.Token.bare_identifier, 'local')) {
-            parser.expect(_.Token.bare_identifier, 'local');
-            parser.expect(_.Token.bare_identifier, 'ref');
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('local');
+            parser.parseKeyword('ref');
+            parser.parseKeyword('to');
             const elementType = parser.parseType();
             return new _.Type(`!wasmssa<local ref to ${elementType}>`);
         }
@@ -16674,8 +16702,8 @@ _.WasmSSADialect = class extends _.Dialect {
     }
 
     parseLocalRefType(parser) {
-        parser.expect(_.Token.bare_identifier, 'ref');
-        parser.expect(_.Token.bare_identifier, 'to');
+        parser.parseKeyword('ref');
+        parser.parseKeyword('to');
         const elementType = parser.parseType();
         return new _.Type(`ref to ${elementType}`);
     }
@@ -17023,7 +17051,7 @@ _.PDLInterpDialect = class extends _.Dialect {
         const loopVar = parser.parseOperand();
         parser.parseColon();
         const loopVarType = parser.parseType();
-        parser.expect(_.Token.bare_identifier, 'in');
+        parser.parseKeyword('in');
         const range = parser.parseOperand();
         parser.resolveOperand(range, null, result.operands);
         if (parser.match('{')) {
@@ -17070,7 +17098,7 @@ _.PDLInterpDialect = class extends _.Dialect {
             return;
         }
         if (parser.parseOptionalLess()) {
-            parser.expect(_.Token.bare_identifier, 'inferred');
+            parser.parseKeyword('inferred');
             parser.parseGreater();
             result.addAttribute('inferredResultTypes', true);
             return;
@@ -17271,10 +17299,10 @@ _.EmitCDialect = class extends _.Dialect {
             parser.parseEqual();
             const lb = parser.parseOperand();
             parser.resolveOperand(lb, null, result.operands);
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             const ub = parser.parseOperand();
             parser.resolveOperand(ub, null, result.operands);
-            parser.expect(_.Token.bare_identifier, 'step');
+            parser.parseKeyword('step');
             const step = parser.parseOperand();
             parser.resolveOperand(step, null, result.operands);
             // Parse optional type
@@ -17979,7 +18007,7 @@ _.BufferizationDialect = class extends _.Dialect {
                 if (unresolvedOperand) {
                     parser.resolveOperand(unresolvedOperand, sourceType, result.operands);
                 }
-                parser.expect(_.Token.bare_identifier, 'to');
+                parser.parseKeyword('to');
                 const destType = parser.parseType();
                 result.addTypes([destType]);
             } else if (unresolvedOperand) {
@@ -18881,16 +18909,16 @@ _.GpuDialect = class extends _.Dialect {
             parser.resolveOperands(asyncDeps, asyncTypes, result.operands);
             if (parser.parseOptionalKeyword('clusters')) {
                 this.parseSizeAssignment(parser, result, indexType);
-                parser.expect(_.Token.bare_identifier, 'in');
+                parser.parseKeyword('in');
                 this.parseSizeAssignment(parser, result, indexType);
             }
-            parser.expect(_.Token.bare_identifier, 'blocks');
+            parser.parseKeyword('blocks');
             this.parseSizeAssignment(parser, result, indexType);
-            parser.expect(_.Token.bare_identifier, 'in');
+            parser.parseKeyword('in');
             this.parseSizeAssignment(parser, result, indexType);
-            parser.expect(_.Token.bare_identifier, 'threads');
+            parser.parseKeyword('threads');
             this.parseSizeAssignment(parser, result, indexType);
-            parser.expect(_.Token.bare_identifier, 'in');
+            parser.parseKeyword('in');
             this.parseSizeAssignment(parser, result, indexType);
             if (parser.parseOptionalKeyword('dynamic_shared_memory_size')) {
                 const operand = parser.parseOperand();
@@ -19252,7 +19280,7 @@ _.NVWSDialect = class extends _.Dialect {
             const numWarps = [];
             let partitionIndex = 0;
             while (parser.parseOptionalKeyword(`partition${partitionIndex}`)) {
-                parser.expect(_.Token.bare_identifier, 'num_warps');
+                parser.parseKeyword('num_warps');
                 parser.parseLParen();
                 const n = parseInt(parser.expect('int'), 10);
                 numWarps.push(n);
@@ -19364,8 +19392,8 @@ _.OpenMPDialect = class extends _.Dialect {
         const inductionVar = parser.parseOperand();
         parser.parseColon();
         const ivType = parser.parseType();
-        parser.expect(_.Token.bare_identifier, 'in');
-        parser.expect(_.Token.bare_identifier, 'range');
+        parser.parseKeyword('in');
+        parser.parseKeyword('range');
         parser.parseLParen();
         const rangeOperand = parser.parseOperand();
         parser.resolveOperand(rangeOperand, null, result.operands);
@@ -19820,7 +19848,7 @@ _.OpenMPDialect = class extends _.Dialect {
                             }
                         }
                         if (parser.parseOptionalLSquare()) {
-                            parser.expect(_.Token.bare_identifier, 'map_idx');
+                            parser.parseKeyword('map_idx');
                             parser.parseEqual();
                             parser.expect('int');
                             parser.parseRSquare();
@@ -19975,7 +20003,7 @@ _.OpenMPDialect = class extends _.Dialect {
                                 }
                             }
                             if (parser.parseOptionalLSquare()) {
-                                parser.expect(_.Token.bare_identifier, 'map_idx');
+                                parser.parseKeyword('map_idx');
                                 parser.parseEqual();
                                 parser.expect('int');
                                 parser.parseRSquare();
@@ -20056,7 +20084,7 @@ _.OpenMPDialect = class extends _.Dialect {
                         lowerType = parser.parseType();
                     }
                     parser.resolveOperand(lower, lowerType, result.operands);
-                    parser.expect(_.Token.bare_identifier, 'to');
+                    parser.parseKeyword('to');
                     if (parser.match('%')) {
                         const upper = parser.parseOperand();
                         let upperType = null;
@@ -20114,7 +20142,7 @@ _.OpenMPDialect = class extends _.Dialect {
 
     parseDataSharingClauseTypeAttr(parser) {
         if (parser.parseOptionalLBrace()) {
-            parser.expect(_.Token.bare_identifier, 'type');
+            parser.parseKeyword('type');
             parser.parseEqual();
             const value = parser.expect(_.Token.bare_identifier);
             parser.parseRBrace();
@@ -20725,7 +20753,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             result.addAttribute('inalloca', true);
         }
         const arraySize = parser.parseOperand();
-        parser.expect(_.Token.bare_identifier, 'x');
+        parser.parseKeyword('x');
         const elemType = parser.parseType();
         result.addAttribute('elem_type', elemType);
         if (parser.match('{')) {
@@ -20950,7 +20978,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         parser.parseRParen();
-        parser.expect(_.Token.bare_identifier, 'to');
+        parser.parseKeyword('to');
         const normalDest = parser.expect('^');
         result.successors = result.successors || [];
         const normalSucc = { label: normalDest };
@@ -20968,7 +20996,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             parser.parseRParen();
         }
         result.successors.push(normalSucc);
-        parser.expect(_.Token.bare_identifier, 'unwind');
+        parser.parseKeyword('unwind');
         const unwindDest = parser.expect('^');
         const unwindSucc = { label: unwindDest };
         if (parser.parseOptionalLParen()) {
@@ -21479,7 +21507,7 @@ _.VMDialect = class extends _.Dialect {
                 }
             }
             parser.parseRSquare();
-            parser.expect(_.Token.bare_identifier, 'else');
+            parser.parseKeyword('else');
             const defaultValueUnresolved = parser.parseOperand();
             unresolvedOperands.push(defaultValueUnresolved);
             parser.parseOptionalAttrDict(result.attributes);
@@ -21719,7 +21747,7 @@ _.TFDeviceDialect = class extends _.Dialect {
                             break;
                         }
                     }
-                    parser.expect(_.Token.bare_identifier, 'as');
+                    parser.parseKeyword('as');
                     parser.parseOperand(); // block arg
                     parser.parseColon();
                     const type = parser.parseType();
@@ -21728,7 +21756,7 @@ _.TFDeviceDialect = class extends _.Dialect {
                     }
                 } else if (parser.match('%')) {
                     const unresolvedValue = parser.parseOperand();
-                    parser.expect(_.Token.bare_identifier, 'as');
+                    parser.parseKeyword('as');
                     parser.parseOperand(); // block arg
                     parser.parseColon();
                     const type = parser.parseType();
@@ -21923,7 +21951,7 @@ _.TFExecutorDialect = class extends _.Dialect {
             const unresolvedData = parser.parseOperand();
             parser.parseComma();
             const unresolvedIndex = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'of');
+            parser.parseKeyword('of');
             const numOuts = parseInt(parser.expect('int'), 10);
             result.addAttribute('num_outs', numOuts);
             let unresolvedControlInputs = [];
@@ -21979,7 +22007,7 @@ _.TFExecutorDialect = class extends _.Dialect {
                 break;
             }
         }
-        parser.expect(_.Token.bare_identifier, 'frame');
+        parser.parseKeyword('frame');
         const frameName = parser.expect('string');
         result.addAttribute('frame_name', frameName);
         if (parser.parseOptionalKeyword('parallel_iterations')) {
@@ -22274,9 +22302,9 @@ _.TFRTDialect = class extends _.Dialect {
         }
         if (result.op === 'tfrt.parallel_for.i32') {
             const startUnresolved = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             const endUnresolved = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'fixed');
+            parser.parseKeyword('fixed');
             const blockSizeUnresolved = parser.parseOperand();
             let additionalArgs = [];
             if (parser.parseOptionalComma()) {
@@ -22299,9 +22327,9 @@ _.TFRTDialect = class extends _.Dialect {
         }
         if (result.op === 'tfrt.parallel_call.i32') {
             const startUnresolved = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             const endUnresolved = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'fixed');
+            parser.parseKeyword('fixed');
             const blockSizeUnresolved = parser.parseOperand();
             const callee = parser.expect('@');
             result.addAttribute('callee', callee);
@@ -22367,7 +22395,7 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
             return false;
         }
         if (result.op === 'tfrt_fallback_async.batch_function') {
-            parser.expect(_.Token.bare_identifier, 'device');
+            parser.parseKeyword('device');
             parser.parseLParen();
             const device = parser.expect('string');
             parser.parseRParen();
@@ -23368,7 +23396,7 @@ _.TransformDialect = class extends _.Dialect {
         // LinalgTransformOps.cpp:3009 SplitOp::parse
         if (result.op === 'transform.structured.split') {
             const unresolvedTarget = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'after');
+            parser.parseKeyword('after');
             let unresolvedDynamicChunk = null;
             if (parser.match('%')) {
                 unresolvedDynamicChunk = parser.parseOperand();
@@ -23687,6 +23715,9 @@ _.TestDialect = class extends _.Dialect {
         this.registerCustomAttribute('TestEnumPropAttrForm', this.parseTestEnumPropAttrForm.bind(this));
         this.registerCustomAttribute('TestBitEnumProp', this.parseTestBitEnumProp.bind(this));
         this.registerCustomAttribute('TestBitEnumPropNamed', this.parseTestBitEnumPropNamed.bind(this));
+        this.registerCustomAttribute('TestArrayOfUglyAttrs', this.parseTestArrayOfUglyAttrs.bind(this));
+        this.registerCustomAttribute('TestArrayOfInts', this.parseTestArrayOfInts.bind(this));
+        this.registerCustomAttribute('TestArrayOfEnums', this.parseTestArrayOfEnums.bind(this));
     }
 
     parseOperation(parser, result) {
@@ -23710,15 +23741,15 @@ _.TestDialect = class extends _.Dialect {
             for (const t of outputTypes) {
                 result.addTypes([t]);
             }
-            parser.expect(_.Token.bare_identifier, 'then');
+            parser.parseKeyword('then');
             const thenRegion = {};
             parser.parseRegion(thenRegion);
             result.regions.push(thenRegion);
-            parser.expect(_.Token.bare_identifier, 'else');
+            parser.parseKeyword('else');
             const elseRegion = {};
             parser.parseRegion(elseRegion);
             result.regions.push(elseRegion);
-            parser.expect(_.Token.bare_identifier, 'join');
+            parser.parseKeyword('join');
             const joinRegion = {};
             parser.parseRegion(joinRegion);
             result.regions.push(joinRegion);
@@ -23735,7 +23766,7 @@ _.TestDialect = class extends _.Dialect {
             // instead of the standard prop-dict <{...}> format. This is an exception, not a pattern.
             result.compatibility = true;
             const label = parser.match('string') ? parser.expect('string') : parser.expect(_.Token.bare_identifier);
-            parser.expect(_.Token.bare_identifier, 'is');
+            parser.parseKeyword('is');
             const negative = parser.accept('minus');
             const value = parser.parseInteger();
             result.addAttribute('prop', { label, value: negative ? -value : value });
@@ -23817,7 +23848,7 @@ _.TestDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'test.wrapping_region') {
-            parser.expect(_.Token.bare_identifier, 'wraps');
+            parser.parseKeyword('wraps');
             const region = result.addRegion();
             const block = { operations: [] };
             region.blocks = [block];
@@ -23835,7 +23866,7 @@ _.TestDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('start')) {
                 const innerOpName = parser.parseCustomOperationName();
                 result.addAttribute('inner_op', innerOpName);
-                parser.expect(_.Token.bare_identifier, 'end');
+                parser.parseKeyword('end');
                 parser.parseColon();
                 const fnType = parser.parseFunctionType();
                 if (fnType && fnType.inputs) {
@@ -23952,7 +23983,7 @@ _.TestDialect = class extends _.Dialect {
     // Elided form: <i <...>>
     parseCompoundNestedOuterType(parser) {
         parser.parseLess();
-        parser.expect(_.Token.bare_identifier, 'i');
+        parser.parseKeyword('i');
         // Parse $inner - could be full (!test.cmpnd_inner<...>) or elided (<...>)
         const inner = parser.match('!') ? parser.parseType() : this.parseCompoundNestedInnerType(parser);
         parser.parseGreater();
@@ -24003,6 +24034,50 @@ _.TestDialect = class extends _.Dialect {
     }
 
     parseDummySuccessorRef() {
+    }
+
+    parseTestAttrUgly(parser) {
+        parser.parseKeyword('begin');
+        const attr = parser.parseAttribute();
+        parser.parseKeyword('end');
+        return attr;
+    }
+
+    // Parse TestArrayOfUglyAttrs: assemblyFormat = "`[` (`]`) : ($value^ ` ` `]`)?"
+    parseTestArrayOfUglyAttrs(parser) {
+        parser.parseLSquare();
+        const elements = [];
+        parser.parseCommaSeparatedListUntil(_.Token.r_square, () => {
+            elements.push(this.parseTestAttrUgly(parser));
+        });
+        return new _.ArrayAttr(elements);
+    }
+
+    // Parse TestArrayOfInts: assemblyFormat = "`[` (`]`) : ($value^ `]`)?"
+    parseTestArrayOfInts(parser) {
+        parser.parseLSquare();
+        const elements = [];
+        parser.parseCommaSeparatedListUntil(_.Token.r_square, () => {
+            const isNegative = parser.consumeIf(_.Token.minus);
+            const value = parser.parseInteger();
+            elements.push(new _.IntegerAttr(null, isNegative ? -value : value));
+        });
+        return new _.ArrayAttr(elements);
+    }
+
+    // Parse TestArrayOfEnums: elements are SimpleEnumAttr values (a, b, etc.)
+    parseTestArrayOfEnums(parser) {
+        parser.parseLSquare();
+        const elements = [];
+        parser.parseCommaSeparatedListUntil(_.Token.r_square, () => {
+            if (parser.match('string')) {
+                elements.push(new _.TypedAttr(parser.parseString(), null));
+            } else {
+                const value = parser.parseKeyword();
+                elements.push(new _.TypedAttr(value, null));
+            }
+        });
+        return new _.ArrayAttr(elements);
     }
 
     parseOptionalCustomParser(parser, op, attrName = 'attr') {
@@ -24120,7 +24195,7 @@ _.TestDialect = class extends _.Dialect {
 
     parseCustomDirectiveWithTypeRefs(parser, result) {
         // Parses: type_refs_capture : type [, type] -> (types)
-        parser.expect(_.Token.bare_identifier, 'type_refs_capture');
+        parser.parseKeyword('type_refs_capture');
         this.parseCustomDirectiveResults(parser, result);
     }
 
@@ -24181,7 +24256,7 @@ _.TestDialect = class extends _.Dialect {
     parseSwitchCases(parser, result) {
         const caseValues = [];
         while (parser.match(_.Token.bare_identifier, 'case')) {
-            parser.expect(_.Token.bare_identifier, 'case');
+            parser.parseKeyword('case');
             const value = parser.parseInteger();
             caseValues.push(value);
             const region = result.addRegion();
@@ -24393,7 +24468,7 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
             }
             parser.parseRParen();
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            parser.expect(_.Token.bare_identifier, 'default');
+            parser.parseKeyword('default');
             const defaultRegion = {};
             parser.parseRegion(defaultRegion);
             result.regions.push(defaultRegion);
@@ -24402,7 +24477,7 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
             while (parser.match(_.Token.bare_identifier, `partition${partitionIndex}`)) {
                 parser.expect(_.Token.bare_identifier, `partition${partitionIndex}`);
                 const argResult = parser.parseFunctionArgumentList();
-                parser.expect(_.Token.bare_identifier, 'num_warps');
+                parser.parseKeyword('num_warps');
                 parser.parseLParen();
                 const numWarps = parser.expect();
                 partitionNumWarps.push(parseInt(numWarps, 10));
@@ -24751,13 +24826,13 @@ _.TensorRTDialect = class extends _.Dialect {
         parser.parseEqual();
         const unresolvedLb = parser.parseOperand();
         parser.resolveOperand(unresolvedLb, null, result.operands);
-        parser.expect(_.Token.bare_identifier, 'to');
+        parser.parseKeyword('to');
         const unresolvedUb = parser.parseOperand();
         parser.resolveOperand(unresolvedUb, null, result.operands);
-        parser.expect(_.Token.bare_identifier, 'step');
+        parser.parseKeyword('step');
         const unresolvedStep = parser.parseOperand();
         parser.resolveOperand(unresolvedStep, null, result.operands);
-        parser.expect(_.Token.bare_identifier, 'init');
+        parser.parseKeyword('init');
         const regionArgs = [{ name: inductionVar.name, type: null }];
         if (parser.parseOptionalLParen()) {
             while (!parser.parseOptionalRParen()) {
@@ -25069,7 +25144,7 @@ _.ACCDialect = class extends _.Dialect {
     // custom<Var>($var) - receives ctx.get('var').operands
     parseVar(parser, op, operands) {
         if (!parser.parseOptionalKeyword('varPtr')) {
-            parser.expect(_.Token.bare_identifier, 'var');
+            parser.parseKeyword('var');
         }
         parser.parseLParen();
         // Push unresolved operand to context - resolution happens after all directives
@@ -25079,7 +25154,7 @@ _.ACCDialect = class extends _.Dialect {
     // custom<AccVar>($accVar, type($accVar)) - self-contained with type inline
     parseAccVar(parser, op, operands, types) {
         if (!parser.parseOptionalKeyword('accPtr')) {
-            parser.expect(_.Token.bare_identifier, 'accVar');
+            parser.parseKeyword('accVar');
         }
         parser.parseLParen();
         operands.push(parser.parseOperand());
@@ -25169,13 +25244,13 @@ _.ACCDialect = class extends _.Dialect {
             const lowerboundTypes = parser.parseColonTypeList();
             parser.resolveOperands(lowerbound, lowerboundTypes, result.operands);
             parser.parseRParen();
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             parser.parseLParen();
             const upperbound = parser.parseOperandList();
             const upperboundTypes = parser.parseColonTypeList();
             parser.resolveOperands(upperbound, upperboundTypes, result.operands);
             parser.parseRParen();
-            parser.expect(_.Token.bare_identifier, 'step');
+            parser.parseKeyword('step');
             parser.parseLParen();
             const step = parser.parseOperandList();
             const stepTypes = parser.parseColonTypeList();
@@ -25477,7 +25552,7 @@ _.smt.SMTDialect = class extends _.Dialect {
         if (result.op === 'smt.bv.repeat') {
             const count = parser.parseInteger();
             result.addAttribute('count', count);
-            parser.expect(_.Token.bare_identifier, 'times');
+            parser.parseKeyword('times');
             const unresolvedOperand = parser.parseOperand();
             parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
@@ -26029,7 +26104,7 @@ _.XlaDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             // Parse 'in #map'
-            parser.expect(_.Token.bare_identifier, 'in');
+            parser.parseKeyword('in');
             const map = parser.parseAttribute();
             result.addAttribute('indexing_map_attr', map);
             // Parse 'iter_args(%args = %inits)'
@@ -26119,11 +26194,11 @@ _.XlaGpuDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             // Parse 'to N'
-            parser.expect(_.Token.bare_identifier, 'to');
+            parser.parseKeyword('to');
             const maxDistance = parser.expect('int');
             result.addAttribute('max_distance', parseInt(maxDistance, 10));
             // Parse 'combiner=@func'
-            parser.expect(_.Token.bare_identifier, 'combiner');
+            parser.parseKeyword('combiner');
             parser.parseEqual();
             const combiner = parser.expect('@');
             result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
@@ -26157,7 +26232,7 @@ _.XlaGpuDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             // Parse 'inits(%init_values)'
-            parser.expect(_.Token.bare_identifier, 'inits');
+            parser.parseKeyword('inits');
             parser.parseLParen();
             while (!parser.match(')')) {
                 if (parser.match('%')) {
@@ -26169,12 +26244,12 @@ _.XlaGpuDialect = class extends _.Dialect {
             }
             parser.parseRParen();
             // Parse 'dimensions=[0, 2]'
-            parser.expect(_.Token.bare_identifier, 'dimensions');
+            parser.parseKeyword('dimensions');
             parser.parseEqual();
             const dimensions = parser.parseAttribute();
             result.addAttribute('dimensions', dimensions);
             // Parse 'combiner=@func'
-            parser.expect(_.Token.bare_identifier, 'combiner');
+            parser.parseKeyword('combiner');
             parser.parseEqual();
             const combiner = parser.expect('@');
             result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
@@ -26185,7 +26260,7 @@ _.XlaGpuDialect = class extends _.Dialect {
                 const inputTypes = parser.parseTypeList();
                 parser.resolveOperands(unresolvedInputs, inputTypes, result.operands);
                 // Parse 'to' and output types
-                parser.expect(_.Token.bare_identifier, 'to');
+                parser.parseKeyword('to');
                 const outputTypes = parser.parseTypeList();
                 result.addTypes(outputTypes);
                 parser.resolveOperands(unresolvedInits, outputTypes, result.operands);
@@ -26231,9 +26306,9 @@ _.TritonXlaDialect = class extends _.Dialect {
     parseOperation(parser, result) {
         // triton_xla.extract from $src as memref<shape, layout> [offsets] [sizes] [strides] : result_type
         if (result.op === 'triton_xla.extract') {
-            parser.expect(_.Token.bare_identifier, 'from');
+            parser.parseKeyword('from');
             const unresolvedSrc = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'as');
+            parser.parseKeyword('as');
             // Parse AsMemRefType: memref<shape, layout> - the memref type describes the pointer's layout
             const memrefType = parser.parseType();
             // Extract shape and layout from the memref type
@@ -26253,9 +26328,9 @@ _.TritonXlaDialect = class extends _.Dialect {
         // triton_xla.insert $src into $dst as memref<shape, layout> [offsets] [sizes] [strides] : src_type
         if (result.op === 'triton_xla.insert') {
             const unresolvedSrc = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'into');
+            parser.parseKeyword('into');
             const unresolvedDst = parser.parseOperand();
-            parser.expect(_.Token.bare_identifier, 'as');
+            parser.parseKeyword('as');
             // Parse AsMemRefType: memref<shape, layout> - the memref type describes the pointer's layout
             const memrefType = parser.parseType();
             // Extract shape and layout from the memref type

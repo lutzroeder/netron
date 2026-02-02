@@ -3404,7 +3404,7 @@
   {
     "type":     "mlir",
     "target":   "example.mlir",
-    "source":   "https://github.com/user-attachments/files/17792104/example.mlir.zip[example.mlir]",
+    "source":   "https://github.com/user-attachments/files/25031716/example.mlir.zip[example.mlir]",
     "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
