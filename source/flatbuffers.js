@@ -84,7 +84,7 @@ flatbuffers.BinaryReader = class {
 
     uint32_(position, offset, defaultValue) {
         offset = this.__offset(position, offset);
-        return offset ? this.int32(position + offset) : defaultValue;
+        return offset ? this.uint32(position + offset) : defaultValue;
     }
 
     int64_(position, offset, defaultValue) {

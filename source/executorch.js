@@ -570,7 +570,7 @@ xnnpack.Node = class {
             let value = ArrayBuffer.isView(obj) ? Array.from(obj) : obj;
             let type = 'attribute';
             if (name.endsWith('_id')) {
-                value = obj === -1 ? [] : [values.map(obj)];
+                value = obj === -1 || obj === 0xFFFFFFFF ? [] : [values.map(obj)];
                 type = null;
             }
             const argument = new xnnpack.Argument(name, value, type);
