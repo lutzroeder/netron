@@ -920,6 +920,12 @@
     "name": "aten::_local_scalar_dense(Tensor self) -> Scalar"
   },
   {
+    "name": "aten::_log_softmax(Tensor self, int dim, bool half_to_float) -> Tensor"
+  },
+  {
+    "name": "aten::_log_softmax.out(Tensor self, int dim, bool half_to_float, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::_make_per_tensor_quantized_tensor(Tensor self, float scale, int zero_point) -> Tensor"
   },
   {
