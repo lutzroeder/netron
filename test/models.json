@@ -3368,7 +3368,7 @@
     "target":   "clip_text_bf16.mlir",
     "source":   "https://github.com/user-attachments/files/24459374/clip_text_bf16.mlir.zip[clip_text_bf16.mlir]",
     "format":   "MLIR",
-    "assert":   "model.functions[0].outputs[1].value.length == 1",
+    "assert":   "model.functions[0].nodes[75].attributes[0].value.values.length == 136",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
