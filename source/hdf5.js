@@ -45,7 +45,7 @@ hdf5.File = class {
                     reader.skip(4);
                     if (version > 0) {
                         this._indexedStorageInternalNodeK = reader.uint16();
-                        this.skip(2); // Reserved
+                        reader.skip(2); // Reserved
                     }
                     this._baseAddress = reader.offset();
                     reader.offset(); // Address of File Free space Info
