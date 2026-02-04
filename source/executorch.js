@@ -218,7 +218,7 @@ executorch.Node = class {
             for (let i = 0; i < outputs.length; i++) {
                 const output = outputs[i];
                 const value = values.map(output);
-                const name = inputs.length === 1 ? 'output' : `output.${i}`;
+                const name = outputs.length === 1 ? 'output' : `output.${i}`;
                 const argument = new executorch.Argument(name, value.value, value.type);
                 this.outputs.push(argument);
             }
