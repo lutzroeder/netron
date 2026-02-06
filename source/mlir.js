@@ -1836,6 +1836,18 @@ _.StringRef = class {
         return this.value.substring(n);
     }
 
+    getAsInteger(radix) {
+        const str = this.value;
+        if (str.length === 0) {
+            return null;
+        }
+        const value = radix === 0 ? Number(str) : parseInt(str, radix);
+        if (!Number.isInteger(value)) {
+            return null;
+        }
+        return value;
+    }
+
     toString() {
         return this.value;
     }
@@ -2148,6 +2160,15 @@ _.Token = class {
 
     getSpelling() {
         return this.spelling;
+    }
+
+    getUnsignedIntegerValue() {
+        const isHex = this.spelling.str().length > 1 && this.spelling.str()[1] === 'x';
+        const value = this.spelling.getAsInteger(isHex ? 0 : 10);
+        if (value === null || value < 0 || value > 0xFFFFFFFF) {
+            return null;
+        }
+        return value;
     }
 
     getStringValue() {
@@ -2732,10 +2753,7 @@ _.Parser = class {
             this.consumeToken(rightToken);
             return;
         }
-        parseElement();
-        while (this.accept(_.Token.comma)) {
-            parseElement();
-        }
+        this.parseCommaSeparatedList('none', parseElement);
         this.expect(rightToken);
     }
 
@@ -2948,41 +2966,63 @@ _.Parser = class {
     }
 
     parseNameOrFileLineColRange() {
-        const str = this.expect('string');
-        // Check for file:line:col format
-        if (this.accept(':')) {
-            const startLine = parseInt(this.expect('int'), 10);
-            if (this.accept(':')) {
-                const startCol = parseInt(this.expect('int'), 10);
-                // Check for range: "file":L:C to L:C or "file":L:C to :C
-                if (this.accept(_.Token.bare_identifier, 'to')) {
-                    if (this.accept(':')) {
-                        // Short form: to :endCol
-                        const endCol = parseInt(this.expect('int'), 10);
-                        return new _.FileLineColRange(str, startLine, startCol, undefined, endCol);
-                    } else if (this.match('int')) {
-                        // Full form: to endLine:endCol
-                        const endLine = parseInt(this.expect('int'), 10);
-                        if (this.accept(':')) {
-                            const endCol = parseInt(this.expect('int'), 10);
-                            return new _.FileLineColRange(str, startLine, startCol, endLine, endCol);
-                        }
-                        return new _.FileLineColRange(str, startLine, startCol, endLine, undefined);
-                    }
-                }
+        const str = this.getToken().getStringValue();
+        this.consumeToken(_.Token.string);
+        if (this.consumeIf(_.Token.colon)) {
+            if (this.getToken().isNot(_.Token.integer)) {
+                throw new mlir.Error(`Expected integer line number in FileLineColRange ${this.location()}`);
+            }
+            const startLine = this.getToken().getUnsignedIntegerValue();
+            if (startLine === null) {
+                throw new mlir.Error(`Expected integer line number in FileLineColRange ${this.location()}`);
+            }
+            this.consumeToken(_.Token.integer);
+            if (this.getToken().isNot(_.Token.colon)) {
+                return new _.FileLineColRange(str, startLine);
+            }
+            this.consumeToken(_.Token.colon);
+            if (this.getToken().isNot(_.Token.integer)) {
+                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
+            }
+            const startCol = this.getToken().getUnsignedIntegerValue();
+            if (startCol === null) {
+                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
+            }
+            this.consumeToken(_.Token.integer);
+            if (!this.accept(_.Token.bare_identifier, 'to')) {
                 return new _.FileLineColLoc(str, startLine, startCol);
             }
-            // Only file:line
-            return new _.FileLineColLoc(str, startLine, 0);
+            let endLine = null;
+            if (this.getToken().is(_.Token.integer)) {
+                endLine = this.getToken().getUnsignedIntegerValue();
+                if (endLine === null) {
+                    throw new mlir.Error(`expected integer line number in FileLineColRange ${this.location()}`);
+                }
+                this.consumeToken(_.Token.integer);
+            }
+            if (this.getToken().isNot(_.Token.colon)) {
+                throw new mlir.Error(`expected either integer or ':' post 'to' in FileLineColRange ${this.location()}`);
+            }
+            this.consumeToken(_.Token.colon);
+            if (this.getToken().isNot(_.Token.integer)) {
+                throw new mlir.Error(`expected integer column number in FileLineColRange ${this.location()}`);
+            }
+            const endCol = this.getToken().getUnsignedIntegerValue();
+            if (endCol === null) {
+                throw new mlir.Error(`expected integer column number in FileLineColRange ${this.location()}`);
+            }
+            this.consumeToken(_.Token.integer);
+            if (endLine !== null) {
+                return new _.FileLineColRange(str, startLine, startCol, endLine, endCol);
+            }
+            return new _.FileLineColRange(str, startLine, startCol, undefined, endCol);
         }
-        // Check for named location: "name"(childLoc)
-        if (this.accept('(')) {
+        if (this.consumeIf(_.Token.l_paren)) {
             const childLoc = this.parseLocationInstance();
-            this.expect(')');
+            this.parseToken(_.Token.r_paren, "expected ')' after child location of NameLoc");
             return new _.NameLoc(str, childLoc);
         }
-        // Just a name
-        return new _.NameLoc(str, null);
+        return new _.NameLoc(str);
     }
 
     parseLocationAlias() {
@@ -6560,7 +6600,10 @@ _.FileLineColRange = class extends _.LocationAttr {
         if (this.endCol !== undefined) {
             return `${this.filename}:${this.startLine}:${this.startCol} to :${this.endCol}`;
         }
-        return `${this.filename}:${this.startLine}:${this.startCol}`;
+        if (this.startCol !== undefined) {
+            return `${this.filename}:${this.startLine}:${this.startCol}`;
+        }
+        return `${this.filename}:${this.startLine}`;
     }
 };
 
