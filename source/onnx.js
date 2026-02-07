@@ -177,7 +177,7 @@ onnx.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        this._name = graph && graph.name || null;
+        this._name = graph ? graph.name || '' : '';
         this._description = graph.doc_string || '';
         context = new onnx.Context.Graph(context, graph);
         if (Array.isArray(graph.quantization_annotation)) {
