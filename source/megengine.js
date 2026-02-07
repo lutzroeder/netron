@@ -127,6 +127,9 @@ megengine.Graph = class {
                 }
                 let obj = module;
                 for (const name of names) {
+                    if (obj.__class__.__name__ === '_ModuleState') {
+                        obj = obj.state;
+                    }
                     obj = obj[name];
                 }
                 return obj;
