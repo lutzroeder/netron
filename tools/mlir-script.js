@@ -983,6 +983,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Linalg/tile-to-forall.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/func.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/global.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/MemRef/high-rank-overflow.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-uniform-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SMT/bitvector-errors.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/barrier-ops.mlir',

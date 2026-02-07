@@ -1912,6 +1912,8 @@ _.PrimitiveType = class extends _.Type {
 _.IntegerType = class extends _.Type {
 };
 
+_.IntegerType.kMaxWidth = (1 << 24) - 1;
+
 _.FloatType = class extends _.Type {
 };
 
@@ -2139,7 +2141,6 @@ _.Token = class {
         this.loc = new _.SMLoc(decoder);
         this.kind = null;
         this.spelling = new _.StringRef('', decoder.position);
-        this.text = null;
     }
 
     is(kind) {
@@ -2169,6 +2170,79 @@ _.Token = class {
             return null;
         }
         return value;
+    }
+
+    getUInt64IntegerValue() {
+        const spelling = this.spelling.str();
+        if (/^-?(\d+|0x[\da-f]+|0o[0-7]+|0b[01]+)$/i.test(spelling)) {
+            return BigInt(spelling);
+        }
+        return null;
+    }
+
+    getFloatingPointValue() {
+        const result = parseFloat(this.spelling.str());
+        if (isNaN(result)) {
+            return null;
+        }
+        return result;
+    }
+
+    getIntTypeBitwidth() {
+        const spelling = this.spelling.str();
+        const start = spelling[0] === 'i' ? 1 : 2;
+        const result = parseInt(spelling.slice(start), 10);
+        if (isNaN(result)) {
+            return null;
+        }
+        return result;
+    }
+
+    getIntTypeSignedness() {
+        const spelling = this.spelling.str();
+        if (spelling[0] === 'i') {
+            return null;
+        }
+        if (spelling[0] === 's') {
+            return true;
+        }
+        return false;
+    }
+
+    getHexStringValue() {
+        const spelling = this.spelling.str();
+        const bytes = spelling.slice(1, -1);
+        if (!bytes.startsWith('0x') || (bytes.length - 2) % 2 !== 0) {
+            return null;
+        }
+        const hex = bytes.slice(2);
+        const result = [];
+        for (let i = 0; i < hex.length; i += 2) {
+            const hi = parseInt(hex[i], 16);
+            const lo = parseInt(hex[i + 1], 16);
+            if (isNaN(hi) || isNaN(lo)) {
+                return null;
+            }
+            result.push((hi << 4) | lo);
+        }
+        return result;
+    }
+
+    getSymbolReference() {
+        const nameStr = this.spelling.str().slice(1);
+        if (nameStr[0] === '"') {
+            return this.getStringValue();
+        }
+        return nameStr;
+    }
+
+    getHashIdentifierNumber() {
+        const str = this.spelling.str().slice(1);
+        const result = parseInt(str, 10);
+        if (isNaN(result)) {
+            return null;
+        }
+        return result;
     }
 
     getStringValue() {
@@ -2302,16 +2376,13 @@ _.Lexer = class {
                     this._position = this._currentPosition;
                     continue;
                 case '.':
-                    if (/[0-9]/.test(this._peek())) {
-                        return this.lexNumber();
-                    }
                     this._read();
                     if (this._current === '.' && this._next === '.') {
                         this._read();
                         this._read();
                         return this.formToken('ellipsis', '...');
                     }
-                    return this.formToken('.', '.');
+                    throw new mlir.Error(`Expected three consecutive dots for an ellipsis ${this.location()}`);
                 case '-':
                     if (this._peek() === '>') {
                         this._read();
@@ -2347,11 +2418,6 @@ _.Lexer = class {
                 case '^':
                     return this.lexPrefixedIdentifier('^');
                 case '=':
-                    if (this._peek() === '=') {
-                        this._read();
-                        this._read();
-                        return this.formToken('==', '==');
-                    }
                     this._read();
                     return this.formToken('=', '=');
                 case ':':
@@ -2360,7 +2426,18 @@ _.Lexer = class {
                 case ',':
                 case '(':
                 case ')':
-                case '{': {
+                case '}':
+                case '[':
+                case ']':
+                case '<':
+                case '>':
+                case '?':
+                case '*':
+                case '|': {
+                    const value = this._read();
+                    return this.formToken(value, value);
+                }
+                case '{':
                     if (this._peek() === '-') {
                         const position = this._decoder.position;
                         const next = this._decoder.decode();
@@ -2372,34 +2449,8 @@ _.Lexer = class {
                             return this.formToken('{-#', '{-#');
                         }
                     }
-                    const value = this._read();
-                    return this.formToken(value, value);
-                }
-                case '}':
-                case '[':
-                case ']':
-                case '?':
-                case '*':
-                case '|': {
-                    const value = this._read();
-                    return this.formToken(value, value);
-                }
-                case '<':
-                    if (this._peek() === '=') {
-                        this._read();
-                        this._read();
-                        return this.formToken('<=', '<=');
-                    }
                     this._read();
-                    return this.formToken('<', '<');
-                case '>':
-                    if (this._peek() === '=') {
-                        this._read();
-                        this._read();
-                        return this.formToken('>=', '>=');
-                    }
-                    this._read();
-                    return this.formToken('>', '>');
+                    return this.formToken('{', '{');
                 default:
                     // Reference: bare-id starts with (letter|[_])
                     if (/[a-zA-Z_]/.test(this._current)) {
@@ -2456,7 +2507,7 @@ _.Lexer = class {
         if (this._current !== '/') {
             throw new mlir.Error(`Invalid comment.`);
         }
-        while (this._current && this._current !== '\n') {
+        while (this._current && this._current !== '\n' && this._current !== '\r') {
             this._read();
         }
     }
@@ -2472,7 +2523,7 @@ _.Lexer = class {
             while (this._current && /[0-9a-fA-F]/.test(this._current)) {
                 v += this._read();
             }
-            return this.formToken(type, parseInt(v, 16), v);
+            return this.formToken(type, v);
         }
         if (this._current === '.') {
             v += this._read();
@@ -2489,9 +2540,9 @@ _.Lexer = class {
                     v += this._read();
                 }
             }
-            return this.formToken(type, parseFloat(v), v);
+            return this.formToken(type, v);
         }
-        return this.formToken(type, parseInt(v, 10), v);
+        return this.formToken(type, v);
     }
 
     lexString() {
@@ -2510,9 +2561,16 @@ _.Lexer = class {
                 }
                 parts.push(this._current);
                 this._read();
-                if (this._current) {
+                if (this._current === '"' || this._current === '\\' || this._current === 'n' || this._current === 't') {
                     parts.push(this._current);
                     this._read();
+                } else if (this._current && /[0-9a-fA-F]/.test(this._current) && this._next && /[0-9a-fA-F]/.test(this._next)) {
+                    parts.push(this._current);
+                    this._read();
+                    parts.push(this._current);
+                    this._read();
+                } else {
+                    throw new mlir.Error(`Unknown escape in string literal ${this.location()}`);
                 }
             } else {
                 chunk += this._current;
@@ -2582,52 +2640,37 @@ _.Lexer = class {
             result += this._read();
             return this.formToken('^', result);
         }
-        if (prefix === '!') {
+        if (this._current && /[0-9]/.test(this._current)) {
+            while (this._current && /[0-9]/.test(this._current)) {
+                result += this._read();
+            }
+        } else if (this._current && /[a-zA-Z_$.-]/.test(this._current)) {
             while (this._current && /[a-zA-Z_$0-9.-]/.test(this._current)) {
                 if (this._current === '-' && this._peek() === '>') {
                     break;
                 }
                 result += this._read();
             }
-            if (result === '!') {
-                throw new mlir.Error('Invalid type alias.');
-            }
-        } else if (prefix === '%' || prefix === '$') {
-            while (this._current) {
-                if (/[a-zA-Z_$0-9.-]/.test(this._current)) {
-                    if (this._current === '-' && this._peek() === '>') {
-                        break;
-                    }
-                    result += this._read();
-                } else {
-                    break;
-                }
-            }
-        } else {
-            while (this._current && /[a-zA-Z_$0-9.-]/.test(this._current)) {
-                if (this._current === '-' && this._peek() === '>') {
-                    break;
-                }
-                result += this._read();
-            }
-            if (this._current === ':' && this._peek() === ':') {
-                result += this._read();
-                result += this._read();
-                result += this.lexPrefixedIdentifier('@').getSpelling().str();
-            }
+        } else if (result.length === 1) {
+            const errorKinds = { '#': 'invalid attribute name', '%': 'invalid SSA name', '^': 'invalid block name', '!': 'invalid type identifier' };
+            throw new mlir.Error(`${errorKinds[prefix] || 'invalid identifier'} ${this.location()}`);
+        }
+        if (prefix === '@' && this._current === ':' && this._peek() === ':') {
+            result += this._read();
+            result += this._read();
+            result += this.lexPrefixedIdentifier('@').getSpelling().str();
         }
         const kind = prefix === '$' ? '%' : prefix;
         return this.formToken(kind, result);
     }
 
-    formToken(kind, value, text) {
+    formToken(kind, value) {
         const token = this._tokens[this._index];
         this._index = (this._index + 1) % this._tokens.length;
         token.loc.position = this._position;
         token.kind = kind;
         token.spelling.value = value;
         token.spelling.position = this._position;
-        token.text = text;
         return token;
     }
 };
@@ -2859,17 +2902,18 @@ _.Parser = class {
             prevToken = this.expect();
             value += prevToken;
             while (stack.length > 0) {
-                if (this.match('eof')) {
+                if (this.match(_.Token.eof)) {
                     throw new mlir.Error(`Unbalanced '${stack[stack.length - 1]}' ${this.location()}`);
                 }
                 const token = this.getToken().getSpelling().str();
                 if (closingFor[token]) {
                     stack.push(token);
                 } else if (openingFor[token]) {
-                    if (stack[stack.length - 1] !== openingFor[token]) {
+                    if (stack[stack.length - 1] === openingFor[token]) {
+                        stack.pop();
+                    } else if (token !== '>') {
                         throw new mlir.Error(`Unbalanced '${stack[stack.length - 1]}' ${this.location()}`);
                     }
-                    stack.pop();
                 }
                 const curToken = this.expect();
                 if (!delimiters.has(prevToken) && !delimiters.has(curToken)) {
@@ -2884,19 +2928,23 @@ _.Parser = class {
 
     parseSuccessors(successors) {
         const parsed = this.parseCommaSeparatedList('square', () => {
-            return { label: this.expect('^') };
+            return { label: this.expect(_.Token.caret_identifier) };
         });
+        if (parsed.length === 0) {
+            throw new mlir.Error(`Expected at least one successor ${this.location()}`);
+        }
         for (const s of parsed) {
             successors.push(s);
         }
     }
 
     parseSymbolName(name, attributes) {
-        const value = this.expect('@').substring(1);
+        const value = this.expect(_.Token.at_identifier).substring(1);
         attributes.set(name, new _.StringAttr(value));
     }
 
     parseAttributeDict(attributes) {
+        const seenKeys = new Set();
         this.parseCommaSeparatedList('optionalBrace', () => {
             // The name of an attribute can either be a bare identifier, or a string.
             let name = null;
@@ -2907,7 +2955,14 @@ _.Parser = class {
             } else {
                 throw new mlir.Error(`Expected attribute name ${this.location()}`);
             }
+            if (!name) {
+                throw new mlir.Error(`Expected attribute name ${this.location()}`);
+            }
             this.consumeToken();
+            if (seenKeys.has(name)) {
+                throw new mlir.Error(`Duplicate key '${name}' in dictionary attribute ${this.location()}`);
+            }
+            seenKeys.add(name);
             if (!this.consumeIf(_.Token.equal)) {
                 attributes.set(name, new _.UnitAttr());
                 return;
@@ -2918,10 +2973,10 @@ _.Parser = class {
     }
 
     parseLocationInstance() {
-        if (this.match('#')) {
+        if (this.match(_.Token.hash_identifier)) {
             const locAttr = this.parseExtendedAttr();
-            if (locAttr instanceof _.LocationAttr) {
-                return locAttr;
+            if (locAttr instanceof _.LocationAttr === false && locAttr instanceof _.OpaqueAttr === false) {
+                throw new mlir.Error(`Expected location attribute, but got '${locAttr}' ${this.location()}`);
             }
             return locAttr;
         }
@@ -2931,15 +2986,15 @@ _.Parser = class {
         if (!this.getToken().is(_.Token.bare_identifier)) {
             throw new mlir.Error(`Expected location instance, got '${this.getTokenSpelling().str()}' ${this.location()}`);
         }
-        if (this.getToken().spelling.str() === 'unknown') {
-            this.consumeToken(_.Token.bare_identifier);
-            return new _.UnknownLoc();
-        }
         if (this.getToken().spelling.str() === 'callsite') {
             return this.parseCallSiteLocation();
         }
         if (this.getToken().spelling.str() === 'fused') {
             return this.parseFusedLocation();
+        }
+        if (this.getToken().spelling.str() === 'unknown') {
+            this.consumeToken(_.Token.bare_identifier);
+            return new _.UnknownLoc();
         }
         throw new mlir.Error(`Expected location instance, got '${this.getTokenSpelling().str()}' ${this.location()}`);
     }
@@ -2948,7 +3003,10 @@ _.Parser = class {
         this.consumeToken(_.Token.bare_identifier);
         this.parseToken(_.Token.l_paren, "expected '(' in callsite location");
         const callee = this.parseLocationInstance();
-        this.expect(_.Token.bare_identifier, 'at');
+        if (this.getToken().isNot(_.Token.bare_identifier) || this.getToken().getSpelling().str() !== 'at') {
+            throw new mlir.Error(`Expected 'at' in callsite location ${this.location()}`);
+        }
+        this.consumeToken(_.Token.bare_identifier);
         const caller = this.parseLocationInstance();
         this.parseToken(_.Token.r_paren, "expected ')' in callsite location");
         return new _.CallSiteLoc(callee, caller);
@@ -2959,6 +3017,9 @@ _.Parser = class {
         let metadata = null;
         if (this.consumeIf(_.Token.less)) {
             metadata = this.parseAttribute();
+            if (!metadata) {
+                throw new mlir.Error(`Expected attribute in fused location metadata ${this.location()}`);
+            }
             this.parseToken(_.Token.greater, "expected '>' after fused location metadata");
         }
         const locations = this.parseCommaSeparatedList('square', () => this.parseLocationInstance());
@@ -3042,18 +3103,18 @@ _.Parser = class {
     }
 
     parseOptionalLocationSpecifier() {
-        if (!this.accept('kw_loc')) {
+        if (!this.accept(_.Token.kw_loc)) {
             return null;
         }
-        this.expect('(');
+        this.expect(_.Token.l_paren);
         const tok = this.getToken();
         let directLoc = null;
-        if (tok.kind === '#' && !tok.getSpelling().str().includes('.')) {
+        if (tok.kind === _.Token.hash_identifier && !tok.getSpelling().str().includes('.')) {
             directLoc = this.parseLocationAlias();
         } else {
             directLoc = this.parseLocationInstance();
         }
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         return directLoc;
     }
 
@@ -3076,26 +3137,28 @@ _.Parser = class {
     }
 
     parseIntegerInDimensionList() {
-        const text = this.getToken().text;
-        if (text && text.length > 1 && text[1] === 'x') {
-            const value = 0;
+        const spelling = this.getTokenSpelling().str();
+        if (spelling[0] === '0' && spelling.length > 1 && spelling[1] === 'x') {
             this.state.lex.resetPointer(this.getToken().loc.position + 1);
             this.state.curToken = this.state.lex.lexToken();
-            return value;
+            return 0;
         }
-        return this.parseInteger();
+        const dimension = this.getToken().getUInt64IntegerValue();
+        if (dimension === null) {
+            throw new mlir.Error(`Invalid dimension ${this.location()}`);
+        }
+        this.consumeToken(_.Token.integer);
+        return dimension.toNumber();
     }
 
     parseVectorDimensionList() {
         const dimensions = [];
         const scalableDims = [];
-        while (this.match('int') || this.match('[')) {
-            const scalable = this.accept('[');
-            if (this.match('int')) {
-                dimensions.push(this.parseIntegerInDimensionList());
-            }
+        while (this.match(_.Token.integer) || this.match(_.Token.l_square)) {
+            const scalable = Boolean(this.accept(_.Token.l_square));
+            dimensions.push(this.parseIntegerInDimensionList());
             if (scalable) {
-                this.expect(']');
+                this.expect(_.Token.r_square);
             }
             scalableDims.push(scalable);
             if (!this.parseXInDimensionList()) {
@@ -3108,17 +3171,17 @@ _.Parser = class {
     parseDimensionListRanked(allowDynamic = true, withTrailingX = true) {
         const dimensions = [];
         const parseDim = () => {
-            if (allowDynamic && this.accept('?')) {
+            if (allowDynamic && this.accept(_.Token.question)) {
                 dimensions.push('?');
                 return true;
             }
-            if (this.match('int')) {
+            if (this.match(_.Token.integer)) {
                 dimensions.push(this.parseIntegerInDimensionList());
                 return true;
             }
             return false;
         };
-        const hasDimToken = () => this.match('int') || (allowDynamic && this.match('?'));
+        const hasDimToken = () => this.match(_.Token.integer) || (allowDynamic && this.match(_.Token.question));
         if (withTrailingX) {
             while (hasDimToken()) {
                 if (!parseDim() || !this.parseXInDimensionList()) {
@@ -3139,7 +3202,7 @@ _.Parser = class {
         this.parseToken(_.Token.less, "expected '<' in tensor type");
         let isUnranked = false;
         let dimensions = [];
-        if (this.accept('*')) {
+        if (this.accept(_.Token.star)) {
             isUnranked = true;
             this.parseXInDimensionList();
         } else {
@@ -3148,11 +3211,17 @@ _.Parser = class {
         }
         const elementType = this.parseType();
         let encoding = null;
-        if (this.accept(',')) {
+        if (this.accept(_.Token.comma)) {
             encoding = this.parseAttribute();
         }
         this.parseToken(_.Token.greater, "expected '>' in tensor type");
+        if (elementType instanceof _.NoneType || elementType instanceof _.FunctionType || elementType instanceof _.TupleType) {
+            throw new mlir.Error(`invalid tensor element type ${this.location()}`);
+        }
         if (isUnranked) {
+            if (encoding) {
+                throw new mlir.Error(`cannot apply encoding to unranked tensor ${this.location()}`);
+            }
             return new _.UnrankedTensorType(elementType);
         }
         return new _.RankedTensorType(dimensions, elementType, encoding);
@@ -3162,7 +3231,7 @@ _.Parser = class {
         this.parseToken(_.Token.less, "expected '<' in memref type");
         let isUnranked = false;
         let dimensions = [];
-        if (this.accept('*')) {
+        if (this.accept(_.Token.star)) {
             isUnranked = true;
             this.parseXInDimensionList();
         } else {
@@ -3170,18 +3239,28 @@ _.Parser = class {
             dimensions = dimInfo.dimensions;
         }
         const elementType = this.parseType();
+        if (elementType instanceof _.NoneType || elementType instanceof _.FunctionType ||
+            elementType instanceof _.TupleType || elementType instanceof _.RankedTensorType ||
+            elementType instanceof _.UnrankedTensorType) {
+            throw new mlir.Error(`invalid memref element type ${this.location()}`);
+        }
         let layout = null;
         let memorySpace = null;
-        while (this.accept(',')) {
+        while (this.accept(_.Token.comma)) {
             const attr = this.parseAttribute();
-            if (layout === null && !isUnranked) {
-                const attrStr = typeof attr === 'object' ? JSON.stringify(attr) : String(attr);
-                if (attrStr.includes('affine_map') || attrStr.includes('strided')) {
-                    layout = attr;
-                } else {
-                    memorySpace = attr;
+            const isLayout = attr instanceof _.AffineMapAttr || (attr && attr.type === 'strided') || (attr instanceof _.OpaqueAttr && attr.toString().includes('layout'));
+            if (isLayout) {
+                layout = attr;
+                if (isUnranked) {
+                    throw new mlir.Error(`cannot have affine map for unranked memref type ${this.location()}`);
+                }
+                if (memorySpace) {
+                    throw new mlir.Error(`expected memory space to be last in memref type ${this.location()}`);
                 }
             } else {
+                if (memorySpace) {
+                    throw new mlir.Error(`multiple memory spaces specified in memref type ${this.location()}`);
+                }
                 memorySpace = attr;
             }
         }
@@ -3203,23 +3282,25 @@ _.Parser = class {
     parseComplexType() {
         this.parseToken(_.Token.less, "expected '<' in complex type");
         const elementType = this.parseType();
+        if (!(elementType instanceof _.FloatType) && !(elementType instanceof _.IntegerType)) {
+            throw new mlir.Error(`invalid element type for complex ${this.location()}`);
+        }
         this.parseToken(_.Token.greater, "expected '>' in complex type");
         return new _.ComplexType(elementType);
     }
 
     parseTupleType() {
         this.parseToken(_.Token.less, "expected '<' in tuple type");
-        const types = [];
-        while (!this.match('>')) {
-            types.push(this.parseType());
-            this.accept(',');
+        if (this.accept(_.Token.greater)) {
+            return new _.TupleType([]);
         }
+        const types = this.parseCommaSeparatedList('none', () => this.parseType());
         this.parseToken(_.Token.greater, "expected '>' in tuple type");
         return new _.TupleType(types);
     }
 
     parseCustomTypeWithFallback(typeT) {
-        if (typeT && !this.match('!')) {
+        if (typeT && !this.match(_.Token.exclamation_identifier)) {
             if (typeof typeT === 'function') {
                 return typeT(this);
             }
@@ -3243,7 +3324,7 @@ _.Parser = class {
     }
 
     parseType() {
-        if (this.match('(')) {
+        if (this.match(_.Token.l_paren)) {
             return this.parseFunctionType();
         }
         return this.parseNonFunctionType();
@@ -3251,9 +3332,9 @@ _.Parser = class {
 
     parseOptionalType() {
         switch (this.getToken().kind) {
-            case '(':
-            case '!':
-            case 'inttype':
+            case _.Token.l_paren:
+            case _.Token.exclamation_identifier:
+            case _.Token.inttype:
                 return this.parseType();
             case _.Token.bare_identifier: {
                 switch (this.getToken().getSpelling().str()) {
@@ -3297,11 +3378,25 @@ _.Parser = class {
 
     parseNonFunctionType() {
         switch (this.getToken().kind) {
-            case 'inttype': {
-                const value = this.expect('inttype');
-                return new _.IntegerType(value);
+            case _.Token.inttype: {
+                const width = this.getToken().getIntTypeBitwidth();
+                if (width === null) {
+                    throw new mlir.Error(`invalid integer width ${this.location()}`);
+                }
+                if (width > _.IntegerType.kMaxWidth) {
+                    throw new mlir.Error(`integer bitwidth is limited to ${_.IntegerType.kMaxWidth} bits ${this.location()}`);
+                }
+                const signedness = this.getToken().getIntTypeSignedness();
+                this.consumeToken(_.Token.inttype);
+                let prefix = 'i';
+                if (signedness === true) {
+                    prefix = 'si';
+                } else if (signedness === false) {
+                    prefix = 'ui';
+                }
+                return new _.IntegerType(`${prefix}${width}`);
             }
-            case '!': {
+            case _.Token.exclamation_identifier: {
                 return this.parseExtendedType();
             }
             case _.Token.bare_identifier: {
@@ -3318,9 +3413,9 @@ _.Parser = class {
                     case 'tuple':
                         return this.parseTupleType();
                     case 'none':
-                        return new _.PrimitiveType(value);
+                        return new _.NoneType();
                     case 'index':
-                        return new _.PrimitiveType(value);
+                        return new _.IndexType();
                     case 'bf16':
                     case 'f16':
                     case 'f32':
@@ -3382,7 +3477,7 @@ _.Parser = class {
             symbolData = identifier.substring(dotIndex + 1);
         }
         const isPrettyName = symbolData.length > 0;
-        const hasTrailingData = this.match('<');
+        const hasTrailingData = this.match(_.Token.less);
         if (!hasTrailingData && !isPrettyName) {
             if (!aliases.has(tokSpelling)) {
                 throw new mlir.Error(`Undefined symbol alias '${identifier}' ${this.location()}`);
@@ -3397,10 +3492,10 @@ _.Parser = class {
             return aliases.get(tokSpelling);
         }
         if (hasTrailingData) {
-            if (this.match('<')) {
-                symbolData += this.skip('<');
-            } else if (this.match('(')) {
-                symbolData += this.skip('(');
+            if (this.match(_.Token.less)) {
+                symbolData += this.skip(_.Token.less);
+            } else if (this.match(_.Token.l_paren)) {
+                symbolData += this.skip(_.Token.l_paren);
             }
             if (!isPrettyName) {
                 symbolData = symbolData.slice(1, -1);
@@ -3419,7 +3514,7 @@ _.Parser = class {
     }
 
     parseFunctionResultTypes() {
-        if (this.match('(')) {
+        if (this.match(_.Token.l_paren)) {
             return this.parseTypeListParens();
         }
         const type = this.parseNonFunctionType();
@@ -3433,14 +3528,14 @@ _.Parser = class {
         const results = [];
         const delimiters = {
             none: [null, null],
-            paren: ['(', ')'],
-            square: ['[', ']'],
-            angle: ['<', '>'],
-            brace: ['{', '}'],
-            optionalParen: ['(', ')'],
-            optionalSquare: ['[', ']'],
-            optionalAngle: ['<', '>'],
-            optionalBrace: ['{', '}']
+            paren: [_.Token.l_paren, _.Token.r_paren],
+            square: [_.Token.l_square, _.Token.r_square],
+            angle: [_.Token.less, _.Token.greater],
+            brace: [_.Token.l_brace, _.Token.r_brace],
+            optionalParen: [_.Token.l_paren, _.Token.r_paren],
+            optionalSquare: [_.Token.l_square, _.Token.r_square],
+            optionalAngle: [_.Token.less, _.Token.greater],
+            optionalBrace: [_.Token.l_brace, _.Token.r_brace]
         };
         const [open, close] = delimiters[delimiter] || [null, null];
         const isOptional = delimiter && delimiter.startsWith('optional');
@@ -3460,7 +3555,7 @@ _.Parser = class {
         if (first !== null && first !== undefined) {
             results.push(first);
         }
-        while (this.accept(',')) {
+        while (this.accept(_.Token.comma)) {
             const elem = parseElement();
             if (elem !== null && elem !== undefined) {
                 results.push(elem);
@@ -3473,9 +3568,13 @@ _.Parser = class {
     }
 
     parseFloatAttr(type = null, isNegative = false) {
-        const val = this.expect();
+        const val = this.getToken().getFloatingPointValue();
+        if (val === null) {
+            throw new mlir.Error(`Floating point value too large for attribute ${this.location()}`);
+        }
+        this.consumeToken(_.Token.floatliteral);
         if (!type) {
-            if (this.accept(':')) {
+            if (this.consumeIf(_.Token.colon)) {
                 type = this.parseType();
             } else {
                 type = new _.FloatType('f64');
@@ -3488,16 +3587,28 @@ _.Parser = class {
     }
 
     parseDecOrHexAttr(type = null, isNegative = false) {
-        const val = this.expect();
+        const tok = this.getToken();
+        const spelling = tok.getSpelling().str();
+        this.consumeToken(_.Token.integer);
         if (!type) {
-            if (this.accept(':')) {
+            if (this.consumeIf(_.Token.colon)) {
                 type = this.parseType();
             } else {
                 type = new _.IntegerType('i64');
             }
         }
         if (type instanceof _.FloatType) {
-            return new _.FloatAttr(type, isNegative ? -val : val);
+            return new _.FloatAttr(type, isNegative ? -spelling : spelling);
+        }
+        if (!(type instanceof _.IntegerType) && !(type instanceof _.IndexType)) {
+            throw new mlir.Error(`Integer literal not valid for specified type ${this.location()}`);
+        }
+        if (isNegative && type instanceof _.IntegerType && type.name.startsWith('ui')) {
+            throw new mlir.Error(`Negative integer literal not valid for unsigned integer type ${this.location()}`);
+        }
+        const val = tok.spelling.getAsInteger(spelling.length > 1 && spelling[1] === 'x' ? 0 : 10);
+        if (val === null) {
+            throw new mlir.Error(`Integer constant out of range for attribute ${this.location()}`);
         }
         return new _.IntegerAttr(type, isNegative ? -val : val);
     }
@@ -3642,7 +3753,7 @@ _.Parser = class {
     parseExtendedAttr(type = null) {
         const attr = this.parseExtendedSymbol(this.state.asmState, this.state.attributeAliasDefinitions, (dialectName, symbolData) => {
             let attrType = type;
-            if (this.accept(':')) {
+            if (this.accept(_.Token.colon)) {
                 attrType = this.parseType();
                 if (!attrType) {
                     return new _.Attribute();
@@ -3714,6 +3825,13 @@ _.Parser = class {
         this.consumeToken(_.Token.kw_array);
         this.parseToken(_.Token.less, "expected '<' after 'array'");
         const arrayType = this.parseType();
+        if (!(arrayType instanceof _.IntegerType) && !(arrayType instanceof _.FloatType)) {
+            throw new mlir.Error(`Expected integer or float type, got '${arrayType}' ${this.location()}`);
+        }
+        // Check for empty array.
+        if (this.consumeIf(_.Token.greater)) {
+            return new _.DenseArrayAttr(arrayType, 0, []);
+        }
         const arrayValues = [];
         if (this.consumeIf(_.Token.colon)) {
             while (!this.match(_.Token.greater)) {
@@ -3764,7 +3882,7 @@ _.Parser = class {
         this.consumeToken(_.Token.kw_strided);
         this.parseToken(_.Token.less, "expected '<' after 'strided'");
         this.parseToken(_.Token.l_square, "expected '['");
-        // Parse dimension list: integer, '?', or '*' separated by commas
+        // Parse dimension list: integer or '?' separated by commas
         const strides = [];
         while (!this.match(_.Token.r_square)) {
             const value = this.parseOptionalInteger();
@@ -3772,10 +3890,8 @@ _.Parser = class {
                 strides.push(value);
             } else if (this.consumeIf(_.Token.question)) {
                 strides.push('?');
-            } else if (this.consumeIf('*')) {
-                strides.push('*');
             } else {
-                throw new mlir.Error(`Expected integer, '?' or '*' in strided layout ${this.location()}`);
+                throw new mlir.Error(`Expected a 64-bit signed integer or '?' in strided layout ${this.location()}`);
             }
             if (!this.match(_.Token.r_square)) {
                 this.consumeIf(_.Token.comma);
@@ -3790,10 +3906,8 @@ _.Parser = class {
             if (offset === null) {
                 if (this.consumeIf(_.Token.question)) {
                     offset = '?';
-                } else if (this.consumeIf('*')) {
-                    offset = '*';
                 } else {
-                    throw new mlir.Error(`Expected integer, '?' or '*' for offset in strided layout ${this.location()}`);
+                    throw new mlir.Error(`Expected a 64-bit signed integer or '?' for offset in strided layout ${this.location()}`);
                 }
             }
         }
@@ -3842,14 +3956,26 @@ _.Parser = class {
 
     parseDistinctAttr(type) {
         this.consumeToken(_.Token.kw_distinct);
-        const id = this.skip('[');
+        this.parseToken(_.Token.l_square, "expected '[' after 'distinct'");
+        if (this.getToken().isNot(_.Token.integer)) {
+            throw new mlir.Error(`Expected distinct ID ${this.location()}`);
+        }
+        const token = this.getToken();
+        const id = token.getUInt64IntegerValue();
+        if (id === null) {
+            throw new mlir.Error(`Expected an unsigned 64-bit integer ${this.location()}`);
+        }
+        this.consumeToken(_.Token.integer);
+        this.parseToken(_.Token.r_square, "expected ']' to close distinct ID");
         this.parseToken(_.Token.less, "expected '<' after distinct ID");
         let referencedAttr = null;
-        if (!this.match(_.Token.greater)) {
+        if (this.consumeIf(_.Token.greater)) {
+            referencedAttr = new _.UnitAttr();
+        } else {
             referencedAttr = this.parseAttribute(type);
+            this.parseToken(_.Token.greater, "expected '>' to close distinct attribute");
         }
-        this.parseToken(_.Token.greater, "expected '>'");
-        return { value: `distinct${id}`, referencedAttr, type: 'distinct' };
+        return { value: `distinct[${id.toString()}]`, referencedAttr, type: 'distinct' };
     }
 
     parseElementsLiteralType(type) {
@@ -3863,27 +3989,27 @@ _.Parser = class {
 
     parseOptionalAttribute(type) {
         switch (this.getToken().kind) {
-            case '@':
-            case '%':
-            case 'int':
-            case 'float':
-            case '#':
-            case '[':
-            case '{':
-            case '<':
-            case 'string':
+            case _.Token.at_identifier:
+            case _.Token.percent_identifier:
+            case _.Token.integer:
+            case _.Token.floatliteral:
+            case _.Token.hash_identifier:
+            case _.Token.l_square:
+            case _.Token.l_brace:
+            case _.Token.less:
+            case _.Token.string:
                 return this.parseAttribute(type);
-            case 'minus':
-            case 'kw_loc':
-            case 'kw_affine_map':
-            case 'kw_affine_set':
-            case 'kw_dense':
-            case 'kw_dense_resource':
-            case 'kw_array':
-            case 'kw_sparse':
-            case 'kw_strided':
-            case 'kw_distinct':
-            case 'kw_unit':
+            case _.Token.minus:
+            case _.Token.kw_loc:
+            case _.Token.kw_affine_map:
+            case _.Token.kw_affine_set:
+            case _.Token.kw_dense:
+            case _.Token.kw_dense_resource:
+            case _.Token.kw_array:
+            case _.Token.kw_sparse:
+            case _.Token.kw_strided:
+            case _.Token.kw_distinct:
+            case _.Token.kw_unit:
             case _.Token.kw_true:
             case _.Token.kw_false:
                 return this.parseAttribute(type);
@@ -3899,17 +4025,17 @@ _.Parser = class {
 
     parseOptionalInteger() {
         // Parse `false` and `true` keywords as 0 and 1 respectively.
-        if (this.consumeIf('kw_false')) {
+        if (this.consumeIf(_.Token.kw_false)) {
             return 0;
         }
-        if (this.consumeIf('kw_true')) {
+        if (this.consumeIf(_.Token.kw_true)) {
             return 1;
         }
-        if (!this.match('int') && !this.match('minus')) {
+        if (!this.match(_.Token.integer) && !this.match(_.Token.minus)) {
             return null;
         }
-        const negative = this.consumeIf('minus');
-        const spelling = this.expect('int');
+        const negative = this.consumeIf(_.Token.minus);
+        const spelling = this.expect(_.Token.integer);
         const isHex = spelling.length > 1 && spelling[1] === 'x';
         const result = parseInt(spelling, isHex ? 16 : 10);
         return negative ? -result : result;
@@ -3924,11 +4050,11 @@ _.Parser = class {
     }
 
     parseString() {
-        return this.expect('string');
+        return this.expect(_.Token.string);
     }
 
     parseOptionalVerticalBar() {
-        return this.accept('|');
+        return this.accept(_.Token.vertical_bar);
     }
 
     parseOptionalString() {
@@ -3981,7 +4107,7 @@ _.Parser = class {
         this.state.curToken = this.state.lex.lexToken();
         // This keeps lexer correct (separate tokens) while providing convenient API
         // Check token.kind (not kind arg) to handle both expect('%') and expect() after match('%')
-        if (token.kind === '%' && this.match('#')) {
+        if (token.kind === _.Token.percent_identifier && this.match(_.Token.hash_identifier)) {
             const hashToken = this.state.curToken;
             this.state.curToken = this.state.lex.lexToken();
             return spelling + hashToken.getSpelling().str();
@@ -4080,13 +4206,13 @@ _.TopLevelOperationParser = class extends _.Parser {
 
     parseAttributeAliasDef() {
         const aliasName = this.expect();
-        this.expect('=');
+        this.expect(_.Token.equal);
         let attr = null;
-        if (this.match('(')) {
-            const dims = this.skip('(');
-            const symbols = this.match('[') ? this.skip('[') : '';
-            this.expect('->');
-            const results = this.match('(') ? this.skip('(') : '';
+        if (this.match(_.Token.l_paren)) {
+            const dims = this.skip(_.Token.l_paren);
+            const symbols = this.match(_.Token.l_square) ? this.skip(_.Token.l_square) : '';
+            this.expect(_.Token.arrow);
+            const results = this.match(_.Token.l_paren) ? this.skip(_.Token.l_paren) : '';
             attr = { value: `affine_map<${dims}${symbols} -> ${results}>`, name: 'affine_map' };
         } else {
             attr = this.parseAttribute();
@@ -4095,8 +4221,8 @@ _.TopLevelOperationParser = class extends _.Parser {
     }
 
     parseTypeAliasDef() {
-        const aliasName = this.expect('!');
-        this.expect('=');
+        const aliasName = this.expect(_.Token.exclamation_identifier);
+        this.expect(_.Token.equal);
         this.accept(_.Token.bare_identifier, 'type');
         const type = this.parseType();
         this.state.typeAliasDefinitions.set(aliasName, type);
@@ -4140,10 +4266,10 @@ _.AffineParser = class extends _.Parser {
     // affine-map-or-integer-set ::= dim-and-symbol-id-lists (`->` | `:`) ...
     parseAffineMapOrIntegerSetInline() {
         const { numDims, numSymbols } = this.parseDimAndOptionalSymbolIdList();
-        if (this.consumeIf('->')) {
+        if (this.consumeIf(_.Token.arrow)) {
             return { map: this.parseAffineMapRange(numDims, numSymbols), set: null };
         }
-        if (!this.consumeIf(':')) {
+        if (!this.consumeIf(_.Token.colon)) {
             throw new mlir.Error(`Expected '->' or ':' ${this.location()}`);
         }
         return { map: null, set: this.parseIntegerSetConstraints(numDims, numSymbols) };
@@ -4153,7 +4279,7 @@ _.AffineParser = class extends _.Parser {
     parseDimAndOptionalSymbolIdList() {
         const numDims = this.parseDimIdList();
         let numSymbols = 0;
-        if (this.match('[')) {
+        if (this.match(_.Token.l_square)) {
             numSymbols = this.parseSymbolIdList();
         }
         return { numDims, numSymbols };
@@ -4162,30 +4288,30 @@ _.AffineParser = class extends _.Parser {
     // Parse dimension identifier list: (d0, d1, ...)
     parseDimIdList() {
         let numDims = 0;
-        this.expect('(');
-        if (!this.match(')')) {
+        this.expect(_.Token.l_paren);
+        if (!this.match(_.Token.r_paren)) {
             do {
                 const dimExpr = _.getAffineDimExpr(numDims);
                 this.parseIdentifierDefinition(dimExpr);
                 numDims++;
-            } while (this.consumeIf(','));
+            } while (this.consumeIf(_.Token.comma));
         }
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         return numDims;
     }
 
     // Parse symbol identifier list: [s0, s1, ...]
     parseSymbolIdList() {
         let numSymbols = 0;
-        this.expect('[');
-        if (!this.match(']')) {
+        this.expect(_.Token.l_square);
+        if (!this.match(_.Token.r_square)) {
             do {
                 const symbolExpr = _.getAffineSymbolExpr(numSymbols);
                 this.parseIdentifierDefinition(symbolExpr);
                 numSymbols++;
-            } while (this.consumeIf(','));
+            } while (this.consumeIf(_.Token.comma));
         }
-        this.expect(']');
+        this.expect(_.Token.r_square);
         return numSymbols;
     }
 
@@ -4193,8 +4319,8 @@ _.AffineParser = class extends _.Parser {
         let name = null;
         if (this.match(_.Token.bare_identifier)) {
             name = this.expect(_.Token.bare_identifier);
-        } else if (this.match('inttype')) {
-            name = this.expect('inttype');
+        } else if (this.match(_.Token.inttype)) {
+            name = this.expect(_.Token.inttype);
         } else if (this.getToken().isKeyword()) {
             name = this.expect();
         } else {
@@ -4210,32 +4336,32 @@ _.AffineParser = class extends _.Parser {
 
     parseAffineMapRange(numDims, numSymbols) {
         const exprs = [];
-        this.expect('(');
-        if (!this.match(')')) {
+        this.expect(_.Token.l_paren);
+        if (!this.match(_.Token.r_paren)) {
             do {
                 const expr = this.parseAffineExpr();
                 if (!expr) {
                     throw new mlir.Error(`Failed to parse affine expression ${this.location()}`);
                 }
                 exprs.push(expr);
-            } while (this.consumeIf(','));
+            } while (this.consumeIf(_.Token.comma));
         }
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         return _.AffineMap.get(numDims, numSymbols, exprs);
     }
 
     parseIntegerSetConstraints(numDims, numSymbols) {
         const constraints = [];
         const isEqs = [];
-        this.expect('(');
-        if (!this.match(')')) {
+        this.expect(_.Token.l_paren);
+        if (!this.match(_.Token.r_paren)) {
             do {
                 const { expr, isEq } = this.parseAffineConstraint();
                 constraints.push(expr);
                 isEqs.push(isEq);
-            } while (this.consumeIf(','));
+            } while (this.consumeIf(_.Token.comma));
         }
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         // If no constraints, return degenerate true set (0 == 0)
         if (constraints.length === 0) {
             const zero = _.getAffineConstantExpr(0);
@@ -4249,15 +4375,15 @@ _.AffineParser = class extends _.Parser {
         if (!lhsExpr) {
             throw new mlir.Error(`Expected affine expression ${this.location()}`);
         }
-        if (this.consumeIf('>=')) {
+        if (this.consumeIf(_.Token.greater) && this.consumeIf(_.Token.equal)) {
             const rhsExpr = this.parseAffineExpr();
             return { expr: this.makeSubExpr(lhsExpr, rhsExpr), isEq: false };
         }
-        if (this.consumeIf('<=')) {
+        if (this.consumeIf(_.Token.less) && this.consumeIf(_.Token.equal)) {
             const rhsExpr = this.parseAffineExpr();
             return { expr: this.makeSubExpr(rhsExpr, lhsExpr), isEq: false };
         }
-        if (this.consumeIf('==')) {
+        if (this.consumeIf(_.Token.equal) && this.consumeIf(_.Token.equal)) {
             const rhsExpr = this.parseAffineExpr();
             return { expr: this.makeSubExpr(lhsExpr, rhsExpr), isEq: true };
         }
@@ -4372,25 +4498,25 @@ _.AffineParser = class extends _.Parser {
         if (this.match('kw_symbol')) {
             return this.parseSymbolSSAIdExpr();
         }
-        if (this.match('%')) {
+        if (this.match(_.Token.percent_identifier)) {
             return this.parseSSAIdExpr(false);
         }
-        if (this.match('int')) {
+        if (this.match(_.Token.integer)) {
             return this.parseIntegerExpr();
         }
-        if (this.match('(')) {
+        if (this.match(_.Token.l_paren)) {
             return this.parseParentheticalExpr();
         }
-        if (this.match('minus')) {
+        if (this.match(_.Token.minus)) {
             return this.parseNegateExpression(lhs);
         }
-        if (this.match(_.Token.bare_identifier) || this.match('inttype')) {
+        if (this.match(_.Token.bare_identifier) || this.match(_.Token.inttype)) {
             return this.parseBareIdExpr();
         }
         if (this.getToken().isKeyword()) {
             return this.parseBareIdExpr();
         }
-        if (this.match('plus') || this.match('*')) {
+        if (this.match(_.Token.plus) || this.match(_.Token.star)) {
             if (lhs) {
                 throw new mlir.Error(`Missing right operand of binary operator ${this.location()}`);
             }
@@ -4404,9 +4530,9 @@ _.AffineParser = class extends _.Parser {
 
     parseSymbolSSAIdExpr() {
         this.parseToken('kw_symbol');
-        this.parseToken('(');
+        this.parseToken(_.Token.l_paren);
         const symbolExpr = this.parseSSAIdExpr(true);
-        this.parseToken(')');
+        this.parseToken(_.Token.r_paren);
         return symbolExpr;
     }
 
@@ -4414,10 +4540,10 @@ _.AffineParser = class extends _.Parser {
         if (!this.allowParsingSSAIds) {
             throw new mlir.Error(`Unexpected SSA identifier ${this.location()}`);
         }
-        if (!this.match('%')) {
+        if (!this.match(_.Token.percent_identifier)) {
             throw new mlir.Error(`Expected SSA identifier ${this.location()}`);
         }
-        const name = this.expect('%');
+        const name = this.expect(_.Token.percent_identifier);
         // Check if already parsed
         for (const entry of this.dimsAndSymbols) {
             if (entry.name === name) {
@@ -4437,24 +4563,24 @@ _.AffineParser = class extends _.Parser {
 
     // Parse integer literal
     parseIntegerExpr() {
-        const val = this.expect('int');
+        const val = this.expect(_.Token.integer);
         const intVal = typeof val === 'string' ? parseInt(val, 10) : val;
         return _.getAffineConstantExpr(intVal);
     }
 
     // Parse parenthesized expression
     parseParentheticalExpr() {
-        this.expect('(');
-        if (this.match(')')) {
+        this.expect(_.Token.l_paren);
+        if (this.match(_.Token.r_paren)) {
             throw new mlir.Error(`No expression inside parentheses ${this.location()}`);
         }
         const expr = this.parseAffineExpr();
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         return expr;
     }
 
     parseNegateExpression(lhs) {
-        this.expect('minus');
+        this.expect(_.Token.minus);
         const operand = this.parseAffineOperandExpr(lhs);
         if (!operand) {
             throw new mlir.Error(`Missing operand of negation ${this.location()}`);
@@ -4467,8 +4593,8 @@ _.AffineParser = class extends _.Parser {
         let name = null;
         if (this.match(_.Token.bare_identifier)) {
             name = this.expect(_.Token.bare_identifier);
-        } else if (this.match('inttype')) {
-            name = this.expect('inttype');
+        } else if (this.match(_.Token.inttype)) {
+            name = this.expect(_.Token.inttype);
         } else if (this.getToken().isKeyword()) {
             name = this.expect();
         } else {
@@ -4484,14 +4610,14 @@ _.AffineParser = class extends _.Parser {
 
     parseAffineMapOfSSAIds(delimiter = 'Paren') {
         const exprs = [];
-        const open = delimiter === 'Paren' ? '(' : '[';
-        const close = delimiter === 'Paren' ? ')' : ']';
+        const open = delimiter === 'Paren' ? _.Token.l_paren : _.Token.l_square;
+        const close = delimiter === 'Paren' ? _.Token.r_paren : _.Token.r_square;
         this.expect(open);
         if (!this.match(close)) {
             do {
                 const expr = this.parseAffineExpr();
                 exprs.push(expr);
-            } while (this.consumeIf(','));
+            } while (this.consumeIf(_.Token.comma));
         }
         this.expect(close);
         return _.AffineMap.get(this.numDimOperands, this.dimsAndSymbols.length - this.numDimOperands, exprs);
@@ -4612,12 +4738,12 @@ _.OperationParser = class extends _.Parser {
         const loc = this.getToken().loc.copy();
         const resultIDs = [];
         let numExpectedResults = 0;
-        if (this.match('%')) {
+        if (this.match(_.Token.percent_identifier)) {
             const parseNextResult = () => {
-                const name = this.expect('%');
+                const name = this.expect(_.Token.percent_identifier);
                 let expectedSubResults = 1;
-                if (this.consumeIf(':')) {
-                    const val = parseInt(this.expect('int'), 10);
+                if (this.consumeIf(_.Token.colon)) {
+                    const val = parseInt(this.expect(_.Token.integer), 10);
                     if (!Number.isInteger(val) || val < 1) {
                         throw new mlir.Error(`Expected named operation to have at least 1 result ${this.location()}`);
                     }
@@ -4628,20 +4754,23 @@ _.OperationParser = class extends _.Parser {
                 return true;
             };
             this.parseCommaSeparatedList('none', parseNextResult);
-            this.expect('=');
+            this.expect(_.Token.equal);
         }
         let op = null;
         // Reference Parser.cpp:1305: nameTok.is(Token::bare_identifier) || nameTok.isKeyword()
         const nameTok = this.getToken();
         if (nameTok.is(_.Token.bare_identifier) || nameTok.isKeyword()) {
             op = this.parseCustomOperation(resultIDs);
-        } else if (this.match('string')) {
+        } else if (this.match(_.Token.string)) {
             op = this.parseGenericOperation();
         } else {
-            throw new mlir.Error(`${this.match('eof') ? 'Unexpected end of input' : `Unexpected operation name '${this.getTokenSpelling().str()}'`} ${this.location()}`);
+            throw new mlir.Error(`${this.match(_.Token.eof) ? 'Unexpected end of input' : `Unexpected operation name '${this.getTokenSpelling().str()}'`} ${this.location()}`);
         }
         if (!op) {
             throw new mlir.Error(`Failed to parse operation ${this.location()}`);
+        }
+        if (resultIDs.length > 0 && op.results.length === 0) {
+            throw new mlir.Error(`Cannot name an operation with no results ${loc.toString()}`);
         }
         if (resultIDs.length > 0 && op.results.length !== numExpectedResults) {
             throw new mlir.Error(`Operation '${op.name.getStringRef()}' defines '${op.results.length}' results but was provided '${numExpectedResults}' to bind ${loc.toString()}`);
@@ -4699,12 +4828,12 @@ _.OperationParser = class extends _.Parser {
             }
         }
         let opName = identifier;
-        if (opName === 'func.constant' && !this.match('@')) {
+        if (opName === 'func.constant' && !this.match(_.Token.at_identifier)) {
             // Workaround: old std.constant should be arith.constant
             opName = 'arith.constant';
         } else if (opName.startsWith('check.')) {
             // Workaround: Handle conflicting dialects from stablehlo and iree
-            const dialect = this.match('(') || this.match('<') ? 'iree' : 'stablehlo';
+            const dialect = this.match(_.Token.l_paren) || this.match(_.Token.less) ? 'iree' : 'stablehlo';
             opName = opName.replace('check.', `check.<${dialect}>.`);
         } else if (this._redirect.has(opName)) {
             opName = this._redirect.get(opName);
@@ -4730,6 +4859,12 @@ _.OperationParser = class extends _.Parser {
     parseGenericOperation() {
         const srcLocation = this.getToken().loc.copy();
         const name = this.getToken().getStringValue();
+        if (name.length === 0) {
+            throw new mlir.Error(`Empty operation name is invalid ${this.location()}`);
+        }
+        if (name.indexOf('\0') !== -1) {
+            throw new mlir.Error(`Null character not allowed in operation name ${this.location()}`);
+        }
         this.consumeToken(_.Token.string);
         let opName = _.RegisteredOperationName.lookup(name, this.context);
         if (!opName) {
@@ -4742,34 +4877,40 @@ _.OperationParser = class extends _.Parser {
     }
 
     parseGenericOperationAfterOpName(result) {
-        this.expect('(');
+        this.expect(_.Token.l_paren);
         const unresolvedOperands = [];
         this.parseOptionalSSAUseList(unresolvedOperands);
-        this.expect(')');
-        if (this.match('[')) {
+        this.expect(_.Token.r_paren);
+        if (this.match(_.Token.l_square)) {
             result.successors = [];
             this.parseSuccessors(result.successors);
         }
-        if (this.consumeIf('<')) {
+        if (this.consumeIf(_.Token.less)) {
             result.propertiesAttr = this.parseAttribute();
-            this.expect('>');
+            if (!result.propertiesAttr) {
+                throw new mlir.Error(`Expected attribute as properties ${this.location()}`);
+            }
+            this.expect(_.Token.greater);
         }
-        if (this.consumeIf('(')) {
+        if (this.consumeIf(_.Token.l_paren)) {
             do {
                 const region = result.addRegion();
                 this.parseRegion(region, undefined, false);
-            } while (this.consumeIf(','));
-            this.expect(')');
+            } while (this.consumeIf(_.Token.comma));
+            this.expect(_.Token.r_paren);
         }
-        if (this.match('{')) {
+        if (this.match(_.Token.l_brace)) {
             this.parseAttributeDict(result.attributes);
         }
-        this.expect(':');
+        this.expect(_.Token.colon);
         const fnType = this.parseType();
         if (fnType instanceof _.FunctionType === false) {
             throw new mlir.Error(`Expected function type ${this.location()}`);
         }
         const operandTypes = fnType.inputs;
+        if (operandTypes.length !== unresolvedOperands.length) {
+            throw new mlir.Error(`Expected ${unresolvedOperands.length} operand type${unresolvedOperands.length === 1 ? '' : 's'} but had ${operandTypes.length} ${this.location()}`);
+        }
         for (let i = 0; i < unresolvedOperands.length; i++) {
             const unresolvedOperand = unresolvedOperands[i];
             const type = operandTypes[i] || null;
@@ -4810,7 +4951,7 @@ _.OperationParser = class extends _.Parser {
     }
 
     parseOptionalSSAUseList(results) {
-        if (!this.match('%')) {
+        if (!this.match(_.Token.percent_identifier)) {
             return;
         }
         this.parseCommaSeparatedList('none', () => {
@@ -4820,13 +4961,13 @@ _.OperationParser = class extends _.Parser {
     }
 
     parseSSAUse(allowResultNumber = true) {
-        const name = this.expect('%');
+        const name = this.expect(_.Token.percent_identifier);
         let number = 0;
-        if (this.match('#')) {
+        if (this.match(_.Token.hash_identifier)) {
             if (!allowResultNumber) {
                 throw new mlir.Error(`Result number not allowed in argument list ${this.location()}`);
             }
-            const value = this.expect('#');
+            const value = this.expect(_.Token.hash_identifier);
             number = parseInt(value, 10);
             if (isNaN(number)) {
                 throw new mlir.Error(`Invalid SSA value result number '${value}' ${this.location()}`);
@@ -4873,17 +5014,17 @@ _.OperationParser = class extends _.Parser {
     parseBlock(block) {
         block.operations = Array.isArray(block.operations) ? block.operations : [];
         block.arguments = Array.isArray(block.arguments) ? block.arguments : [];
-        this.expect('{');
-        if (this.getToken().kind === '^' || (this.getToken().kind === _.Token.bare_identifier && this.getToken().getSpelling().str() && this.getToken().getSpelling().str().startsWith('^'))) {
-            if (this.getToken().kind === '^') {
-                block.name = this.expect('^');
+        this.expect(_.Token.l_brace);
+        if (this.getToken().kind === _.Token.caret_identifier || (this.getToken().kind === _.Token.bare_identifier && this.getToken().getSpelling().str() && this.getToken().getSpelling().str().startsWith('^'))) {
+            if (this.getToken().kind === _.Token.caret_identifier) {
+                block.name = this.expect(_.Token.caret_identifier);
             } else {
                 block.name = this.expect(_.Token.bare_identifier);
             }
-            if (this.consumeIf('(')) {
-                while (!this.consumeIf(')') && !this.match('^')) {
-                    const value = this.expect('%');
-                    this.expect(':');
+            if (this.consumeIf(_.Token.l_paren)) {
+                while (!this.consumeIf(_.Token.r_paren) && !this.match(_.Token.caret_identifier)) {
+                    const value = this.expect(_.Token.percent_identifier);
+                    this.expect(_.Token.colon);
                     const type = this.parseType();
                     const arg = { value, type };
                     const loc = this.parseTrailingLocationSpecifier();
@@ -4891,17 +5032,17 @@ _.OperationParser = class extends _.Parser {
                         arg.loc = loc;
                     }
                     block.arguments.push(arg);
-                    this.consumeIf(',');
+                    this.consumeIf(_.Token.comma);
                 }
             }
             if (block.name && block.name.endsWith(':')) {
                 block.name = block.name.slice(0, -1);
             } else {
-                this.expect(':');
+                this.expect(_.Token.colon);
             }
         }
-        while (!this.consumeIf('}')) {
-            if (this.getToken().kind === '^' || (this.getToken().kind === _.Token.bare_identifier && this.getToken().getSpelling().str() && this.getToken().getSpelling().str().startsWith('^'))) {
+        while (!this.consumeIf(_.Token.r_brace)) {
+            if (this.getToken().kind === _.Token.caret_identifier || (this.getToken().kind === _.Token.bare_identifier && this.getToken().getSpelling().str() && this.getToken().getSpelling().str().startsWith('^'))) {
                 break;
             }
             const op = this.parseOperation();
@@ -4941,20 +5082,20 @@ _.OperationParser = class extends _.Parser {
         }
         region.blocks.push(block);
         let hasMultipleBlocks = false;
-        while ((this.getToken().kind === '^' || (this.getToken().kind === _.Token.bare_identifier && this.getToken().getSpelling().str() && this.getToken().getSpelling().str().startsWith('^'))) && !this.match('}')) {
+        while ((this.getToken().kind === _.Token.caret_identifier || (this.getToken().kind === _.Token.bare_identifier && this.getToken().getSpelling().str() && this.getToken().getSpelling().str().startsWith('^'))) && !this.match(_.Token.r_brace)) {
             hasMultipleBlocks = true;
             const nextBlock = {};
             nextBlock.operations = [];
             nextBlock.arguments = [];
-            if (this.getToken().kind === '^') {
-                nextBlock.name = this.expect('^');
+            if (this.getToken().kind === _.Token.caret_identifier) {
+                nextBlock.name = this.expect(_.Token.caret_identifier);
             } else {
                 nextBlock.name = this.expect(_.Token.bare_identifier);
             }
-            if (this.consumeIf('(')) {
-                while (!this.consumeIf(')')) {
-                    const value = this.expect('%');
-                    this.expect(':');
+            if (this.consumeIf(_.Token.l_paren)) {
+                while (!this.consumeIf(_.Token.r_paren)) {
+                    const value = this.expect(_.Token.percent_identifier);
+                    this.expect(_.Token.colon);
                     const type = this.parseType();
                     const arg = { value, type };
                     const loc = this.parseTrailingLocationSpecifier();
@@ -4962,22 +5103,22 @@ _.OperationParser = class extends _.Parser {
                         arg.loc = loc;
                     }
                     nextBlock.arguments.push(arg);
-                    this.consumeIf(',');
+                    this.consumeIf(_.Token.comma);
                 }
             }
             if (nextBlock.name && nextBlock.name.endsWith(':')) {
                 nextBlock.name = nextBlock.name.slice(0, -1);
             } else {
-                this.expect(':');
+                this.expect(_.Token.colon);
             }
-            while (!(this.getToken().kind === '^' || (this.getToken().kind === _.Token.bare_identifier && this.getTokenSpelling().str() && this.getTokenSpelling().str().startsWith('^'))) && !this.match('}')) {
+            while (!(this.getToken().kind === _.Token.caret_identifier || (this.getToken().kind === _.Token.bare_identifier && this.getTokenSpelling().str() && this.getTokenSpelling().str().startsWith('^'))) && !this.match(_.Token.r_brace)) {
                 const op = this.parseOperation();
                 nextBlock.operations.push(op);
             }
             region.blocks.push(nextBlock);
         }
         if (hasMultipleBlocks) {
-            this.consumeIf('}');
+            this.consumeIf(_.Token.r_brace);
         }
         this.popSSANameScope();
         return region;
@@ -4986,22 +5127,22 @@ _.OperationParser = class extends _.Parser {
     parseTrailingLocationSpecifier() {
         // Ref impl: parseTrailingLocationSpecifier (Parser.cpp:2248)
         // If there is a 'loc' we parse a trailing location
-        if (!this.consumeIf('kw_loc')) {
+        if (!this.consumeIf(_.Token.kw_loc)) {
             return null;
         }
-        this.expect('(');
+        this.expect(_.Token.l_paren);
         const tok = this.getToken();
         let directLoc = null;
         // Check to see if we are parsing a location alias. We are parsing a
         // location alias if the token is a hash identifier *without* a dot in it -
         // the dot signifies a dialect attribute. Otherwise, we parse the location
         // directly. (Ref impl: Parser.cpp:2256-2265)
-        if (tok.kind === '#' && !tok.getSpelling().str().includes('.')) {
+        if (tok.kind === _.Token.hash_identifier && !tok.getSpelling().str().includes('.')) {
             directLoc = this.parseLocationAlias();
         } else {
             directLoc = this.parseLocationInstance();
         }
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         return directLoc;
     }
 };
@@ -5027,7 +5168,7 @@ _.AsmParser = class extends _.Parser {
         }
         if (Array.isArray(arg)) {
             const allowedValues = arg;
-            if (this.match(_.Token.bare_identifier) || this.getToken().isKeyword() || this.match('inttype')) {
+            if (this.match(_.Token.bare_identifier) || this.getToken().isKeyword() || this.match(_.Token.inttype)) {
                 const value = this.getTokenSpelling().str();
                 if (allowedValues === undefined || allowedValues.some((v) => v === value)) {
                     this.expect();
@@ -5052,17 +5193,17 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseColonType() {
-        this.expect(':');
+        this.expect(_.Token.colon);
         return this.parseType();
     }
 
     parseColonTypeList() {
-        this.expect(':');
+        this.expect(_.Token.colon);
         return this.parseTypeList();
     }
 
     parseOptionalColonTypeList() {
-        if (this.consumeIf(':')) {
+        if (this.consumeIf(_.Token.colon)) {
             return this.parseTypeList();
         }
         return [];
@@ -5097,43 +5238,43 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseLBrace() {
-        this.expect('{');
+        this.expect(_.Token.l_brace);
     }
 
     parseRBrace() {
-        this.expect('}');
+        this.expect(_.Token.r_brace);
     }
 
     parseOptionalLBrace() {
-        return this.accept('{');
+        return this.accept(_.Token.l_brace);
     }
 
     parseOptionalRBrace() {
-        return this.accept('}');
+        return this.accept(_.Token.r_brace);
     }
 
     parseComma() {
-        this.expect(',');
+        this.expect(_.Token.comma);
     }
 
     parseOptionalComma() {
-        return this.accept(',');
+        return this.accept(_.Token.comma);
     }
 
     parseLParen() {
-        this.expect('(');
+        this.expect(_.Token.l_paren);
     }
 
     parseRParen() {
-        this.expect(')');
+        this.expect(_.Token.r_paren);
     }
 
     parseOptionalLParen() {
-        return this.accept('(');
+        return this.accept(_.Token.l_paren);
     }
 
     parseOptionalRParen() {
-        return this.accept(')');
+        return this.accept(_.Token.r_paren);
     }
 
     parseLSquare() {
@@ -5189,8 +5330,8 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseOptionalSymbolName() {
-        if (this.match('@')) {
-            const value = this.expect('@');
+        if (this.match(_.Token.at_identifier)) {
+            const value = this.expect(_.Token.at_identifier);
             return value.substring(1);
         }
         return null;
@@ -5200,18 +5341,18 @@ _.AsmParser = class extends _.Parser {
 _.OpAsmParser = class extends _.AsmParser {
 
     parseOptionalLocationSpecifier() {
-        if (!this.consumeIf('kw_loc')) {
+        if (!this.consumeIf(_.Token.kw_loc)) {
             return null;
         }
-        this.expect('(');
+        this.expect(_.Token.l_paren);
         const tok = this.getToken();
         let directLoc = null;
-        if (tok.kind === '#' && !tok.getSpelling().str().includes('.')) {
+        if (tok.kind === _.Token.hash_identifier && !tok.getSpelling().str().includes('.')) {
             directLoc = this.parseLocationAlias();
         } else {
             directLoc = this.parseLocationInstance();
         }
-        this.expect(')');
+        this.expect(_.Token.r_paren);
         return directLoc;
     }
 
@@ -5235,7 +5376,7 @@ _.OpAsmParser = class extends _.AsmParser {
             op.addAttribute('arg_attrs', argAttrs);
         }
         this.parseOptionalAttrDictWithKeyword(op.attributes);
-        if (this.match('{')) {
+        if (this.match(_.Token.l_brace)) {
             const region = op.addRegion();
             // Functions are IsolatedFromAbove, so pass true for isIsolatedNameScope
             this.parseRegion(region, sig.arguments, /* isIsolatedNameScope */ true);
@@ -5247,12 +5388,12 @@ _.OpAsmParser = class extends _.AsmParser {
         const argAttrs = [];
         const resultTypes = [];
         const resultAttrs = [];
-        this.expect('(');
-        if (!this.match(')')) {
+        this.expect(_.Token.l_paren);
+        if (!this.match(_.Token.r_paren)) {
             this.parseTypeAndAttrList(argTypes, argAttrs, argOperands);
         }
-        this.expect(')');
-        if (this.consumeIf('->')) {
+        this.expect(_.Token.r_paren);
+        if (this.consumeIf(_.Token.arrow)) {
             this.parseFunctionResultList(resultTypes, resultAttrs);
         }
         return { argTypes, argAttrs, resultTypes, resultAttrs };
@@ -5262,19 +5403,19 @@ _.OpAsmParser = class extends _.AsmParser {
         const argResult = this.parseFunctionArgumentList(allowVariadic);
         const resultTypes = [];
         const resultAttrs = [];
-        if (this.consumeIf('->')) {
+        if (this.consumeIf(_.Token.arrow)) {
             this.parseFunctionResultList(resultTypes, resultAttrs);
         }
         return { arguments: argResult.arguments, isVariadic: argResult.isVariadic, resultTypes, resultAttrs };
     }
 
     parseFunctionResultList(types, attrs) {
-        if (this.consumeIf('(')) {
-            if (this.consumeIf(')')) {
+        if (this.consumeIf(_.Token.l_paren)) {
+            if (this.consumeIf(_.Token.r_paren)) {
                 return;
             }
             this.parseTypeAndAttrList(types, attrs);
-            this.expect(')');
+            this.expect(_.Token.r_paren);
         } else {
             const type = this.parseType();
             types.push(type);
@@ -5286,22 +5427,22 @@ _.OpAsmParser = class extends _.AsmParser {
     parseFunctionArgumentList(allowVariadic) {
         const inputs = [];
         let isVariadic = false;
-        if (this.consumeIf('(')) {
-            while (!this.consumeIf(')')) {
-                if (this.match(')')) {
+        if (this.consumeIf(_.Token.l_paren)) {
+            while (!this.consumeIf(_.Token.r_paren)) {
+                if (this.match(_.Token.r_paren)) {
                     break;
                 }
-                if (allowVariadic && this.consumeIf('ellipsis')) {
+                if (allowVariadic && this.consumeIf(_.Token.ellipsis)) {
                     isVariadic = true;
-                    this.expect(')');
+                    this.expect(_.Token.r_paren);
                     break;
                 }
-                if (this.match('%')) {
+                if (this.match(_.Token.percent_identifier)) {
                     const ssaName = this.parseOperand();
-                    this.expect(':');
+                    this.expect(_.Token.colon);
                     const type = this.parseType();
                     let attrs = null;
-                    if (this.match('{')) {
+                    if (this.match(_.Token.l_brace)) {
                         attrs = new Map();
                         this.parseAttributeDict(attrs);
                     }
@@ -5312,17 +5453,17 @@ _.OpAsmParser = class extends _.AsmParser {
                     // Don't generate a name - let the region/SSA system handle it
                     const type = this.parseType();
                     let attrs = null;
-                    if (this.match('{')) {
+                    if (this.match(_.Token.l_brace)) {
                         attrs = new Map();
                         this.parseAttributeDict(attrs);
                     }
                     inputs.push(new _.OpAsmParser.Argument(null, type, attrs, null));
                 }
-                if (!this.match(')')) {
-                    if (!this.consumeIf(',')) {
+                if (!this.match(_.Token.r_paren)) {
+                    if (!this.consumeIf(_.Token.comma)) {
                         break;
                     }
-                    if (this.match(')')) {
+                    if (this.match(_.Token.r_paren)) {
                         break;
                     }
                 }
@@ -5337,7 +5478,7 @@ _.OpAsmParser = class extends _.AsmParser {
             const type = this.parseType();
             types.push(type);
             // Parse optional attribute dict after each type
-            if (this.match('{')) {
+            if (this.match(_.Token.l_brace)) {
                 const attrList = new Map();
                 this.parseAttributeDict(attrList);
                 attrs.push(attrList);
@@ -5389,8 +5530,8 @@ _.OpAsmParser = class extends _.AsmParser {
             } else {
                 type = this.parseType();
             }
-            if (this.match('{')) {
-                this.skip('{');
+            if (this.match(_.Token.l_brace)) {
+                this.skip(_.Token.l_brace);
             }
             if (type) {
                 resultTypes.push(type);
@@ -5480,12 +5621,12 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
     parseArgumentList(delimiter, allowType = false, allowAttrs = false) {
         delimiter = delimiter || 'none';
         if (delimiter === 'none') {
-            if (!this.match('%')) {
+            if (!this.match(_.Token.percent_identifier)) {
                 return [];
             }
         }
         const parseOneArgument = () => {
-            if (this.match('%')) {
+            if (this.match(_.Token.percent_identifier)) {
                 return this.parseArgument(allowType, allowAttrs);
             }
             return null;
@@ -5502,7 +5643,7 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
     }
 
     parseOptionalOperand(allowResultNumber = true) {
-        if (this.match('%')) {
+        if (this.match(_.Token.percent_identifier)) {
             return this.parseOperand(allowResultNumber);
         }
         return null;
@@ -5511,12 +5652,12 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
     parseOperandList(delimiter) {
         delimiter = delimiter || 'none';
         if (delimiter === 'none') {
-            if (!this.match('%')) {
+            if (!this.match(_.Token.percent_identifier)) {
                 return [];
             }
         }
         const parseOneOperand = () => {
-            if (this.match('%')) {
+            if (this.match(_.Token.percent_identifier)) {
                 return this.parseOperand();
             }
             return null;
@@ -5574,22 +5715,22 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
         // Ref impl: CustomOpAsmParser::parseOptionalLocationSpecifier (Parser.cpp:2002)
         // Separate implementation from parseTrailingLocationSpecifier
         // If there is a 'loc' we parse a trailing location.
-        if (!this.parser.consumeIf('kw_loc')) {
+        if (!this.parser.consumeIf(_.Token.kw_loc)) {
             return null;
         }
-        this.parser.expect('(');
+        this.parser.expect(_.Token.l_paren);
         const tok = this.parser.getToken();
         let directLoc = null;
         // Check to see if we are parsing a location alias. We are parsing a
         // location alias if the token is a hash identifier *without* a dot in it -
         // the dot signifies a dialect attribute. Otherwise, we parse the location
         // directly.
-        if (tok.kind === '#' && !tok.getSpelling().str().includes('.')) {
+        if (tok.kind === _.Token.hash_identifier && !tok.getSpelling().str().includes('.')) {
             directLoc = this.parser.parseLocationAlias();
         } else {
             directLoc = this.parser.parseLocationInstance();
         }
-        this.parser.expect(')');
+        this.parser.expect(_.Token.r_paren);
         return directLoc;
     }
 };
@@ -5619,7 +5760,7 @@ _.TensorLiteralParser = class {
     }
 
     parse(allowHex) {
-        if (allowHex && this._parser.match('string')) {
+        if (allowHex && this._parser.match(_.Token.string)) {
             const hexStr = this._parser.getToken().getStringValue();
             this._parser.consumeToken(_.Token.string);
             if (hexStr.startsWith('0x')) {
@@ -5636,7 +5777,7 @@ _.TensorLiteralParser = class {
             this._storage.push({ isNegative: false, value: hexStr, kind: 'string' });
             return { storage: this._storage, shape: this._shape };
         }
-        if (this._parser.match('[')) {
+        if (this._parser.match(_.Token.l_square)) {
             this.parseList(this._shape);
         } else {
             this.parseElement();
@@ -5646,13 +5787,13 @@ _.TensorLiteralParser = class {
     }
 
     parseList(dims) {
-        this._parser.expect('[');
+        this._parser.expect(_.Token.l_square);
         let first = true;
         let newDims = [];
         let size = 0;
-        while (!this._parser.consumeIf(']')) {
+        while (!this._parser.consumeIf(_.Token.r_square)) {
             const thisDims = [];
-            if (this._parser.match('[')) {
+            if (this._parser.match(_.Token.l_square)) {
                 this.parseList(thisDims);
             } else {
                 this.parseElement();
@@ -5678,7 +5819,7 @@ _.TensorLiteralParser = class {
             }
             newDims = thisDims;
             first = false;
-            this._parser.consumeIf(',');
+            this._parser.consumeIf(_.Token.comma);
         }
         dims.length = 0;
         dims.push(size);
