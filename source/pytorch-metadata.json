@@ -2725,6 +2725,12 @@
     "name": "aten::empty_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::empty_permuted(SymInt[] size, int[] physical_layout, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+  },
+  {
+    "name": "aten::empty_permuted.out(SymInt[] size, int[] physical_layout, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::eq.Tensor(Tensor self, Tensor other) -> Tensor"
   },
   {
@@ -8568,10 +8574,10 @@
     "name": "quantized_decomposed::choose_qparams_symmetric.tensor(Tensor input, int quant_min, int quant_max, float eps, ScalarType dtype) -> (Tensor, Tensor)"
   },
   {
-    "name": "quantized_decomposed::dequantize_per_channel(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+    "name": "quantized_decomposed::dequantize_per_channel.out(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "quantized_decomposed::dequantize_per_channel.out(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
+    "name": "quantized_decomposed::dequantize_per_channel(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
   },
   {
     "name": "quantized_decomposed::dequantize_per_channel_group(Tensor input, Tensor scales, Tensor? zero_points, int quant_min, int quant_max, ScalarType dtype, int group_size, ScalarType output_dtype) -> Tensor"
@@ -8786,10 +8792,10 @@
     "name": "torchvision::_interpolate_bilinear2d_aa(Tensor input, int[] size, bool align_corners) -> Tensor"
   },
   {
-    "name": "torchvision::deform_conv2d.out(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "torchvision::deform_conv2d(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask) -> Tensor"
   },
   {
-    "name": "torchvision::deform_conv2d(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask) -> Tensor"
+    "name": "torchvision::deform_conv2d.out(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "torchvision::nms(Tensor dets, Tensor scores, float iou_threshold) -> Tensor"
