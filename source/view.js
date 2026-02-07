@@ -1876,7 +1876,7 @@ view.Graph = class extends grapher.Graph {
                 const element = elements[i];
                 const rect = element.getBoundingClientRect();
                 const width = Math.min(rect.width, bounds.width);
-                const height = Math.min(rect.width, bounds.width);
+                const height = Math.min(rect.height, bounds.height);
                 xs.push(rect.left + (width / 2));
                 ys.push(rect.top + (height / 2));
             }
