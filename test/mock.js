@@ -279,6 +279,14 @@ class Window {
     requestAnimationFrame(callback) {
         callback();
     }
+
+    setTimeout(code, delay) {
+        return global.setTimeout(code, delay);
+    }
+
+    clearTimeout(timeoutID) {
+        global.clearTimeout(timeoutID);
+    }
 }
 
 mock.Host = class {

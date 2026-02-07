@@ -386,7 +386,7 @@ view.View = class {
 
     _timeout(delay) {
         return new Promise((resolve) => {
-            setTimeout(resolve, delay);
+            this._host.window.setTimeout(resolve, delay);
         });
     }
 
@@ -558,15 +558,16 @@ view.View = class {
                 back.style.opacity = 1;
                 const last = this._path.length - 2;
                 const count = Math.min(2, last);
+                const document = this.host.document;
                 if (count < last) {
-                    const element = this._host.document.createElement('button');
+                    const element = document.createElement('button');
                     element.setAttribute('class', 'toolbar-path-name-button');
                     element.innerHTML = '&hellip;';
                     path.appendChild(element);
                 }
                 for (let i = count; i >= 0; i--) {
                     const target = this._path[i].target;
-                    const element = this._host.document.createElement('button');
+                    const element = document.createElement('button');
                     element.setAttribute('class', 'toolbar-path-name-button');
                     element.addEventListener('click', async () => {
                         if (i > 0) {
@@ -665,6 +666,7 @@ view.View = class {
     }
 
     async export(file) {
+        const window = this.host.window;
         const lastIndex = file.lastIndexOf('.');
         const extension = lastIndex === -1 ? 'png' : file.substring(lastIndex + 1).toLowerCase();
         if (this.activeTarget && (extension === 'png' || extension === 'svg')) {
@@ -720,16 +722,16 @@ view.View = class {
             background.setAttribute('width', width);
             background.setAttribute('height', height);
             background.setAttribute('fill', '#fff');
-            const data = new XMLSerializer().serializeToString(clone);
+            const data = new window.XMLSerializer().serializeToString(clone);
             if (extension === 'svg') {
-                const blob = new Blob([data], { type: 'image/svg' });
+                const blob = new window.Blob([data], { type: 'image/svg' });
                 await this._host.export(file, blob);
             }
             if (extension === 'png') {
                 const blob = await new Promise((resolve, reject) => {
                     this.show('welcome spinner');
                     this.progress(0);
-                    const image = new Image();
+                    const image = new window.Image();
                     image.onload = async () => {
                         try {
                             let targetWidth = Math.ceil(width * 2);
@@ -747,7 +749,7 @@ view.View = class {
                             }
                             const drawScale = targetWidth / width;
                             const size = Math.min(targetWidth, 4096);
-                            const encoder = new png.Encoder(targetWidth, targetHeight);
+                            const encoder = new png.Encoder(window, targetWidth, targetHeight);
                             const canvas = this._host.document.createElement('canvas');
                             canvas.width = size;
                             canvas.height = 4096;
@@ -773,7 +775,7 @@ view.View = class {
                             const buffer = await encoder.toBuffer();
                             this.progress(0);
                             this.show('default');
-                            resolve(new Blob([buffer], { type: 'image/png' }));
+                            resolve(new window.Blob([buffer], { type: 'image/png' }));
                         } catch (error) {
                             this.progress(0);
                             this.show('default');
@@ -973,6 +975,7 @@ view.Menu = class {
         this.items = [];
         this._darwin = host.environment('platform') === 'darwin';
         this._document = host.document;
+        this._window = host.window;
         this._stack = [];
         this._root = [];
         this._buttons = [];
@@ -1177,6 +1180,7 @@ view.Menu = class {
     }
 
     _execute(action) {
+        const window = this._window;
         if (typeof action === 'function') {
             action();
             return true;
@@ -1194,7 +1198,7 @@ view.Menu = class {
             }
             case 'command': {
                 this.close();
-                setTimeout(() => action.execute(), 10);
+                window.setTimeout(() => action.execute(), 10);
                 return true;
             }
             default: {
@@ -1496,7 +1500,8 @@ view.Worker = class {
             this._reject = reject;
             this._create();
             this._worker.postMessage(message);
-            this._timeout = setTimeout(async () => {
+            const window = this._host.window;
+            this._timeout = window.setTimeout(async () => {
                 await this._host.message(notification, null, 'Cancel');
                 this.cancel(true);
                 delete this._resolve;
@@ -1541,7 +1546,7 @@ view.Worker = class {
             this._worker = null;
         }
         if (this._timeout !== -1) {
-            clearTimeout(this._timeout);
+            this._host.window.clearTimeout(this._timeout);
             this._timeout = -1;
             this._host.message();
         }
@@ -2761,6 +2766,11 @@ view.Control = class {
         return element;
     }
 
+    createTextNode(data) {
+        const node = this._host.document.createTextNode(data);
+        return node;
+    }
+
     on(event, callback) {
         this._events = this._events || {};
         this._events[event] = this._events[event] || [];
@@ -2950,10 +2960,10 @@ view.ObjectSidebar = class extends view.Control {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('span');
-        const title = document.createElement('b');
+        const title = this.createElement('b');
         title.textContent = 'ERROR: ';
         element.appendChild(title);
-        const message = document.createTextNode(` ${error.message}`);
+        const message = this.createTextNode(` ${error.message}`);
         element.appendChild(message);
         this.element.appendChild(element);
     }
@@ -3567,15 +3577,16 @@ view.TensorView = class extends view.Expander {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('div', 'sidebar-item-value-line');
-        const title = document.createElement('b');
+        const title = this.createElement('b');
         title.textContent = 'ERROR: ';
         element.appendChild(title);
-        const message = document.createTextNode(error.message);
+        const message = this.createTextNode(error.message);
         element.appendChild(message);
         this.element.appendChild(element);
     }
 
     async export() {
+        const window = this._host.window;
         const tensor = this._tensor;
         const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
         const file = await this._host.save('NumPy Array', 'npy', defaultPath);
@@ -3601,10 +3612,10 @@ view.TensorView = class extends view.Expander {
                 const array = numpy.asarray(tensor.value, dtype);
                 numpy.save(bytes, array);
                 bytes.seek(0);
-                const blob = new Blob([bytes.read()], { type: 'application/octet-stream' });
+                const blob = new window.Blob([bytes.read()], { type: 'application/octet-stream' });
                 await this._host.export(file, blob);
             } catch (error) {
-                this.error(error, 'Error saving NumPy tensor.', null);
+                this._view.error(error, 'Error saving NumPy tensor.', null);
             }
         }
     }
@@ -4099,10 +4110,10 @@ view.DocumentationSidebar = class extends view.Control {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('span');
-        const title = document.createElement('b');
+        const title = this.createElement('b');
         title.textContent = 'ERROR: ';
         element.appendChild(title);
-        const message = document.createTextNode(error.message);
+        const message = this.createTextNode(error.message);
         element.appendChild(message);
         this.element.appendChild(element);
     }
@@ -4419,10 +4430,10 @@ view.FindSidebar = class extends view.Control {
     error(error, fatal) {
         super.error(error, fatal);
         const element = this.createElement('li');
-        const title = document.createElement('b');
+        const title = this.createElement('b');
         title.textContent = 'ERROR: ';
         element.appendChild(title);
-        const message = document.createTextNode(` ${error.message}`);
+        const message = this.createTextNode(` ${error.message}`);
         element.appendChild(message);
         this._content.appendChild(element);
     }
@@ -5557,12 +5568,12 @@ markdown.Generator = class {
 
 png.Encoder = class {
 
-    constructor(width, height) {
+    constructor(window, width, height) {
         this.width = width;
         this.height = height;
-        const compressor = new CompressionStream('deflate');
+        const compressor = new window.CompressionStream('deflate');
         this.writer = compressor.writable.getWriter();
-        this.response = new Response(compressor.readable).blob();
+        this.response = new window.Response(compressor.readable).blob();
     }
 
     async write(data, rows) {

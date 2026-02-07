@@ -1048,10 +1048,10 @@ const test = async (pattern) => {
     ]);
     const readRunHeader = async (filePath) => {
         const handle = await fs.open(filePath, 'r');
-        const buffer = Buffer.alloc(256);
+        const buffer = new Uint8Array(256);
         await handle.read(buffer, 0, 256, 0);
         await handle.close();
-        const content = buffer.toString('utf-8').split('\n')[0];
+        const content = new TextDecoder().decode(buffer).split('\n')[0];
         return content.startsWith('// RUN:') ? content : null;
     };
     for (const file of allFiles) {

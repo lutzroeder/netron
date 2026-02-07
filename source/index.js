@@ -4,12 +4,13 @@ window.exports.require = function(id, callback) {
     if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
         throw new Error("Invalid module '" + id + "'.");
     }
-    let base = window.location.href || '';
+    var base = window.location.href || '';
     base = base.split('?')[0].split('#')[0];
     const index = base.lastIndexOf('/');
     base = index > 0 ? base.substring(0, index + 1) : base;
     base = base.lastIndexOf('/') === base.length - 1 ? base : base + '/';
     var url = base + id + '.js';
+    var document = window.document;
     var scripts = document.head.getElementsByTagName('script');
     for (var i = 0; i < scripts.length; i++) {
         if (url === scripts[i].getAttribute('src')) {
@@ -69,6 +70,7 @@ window.exports.preload = function(callback) {
 };
 
 window.exports.terminate = function(message) {
+    var document = window.document;
     document.getElementById('message-text').innerText = message;
     var button = document.getElementById('message-button');
     button.style.display = 'none';
@@ -86,7 +88,7 @@ window.exports.terminate = function(message) {
 };
 
 window.addEventListener('error', function (event) {
-    var error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
+    var error = event instanceof window.ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
     window.exports.terminate(error.message);
 });
 
@@ -99,7 +101,7 @@ window.addEventListener('load', function() {
     var chrome = ua.match(/Chrom(e|ium)\/([0-9]+)\./);
     var safari = ua.match(/Version\/(\d+)\.(\d+).*Safari/);
     var firefox = ua.match(/Firefox\/([0-9]+)\./);
-    if ((Array.isArray(chrome) && parseInt(chrome[2], 10) < 80) ||
+    if ((Array.isArray(chrome) && parseInt(chrome[2], 10) < 86) ||
         (Array.isArray(safari) && (parseInt(safari[1], 10) < 16 || (parseInt(safari[1], 10) === 16 && parseInt(safari[2], 10) < 4))) ||
         (Array.isArray(firefox) && parseInt(firefox[1], 10) < 114)) {
         throw new Error('Please update your browser to use this application.');

@@ -306,7 +306,8 @@ desktop.Host = class {
     }
 
     async export(file, blob) {
-        const reader = new FileReader();
+        const window = this.window;
+        const reader = new window.FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
             fs.writeFile(file, data, null, async (error) => {
@@ -318,7 +319,7 @@ desktop.Host = class {
         let error = null;
         if (!blob) {
             error = new Error(`Export blob is '${JSON.stringify(blob)}'.`);
-        } else if (!(blob instanceof Blob)) {
+        } else if (blob instanceof window.Blob === false) {
             error = new Error(`Export blob type is '${typeof blob}'.`);
         }
         if (error) {
@@ -504,8 +505,9 @@ desktop.Host = class {
     }
 
     _request(location, headers, timeout) {
+        const window = this.window;
         return new Promise((resolve, reject) => {
-            const url = new URL(location);
+            const url = new window.URL(location);
             const protocol = url.protocol === 'https:' ? https : http;
             const options = {};
             options.headers = headers;

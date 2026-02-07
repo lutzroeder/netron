@@ -102,19 +102,19 @@ const exec = async (command, encoding, cwd) => {
 
 const sleep = (delay) => {
     return new Promise((resolve) => {
-        setTimeout(resolve, delay);
+        global.setTimeout(resolve, delay);
     });
 };
 
 const request = async (url, init, status) => {
-    const response = await fetch(url, init);
+    const response = await global.fetch(url, init);
     if (status !== false && !response.ok) {
         throw new Error(`${response.status.toString()} ${response.statusText}`);
     }
     if (response.body) {
         const reader = response.body.getReader();
         let position = 0;
-        const stream = new ReadableStream({
+        const stream = new global.ReadableStream({
             start(controller) {
                 const read = async () => {
                     try {
@@ -135,7 +135,7 @@ const request = async (url, init, status) => {
                 read();
             }
         });
-        return new Response(stream, {
+        return new global.Response(stream, {
             status: response.status,
             statusText: response.statusText,
             headers: response.headers

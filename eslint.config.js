@@ -1,6 +1,4 @@
 
-import globals from 'globals';
-
 export default [
     {
         ignores: [
@@ -11,9 +9,15 @@ export default [
     {
         languageOptions: {
             globals: {
-                ...globals.es2020,
-                ...globals.browser,
-                ...globals.node,
+                atob: 'readonly',
+                BigInt: 'readonly',
+                console: 'readonly',
+                global: 'readonly',
+                process: 'readonly',
+                self: 'readonly',
+                TextDecoder: 'readonly',
+                TextEncoder: 'readonly',
+                window: 'readonly',
             },
             sourceType: 'module'
         },
@@ -237,10 +241,6 @@ export default [
     {
         files: ['source/index.js'],
         languageOptions: {
-            globals: {
-                ...globals.es2015,
-                ...globals.browser,
-            },
             sourceType: 'script',
             ecmaVersion: 2015
         },

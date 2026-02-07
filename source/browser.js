@@ -53,12 +53,14 @@ browser.Host = class {
     }
 
     async view(view) {
+        const window = this.window;
+        const document = this.document;
         this._view = view;
         const age = async () => {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {
                 const link = this._element('logo-github').href;
-                this.document.body.classList.remove('spinner');
+                document.body.classList.remove('spinner');
                 for (;;) {
                     /* eslint-disable no-await-in-loop */
                     await this.message('Please update to the newest version.', null, 'Update');
@@ -84,15 +86,15 @@ browser.Host = class {
                 // continue regardless of error
             }
             if (consent) {
-                this.document.body.classList.remove('spinner');
+                document.body.classList.remove('spinner');
                 await this.message('This app uses cookies to report errors and anonymous usage information.', null, 'Accept');
             }
             this._setCookie('consent', Date.now().toString(), 30);
         };
         const telemetry = async () => {
             if (this._environment.packaged) {
-                this._window.addEventListener('error', (event) => {
-                    if (event instanceof ErrorEvent && event.error && event.error instanceof Error) {
+                window.addEventListener('error', (event) => {
+                    if (event instanceof window.ErrorEvent && event.error && event.error instanceof Error) {
                         this.exception(event.error, true);
                     } else {
                         const message = event && event.message ? event.message : JSON.stringify(event);
@@ -104,9 +106,9 @@ browser.Host = class {
                 const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
                 const session = this._getCookie(`_ga${measurement_id}`);
                 await this._telemetry.start(`G-${measurement_id}`, user, session);
-                this._telemetry.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
-                this._telemetry.set('page_title', this._document.title ? this._document.title : null);
-                this._telemetry.set('page_referrer', this._document.referrer ? this._document.referrer : null);
+                this._telemetry.set('page_location', document.location && document.location.href ? document.location.href : null);
+                this._telemetry.set('page_title', document.title ? document.title : null);
+                this._telemetry.set('page_referrer', document.referrer ? document.referrer : null);
                 this._telemetry.send('page_view', {
                     app_name: this.type,
                     app_version: this.version,
@@ -124,7 +126,7 @@ browser.Host = class {
             const filter = (list) => {
                 return list.filter((capability) => {
                     const path = capability.split('.').reverse();
-                    let obj = this.window[path.pop()];
+                    let obj = window[path.pop()];
                     while (obj && path.length > 0) {
                         obj = obj[path.pop()];
                     }
@@ -155,9 +157,11 @@ browser.Host = class {
                 }
             }
         }
-        const search = this.window.location.search;
-        const params = new Map(search ? new URLSearchParams(this.window.location.search) : []);
-        const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
+        const window = this.window;
+        const document = this.document;
+        const search = window.location.search;
+        const params = new Map(search ? new window.URLSearchParams(window.location.search) : []);
+        const hash = window.location.hash ? window.location.hash.replace(/^#/, '') : '';
         const url = hash ? hash : params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
@@ -183,7 +187,7 @@ browser.Host = class {
             openFileButton.addEventListener('click', () => {
                 this.execute('open');
             });
-            const mobileSafari = this.environment('platform') === 'darwin' && navigator.maxTouchPoints && navigator.maxTouchPoints > 1;
+            const mobileSafari = this.environment('platform') === 'darwin' && window.navigator.maxTouchPoints && window.navigator.maxTouchPoints > 1;
             if (!mobileSafari) {
                 const extensions = new base.Metadata().extensions.map((extension) => `.${extension}`);
                 openFileDialog.setAttribute('accept', extensions.join(', '));
@@ -198,13 +202,13 @@ browser.Host = class {
                 }
             });
         }
-        this.document.addEventListener('dragover', (e) => {
+        document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
-        this.document.addEventListener('drop', (e) => {
+        document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        this.document.body.addEventListener('drop', (e) => {
+        document.body.addEventListener('drop', (e) => {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 const files = Array.from(e.dataTransfer.files);
@@ -226,7 +230,8 @@ browser.Host = class {
     }
 
     worker(id) {
-        return new this.window.Worker(`${id}.js`, { type: 'module' });
+        const window = this.window;
+        return new window.Worker(`${id}.js`, { type: 'module' });
     }
 
     async save(name, extension, defaultPath) {
@@ -234,14 +239,16 @@ browser.Host = class {
     }
 
     async export(file, blob) {
-        const element = this.document.createElement('a');
+        const window = this.window;
+        const document = this.document;
+        const element = document.createElement('a');
         element.download = file;
-        const url = URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(blob);
         element.href = url;
-        this.document.body.appendChild(element);
+        document.body.appendChild(element);
         element.click();
-        this.document.body.removeChild(element);
-        URL.revokeObjectURL(url);
+        document.body.removeChild(element);
+        window.URL.revokeObjectURL(url);
     }
 
     async execute(name /*, value */) {
@@ -283,7 +290,8 @@ browser.Host = class {
     }
 
     openURL(url) {
-        this.window.location = url;
+        const window = this.window;
+        window.location = url;
     }
 
     exception(error, fatal) {
@@ -345,13 +353,14 @@ browser.Host = class {
     }
 
     async _request(url, headers, encoding, callback, timeout) {
+        const window = this.window;
         if (!url.startsWith('data:')) {
             const date = new Date().getTime();
             const separator = (/\?/).test(url) ? '&' : '?';
             url = `${url}${separator}cb=${date}`;
         }
         return new Promise((resolve, reject) => {
-            const request = new XMLHttpRequest();
+            const request = new window.XMLHttpRequest();
             if (!encoding) {
                 request.responseType = 'arraybuffer';
             }
@@ -414,10 +423,9 @@ browser.Host = class {
         } else if (file.startsWith('/')) {
             file = file.substring(1);
         }
-        const location = this.window.location;
-        const pathname = location.pathname.endsWith('/') ?
-            location.pathname :
-            `${location.pathname.split('/').slice(0, -1).join('/')}/`;
+        const window = this.window;
+        const location = window.location;
+        const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname.split('/').slice(0, -1).join('/')}/`;
         return `${location.protocol}//${location.host}${pathname}${file}`;
     }
 
@@ -490,6 +498,7 @@ browser.Host = class {
     }
 
     async _openContext(context) {
+        const document = this.document;
         this._telemetry.set('session_engaged', 1);
         try {
             const attachment = await this._view.attach(context);
@@ -500,10 +509,10 @@ browser.Host = class {
             const model = await this._view.open(context);
             if (model) {
                 this._view.show(null);
-                this.document.title = context.name || context.identifier;
+                document.title = context.name || context.identifier;
                 return '';
             }
-            this.document.title = '';
+            document.title = '';
             return 'context-open-failed';
         } catch (error) {
             await this._view.error(error, error.name);
@@ -512,16 +521,19 @@ browser.Host = class {
     }
 
     _setCookie(name, value, days) {
-        this.document.cookie = `${name}=; Max-Age=0`;
-        const location = this.window.location;
+        const window = this.window;
+        const document = this.document;
+        document.cookie = `${name}=; Max-Age=0`;
+        const location = window.location;
         const domain = location && location.hostname && location.hostname.indexOf('.') !== -1 ? `;domain=.${location.hostname.split('.').slice(-2).join('.')}` : '';
         const date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        this.document.cookie = `${name}=${value}${domain};path=/;expires=${date.toUTCString()}`;
+        document.cookie = `${name}=${value}${domain};path=/;expires=${date.toUTCString()}`;
     }
 
     _getCookie(name) {
-        for (const cookie of this.document.cookie.split(';')) {
+        const document = this.document;
+        for (const cookie of document.cookie.split(';')) {
             const entry = cookie.split('=');
             if (entry[0].trim() === name) {
                 return entry[1].trim();
@@ -531,9 +543,10 @@ browser.Host = class {
     }
 
     get(name) {
+        const window = this.window;
         try {
-            if (typeof this.window.localStorage !== 'undefined') {
-                const content = this.window.localStorage.getItem(name);
+            if (typeof window.localStorage !== 'undefined') {
+                const content = window.localStorage.getItem(name);
                 return JSON.parse(content);
             }
         } catch {
@@ -543,9 +556,10 @@ browser.Host = class {
     }
 
     set(name, value) {
+        const window = this.window;
         try {
-            if (typeof this.window.localStorage !== 'undefined') {
-                this.window.localStorage.setItem(name, JSON.stringify(value));
+            if (typeof window.localStorage !== 'undefined') {
+                window.localStorage.setItem(name, JSON.stringify(value));
             }
         } catch {
             // continue regardless of error
@@ -553,9 +567,10 @@ browser.Host = class {
     }
 
     delete(name) {
+        const window = this.window;
         try {
-            if (typeof this.window.localStorage !== 'undefined') {
-                this.window.localStorage.removeItem(name);
+            if (typeof window.localStorage !== 'undefined') {
+                window.localStorage.removeItem(name);
             }
         } catch {
             // continue regardless of error
@@ -563,7 +578,8 @@ browser.Host = class {
     }
 
     _element(id) {
-        return this.document.getElementById(id);
+        const document = this.document;
+        return document.getElementById(id);
     }
 
     update() {
@@ -571,7 +587,8 @@ browser.Host = class {
 
     async message(message, alert, action) {
         return new Promise((resolve) => {
-            const type = this.document.body.getAttribute('class');
+            const document = this.document;
+            const type = document.body.getAttribute('class');
             this._element('message-text').innerText = message || '';
             const button = this._element('message-button');
             if (action) {
@@ -579,7 +596,7 @@ browser.Host = class {
                 button.innerText = action;
                 button.onclick = () => {
                     button.onclick = null;
-                    this.document.body.setAttribute('class', type);
+                    document.body.setAttribute('class', type);
                     resolve(0);
                 };
             } else {
@@ -587,10 +604,10 @@ browser.Host = class {
                 button.onclick = null;
             }
             if (alert) {
-                this.document.body.setAttribute('class', 'alert');
+                document.body.setAttribute('class', 'alert');
             } else {
-                this.document.body.classList.add('notification');
-                this.document.body.classList.remove('default');
+                document.body.classList.add('notification');
+                document.body.classList.remove('default');
             }
             if (action) {
                 button.focus();
@@ -627,7 +644,8 @@ browser.BrowserFileContext = class {
             throw new Error(`File not found '${file}'.`);
         }
         return new Promise((resolve, reject) => {
-            const reader = new FileReader();
+            const window = this._host.window;
+            const reader = new window.FileReader();
             const size = 0x10000000;
             let position = 0;
             const chunks = [];
@@ -842,8 +860,8 @@ browser.Context = class {
 };
 
 if (!('scrollBehavior' in window.document.documentElement.style)) {
-    const __scrollTo__ = Element.prototype.scrollTo;
-    Element.prototype.scrollTo = function(...args) {
+    const __scrollTo__ = window.Element.prototype.scrollTo;
+    window.Element.prototype.scrollTo = function(...args) {
         const [options] = args;
         if (options !== undefined) {
             if (options === null || typeof options !== 'object' || options.behavior === undefined || options.behavior === 'auto' || options.behavior === 'instant') {

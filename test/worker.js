@@ -120,7 +120,7 @@ export class Target {
     }
 
     async request(url, init) {
-        const response = await fetch(url, init);
+        const response = await global.fetch(url, init);
         if (!response.ok) {
             throw new Error(response.status.toString());
         }
@@ -131,7 +131,7 @@ export class Target {
             /* eslint-disable consistent-this */
             const target = this;
             /* eslint-enable consistent-this */
-            const stream = new ReadableStream({
+            const stream = new global.ReadableStream({
                 async start(controller) {
                     const read = async () => {
                         try {
@@ -160,7 +160,7 @@ export class Target {
                     return read();
                 }
             });
-            return new Response(stream, {
+            return new global.Response(stream, {
                 status: response.status,
                 statusText: response.statusText,
                 headers: response.headers

@@ -33,7 +33,7 @@ playwright.test('desktop', async () => {
     await app.evaluate(async (electron, location) => {
         const windows = electron.BrowserWindow.getAllWindows();
         if (windows.length > 0) {
-            const [window] = windows;
+            const window = windows[0];
             window.webContents.send('open', { path: location });
         }
     }, file);
@@ -46,7 +46,7 @@ playwright.test('desktop', async () => {
     await app.evaluate(async (electron) => {
         const windows = electron.BrowserWindow.getAllWindows();
         if (windows.length > 0) {
-            const [window] = windows;
+            const window = windows[0];
             window.webContents.send('find', {});
         }
     });
