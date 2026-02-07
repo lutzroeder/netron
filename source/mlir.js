@@ -1403,7 +1403,6 @@ _.AffineDimExpr = class extends _.AffineExpr {
     }
 };
 
-// Affine symbol expression (s0, s1, ...)
 _.AffineSymbolExpr = class extends _.AffineExpr {
 
     constructor(position) {
@@ -1420,7 +1419,6 @@ _.AffineSymbolExpr = class extends _.AffineExpr {
     }
 };
 
-// Affine constant expression
 _.AffineConstantExpr = class extends _.AffineExpr {
 
     constructor(value) {
@@ -1433,40 +1431,27 @@ _.AffineConstantExpr = class extends _.AffineExpr {
     }
 };
 
-// Affine binary operation expression
 _.AffineBinaryOpExpr = class extends _.AffineExpr {
 
     constructor(kind, lhs, rhs) {
         super(kind);
-        this._lhs = lhs;
-        this._rhs = rhs;
-    }
-
-    getLHS() {
-        return this._lhs;
-    }
-
-    getRHS() {
-        return this._rhs;
+        this.lhs = lhs;
+        this.rhs = rhs;
     }
 
     toString() {
-        const opStr = {
-            [_.AffineExprKind.Add]: ' + ',
-            [_.AffineExprKind.Mul]: ' * ',
-            [_.AffineExprKind.Mod]: ' mod ',
-            [_.AffineExprKind.FloorDiv]: ' floordiv ',
-            [_.AffineExprKind.CeilDiv]: ' ceildiv '
-        };
-        return `${this._lhs.toString()}${opStr[this._kind]}${this._rhs.toString()}`;
+        let op = '';
+        switch (this.kind) {
+            case _.AffineExprKind.Add: op = ' + '; break;
+            case _.AffineExprKind.Mul: op = ' * '; break;
+            case _.AffineExprKind.Mod: op = ' mod '; break;
+            case _.AffineExprKind.FloorDiv: op = ' floordiv '; break;
+            case _.AffineExprKind.CeilDiv: op = ' ceildiv '; break;
+            default: throw new Error(`Unexpected affine expression kind '${this.kind}'.`);
+        }
+        return `${this.lhs.toString()}${op}${this.rhs.toString()}`;
     }
 };
-
-// Helper functions to create affine expressions (matching reference API)
-_.getAffineDimExpr = (position) => new _.AffineDimExpr(position);
-_.getAffineSymbolExpr = (position) => new _.AffineSymbolExpr(position);
-_.getAffineConstantExpr = (constant) => new _.AffineConstantExpr(constant);
-_.getAffineBinaryOpExpr = (kind, lhs, rhs) => new _.AffineBinaryOpExpr(kind, lhs, rhs);
 
 _.AffineMap = class {
 
@@ -1751,17 +1736,18 @@ _.DenseArrayAttr = class extends _.Attribute {
             if (typeStr.startsWith('i') || typeStr.startsWith('si') || typeStr.startsWith('ui') || typeStr === 'index') {
                 const match = typeStr.match(/[su]?i(\d+)/);
                 const bitWidth = match ? parseInt(match[1], 10) : 64;
+                const unsigned = typeStr.startsWith('ui');
                 const byteWidth = Math.ceil(bitWidth / 8);
                 const size = blob.length / byteWidth;
                 for (let i = 0; i < size; i++) {
                     if (bitWidth <= 8) {
-                        values.push(view.getInt8(i * byteWidth));
+                        values.push(unsigned ? view.getUint8(i * byteWidth) : view.getInt8(i * byteWidth));
                     } else if (bitWidth <= 16) {
-                        values.push(view.getInt16(i * byteWidth, true));
+                        values.push(unsigned ? view.getUint16(i * byteWidth, true) : view.getInt16(i * byteWidth, true));
                     } else if (bitWidth <= 32) {
-                        values.push(view.getInt32(i * byteWidth, true));
+                        values.push(unsigned ? view.getUint32(i * byteWidth, true) : view.getInt32(i * byteWidth, true));
                     } else {
-                        values.push(view.getBigInt64(i * byteWidth, true));
+                        values.push(unsigned ? view.getBigUint64(i * byteWidth, true) : view.getBigInt64(i * byteWidth, true));
                     }
                 }
             } else if (typeStr === 'f32') {
@@ -1777,7 +1763,7 @@ _.DenseArrayAttr = class extends _.Attribute {
             } else if (typeStr === 'f16') {
                 const size = blob.length / 2;
                 for (let i = 0; i < size; i++) {
-                    values.push(view.getUint16(i * 2, true));
+                    values.push(view.getFloat16(i * 2, true));
                 }
             }
             this.values = values;
@@ -4291,7 +4277,7 @@ _.AffineParser = class extends _.Parser {
         this.expect(_.Token.l_paren);
         if (!this.match(_.Token.r_paren)) {
             do {
-                const dimExpr = _.getAffineDimExpr(numDims);
+                const dimExpr = this.getAffineDimExpr(numDims);
                 this.parseIdentifierDefinition(dimExpr);
                 numDims++;
             } while (this.consumeIf(_.Token.comma));
@@ -4306,7 +4292,7 @@ _.AffineParser = class extends _.Parser {
         this.expect(_.Token.l_square);
         if (!this.match(_.Token.r_square)) {
             do {
-                const symbolExpr = _.getAffineSymbolExpr(numSymbols);
+                const symbolExpr = this.getAffineSymbolExpr(numSymbols);
                 this.parseIdentifierDefinition(symbolExpr);
                 numSymbols++;
             } while (this.consumeIf(_.Token.comma));
@@ -4364,7 +4350,7 @@ _.AffineParser = class extends _.Parser {
         this.expect(_.Token.r_paren);
         // If no constraints, return degenerate true set (0 == 0)
         if (constraints.length === 0) {
-            const zero = _.getAffineConstantExpr(0);
+            const zero = this.getAffineConstantExpr(0);
             return _.IntegerSet.get(numDims, numSymbols, [zero], [true]);
         }
         return _.IntegerSet.get(numDims, numSymbols, constraints, isEqs);
@@ -4391,9 +4377,9 @@ _.AffineParser = class extends _.Parser {
     }
 
     makeSubExpr(lhs, rhs) {
-        const negOne = _.getAffineConstantExpr(-1);
-        const negRhs = _.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, rhs);
-        return _.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, negRhs);
+        const negOne = this.getAffineConstantExpr(-1);
+        const negRhs = this.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, rhs);
+        return this.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, negRhs);
     }
 
     parseAffineExpr() {
@@ -4487,11 +4473,11 @@ _.AffineParser = class extends _.Parser {
     makeAffineBinaryOp(op, lhs, rhs) {
         if (op === 'Sub') {
             // Subtraction: lhs - rhs = lhs + (-1 * rhs)
-            const negOne = _.getAffineConstantExpr(-1);
-            const negRhs = _.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, rhs);
-            return _.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, negRhs);
+            const negOne = this.getAffineConstantExpr(-1);
+            const negRhs = this.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, rhs);
+            return this.getAffineBinaryOpExpr(_.AffineExprKind.Add, lhs, negRhs);
         }
-        return _.getAffineBinaryOpExpr(op, lhs, rhs);
+        return this.getAffineBinaryOpExpr(op, lhs, rhs);
     }
 
     parseAffineOperandExpr(lhs) {
@@ -4555,8 +4541,8 @@ _.AffineParser = class extends _.Parser {
             this.parseElement(isSymbol);
         }
         const idExpr = isSymbol
-            ? _.getAffineSymbolExpr(this.numSymbolOperands++)
-            : _.getAffineDimExpr(this.numDimOperands++);
+            ? this.getAffineSymbolExpr(this.numSymbolOperands++)
+            : this.getAffineDimExpr(this.numDimOperands++);
         this.dimsAndSymbols.push({ name, expr: idExpr });
         return idExpr;
     }
@@ -4565,7 +4551,7 @@ _.AffineParser = class extends _.Parser {
     parseIntegerExpr() {
         const val = this.expect(_.Token.integer);
         const intVal = typeof val === 'string' ? parseInt(val, 10) : val;
-        return _.getAffineConstantExpr(intVal);
+        return this.getAffineConstantExpr(intVal);
     }
 
     // Parse parenthesized expression
@@ -4585,8 +4571,8 @@ _.AffineParser = class extends _.Parser {
         if (!operand) {
             throw new mlir.Error(`Missing operand of negation ${this.location()}`);
         }
-        const negOne = _.getAffineConstantExpr(-1);
-        return _.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, operand);
+        const negOne = this.getAffineConstantExpr(-1);
+        return this.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, operand);
     }
 
     parseBareIdExpr() {
@@ -4625,6 +4611,22 @@ _.AffineParser = class extends _.Parser {
 
     parseAffineExprOfSSAIds() {
         return this.parseAffineExpr();
+    }
+
+    getAffineDimExpr(position) {
+        return new _.AffineDimExpr(position);
+    }
+
+    getAffineSymbolExpr(position) {
+        return new _.AffineSymbolExpr(position);
+    }
+
+    getAffineConstantExpr(constant) {
+        return new _.AffineConstantExpr(constant);
+    }
+
+    getAffineBinaryOpExpr(kind, lhs, rhs) {
+        return new _.AffineBinaryOpExpr(kind, lhs, rhs);
     }
 };
 
