@@ -178,7 +178,7 @@ onnx.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._name = graph ? graph.name || '' : '';
-        this._description = graph.doc_string || '';
+        this._description = graph ? graph.doc_string || '' : '';
         context = new onnx.Context.Graph(context, graph);
         if (Array.isArray(graph.quantization_annotation)) {
             for (const tensor_annotation of graph.quantization_annotation) {
