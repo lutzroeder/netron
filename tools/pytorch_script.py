@@ -1,6 +1,5 @@
 """ TorchScript metadata script """
 
-import collections
 import json
 import logging
 import os
@@ -425,31 +424,22 @@ def _sort_types(types):
     keys = {}
     index = 0
     for schema in _all_schemas():
-        definition = str(schema)
-        key = _identifier(definition)
-        split = key.split(".")
-        keys[key] = f"{split[0]}.{index}"
-        index += 1
-    classes = collections.OrderedDict()
+        key = _identifier(str(schema))
+        if key not in keys:
+            keys[key] = index
+            index += 1
     for item in types:
-        name = item["name"]
-        if name.find("::") == -1:
-            classes[name] = item
-        else:
-            key = _identifier(name)
-            split = key.split(".")
-            if key not in keys:
-                keys[key] = f"{split[0]}.{index}"
-                index += 1
-    for key, _ in classes.items():
-        keys[key] = f"{index}"
-        index += 1
+        key = _identifier(item["name"])
+        if key not in keys:
+            keys[key] = index
+            index += 1
     def custom_key(x):
-        key = _identifier(x["name"])
-        return keys[key]
-    types = sorted(types, key=custom_key)
-
-    return types
+        name = x["name"]
+        key = _identifier(name)
+        has_namespace = 0 if "::" in name else 1
+        base = key.split(".")[0] if has_namespace == 0 else key
+        return (has_namespace, base, keys.get(key, index))
+    return sorted(types, key=custom_key)
 
 
 def _metadata():
