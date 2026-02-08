@@ -2646,8 +2646,8 @@ _.Lexer = class {
                 result += this._read();
             }
         } else if (result.length === 1) {
-            const errorKinds = { '#': 'invalid attribute name', '%': 'invalid SSA name', '^': 'invalid block name', '!': 'invalid type identifier' };
-            throw new mlir.Error(`${errorKinds[prefix] || 'invalid identifier'} ${this.location()}`);
+            const errorKinds = { '#': 'Invalid attribute name', '%': 'Invalid SSA name', '^': 'Invalid block name', '!': 'Invalid type identifier' };
+            throw new mlir.Error(`${errorKinds[prefix] || 'Invalid identifier'} ${this.location()}`);
         }
         if (prefix === '@' && this._current === ':' && this._peek() === ':') {
             result += this._read();
@@ -2795,7 +2795,7 @@ _.Parser = class {
     }
 
     parseResourceFileMetadata(parseBody) {
-        this.parseToken(_.Token.l_brace, "expected '{'");
+        this.parseToken(_.Token.l_brace, "Expected '{'");
         this.parseCommaSeparatedListUntil(_.Token.r_brace, () => {
             const nameLoc = this.getToken().loc;
             const name = this.parseOptionalKeyword();
@@ -2818,7 +2818,7 @@ _.Parser = class {
                 const keyLoc = this.getToken().loc.copy();
                 const handle = this.parseResourceHandle(dialect);
                 const key = dialect.getResourceKey(handle);
-                this.parseToken(_.Token.colon, "expected ':'");
+                this.parseToken(_.Token.colon, "Expected ':'");
                 const valueTok = this.getToken();
                 this.consumeToken();
                 const entry = new _.ParsedResourceEntry.Text(key, keyLoc, valueTok, this);
@@ -2836,7 +2836,7 @@ _.Parser = class {
                 if (!key) {
                     throw new mlir.Error(`Expected identifier key for 'external_resources' entry ${this.location()}`);
                 }
-                this.parseToken(_.Token.colon, "expected ':'");
+                this.parseToken(_.Token.colon, "Expected ':'");
                 const valueTok = this.getToken();
                 this.consumeToken();
                 if (handler && handler.parseResource) {
@@ -2876,12 +2876,12 @@ _.Parser = class {
     }
 
     parseTypeListParens() {
-        this.parseToken(_.Token.l_paren, "expected '('");
+        this.parseToken(_.Token.l_paren, "Expected '('");
         if (this.consumeIf(_.Token.r_paren)) {
             return [];
         }
         const types = this.parseTypeListNoParens();
-        this.parseToken(_.Token.r_paren, "expected ')'");
+        this.parseToken(_.Token.r_paren, "Expected ')'");
         return types;
     }
 
@@ -2995,14 +2995,14 @@ _.Parser = class {
 
     parseCallSiteLocation() {
         this.consumeToken(_.Token.bare_identifier);
-        this.parseToken(_.Token.l_paren, "expected '(' in callsite location");
+        this.parseToken(_.Token.l_paren, "Expected '(' in callsite location");
         const callee = this.parseLocationInstance();
         if (this.getToken().isNot(_.Token.bare_identifier) || this.getToken().getSpelling().str() !== 'at') {
             throw new mlir.Error(`Expected 'at' in callsite location ${this.location()}`);
         }
         this.consumeToken(_.Token.bare_identifier);
         const caller = this.parseLocationInstance();
-        this.parseToken(_.Token.r_paren, "expected ')' in callsite location");
+        this.parseToken(_.Token.r_paren, "Expected ')' in callsite location");
         return new _.CallSiteLoc(callee, caller);
     }
 
@@ -3014,7 +3014,7 @@ _.Parser = class {
             if (!metadata) {
                 throw new mlir.Error(`Expected attribute in fused location metadata ${this.location()}`);
             }
-            this.parseToken(_.Token.greater, "expected '>' after fused location metadata");
+            this.parseToken(_.Token.greater, "Expected '>' after fused location metadata");
         }
         const locations = this.parseCommaSeparatedList('square', () => this.parseLocationInstance());
         return new _.FusedLoc(locations, metadata);
@@ -3051,20 +3051,20 @@ _.Parser = class {
             if (this.getToken().is(_.Token.integer)) {
                 endLine = this.getToken().getUnsignedIntegerValue();
                 if (endLine === null) {
-                    throw new mlir.Error(`expected integer line number in FileLineColRange ${this.location()}`);
+                    throw new mlir.Error(`Expected integer line number in FileLineColRange ${this.location()}`);
                 }
                 this.consumeToken(_.Token.integer);
             }
             if (this.getToken().isNot(_.Token.colon)) {
-                throw new mlir.Error(`expected either integer or ':' post 'to' in FileLineColRange ${this.location()}`);
+                throw new mlir.Error(`Expected either integer or ':' post 'to' in FileLineColRange ${this.location()}`);
             }
             this.consumeToken(_.Token.colon);
             if (this.getToken().isNot(_.Token.integer)) {
-                throw new mlir.Error(`expected integer column number in FileLineColRange ${this.location()}`);
+                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
             }
             const endCol = this.getToken().getUnsignedIntegerValue();
             if (endCol === null) {
-                throw new mlir.Error(`expected integer column number in FileLineColRange ${this.location()}`);
+                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
             }
             this.consumeToken(_.Token.integer);
             if (endLine !== null) {
@@ -3074,7 +3074,7 @@ _.Parser = class {
         }
         if (this.consumeIf(_.Token.l_paren)) {
             const childLoc = this.parseLocationInstance();
-            this.parseToken(_.Token.r_paren, "expected ')' after child location of NameLoc");
+            this.parseToken(_.Token.r_paren, "Expected ')' after child location of NameLoc");
             return new _.NameLoc(str, childLoc);
         }
         return new _.NameLoc(str);
@@ -3239,7 +3239,7 @@ _.Parser = class {
         if (elementType instanceof _.NoneType || elementType instanceof _.FunctionType ||
             elementType instanceof _.TupleType || elementType instanceof _.RankedTensorType ||
             elementType instanceof _.UnrankedTensorType) {
-            throw new mlir.Error(`invalid memref element type ${this.location()}`);
+            throw new mlir.Error(`Invalid memref element type ${this.location()}`);
         }
         let layout = null;
         let memorySpace = null;
@@ -3249,19 +3249,19 @@ _.Parser = class {
             if (isLayout) {
                 layout = attr;
                 if (isUnranked) {
-                    throw new mlir.Error(`cannot have affine map for unranked memref type ${this.location()}`);
+                    throw new mlir.Error(`Cannot have affine map for unranked memref type ${this.location()}`);
                 }
                 if (memorySpace) {
-                    throw new mlir.Error(`expected memory space to be last in memref type ${this.location()}`);
+                    throw new mlir.Error(`Expected memory space to be last in memref type ${this.location()}`);
                 }
             } else {
                 if (memorySpace) {
-                    throw new mlir.Error(`multiple memory spaces specified in memref type ${this.location()}`);
+                    throw new mlir.Error(`Multiple memory spaces specified in memref type ${this.location()}`);
                 }
                 memorySpace = attr;
             }
         }
-        this.parseToken(_.Token.greater, "expected '>' in memref type");
+        this.parseToken(_.Token.greater, "Expected '>' in memref type");
         if (isUnranked) {
             return new _.UnrankedMemRefType(elementType, memorySpace);
         }
@@ -3269,30 +3269,30 @@ _.Parser = class {
     }
 
     parseVectorType() {
-        this.parseToken(_.Token.less, "expected '<' in vector type");
+        this.parseToken(_.Token.less, "Expected '<' in vector type");
         const dimInfo = this.parseVectorDimensionList();
         const elementType = this.parseType();
-        this.parseToken(_.Token.greater, "expected '>' in vector type");
+        this.parseToken(_.Token.greater, "Expected '>' in vector type");
         return new _.VectorType(dimInfo.dimensions, elementType, dimInfo.scalableDims);
     }
 
     parseComplexType() {
-        this.parseToken(_.Token.less, "expected '<' in complex type");
+        this.parseToken(_.Token.less, "Expected '<' in complex type");
         const elementType = this.parseType();
         if (!(elementType instanceof _.FloatType) && !(elementType instanceof _.IntegerType)) {
-            throw new mlir.Error(`invalid element type for complex ${this.location()}`);
+            throw new mlir.Error(`Invalid element type for complex ${this.location()}`);
         }
-        this.parseToken(_.Token.greater, "expected '>' in complex type");
+        this.parseToken(_.Token.greater, "Expected '>' in complex type");
         return new _.ComplexType(elementType);
     }
 
     parseTupleType() {
-        this.parseToken(_.Token.less, "expected '<' in tuple type");
+        this.parseToken(_.Token.less, "Expected '<' in tuple type");
         if (this.accept(_.Token.greater)) {
             return new _.TupleType([]);
         }
         const types = this.parseCommaSeparatedList('none', () => this.parseType());
-        this.parseToken(_.Token.greater, "expected '>' in tuple type");
+        this.parseToken(_.Token.greater, "Expected '>' in tuple type");
         return new _.TupleType(types);
     }
 
@@ -3378,10 +3378,10 @@ _.Parser = class {
             case _.Token.inttype: {
                 const width = this.getToken().getIntTypeBitwidth();
                 if (width === null) {
-                    throw new mlir.Error(`invalid integer width ${this.location()}`);
+                    throw new mlir.Error(`Invalid integer width ${this.location()}`);
                 }
                 if (width > _.IntegerType.kMaxWidth) {
-                    throw new mlir.Error(`integer bitwidth is limited to ${_.IntegerType.kMaxWidth} bits ${this.location()}`);
+                    throw new mlir.Error(`Integer bitwidth is limited to ${_.IntegerType.kMaxWidth} bits ${this.location()}`);
                 }
                 const signedness = this.getToken().getIntTypeSignedness();
                 this.consumeToken(_.Token.inttype);
@@ -3505,7 +3505,7 @@ _.Parser = class {
 
     parseFunctionType() {
         const inputs = this.parseTypeListParens();
-        this.parseToken(_.Token.arrow, "expected '->' in function type");
+        this.parseToken(_.Token.arrow, "Expected '->' in function type");
         const results = this.parseFunctionResultTypes();
         return new _.FunctionType(inputs, results);
     }
@@ -3614,16 +3614,16 @@ _.Parser = class {
         switch (this.getToken().kind) {
             case _.Token.kw_affine_map: {
                 this.consumeToken(_.Token.kw_affine_map);
-                this.parseToken(_.Token.less, "expected '<' in affine map");
+                this.parseToken(_.Token.less, "Expected '<' in affine map");
                 const map = this.parseAffineMapReference();
-                this.parseToken(_.Token.greater, "expected '>' in affine map");
+                this.parseToken(_.Token.greater, "Expected '>' in affine map");
                 return new _.AffineMapAttr(map);
             }
             case _.Token.kw_affine_set: {
                 this.consumeToken(_.Token.kw_affine_set);
-                this.parseToken(_.Token.less, "expected '<' in integer set");
+                this.parseToken(_.Token.less, "Expected '<' in integer set");
                 const set = this.parseIntegerSetReference();
-                this.parseToken(_.Token.greater, "expected '>' in integer set");
+                this.parseToken(_.Token.greater, "Expected '>' in integer set");
                 return new _.IntegerSetAttr(set);
             }
             case _.Token.l_square: {
@@ -3793,12 +3793,12 @@ _.Parser = class {
 
     parseDenseElementsAttr(attrType) {
         this.consumeToken(_.Token.kw_dense);
-        this.parseToken(_.Token.less, "expected '<' after 'dense'");
+        this.parseToken(_.Token.less, "Expected '<' after 'dense'");
         let literalParser = null;
         if (!this.consumeIf(_.Token.greater)) {
             literalParser = new _.TensorLiteralParser(this);
             literalParser.parse(/* allowHex */ true);
-            this.parseToken(_.Token.greater, "expected '>'");
+            this.parseToken(_.Token.greater, "Expected '>'");
         }
         const type = this.parseElementsLiteralType(attrType);
         const value = literalParser ? literalParser.getAttr(type) : null;
@@ -3807,12 +3807,12 @@ _.Parser = class {
 
     parseDenseResourceElementsAttr(attrType) {
         this.consumeToken(_.Token.kw_dense_resource);
-        this.parseToken(_.Token.less, "expected '<' after 'dense_resource'");
+        this.parseToken(_.Token.less, "Expected '<' after 'dense_resource'");
         const rawHandle = this.parseResourceHandle(this.context.getOrLoadDialect('builtin'));
-        this.parseToken(_.Token.greater, "expected '>'");
+        this.parseToken(_.Token.greater, "Expected '>'");
         let type = attrType;
         if (!type) {
-            this.parseToken(_.Token.colon, "expected ':'");
+            this.parseToken(_.Token.colon, "Expected ':'");
             type = this.parseType();
         }
         return new _.DenseResourceElementsAttr(type, rawHandle);
@@ -3820,7 +3820,7 @@ _.Parser = class {
 
     parseDenseArrayAttr(/* attrType */) {
         this.consumeToken(_.Token.kw_array);
-        this.parseToken(_.Token.less, "expected '<' after 'array'");
+        this.parseToken(_.Token.less, "Expected '<' after 'array'");
         const arrayType = this.parseType();
         if (!(arrayType instanceof _.IntegerType) && !(arrayType instanceof _.FloatType)) {
             throw new mlir.Error(`Expected integer or float type, got '${arrayType}' ${this.location()}`);
@@ -3837,13 +3837,13 @@ _.Parser = class {
                 this.consumeIf(_.Token.comma);
             }
         }
-        this.parseToken(_.Token.greater, "expected '>' to close an array attribute");
+        this.parseToken(_.Token.greater, "Expected '>' to close an array attribute");
         return new _.DenseArrayAttr(arrayType, arrayValues.length, arrayValues);
     }
 
     parseSparseElementsAttr(attrType) {
         this.consumeToken(_.Token.kw_sparse);
-        this.parseToken(_.Token.less, "expected '<' after 'sparse'");
+        this.parseToken(_.Token.less, "Expected '<' after 'sparse'");
         let indices = null;
         let values = null;
         if (!this.consumeIf(_.Token.greater)) {
@@ -3854,7 +3854,7 @@ _.Parser = class {
                 const val = elem.isNegative ? -elem.value : elem.value;
                 return typeof val === 'string' ? parseInt(val, 10) : val;
             });
-            this.parseToken(_.Token.comma, "expected ','");
+            this.parseToken(_.Token.comma, "Expected ','");
             const valuesParser = new _.TensorLiteralParser(this);
             valuesParser.parse(/* allowHex */ true);
             if (valuesParser._hexStorage) {
@@ -3869,7 +3869,7 @@ _.Parser = class {
                     return typeof val === 'string' ? parseFloat(val) : val;
                 });
             }
-            this.parseToken(_.Token.greater, "expected '>'");
+            this.parseToken(_.Token.greater, "Expected '>'");
         }
         const type = this.parseElementsLiteralType(attrType);
         return new _.SparseElementsAttr(type, indices, values);
@@ -3877,8 +3877,8 @@ _.Parser = class {
 
     parseStridedLayoutAttr() {
         this.consumeToken(_.Token.kw_strided);
-        this.parseToken(_.Token.less, "expected '<' after 'strided'");
-        this.parseToken(_.Token.l_square, "expected '['");
+        this.parseToken(_.Token.less, "Expected '<' after 'strided'");
+        this.parseToken(_.Token.l_square, "Expected '['");
         // Parse dimension list: integer or '?' separated by commas
         const strides = [];
         while (!this.match(_.Token.r_square)) {
@@ -3894,11 +3894,11 @@ _.Parser = class {
                 this.consumeIf(_.Token.comma);
             }
         }
-        this.parseToken(_.Token.r_square, "expected ']'");
+        this.parseToken(_.Token.r_square, "Expected ']'");
         let offset = null;
         if (this.consumeIf(_.Token.comma)) {
-            this.parseToken('kw_offset', "expected 'offset' after comma");
-            this.parseToken(_.Token.colon, "expected ':' after 'offset'");
+            this.parseToken('kw_offset', "Expected 'offset' after comma");
+            this.parseToken(_.Token.colon, "Expected ':' after 'offset'");
             offset = this.parseOptionalInteger();
             if (offset === null) {
                 if (this.consumeIf(_.Token.question)) {
@@ -3908,7 +3908,7 @@ _.Parser = class {
                 }
             }
         }
-        this.parseToken(_.Token.greater, "expected '>'");
+        this.parseToken(_.Token.greater, "Expected '>'");
         // Build canonical string representation
         const stridesStr = `[${strides.join(', ')}]`;
         const offsetStr = offset === null ? '' : `, offset: ${offset}`;
@@ -3953,7 +3953,7 @@ _.Parser = class {
 
     parseDistinctAttr(type) {
         this.consumeToken(_.Token.kw_distinct);
-        this.parseToken(_.Token.l_square, "expected '[' after 'distinct'");
+        this.parseToken(_.Token.l_square, "Expected '[' after 'distinct'");
         if (this.getToken().isNot(_.Token.integer)) {
             throw new mlir.Error(`Expected distinct ID ${this.location()}`);
         }
@@ -3963,21 +3963,21 @@ _.Parser = class {
             throw new mlir.Error(`Expected an unsigned 64-bit integer ${this.location()}`);
         }
         this.consumeToken(_.Token.integer);
-        this.parseToken(_.Token.r_square, "expected ']' to close distinct ID");
-        this.parseToken(_.Token.less, "expected '<' after distinct ID");
+        this.parseToken(_.Token.r_square, "Expected ']' to close distinct ID");
+        this.parseToken(_.Token.less, "Expected '<' after distinct ID");
         let referencedAttr = null;
         if (this.consumeIf(_.Token.greater)) {
             referencedAttr = new _.UnitAttr();
         } else {
             referencedAttr = this.parseAttribute(type);
-            this.parseToken(_.Token.greater, "expected '>' to close distinct attribute");
+            this.parseToken(_.Token.greater, "Expected '>' to close distinct attribute");
         }
         return { value: `distinct[${id.toString()}]`, referencedAttr, type: 'distinct' };
     }
 
     parseElementsLiteralType(type) {
         if (!type) {
-            this.parseToken(_.Token.colon, "expected ':'");
+            this.parseToken(_.Token.colon, "Expected ':'");
             return this.parseType();
         }
         // Type is a concrete type object - use it directly
@@ -4234,7 +4234,7 @@ _.TopLevelOperationParser = class extends _.Parser {
             if (!key) {
                 throw new mlir.Error(`Expected identifier key in file metadata dictionary ${this.location()}`);
             }
-            this.parseToken(_.Token.colon, "expected ':'");
+            this.parseToken(_.Token.colon, "Expected ':'");
             if (key === 'dialect_resources') {
                 this.parseDialectResourceFileMetadata();
             } else if (key === 'external_resources') {
@@ -5683,7 +5683,7 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
 
     resolveOperands(operands, types, result) {
         if (!Array.isArray(operands)) {
-            throw new mlir.Error(`resolveOperands expects array of operands, got ${typeof operands}`);
+            throw new mlir.Error(`Unexpected operands type '${typeof operands}'.`);
         }
         if (!Array.isArray(types)) {
             return;
@@ -5873,9 +5873,9 @@ _.TensorLiteralParser = class {
             case _.Token.l_paren:
                 this._parser.consumeToken(_.Token.l_paren);
                 this.parseElement();
-                this._parser.parseToken(_.Token.comma, "expected ',' between complex elements");
+                this._parser.parseToken(_.Token.comma, "Expected ',' between complex elements");
                 this.parseElement();
-                this._parser.parseToken(_.Token.r_paren, "expected ')' after complex elements");
+                this._parser.parseToken(_.Token.r_paren, "Expected ')' after complex elements");
                 break;
             default:
                 throw new mlir.Error(`Expected element literal of primitive type ${this._parser.location()}`);
@@ -23751,7 +23751,7 @@ _.TransformDialect = class extends _.Dialect {
         const funcType = parser.parseType();
         if (funcType instanceof _.FunctionType) {
             if (funcType.inputs.length !== 1 || funcType.results.length !== 1) {
-                throw new mlir.Error(`expects a trailing functional type with one argument and one result`);
+                throw new mlir.Error(`Expected a trailing functional type with one argument and one result.`);
             }
             targetTypes.push(funcType.inputs[0]);
             tileSizesTypes.push(funcType.results[0]);
@@ -23763,7 +23763,7 @@ _.TransformDialect = class extends _.Dialect {
         const funcType = parser.parseType();
         if (funcType instanceof _.FunctionType) {
             if (funcType.inputs.length !== 1 || funcType.results.length !== 1) {
-                throw new mlir.Error(`expects a trailing functional type with one argument and one result`);
+                throw new mlir.Error(`Expected a trailing functional type with one argument and one result.`);
             }
             targetTypes.push(funcType.inputs[0]);
             lowSizeTypes.push(funcType.results[0]);
