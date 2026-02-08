@@ -1,411 +1,5 @@
 [
   {
-    "name": "__torch__.torch.classes.rnn.CellParamsBase",
-    "inputs": [
-      { "name": "type", "type": "string" },
-      { "name": "tensors", "type": "Tensor[]" },
-      { "name": "doubles", "type": "float64[]" },
-      { "name": "longs", "type": "int64[]" },
-      { "name": "packed_params", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase[]" }
-    ]
-  },
-  {
-    "name": "__torch__.torch.classes.xnnpack.Conv2dOpContext",
-    "inputs": [
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true },
-      { "name": "stride", "type": "int64[]" },
-      { "name": "padding", "type": "int64[]" },
-      { "name": "dilation", "type": "int64[]" },
-      { "name": "groups", "type": "int64" },
-      { "name": "output_min", "type": "int64[]", "optional": true },
-      { "name": "output_max", "type": "int64[]", "optional": true }
-    ]
-  },
-  {
-    "name": "__torch__.torch.classes.xnnpack.LinearOpContext",
-    "inputs": [
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true },
-      { "name": "output_min", "type": "int64[]", "optional": true },
-      { "name": "output_max", "type": "int64[]", "optional": true }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.activation.ELU",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.GELU",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.GLU",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Hardsigmoid",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Hardswish",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Hardtanh",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.LeakyReLU",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.LogSoftmax",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.PReLU",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.ReLU",
-    "category": "Activation",
-    "inputs": [
-      { "name": "inplace", "default": false, "visible": false },
-      { "name": "threshold", "default": 0 },
-      { "name": "value", "default": 0 }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.activation.ReLU6",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.SiLU",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Sigmoid",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Softmax",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Softmax2d",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Softplus",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.activation.Tanh",
-    "category": "Activation"
-  },
-  {
-    "name": "torch.nn.modules.batchnorm.BatchNorm1d",
-    "category": "Normalization"
-  },
-  {
-    "name": "torch.nn.modules.batchnorm.BatchNorm2d",
-    "category": "Normalization",
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" },
-      { "name": "running_mean" },
-      { "name": "running_var" },
-      { "name": "num_batches_tracked", "visible": false },
-      { "name": "eps", "default": 1e-05 },
-      { "name": "momentum", "default": 0.1 },
-      { "name": "affine", "default": true },
-      { "name": "track_running_stats", "default": true }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.conv.Conv1d",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" },
-      { "name": "output_padding", "visible": false },
-      { "name": "in_channels", "visible": false },
-      { "name": "out_channels", "visible": false },
-      { "name": "groups", "default": 1 },
-      { "name": "transposed", "default": false },
-      { "name": "padding", "default": [   0 ] },
-      { "name": "dilation", "default": [   1 ] },
-      { "name": "stride", "default": [   1 ] }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.conv.Conv2d",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" },
-      { "name": "output_padding", "visible": false },
-      { "name": "in_channels", "visible": false },
-      { "name": "out_channels", "visible": false },
-      { "name": "groups", "default": 1 },
-      { "name": "transposed", "default": false },
-      { "name": "padding", "default": [   0,   0 ] },
-      { "name": "dilation", "default": [   1,   1 ] },
-      { "name": "stride", "default": [   1,   1 ] }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.conv.Conv3d",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.conv.ConvTranspose1d",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" },
-      { "name": "output_padding", "visible": false },
-      { "name": "in_channels", "visible": false },
-      { "name": "out_channels", "visible": false },
-      { "name": "groups", "default": 1 },
-      { "name": "transposed", "default": true },
-      { "name": "padding", "default": [   0 ] },
-      { "name": "dilation", "default": [   1 ] },
-      { "name": "stride", "default": [   1 ] }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.conv.ConvTranspose2d",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" },
-      { "name": "output_padding", "visible": false },
-      { "name": "in_channels", "visible": false },
-      { "name": "out_channels", "visible": false },
-      { "name": "groups", "default": 1 },
-      { "name": "transposed", "default": true },
-      { "name": "padding", "default": [   0,   0 ] },
-      { "name": "dilation", "default": [   1,   1 ] },
-      { "name": "stride", "default": [   1,   1 ] }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.conv.ConvTranspose3d",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.dropout.Dropout",
-    "category": "Dropout",
-    "inputs": [
-      { "name": "inplace", "default": false, "visible": false },
-      { "name": "p", "default": 0.5 }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.dropout.Dropout2d",
-    "category": "Dropout",
-    "inputs": [
-      { "name": "inplace", "default": false, "visible": false },
-      { "name": "p", "default": 0.5 }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.instancenorm.InstanceNorm1d"
-  },
-  {
-    "name": "torch.nn.modules.instancenorm.InstanceNorm2d"
-  },
-  {
-    "name": "torch.nn.modules.instancenorm.InstanceNorm3d"
-  },
-  {
-    "name": "torch.nn.modules.linear.Linear",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.normalization.CrossMapLRN2d",
-    "category": "Normalization",
-    "inputs": [
-      { "name": "alpha", "default": 0.0001 },
-      { "name": "beta", "default": 0.75 },
-      { "name": "k", "default": 1 }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.normalization.GroupNorm",
-    "category": "Normalization"
-  },
-  {
-    "name": "torch.nn.modules.normalization.LayerNorm",
-    "category": "Normalization"
-  },
-  {
-    "name": "torch.nn.modules.padding.ConstantPad1d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ConstantPad2d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ConstantPad3d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ReflectionPad1d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ReflectionPad2d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ReplicationPad1d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ReplicationPad2d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ReplicationPad3d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.padding.ZeroPad2d",
-    "category": "Tensor"
-  },
-  {
-    "name": "torch.nn.modules.pixelshuffle.PixelShuffle"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AdaptiveAvgPool1d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AdaptiveAvgPool2d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AdaptiveAvgPool3d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AdaptiveMaxPool1d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AdaptiveMaxPool2d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AdaptiveMaxPool3d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.AvgPool2d",
-    "category": "Pool",
-    "inputs": [
-      { "name": "padding", "default": 0 },
-      { "name": "count_include_pad", "default": true },
-      { "name": "ceil_mode", "visible": false }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.pooling.AvgPool3d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.MaxPool1d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.MaxPool2d",
-    "category": "Pool",
-    "inputs": [
-      { "name": "input" },
-      { "name": "padding", "default": 0 },
-      { "name": "dilation", "default": 1 },
-      { "name": "return_indices", "default": false },
-      { "name": "ceil_mode", "visible": false }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.pooling.MaxPool3d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.MaxUnpool1d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.MaxUnpool2d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.pooling.MaxUnpool3d",
-    "category": "Pool"
-  },
-  {
-    "name": "torch.nn.modules.rnn.GRU",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.rnn.GRUCell",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.rnn.LSTM",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight_ih_l0", "visible": false },
-      { "name": "weight_hh_l0", "visible": false },
-      { "name": "bias_ih_l0", "visible": false },
-      { "name": "bias_hh_l0", "visible": false },
-      { "name": "weight_ih_l1", "visible": false },
-      { "name": "weight_hh_l1", "visible": false },
-      { "name": "bias_ih_l1", "visible": false },
-      { "name": "bias_hh_l1", "visible": false },
-      { "name": "dropout", "default": 0 },
-      { "name": "dropout_state", "default": {} },
-      { "name": "num_layers", "default": 1 },
-      { "name": "batch_first", "visible": false },
-      { "name": "bidirectional", "visible": false },
-      { "name": "bias", "visible": false }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.rnn.LSTMCell",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.rnn.RNN",
-    "category": "Layer"
-  },
-  {
-    "name": "torch.nn.modules.sparse.Embedding",
-    "category": "Transform",
-    "inputs": [
-      { "name": "norm_type", "default": 2 },
-      { "name": "scale_grad_by_freq", "default": false },
-      { "name": "sparse", "default": false },
-      { "name": "max_norm", "default": null },
-      { "name": "padding_idx", "default": null }
-    ]
-  },
-  {
-    "name": "torch.nn.modules.upsampling.Upsample",
-    "category": "Data"
-  },
-  {
     "name": "_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)"
   },
   {
@@ -8565,19 +8159,19 @@
     "name": "quantized_decomposed::choose_qparams_per_token(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
   },
   {
-    "name": "quantized_decomposed::choose_qparams_per_token_asymmetric.out(Tensor input, ScalarType dtype, *, Tensor(a!) scale_out, Tensor(b!) zero_point_out) -> (Tensor(a!), Tensor(b!))"
+    "name": "quantized_decomposed::choose_qparams_per_token_asymmetric(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
   },
   {
-    "name": "quantized_decomposed::choose_qparams_per_token_asymmetric(Tensor input, ScalarType dtype) -> (Tensor, Tensor)"
+    "name": "quantized_decomposed::choose_qparams_per_token_asymmetric.out(Tensor input, ScalarType dtype, *, Tensor(a!) scale_out, Tensor(b!) zero_point_out) -> (Tensor(a!), Tensor(b!))"
   },
   {
     "name": "quantized_decomposed::choose_qparams_symmetric.tensor(Tensor input, int quant_min, int quant_max, float eps, ScalarType dtype) -> (Tensor, Tensor)"
   },
   {
-    "name": "quantized_decomposed::dequantize_per_channel.out(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
+    "name": "quantized_decomposed::dequantize_per_channel(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
   },
   {
-    "name": "quantized_decomposed::dequantize_per_channel(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None) -> Tensor"
+    "name": "quantized_decomposed::dequantize_per_channel.out(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "quantized_decomposed::dequantize_per_channel_group(Tensor input, Tensor scales, Tensor? zero_points, int quant_min, int quant_max, ScalarType dtype, int group_size, ScalarType output_dtype) -> Tensor"
@@ -8808,5 +8402,411 @@
   },
   {
     "name": "vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor"
+  },
+  {
+    "name": "__torch__.torch.classes.rnn.CellParamsBase",
+    "inputs": [
+      { "name": "type", "type": "string" },
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "doubles", "type": "float64[]" },
+      { "name": "longs", "type": "int64[]" },
+      { "name": "packed_params", "type": "__torch__.torch.classes.quantized.LinearPackedParamsBase[]" }
+    ]
+  },
+  {
+    "name": "__torch__.torch.classes.xnnpack.Conv2dOpContext",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" },
+      { "name": "output_min", "type": "int64[]", "optional": true },
+      { "name": "output_max", "type": "int64[]", "optional": true }
+    ]
+  },
+  {
+    "name": "__torch__.torch.classes.xnnpack.LinearOpContext",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "output_min", "type": "int64[]", "optional": true },
+      { "name": "output_max", "type": "int64[]", "optional": true }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.activation.ELU",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.GELU",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.GLU",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Hardsigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Hardswish",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Hardtanh",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.LeakyReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.LogSoftmax",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.PReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.ReLU",
+    "category": "Activation",
+    "inputs": [
+      { "name": "inplace", "default": false, "visible": false },
+      { "name": "threshold", "default": 0 },
+      { "name": "value", "default": 0 }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.activation.ReLU6",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.SiLU",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Softmax2d",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Softplus",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.activation.Tanh",
+    "category": "Activation"
+  },
+  {
+    "name": "torch.nn.modules.batchnorm.BatchNorm1d",
+    "category": "Normalization"
+  },
+  {
+    "name": "torch.nn.modules.batchnorm.BatchNorm2d",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "running_mean" },
+      { "name": "running_var" },
+      { "name": "num_batches_tracked", "visible": false },
+      { "name": "eps", "default": 1e-05 },
+      { "name": "momentum", "default": 0.1 },
+      { "name": "affine", "default": true },
+      { "name": "track_running_stats", "default": true }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.conv.Conv1d",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "output_padding", "visible": false },
+      { "name": "in_channels", "visible": false },
+      { "name": "out_channels", "visible": false },
+      { "name": "groups", "default": 1 },
+      { "name": "transposed", "default": false },
+      { "name": "padding", "default": [   0 ] },
+      { "name": "dilation", "default": [   1 ] },
+      { "name": "stride", "default": [   1 ] }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.conv.Conv2d",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "output_padding", "visible": false },
+      { "name": "in_channels", "visible": false },
+      { "name": "out_channels", "visible": false },
+      { "name": "groups", "default": 1 },
+      { "name": "transposed", "default": false },
+      { "name": "padding", "default": [   0,   0 ] },
+      { "name": "dilation", "default": [   1,   1 ] },
+      { "name": "stride", "default": [   1,   1 ] }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.conv.Conv3d",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.conv.ConvTranspose1d",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "output_padding", "visible": false },
+      { "name": "in_channels", "visible": false },
+      { "name": "out_channels", "visible": false },
+      { "name": "groups", "default": 1 },
+      { "name": "transposed", "default": true },
+      { "name": "padding", "default": [   0 ] },
+      { "name": "dilation", "default": [   1 ] },
+      { "name": "stride", "default": [   1 ] }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.conv.ConvTranspose2d",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "output_padding", "visible": false },
+      { "name": "in_channels", "visible": false },
+      { "name": "out_channels", "visible": false },
+      { "name": "groups", "default": 1 },
+      { "name": "transposed", "default": true },
+      { "name": "padding", "default": [   0,   0 ] },
+      { "name": "dilation", "default": [   1,   1 ] },
+      { "name": "stride", "default": [   1,   1 ] }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.conv.ConvTranspose3d",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.dropout.Dropout",
+    "category": "Dropout",
+    "inputs": [
+      { "name": "inplace", "default": false, "visible": false },
+      { "name": "p", "default": 0.5 }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.dropout.Dropout2d",
+    "category": "Dropout",
+    "inputs": [
+      { "name": "inplace", "default": false, "visible": false },
+      { "name": "p", "default": 0.5 }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.instancenorm.InstanceNorm1d"
+  },
+  {
+    "name": "torch.nn.modules.instancenorm.InstanceNorm2d"
+  },
+  {
+    "name": "torch.nn.modules.instancenorm.InstanceNorm3d"
+  },
+  {
+    "name": "torch.nn.modules.linear.Linear",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.normalization.CrossMapLRN2d",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "alpha", "default": 0.0001 },
+      { "name": "beta", "default": 0.75 },
+      { "name": "k", "default": 1 }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.normalization.GroupNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "torch.nn.modules.normalization.LayerNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "torch.nn.modules.padding.ConstantPad1d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ConstantPad2d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ConstantPad3d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ReflectionPad1d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ReflectionPad2d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ReplicationPad1d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ReplicationPad2d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ReplicationPad3d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.padding.ZeroPad2d",
+    "category": "Tensor"
+  },
+  {
+    "name": "torch.nn.modules.pixelshuffle.PixelShuffle"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AdaptiveAvgPool1d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AdaptiveAvgPool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AdaptiveAvgPool3d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AdaptiveMaxPool1d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AdaptiveMaxPool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AdaptiveMaxPool3d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.AvgPool2d",
+    "category": "Pool",
+    "inputs": [
+      { "name": "padding", "default": 0 },
+      { "name": "count_include_pad", "default": true },
+      { "name": "ceil_mode", "visible": false }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.pooling.AvgPool3d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.MaxPool1d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.MaxPool2d",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" },
+      { "name": "padding", "default": 0 },
+      { "name": "dilation", "default": 1 },
+      { "name": "return_indices", "default": false },
+      { "name": "ceil_mode", "visible": false }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.pooling.MaxPool3d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.MaxUnpool1d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.MaxUnpool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.pooling.MaxUnpool3d",
+    "category": "Pool"
+  },
+  {
+    "name": "torch.nn.modules.rnn.GRU",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.rnn.GRUCell",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.rnn.LSTM",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight_ih_l0", "visible": false },
+      { "name": "weight_hh_l0", "visible": false },
+      { "name": "bias_ih_l0", "visible": false },
+      { "name": "bias_hh_l0", "visible": false },
+      { "name": "weight_ih_l1", "visible": false },
+      { "name": "weight_hh_l1", "visible": false },
+      { "name": "bias_ih_l1", "visible": false },
+      { "name": "bias_hh_l1", "visible": false },
+      { "name": "dropout", "default": 0 },
+      { "name": "dropout_state", "default": {} },
+      { "name": "num_layers", "default": 1 },
+      { "name": "batch_first", "visible": false },
+      { "name": "bidirectional", "visible": false },
+      { "name": "bias", "visible": false }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.rnn.LSTMCell",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.rnn.RNN",
+    "category": "Layer"
+  },
+  {
+    "name": "torch.nn.modules.sparse.Embedding",
+    "category": "Transform",
+    "inputs": [
+      { "name": "norm_type", "default": 2 },
+      { "name": "scale_grad_by_freq", "default": false },
+      { "name": "sparse", "default": false },
+      { "name": "max_norm", "default": null },
+      { "name": "padding_idx", "default": null }
+    ]
+  },
+  {
+    "name": "torch.nn.modules.upsampling.Upsample",
+    "category": "Data"
   }
 ]
