@@ -1511,7 +1511,6 @@ _.AffineMap = class {
                 } else if (ch === ')' || ch === ']') {
                     depth--;
                     if (depth === 0) {
-                        // End of results - capture last expression
                         const expr = resultPart.substring(start, i).trim();
                         if (expr) {
                             results.push(expr);
@@ -1519,7 +1518,6 @@ _.AffineMap = class {
                         break;
                     }
                 } else if (ch === ',' && depth === 1) {
-                    // Capture expression before comma
                     const expr = resultPart.substring(start, i).trim();
                     if (expr) {
                         results.push(expr);
@@ -1528,7 +1526,6 @@ _.AffineMap = class {
                 }
             }
         } else {
-            // Single result without parens
             results.push(resultPart);
         }
         // For backward compat, store string representation of results
@@ -3113,7 +3110,6 @@ _.Parser = class {
     }
 
     parseXInDimensionList() {
-        // Parse the 'x' in dimension list (e.g., after '*' in memref<*xf32>)
         // Matches ref impl: if token is 'xf32', reset lexer to after 'x'
         if (!this.match(_.Token.bare_identifier)) {
             return false;
@@ -3825,7 +3821,6 @@ _.Parser = class {
         if (!(arrayType instanceof _.IntegerType) && !(arrayType instanceof _.FloatType)) {
             throw new mlir.Error(`Expected integer or float type, got '${arrayType}' ${this.location()}`);
         }
-        // Check for empty array.
         if (this.consumeIf(_.Token.greater)) {
             return new _.DenseArrayAttr(arrayType, 0, []);
         }
@@ -3849,7 +3844,6 @@ _.Parser = class {
         if (!this.consumeIf(_.Token.greater)) {
             const indiceParser = new _.TensorLiteralParser(this);
             indiceParser.parse(/* allowHex */ false);
-            // Extract raw values from storage objects
             indices = indiceParser._storage.map((elem) => {
                 const val = elem.isNegative ? -elem.value : elem.value;
                 return typeof val === 'string' ? parseInt(val, 10) : val;
@@ -3909,7 +3903,6 @@ _.Parser = class {
             }
         }
         this.parseToken(_.Token.greater, "Expected '>'");
-        // Build canonical string representation
         const stridesStr = `[${strides.join(', ')}]`;
         const offsetStr = offset === null ? '' : `, offset: ${offset}`;
         return { value: `strided<${stridesStr}${offsetStr}>`, type: 'strided', strides, offset };
@@ -4228,7 +4221,6 @@ _.TopLevelOperationParser = class extends _.Parser {
     parseFileMetadataDictionary() {
         this.consumeToken(_.Token.file_metadata_begin);
         this.parseCommaSeparatedListUntil(_.Token.file_metadata_end, () => {
-            // Parse the key of the metadata dictionary.
             const keyLoc = this.getToken().loc;
             const key = this.parseOptionalKeyword();
             if (!key) {
@@ -4541,13 +4533,11 @@ _.AffineParser = class extends _.Parser {
             throw new mlir.Error(`Expected SSA identifier ${this.location()}`);
         }
         const name = this.expect(_.Token.percent_identifier);
-        // Check if already parsed
         for (const entry of this.dimsAndSymbols) {
             if (entry.name === name) {
                 return entry.expr;
             }
         }
-        // Parse and add new SSA id
         if (this.parseElement) {
             this.parseElement(isSymbol);
         }
@@ -5852,7 +5842,6 @@ _.TensorLiteralParser = class {
                 this._storage.push({ isNegative: false, value, kind });
                 break;
             }
-            // Parse a signed integer or a negative floating-point element.
             case _.Token.minus: {
                 this._parser.consumeToken(_.Token.minus);
                 if (!this._parser.getToken().isAny(_.Token.floatliteral, _.Token.integer)) {
@@ -5919,12 +5908,10 @@ _.TensorLiteralParser = class {
         const convertElement = (elem) => {
             const { isNegative, value, kind } = elem;
 
-            // Validate: negative values not allowed for unsigned types
             if (isNegative && isUnsigned) {
                 throw new mlir.Error(`Expected unsigned integer elements, but parsed negative value`);
             }
 
-            // Validate: boolean elements require i1 type
             if (kind === 'boolean') {
                 if (isInteger && !isI1) {
                     throw new mlir.Error(`Expected i1 type for 'true' or 'false' values`);
@@ -5953,7 +5940,6 @@ _.TensorLiteralParser = class {
                     result = -result;
                 }
             } else {
-                // String or other
                 result = value;
             }
             return result;
@@ -5998,7 +5984,6 @@ _.TensorLiteralParser = class {
             return result;
         }
 
-        // Convert all values
         return this._storage.map(convertElement);
     }
 };
@@ -7002,13 +6987,10 @@ _.BytecodeReader = class {
 
     parseRegion(readState) {
         const reader = readState.reader;
-        // Parse the number of blocks in the region.
         const numBlocks = reader.parseVarInt().toNumber();
-        // If the region is empty, there is nothing else to do.
         if (numBlocks === 0) {
             return false;
         }
-        // Parse the number of values defined in this region.
         const numValues = reader.parseVarInt().toNumber();
         readState.numValues = numValues;
         readState.numBlocks = numBlocks;
@@ -7137,23 +7119,19 @@ _.BytecodeReader = class {
         const numArgs = reader.parseVarInt().toNumber();
         block.arguments = [];
         for (let i = 0; i < numArgs; i++) {
-            // Parse type and location flag: (typeIdx << 1) | hasLocation
             const typeAndLocation = reader.parseVarInt().toNumber();
             const typeIdx = typeAndLocation >> 1;
             const hasLocation = (typeAndLocation & 1) === 1;
             const type = this.attrTypeReader.readType(typeIdx);
-            // Parse location if present
             let location = null;
             if (hasLocation) {
                 const locIdx = reader.parseVarInt().toNumber();
                 location = this.attrTypeReader.readAttribute(locIdx);
             }
-            // Create block argument with name and value for graph linking
             const argName = `%${valueOffset + i}`;
             const arg = new _.Value(argName, type);
             arg.location = location;
             block.arguments.push(arg);
-            // Update the scope so operands can reference this argument
             if (scope && (valueOffset + i) < scope.length) {
                 scope[valueOffset + i] = arg;
             }
@@ -7291,7 +7269,6 @@ _.BytecodeReader = class {
             }
         }
 
-        // Parse operands
         if (opMask & kHasOperands) {
             const numOperands = reader.parseVarInt().toNumber();
             for (let i = 0; i < numOperands; i++) {
@@ -7305,7 +7282,6 @@ _.BytecodeReader = class {
             }
         }
 
-        // Parse successors
         if (opMask & kHasSuccessors) {
             const numSuccessors = reader.parseVarInt().toNumber();
             opState.successors = [];
@@ -7335,7 +7311,6 @@ _.BytecodeReader = class {
         if (useListOrders.length > 0) {
             opState.useListOrders = useListOrders;
         }
-        // Parse inline regions
         let isIsolatedFromAbove = false;
         if (opMask & kHasInlineRegions) {
             const numRegionsAndIsIsolated = reader.parseVarInt();
@@ -9021,7 +8996,6 @@ _.Dialect = class {
                                 break;
                             }
                         }
-                        // Resolve operands with types
                         parser.resolveOperands(successor.arguments, parser.parseOptionalColonTypeList());
                         parser.parseOptionalRParen();
                     }
@@ -9042,7 +9016,6 @@ _.Dialect = class {
             }
             case 'attribute_ref': {
                 const refName = directive.name;
-                // Check if attribute was already parsed in optional group lookahead
                 if (op.attributes.has(refName)) {
                     break;
                 }
@@ -9178,7 +9151,6 @@ _.Dialect = class {
                 break;
             }
             case 'results': {
-                // Parse result types from arguments format and add to types
                 const args = parser.parseArgumentList('none', true);
                 const types = args.map((a) => a.type).filter((t) => t);
                 op.addTypes(types);
@@ -9593,7 +9565,6 @@ _.Dialect = class {
                     } else if (firstElem.type === 'custom') {
                         const fn = this._customDirectives.get(firstElem.parser);
                         if (fn) {
-                            // Resolve custom directive args: $name -> attribute name
                             const resolvedArgs = (firstElem.args || []).map((arg) => typeof arg === 'string' && arg.startsWith('$') ? arg.slice(1) : arg);
                             const result = fn(parser, op, ...resolvedArgs);
                             if (result === null) {
@@ -9656,7 +9627,6 @@ _.Dialect = class {
                 if (matchedFirst && firstElem.type === 'custom') {
                     const fn = this._customDirectives.get(firstElem.parser);
                     if (fn) {
-                        // Resolve custom directive args: $name -> attribute name
                         const resolvedArgs = (firstElem.args || []).map((arg) => {
                             if (typeof arg === 'string' && arg.startsWith('$')) {
                                 return arg.slice(1); // Strip $ prefix to get attribute name
@@ -9914,14 +9884,11 @@ _.Dialect = class {
             }
             parser.expect(closeDelim);
         }
-        // Resolve dynamic operands with index type
         const indexType = new _.IndexType();
         parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
-        // Set static attribute
         if (staticAttrName && staticValues.length > 0) {
             op.addAttribute(staticAttrName, staticValues);
         }
-        // Handle scalable flags if present
         if (scalableFlags.length > 0 && scalableFlags.some((f) => f)) {
             if (!scalableAttrName) {
                 throw new mlir.Error(`Scalable indices found but no scalable attribute name provided ${parser.location()}`);
@@ -9976,7 +9943,6 @@ _.Dialect = class {
             op.addAttribute(typeArg, type);
             if (parser.parseOptionalEqual()) {
                 const attr = parser.parseAttribute();
-                // Handle typed attribute with trailing : type (e.g., -2 : i8)
                 if (parser.parseOptionalColon()) {
                     const attrType = parser.parseType();
                     attr.type = attrType;
@@ -10002,7 +9968,6 @@ _.Dialect = class {
             typeArg[0] = type;
         }
         if (operand) {
-            // Resolve the operand properly
             parser.resolveOperand(operand, null, op.operands);
         }
     }
@@ -10027,7 +9992,6 @@ _.Dialect = class {
 
     parseCmdParameterGatherOperations(parser, op, sourceScopeOps, sourceKeysOps, sourceOffsetsOps, targetOps, targetTypes, targetSizeOps, targetOffsetsOps, targetLengthsOps) {
         do {
-            // Parse parameter reference: %scope::%key or just %key
             const firstOperand = parser.parseOperand();
             let key = firstOperand;
             if (parser.parseOptionalColon()) {
@@ -10036,11 +10000,9 @@ _.Dialect = class {
                 key = parser.parseOperand();
             }
             sourceKeysOps.push(key);
-            // Parse [%source_offset]
             parser.parseLSquare();
             sourceOffsetsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            // Parse -> %target
             parser.expect('->');
             const rowTarget = parser.parseOperand();
             if (targetOps.length === 0) {
@@ -10069,7 +10031,6 @@ _.Dialect = class {
     // Parses: %scope::%key[%offset] -> %target[%offset to %end for %length] : type{%size}, ...
     parseAsyncParameterGatherOperations(parser, op, sourceScopeOps, sourceKeysOps, sourceOffsetsOps, targetOps, targetTypes, targetSizeOps, targetOffsetsOps, targetEndsOps, targetLengthsOps) {
         do {
-            // Parse parameter reference: %scope::%key or just %key
             const firstOperand = parser.parseOperand();
             let key = firstOperand;
             if (parser.parseOptionalColon()) {
@@ -10078,17 +10039,14 @@ _.Dialect = class {
                 key = parser.parseOperand();
             }
             sourceKeysOps.push(key);
-            // Parse [%source_offset]
             parser.parseLSquare();
             sourceOffsetsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            // Parse -> %target
             parser.expect('->');
             const rowTarget = parser.parseOperand();
             if (targetOps.length === 0) {
                 targetOps.push(rowTarget);
             }
-            // Parse [%offset to %end for %length]
             parser.parseLSquare();
             targetOffsetsOps.push(parser.parseOperand());
             parser.parseKeyword('to');
@@ -10096,7 +10054,6 @@ _.Dialect = class {
             parser.parseKeyword('for');
             targetLengthsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            // Parse : type{%size}
             parser.parseColon();
             const rowType = parser.parseType();
             if (targetTypes.length === 0) {
@@ -10115,18 +10072,15 @@ _.Dialect = class {
     // Parses: %source[%offset for %length] : type{%size} -> %scope::%key[%offset], ...
     parseCmdParameterScatterOperations(parser, op, sourceOps, sourceTypes, sourceSizeOps, sourceOffsetsOps, sourceLengthsOps, targetScopeOps, targetKeysOps, targetOffsetsOps) {
         do {
-            // Parse source operand
             const rowSource = parser.parseOperand();
             if (sourceOps.length === 0) {
                 sourceOps.push(rowSource);
             }
-            // Parse [%offset for %length]
             parser.parseLSquare();
             sourceOffsetsOps.push(parser.parseOperand());
             parser.parseKeyword('for');
             sourceLengthsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            // Parse : type{%size}
             parser.parseColon();
             const rowType = parser.parseType();
             if (sourceTypes.length === 0) {
@@ -10158,12 +10112,10 @@ _.Dialect = class {
     // Parses: %source[%offset to %end for %length] : type{%size} -> %scope::%key[%offset], ...
     parseAsyncParameterScatterOperations(parser, op, sourceOps, sourceTypes, sourceSizeOps, sourceOffsetsOps, sourceEndsOps, sourceLengthsOps, targetScopeOps, targetKeysOps, targetOffsetsOps) {
         do {
-            // Parse source operand
             const rowSource = parser.parseOperand();
             if (sourceOps.length === 0) {
                 sourceOps.push(rowSource);
             }
-            // Parse [%offset to %end for %length]
             parser.parseLSquare();
             sourceOffsetsOps.push(parser.parseOperand());
             parser.parseKeyword('to');
@@ -10171,7 +10123,6 @@ _.Dialect = class {
             parser.parseKeyword('for');
             sourceLengthsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            // Parse : type{%size}
             parser.parseColon();
             const rowType = parser.parseType();
             if (sourceTypes.length === 0) {
@@ -10607,7 +10558,6 @@ _.HLODialect = class extends _.Dialect {
             parser.parseRSquare();
             result.addAttribute('dimensions', createDimensions(dimensions));
             parser.parseOptionalAttrDict(result.attributes);
-            // Parse function type: (input types) -> result types
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (type instanceof _.FunctionType) {
@@ -10696,7 +10646,6 @@ _.HLODialect = class extends _.Dialect {
 
     // Parse scan operation format: scan (%inputs) inits (%inits) dimension=0 { body } : types
     parseScanOp(parser, result /*, returnOpName */) {
-        // Parse inputs: (%input1, %input2, ...)
         parser.parseLParen();
         const unresolvedInputs = [];
         while (!parser.match(')')) {
@@ -10707,7 +10656,6 @@ _.HLODialect = class extends _.Dialect {
         }
         parser.parseRParen();
 
-        // Parse inits: inits (%init1, %init2, ...)
         parser.parseKeyword('inits');
         parser.parseLParen();
         const unresolvedInits = [];
@@ -10719,7 +10667,6 @@ _.HLODialect = class extends _.Dialect {
         }
         parser.parseRParen();
 
-        // Parse dimension attribute: dimension=0 or dimension = 0
         parser.parseKeyword('dimension');
         parser.parseOptionalEqual();
         const dimension = parser.expect('int');
@@ -10738,7 +10685,6 @@ _.HLODialect = class extends _.Dialect {
             }
         }
 
-        // Parse body region
         const region = result.addRegion();
         parser.parseRegion(region, undefined, true); // IsolatedFromAbove
 
@@ -10784,7 +10730,6 @@ _.StableHLODialect = class extends _.HLODialect {
                 if (value) {
                     result.addAttribute('value', value);
                 }
-                // Parse result type - either explicit `: type` or from value's type
                 const types = parser.parseOptionalColonTypeList();
                 if (types.length > 0) {
                     result.addTypes([types[0]]);
@@ -10795,8 +10740,6 @@ _.StableHLODialect = class extends _.HLODialect {
             return true;
         }
         if (result.op === 'stablehlo.while' && parser.match('(')) {
-            // Parse while operands: (%arg0 = %init_i, %arg1 = %init_sum)
-            // %arg0/%arg1 are block argument names, %init_i/%init_sum are actual operands
             const unresolvedOperands = [];
             parser.parseOptionalLParen();
             while (!parser.match(')')) {
@@ -10815,9 +10758,7 @@ _.StableHLODialect = class extends _.HLODialect {
                         break;
                     }
                 }
-                // Resolve operands with types and push to result.operands
                 parser.resolveOperands(unresolvedOperands, types, result.operands);
-                // Add result types (same as operand types for while)
                 for (const type of types) {
                     result.addTypes([type]);
                 }
@@ -10978,7 +10919,6 @@ _.AffineDialect = class extends _.Dialect {
             const unresolvedSyms = parser.parseOperandList('optionalSquare');
             parser.resolveOperands(unresolvedSyms, unresolvedSyms.map(() => indexType), result.operands);
             parser.parseOptionalAttrDict(result.attributes);
-            // Add result type (index)
             result.addTypes([indexType]);
             return true;
         }
@@ -11079,7 +11019,6 @@ _.AffineDialect = class extends _.Dialect {
             }
         }
         if (parser.parseOptionalKeyword('iter_args')) {
-            // Collect unresolved iter operands and resolve with types from arrow list
             const unresolvedIterOperands = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
@@ -11099,7 +11038,6 @@ _.AffineDialect = class extends _.Dialect {
             }
             const iterTypes = parser.parseOptionalArrowTypeList();
             result.addTypes(iterTypes);
-            // Resolve iter operands with the parsed types
             parser.resolveOperands(unresolvedIterOperands, iterTypes, result.operands);
         }
         if (parser.match('{')) {
@@ -11320,7 +11258,6 @@ _.MemRefDialect = class extends _.Dialect {
         const type = parser.parseType();
         op.addAttribute(typeAttr, { value: type, type: 'type' });
 
-        // Parse optional initializer: = <value> or = uninitialized
         if (parser.parseOptionalEqual()) {
             if (parser.parseOptionalKeyword('uninitialized')) {
                 op.addAttribute(initialValueAttr, 'uninitialized');
@@ -11421,12 +11358,10 @@ _.MemRefDialect = class extends _.Dialect {
     }
 
     parseGenericAtomicRMWOp(parser, result) {
-        // Collect unresolved operands first
         const memref = parser.parseOperand();
         const indices = parser.parseOperandList('square');
         parser.parseColon();
         const memrefType = parser.parseType();
-        // Resolve operands with types and push to result.operands
         parser.resolveOperand(memref, memrefType, result.operands);
         const indexType = new _.IndexType();
         const indexTypes = indices.map(() => indexType);
@@ -11442,8 +11377,6 @@ _.MemRefDialect = class extends _.Dialect {
 
     parseTransposeOp(parser, result) {
         const operand = parser.parseOperand();
-        // Parse affine map permutation: (d0, d1) -> (d1, d0)
-        // This is a bare affine map, not wrapped in affine_map<...>
         const dims = parser.skip('(');
         parser.expect('->');
         const results = parser.skip('(');
@@ -11529,7 +11462,6 @@ _.VectorDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'vector.mask') {
-            // Parse operands into local variables
             let mask = null;
             let passthru = null;
             let hasPassthru = false;
@@ -11606,7 +11538,6 @@ _.VectorDialect = class extends _.Dialect {
         const indexType = new _.IndexType();
         let numStaticIndices = 0;
 
-        // Parse indices: [0, 1, ...]
         if (parser.parseOptionalLSquare()) {
             while (!parser.match(']')) {
                 const staticIndex = parser.parseOptionalInteger();
@@ -11625,11 +11556,9 @@ _.VectorDialect = class extends _.Dialect {
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
         }
-        // Parse type signature: : result_type [from source_type]
         if (parser.parseOptionalColon()) {
             const resultType = parser.parseType();
 
-            // Check for 'from' keyword (new syntax)
             if (parser.parseOptionalKeyword('from')) {
                 const sourceType = parser.parseType();
                 parser.resolveOperand(unresolvedSource, sourceType, result.operands);
@@ -11654,7 +11583,6 @@ _.VectorDialect = class extends _.Dialect {
                     result.addTypes([resultType]);
                 }
             }
-            // Resolve dynamic indices with index type
             parser.resolveOperands(unresolvedDynIndices, unresolvedDynIndices.map(() => indexType), result.operands);
         }
 
@@ -11685,12 +11613,10 @@ _.VectorDialect = class extends _.Dialect {
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
         }
-        // Type signature: : memref_type, vector_type
         if (parser.parseOptionalColon()) {
             const type1 = parser.parseType();
             parser.parseOptionalComma();
             const type2 = parser.parseType();
-            // Resolve operands with types
             parser.resolveOperand(unresolvedFirst, type1, result.operands);
             parser.resolveOperand(unresolvedSecond, type2, result.operands);
             if (unresolvedMask) {
@@ -11762,7 +11688,6 @@ _.TensorDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const srcType = parser.parseType();
-            // Now resolve the operand with its type
             parser.resolveOperands([unresolvedOperand], [srcType], result.operands);
             parser.parseKeyword('into');
             const resultType = parser.parseType();
@@ -11839,7 +11764,6 @@ _.TorchDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 type = parser.parseType();
             }
-            // Resolve operands at end
             parser.resolveOperand(unresolved, type, result.operands);
             for (const sym of shapeSymbols) {
                 parser.resolveOperand(sym, null, result.operands);
@@ -11876,7 +11800,6 @@ _.TorchDialect = class extends _.Dialect {
         if (parser.parseOptionalColon()) {
             parser.resolveOperands(unresolvedOperands, parser.parseTypeList(), result.operands);
         } else {
-            // Resolve operands without types
             for (const operand of unresolvedOperands) {
                 parser.resolveOperand(operand, null, result.operands);
             }
@@ -11941,17 +11864,12 @@ _.IREEDialect = class extends _.Dialect {
     }
 
     parseDispatchEntryPoints(parser, op, attrName = 'entry_points') {
-        // Parse either:
-        // - Single: @symbol or @symbol::@nested
-        // - Multiple: {@symbol1, @symbol2::@nested2}
         const entryPoints = [];
 
         if (parser.parseOptionalLBrace()) {
-            // Parse multiple entry points
             do {
                 if (parser.match('@')) {
                     let symbol = parser.expect('@');
-                    // Handle :: nested symbol reference
                     if (parser.getToken().is(_.Token.colon)) {
                         const curPointer = parser.getToken().loc.position;
                         parser.consumeToken(_.Token.colon);
@@ -11969,9 +11887,7 @@ _.IREEDialect = class extends _.Dialect {
             } while (parser.parseOptionalComma());
             parser.parseRBrace();
         } else if (parser.match('@')) {
-            // Parse single entry point
             let symbol = parser.expect('@');
-            // Handle :: nested symbol reference
             if (parser.getToken().is(_.Token.colon)) {
                 const curPointer = parser.getToken().loc.position;
                 parser.consumeToken(_.Token.colon);
@@ -11992,7 +11908,6 @@ _.IREEDialect = class extends _.Dialect {
     }
 
     parseShapedTiedResult(parser, op /*, args */) {
-        // Parse optional tied operand: %operand as type{dims}
         // or just: type{dims}
         if (parser.match('%')) {
             parser.parseOperand(); // tiedOperand - parsed but not stored in OperationState
@@ -12016,7 +11931,6 @@ _.IREEDialect = class extends _.Dialect {
     }
 
     parseSymbolAlias(parser, op, symNameAttr, aliasAttr) {
-        // @foo or @foo as("bar")
         const alias = parser.expect('@');
         let symName = alias;
         if (parser.parseOptionalKeyword('as')) {
@@ -12226,13 +12140,10 @@ _.HALDialect = class extends _.IREEDialect {
         if (result.op === 'hal.executable.create') {
             result.compatibility = true;
             const inputNames = new Set(opInfo.metadata.operands.map((input) => input.name));
-            // Parse named parameters: device(...), target(...), and either layouts(...) or affinity(...)
             while (parser.match(_.Token.bare_identifier) && !parser.match(':') && !parser.match('loc')) {
                 const paramName = parser.expect(_.Token.bare_identifier);
                 if (parser.parseOptionalLParen()) {
-                    // Check if this named parameter is actually an input
                     if (inputNames.has(paramName) && parser.match('%')) {
-                        // Parse as an operand: %value : type
                         const operand = parser.parseOperand();
                         let operandType = null;
                         if (parser.parseOptionalColon()) {
@@ -12241,7 +12152,6 @@ _.HALDialect = class extends _.IREEDialect {
                         parser.parseRParen();
                         parser.resolveOperand(operand, operandType, result.operands);
                     } else if (inputNames.has(paramName) && parser.match('[')) {
-                        // Parse as a variadic operand: [%v1, %v2, ...]
                         parser.parseLSquare();
                         while (!parser.match(']')) {
                             if (parser.match('%')) {
@@ -12253,7 +12163,6 @@ _.HALDialect = class extends _.IREEDialect {
                         parser.parseRSquare();
                         parser.parseRParen();
                     } else {
-                        // Parse as an attribute with raw content
                         let parenDepth = 1;
                         let paramValue = '';
                         while (parenDepth > 0 && !parser.match('eof')) {
@@ -12308,7 +12217,6 @@ _.HALDialect = class extends _.IREEDialect {
             result.op !== 'hal.executable.condition' &&
             result.op !== 'hal.executable.constant.block' &&
             result.op !== 'hal.executable.constant.load') {
-            // Parse <%operand : type> if present
             if (result.op === 'hal.allocator.allocate' || result.op === 'hal.command_buffer.create' || result.op === 'hal.buffer_view.create' || result.op === 'hal.command_buffer.device' || result.op === 'hal.command_buffer.dispatch' || result.op === 'hal.device.query') {
                 result.compatibility = true;
             }
@@ -12323,14 +12231,12 @@ _.HALDialect = class extends _.IREEDialect {
                     parser.parseOptionalComma();
                 }
             }
-            // Parse named parameters like shape([...]) type(...) encoding(...)
             // Also handle bracket expressions between parameters like layout(...)[%c0]
             // Stop when we hit a colon (result type) or something that doesn't look like a parameter
             // Named parameters don't have dots, so if we see an id with a dot, it's likely the next operation
             // Also exclude common operation keywords that shouldn't be treated as parameters
             const notParameterNames = new Set(['br', 'cond_br', 'return', 'yield', 'call', 'unreachable', 'assert']);
             while (parser.match('[') || (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.bare_identifier, 'attributes') && !parser.match(':') && !parser.match('loc') && parser.getTokenSpelling().str() && parser.getTokenSpelling().str().indexOf('.') === -1 && !notParameterNames.has(parser.getTokenSpelling().str()))) {
-                // Handle bracket expressions (e.g., [%c0])
                 if (parser.match('[')) {
                     parser.skip('[');
                     continue;
@@ -12340,7 +12246,6 @@ _.HALDialect = class extends _.IREEDialect {
                     // Check if this named parameter is actually an input from the operation metadata
                     const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
                     if (inputNames.has(paramName) && parser.match('%')) {
-                        // Parse as a simple operand: %value : type
                         const operand = parser.parseOperand();
                         let operandType = null;
                         if (parser.parseOptionalColon()) {
@@ -12349,7 +12254,6 @@ _.HALDialect = class extends _.IREEDialect {
                         parser.parseRParen();
                         parser.resolveOperand(operand, operandType, result.operands);
                     } else if (inputNames.has(paramName) && parser.match('[')) {
-                        // Parse as a variadic operand: [%v1, %v2, ...]
                         parser.parseLSquare();
                         while (!parser.match(']')) {
                             if (parser.match('%')) {
@@ -12361,7 +12265,6 @@ _.HALDialect = class extends _.IREEDialect {
                         parser.parseRSquare();
                         parser.parseRParen();
                     } else {
-                        // Parse as an attribute with raw content
                         let parenDepth = 1;
                         let paramValue = '';
                         while (parenDepth > 0 && !parser.match('eof')) {
@@ -12448,7 +12351,6 @@ _.HALDialect = class extends _.IREEDialect {
                     parser.parseOptionalComma();
                 }
             }
-            // Resolve bracket operands with index type
             parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), result.operands);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
@@ -12464,7 +12366,6 @@ _.HALDialect = class extends _.IREEDialect {
                         } while (parser.parseOptionalComma());
                     }
                     parser.parseRBrace();
-                    // Resolve dynamic dims with index type
                     parser.resolveOperands(dynamicDimOperands, dynamicDimOperands.map(() => indexType), result.operands);
                 }
             }
@@ -12795,7 +12696,6 @@ _.UtilDialect = class extends _.IREEDialect {
             do {
                 unresolvedValues.push(parser.parseOperand());
             } while (parser.parseOptionalComma());
-            // Resolve with null type - the type will be determined from context
             for (const unresolved of unresolvedValues) {
                 parser.resolveOperand(unresolved, null, op.operands);
             }
@@ -13043,9 +12943,7 @@ _.UtilDialect = class extends _.IREEDialect {
             const type = parser.parseType();
             parsedOperandTypes.push(type);
         } while (parser.parseOptionalComma());
-        // Resolve operands with types
         parser.resolveOperands(unresolvedOperands, parsedOperandTypes, result.operands);
-        // Add result types (same as operand types for this op)
         for (const type of parsedOperandTypes) {
             result.addTypes([type || null]);
         }
@@ -13086,7 +12984,6 @@ _.UtilDialect = class extends _.IREEDialect {
             unresolvedLengths.push(parser.parseOperand());
             parser.parseRSquare();
         } while (parser.parseOptionalComma());
-        // Resolve all operands with index type
         const indexType = new _.IndexType();
         for (const unresolved of unresolvedOffsets) {
             parser.resolveOperand(unresolved, indexType, op.operands);
@@ -13230,11 +13127,9 @@ _.FlowDialect = class extends _.IREEDialect {
         const inputs = argResult.arguments.map((a) => a.type);
         const results = [];
         if (parser.parseOptionalArrow()) {
-            // Parse shaped function result list with tied operand support
             const hasParens = parser.parseOptionalLParen();
             if (!hasParens || !parser.match(')')) {
                 do {
-                    // Try to parse tied operand: %arg0 or %arg0 as type
                     if (parser.match('%')) {
                         parser.parseOperand();
                         if (parser.parseOptionalKeyword('as')) {
@@ -13294,13 +13189,11 @@ _.FlowDialect = class extends _.IREEDialect {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
-        // Parse optional count region
         this.parseDispatchWorkgroupsCountRegion(parser, result);
         return true;
     }
 
     parseDispatchWorkgroupsOp(parser, result) {
-        // Parse subscript values: [%c32, %c112, %c112]
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
                 parser.expect(); // read subscript value
@@ -13308,11 +13201,8 @@ _.FlowDialect = class extends _.IREEDialect {
             }
         }
         const unresolvedOperands = parser.parseOperandList('paren');
-        // Handle functional type syntax: : (input_types) -> result_types
-        // parseType() sees '(' and parses as FunctionType, consuming the arrow
         if (parser.parseOptionalColon()) {
             if (parser.parseOptionalLParen()) {
-                // Functional type: (types) -> results
                 const inputTypes = parser.parseTypeListNoParens();
                 parser.parseRParen();
                 parser.resolveOperands(unresolvedOperands, inputTypes, result.operands);
@@ -13320,7 +13210,6 @@ _.FlowDialect = class extends _.IREEDialect {
                 const resultTypes = parser.parseFunctionResultTypes();
                 result.addTypes(resultTypes);
             } else {
-                // Non-functional: type, type, ... -> results
                 const types = parser.parseTypeListNoParens();
                 parser.resolveOperands(unresolvedOperands, types, result.operands);
                 if (parser.parseOptionalArrow()) {
@@ -13332,13 +13221,10 @@ _.FlowDialect = class extends _.IREEDialect {
             const types = parser.parseFunctionResultTypes();
             result.addTypes(types);
         }
-        // Parse optional attributes before =
         if (parser.parseOptionalKeyword('attributes')) {
             parser.parseAttributeDict(result.attributes);
         }
-        // Parse region with arguments: = (%arg2: type, %arg3: type) { ... }
         if (parser.parseOptionalEqual()) {
-            // Parse region arguments
             const args = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
@@ -13347,11 +13233,9 @@ _.FlowDialect = class extends _.IREEDialect {
                     parser.parseOptionalComma();
                 }
             }
-            // Some operations like flow.ex.stream.fragment have -> type after region args
             if (parser.parseOptionalArrow() || parser.parseOptionalKeyword('to')) {
                 parser.parseType();
             }
-            // Parse region body using parseRegion (matches ref impl)
             const region = result.addRegion();
             parser.parseRegion(region, args, /* enableNameShadowing */ true);
         }
@@ -13385,7 +13269,6 @@ _.FlowDialect = class extends _.IREEDialect {
             parser.parseRParen();
         }
 
-        // Parse arrow and result types
         if (parser.parseOptionalArrow()) {
             let index = 0;
             const hasParens = parser.parseOptionalLParen();
@@ -13460,8 +13343,6 @@ _.FlowDialect = class extends _.IREEDialect {
                 break;
             }
         }
-        // At this point, if we broke because of named params, we've already consumed the comma
-        // Parse comma-separated named parameters: offsets = [...], sizes = [...], strides = [...]
         // Note: first parameter might not need comma-eating if we just broke from operand loop
         let needComma = !parser.match(_.Token.bare_identifier); // If we're not at _.Token.bare_identifier, we need to eat commas
         while (needComma ? parser.parseOptionalComma() : true) {
@@ -13486,7 +13367,6 @@ _.FlowDialect = class extends _.IREEDialect {
         // For tensor.store, the -> is followed by the output tensor type (not a result)
         if (parser.parseOptionalArrow() || parser.parseOptionalKeyword('to')) {
             const resultType = parser.parseType();
-            // For load operations, the type after -> is the result type
             if (result.op === 'flow.dispatch.tensor.load' && resultType) {
                 result.addTypes([resultType]);
             }
@@ -13621,7 +13501,6 @@ _.StreamDialect = class extends _.IREEDialect {
                 parser.skip('{');
             }
             op.addAttribute('resource_access', accessMode);
-            // Resolve operands
             parser.resolveOperand(unresolvedResource, resourceType, op.operands);
             const indexType = new _.IndexType();
             parser.resolveOperand(unresolvedOffset, indexType, op.operands);
@@ -13630,17 +13509,14 @@ _.StreamDialect = class extends _.IREEDialect {
     }
 
     parseShapedTypeList(parser, op, ...args) {
-        // Handle both 2-arg and 3-arg formats:
         // 2-arg: custom<ShapedTypeList>(type($operands), $sizes)
         // 3-arg: custom<ShapedTypeList>(type($operands), type($results), $sizes)
         let operandTypes = null;
         let resultTypes = null;
         let sizeOperands = null;
         if (args.length === 2) {
-            // 2-arg format: (types, sizes)
             [operandTypes, sizeOperands] = args;
         } else if (args.length >= 3) {
-            // 3-arg format: (operandTypes, resultTypes, sizes)
             [operandTypes, resultTypes, sizeOperands] = args;
         } else {
             operandTypes = args[0] || null;
@@ -13661,7 +13537,6 @@ _.StreamDialect = class extends _.IREEDialect {
                         if (sizeOperands) {
                             sizeOperands.push(sizeOperand);
                         }
-                        // Resolve the size operand with index type
                         parser.resolveOperand(sizeOperand, indexType, op.operands);
                     }
                 } while (parser.parseOptionalComma());
@@ -13678,7 +13553,6 @@ _.StreamDialect = class extends _.IREEDialect {
         const unresolvedSizes = [];
         if (!parser.match(')')) {
             do {
-                // Parse operand (e.g., %arg0)
                 if (parser.match('%')) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
@@ -13689,7 +13563,6 @@ _.StreamDialect = class extends _.IREEDialect {
                 operandTypes.push(argType);
                 regionArgs.push({ name: arg, type: argType });
                 if (parser.parseOptionalLBrace()) {
-                    // Parse size operand
                     if (parser.match('%')) {
                         unresolvedSizes.push(parser.parseOperand());
                     }
@@ -13698,7 +13571,6 @@ _.StreamDialect = class extends _.IREEDialect {
             } while (parser.parseOptionalComma());
         }
         parser.parseRParen();
-        // Resolve operands
         for (let i = 0; i < unresolvedOperands.length; i++) {
             parser.resolveOperand(unresolvedOperands[i], operandTypes[i] || null, op.operands);
         }
@@ -13737,7 +13609,6 @@ _.StreamDialect = class extends _.IREEDialect {
             } while (parser.parseOptionalComma());
         }
         parser.parseRParen();
-        // Resolve operands
         for (let i = 0; i < unresolvedOperands.length; i++) {
             parser.resolveOperand(unresolvedOperands[i], operandTypes[i], op.operands);
         }
@@ -13777,7 +13648,6 @@ _.StreamDialect = class extends _.IREEDialect {
                 parseResultTypeOrTied();
             }
         }
-        // Resolve result sizes
         for (const unresolved of resultSizes) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
@@ -13790,7 +13660,6 @@ _.StreamDialect = class extends _.IREEDialect {
 
     parseParameterLoadOperations(parser, op, sourceScopeOps, sourceKeysOps, sourceOffsetsOps, resultTypes, resultSizesOps) {
         do {
-            // Parse parameter reference: %scope::%key or just %key
             const firstOperand = parser.parseOperand();
             let key = firstOperand;
             if (parser.parseOptionalColon()) {
@@ -13966,7 +13835,6 @@ _.StreamDialect = class extends _.IREEDialect {
             }
             parser.parseRParen();
         }
-        // Parse optional return type -> (types)
         if (parser.parseOptionalArrow()) {
             parser.parseLParen();
             while (!parser.match(')')) {
@@ -14073,7 +13941,6 @@ _.StreamDialect = class extends _.IREEDialect {
                     const unresolvedLength = parser.parseOperand();
                     parser.parseRSquare();
                     op.addAttribute('resource_access', accessMode);
-                    // Resolve operands (resource type unknown, offsets are index)
                     parser.resolveOperand(unresolvedResource, null, op.operands);
                     parser.resolveOperand(unresolvedOffset, indexType, op.operands);
                     parser.resolveOperand(unresolvedLength, indexType, op.operands);
@@ -14210,11 +14077,9 @@ _.StreamDialect = class extends _.IREEDialect {
         do {
             const operand = parser.parseOperand();
             unresolvedOperands.push(operand);
-            // Store in resourceOperands array for ref($resource_operands) use
             if (Array.isArray(resourceOperands)) {
                 resourceOperands.push(operand);
             }
-            // Slice notation: [offset to end for length]
             if (parser.parseOptionalLSquare()) {
                 unresolvedOperands.push(parser.parseOperand()); // offset
                 parser.parseKeyword('to');
@@ -14227,7 +14092,6 @@ _.StreamDialect = class extends _.IREEDialect {
 
         parser.parseRParen();
 
-        // Resolve all operands - types will be resolved from scope or by later type directive
         for (const unresolved of unresolvedOperands) {
             parser.resolveOperand(unresolved, null, op.operands);
         }
@@ -14361,7 +14225,6 @@ _.IREEVectorExtDialect = class extends _.Dialect {
 
     parseOperation(parser, result) {
         if (result.op === 'iree_vector_ext.transfer_gather') {
-            // Parse source operand
             const unresolvedSource = parser.parseOperand();
             const unresolvedIndices = [];
             parser.parseLSquare();
@@ -14371,7 +14234,6 @@ _.IREEVectorExtDialect = class extends _.Dialect {
                 }
                 parser.parseOptionalComma();
             }
-            // Parse index vectors in [...]
             parser.parseLSquare();
             const indexed = [];
             const unresolvedIndexVecs = [];
@@ -14553,7 +14415,6 @@ _.LinalgDialect = class extends _.Dialect {
                 }
                 parser.parseRBrace();
             }
-            // parseDstStyleOp with parseAttrsFn for dimensions
             if (!this.parseDstStyleOp(parser, result, (parser, attributes) => {
                 parser.parseDenseI64ArrayAttr('dimensions', attributes);
             })) {
@@ -14563,7 +14424,6 @@ _.LinalgDialect = class extends _.Dialect {
             if (payloadOpName) {
                 this.addBodyWithPayloadOp(result, payloadOpName, payloadOpAttrs, true, true);
             } else {
-                // Parse argument list and region inline
                 const regionArgs = [];
                 if (parser.match('(')) {
                     parser.parseLParen();
@@ -14591,12 +14451,10 @@ _.LinalgDialect = class extends _.Dialect {
             });
         }
         if (result.op === 'linalg.elementwise') {
-            // Parse required kind = <attr>
             parser.parseKeyword('kind');
             parser.parseEqual();
             const kind = parser.parseAttribute();
             result.addAttribute('kind', kind.value);
-            // Parse optional indexing_maps
             const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
             if (indexingMapsAttr !== null) {
                 result.addAttribute('indexing_maps', indexingMapsAttr);
@@ -14629,12 +14487,10 @@ _.LinalgDialect = class extends _.Dialect {
             if (!parsed) {
                 return false;
             }
-            // Parse optional attr-dict (for generic ops: attrs = {...})
             if (parser.parseOptionalKeyword('attrs')) {
                 parser.parseEqual();
                 parser.parseAttributeDict(result.attributes);
             } else if (parser.match('{') && !parser.match('{', '^')) {
-                // Inline attr-dict without 'attrs =' prefix (but not a region starting with ^bb)
                 const saved = parser.save();
                 parser.parseLBrace();
                 if (!parser.match('%') && !parser.match(_.Token.bare_identifier)) {
@@ -14644,7 +14500,6 @@ _.LinalgDialect = class extends _.Dialect {
                     parser.parseAttributeDict(result.attributes);
                 }
             }
-            // Parse optional result types -> type (for named ops like linalg.matmul)
             if (parser.parseOptionalArrow()) {
                 const types = parser.parseFunctionResultTypes();
                 result.addTypes(types);
@@ -14663,18 +14518,15 @@ _.LinalgDialect = class extends _.Dialect {
     // manually defined C++ ops. Does not handle regions."
     // Returns { inputTypes, outputTypes } on success, null on failure.
     parseCommonStructuredOpParts(parser, result, addOperandSegmentSizes = true) {
-        // Parse optional properties <{...}>
         if (parser.parseOptionalLess()) {
             result.propertiesAttr = parser.parseAttribute();
             parser.parseGreater();
         }
-        // Parse optional attr-dict
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
         }
         const inputTypes = [];
         const outputTypes = [];
-        // Parse ins(...) operands
         if (parser.parseOptionalKeyword('ins')) {
             if (!parser.parseOptionalLParen()) {
                 return null;
@@ -14699,7 +14551,6 @@ _.LinalgDialect = class extends _.Dialect {
                 return null;
             }
         }
-        // Parse outs(...) operands
         if (parser.parseOptionalKeyword('outs')) {
             if (!parser.parseOptionalLParen()) {
                 return null;
@@ -14735,11 +14586,9 @@ _.LinalgDialect = class extends _.Dialect {
         if (!parsed) {
             return false;
         }
-        // Parse optional trailing attribute dict
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
         }
-        // Parse optional result types -> type
         if (parser.parseOptionalArrow()) {
             const types = parser.parseFunctionResultTypes();
             result.addTypes(types);
@@ -14760,7 +14609,6 @@ _.LinalgDialect = class extends _.Dialect {
         if (!parsed) {
             return false;
         }
-        // Add result types for output tensors (like ref impl)
         for (const outputType of parsed.outputTypes) {
             if (outputType instanceof _.RankedTensorType) {
                 op.addTypes([outputType]);
@@ -14811,7 +14659,6 @@ _.LinalgDialect = class extends _.Dialect {
             }
             parser.parseRBrace();
         }
-        // parseDstStyleOp (no parseAttrsFn for MapOp)
         if (!this.parseDstStyleOp(parser, result)) {
             return false;
         }
@@ -14823,7 +14670,6 @@ _.LinalgDialect = class extends _.Dialect {
                 result.addRegion();
             }
         } else {
-            // Parse argument list and region inline
             const regionArgs = [];
             if (parser.match('(')) {
                 parser.parseLParen();
@@ -15068,22 +14914,18 @@ _.ONNXDialect = class extends _.Dialect {
     }
 
     parseOperation(parser, result) {
-        // onnx.Constant has custom assembly format: dense<...> : type
-        // Similar to stablehlo.constant
         if (result.op === 'onnx.Constant') {
-            // Parse attribute (e.g., dense<"0x...">, dense<[1, 2, 3]>, etc.)
-            const value = parser.parseAttribute();
-            if (value) {
-                result.addAttribute('value', value);
+            parser.parseOptionalAttrDict(result.attributes);
+            if (result.attributes.size === 0) {
+                const value = parser.parseOptionalAttribute();
+                if (value) {
+                    const name = value instanceof _.SparseElementsAttr ? 'sparse_value' : 'value';
+                    result.addAttribute(name, value);
+                    result.addTypes([value.type]);
+                    return true;
+                }
             }
-            // Parse result type - either explicit `: type` or from value's type
-            // Note: dense<...> : type has the type consumed by parseAttribute
-            const types = parser.parseOptionalColonTypeList();
-            if (types.length > 0) {
-                result.addTypes([types[0]]);
-            } else if (value && value.type) {
-                result.addTypes([value.type]);
-            }
+            result.addTypes([parser.parseColonType()]);
             return true;
         }
         if (result.op === 'onnx.ConstantOfShape') {
@@ -15363,7 +15205,6 @@ _.MhloDialect = class extends _.HLODialect {
                 parser.parseOptionalComma();
             }
             parser.parseRParen();
-            // Parse types - same types used for both operands and results (ref: AssemblyFormat.cpp:685-690)
             const types = [];
             if (parser.parseOptionalColon()) {
                 while (!parser.match(_.Token.bare_identifier, 'cond') && !parser.match(_.Token.bare_identifier, 'attributes')) {
@@ -15454,7 +15295,6 @@ _.THLODialect = class extends _.Dialect {
             }
             parser.parseRParen();
         }
-        // Parse 'outs' section - format: outs(%arg1: type1, %arg2: type2)
         if (parser.parseOptionalKeyword('outs')) {
             parser.parseLParen();
             while (parser.match('%')) {
@@ -15473,7 +15313,6 @@ _.THLODialect = class extends _.Dialect {
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
         }
-        // Parse block arguments and region: (%arg1: type, ...) { body }
         const blockArguments = [];
         if (parser.match('(')) {
             parser.parseLParen();
@@ -15588,7 +15427,6 @@ _.TosaDialect = class extends _.Dialect {
                     }
                 } else {
                     const condType = parser.parseType();
-                    // Resolve condition operand
                     if (unresolvedCond.length > 0) {
                         parser.resolveOperands(unresolvedCond, [condType], result.operands);
                     }
@@ -16282,7 +16120,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 result.addTypes([type]);
-                // Resolve init operand with the pointer's pointee type
                 if (unresolvedInit) {
                     // The init value type should match the element type of the pointer result
                     parser.resolveOperand(unresolvedInit, null, result.operands);
@@ -16385,7 +16222,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (!result.successors) {
                 result.successors = [];
             }
-            // Parse true branch successor
             const trueLabel = parser.expect('^');
             const trueSucc = { label: trueLabel };
             if (parser.parseOptionalLParen()) {
@@ -16410,7 +16246,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             result.successors.push(trueSucc);
             parser.parseComma();
-            // Parse false branch successor
             const falseLabel = parser.expect('^');
             const falseSucc = { label: falseLabel };
             if (parser.parseOptionalLParen()) {
@@ -16485,7 +16320,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.module' || result.op === 'spv.module') {
-            // Optional symbol name: spirv.module @Name ...
             if (parser.match('@')) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
@@ -16589,7 +16423,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.EntryPoint' || result.op === 'spv.EntryPoint') {
-            // Parse execution model string ("GLCompute", "Vertex", "Fragment", etc.)
             if (parser.match('string')) {
                 const executionModel = parser.expect('string');
                 result.addAttribute('execution_model', executionModel);
@@ -16626,7 +16459,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.mlir.loop' || result.op === 'spv.mlir.loop' || result.op === 'spirv.mlir.selection' || result.op === 'spv.mlir.selection') {
-            // Parse optional control(EnumValue) attribute
             if (parser.parseOptionalKeyword('control')) {
                 parser.parseLParen();
                 const controlValue = parser.parseOptionalKeyword();
@@ -16642,9 +16474,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         }
         // spirv.CompositeInsert with 'into' keyword
         if (result.op === 'spirv.CompositeInsert' || result.op === 'spv.CompositeInsert') {
-            // Parse operands (object and composite)
             const unresolvedOperands = parser.parseOperandList();
-            // Parse indices as attributes
             if (parser.parseOptionalLSquare()) {
                 const indices = [];
                 while (!parser.parseOptionalRSquare()) {
@@ -17064,7 +16894,6 @@ _.pdl.PDLDialect = class extends _.Dialect {
             const opNameValue = parser.expect('string');
             result.addAttribute('opName', opNameValue);
         }
-        // Parse operand values: (%operand1, %operand2 : type1, type2)
         if (parser.parseOptionalLParen()) {
             const unresolvedOperands = [];
             while (!parser.match(')') && !parser.match(':')) {
@@ -17086,7 +16915,6 @@ _.pdl.PDLDialect = class extends _.Dialect {
             parser.parseOptionalRParen();
         }
         this.parseOperationOpAttributes(parser, result);
-        // Parse result type values: -> (%type1, %type2 : !pdl.type, !pdl.type)
         if (parser.parseOptionalArrow()) {
             parser.parseOptionalLParen();
             const unresolvedTypeValues = [];
@@ -17103,7 +16931,6 @@ _.pdl.PDLDialect = class extends _.Dialect {
                     parser.parseOptionalComma();
                 }
             }
-            // Resolve type value operands
             for (let i = 0; i < unresolvedTypeValues.length; i++) {
                 parser.resolveOperand(unresolvedTypeValues[i], types[i] || null, result.operands);
             }
@@ -17217,7 +17044,6 @@ _.PDLInterpDialect = class extends _.Dialect {
                 const nameAttr = parser.parseAttribute();
                 parser.parseEqual();
                 const operand = parser.parseOperand();
-                // Resolve the operand properly
                 parser.resolveOperand(operand, null, result.operands);
                 attrNames.push(nameAttr);
                 if (!parser.parseOptionalComma()) {
@@ -17379,7 +17205,6 @@ _.EmitCDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'emitc.expression') {
-            // Parse operands
             while (parser.match('%')) {
                 const operand = parser.parseOperand();
                 parser.resolveOperand(operand, null, result.operands);
@@ -17387,15 +17212,11 @@ _.EmitCDialect = class extends _.Dialect {
                     break;
                 }
             }
-            // Parse optional noinline
             if (parser.parseOptionalKeyword('noinline')) {
                 result.addAttribute('do_not_inline', true);
             }
-            // Parse function type
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                // Function type is (inputs) -> outputs
-                // We extract the result type from the function type
                 if (type instanceof _.FunctionType) {
                     result.addAttribute('type', type);
                     result.addTypes(type.results);
@@ -17443,7 +17264,6 @@ _.EmitCDialect = class extends _.Dialect {
             parser.parseKeyword('step');
             const step = parser.parseOperand();
             parser.resolveOperand(step, null, result.operands);
-            // Parse optional type
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 result.addAttribute('type', type.toString());
@@ -17503,9 +17323,7 @@ _.AsukaDialect = class extends _.Dialect {
         // Custom parsing preserves compatibility with this file.
         if (result.op === 'asuka.dot' || result.op === 'asuka.add' || result.op === 'asuka.split' || result.op === 'asuka.softmax' || result.op === 'asuka.reduce') {
             result.compatibility = true;
-            // Parse operands (only actual SSA values starting with %)
             result.operands = parser.parseOperandList();
-            // Parse attributes like: dim = 3, batch_dims = [0] x [], etc.
             while (parser.match(_.Token.bare_identifier) && !parser.match(':') && !parser.match('{')) {
                 const attrName = parser.expect(_.Token.bare_identifier);
                 if (parser.parseOptionalEqual()) {
@@ -17627,7 +17445,6 @@ _.async.AsyncDialect = class extends _.Dialect {
 
     parseExecuteOp(parser, result) {
         const tokenArgs = parser.parseOperandList('optionalSquare');
-        // Resolve async token dependencies
         const tokenTypes = tokenArgs.map(() => null);
         parser.resolveOperands(tokenArgs, tokenTypes, result.operands);
         if (parser.parseOptionalLParen()) {
@@ -18110,14 +17927,11 @@ _.BufferizationDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const resultType = parser.parseType();
-                // Resolve dynamic dim operands - their type is index
                 const indexType = new _.IndexType();
                 parser.resolveOperands(unresolvedDynamicDims, unresolvedDynamicDims.map(() => indexType), result.operands);
-                // Resolve copy operand if present - its type is the result type
                 if (unresolvedCopy) {
                     parser.resolveOperand(unresolvedCopy, resultType, result.operands);
                 }
-                // Resolve size_hint if present - its type is index
                 if (unresolvedSizeHint) {
                     parser.resolveOperand(unresolvedSizeHint, indexType, result.operands);
                 }
@@ -18239,7 +18053,6 @@ _.SCFDialect = class extends _.Dialect {
         } else {
             return false;
         }
-        // Resolve lb, ub, step operands with index type
         parser.resolveOperands([unresolvedLb, unresolvedUb, unresolvedStep], [indexType, indexType, indexType], result.operands);
         let initArgsCount = 0;
         if (parser.parseOptionalKeyword('iter_args')) {
@@ -18263,7 +18076,6 @@ _.SCFDialect = class extends _.Dialect {
                 }
             }
             result.addTypes(parser.parseArrowTypeList());
-            // Resolve iter_args operands with inferred types from result types
             const iterArgTypes = result.types.map((t) => t || indexType);
             parser.resolveOperands(unresolvedIterArgs, iterArgTypes, result.operands);
             initArgsCount = unresolvedIterArgs.length;
@@ -18308,7 +18120,6 @@ _.SCFDialect = class extends _.Dialect {
         } else {
             return false;
         }
-        // Parse optional else region
         if (parser.parseOptionalKeyword('else')) {
             if (parser.match('{')) {
                 const region = result.addRegion();
@@ -18479,7 +18290,6 @@ _.SCFDialect = class extends _.Dialect {
         if (!parser.parseOptionalEqual()) {
             return false;
         }
-        // Parse lower bounds
         const lowerBounds = [];
         if (!parser.parseOptionalLParen()) {
             return false;
@@ -18496,7 +18306,6 @@ _.SCFDialect = class extends _.Dialect {
         if (!parser.parseOptionalKeyword('to')) {
             return false;
         }
-        // Parse upper bounds
         const upperBounds = [];
         if (!parser.parseOptionalLParen()) {
             return false;
@@ -18513,7 +18322,6 @@ _.SCFDialect = class extends _.Dialect {
         if (!parser.parseOptionalKeyword('step')) {
             return false;
         }
-        // Parse steps
         const steps = [];
         if (!parser.parseOptionalLParen()) {
             return false;
@@ -18527,7 +18335,6 @@ _.SCFDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         parser.resolveOperands(steps, steps.map(() => indexType), result.operands);
-        // Parse init values
         if (parser.parseOptionalKeyword('init')) {
             const initVals = [];
             if (!parser.parseOptionalLParen()) {
@@ -18834,7 +18641,6 @@ _.SparseTensorDialect = class extends _.Dialect {
             const argType = resultTypes[i] || null;
             regionArgs.push({ name: iterArgNames[i], type: argType });
         }
-        // Resolve operands
         parser.resolveOperand(unresolvedTensor, tensorType, result.operands);
         // iter_args block args don't go to operands, but init values do
         for (let i = 0; i < initValues.length; i++) {
@@ -18913,13 +18719,11 @@ _.SparseTensorDialect = class extends _.Dialect {
             const tensorType = tensorTypes[i] || null;
             parser.resolveOperand(unresolvedTensors[i], tensorType, result.operands);
         }
-        // Resolve init values with result types
         for (let i = 0; i < initValues.length; i++) {
             const initType = resultTypes[i] || null;
             parser.resolveOperand(initValues[i], initType, result.operands);
         }
         while (parser.parseOptionalKeyword('case')) {
-            // Parse case pattern - these define additional block args for this case
             const caseArgs = [...regionArgs]; // Start with iter_args
             while (parser.match('%') || parser.match(_.Token.bare_identifier)) {
                 const caseArg = parser.expect();
@@ -18978,7 +18782,6 @@ _.GpuDialect = class extends _.Dialect {
     }
 
     parseLaunchDimType(parser, op, typeArg1, typeArg2, clusterTypeArg1, clusterTypeArg2, clusterTypeArg3) {
-        // Parse optional `: type`, default to index type
         // typeArg1 = type($gridSizeX), typeArg2 = ref($clusterSizeX)
         // clusterTypeArg1/2/3 = type($clusterSizeX/Y/Z)
         let dimType = new _.IndexType();
@@ -19042,7 +18845,6 @@ _.GpuDialect = class extends _.Dialect {
                 result.addTypes([new _.Type('!gpu.async.token')]);
             }
             const asyncDeps = parser.parseOperandList('optionalSquare');
-            // Resolve with null type (async token type will be inferred)
             const asyncTypes = asyncDeps.map(() => null);
             parser.resolveOperands(asyncDeps, asyncTypes, result.operands);
             if (parser.parseOptionalKeyword('clusters')) {
@@ -19196,7 +18998,6 @@ _.GpuDialect = class extends _.Dialect {
         if (hasAsync && Array.isArray(asyncTokenTypes)) {
             asyncTokenTypes.push(new _.Type('!gpu.async.token'));
         }
-        // Parse optional dependency list [%dep1, %dep2, ...]
         if (parser.parseOptionalLSquare()) {
             while (!parser.match(']')) {
                 if (Array.isArray(asyncDependencies)) {
@@ -19583,10 +19384,8 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
         }
-        // Resolve CLI operands
         parser.resolveOperands(unresolvedCli, cliTypes, result.operands);
         if (parser.parseOptionalEqual()) {
-            // Parse lower bounds: = (%lb, ...)
             if (parser.parseOptionalLParen()) {
                 const unresolvedLb = [];
                 while (!parser.match(')')) {
@@ -19600,7 +19399,6 @@ _.OpenMPDialect = class extends _.Dialect {
                     parser.resolveOperand(lb, null, result.operands);
                 }
             }
-            // Parse upper bounds: to (%ub, ...)
             if (parser.parseOptionalKeyword('to')) {
                 if (parser.parseOptionalLParen()) {
                     const unresolvedUb = [];
@@ -19617,7 +19415,6 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
             parser.parseOptionalKeyword('inclusive');
-            // Parse steps: step (%step, ...)
             if (parser.parseOptionalKeyword('step')) {
                 if (parser.parseOptionalLParen()) {
                     const unresolvedStep = [];
@@ -19634,14 +19431,12 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
         }
-        // Parse optional 'collapse(N)'
         if (parser.parseOptionalKeyword('collapse')) {
             parser.parseLParen();
             const value = parser.expect('int');
             result.addAttribute('collapse_num_loops', parseInt(value, 10));
             parser.parseRParen();
         }
-        // Parse optional 'tiles(N, ...)'
         if (parser.parseOptionalKeyword('tiles')) {
             parser.parseLParen();
             const tiles = [];
@@ -19654,7 +19449,6 @@ _.OpenMPDialect = class extends _.Dialect {
             parser.parseRParen();
             result.addAttribute('tile_sizes', tiles);
         }
-        // Parse region BEFORE attr-dict (matches reference impl)
         if (parser.match('{')) {
             const region = result.addRegion();
             parser.parseRegion(region);
@@ -20062,7 +19856,6 @@ _.OpenMPDialect = class extends _.Dialect {
     }
 
     parsePrivateReductionRegion(parser, result) {
-        // Parse optional clauses that appear before the region (oilist in assembly format)
         const singleValueClauses = ['if', 'num_threads', 'thread_limit', 'device', 'safelen', 'simdlen', 'priority', 'grainsize', 'num_tasks', 'final', 'filter'];
         const enumClauses = ['proc_bind', 'order', 'schedule', 'dist_schedule', 'memory_order', 'hint'];
         const listClauses = ['private', 'reduction', 'in_reduction', 'task_reduction', 'copyin', 'copyprivate', 'firstprivate', 'lastprivate', 'shared', 'linear', 'aligned', 'nontemporal', 'inclusive', 'exclusive', 'allocate', 'depend'];
@@ -20322,7 +20115,6 @@ _.OpenMPDialect = class extends _.Dialect {
     parseLoopTransformClis(parser, result) {
         const generatees = [];
         const applyees = [];
-        // Check if starts with '<' (syntax 2, no generatees) or '(' (syntax 1, has generatees)
         if (!parser.parseOptionalLess()) {
             // Syntax 1: generatees present, parse (generatees) first
             parser.parseLParen();
@@ -20335,12 +20127,9 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            // Now parse '<' for the '<-' arrow
             parser.parseLess();
         }
-        // '<' already consumed, now parse '-' to complete '<-'
         parser.expect('minus');
-        // Parse applyees list in parens
         parser.parseLParen();
         while (!parser.match(')')) {
             if (parser.match('%')) {
@@ -20524,12 +20313,10 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         // args[1] = type($op_bundle_operands) - types
         // args[2] = $op_bundle_tags - tags attribute
 
-        // Check if '[' is present - if not, optional is not present
         if (!parser.parseOptionalLSquare()) {
             return null; // Not present (equivalent to std::nullopt)
         }
 
-        // Empty bundle list
         if (parser.parseOptionalRSquare()) {
             return true; // Success
         }
@@ -20544,7 +20331,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                     bundleOperands.push(parser.parseAttribute());
                 } while (parser.parseOptionalComma());
                 parser.parseColon();
-                // Parse types for bundle operands
                 do {
                     parser.parseType();
                 } while (parser.parseOptionalComma());
@@ -20571,7 +20357,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         }
         const v1Type = v1Types[0];
         const typeStr = v1Type.toString ? v1Type.toString() : String(v1Type);
-        // Parse vector type: vector<[N]xT> or vector<NxT>
         const vecMatch = typeStr.match(/^vector<(?:\[)?(\d+)(?:\])?\s*x\s*(.+)>$/);
         if (!vecMatch) {
             return;
@@ -20608,7 +20393,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         if (!parser.parseOptionalLSquare()) {
             return;
         }
-        // Check for empty case list
         if (parser.parseOptionalRSquare()) {
             return;
         }
@@ -20626,12 +20410,9 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             }
             const value = sign * parseInt(parser.expect(), 10);
             caseValues.push(value);
-            // Parse colon
             parser.parseColon();
-            // Parse successor block (starts with ^)
             const successor = parser.expect('^');
             caseDestinations.push(successor);
-            // Parse optional operands with types: (%operand : type, ...)
             if (parser.parseOptionalLParen()) {
                 const operands = [];
                 while (!parser.match(')') && !parser.match(':') && !parser.match('eof')) {
@@ -20645,7 +20426,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                         break;
                     }
                 }
-                // Parse types after colon if present
                 if (parser.parseOptionalColon()) {
                     let idx = 0;
                     while (!parser.match(')') && idx < operands.length) {
@@ -20662,13 +20442,11 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             } else {
                 caseOperands.push([]);
             }
-            // Check for comma or end of list
             if (!parser.parseOptionalComma()) {
                 break;
             }
         }
         parser.parseRSquare();
-        // Populate operation with parsed data
         if (caseValues.length > 0) {
             op.addAttribute('case_values', caseValues);
         }
@@ -20676,7 +20454,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             if (!op.successors) {
                 op.successors = [];
             }
-            // Add case destinations (default destination is already added)
             for (const dest of caseDestinations) {
                 op.successors.push({ name: dest });
             }
@@ -20728,7 +20505,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             return this.parseLLVMCmpOp(parser, result);
         }
         if (result.op.startsWith('llvm.intr.')) {
-            // Check if this intrinsic has assembly format - if so, use standard parsing
             if (opInfo.metadata.assemblyFormat) {
                 return super.parseOperation(parser, result);
             }
@@ -20856,7 +20632,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                 const unresolvedOperands = [];
                 const types = [];
                 if (parser.parseOptionalLParen()) {
-                    // Parse operands (all operands listed first)
                     while (!parser.match(')') && !parser.match(':')) {
                         const operand = parser.parseOperand();
                         unresolvedOperands.push(operand);
@@ -20864,7 +20639,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                             break;
                         }
                     }
-                    // Parse types after colon
                     if (parser.parseOptionalColon()) {
                         while (!parser.match(')')) {
                             const type = parser.parseType();
@@ -20899,7 +20673,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         if (parser.match('{')) {
             parser.parseAttributeDict(result.attributes);
         }
-        // Parse function type: (operandType) -> resultType
         parser.parseColon();
         const fnType = parser.parseFunctionType();
         if (fnType instanceof _.FunctionType) {
@@ -20957,7 +20730,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                             bundleOperands.push(parser.parseOperand());
                         } while (parser.parseOptionalComma());
                         parser.parseColon();
-                        // Parse types for bundle operands
                         do {
                             parser.parseType();
                         } while (parser.parseOptionalComma());
@@ -20981,11 +20753,9 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             parser.parseComma();
         }
         const sig = parser.parseFunctionSignature();
-        // Resolve callee pointer if indirect call
         if (calleePtr) {
             parser.resolveOperand(calleePtr, calleePtrType, result.operands);
         }
-        // Resolve arguments with function signature types
         parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
         if (sig.resultTypes.length > 0) {
             result.types = sig.resultTypes.map((t) => t.toString());
@@ -21019,7 +20789,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                             bundleOperands.push(parser.parseOperand());
                         } while (parser.parseOptionalComma());
                         parser.parseColon();
-                        // Parse types for bundle operands
                         do {
                             parser.parseType();
                         } while (parser.parseOptionalComma());
@@ -21039,7 +20808,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         }
 
         parser.parseColon();
-        // Parse function signature: (arg_types {attrs}) -> (result_types {attrs})
         const sig = parser.parseFunctionSignature();
         parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
         if (sig.resultTypes.length > 0) {
@@ -21122,7 +20890,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         const normalDest = parser.expect('^');
         result.successors = result.successors || [];
         const normalSucc = { label: normalDest };
-        // Parse optional successor operands: ^bb1(%operand : type)
         if (parser.parseOptionalLParen()) {
             normalSucc.operands = [];
             while (!parser.match(')')) {
@@ -21170,7 +20937,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                             bundleOperands.push(parser.parseOperand());
                         } while (parser.parseOptionalComma());
                         parser.parseColon();
-                        // Parse types for bundle operands
                         do {
                             parser.parseType();
                         } while (parser.parseOptionalComma());
@@ -21194,11 +20960,9 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             parser.parseComma();
         }
         const sig = parser.parseFunctionSignature();
-        // Resolve func pointer if indirect call
         if (funcPtr) {
             parser.resolveOperand(funcPtr, calleePtrType, result.operands);
         }
-        // Resolve arguments with function signature types
         parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
         if (sig.resultTypes.length > 0) {
             result.types = sig.resultTypes.map((t) => t.toString());
@@ -21207,11 +20971,9 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMLandingpadOp(parser, result) {
-        // Parse optional cleanup
         if (parser.parseOptionalKeyword('cleanup')) {
             result.addAttribute('cleanup', true);
         }
-        // Parse clauses
         while (parser.match('(')) {
             parser.parseLParen();
             parser.expect(_.Token.bare_identifier); // 'catch' or 'filter'
@@ -21599,7 +21361,6 @@ _.VMDialect = class extends _.Dialect {
         }
         if (result.op === 'vm.rodata.inline') {
             result.compatibility = true;
-            // Optional name (string)
             if (parser.match('string')) {
                 const name = parser.expect('string');
                 result.addAttribute('name', name);
@@ -21669,7 +21430,6 @@ _.VMDialect = class extends _.Dialect {
                 const callee = parser.expect('@');
                 result.addAttribute('callee', callee);
             }
-            // Parse operands - use skip for complex nested structures
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
                     if (parser.match('[')) {
@@ -21711,7 +21471,6 @@ _.VMDialect = class extends _.Dialect {
     }
 
     parseBranchTableCases(parser, op /*, args */) {
-        // Parse default case
         if (parser.parseOptionalKeyword('default')) {
             parser.parseColon();
             const defaultDest = parser.expect('^');
@@ -21725,7 +21484,6 @@ _.VMDialect = class extends _.Dialect {
                         operands.push(parser.parseOperand());
                     }
                     if (parser.parseOptionalColon()) {
-                        // Parse types for the operands
                         while (!parser.match(')') && !parser.match(',')) {
                             parser.parseType();
                             parser.parseOptionalComma();
@@ -21741,7 +21499,6 @@ _.VMDialect = class extends _.Dialect {
             op.successors.push(succ);
             parser.parseOptionalComma();
         }
-        // Parse numbered cases: 0: ^bb(...), 1: ^bb2(...), ...
         const caseValues = [];
         while (parser.match('int')) {
             const caseValue = parser.parseInteger();
@@ -21814,7 +21571,6 @@ _.MLProgramDialect = class extends _.Dialect {
             return;
         }
         parser.parseLParen();
-        // Parse consuming token list: either () or %tok1, %tok2, ...
         if (parser.parseOptionalLParen()) {
             parser.parseRParen();
         } else {
@@ -21826,7 +21582,6 @@ _.MLProgramDialect = class extends _.Dialect {
                 }
             }
         }
-        // Parse producer token type: -> type
         parser.expect('->');
         const produceType = parser.parseType();
         result.addAttribute('produceTokenType', { value: produceType, hidden: true });
@@ -21909,11 +21664,9 @@ _.TFDeviceDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
         }
         n = result.attributes.get('n').value;
-        // Parse region
         if (parser.match('{')) {
             const region = result.addRegion();
             parser.parseRegion(region);
-            // Get result types from the terminator, replicated n times
             if (region.blocks.length > 0) {
                 const block = region.blocks[0];
                 if (block.operations.length > 0) {
@@ -22043,7 +21796,6 @@ _.TFGDialect = class extends _.Dialect {
                 parser.resolveOperands(unresolvedCtls, unresolvedCtls.map(() => new _.Type('!tfg.control')), result.operands);
                 result.addTypes(type.results);
             } else {
-                // Parse remaining types in the comma-separated list (for return-like operations)
                 const types = [type];
                 while (parser.parseOptionalComma()) {
                     types.push(parser.parseType());
@@ -22209,13 +21961,11 @@ _.TFExecutorDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('wraps')) {
             const wrappedOp = parser.parseGenericOperation();
             result.addAttribute('wrappedOp', wrappedOp);
-            // For wraps form, create yield from wrapped op's results
             for (const opResult of wrappedOp.results) {
                 result.addTypes([opResult.type]);
             }
         } else if (parser.match('{')) {
             parser.parseRegion(region);
-            // Get result types from the yield terminator
             if (region.blocks.length > 0) {
                 const block = region.blocks[region.blocks.length - 1];
                 if (block.operations.length > 0) {
@@ -22228,7 +21978,6 @@ _.TFExecutorDialect = class extends _.Dialect {
                 }
             }
         }
-        // Add control type as final result
         result.addTypes([new _.Type('!tf_executor.control')]);
         parser.parseOptionalAttrDict(result.attributes);
         return true;
@@ -22279,7 +22028,6 @@ _.CoreRTDialect = class extends _.Dialect {
             if (parser.match('{')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            // Parse optional second attr-dict for func attrs
             if (parser.match('{')) {
                 const funcAttrs = new Map();
                 parser.parseAttributeDict(funcAttrs);
@@ -22451,12 +22199,10 @@ _.TFRTDialect = class extends _.Dialect {
                 additionalArgs = parser.parseOperandList();
             }
             const types = parser.parseOptionalColonTypeList();
-            // Resolve fixed operands with i32 type
             const i32Type = new _.IntegerType('i32');
             parser.resolveOperand(startUnresolved, i32Type, result.operands);
             parser.resolveOperand(endUnresolved, i32Type, result.operands);
             parser.resolveOperand(blockSizeUnresolved, i32Type, result.operands);
-            // Resolve additional operands with parsed types
             parser.resolveOperands(additionalArgs, types, result.operands);
             result.addTypes([new _.Type('!tfrt.chain')]);
             if (parser.match('{')) {
@@ -22497,11 +22243,9 @@ _.TFRTDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            // Optional attr-dict
             if (parser.match('{')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            // Parse parallel_iterations(N)
             if (parser.parseOptionalKeyword('parallel_iterations')) {
                 parser.parseLParen();
                 const parallelIterations = parser.expect('int');
@@ -22636,13 +22380,11 @@ _.TileDialect = class extends _.Dialect {
         // tile.contract has format: tile.contract agg, combo, operands... attributes : types -> result
         // Example: %1 = tile.contract add, mul, %0, %arg0, %arg1 {sink = #map0, srcs = [#map1, #map2]} : tensor<f32>, tensor<1x256xf32>, tensor<256x512xf32> -> tensor<1x512xf32>
         if (result.op === 'tile.contract') {
-            // Parse aggregation kind (add, mul, etc.)
             if (parser.match(_.Token.bare_identifier)) {
                 const agg = parser.expect(_.Token.bare_identifier);
                 result.addAttribute('agg', agg);
             }
             parser.parseOptionalComma();
-            // Parse combination kind (add, mul, etc.)
             if (parser.match(_.Token.bare_identifier)) {
                 const combo = parser.expect(_.Token.bare_identifier);
                 result.addAttribute('combo', combo);
@@ -22884,7 +22626,6 @@ _.SdfgDialect = class extends _.Dialect {
                         parser.parseColon();
                         type = parser.parseType();
                     }
-                    // Resolve operand with type
                     parser.resolveOperand(operand, type, result.operands);
                     blockArgs.push({ value: blockArgName, type });
                     parser.parseOptionalComma();
@@ -22911,7 +22652,6 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdfg.consume') {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
-                // Parse typed argument: %A : type
                 while (parser.match('%')) {
                     const operand = parser.parseOperand();
                     let type = null;
@@ -23080,7 +22820,6 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdir.consume') {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
-                // Parse typed arguments
                 while (parser.match('%')) {
                     const operand = parser.parseOperand();
                     let type = null;
@@ -23112,7 +22851,6 @@ _.SdfgDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
-                    // Check for label: prefix
                     if (parser.match(_.Token.bare_identifier) && !parser.match('%')) {
                         parser.expect(_.Token.bare_identifier); // label like 'ref'
                         parser.parseColon();
@@ -23662,7 +23400,6 @@ _.TransformDialect = class extends _.Dialect {
 
     parseSemiFunctionType(parser, op /* , args */) {
         const hasLParen = parser.parseOptionalLParen();
-        // Parse the argument type (first operand type)
         const argType = parser.parseType();
         if (op.operands.length > 0) {
             op.operands[0].type = argType;
@@ -23672,7 +23409,6 @@ _.TransformDialect = class extends _.Dialect {
         }
         parser.parseRParen();
         parser.expect('->');
-        // Handle both single type and parenthesized type list
         if (parser.parseOptionalLParen()) {
             let idx = 0;
             while (!parser.match(')')) {
@@ -24046,14 +23782,11 @@ _.TestDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'test.string_attr_pretty_name') {
-            // Add result types based on number of SSA results (ref impl line 549-550)
             const numResults = parser.getNumResults();
             for (let i = 0; i < numResults; i++) {
                 result.addTypes([new _.IntegerType('i32')]);
             }
-            // Parse optional attribute dictionary (ref impl line 552-553)
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            // If no 'names' attribute exists and there are results, infer from SSA names (ref impl line 555-579)
             if (!result.attributes.has('names') && numResults > 0) {
                 const names = [];
                 for (let i = 0; i < numResults; i++) {
@@ -24277,15 +24010,12 @@ _.TestDialect = class extends _.Dialect {
 
     // Custom directive: operand [, optOperand] -> (varOperands)
     parseCustomDirectiveOperands(parser, result) {
-        // Parse required operand
         const unresolvedRequired = parser.parseOperand();
         parser.resolveOperand(unresolvedRequired, null, result.operands);
-        // Parse optional operand
         if (parser.parseOptionalComma()) {
             const unresolvedOptional = parser.parseOperand();
             parser.resolveOperand(unresolvedOptional, null, result.operands);
         }
-        // Parse -> (varOperands)
         parser.expect('->');
         parser.parseLParen();
         while (parser.match('%')) {
@@ -24308,7 +24038,6 @@ _.TestDialect = class extends _.Dialect {
     parseCustomDirectiveResults(parser, result) {
         parser.parseColon();
         const type = parser.parseType();
-        // Assign type to first operand/result if available
         if (result.operands.length > 0) {
             result.operands[0].type = type;
         }
@@ -24341,10 +24070,8 @@ _.TestDialect = class extends _.Dialect {
     }
 
     parseCustomDirectiveRegions(parser, result) {
-        // Parse first region
         const region = result.addRegion();
         parser.parseRegion(region);
-        // Parse optional variadic regions
         while (parser.parseOptionalComma()) {
             const varRegion = result.addRegion();
             parser.parseRegion(varRegion);
@@ -24355,11 +24082,9 @@ _.TestDialect = class extends _.Dialect {
         if (!result.successors) {
             result.successors = [];
         }
-        // Parse first successor
         const successor = {};
         successor.label = parser.expect('^');
         result.successors.push(successor);
-        // Parse optional variadic successors
         while (parser.parseOptionalComma()) {
             const varSuccessor = {};
             varSuccessor.label = parser.expect('^');
@@ -24383,7 +24108,6 @@ _.TestDialect = class extends _.Dialect {
     }
 
     parseCustomDirectiveSpacing(parser, op, attrName) {
-        // Parse attribute for spacing test
         if (attrName) {
             const name = attrName.name || attrName;
             const attr = parser.parseAttribute();
@@ -24392,7 +24116,6 @@ _.TestDialect = class extends _.Dialect {
     }
 
     parseCustomDirectiveOptionalOperandRef(parser) {
-        // This directive parses an integer (1 or 0) indicating if the optional operand was present
         parser.parseInteger();
     }
 
@@ -24409,7 +24132,6 @@ _.TestDialect = class extends _.Dialect {
     }
 
     parseUsingPropertyInCustom(parser, op, propArg) {
-        // Parse [int, int, ...] format for property values
         const values = [];
         parser.parseLSquare();
         while (!parser.match(']')) {
@@ -24848,9 +24570,7 @@ _.PlanDialect = class extends _.Dialect {
 
     parseWithValuesTypes(parser, op, elementsRef, resultTypes, elementsTypes) {
         const resultType = parser.parseType();
-        // Push to resultTypes so inferResultTypes finds it
         resultTypes.push(resultType);
-        // Add to op.types as before
         if (op.types.length === 0) {
             op.addTypes([resultType]);
         } else {
@@ -25306,7 +25026,6 @@ _.ACCDialect = class extends _.Dialect {
             parser.parseKeyword('var');
         }
         parser.parseLParen();
-        // Push unresolved operand to context - resolution happens after all directives
         operands.push(parser.parseOperand());
     }
 
@@ -25325,7 +25044,6 @@ _.ACCDialect = class extends _.Dialect {
     // custom<VarPtrType>(type($var), $varType) - receives ctx.get('var').types
     parseVarPtrType(parser, op, types, varTypeAttrName) {
         const type = parser.parseType();
-        // Push type to context - resolution happens after all directives
         types.push(type);
         parser.parseRParen();
         if (parser.parseOptionalKeyword('varType')) {
@@ -25609,14 +25327,11 @@ _.ACCDialect = class extends _.Dialect {
             parser.parseRParen();
             return;
         }
-        // Parse all operands (comma-separated) until we hit ':'
         const unresolvedOperands = [];
         do {
             unresolvedOperands.push(parser.parseOperand());
         } while (parser.parseOptionalComma() && !parser.match(':'));
-        // Parse the colon and types
         parser.parseColon();
-        // Parse all types (comma-separated) and resolve operands
         const types = [];
         for (let i = 0; i < unresolvedOperands.length; i++) {
             if (i > 0) {
@@ -25821,7 +25536,6 @@ _.MPMDDialect = class extends _.Dialect {
     parseFragmentOp(parser, result) {
         // mpmd.fragment<mesh="m1", origin=["f1"], stage_id=N> (%inputs) {attrs} (%block_args) { region } : (types) -> type
         parser.parseLess();
-        // Parse attributes inside <>
         while (!parser.match('>')) {
             const attrName = parser.expect(_.Token.bare_identifier);
             parser.parseEqual();
@@ -25851,7 +25565,6 @@ _.MPMDDialect = class extends _.Dialect {
     parseFragmentCallOp(parser, result) {
         // mpmd.fragment_call<mesh="m1", origin=["f1"]> @callee(%args) {attrs} : (types) -> type
         parser.parseLess();
-        // Parse attributes inside <>
         while (!parser.match('>')) {
             const attrName = parser.expect(_.Token.bare_identifier);
             parser.parseEqual();
@@ -25880,7 +25593,6 @@ _.MPMDDialect = class extends _.Dialect {
     parseForOp(parser, result) {
         // Use parseOperandList for simple operand list (no types in syntax)
         const inputs = parser.parseOperandList('paren');
-        // Resolve with null types (type inferred from definition)
         const types = inputs.map(() => null);
         parser.resolveOperands(inputs, types, result.operands);
         parser.parseOptionalAttrDict(result.attributes);
@@ -25907,7 +25619,6 @@ _.MPMDDialect = class extends _.Dialect {
         const tensorType = parser.parseType();
         const result = { name: prefix, meshName, tensorType };
         if (parser.parseOptionalComma()) {
-            // Parse optional sharding
             if (parser.parseOptionalKeyword('sharding')) {
                 parser.parseEqual();
                 result.sharding = parser.parseAttribute();
@@ -25921,7 +25632,6 @@ _.MPMDDialect = class extends _.Dialect {
     parseUserOriginAttr(parser) {
         const name = parser.parseString();
         let transposeCount = 0;
-        // Parse optional (transposeCount)
         if (parser.parseOptionalLParen()) {
             const count = parser.parseInteger();
             transposeCount = count;
@@ -25930,7 +25640,6 @@ _.MPMDDialect = class extends _.Dialect {
         return { name, transposeCount };
     }
 
-    // Parse array of UserOriginAttr: ["name1"(count1), "name2", ...]
     parseOriginArray(parser) {
         const origins = [];
         parser.parseLSquare();
@@ -26001,7 +25710,6 @@ _.SdyDialect = class extends _.Dialect {
 
     parseTensorShardingAttr(parser) {
         parser.parseLess();
-        // Parse mesh or reference: either @mesh_name or mesh<["x"=N, ...]>
         let meshOrRef = null;
         if (parser.match('@')) {
             meshOrRef = parser.expect('@');
@@ -26082,7 +25790,6 @@ _.SdyDialect = class extends _.Dialect {
                 }
             }
         }
-        // Parse optional priority suffix like p0, p1, etc.
         let priority = null;
         if (parser.match(_.Token.bare_identifier)) {
             const tokenValue = parser.getTokenSpelling().str();
@@ -26224,7 +25931,6 @@ _.XlaDialect = class extends _.Dialect {
             const unresolvedInits = [];
             const regionArgs = [];
             const indexType = new _.IndexType();
-            // Parse optional dimensions in parentheses
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
                     if (parser.match('%')) {
@@ -26262,11 +25968,9 @@ _.XlaDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            // Parse 'in #map'
             parser.parseKeyword('in');
             const map = parser.parseAttribute();
             result.addAttribute('indexing_map_attr', map);
-            // Parse 'iter_args(%args = %inits)'
             const iterArgNames = [];
             if (parser.parseOptionalKeyword('iter_args')) {
                 parser.parseLParen();
@@ -26285,7 +25989,6 @@ _.XlaDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             const resultTypes = [];
-            // Parse optional '-> (types)' or '-> type'
             if (parser.parseOptionalArrow()) {
                 if (parser.parseOptionalLParen()) {
                     const types = parser.parseTypeListNoParens();
@@ -26340,7 +26043,6 @@ _.XlaGpuDialect = class extends _.Dialect {
         // xla_gpu.shuffle_reduce(%ops) to N combiner=@func {attrs} : types
         if (result.op === 'xla_gpu.shuffle_reduce') {
             const unresolvedOperands = [];
-            // Parse operands in parentheses
             if (parser.parseOptionalLParen()) {
                 while (!parser.match(')')) {
                     if (parser.match('%')) {
@@ -26352,18 +26054,14 @@ _.XlaGpuDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            // Parse 'to N'
             parser.parseKeyword('to');
             const maxDistance = parser.expect('int');
             result.addAttribute('max_distance', parseInt(maxDistance, 10));
-            // Parse 'combiner=@func'
             parser.parseKeyword('combiner');
             parser.parseEqual();
             const combiner = parser.expect('@');
             result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
-            // Parse optional attributes
             parser.parseOptionalAttrDict(result.attributes);
-            // Parse : types
             if (parser.parseOptionalColon()) {
                 const types = parser.parseTypeList();
                 parser.resolveOperands(unresolvedOperands, types, result.operands);
@@ -26390,7 +26088,6 @@ _.XlaGpuDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            // Parse 'inits(%init_values)'
             parser.parseKeyword('inits');
             parser.parseLParen();
             while (!parser.match(')')) {
@@ -26402,23 +26099,18 @@ _.XlaGpuDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            // Parse 'dimensions=[0, 2]'
             parser.parseKeyword('dimensions');
             parser.parseEqual();
             const dimensions = parser.parseAttribute();
             result.addAttribute('dimensions', dimensions);
-            // Parse 'combiner=@func'
             parser.parseKeyword('combiner');
             parser.parseEqual();
             const combiner = parser.expect('@');
             result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
-            // Parse optional attributes
             parser.parseOptionalAttrDict(result.attributes);
-            // Parse : in_types to out_types
             if (parser.parseOptionalColon()) {
                 const inputTypes = parser.parseTypeList();
                 parser.resolveOperands(unresolvedInputs, inputTypes, result.operands);
-                // Parse 'to' and output types
                 parser.parseKeyword('to');
                 const outputTypes = parser.parseTypeList();
                 result.addTypes(outputTypes);
@@ -26472,14 +26164,12 @@ _.TritonXlaDialect = class extends _.Dialect {
             const memrefType = parser.parseType();
             // Extract shape and layout from the memref type
             this._extractMemRefInfo(memrefType, result, 'src_shape', 'src_layout');
-            // Parse offsets, sizes, strides using dynamic index lists
             this.parseDynamicIndexList(parser, result, 'offsets', 'static_offsets');
             this.parseDynamicIndexList(parser, result, 'sizes', 'static_sizes');
             this.parseDynamicIndexList(parser, result, 'strides', 'static_strides');
             parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const resultType = parser.parseType();
-            // Resolve src operand with memref type (the layout type)
             parser.resolveOperand(unresolvedSrc, memrefType, result.operands);
             result.addTypes([resultType]);
             return true;
@@ -26494,14 +26184,12 @@ _.TritonXlaDialect = class extends _.Dialect {
             const memrefType = parser.parseType();
             // Extract shape and layout from the memref type
             this._extractMemRefInfo(memrefType, result, 'dst_shape', 'dst_layout');
-            // Parse offsets, sizes, strides using dynamic index lists
             this.parseDynamicIndexList(parser, result, 'offsets', 'static_offsets');
             this.parseDynamicIndexList(parser, result, 'sizes', 'static_sizes');
             this.parseDynamicIndexList(parser, result, 'strides', 'static_strides');
             parser.parseOptionalAttrDict(result.attributes);
             parser.parseColon();
             const srcType = parser.parseType();
-            // Resolve operands
             parser.resolveOperand(unresolvedSrc, srcType, result.operands);
             parser.resolveOperand(unresolvedDst, memrefType, result.operands);
             return true;
@@ -26512,13 +26200,11 @@ _.TritonXlaDialect = class extends _.Dialect {
     _extractMemRefInfo(memrefType, op, shapeAttrName, layoutAttrName) {
         // Extract shape and layout from memref type like memref<512x1x128xbf16, #xtile.layout<[2, 1, 0]>>
         const typeStr = memrefType.toString();
-        // Extract shape dimensions
         const shapeMatch = typeStr.match(/memref<([\d?x]+)/);
         if (shapeMatch) {
             const dims = shapeMatch[1].split('x').filter((d) => d).map((d) => d === '?' ? -1 : parseInt(d, 10));
             op.addAttribute(shapeAttrName, dims);
         }
-        // Extract layout if present
         const layoutMatch = typeStr.match(/#[a-z_.]+\.<\[([^\]]+)\]>/);
         if (layoutMatch) {
             const layout = layoutMatch[1].split(',').map((s) => parseInt(s.trim(), 10));
@@ -26678,14 +26364,11 @@ _.XtenNNDialect = class extends _.Dialect {
                 }
             }
         }
-        // Parse optional attributes (with 'attributes' keyword)
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        // Parse optional region
         if (parser.match('{')) {
             const region = result.addRegion();
             parser.parseRegion(region, entryArgs, /* enableNameShadowing */ true);
         }
-        // Parse result types - handle multiple types with or without parens
         if (parser.parseOptionalArrow()) {
             const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
             result.addTypes(types);
@@ -26714,19 +26397,15 @@ _.XtenNNDialect = class extends _.Dialect {
                 break;
             }
         }
-        // Parse attributes
         parser.parseOptionalAttrDict(result.attributes);
-        // Parse result type
         result.addTypes(parser.parseArrowTypeList());
         return true;
     }
 
     // Parse: "name" (%arg : type, ...) instantiation_args [...] {attrs} -> result_types
     parseKernelOp(parser, result) {
-        // Parse kernel name string
         const nameAttr = parser.parseAttribute();
         result.addAttribute('name', nameAttr);
-        // Parse operands
         if (parser.parseOptionalLParen()) {
             const unresolvedOperands = [];
             const types = [];
@@ -26745,7 +26424,6 @@ _.XtenNNDialect = class extends _.Dialect {
             }
             parser.resolveOperands(unresolvedOperands, types, result.operands);
         }
-        // Parse optional instantiation_args
         if (parser.parseOptionalKeyword('instantiation_args')) {
             const instArgs = [];
             const instArgNames = [];
@@ -26775,9 +26453,7 @@ _.XtenNNDialect = class extends _.Dialect {
                 result.addAttribute('instantiation_arg_names', instArgNames);
             }
         }
-        // Parse optional attributes
         parser.parseOptionalAttrDict(result.attributes);
-        // Parse result types - handle multiple types with or without parens
         if (parser.parseOptionalArrow()) {
             const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
             result.addTypes(types);
