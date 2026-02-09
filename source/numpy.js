@@ -31,9 +31,9 @@ numpy.ModelFactory = class {
                 execution.on('resolve', (sender, name) => unresolved.add(name));
                 const stream = context.stream;
                 const io = execution.__import__('io');
-                const numpy = execution.__import__('numpy');
+                const np = execution.__import__('numpy');
                 const bytes = new io.BytesIO(stream);
-                const array = numpy.load(bytes);
+                const array = np.load(bytes);
                 if (unresolved.size > 0) {
                     const name = unresolved.values().next().value;
                     throw new numpy.Error(`Unknown type name '${name}'.`);
