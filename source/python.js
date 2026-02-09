@@ -8373,6 +8373,13 @@ python.Execution = class {
             return torch.fx.graph_module._deserialize_graph_module(forward, body);
         });
         this.registerType('torch.fx.graph.CodeGen', class {});
+        this.registerType('torch.fx.graph._PyTreeInfo', class {
+            constructor(orig_args, in_spec, out_spec) {
+                this.orig_args = orig_args;
+                this.in_spec = in_spec;
+                this.out_spec = out_spec;
+            }
+        });
         this.registerType('torch.fx.graph._Namespace', class {
             constructor() {
                 this._obj_to_name = new Map();
@@ -8616,6 +8623,7 @@ python.Execution = class {
         torch.fx.Graph = torch.fx.graph.Graph;
         torch.fx.GraphModule = torch.fx.graph_module.GraphModule;
         this.registerType('torch.fx.immutable_collections.immutable_dict', class extends builtins.dict {});
+        this.registerType('torch.fx.immutable_collections.immutable_list', class extends builtins.list {});
         this.registerFunction('torch.fx._symbolic_trace.wrap', (fn_or_name) => {
             return fn_or_name;
         });
