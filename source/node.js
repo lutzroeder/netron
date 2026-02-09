@@ -43,7 +43,7 @@ node.FileStream = class {
 
     peek(length) {
         length = length === undefined ? this._length - this._position : length;
-        if (length < 0x1000000) {
+        if (length < 0x10000000) {
             const position = this._fill(length);
             this._position -= length;
             return this._buffer.subarray(position, position + length);
