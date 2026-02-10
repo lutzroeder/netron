@@ -20,6 +20,8 @@ view.View = class {
             mousewheel: 'scroll'
         };
         this._options = { ...this._defaultOptions };
+        this._events = {};
+        this._events.selectionchange = () => this._selectionChangeHandler();
         this._model = null;
         this._path = [];
         this._selection = [];
@@ -59,18 +61,31 @@ view.View = class {
                     e.preventDefault();
                 }
             }, { passive: false });
-            this._host.document.addEventListener('keydown', () => {
-                if (this._target) {
+            this._host.document.addEventListener('keydown', (e) => {
+                if (this._target && !e.metaKey && !e.ctrlKey) {
                     this._target.select(null);
+                }
+            });
+            this._host.document.addEventListener('copy', (e) => {
+                const selection = this._host.document.getSelection();
+                if (!selection || selection.toString().trim() === '') {
+                    if (this._target && this._target.selection.size > 0) {
+                        const names = [];
+                        for (const element of this._target.selection) {
+                            if (element.value && element.value.name) {
+                                names.push(element.value.name);
+                            }
+                        }
+                        if (names.length > 0) {
+                            e.clipboardData.setData('text/plain', names.join('\n'));
+                            e.preventDefault();
+                        }
+                    }
                 }
             });
             if (this._host.type === 'Electron') {
                 this._host.update({ 'copy.enabled': false });
-                this._host.document.addEventListener('selectionchange', () => {
-                    const selection = this._host.document.getSelection();
-                    const selected = selection.rangeCount === 0 || selection.toString().trim() !== '';
-                    this._host.update({ 'copy.enabled': selected });
-                });
+                this._host.document.addEventListener('selectionchange', this._events.selectionchange);
             }
             const platform = this._host.environment('platform');
             this._menu = new view.Menu(this._host);
@@ -313,6 +328,7 @@ view.View = class {
     set target(value) {
         if (this._target !== value) {
             if (this._target) {
+                this._target.off('selectionchange', this._events.selectionchange);
                 this._target.unregister();
             }
             const enabled = value ? true : false;
@@ -323,6 +339,7 @@ view.View = class {
             });
             this._target = value;
             if (this._target) {
+                this._target.on('selectionchange', this._events.selectionchange);
                 this._target.register();
             }
         }
@@ -388,6 +405,15 @@ view.View = class {
         return new Promise((resolve) => {
             this._host.window.setTimeout(resolve, delay);
         });
+    }
+
+    _selectionChangeHandler() {
+        if (this._host.type === 'Electron') {
+            const selection = this._host.document.getSelection();
+            const text = selection.rangeCount === 0 || selection.toString().trim() !== '';
+            const graph = this._target && this._target.selection.size > 0;
+            this._host.update({ 'copy.enabled': text || graph });
+        }
     }
 
     _element(id) {
@@ -1565,6 +1591,26 @@ view.Graph = class extends grapher.Graph {
         this._table = new Map();
         this._selection = new Set();
         this._zoom = 1;
+        this._listeners = {};
+    }
+
+    on(event, callback) {
+        this._listeners[event] = this._listeners[event] || [];
+        this._listeners[event].push(callback);
+    }
+
+    off(event, callback) {
+        if (this._listeners[event]) {
+            this._listeners[event] = this._listeners[event].filter((c) => c !== callback);
+        }
+    }
+
+    emit(event, data) {
+        if (this._listeners[event]) {
+            for (const callback of this._listeners[event]) {
+                callback(this, data);
+            }
+        }
     }
 
     get model() {
@@ -1577,6 +1623,10 @@ view.Graph = class extends grapher.Graph {
 
     get options() {
         return this.view.options;
+    }
+
+    get selection() {
+        return this._selection;
     }
 
     createNode(node) {
@@ -1802,8 +1852,10 @@ view.Graph = class extends grapher.Graph {
                     this._selection.add(element);
                 }
             }
+            this.emit('selectionchange');
             return array;
         }
+        this.emit('selectionchange');
         return null;
     }
 
