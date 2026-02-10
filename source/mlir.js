@@ -2627,7 +2627,7 @@ _.Lexer = class {
     lexPrefixedIdentifier(prefix) {
         let result = prefix;
         this._read();
-        if ((prefix === '#' || prefix === '@') && this._current === '"') {
+        if (prefix === '@' && this._current === '"') {
             result += this.lexString().getSpelling().str();
             return this.formToken(prefix, result);
         }
@@ -3162,7 +3162,7 @@ _.Parser = class {
         const dimensions = [];
         const parseDim = () => {
             if (allowDynamic && this.accept(_.Token.question)) {
-                dimensions.push('?');
+                dimensions.push(_.ShapedType.kDynamic);
                 return true;
             }
             if (this.match(_.Token.integer)) {
@@ -3677,7 +3677,7 @@ _.Parser = class {
                 if (!type && this.consumeIf(_.Token.colon)) {
                     type = this.parseType();
                 }
-                return new _.TypedAttr(value, type || new _.PrimitiveType('string'));
+                return new _.StringAttr(value, type);
             }
             case _.Token.at_identifier: {
                 const nameStr = this.getTokenSpelling().str().substring(1);
@@ -3700,7 +3700,7 @@ _.Parser = class {
             }
             case _.Token.kw_unit:
                 this.consumeToken(_.Token.kw_unit);
-                return { value: 'unit', type: new _.PrimitiveType('unit') };
+                return new _.UnitAttr();
             case _.Token.bare_identifier: {
                 const tokenValue = this.getTokenSpelling().str();
                 if (tokenValue === 'tensor' || tokenValue === 'vector' || tokenValue === 'memref' ||
