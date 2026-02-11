@@ -63,6 +63,8 @@ known_legacy_schema_definitions = [
     "aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor",
     "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor", # noqa E501
     "aten::get_num_threads() -> int",
+    "aten::greater(Tensor self, Tensor other) -> Tensor",
+    "cuda::_current_device() -> int",
     "aten::list_with_default(int[] list, int[] defaults) -> int[]",
     "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
     "aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
@@ -106,6 +108,7 @@ known_legacy_schema_definitions = [
     "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
     "fbgemm::jagged_to_padded_dense(Tensor values, Tensor[] offsets, SymInt[] max_lengths, float padding_value=0.) -> Tensor", # noqa E501
     "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
+    "fbgemm::segment_sum_csr(SymInt batch_size, Tensor csr_seg, Tensor values) -> Tensor", # noqa E501
     "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)",
     "fbgemm::nccl_reducescatter(Tensor dst, Tensor src, int comm_idx=0) -> ()",
     "fbgemm::nccl_allgather(Tensor dst, Tensor src, int comm_idx=0) -> ()",
@@ -362,6 +365,7 @@ known_legacy_schema_definitions = [
     "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)", # noqa E501
     "torchvision::_interpolate_bilinear2d_aa(Tensor input, int[] size, bool align_corners) -> Tensor", # noqa E501
     "torchvision::deform_conv2d.out(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "sgl_kernel::extend_attention_cpu(Tensor q_extend, Tensor k_extend, Tensor v_extend, Tensor(a!) o_extend, Tensor k_buffer, Tensor v_buffer, Tensor req_to_token, Tensor req_pool_indices, Tensor seq_lens, Tensor extend_seq_lens, Tensor extend_start_loc, int max_len_extend, float sm_scale, float logit_cap) -> ()", # noqa E501
     "vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor" # noqa E501
 ]
 

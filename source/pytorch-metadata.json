@@ -484,6 +484,12 @@
     "name": "aten::_embedding_bag.out(Tensor weight, Tensor indices, Tensor offsets, bool scale_grad_by_freq=False, int mode=0, bool sparse=False, Tensor? per_sample_weights=None, bool include_last_offset=False, int padding_idx=-1, *, Tensor(a!) out0, Tensor(b!) out1, Tensor(c!) out2, Tensor(d!) out3) -> (Tensor(a!), Tensor(b!), Tensor(c!), Tensor(d!))"
   },
   {
+    "name": "aten::_fake_quantize_learnable_per_channel_affine(Tensor self, Tensor scale, Tensor zero_point, int axis, int quant_min, int quant_max, float grad_factor=1.) -> Tensor"
+  },
+  {
+    "name": "aten::_fake_quantize_learnable_per_channel_affine.out(Tensor self, Tensor scale, Tensor zero_point, int axis, int quant_min, int quant_max, float grad_factor=1., *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
     "name": "aten::_fake_quantize_learnable_per_tensor_affine(Tensor self, Tensor scale, Tensor zero_point, int quant_min, int quant_max, float grad_factor=1.) -> Tensor",
     "category": "Quantization"
   },
@@ -500,6 +506,9 @@
   },
   {
     "name": "aten::_fft_r2c.out(Tensor self, int[] dim, int normalization, bool onesided, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_get_cpu_capability() -> str"
   },
   {
     "name": "aten::_has_compatible_shallow_copy_type(Tensor self, Tensor from) -> bool"
@@ -576,6 +585,10 @@
   },
   {
     "name": "aten::_prelu_kernel(Tensor self, Tensor weight) -> Tensor"
+  },
+  {
+    "name": "aten::_safe_softmax(Tensor self, int dim, ScalarType? dtype=None) -> Tensor",
+    "category": "Activation"
   },
   {
     "name": "aten::_scaled_dot_product_efficient_attention(Tensor query, Tensor key, Tensor value, Tensor? attn_bias, bool compute_log_sumexp, float dropout_p=0., bool is_causal=False, *, float? scale=None) -> (Tensor output, Tensor log_sumexp, Tensor philox_seed, Tensor philox_offset)"
@@ -656,6 +669,12 @@
   },
   {
     "name": "aten::_transformer_encoder_layer_fwd.out(Tensor src, int embed_dim, int num_heads, Tensor qkv_weight, Tensor qkv_bias, Tensor proj_weight, Tensor proj_bias, bool use_gelu, bool norm_first, float eps, Tensor norm_weight_1, Tensor norm_bias_1, Tensor norm_weight_2, Tensor norm_bias_2, Tensor ffn_weight_1, Tensor ffn_bias_1, Tensor ffn_weight_2, Tensor ffn_bias_2, Tensor? mask=None, int? mask_type=None, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::_unique(Tensor self, bool sorted=True, bool return_inverse=False) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "aten::_unique.out(Tensor self, bool sorted=True, bool return_inverse=False, *, Tensor(a!) out0, Tensor(b!) out1) -> (Tensor(a!), Tensor(b!))"
   },
   {
     "name": "aten::_unique2(Tensor self, bool sorted=True, bool return_inverse=False, bool return_counts=False) -> (Tensor, Tensor, Tensor)"
@@ -2772,6 +2791,15 @@
     "is_vararg": true
   },
   {
+    "name": "aten::frexp.Tensor(Tensor self) -> (Tensor mantissa, Tensor exponent)"
+  },
+  {
+    "name": "aten::frexp.Tensor_out(Tensor self, *, Tensor(a!) mantissa, Tensor(b!) exponent) -> (Tensor(a!) mantissa, Tensor(b!) exponent)"
+  },
+  {
+    "name": "aten::frexp(float a) -> (float, int)"
+  },
+  {
     "name": "aten::frobenius_norm.dim(Tensor self, int[1] dim, bool keepdim=False) -> Tensor",
     "category": "Normalization"
   },
@@ -2967,6 +2995,9 @@
   },
   {
     "name": "aten::greater.Tensor_out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "aten::greater(Tensor self, Tensor other) -> Tensor"
   },
   {
     "name": "aten::greater_equal.Tensor(Tensor self, Tensor other) -> Tensor"
@@ -5152,6 +5183,9 @@
     "name": "aten::range.out_(Scalar start, Scalar end, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "aten::ravel(Tensor(a) self) -> Tensor(a)"
+  },
+  {
     "name": "aten::real(Tensor(a) self) -> Tensor(a)"
   },
   {
@@ -6795,6 +6829,9 @@
     "name": "cortex_m::transpose.out(Tensor input, int[] perm, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "cuda::_current_device() -> int"
+  },
+  {
     "name": "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor"
   },
   {
@@ -6970,6 +7007,9 @@
   },
   {
     "name": "fbgemm::rope_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor"
+  },
+  {
+    "name": "fbgemm::segment_sum_csr(SymInt batch_size, Tensor csr_seg, Tensor values) -> Tensor"
   },
   {
     "name": "fbgemm::silu_mul_quantize_i8(Tensor X1, Tensor X2, float scale) -> Tensor"
@@ -7743,6 +7783,9 @@
     "name": "prims::collapse(Tensor a, int start, int end) -> Tensor"
   },
   {
+    "name": "profiler::_record_function_enter(str name, str? args=None) -> Tensor"
+  },
+  {
     "name": "profiler::_record_function_enter_new(str name, str? args=None) -> __torch__.torch.classes.profiler._RecordFunction"
   },
   {
@@ -8257,6 +8300,9 @@
     "name": "quantized_decomposed::quantize_per_token(Tensor input, Tensor scales, Tensor zero_points, int quant_min, int quant_max, ScalarType dtype) -> Tensor"
   },
   {
+    "name": "sgl_kernel::extend_attention_cpu(Tensor q_extend, Tensor k_extend, Tensor v_extend, Tensor(a!) o_extend, Tensor k_buffer, Tensor v_buffer, Tensor req_to_token, Tensor req_pool_indices, Tensor seq_lens, Tensor extend_seq_lens, Tensor extend_start_loc, int max_len_extend, float sm_scale, float logit_cap) -> ()"
+  },
+  {
     "name": "tensorrt::execute_engine(Tensor[] inputs, __torch__.torch.classes.tensorrt.Engine engine) -> Tensor[]"
   },
   {
@@ -8378,6 +8424,9 @@
   },
   {
     "name": "torchao::quantize_affine(Tensor input, SymInt[] block_size, Tensor scale, Tensor? zero_point, ScalarType output_dtype, Scalar? quant_min=None, Scalar? quant_max=None) -> Tensor"
+  },
+  {
+    "name": "torchaudio::forced_align(Tensor log_probs, Tensor targets, Tensor input_lengths, Tensor target_lengths, int blank) -> (Tensor, Tensor)"
   },
   {
     "name": "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)"
