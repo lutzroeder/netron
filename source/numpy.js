@@ -261,7 +261,7 @@ numpy.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Error loading Chainer model.';
+        this.name = 'Error loading NumPy model.';
     }
 };
 
