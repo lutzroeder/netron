@@ -337,6 +337,15 @@ espresso.Reader = class {
                         delete data.blob_biases;
                         break;
                     }
+                    case 'conv3d': {
+                        this._weights(obj, data, null);
+                        if (data.has_biases) {
+                            obj.inputs.push(this._initializer('biases', data.blob_biases, 'float32', null));
+                        }
+                        delete data.has_biases;
+                        delete data.blob_biases;
+                        break;
+                    }
                     case 'instancenorm_1d':
                     case 'dynamic_dequantize': {
                         this._weights(obj, data, null);
