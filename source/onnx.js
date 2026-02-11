@@ -52,7 +52,7 @@ onnx.Model = class {
         this._modules = [];
         this._format = target.format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ` ${model.producer_version}` : '') : null;
-        if (this._producer && this._producer.startsWith('CatBoost Git info:')) {
+        if (this._producer && /^CatBoost (Git|Arc) info:/.test(this._producer)) {
             const version = this._producer.match(/Branch: tags\/v([\d.]+)/);
             const commit = this._producer.match(/Commit: ([a-f0-9]{7})/);
             this._producer = `CatBoost${version ? ` v${version[1]}` : ''}${commit ? `+${commit[1]}` : ''}`;
