@@ -7,6 +7,8 @@ const vulkan = {};
 const xnnpack = {};
 const qnn = {};
 const ethosu = {};
+const openvino = {};
+const rockchip = {};
 
 import * as base from './base.js';
 import * as python from './python.js';
@@ -406,6 +408,12 @@ executorch.Reader = class {
                                 break;
                             case 'EthosUBackend':
                                 delegate.backend = ethosu.Reader.open(data, this);
+                                break;
+                            case 'OpenvinoBackend':
+                                delegate.backend = openvino.Reader.open(data, this);
+                                break;
+                            case 'RockchipBackend':
+                                delegate.backend = rockchip.Reader.open(data, this);
                                 break;
                             default:
                                 throw new executorch.Error(`ExecuTorch delegate '${delegate.id}' not implemented.`);
@@ -1119,6 +1127,16 @@ qnn.Reader = class {
     }
 };
 
+qnn.Graph = class {
+
+    constructor() {
+        this.name = 'QnnBackend';
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+    }
+};
+
 ethosu.Reader = class {
 
     static open(data /* , target */) {
@@ -1264,6 +1282,56 @@ ethosu.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading Ethos-U model.';
+    }
+};
+
+openvino.Reader = class {
+
+    static open(data /* , target */) {
+        return new openvino.Reader(data);
+    }
+
+    constructor(data) {
+        this.data = data;
+    }
+
+    async read() {
+        throw new executorch.Error('OpenVINO backend not implemented.');
+    }
+};
+
+openvino.Graph = class {
+
+    constructor() {
+        this.name = 'OpenvinoBackend';
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+    }
+};
+
+rockchip.Reader = class {
+
+    static open(data /* , target */) {
+        return new rockchip.Reader(data);
+    }
+
+    constructor(data) {
+        this.data = data;
+    }
+
+    async read() {
+        throw new executorch.Error('Rockchip backend not implemented.');
+    }
+};
+
+rockchip.Graph = class {
+
+    constructor() {
+        this.name = 'RockchipBackend';
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
     }
 };
 
