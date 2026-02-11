@@ -6689,6 +6689,8 @@ view.ModelFactoryService = class {
                     { name: 'Sentence Transformers configuration', tags: ['__version__.sentence_transformers'] }, // https://www.sbert.net/
                     { name: 'Lottie animation', tags: ['v', 'fr', 'ip', 'op', 'w', 'h', 'layers'] }, // https://lottiefiles.github.io/lottie-docs/
                     { name: 'OCI image manifest', tags: ['schemaVersion', 'mediaType'] }, // https://github.com/opencontainers/image-spec
+                    { name: 'LabelMe annotation', tags: ['version', 'flags', 'shapes'] }, // https://github.com/labelmeai/labelme
+                    { name: 'Ollama model manifest', tags: ['model_format', 'model_family'] }, // https://github.com/ollama/ollama
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
