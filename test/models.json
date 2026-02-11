@@ -5165,6 +5165,13 @@
   },
   {
     "type":     "openvino",
+    "target":   "dynamic-no-fold.xml",
+    "source":   "TODO_UPLOAD_AND_REPLACE[dynamic-no-fold.xml]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/issues/191"
+  },
+  {
+    "type":     "openvino",
     "target":   "face-detection-retail-0005.bin,face-detection-retail-0005.xml",
     "source":   "https://github.com/lutzroeder/netron/files/12750770/face-detection-retail-0005.zip[face-detection-retail-0005.bin,face-detection-retail-0005.xml]",
     "format":   "OpenVINO IR",
