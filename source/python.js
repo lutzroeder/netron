@@ -177,6 +177,7 @@ python.Execution = class {
         this.register('torch.ops.torchaudio');
         this.register('torch.ops._caffe2');
         this.register('torchvision');
+        this.register('ultralytics');
         this.register('__torch__');
         const sys = this.register('sys');
         sys.modules = this._modules;
@@ -8167,6 +8168,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.intrinsic.modules.fused.ConvBnReLU2d', class extends torch.ao.nn.intrinsic.modules.fused._FusedModule {});
         this.registerType('torch.ao.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.utils.prune.CustomFromMask', class {});
+        this.registerType('torch.nn.utils.prune.Identity', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.prune.LnStructured', class {});
         this.registerType('torch.nn.utils.prune.PruningContainer', class {});
@@ -8845,6 +8847,76 @@ python.Execution = class {
         this.registerFunction('torchvision.models.vision_transformer.vit_h_14', () => {});
         this.registerFunction('torchvision.ops.boxes.box_iou');
         this.registerFunction('torchvision.ops.focal_loss.sigmoid_focal_loss');
+        this.registerType('ultralytics.nn.modules.block.Bottleneck', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C1', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C2', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C2f', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C2fAttn', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C2fCIB', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C2fPSA', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C2PSA', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C3', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C3Ghost', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C3k2', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C3k2_v2', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C3TR', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.C3x', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.DFL', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.GhostBottleneck', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.HGBlock', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.HGStem', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.Proto', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.RepC3', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.SCDown', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.SPP', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.SPPF', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.Concat', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.Conv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.Conv2', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.ConvTranspose', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.DWConv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.DWConvTranspose2d', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.Focus', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.GhostConv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.LightConv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.conv.RepConv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.Classify', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.Detect', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.OBB', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.Pose', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.RTDETRDecoder', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.Segment', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.WorldDetect', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.head.v10Detect', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.transformer.AIFI', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.transformer.DeformableTransformerDecoder', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.transformer.DeformableTransformerDecoderLayer', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.transformer.MLP', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.transformer.TransformerEncoderLayer', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.transformer.TransformerLayer', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.Down_WT.Down_wt', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.prune_module.C3k2_v2', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.BaseModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.ClassificationModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.DetectionModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.Ensemble', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.OBBModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.PoseModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.RTDETRDetectionModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.SegmentationModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.WorldModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.YOLOEModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.YOLOESegModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.utils.IterableSimpleNamespace', class {});
+        this.registerType('ultralytics.utils.loss.BboxLoss', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.utils.loss.E2EDetectLoss', class {});
+        this.registerType('ultralytics.utils.loss.v8ClassificationLoss', class {});
+        this.registerType('ultralytics.utils.loss.v8DetectionLoss', class {});
+        this.registerType('ultralytics.utils.loss.v8OBBLoss', class {});
+        this.registerType('ultralytics.utils.loss.v8PoseLoss', class {});
+        this.registerType('ultralytics.utils.loss.v8SegmentationLoss', class {});
+        this.registerType('ultralytics.utils.tal.TaskAlignedAssigner', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.utils.torch_utils.ModelEMA', class {});
         this.registerFunction('builtins.annotate', (type, value) => {
             if (type === builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
@@ -14762,8 +14834,10 @@ python.Execution = class {
                 schemas.push(method.getSchema());
             }
             if (schemas.length === 0) {
-                const user_function_name = name;
-                throw new python.Error(`Unknown built-in function '${user_function_name}'.`);
+                const inputs = args.map((arg) => arg.value(graph));
+                const n = graph.insertNode(graph.create(name, inputs, 0)).setSourceRange(loc);
+                n.addOutput().setType(torch.TensorType.get());
+                return n.output();
             }
             const matched = torch._C.matchSchemas(schemas, loc, graph, args, kwargs, self);
             if (matched[0] < variants.length + upgrader_schemas.length) {
