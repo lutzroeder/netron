@@ -45,18 +45,39 @@ sync() {
         IFS='|' read -r url branch dir root <<< "${entry}"
         if [ ! -d "${dir}" ]; then
             if [ -n "${root}" ]; then
-                git clone --quiet --depth=1 --branch "${branch}" --single-branch --filter=blob:none --sparse "${url}" "${dir}" >/dev/null 2>&1
-                git -C "${dir}" sparse-checkout set ${root} >/dev/null 2>&1
+                if ! stderr=$(git clone --quiet --depth=1 --branch "${branch}" --single-branch --filter=blob:none --sparse "${url}" "${dir}" 2>&1); then
+                    echo "${stderr}" >&2
+                    exit 1
+                fi
+                if ! stderr=$(git -C "${dir}" sparse-checkout set ${root} 2>&1); then
+                    echo "${stderr}" >&2
+                    exit 1
+                fi
             else
-                git clone --quiet --depth=1 --branch "${branch}" --single-branch "${url}" "${dir}"
+                if ! stderr=$(git clone --quiet --depth=1 --branch "${branch}" --single-branch "${url}" "${dir}" 2>&1); then
+                    echo "${stderr}" >&2
+                    exit 1
+                fi
             fi
         else
             if [ -n "${root}" ]; then
-                git -C "${dir}" sparse-checkout set ${root} >/dev/null 2>&1
+                if ! stderr=$(git -C "${dir}" sparse-checkout set ${root} 2>&1); then
+                    echo "${stderr}" >&2
+                    exit 1
+                fi
             fi
-            git -C "${dir}" fetch --quiet --depth=1 origin "${branch}"
-            git -C "${dir}" reset --quiet --hard FETCH_HEAD >/dev/null 2>&1
-            git -C "${dir}" gc --quiet --prune=all
+            if ! stderr=$(git -C "${dir}" fetch --quiet --depth=1 origin "${branch}" 2>&1); then
+                echo "${stderr}" >&2
+                exit 1
+            fi
+            if ! stderr=$(git -C "${dir}" reset --quiet --hard FETCH_HEAD 2>&1); then
+                echo "${stderr}" >&2
+                exit 1
+            fi
+            if ! stderr=$(git -C "${dir}" gc --quiet --prune=all 2>&1); then
+                echo "${stderr}" >&2
+                exit 1
+            fi
         fi
     done
     mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Interfaces"

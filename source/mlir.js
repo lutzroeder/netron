@@ -1674,12 +1674,12 @@ _.DenseI64ArrayAttr = class extends _.Attribute {
 
     static parse(parser) {
         // DenseI64ArrayAttr::parse - parses [0, 1, 2] or [0]
-        if (!parser.match('[')) {
+        if (!parser.match(_.Token.l_square)) {
             return null;
         }
-        parser.expect('[');
+        parser.expect(_.Token.l_square);
         const values = [];
-        while (!parser.match(']')) {
+        while (!parser.match(_.Token.r_square)) {
             const value = parser.parseOptionalInteger();
             if (value === null) {
                 break;
@@ -1687,7 +1687,7 @@ _.DenseI64ArrayAttr = class extends _.Attribute {
             values.push(value);
             parser.parseOptionalComma();
         }
-        parser.expect(']');
+        parser.expect(_.Token.r_square);
         return new _.DenseI64ArrayAttr(values);
     }
 };
@@ -2321,6 +2321,8 @@ _.Token.kw_loc = 'kw_loc';
 _.Token.kw_sparse = 'kw_sparse';
 _.Token.kw_strided = 'kw_strided';
 _.Token.kw_unit = 'kw_unit';
+_.Token.kw_offset = 'kw_offset';
+_.Token.kw_symbol = 'kw_symbol';
 _.Token.kw_true = 'kw_true';
 _.Token.kw_false = 'kw_false';
 
@@ -3094,7 +3096,7 @@ _.Parser = class {
     }
 
     parseOptionalLocationSpecifier() {
-        if (!this.accept(_.Token.kw_loc)) {
+        if (!this.consumeIf(_.Token.kw_loc)) {
             return null;
         }
         this.expect(_.Token.l_paren);
@@ -3145,7 +3147,7 @@ _.Parser = class {
         const dimensions = [];
         const scalableDims = [];
         while (this.match(_.Token.integer) || this.match(_.Token.l_square)) {
-            const scalable = Boolean(this.accept(_.Token.l_square));
+            const scalable = this.consumeIf(_.Token.l_square);
             dimensions.push(this.parseIntegerInDimensionList());
             if (scalable) {
                 this.expect(_.Token.r_square);
@@ -3161,7 +3163,7 @@ _.Parser = class {
     parseDimensionListRanked(allowDynamic = true, withTrailingX = true) {
         const dimensions = [];
         const parseDim = () => {
-            if (allowDynamic && this.accept(_.Token.question)) {
+            if (allowDynamic && this.consumeIf(_.Token.question)) {
                 dimensions.push(_.ShapedType.kDynamic);
                 return true;
             }
@@ -3192,7 +3194,7 @@ _.Parser = class {
         this.parseToken(_.Token.less, "Expected '<' in tensor type");
         let isUnranked = false;
         let dimensions = [];
-        if (this.accept(_.Token.star)) {
+        if (this.consumeIf(_.Token.star)) {
             isUnranked = true;
             this.parseXInDimensionList();
         } else {
@@ -3201,7 +3203,7 @@ _.Parser = class {
         }
         const elementType = this.parseType();
         let encoding = null;
-        if (this.accept(_.Token.comma)) {
+        if (this.consumeIf(_.Token.comma)) {
             encoding = this.parseAttribute();
         }
         this.parseToken(_.Token.greater, "Expected '>' in tensor type");
@@ -3224,7 +3226,7 @@ _.Parser = class {
         this.parseToken(_.Token.less, "Expected '<' in memref type");
         let isUnranked = false;
         let dimensions = [];
-        if (this.accept(_.Token.star)) {
+        if (this.consumeIf(_.Token.star)) {
             isUnranked = true;
             this.parseXInDimensionList();
         } else {
@@ -3239,7 +3241,7 @@ _.Parser = class {
         }
         let layout = null;
         let memorySpace = null;
-        while (this.accept(_.Token.comma)) {
+        while (this.consumeIf(_.Token.comma)) {
             const attr = this.parseAttribute();
             const isLayout = attr instanceof _.AffineMapAttr || (attr && attr.type === 'strided') || (attr instanceof _.OpaqueAttr && attr.toString().includes('layout'));
             if (isLayout) {
@@ -3284,7 +3286,7 @@ _.Parser = class {
 
     parseTupleType() {
         this.parseToken(_.Token.less, "Expected '<' in tuple type");
-        if (this.accept(_.Token.greater)) {
+        if (this.consumeIf(_.Token.greater)) {
             return new _.TupleType([]);
         }
         const types = this.parseCommaSeparatedList('none', () => this.parseType());
@@ -3534,13 +3536,13 @@ _.Parser = class {
         const isOptional = delimiter && delimiter.startsWith('optional');
         if (open) {
             if (isOptional) {
-                if (!this.accept(open)) {
+                if (!this.consumeIf(open)) {
                     return results;
                 }
             } else {
                 this.expect(open);
             }
-            if (close && this.accept(close)) {
+            if (close && this.consumeIf(close)) {
                 return results;
             }
         }
@@ -3548,7 +3550,7 @@ _.Parser = class {
         if (first !== null && first !== undefined) {
             results.push(first);
         }
-        while (this.accept(_.Token.comma)) {
+        while (this.consumeIf(_.Token.comma)) {
             const elem = parseElement();
             if (elem !== null && elem !== undefined) {
                 results.push(elem);
@@ -3746,7 +3748,7 @@ _.Parser = class {
     parseExtendedAttr(type = null) {
         const attr = this.parseExtendedSymbol(this.state.asmState, this.state.attributeAliasDefinitions, (dialectName, symbolData) => {
             let attrType = type;
-            if (this.accept(_.Token.colon)) {
+            if (this.consumeIf(_.Token.colon)) {
                 attrType = this.parseType();
                 if (!attrType) {
                     return new _.Attribute();
@@ -3891,7 +3893,7 @@ _.Parser = class {
         this.parseToken(_.Token.r_square, "Expected ']'");
         let offset = null;
         if (this.consumeIf(_.Token.comma)) {
-            this.parseToken('kw_offset', "Expected 'offset' after comma");
+            this.parseToken(_.Token.kw_offset, "Expected 'offset' after comma");
             this.parseToken(_.Token.colon, "Expected ':' after 'offset'");
             offset = this.parseOptionalInteger();
             if (offset === null) {
@@ -4044,7 +4046,7 @@ _.Parser = class {
     }
 
     parseOptionalVerticalBar() {
-        return this.accept(_.Token.vertical_bar);
+        return this.consumeIf(_.Token.vertical_bar);
     }
 
     parseOptionalString() {
@@ -4484,7 +4486,7 @@ _.AffineParser = class extends _.Parser {
     }
 
     parseAffineOperandExpr(lhs) {
-        if (this.match('kw_symbol')) {
+        if (this.match(_.Token.kw_symbol)) {
             return this.parseSymbolSSAIdExpr();
         }
         if (this.match(_.Token.percent_identifier)) {
@@ -4518,7 +4520,7 @@ _.AffineParser = class extends _.Parser {
     }
 
     parseSymbolSSAIdExpr() {
-        this.parseToken('kw_symbol');
+        this.parseToken(_.Token.kw_symbol);
         this.parseToken(_.Token.l_paren);
         const symbolExpr = this.parseSSAIdExpr(true);
         this.parseToken(_.Token.r_paren);
@@ -5244,11 +5246,11 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseOptionalLBrace() {
-        return this.accept(_.Token.l_brace);
+        return this.consumeIf(_.Token.l_brace);
     }
 
     parseOptionalRBrace() {
-        return this.accept(_.Token.r_brace);
+        return this.consumeIf(_.Token.r_brace);
     }
 
     parseComma() {
@@ -5256,7 +5258,7 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseOptionalComma() {
-        return this.accept(_.Token.comma);
+        return this.consumeIf(_.Token.comma);
     }
 
     parseLParen() {
@@ -5268,11 +5270,11 @@ _.AsmParser = class extends _.Parser {
     }
 
     parseOptionalLParen() {
-        return this.accept(_.Token.l_paren);
+        return this.consumeIf(_.Token.l_paren);
     }
 
     parseOptionalRParen() {
-        return this.accept(_.Token.r_paren);
+        return this.consumeIf(_.Token.r_paren);
     }
 
     parseLSquare() {
@@ -8927,7 +8929,7 @@ _.Dialect = class {
                 break;
             case 'literal':
                 // Make '[' optional when followed by a variadic operand with buildable type
-                if (directive.value === '[' && !parser.match('[')) {
+                if (directive.value === '[' && !parser.match(_.Token.l_square)) {
                     const nextDir = directives[i + 1];
                     if (nextDir && nextDir.type === 'operand_ref') {
                         const operandMeta = opInfo.metadata?.operands?.find((o) => o.name === nextDir.name);
@@ -8949,11 +8951,11 @@ _.Dialect = class {
                 const isVariadicRegion = regionMeta && regionMeta.type && regionMeta.type.name === 'VariadicRegion';
                 const isIsolated = op.name.getRegisteredInfo().hasTrait('IsolatedFromAbove');
                 if (isVariadicRegion) {
-                    if (parser.match('{')) {
+                    if (parser.match(_.Token.l_brace)) {
                         do {
                             const region = op.addRegion();
                             parser.parseRegion(region, undefined, isIsolated);
-                        } while (parser.parseOptionalComma() && parser.match('{'));
+                        } while (parser.parseOptionalComma() && parser.match(_.Token.l_brace));
                     }
                 } else {
                     const region = op.addRegion();
@@ -8984,12 +8986,12 @@ _.Dialect = class {
                     (nextDir.parser === 'ResultTypeList' || nextDir.parser === 'TypeList');
                 const parseOneSuccessor = () => {
                     const successor = {};
-                    successor.label = parser.expect('^');
+                    successor.label = parser.expect(_.Token.caret_identifier);
                     // Don't consume '(' if next directive handles it (e.g., custom<ResultTypeList>)
                     if (!nextDirHandlesParens && parser.parseOptionalLParen()) {
                         successor.arguments = [];
-                        while (!parser.match(':') && !parser.match(')')) {
-                            if (parser.match('%')) {
+                        while (!parser.match(_.Token.colon) && !parser.match(_.Token.r_paren)) {
+                            if (parser.match(_.Token.percent_identifier)) {
                                 successor.arguments.push(parser.parseOperand());
                                 parser.parseOptionalComma();
                             } else {
@@ -9003,7 +9005,7 @@ _.Dialect = class {
                 };
                 if (isVariadicContext) {
                     // Variadic successors: parse 0 or more successors
-                    while (parser.match('^')) {
+                    while (parser.match(_.Token.caret_identifier)) {
                         parseOneSuccessor();
                         if (!parser.parseOptionalComma()) {
                             break;
@@ -9056,7 +9058,7 @@ _.Dialect = class {
                         if (!parser.parseOptionalLParen()) {
                             break;
                         }
-                        while (parser.match('%')) {
+                        while (parser.match(_.Token.percent_identifier)) {
                             entry.operands.push(parser.parseOperand());
                             if (!parser.parseOptionalComma()) {
                                 break;
@@ -9065,8 +9067,8 @@ _.Dialect = class {
                         parser.parseRParen();
                     } while (parser.parseOptionalComma());
                 } else if (isVariadicOp) {
-                    while (!parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match(':') && !parser.match('{') && !parser.match('=')) {
-                        if (parser.match('%')) {
+                    while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.r_square) && !parser.match(_.Token.r_brace) && !parser.match(_.Token.colon) && !parser.match(_.Token.l_brace) && !parser.match(_.Token.equal)) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             entry.operands.push(parser.parseOperand());
                             if (buildableType) {
                                 entry.types.push(buildableType);
@@ -9074,13 +9076,13 @@ _.Dialect = class {
                             if (!parser.parseOptionalComma()) {
                                 break;
                             }
-                        } else if (buildableType && (parser.match('int') || parser.match('minus'))) {
+                        } else if (buildableType && (parser.match(_.Token.integer) || parser.match(_.Token.minus))) {
                             // Handle integer literals for buildable integer types (e.g., I32)
                             let value = '';
-                            if (parser.consumeIf('minus')) {
+                            if (parser.consumeIf(_.Token.minus)) {
                                 value = '-';
                             }
-                            value += parser.expect('int');
+                            value += parser.expect(_.Token.integer);
                             entry.operands.push({ name: value, literal: true });
                             if (buildableType) {
                                 entry.types.push(buildableType);
@@ -9092,21 +9094,21 @@ _.Dialect = class {
                             break;
                         }
                     }
-                } else if (parser.match('%')) {
+                } else if (parser.match(_.Token.percent_identifier)) {
                     entry.operands.push(parser.parseOperand());
                     if (buildableType) {
                         entry.types.push(buildableType);
                     }
-                } else if (buildableType && (parser.match('int') || parser.match('minus'))) {
+                } else if (buildableType && (parser.match(_.Token.integer) || parser.match(_.Token.minus))) {
                     // Handle integer literals for buildable integer types (e.g., I32)
                     let value = '';
-                    if (parser.consumeIf('minus')) {
+                    if (parser.consumeIf(_.Token.minus)) {
                         value = '-';
                     }
-                    value += parser.expect('int');
+                    value += parser.expect(_.Token.integer);
                     entry.operands.push({ name: value, literal: true });
                     entry.types.push(buildableType);
-                } else if (parser.match('{')) {
+                } else if (parser.match(_.Token.l_brace)) {
                     // Check if this is a region, not an operand
                     const isActualOperand = opInfo.metadata?.operands?.some((inp) => inp.name === name);
                     if (!isActualOperand) {
@@ -9116,13 +9118,13 @@ _.Dialect = class {
                         if (isVariadicRegion) {
                             do {
                                 parser.parseRegion(op.addRegion(), undefined, isIsolated);
-                            } while (parser.parseOptionalComma() && parser.match('{'));
+                            } while (parser.parseOptionalComma() && parser.match(_.Token.l_brace));
                         } else {
                             parser.parseRegion(op.addRegion(), undefined, isIsolated);
                         }
                     }
-                } else if (parser.match('@')) {
-                    op.addAttribute(name, parser.expect('@'));
+                } else if (parser.match(_.Token.at_identifier)) {
+                    op.addAttribute(name, parser.expect(_.Token.at_identifier));
                 } else if (!isOptionalOp && parser.match(_.Token.bare_identifier)) {
                     // Check if this is an enum type that should be an attribute
                     // Enum types have a values array after type parsing
@@ -9132,9 +9134,9 @@ _.Dialect = class {
                     } else {
                         throw new mlir.Error(`Variable '${name}' has incorrect metadata (expected attribute, got operand).`);
                     }
-                } else if (!isOptionalOp && parser.match('int')) {
-                    op.addAttribute(name, parser.expect('int'));
-                } else if (!isOptionalOp && !parser.match(':') && !parser.match(')') && !parser.match(']') && !parser.match('}') && !parser.match('eof')) {
+                } else if (!isOptionalOp && parser.match(_.Token.integer)) {
+                    op.addAttribute(name, parser.expect(_.Token.integer));
+                } else if (!isOptionalOp && !parser.match(_.Token.colon) && !parser.match(_.Token.r_paren) && !parser.match(_.Token.r_square) && !parser.match(_.Token.r_brace) && !parser.match(_.Token.eof)) {
                     const attr = parser.parseAttribute();
                     if (attr) {
                         op.addAttribute(name, attr);
@@ -9238,7 +9240,7 @@ _.Dialect = class {
                         if (!parser.parseOptionalLParen()) {
                             break;
                         }
-                        if (!parser.match(')')) {
+                        if (!parser.match(_.Token.r_paren)) {
                             entry.types.push(...parser.parseTypeListNoParens());
                         }
                         parser.parseRParen();
@@ -9287,7 +9289,7 @@ _.Dialect = class {
                 break;
             case 'regions': {
                 const isIsolated = op.name.hasTrait('IsolatedFromAbove');
-                while (parser.match('{')) {
+                while (parser.match(_.Token.l_brace)) {
                     const region = op.addRegion();
                     parser.parseRegion(region, undefined, isIsolated);
                     if (!parser.parseOptionalComma()) {
@@ -9298,11 +9300,11 @@ _.Dialect = class {
             }
             case 'successors': {
                 op.successors = op.successors || [];
-                if (parser.match('^')) {
-                    op.successors.push({ label: parser.expect('^') });
+                if (parser.match(_.Token.caret_identifier)) {
+                    op.successors.push({ label: parser.expect(_.Token.caret_identifier) });
                     while (parser.parseOptionalComma()) {
-                        if (parser.match('^')) {
-                            op.successors.push({ label: parser.expect('^') });
+                        if (parser.match(_.Token.caret_identifier)) {
+                            op.successors.push({ label: parser.expect(_.Token.caret_identifier) });
                         } else {
                             break;
                         }
@@ -9484,9 +9486,9 @@ _.Dialect = class {
                         if (firstElem.value.length === 1 && /[(){}[\],:<>=?]/.test(firstElem.value)) {
                             shouldParse = parser.match(firstElem.value);
                         } else if (firstElem.value === '->') {
-                            shouldParse = parser.match('->');
+                            shouldParse = parser.match(_.Token.arrow);
                         } else if (firstElem.value === '...') {
-                            shouldParse = parser.match('ellipsis');
+                            shouldParse = parser.match(_.Token.ellipsis);
                         } else {
                             shouldParse = parser.match(_.Token.bare_identifier, firstElem.value) || parser.match(`kw_${firstElem.value}`);
                         }
@@ -9514,17 +9516,17 @@ _.Dialect = class {
                         const typeName = getTypeName(elementType);
                         let shouldTryParse = false;
                         if (typeContains(elementType, 'TypedArrayAttrBase') || typeContains(elementType, 'ArrayAttr')) {
-                            shouldTryParse = parser.match('[');
+                            shouldTryParse = parser.match(_.Token.l_square);
                         } else if (typeName && /^[SU]?I\d+Attr$|^IntegerAttr$|^IndexAttr$/.test(typeName)) {
-                            shouldTryParse = parser.match('int') || parser.match('minus');
+                            shouldTryParse = parser.match(_.Token.integer) || parser.match(_.Token.minus);
                         } else if (typeContains(elementType, 'ElementsAttr')) {
                             // ElementsAttr values start with specific keywords: dense, sparse, array, dense_resource
-                            shouldTryParse = parser.match('kw_dense') || parser.match('kw_sparse') ||
-                                parser.match('kw_array') || parser.match('kw_dense_resource');
+                            shouldTryParse = parser.match(_.Token.kw_dense) || parser.match(_.Token.kw_sparse) ||
+                                parser.match(_.Token.kw_array) || parser.match(_.Token.kw_dense_resource);
                         } else if (typeName === 'StrAttr' || typeName === 'StringAttr') {
-                            shouldTryParse = parser.match('string');
+                            shouldTryParse = parser.match(_.Token.string);
                         } else {
-                            shouldTryParse = parser.match(_.Token.bare_identifier) || parser.getToken().isKeyword() || parser.match('#') || parser.match('@') || parser.match('string') || parser.match('[') || parser.match('int');
+                            shouldTryParse = parser.match(_.Token.bare_identifier) || parser.getToken().isKeyword() || parser.match(_.Token.hash_identifier) || parser.match(_.Token.at_identifier) || parser.match(_.Token.string) || parser.match(_.Token.l_square) || parser.match(_.Token.integer);
                         }
                         if (shouldTryParse) {
                             let result = null;
@@ -9539,9 +9541,9 @@ _.Dialect = class {
                             }
                         }
                     } else if (firstElem.type === 'successor_ref') {
-                        shouldParse = parser.match('^');
+                        shouldParse = parser.match(_.Token.caret_identifier);
                     } else if (firstElem.type === 'region_ref') {
-                        shouldParse = parser.match('{');
+                        shouldParse = parser.match(_.Token.l_brace);
                     } else if (firstElem.type === 'operand_ref') {
                         let isKeywordInput = false;
                         if (opInfo.metadata && opInfo.metadata.operands) {
@@ -9558,10 +9560,10 @@ _.Dialect = class {
                         if (isKeywordInput) {
                             shouldParse = parser.match(_.Token.bare_identifier);
                         } else {
-                            shouldParse = parser.match('%');
+                            shouldParse = parser.match(_.Token.percent_identifier);
                         }
                     } else if (firstElem.type === 'operands') {
-                        shouldParse = parser.match('(') || parser.match('%');
+                        shouldParse = parser.match(_.Token.l_paren) || parser.match(_.Token.percent_identifier);
                     } else if (firstElem.type === 'custom') {
                         const fn = this._customDirectives.get(firstElem.parser);
                         if (fn) {
@@ -9577,9 +9579,9 @@ _.Dialect = class {
                         if (firstElem.args && firstElem.args.length > 0) {
                             const [arg] = firstElem.args;
                             if (arg.startsWith('$')) {
-                                shouldParse = parser.match('#');
+                                shouldParse = parser.match(_.Token.hash_identifier);
                             } else if (arg.startsWith('type($')) {
-                                shouldParse = parser.match('!') || parser.match(_.Token.bare_identifier);
+                                shouldParse = parser.match(_.Token.exclamation_identifier) || parser.match(_.Token.bare_identifier);
                             }
                         }
                     }
@@ -9603,20 +9605,20 @@ _.Dialect = class {
                         return parser.match(_.Token.bare_identifier, elem.value) || parser.match(`kw_${elem.value}`);
                     }
                     if (elem.type === 'operand_ref') {
-                        return parser.match('%');
+                        return parser.match(_.Token.percent_identifier);
                     }
                     if (elem.type === 'attribute_ref') {
-                        return parser.match(_.Token.bare_identifier) || parser.match('int') || parser.match('float') || parser.match('[') || parser.match('@') || parser.match('#');
+                        return parser.match(_.Token.bare_identifier) || parser.match(_.Token.integer) || parser.match(_.Token.floatliteral) || parser.match(_.Token.l_square) || parser.match(_.Token.at_identifier) || parser.match(_.Token.hash_identifier);
                     }
                     if (elem.type === 'region_ref') {
-                        return parser.match('{');
+                        return parser.match(_.Token.l_brace);
                     }
                     if (elem.type === 'successor_ref') {
-                        return parser.match('^');
+                        return parser.match(_.Token.caret_identifier);
                     }
                     if (elem.type === 'custom') {
                         // Custom directives can start with various tokens including negative integers
-                        return parser.match(_.Token.bare_identifier) || parser.match('int') || parser.match('minus') || parser.match('%') || parser.match('[') || parser.match('(') || parser.match('?');
+                        return parser.match(_.Token.bare_identifier) || parser.match(_.Token.integer) || parser.match(_.Token.minus) || parser.match(_.Token.percent_identifier) || parser.match(_.Token.l_square) || parser.match(_.Token.l_paren) || parser.match(_.Token.question);
                     }
                     return false;
                 };
@@ -9721,7 +9723,7 @@ _.Dialect = class {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             let type = `!${dialect}.${mnemonic}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 type += parser.skip('<');
             }
             return new _.Type(type);
@@ -9803,11 +9805,11 @@ _.Dialect = class {
     }
 
     parseArrayAttr(parser) {
-        if (parser.match('[')) {
+        if (parser.match(_.Token.l_square)) {
             return parser.parseOptionalAttribute();
         }
         // Handle attribute alias references that resolve to arrays
-        if (parser.match('#')) {
+        if (parser.match(_.Token.hash_identifier)) {
             return parser.parseAttribute();
         }
         return null;
@@ -9826,7 +9828,7 @@ _.Dialect = class {
     }
 
     parseUnitAttr(parser) {
-        parser.consumeIf('kw_unit');
+        parser.consumeIf(_.Token.kw_unit);
         return new _.UnitAttr();
     }
 
@@ -9861,7 +9863,7 @@ _.Dialect = class {
         if (parser.accept(openDelim)) {
             while (!parser.match(closeDelim)) {
                 const isScalable = parser.parseOptionalLSquare();
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                     staticValues.push(_.ShapedType.kDynamic);
                     if (parser.parseOptionalColon()) {
@@ -9899,9 +9901,9 @@ _.Dialect = class {
 
     parseOffsets(parser, op, attrName) {
         const values = [];
-        while (parser.match('int') || parser.match('minus')) {
-            if (parser.accept('minus')) {
-                if (parser.match('int')) {
+        while (parser.match(_.Token.integer) || parser.match(_.Token.minus)) {
+            if (parser.consumeIf(_.Token.minus)) {
+                if (parser.match(_.Token.integer)) {
                     values.push(-parser.parseInteger());
                 } else {
                     throw new mlir.Error(`Expected integer after '-' in offsets ${parser.location()}`);
@@ -9979,7 +9981,7 @@ _.Dialect = class {
     parseResultTypeList(parser, op) {
         parser.parseLParen();
         const types = [];
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 types.push(parser.parseType());
             } while (parser.parseOptionalComma());
@@ -10003,7 +10005,7 @@ _.Dialect = class {
             parser.parseLSquare();
             sourceOffsetsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            parser.expect('->');
+            parser.parseArrow();
             const rowTarget = parser.parseOperand();
             if (targetOps.length === 0) {
                 targetOps.push(rowTarget);
@@ -10042,7 +10044,7 @@ _.Dialect = class {
             parser.parseLSquare();
             sourceOffsetsOps.push(parser.parseOperand());
             parser.parseRSquare();
-            parser.expect('->');
+            parser.parseArrow();
             const rowTarget = parser.parseOperand();
             if (targetOps.length === 0) {
                 targetOps.push(rowTarget);
@@ -10093,7 +10095,7 @@ _.Dialect = class {
             }
             parser.parseRBrace();
             // Parse -> %scope::%key[%offset]
-            parser.expect('->');
+            parser.parseArrow();
             const firstOperand = parser.parseOperand();
             let key = firstOperand;
             if (parser.parseOptionalColon()) {
@@ -10135,7 +10137,7 @@ _.Dialect = class {
             }
             parser.parseRBrace();
             // Parse -> %scope::%key[%offset]
-            parser.expect('->');
+            parser.parseArrow();
             const firstOperand = parser.parseOperand();
             let key = firstOperand;
             if (parser.parseOptionalColon()) {
@@ -10289,8 +10291,8 @@ _.HLODialect = class extends _.Dialect {
     parseDims(parser) {
         const dims = [];
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
-                if (parser.match('int') || parser.match('number')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.integer)) {
                     dims.push(parseInt(parser.expect(), 10));
                 } else if (parser.match(_.Token.bare_identifier)) {
                     dims.push(parser.expect(_.Token.bare_identifier));
@@ -10308,7 +10310,7 @@ _.HLODialect = class extends _.Dialect {
         const input = this.parseDims(parser);
         parser.parseKeyword('x');
         const kernel = this.parseDims(parser);
-        parser.expect('->');
+        parser.parseArrow();
         const output = this.parseDims(parser);
         op.addAttribute(attrName, new _.ConvDimensionNumbersAttr(input, kernel, output));
     }
@@ -10323,7 +10325,7 @@ _.HLODialect = class extends _.Dialect {
         };
         const parseArray = () => {
             return parser.parseCommaSeparatedList('square', () => {
-                if (parser.match('[')) {
+                if (parser.match(_.Token.l_square)) {
                     return parseArray();
                 }
                 const intValue = parser.parseOptionalInteger();
@@ -10336,7 +10338,7 @@ _.HLODialect = class extends _.Dialect {
                 return null;
             });
         };
-        while (!parser.match('}')) {
+        while (!parser.match(_.Token.r_brace)) {
             if (parser.match(_.Token.bare_identifier)) {
                 const key = parser.expect(_.Token.bare_identifier);
                 if (parser.parseOptionalEqual()) {
@@ -10469,16 +10471,16 @@ _.HLODialect = class extends _.Dialect {
         };
 
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
-                if (parser.match('int')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.integer)) {
                     ranges.start_indices.push(parser.parseInteger());
                 }
                 parser.parseOptionalColon();
-                if (parser.match('int')) {
+                if (parser.match(_.Token.integer)) {
                     ranges.limit_indices.push(parser.parseInteger());
                 }
                 if (parser.parseOptionalColon()) {
-                    if (parser.match('int')) {
+                    if (parser.match(_.Token.integer)) {
                         ranges.strides.push(parser.parseInteger());
                     }
                 } else {
@@ -10496,10 +10498,10 @@ _.HLODialect = class extends _.Dialect {
     // custom<CustomCallTarget>($call_target_name)
     parseCustomCallTarget(parser, op, attrName) {
         let target = null;
-        if (parser.match('@')) {
-            target = parser.expect('@');
-        } else if (parser.match('string')) {
-            target = parser.expect('string');
+        if (parser.match(_.Token.at_identifier)) {
+            target = parser.expect(_.Token.at_identifier);
+        } else if (parser.match(_.Token.string)) {
+            target = parser.expect(_.Token.string);
         } else {
             throw new mlir.Error(`Expected '@' or string for CustomCallTarget at ${parser.location()}`);
         }
@@ -10508,9 +10510,9 @@ _.HLODialect = class extends _.Dialect {
 
     // custom<VariadicOperandWithAttribute>($inputs)
     parseVariadicOperandWithAttribute(parser, op, operands) {
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             const operand = parser.parseOperand();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 operand.attributes = new Map();
                 parser.parseAttributeDict(operand.attributes);
             }
@@ -10545,13 +10547,13 @@ _.HLODialect = class extends _.Dialect {
             parser.parseEqual();
             parser.parseLSquare();
             const dimensions = [];
-            while (!parser.match(']')) {
-                if (parser.match('int')) {
-                    dimensions.push(parser.expect('int'));
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.integer)) {
+                    dimensions.push(parser.expect(_.Token.integer));
                 } else {
                     throw new mlir.Error(`Expected integer dimension in reduce operation ${parser.location()}`);
                 }
-                if (!parser.parseOptionalComma() && !parser.match(']')) {
+                if (!parser.parseOptionalComma() && !parser.match(_.Token.r_square)) {
                     throw new mlir.Error(`Expected ',' or ']' in dimensions list ${parser.location()}`);
                 }
             }
@@ -10605,9 +10607,9 @@ _.HLODialect = class extends _.Dialect {
         parser.parseEqual();
         parser.parseLSquare();
         const dimensions = [];
-        while (!parser.match(']')) {
-            if (parser.match('int')) {
-                dimensions.push(parser.expect('int'));
+        while (!parser.match(_.Token.r_square)) {
+            if (parser.match(_.Token.integer)) {
+                dimensions.push(parser.expect(_.Token.integer));
             }
             parser.parseOptionalComma();
         }
@@ -10628,7 +10630,7 @@ _.HLODialect = class extends _.Dialect {
         // Parse block arguments: (%lhs : type, %rhs : type) (%linit : type, %rinit : type)
         const regionArgs = [];
         while (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const value = parser.parseOperand();
                 parser.parseColon();
                 const type = parser.parseType();
@@ -10648,7 +10650,7 @@ _.HLODialect = class extends _.Dialect {
     parseScanOp(parser, result /*, returnOpName */) {
         parser.parseLParen();
         const unresolvedInputs = [];
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             unresolvedInputs.push(parser.parseOperand());
             if (!parser.parseOptionalComma()) {
                 break;
@@ -10659,7 +10661,7 @@ _.HLODialect = class extends _.Dialect {
         parser.parseKeyword('inits');
         parser.parseLParen();
         const unresolvedInits = [];
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             unresolvedInits.push(parser.parseOperand());
             if (!parser.parseOptionalComma()) {
                 break;
@@ -10669,11 +10671,11 @@ _.HLODialect = class extends _.Dialect {
 
         parser.parseKeyword('dimension');
         parser.parseOptionalEqual();
-        const dimension = parser.expect('int');
+        const dimension = parser.expect(_.Token.integer);
         result.addAttribute('dimension', dimension);
 
         // Parse optional attributes: is_reverse=true, is_associative=true
-        while (parser.accept(',') || parser.match(_.Token.bare_identifier, 'is_reverse') || parser.match(_.Token.bare_identifier, 'is_associative')) {
+        while (parser.parseOptionalComma() || parser.match(_.Token.bare_identifier, 'is_reverse') || parser.match(_.Token.bare_identifier, 'is_associative')) {
             if (parser.parseOptionalKeyword('is_reverse')) {
                 parser.parseOptionalEqual();
                 const value = parser.expect(_.Token.bare_identifier);
@@ -10720,7 +10722,7 @@ _.StableHLODialect = class extends _.HLODialect {
                 parser.parseColon();
                 parser.parseLParen();
                 parser.parseRParen();
-                parser.expect('->');
+                parser.parseArrow();
                 const type = parser.parseType();
                 result.addTypes([type]);
             } else {
@@ -10739,10 +10741,10 @@ _.StableHLODialect = class extends _.HLODialect {
             }
             return true;
         }
-        if (result.op === 'stablehlo.while' && parser.match('(')) {
+        if (result.op === 'stablehlo.while' && parser.match(_.Token.l_paren)) {
             const unresolvedOperands = [];
             parser.parseOptionalLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 parser.parseOperand(); // Skip block argument name
                 if (parser.parseOptionalEqual()) {
                     unresolvedOperands.push(parser.parseOperand());
@@ -10764,7 +10766,7 @@ _.StableHLODialect = class extends _.HLODialect {
                 }
             }
             if (parser.parseOptionalKeyword('attributes')) {
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(result.attributes);
                 }
             }
@@ -10778,11 +10780,11 @@ _.StableHLODialect = class extends _.HLODialect {
             }
             return true;
         }
-        if (result.op === 'stablehlo.reduce' && parser.match('(')) {
+        if (result.op === 'stablehlo.reduce' && parser.match(_.Token.l_paren)) {
             // stablehlo uses DenseI64ArrayAttr for dimensions (like b.getDenseI64ArrayAttr in ref impl)
             return super.parseReduceOp(parser, result, (dims) => dims, 'stablehlo.return');
         }
-        if (result.op === 'stablehlo.scan' && parser.match('(')) {
+        if (result.op === 'stablehlo.scan' && parser.match(_.Token.l_paren)) {
             return super.parseScanOp(parser, result, 'stablehlo.return');
         }
         return super.parseOperation(parser, result);
@@ -10818,7 +10820,7 @@ _.VhloDialect = class extends _.Dialect {
 
     parseOperation(parser, result) {
         if (result.op === 'vhlo.constant_v1') {
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             const value = parser.parseAttribute();
@@ -10868,17 +10870,17 @@ _.AffineDialect = class extends _.Dialect {
         if (result.op === 'affine.if') {
             // affine.if #set(dims)[symbols] [-> (type)] { region }
             // Or: affine.if affine_set<(d0) : (constraint)>(dims)[symbols]
-            if (parser.match('#')) {
+            if (parser.match(_.Token.hash_identifier)) {
                 const condition = parser.parseAttribute();
                 result.addAttribute('condition', condition);
-            } else if (parser.accept('kw_affine_set')) {
+            } else if (parser.consumeIf(_.Token.kw_affine_set)) {
                 const content = parser.skip('<');
                 result.addAttribute('condition', `affine_set${content}`);
             }
             const indexType = new _.IndexType();
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         parser.resolveOperand(operand, indexType, result.operands);
                     }
@@ -10887,7 +10889,7 @@ _.AffineDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalLSquare()) {
                 while (!parser.parseOptionalRSquare()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         parser.resolveOperand(operand, indexType, result.operands);
                     }
@@ -10907,12 +10909,12 @@ _.AffineDialect = class extends _.Dialect {
         }
         // Special handling for affine.apply, affine.min, and affine.max
         if (result.op === 'affine.apply' || result.op === 'affine.min' || result.op === 'affine.max') {
-            if (parser.match('#') || parser.match('kw_affine_map') || parser.match('kw_affine_set')) {
+            if (parser.match(_.Token.hash_identifier) || parser.match(_.Token.kw_affine_map) || parser.match(_.Token.kw_affine_set)) {
                 const value = parser.parseAttribute();
                 result.addAttribute('map', value);
             }
             const indexType = new _.IndexType();
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 const unresolvedDims = parser.parseOperandList('paren');
                 parser.resolveOperands(unresolvedDims, unresolvedDims.map(() => indexType), result.operands);
             }
@@ -10943,7 +10945,7 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseComma();
             parser.parseKeyword('locality');
             parser.parseLess();
-            const locality = parser.expect('int');
+            const locality = parser.expect(_.Token.integer);
             result.addAttribute('localityHint', locality);
             parser.parseGreater();
             parser.parseComma();
@@ -10959,11 +10961,11 @@ _.AffineDialect = class extends _.Dialect {
         if (result.op === 'affine.dma_start') {
             const indexType = new _.IndexType();
             const unresolvedOperands = [];
-            while (!parser.match(':') && !parser.match('{')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.colon) && !parser.match(_.Token.l_brace)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
-                if (parser.match('[')) {
+                if (parser.match(_.Token.l_square)) {
                     parser.skip('[');
                 }
                 parser.parseOptionalComma();
@@ -10983,11 +10985,11 @@ _.AffineDialect = class extends _.Dialect {
         if (result.op === 'affine.dma_wait') {
             const indexType = new _.IndexType();
             const unresolvedOperands = [];
-            while (!parser.match(':') && !parser.match('{')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.colon) && !parser.match(_.Token.l_brace)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
-                if (parser.match('[')) {
+                if (parser.match(_.Token.l_square)) {
                     parser.skip('[');
                 }
                 parser.parseOptionalComma();
@@ -11013,8 +11015,8 @@ _.AffineDialect = class extends _.Dialect {
         parser.parseKeyword('to');
         this.parseAffineBound(parser, result, 'upperBound');
         if (parser.parseOptionalKeyword('step')) {
-            if (parser.match('int')) {
-                const step = parser.expect('int');
+            if (parser.match(_.Token.integer)) {
+                const step = parser.expect(_.Token.integer);
                 result.addAttribute('step', step);
             }
         }
@@ -11022,11 +11024,11 @@ _.AffineDialect = class extends _.Dialect {
             const unresolvedIterOperands = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         parser.parseOperand(); // iter arg (block arg)
                     }
                     if (parser.parseOptionalEqual()) {
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             unresolvedIterOperands.push(parser.parseOperand());
                         } else {
                             // Non-SSA values like constants - skip as they're not operands
@@ -11040,7 +11042,7 @@ _.AffineDialect = class extends _.Dialect {
             result.addTypes(iterTypes);
             parser.resolveOperands(unresolvedIterOperands, iterTypes, result.operands);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = {};
             parser.parseRegion(region);
             if (region.blocks && region.blocks.length > 0) {
@@ -11065,7 +11067,7 @@ _.AffineDialect = class extends _.Dialect {
         const indexType = new _.IndexType();
 
         // Try parsing SSA value first (shorthand for identity map)
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             const unresolved = parser.parseOperand();
             parser.resolveOperands([unresolved], [indexType], op.operands);
             const mapAttrName = boundName === 'lowerBound' ? 'lowerBoundMap' : 'upperBoundMap';
@@ -11074,8 +11076,8 @@ _.AffineDialect = class extends _.Dialect {
         }
 
         // Try parsing integer literal (shorthand for constant map)
-        if (parser.match('int') || parser.match('minus')) {
-            const negate = parser.accept('minus');
+        if (parser.match(_.Token.integer) || parser.match(_.Token.minus)) {
+            const negate = parser.consumeIf(_.Token.minus);
             let value = parser.parseInteger();
             if (negate) {
                 value = -value;
@@ -11088,7 +11090,7 @@ _.AffineDialect = class extends _.Dialect {
         if (!parser.parseOptionalKeyword('min')) {
             parser.parseOptionalKeyword('max');
         }
-        if (parser.match('#') || parser.match('kw_affine_map')) {
+        if (parser.match(_.Token.hash_identifier) || parser.match(_.Token.kw_affine_map)) {
             const mapValue = parser.parseAttribute();
             if (mapValue) {
                 const mapAttrName = boundName === 'lowerBound' ? 'lowerBoundMap' : 'upperBoundMap';
@@ -11098,7 +11100,7 @@ _.AffineDialect = class extends _.Dialect {
                 const unresolvedOperands = [];
                 if (parser.parseOptionalLParen()) {
                     while (!parser.parseOptionalRParen()) {
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             unresolvedOperands.push(parser.parseOperand());
                         }
                         parser.parseOptionalComma();
@@ -11106,7 +11108,7 @@ _.AffineDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalLSquare()) {
                     while (!parser.parseOptionalRSquare()) {
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             unresolvedOperands.push(parser.parseOperand());
                         }
                         parser.parseOptionalComma();
@@ -11121,7 +11123,7 @@ _.AffineDialect = class extends _.Dialect {
 
     parseStoreOp(parser, result) {
         let unresolvedValue = null;
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             unresolvedValue = parser.parseOperand();
         }
         // Note: attribute values are not operands
@@ -11208,9 +11210,9 @@ _.AffineDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('reduce')) {
             parser.parseLParen();
-            while (!parser.match(')')) {
-                if (parser.match('string')) {
-                    parser.expect('string');
+            while (!parser.match(_.Token.r_paren)) {
+                if (parser.match(_.Token.string)) {
+                    parser.expect(_.Token.string);
                 }
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -11224,7 +11226,7 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseFunctionResultList(resultTypes, resultAttrs);
             result.addTypes(resultTypes);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             // Pass iv arguments to parseRegion - they become block arguments
             const region = result.addRegion();
             parser.parseRegion(region, ivArgs);
@@ -11245,8 +11247,8 @@ _.MemRefDialect = class extends _.Dialect {
 
     parseAtomicRMWKindAttr(parser, type) {
         // Accept both bare identifier (addi) and string literal ("addi")
-        if (parser.match('string')) {
-            return parser.expect('string');
+        if (parser.match(_.Token.string)) {
+            return parser.expect(_.Token.string);
         }
         if (parser.match(_.Token.bare_identifier) && type.values && type.values.includes(parser.getTokenSpelling().str())) {
             return parser.expect(_.Token.bare_identifier);
@@ -11308,7 +11310,7 @@ _.MemRefDialect = class extends _.Dialect {
             parser.parseComma();
             parser.parseKeyword('locality');
             parser.parseLess();
-            const localityHint = parseInt(parser.expect('int'), 10);
+            const localityHint = parseInt(parser.expect(_.Token.integer), 10);
             result.addAttribute('localityHint', localityHint);
             parser.parseGreater();
             parser.parseComma();
@@ -11333,7 +11335,7 @@ _.MemRefDialect = class extends _.Dialect {
             const tagMemRef = parser.parseOperand();
             const tagIndices = parser.parseOperandList('square');
             const strideInfo = [];
-            while (parser.parseOptionalComma() && parser.match('%')) {
+            while (parser.parseOptionalComma() && parser.match(_.Token.percent_identifier)) {
                 strideInfo.push(parser.parseOperand());
             }
             const types = parser.parseColonTypeList();
@@ -11378,7 +11380,7 @@ _.MemRefDialect = class extends _.Dialect {
     parseTransposeOp(parser, result) {
         const operand = parser.parseOperand();
         const dims = parser.skip('(');
-        parser.expect('->');
+        parser.parseArrow();
         const results = parser.skip('(');
         const permutation = `affine_map<${dims} -> ${results}>`;
         result.addAttribute('permutation', permutation);
@@ -11402,7 +11404,7 @@ _.MemRefDialect = class extends _.Dialect {
     parseStoreOp(parser, result) {
         // or old: value to memref[indices] : type
         let valueOperand = null;
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             valueOperand = parser.parseOperand();
         } else {
             // Non-standard: constant value - store as attribute
@@ -11448,10 +11450,10 @@ _.VectorDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'vector.contract') {
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.skip('{');
-            } else if (parser.match('#')) {
-                parser.expect('#');
+            } else if (parser.match(_.Token.hash_identifier)) {
+                parser.expect(_.Token.hash_identifier);
             }
             const unresolvedOperands = parser.parseOperandList();
             parser.parseOptionalAttrDict(result.attributes);
@@ -11465,14 +11467,14 @@ _.VectorDialect = class extends _.Dialect {
             let mask = null;
             let passthru = null;
             let hasPassthru = false;
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 mask = parser.parseOperand();
             }
             if (parser.parseOptionalComma()) {
                 hasPassthru = true;
                 passthru = parser.parseOperand();
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -11539,11 +11541,11 @@ _.VectorDialect = class extends _.Dialect {
         let numStaticIndices = 0;
 
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
+            while (!parser.match(_.Token.r_square)) {
                 const staticIndex = parser.parseOptionalInteger();
                 if (staticIndex !== null) {
                     numStaticIndices++;
-                } else if (parser.match('%')) {
+                } else if (parser.match(_.Token.percent_identifier)) {
                     const dynIndex = parser.parseOperand();
                     unresolvedDynIndices.push(dynIndex);
                 } else {
@@ -11553,7 +11555,7 @@ _.VectorDialect = class extends _.Dialect {
             }
             parser.parseOptionalRSquare();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
@@ -11595,13 +11597,13 @@ _.VectorDialect = class extends _.Dialect {
         //    or: vector.transfer_write %value, %dest[%i, %j, ...], %mask {attrs} : vector_type, memref_type
 
         const unresolvedFirst = parser.parseOperand();
-        const hasIndicesAfterFirst = parser.match('[');
+        const hasIndicesAfterFirst = parser.match(_.Token.l_square);
         if (hasIndicesAfterFirst) {
             parser.skip('[');
         }
         parser.parseOptionalComma();
         const unresolvedSecond = parser.parseOperand();
-        if (!hasIndicesAfterFirst && parser.match('[')) {
+        if (!hasIndicesAfterFirst && parser.match(_.Token.l_square)) {
             parser.skip('[');
         }
 
@@ -11610,7 +11612,7 @@ _.VectorDialect = class extends _.Dialect {
         if (parser.parseOptionalComma()) {
             unresolvedMask = parser.parseOperand();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
@@ -11719,7 +11721,7 @@ _.TorchDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         if (mnemonic === 'vtensor' || mnemonic === 'tensor' || mnemonic === 'list' || mnemonic === 'tuple' || mnemonic === 'union' || mnemonic === 'optional' || mnemonic === 'dict' || mnemonic.startsWith('nn.')) {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -11775,7 +11777,7 @@ _.TorchDialect = class extends _.Dialect {
             parser.parseLSquare();
             const slotSymNames = [];
             while (!parser.parseOptionalRSquare()) {
-                const slotSymName = parser.expect('@');
+                const slotSymName = parser.expect(_.Token.at_identifier);
                 slotSymNames.push(slotSymName);
                 parser.parseLParen();
                 const unresolved = parser.parseOperand();
@@ -11806,13 +11808,13 @@ _.TorchDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalArrow()) {
             // Handle both -> (type, type) and -> type, type syntaxes
-            const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
+            const types = parser.match(_.Token.l_paren) ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
             result.addTypes(types);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
-            if (parser.parseOptionalKeyword('else') && parser.match('{')) {
+            if (parser.parseOptionalKeyword('else') && parser.match(_.Token.l_brace)) {
                 const elseRegion = {};
                 parser.parseRegion(elseRegion);
                 result.regions.push(elseRegion);
@@ -11837,23 +11839,23 @@ _.IREEDialect = class extends _.Dialect {
     parseShapedFunctionType(parser, op, unresolvedArguments /*, otherArgs */) {
         const operandTypes = [];
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 const type = parser.parseType();
                 if (type) {
                     operandTypes.push(type);
                 }
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.skip('{');
                 }
             } while (parser.parseOptionalComma());
         }
         parser.parseRParen();
-        parser.expect('->');
+        parser.parseArrow();
         const operands = unresolvedArguments || op.operands;
         const resultTypes = [];
         if (parser.parseOptionalLParen()) {
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 parser.parseShapedResultList(operands, operandTypes, resultTypes, null);
             }
             parser.parseRParen();
@@ -11868,14 +11870,14 @@ _.IREEDialect = class extends _.Dialect {
 
         if (parser.parseOptionalLBrace()) {
             do {
-                if (parser.match('@')) {
-                    let symbol = parser.expect('@');
+                if (parser.match(_.Token.at_identifier)) {
+                    let symbol = parser.expect(_.Token.at_identifier);
                     if (parser.getToken().is(_.Token.colon)) {
                         const curPointer = parser.getToken().loc.position;
                         parser.consumeToken(_.Token.colon);
                         if (parser.consumeIf(_.Token.colon)) {
-                            if (parser.match('@')) {
-                                const nested = parser.expect('@');
+                            if (parser.match(_.Token.at_identifier)) {
+                                const nested = parser.expect(_.Token.at_identifier);
                                 symbol += `::${nested}`;
                             }
                         } else {
@@ -11886,14 +11888,14 @@ _.IREEDialect = class extends _.Dialect {
                 }
             } while (parser.parseOptionalComma());
             parser.parseRBrace();
-        } else if (parser.match('@')) {
-            let symbol = parser.expect('@');
+        } else if (parser.match(_.Token.at_identifier)) {
+            let symbol = parser.expect(_.Token.at_identifier);
             if (parser.getToken().is(_.Token.colon)) {
                 const curPointer = parser.getToken().loc.position;
                 parser.consumeToken(_.Token.colon);
                 if (parser.consumeIf(_.Token.colon)) {
-                    if (parser.match('@')) {
-                        const nested = parser.expect('@');
+                    if (parser.match(_.Token.at_identifier)) {
+                        const nested = parser.expect(_.Token.at_identifier);
                         symbol += `::${nested}`;
                     }
                 } else {
@@ -11909,7 +11911,7 @@ _.IREEDialect = class extends _.Dialect {
 
     parseShapedTiedResult(parser, op /*, args */) {
         // or just: type{dims}
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             parser.parseOperand(); // tiedOperand - parsed but not stored in OperationState
             parser.parseKeyword('as');
         }
@@ -11917,8 +11919,8 @@ _.IREEDialect = class extends _.Dialect {
         op.types.push(resultType); // Only add the type
         if (parser.parseOptionalLBrace()) {
             const indexType = new _.IndexType();
-            while (!parser.match('}')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_brace)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const dim = parser.parseOperand();
                     parser.resolveOperand(dim, indexType, op.operands);
                     parser.parseOptionalComma();
@@ -11931,14 +11933,14 @@ _.IREEDialect = class extends _.Dialect {
     }
 
     parseSymbolAlias(parser, op, symNameAttr, aliasAttr) {
-        const alias = parser.expect('@');
+        const alias = parser.expect(_.Token.at_identifier);
         let symName = alias;
         if (parser.parseOptionalKeyword('as')) {
             if (parser.parseOptionalLParen()) {
-                if (parser.match('string')) {
-                    symName = parser.expect('string');
-                } else if (parser.match('@')) {
-                    symName = parser.expect('@');
+                if (parser.match(_.Token.string)) {
+                    symName = parser.expect(_.Token.string);
+                } else if (parser.match(_.Token.at_identifier)) {
+                    symName = parser.expect(_.Token.at_identifier);
                 }
                 parser.parseOptionalRParen();
             }
@@ -11976,7 +11978,7 @@ _.IREEDialect = class extends _.Dialect {
         const region = { blocks: [] };
         const block = { arguments: [], operations: [] };
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const arg = parser.parseOperand();
                 if (parser.parseOptionalColon()) {
                     arg.type = parser.parseType();
@@ -11990,7 +11992,7 @@ _.IREEDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalArrow()) {
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 parser.parseType();
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -11999,12 +12001,12 @@ _.IREEDialect = class extends _.Dialect {
             parser.parseRParen();
         }
         if (parser.parseOptionalLBrace()) {
-            while (!parser.match('}')) {
+            while (!parser.match(_.Token.r_brace)) {
                 const innerOp = parser.parseOperation();
                 if (innerOp) {
                     block.operations.push(innerOp);
                 }
-                if (parser.match('}')) {
+                if (parser.match(_.Token.r_brace)) {
                     break;
                 }
             }
@@ -12080,11 +12082,11 @@ _.HALDialect = class extends _.IREEDialect {
                 const resultType = parser.parseType();
                 result.types = [resultType];
             }
-            while (parser.match('#')) {
+            while (parser.match(_.Token.hash_identifier)) {
                 const region = {};
                 const caseAttr = parser.parseAttribute();
                 region.caseAttribute = caseAttr;
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseRegion(region);
                 }
                 result.regions.push(region);
@@ -12094,8 +12096,8 @@ _.HALDialect = class extends _.IREEDialect {
         }
         if (result.op === 'hal.executable.constant.block') {
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const arg = parser.parseOperand();
                         parser.parseColon();
                         const type = parser.parseType();
@@ -12112,12 +12114,12 @@ _.HALDialect = class extends _.IREEDialect {
                 result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType([], resultTypes)));
             }
             if (parser.parseOptionalKeyword('as')) {
-                if (parser.match('(')) {
+                if (parser.match(_.Token.l_paren)) {
                     parser.parseLParen();
                     const keys = [];
-                    while (!parser.match(')')) {
-                        if (parser.match('string')) {
-                            keys.push(parser.expect('string'));
+                    while (!parser.match(_.Token.r_paren)) {
+                        if (parser.match(_.Token.string)) {
+                            keys.push(parser.expect(_.Token.string));
                         }
                         if (!parser.parseOptionalComma()) {
                             break;
@@ -12125,12 +12127,12 @@ _.HALDialect = class extends _.IREEDialect {
                     }
                     parser.parseRParen();
                     result.addAttribute('keys', keys);
-                } else if (parser.match('string')) {
-                    const key = parser.expect('string');
+                } else if (parser.match(_.Token.string)) {
+                    const key = parser.expect(_.Token.string);
                     result.addAttribute('keys', [key]);
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -12140,10 +12142,10 @@ _.HALDialect = class extends _.IREEDialect {
         if (result.op === 'hal.executable.create') {
             result.compatibility = true;
             const inputNames = new Set(opInfo.metadata.operands.map((input) => input.name));
-            while (parser.match(_.Token.bare_identifier) && !parser.match(':') && !parser.match('loc')) {
+            while (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.colon) && !parser.match(_.Token.kw_loc)) {
                 const paramName = parser.expect(_.Token.bare_identifier);
                 if (parser.parseOptionalLParen()) {
-                    if (inputNames.has(paramName) && parser.match('%')) {
+                    if (inputNames.has(paramName) && parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         let operandType = null;
                         if (parser.parseOptionalColon()) {
@@ -12151,10 +12153,10 @@ _.HALDialect = class extends _.IREEDialect {
                         }
                         parser.parseRParen();
                         parser.resolveOperand(operand, operandType, result.operands);
-                    } else if (inputNames.has(paramName) && parser.match('[')) {
+                    } else if (inputNames.has(paramName) && parser.match(_.Token.l_square)) {
                         parser.parseLSquare();
-                        while (!parser.match(']')) {
-                            if (parser.match('%')) {
+                        while (!parser.match(_.Token.r_square)) {
+                            if (parser.match(_.Token.percent_identifier)) {
                                 const operand = parser.parseOperand();
                                 parser.resolveOperand(operand, null, result.operands);
                             }
@@ -12165,11 +12167,11 @@ _.HALDialect = class extends _.IREEDialect {
                     } else {
                         let parenDepth = 1;
                         let paramValue = '';
-                        while (parenDepth > 0 && !parser.match('eof')) {
-                            if (parser.match('(')) {
+                        while (parenDepth > 0 && !parser.match(_.Token.eof)) {
+                            if (parser.match(_.Token.l_paren)) {
                                 parenDepth++;
                                 paramValue += parser.expect();
-                            } else if (parser.match(')')) {
+                            } else if (parser.match(_.Token.r_paren)) {
                                 parenDepth--;
                                 if (parenDepth > 0) {
                                     paramValue += parser.expect();
@@ -12236,8 +12238,8 @@ _.HALDialect = class extends _.IREEDialect {
             // Named parameters don't have dots, so if we see an id with a dot, it's likely the next operation
             // Also exclude common operation keywords that shouldn't be treated as parameters
             const notParameterNames = new Set(['br', 'cond_br', 'return', 'yield', 'call', 'unreachable', 'assert']);
-            while (parser.match('[') || (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.bare_identifier, 'attributes') && !parser.match(':') && !parser.match('loc') && parser.getTokenSpelling().str() && parser.getTokenSpelling().str().indexOf('.') === -1 && !notParameterNames.has(parser.getTokenSpelling().str()))) {
-                if (parser.match('[')) {
+            while (parser.match(_.Token.l_square) || (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.bare_identifier, 'attributes') && !parser.match(_.Token.colon) && !parser.match(_.Token.kw_loc) && parser.getTokenSpelling().str() && parser.getTokenSpelling().str().indexOf('.') === -1 && !notParameterNames.has(parser.getTokenSpelling().str()))) {
+                if (parser.match(_.Token.l_square)) {
                     parser.skip('[');
                     continue;
                 }
@@ -12245,7 +12247,7 @@ _.HALDialect = class extends _.IREEDialect {
                 if (parser.parseOptionalLParen()) {
                     // Check if this named parameter is actually an input from the operation metadata
                     const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
-                    if (inputNames.has(paramName) && parser.match('%')) {
+                    if (inputNames.has(paramName) && parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         let operandType = null;
                         if (parser.parseOptionalColon()) {
@@ -12253,10 +12255,10 @@ _.HALDialect = class extends _.IREEDialect {
                         }
                         parser.parseRParen();
                         parser.resolveOperand(operand, operandType, result.operands);
-                    } else if (inputNames.has(paramName) && parser.match('[')) {
+                    } else if (inputNames.has(paramName) && parser.match(_.Token.l_square)) {
                         parser.parseLSquare();
-                        while (!parser.match(']')) {
-                            if (parser.match('%')) {
+                        while (!parser.match(_.Token.r_square)) {
+                            if (parser.match(_.Token.percent_identifier)) {
                                 const operand = parser.parseOperand();
                                 parser.resolveOperand(operand, null, result.operands);
                             }
@@ -12267,11 +12269,11 @@ _.HALDialect = class extends _.IREEDialect {
                     } else {
                         let parenDepth = 1;
                         let paramValue = '';
-                        while (parenDepth > 0 && !parser.match('eof')) {
-                            if (parser.match('(')) {
+                        while (parenDepth > 0 && !parser.match(_.Token.eof)) {
+                            if (parser.match(_.Token.l_paren)) {
                                 parenDepth++;
                                 paramValue += parser.expect();
-                            } else if (parser.match(')')) {
+                            } else if (parser.match(_.Token.r_paren)) {
                                 parenDepth--;
                                 if (parenDepth > 0) {
                                     paramValue += parser.expect();
@@ -12292,7 +12294,7 @@ _.HALDialect = class extends _.IREEDialect {
             }
             result.addTypes(parser.parseOptionalColonTypeList());
             // Handle old IREE format: !hal.buffer{%size} where {%size} follows the type
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.skip('{');
             }
             if (parser.parseOptionalEqual()) {
@@ -12308,7 +12310,7 @@ _.HALDialect = class extends _.IREEDialect {
             const type = new _.FunctionType(argTypes, sig.resultTypes);
             result.addAttribute('function_type', new _.TypeAttrOf(type));
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region, sig.arguments);
             }
@@ -12318,13 +12320,13 @@ _.HALDialect = class extends _.IREEDialect {
         if (result.op === 'hal.executable' || result.op === 'hal.executable.source' || result.op === 'hal.interface' || result.op === 'hal.executable.binary') {
             result.compatibility = true;
             this.parseSymbolVisibility(parser, result);
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -12333,16 +12335,16 @@ _.HALDialect = class extends _.IREEDialect {
         // Handle hal.interface.binding.subspan with old syntax (symbol reference)
         // Old syntax: hal.interface.binding.subspan @io::@binding[operand] : type
         // New syntax: hal.interface.binding.subspan layout(...) binding(...) : type
-        if (result.op === 'hal.interface.binding.subspan' && parser.match('@')) {
+        if (result.op === 'hal.interface.binding.subspan' && parser.match(_.Token.at_identifier)) {
             result.compatibility = true;
             // Old syntax - parse symbol reference and bracket expression
-            const symbolRef = parser.expect('@');
+            const symbolRef = parser.expect(_.Token.at_identifier);
             result.addAttribute('layout', symbolRef);
             const unresolvedOperands = [];
             const indexType = new _.IndexType();
             if (parser.parseOptionalLSquare()) {
                 while (!parser.parseOptionalRSquare()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         unresolvedOperands.push(operand);
                     } else {
@@ -12359,7 +12361,7 @@ _.HALDialect = class extends _.IREEDialect {
                 }
                 if (parser.parseOptionalLBrace()) {
                     const dynamicDimOperands = [];
-                    if (!parser.match('}')) {
+                    if (!parser.match(_.Token.r_brace)) {
                         do {
                             const dimOperand = parser.parseOperand();
                             dynamicDimOperands.push(dimOperand);
@@ -12375,11 +12377,11 @@ _.HALDialect = class extends _.IREEDialect {
         if (result.op === 'hal.interface.binding' || result.op === 'hal.executable.variant' || result.op === 'hal.executable.entry_point' || result.op === 'hal.executable.export') {
             result.compatibility = true;
             this.parseSymbolVisibility(parser, result);
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
                 parser.parseOptionalComma();
             }
-            while (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.bare_identifier, 'attributes') && !parser.match('{') && !parser.match('loc')) {
+            while (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.bare_identifier, 'attributes') && !parser.match(_.Token.l_brace) && !parser.match(_.Token.kw_loc)) {
                 const tokenValue = parser.getTokenSpelling().str();
                 if (tokenValue && tokenValue.includes('.')) {
                     break;
@@ -12388,7 +12390,7 @@ _.HALDialect = class extends _.IREEDialect {
                 if (paramName === 'condition') {
                     parser.parseLParen();
                     const regionArgs = [];
-                    while (!parser.match(')')) {
+                    while (!parser.match(_.Token.r_paren)) {
                         const arg = parser.parseOperand();
                         let type = null;
                         if (parser.parseOptionalColon()) {
@@ -12400,7 +12402,7 @@ _.HALDialect = class extends _.IREEDialect {
                         }
                     }
                     parser.parseRParen();
-                    parser.expect('->');
+                    parser.parseArrow();
                     parser.parseType();
                     const conditionRegion = { arguments: regionArgs };
                     parser.parseRegion(conditionRegion);
@@ -12410,11 +12412,11 @@ _.HALDialect = class extends _.IREEDialect {
                 if (parser.parseOptionalLParen()) {
                     let parenDepth = 1;
                     let paramValue = '';
-                    while (parenDepth > 0 && !parser.match('eof')) {
-                        if (parser.match('(')) {
+                    while (parenDepth > 0 && !parser.match(_.Token.eof)) {
+                        if (parser.match(_.Token.l_paren)) {
                             parenDepth++;
                             paramValue += parser.expect();
-                        } else if (parser.match(')')) {
+                        } else if (parser.match(_.Token.r_paren)) {
                             parenDepth--;
                             if (parenDepth > 0) {
                                 paramValue += parser.expect();
@@ -12428,11 +12430,11 @@ _.HALDialect = class extends _.IREEDialect {
                     result.addAttribute(paramName, paramValue);
                     parser.parseOptionalComma();
                 } else if (parser.parseOptionalEqual()) {
-                    if (parser.match('#')) {
+                    if (parser.match(_.Token.hash_identifier)) {
                         const value = parser.parseAttribute();
                         result.addAttribute(paramName, value.value);
-                    } else if (parser.match('string')) {
-                        const value = parser.expect('string');
+                    } else if (parser.match(_.Token.string)) {
+                        const value = parser.expect(_.Token.string);
                         result.addAttribute(paramName, value);
                     } else {
                         const value = parser.expect();
@@ -12456,7 +12458,7 @@ _.HALDialect = class extends _.IREEDialect {
             if (parser.parseOptionalKeyword('count')) {
                 this.parseWorkgroupCountRegion(parser, result);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -12473,7 +12475,7 @@ _.HALDialect = class extends _.IREEDialect {
 
     parsePipelineLayoutAttr(parser) {
         // HAL_PipelineLayoutAttr format: <constants = N, bindings = [...], flags = ...>
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             return parser.parseAttribute();
         }
         return parser.parseOptionalAttribute();
@@ -12482,7 +12484,7 @@ _.HALDialect = class extends _.IREEDialect {
     parseExportConditionRegion(parser, result) {
         parser.parseLParen();
         const regionArgs = [];
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const arg = parser.parseOperand();
             let type = null;
             if (parser.parseOptionalColon()) {
@@ -12494,7 +12496,7 @@ _.HALDialect = class extends _.IREEDialect {
             }
         }
         parser.parseRParen();
-        parser.expect('->');
+        parser.parseArrow();
         parser.parseType();
         const region = { arguments: regionArgs };
         parser.parseRegion(region);
@@ -12504,7 +12506,7 @@ _.HALDialect = class extends _.IREEDialect {
     parseTargetConditionObjects(parser, result) {
         // #target if(...) { region } ordinal(N) = [objects], ...
         do {
-            if (parser.match('#')) {
+            if (parser.match(_.Token.hash_identifier)) {
                 parser.parseAttribute();
             }
             if (parser.parseOptionalKeyword('if')) {
@@ -12512,11 +12514,11 @@ _.HALDialect = class extends _.IREEDialect {
             }
             if (parser.parseOptionalKeyword('ordinal')) {
                 parser.parseLParen();
-                parser.expect('int');
+                parser.expect(_.Token.integer);
                 parser.parseRParen();
             }
             if (parser.parseOptionalEqual()) {
-                if (parser.match('[')) {
+                if (parser.match(_.Token.l_square)) {
                     parser.skip('[');
                 }
             }
@@ -12525,7 +12527,7 @@ _.HALDialect = class extends _.IREEDialect {
 
     parseTargetConditionRegion(parser, result) {
         parser.parseLParen();
-        while (!parser.match(')') && !parser.match('eof')) {
+        while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.eof)) {
             parser.parseOperand();
             if (parser.parseOptionalColon()) {
                 parser.parseType();
@@ -12538,7 +12540,7 @@ _.HALDialect = class extends _.IREEDialect {
         if (parser.parseOptionalArrow()) {
             parser.parseType();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -12549,7 +12551,7 @@ _.HALDialect = class extends _.IREEDialect {
         const region = { blocks: [] };
         const block = { arguments: [], operations: [] };
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')') && !parser.match('eof')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.eof)) {
                 const arg = parser.parseOperand();
                 if (parser.parseOptionalColon()) {
                     arg.type = parser.parseType();
@@ -12563,7 +12565,7 @@ _.HALDialect = class extends _.IREEDialect {
         }
         if (parser.parseOptionalArrow()) {
             parser.parseLParen();
-            while (!parser.match(')') && !parser.match('eof')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.eof)) {
                 parser.parseType();
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -12572,7 +12574,7 @@ _.HALDialect = class extends _.IREEDialect {
             parser.parseRParen();
         }
         region.blocks.push(block);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseRegion(region);
         }
         result.regions.push(region);
@@ -12602,12 +12604,12 @@ _.IREECodegenDialect = class extends _.Dialect {
             const unresolvedSizes = [];
             parser.parseOptionalKeyword('sizes');
             parser.parseLParen();
-            while (!parser.match(')')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_paren)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedSizes.push(parser.parseOperand());
                     staticSizes.push(-9223372036854775808);
-                } else if (parser.match('int')) {
-                    const constValue = parser.expect('int');
+                } else if (parser.match(_.Token.integer)) {
+                    const constValue = parser.expect(_.Token.integer);
                     staticSizes.push(parseInt(constValue, 10));
                 }
                 if (!parser.parseOptionalComma()) {
@@ -12691,7 +12693,7 @@ _.UtilDialect = class extends _.IREEDialect {
 
     parseTypedValueList(parser, op /*, args */) {
         parser.parseLSquare();
-        if (!parser.match(']')) {
+        if (!parser.match(_.Token.r_square)) {
             const unresolvedValues = [];
             do {
                 unresolvedValues.push(parser.parseOperand());
@@ -12711,7 +12713,7 @@ _.UtilDialect = class extends _.IREEDialect {
         if (this.simpleTypes.has(typeName)) {
             if (typeName === 'list' && parser.parseOptionalLess()) {
                 let elementType = null;
-                if (parser.accept('?')) {
+                if (parser.consumeIf(_.Token.question)) {
                     elementType = new _.util.VariantType();
                 } else {
                     elementType = parser.parseType();
@@ -12720,7 +12722,7 @@ _.UtilDialect = class extends _.IREEDialect {
                 return new _.util.ListType(elementType);
             }
             let type = `!${dialect}.${typeName}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 type += parser.skip('<');
             }
             return new _.Type(type);
@@ -12730,7 +12732,7 @@ _.UtilDialect = class extends _.IREEDialect {
 
     parseOperandTypeList(parser, op /*, args */) {
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             let index = 0;
             do {
                 const type = parser.parseType();
@@ -12745,7 +12747,7 @@ _.UtilDialect = class extends _.IREEDialect {
 
     parseTiedFunctionResultList(parser, op /*, args */) {
         const parseTiedResultOrType = () => {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const tiedRef = parser.parseOperand();
                 let tiedType = null;
                 for (let i = 0; i < op.operands.length; i++) {
@@ -12766,7 +12768,7 @@ _.UtilDialect = class extends _.IREEDialect {
         };
         if (parser.parseOptionalLParen()) {
             let index = 0;
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 do {
                     const type = parseTiedResultOrType();
                     if (index < op.types.length) {
@@ -12800,7 +12802,7 @@ _.UtilDialect = class extends _.IREEDialect {
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -12808,11 +12810,11 @@ _.UtilDialect = class extends _.IREEDialect {
         }
         if (result.op === 'util.unreachable') {
             result.compatibility = true;
-            if (parser.match('string')) {
-                const message = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const message = parser.expect(_.Token.string);
                 result.addAttribute('message', message);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             return true;
@@ -12822,7 +12824,7 @@ _.UtilDialect = class extends _.IREEDialect {
             return true;
         }
         if (result.op === 'util.unfoldable_constant') {
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             const value = parser.parseAttribute();
@@ -12851,7 +12853,7 @@ _.UtilDialect = class extends _.IREEDialect {
         // - Tied reference: %arg1 (inherits type from argument)
         // - Tied with type override: %arg2 as tensor<...>
         const parseTiedResultOrType = () => {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const tiedRef = parser.parseOperand();
                 let tiedIndex = -1;
                 for (let i = 0; i < argResult.arguments.length; i++) {
@@ -12875,10 +12877,10 @@ _.UtilDialect = class extends _.IREEDialect {
         };
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
-                if (!parser.match(')')) {
+                if (!parser.match(_.Token.r_paren)) {
                     do {
                         resultTypes.push(parseTiedResultOrType());
-                        if (parser.match('{')) {
+                        if (parser.match(_.Token.l_brace)) {
                             const attrList = new Map();
                             parser.parseAttributeDict(attrList);
                             resultAttrs.push(attrList);
@@ -12909,7 +12911,7 @@ _.UtilDialect = class extends _.IREEDialect {
             result.addAttribute('arg_attrs', argAttrs);
         }
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, argResult.arguments);
         }
@@ -12924,14 +12926,14 @@ _.UtilDialect = class extends _.IREEDialect {
             unresolvedOperands.push(operand);
             const operandAssumptions = [];
             if (parser.parseOptionalLSquare()) {
-                if (!parser.match(']')) {
+                if (!parser.match(_.Token.r_square)) {
                     do {
                         const assumption = this.parseIntAssumptionAttr(parser);
                         operandAssumptions.push(assumption);
                     } while (parser.parseOptionalComma());
                 }
                 parser.parseRSquare();
-            } else if (parser.match('<')) {
+            } else if (parser.match(_.Token.less)) {
                 const assumption = this.parseIntAssumptionAttr(parser);
                 operandAssumptions.push(assumption);
             }
@@ -12950,7 +12952,7 @@ _.UtilDialect = class extends _.IREEDialect {
 
         result.addAttribute('assumptions', allOperandAssumptions);
 
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
 
@@ -12960,13 +12962,13 @@ _.UtilDialect = class extends _.IREEDialect {
     parseIntAssumptionAttr(parser) {
         parser.parseLess();
         const assumption = {};
-        if (!parser.match('>')) {
+        if (!parser.match(_.Token.greater)) {
             do {
                 const key = parser.expect(_.Token.bare_identifier);
                 if (!parser.parseOptionalEqual()) {
                     throw new mlir.Error(`Expected '=' after ${key} ${parser.location()}`);
                 }
-                const value = parser.expect('int');
+                const value = parser.expect(_.Token.integer);
                 assumption[key] = value;
             } while (parser.parseOptionalComma());
         }
@@ -13033,7 +13035,7 @@ _.UtilDialect = class extends _.IREEDialect {
 
     parseValueTypeList(parser, result) {
         parser.parseLSquare();
-        if (!parser.match(']')) {
+        if (!parser.match(_.Token.r_square)) {
             const unresolvedOperands = [];
             const types = [];
             do {
@@ -13080,7 +13082,7 @@ _.FlowDialect = class extends _.IREEDialect {
             return new _.Type(type);
         }
         if (typeName === 'dispatch.tensor') {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -13102,13 +13104,13 @@ _.FlowDialect = class extends _.IREEDialect {
         // Handle operations with visibility + symbol that aren't in schema or need manual parsing
         if (result.op === 'flow.dispatch.entry') {
             this.parseSymbolVisibility(parser, result);
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -13128,9 +13130,9 @@ _.FlowDialect = class extends _.IREEDialect {
         const results = [];
         if (parser.parseOptionalArrow()) {
             const hasParens = parser.parseOptionalLParen();
-            if (!hasParens || !parser.match(')')) {
+            if (!hasParens || !parser.match(_.Token.r_paren)) {
                 do {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         parser.parseOperand();
                         if (parser.parseOptionalKeyword('as')) {
                             const resultType = parser.parseType();
@@ -13142,7 +13144,7 @@ _.FlowDialect = class extends _.IREEDialect {
                         const resultType = parser.parseType();
                         results.push(resultType);
                     }
-                    if (parser.match('{')) {
+                    if (parser.match(_.Token.l_brace)) {
                         parser.skip('{');
                     }
                     if (!hasParens) {
@@ -13156,7 +13158,7 @@ _.FlowDialect = class extends _.IREEDialect {
         }
         result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -13185,7 +13187,7 @@ _.FlowDialect = class extends _.IREEDialect {
             }
         }
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -13206,7 +13208,7 @@ _.FlowDialect = class extends _.IREEDialect {
                 const inputTypes = parser.parseTypeListNoParens();
                 parser.parseRParen();
                 parser.resolveOperands(unresolvedOperands, inputTypes, result.operands);
-                parser.expect('->');
+                parser.parseArrow();
                 const resultTypes = parser.parseFunctionResultTypes();
                 result.addTypes(resultTypes);
             } else {
@@ -13247,7 +13249,7 @@ _.FlowDialect = class extends _.IREEDialect {
         const operandTypes = [];
         if (parser.parseOptionalLParen()) {
             let index = 0;
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 do {
                     const type = parser.parseType();
                     if (type) {
@@ -13272,9 +13274,9 @@ _.FlowDialect = class extends _.IREEDialect {
         if (parser.parseOptionalArrow()) {
             let index = 0;
             const hasParens = parser.parseOptionalLParen();
-            if (!parser.match(')') && !parser.match('{') && !parser.match('loc') && !parser.match('=')) {
+            if (!parser.match(_.Token.r_paren) && !parser.match(_.Token.l_brace) && !parser.match(_.Token.kw_loc) && !parser.match(_.Token.equal)) {
                 do {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const tiedResult = parser.parseOperand();
                         // Handle optional "as type" for tied results
                         if (parser.parseOptionalKeyword('as')) {
@@ -13334,12 +13336,12 @@ _.FlowDialect = class extends _.IREEDialect {
     parseTensorLoadStoreOp(parser, result) {
         //    or: store %26, %arg4, offsets = [...] : type -> type
         const unresolvedOperands = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             if (!parser.parseOptionalComma()) {
                 break;
             }
-            if (!parser.match('%')) {
+            if (!parser.match(_.Token.percent_identifier)) {
                 break;
             }
         }
@@ -13350,7 +13352,7 @@ _.FlowDialect = class extends _.IREEDialect {
             if (parser.match(_.Token.bare_identifier)) {
                 const paramName = parser.expect(_.Token.bare_identifier);
                 if (parser.parseOptionalEqual()) {
-                    if (parser.match('[')) {
+                    if (parser.match(_.Token.l_square)) {
                         parser.skip('[');
                     } else {
                         parser.expect();
@@ -13377,7 +13379,7 @@ _.FlowDialect = class extends _.IREEDialect {
     parseDispatchWorkgroupBody(parser, op /*, args */) {
         parser.parseLParen();
         const regionArgs = [];
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 const arg = parser.parseOperand();
                 parser.parseColon();
@@ -13397,7 +13399,7 @@ _.FlowDialect = class extends _.IREEDialect {
         }
         parser.parseLParen();
         const regionArgs = [];
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 const arg = parser.parseOperand();
                 parser.parseColon();
@@ -13406,7 +13408,7 @@ _.FlowDialect = class extends _.IREEDialect {
             } while (parser.parseOptionalComma());
         }
         parser.parseRParen();
-        parser.expect('->');
+        parser.parseArrow();
         if (parser.parseOptionalLParen()) {
             parser.parseType();
             parser.parseOptionalComma();
@@ -13497,7 +13499,7 @@ _.StreamDialect = class extends _.IREEDialect {
             parser.parseRSquare();
             parser.parseColon();
             const resourceType = parser.parseType();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.skip('{');
             }
             op.addAttribute('resource_access', accessMode);
@@ -13532,7 +13534,7 @@ _.StreamDialect = class extends _.IREEDialect {
             }
             if (parser.parseOptionalLBrace()) {
                 do {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const sizeOperand = parser.parseOperand();
                         if (sizeOperands) {
                             sizeOperands.push(sizeOperand);
@@ -13551,9 +13553,9 @@ _.StreamDialect = class extends _.IREEDialect {
         const unresolvedOperands = [];
         const operandTypes = [];
         const unresolvedSizes = [];
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseKeyword('as');
@@ -13563,7 +13565,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 operandTypes.push(argType);
                 regionArgs.push({ name: arg, type: argType });
                 if (parser.parseOptionalLBrace()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedSizes.push(parser.parseOperand());
                     }
                     parser.parseRBrace();
@@ -13590,7 +13592,7 @@ _.StreamDialect = class extends _.IREEDialect {
         const unresolvedSizes = [];
         const indexType = new _.IndexType();
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 const operand = parser.parseOperand();
                 unresolvedOperands.push(operand);
@@ -13601,7 +13603,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 operandTypes.push(argType);
                 regionArgs.push({ name: arg, type: argType });
                 if (parser.parseOptionalLBrace()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedSizes.push(parser.parseOperand());
                     }
                     parser.parseRBrace();
@@ -13617,7 +13619,7 @@ _.StreamDialect = class extends _.IREEDialect {
         }
         const resultSizes = [];
         const parseResultTypeOrTied = () => {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 parser.parseOperand();
                 if (parser.parseOptionalKeyword('as')) {
                     const resultType = parser.parseType();
@@ -13630,7 +13632,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 op.addTypes([resultType]);
             }
             if (parser.parseOptionalLBrace()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     resultSizes.push(parser.parseOperand());
                 }
                 parser.parseRBrace();
@@ -13638,7 +13640,7 @@ _.StreamDialect = class extends _.IREEDialect {
         };
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
-                if (!parser.match(')')) {
+                if (!parser.match(_.Token.r_paren)) {
                     do {
                         parseResultTypeOrTied();
                     } while (parser.parseOptionalComma());
@@ -13651,7 +13653,7 @@ _.StreamDialect = class extends _.IREEDialect {
         for (const unresolved of resultSizes) {
             parser.resolveOperand(unresolved, indexType, op.operands);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = { blocks: [{ arguments: regionArgs, operations: [] }] };
             parser.parseRegion(region);
             op.regions.push(region);
@@ -13696,25 +13698,25 @@ _.StreamDialect = class extends _.IREEDialect {
     parseDispatchEntryPoints(parser, op /*, args */) {
         if (parser.parseOptionalLBrace()) {
             do {
-                const symbol = parser.expect('@');
+                const symbol = parser.expect(_.Token.at_identifier);
                 op.addAttribute('entry_point', symbol);
             } while (parser.parseOptionalComma());
             parser.parseRBrace();
         } else {
-            const symbol = parser.expect('@');
+            const symbol = parser.expect(_.Token.at_identifier);
             op.addAttribute('entry_point', symbol);
         }
     }
 
     parseShapedTiedResult(parser, op /*, args */) {
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             parser.parseOperand(); // tiedOperand - parsed but not stored in OperationState
             parser.parseKeyword('as');
         }
         const type = parser.parseType();
         op.types.push(type);
         if (parser.parseOptionalLBrace()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const unresolvedSize = parser.parseOperand();
                 const indexType = new _.IndexType();
                 parser.resolveOperand(unresolvedSize, indexType, op.operands);
@@ -13740,7 +13742,7 @@ _.StreamDialect = class extends _.IREEDialect {
     parseEncodedShapedResultList(parser, operands, operandTypes, resultTypes) {
         do {
             let type0 = null;
-            if (!parser.match('%')) {
+            if (!parser.match(_.Token.percent_identifier)) {
                 type0 = parser.parseType();
                 parser.skip('{');
             }
@@ -13751,7 +13753,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 continue;
             }
             let resultType = null;
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const tiedResult = parser.parseOperand();
                 const tiedOperandIndex = parser.findTiedOperand(tiedResult, operands);
                 if (parser.parseOptionalKeyword('as')) {
@@ -13771,13 +13773,13 @@ _.StreamDialect = class extends _.IREEDialect {
 
     parseEncodedShapedFunctionType(parser, op, operandsRef, operandTypes /* , ... */) {
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             this.parseEncodedShapedTypeList(parser, operandTypes);
         }
         parser.parseRParen();
-        parser.expect('->');
+        parser.parseArrow();
         if (parser.parseOptionalLParen()) {
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 this.parseEncodedShapedResultList(parser, operandsRef, operandTypes, op.types);
             }
             parser.parseRParen();
@@ -13823,7 +13825,7 @@ _.StreamDialect = class extends _.IREEDialect {
         const region = { blocks: [] };
         const block = { arguments: [], operations: [] };
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const arg = parser.parseOperand();
                 if (parser.parseOptionalColon()) {
                     arg.type = parser.parseType();
@@ -13837,7 +13839,7 @@ _.StreamDialect = class extends _.IREEDialect {
         }
         if (parser.parseOptionalArrow()) {
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 parser.parseType();
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -13846,7 +13848,7 @@ _.StreamDialect = class extends _.IREEDialect {
             parser.parseRParen();
         }
         region.blocks.push(block);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseRegion(region);
         }
         op.regions.push(region);
@@ -13856,7 +13858,7 @@ _.StreamDialect = class extends _.IREEDialect {
         const inputs = [];
         const results = [];
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 parser.parseOperand();
                 // skip('[', ']') already handles checking for '[' presence
@@ -13869,7 +13871,7 @@ _.StreamDialect = class extends _.IREEDialect {
         }
         parser.parseRParen();
         const parseResultTypeOrTied = () => {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 parser.parseOperand();
                 if (parser.parseOptionalKeyword('as')) {
                     return parser.parseType();
@@ -13880,7 +13882,7 @@ _.StreamDialect = class extends _.IREEDialect {
         };
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
-                if (!parser.match(')')) {
+                if (!parser.match(_.Token.r_paren)) {
                     do {
                         results.push(parseResultTypeOrTied());
                         parser.skip('{');
@@ -13905,7 +13907,7 @@ _.StreamDialect = class extends _.IREEDialect {
             op.addTypes([resultType]);
             if (parser.parseOptionalLBrace()) {
                 // Size is an SSA value like %c4, not an attribute
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const unresolved = parser.parseOperand();
                     parser.resolveOperand(unresolved, null, op.operands);
                 } else {
@@ -13927,7 +13929,7 @@ _.StreamDialect = class extends _.IREEDialect {
 
     parseCmdCallOperands(parser, op /*, args */) {
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             const indexType = new _.IndexType();
             do {
                 // Check for access mode keyword (ro, rw, wo)
@@ -13978,7 +13980,7 @@ _.StreamDialect = class extends _.IREEDialect {
                 parser.parseAttribute();
                 parser.parseRSquare();
             }
-            parser.expect('->');
+            parser.parseArrow();
             parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
@@ -13988,7 +13990,7 @@ _.StreamDialect = class extends _.IREEDialect {
             }
             parser.parseColon();
             parser.parseType();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.skip('{');
             }
         } while (parser.parseOptionalComma());
@@ -14006,10 +14008,10 @@ _.StreamDialect = class extends _.IREEDialect {
             }
             parser.parseColon();
             parser.parseType();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.skip('{');
             }
-            parser.expect('->');
+            parser.parseArrow();
             this.parseParameterReference(parser);
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
@@ -14021,7 +14023,7 @@ _.StreamDialect = class extends _.IREEDialect {
     parseSymbolAlias(parser, op /*, args */) {
         parser.parseSymbolName('sym_name', op.attributes);
         if (parser.parseOptionalEqual()) {
-            const ref = parser.expect('@');
+            const ref = parser.expect(_.Token.at_identifier);
             op.addAttribute('function_ref', ref);
         }
     }
@@ -14037,7 +14039,7 @@ _.StreamDialect = class extends _.IREEDialect {
             return new _.Type(type);
         }
         if (typeName === 'resource') {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -14057,7 +14059,7 @@ _.StreamDialect = class extends _.IREEDialect {
             return new _.Type(type);
         }
         // Fallback for unknown stream types - parse generically like base Dialect
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             type += parser.skip('<');
         }
         return new _.Type(type);
@@ -14068,7 +14070,7 @@ _.StreamDialect = class extends _.IREEDialect {
         // resourceOperands is passed by ref so ShapedFunctionType can use it for tied operand lookup
         parser.parseLParen();
 
-        if (parser.match(')')) {
+        if (parser.match(_.Token.r_paren)) {
             parser.parseRParen();
             return;
         }
@@ -14125,7 +14127,7 @@ _.PCFDialect = class extends _.Dialect {
         const indexArgs = [];
         if (parser.parseOptionalArrow()) {
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const arg = parser.parseOperand();
                 parser.parseColon();
                 const argType = parser.parseType();
@@ -14139,7 +14141,7 @@ _.PCFDialect = class extends _.Dialect {
         }
         parser.parseKeyword('execute');
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const refArg = parser.parseOperand();
                 regionRefArgs.push({ value: refArg });
                 if (parser.parseOptionalEqual()) {
@@ -14156,7 +14158,7 @@ _.PCFDialect = class extends _.Dialect {
             parser.parseRParen();
         }
         parser.parseLSquare();
-        while (!parser.match(']')) {
+        while (!parser.match(_.Token.r_square)) {
             const indexArg = parser.parseOperand();
             parser.parseColon();
             const indexType = parser.parseType();
@@ -14169,7 +14171,7 @@ _.PCFDialect = class extends _.Dialect {
         if (regionRefArgs.length > 0 && parser.parseOptionalColon()) {
             parser.parseLParen();
             let refIdx = result.attributes.get('num_leading_args') || 0;
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const refType = parser.parseType();
                 if (refIdx < regionRefArgs.length) {
                     regionRefArgs[refIdx].type = refType;
@@ -14180,14 +14182,14 @@ _.PCFDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            parser.expect('->');
+            parser.parseArrow();
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const resType = parser.parseType();
                 resultTypes.push(resType);
                 result.addTypes([resType]);
                 if (parser.parseOptionalLBrace()) {
-                    while (!parser.match('}')) {
+                    while (!parser.match(_.Token.r_brace)) {
                         const dim = parser.parseOperand();
                         dynamicSizes.push({ value: dim });
                         if (!parser.parseOptionalComma()) {
@@ -14229,7 +14231,7 @@ _.IREEVectorExtDialect = class extends _.Dialect {
             const unresolvedIndices = [];
             parser.parseLSquare();
             while (!parser.parseOptionalRSquare()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedIndices.push(parser.parseOperand());
                 }
                 parser.parseOptionalComma();
@@ -14241,7 +14243,7 @@ _.IREEVectorExtDialect = class extends _.Dialect {
             while (!parser.parseOptionalRSquare()) {
                 if (parser.parseOptionalKeyword('None')) {
                     indexed.push(false);
-                } else if (parser.match('%')) {
+                } else if (parser.match(_.Token.percent_identifier)) {
                     const indexVec = parser.parseOperand();
                     parser.parseColon();
                     const indexVecType = parser.parseType();
@@ -14257,11 +14259,11 @@ _.IREEVectorExtDialect = class extends _.Dialect {
             result.addAttribute('padding', padding);
             let unresolvedMask = null;
             if (parser.parseOptionalComma()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedMask = parser.parseOperand();
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             let sourceType = null;
@@ -14298,7 +14300,7 @@ _.IREETensorExtDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'dispatch.tensor') {
             let type = `!${dialect}.${typeName}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -14342,11 +14344,11 @@ _.LinalgDialect = class extends _.Dialect {
         if (result.op === 'linalg.init_tensor') {
             if (parser.parseOptionalLSquare()) {
                 const dims = [];
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         dims.push(parser.parseOperand().name);
-                    } else if (parser.match('int')) {
-                        dims.push(parser.expect('int'));
+                    } else if (parser.match(_.Token.integer)) {
+                        dims.push(parser.expect(_.Token.integer));
                     }
                     parser.parseOptionalComma();
                 }
@@ -14358,7 +14360,7 @@ _.LinalgDialect = class extends _.Dialect {
         }
         if (result.op === 'linalg.fill') {
             // Form 1: ins/outs format - use parseNamedStructuredOp
-            if (parser.match(_.Token.bare_identifier, 'ins') || parser.match('{') || parser.match('<')) {
+            if (parser.match(_.Token.bare_identifier, 'ins') || parser.match(_.Token.l_brace) || parser.match(_.Token.less)) {
                 return this.parseNamedStructuredOp(parser, result);
             }
             let unresolvedOperands = [];
@@ -14366,7 +14368,7 @@ _.LinalgDialect = class extends _.Dialect {
                 unresolvedOperands = parser.parseOperandList();
                 parser.parseRParen();
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
@@ -14382,7 +14384,7 @@ _.LinalgDialect = class extends _.Dialect {
                 unresolvedOperands = parser.parseOperandList();
                 parser.parseRParen();
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
@@ -14410,7 +14412,7 @@ _.LinalgDialect = class extends _.Dialect {
             const payloadOpAttrs = new Map();
             if (parser.parseOptionalLBrace()) {
                 payloadOpName = parser.parseCustomOperationName();
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(payloadOpAttrs);
                 }
                 parser.parseRBrace();
@@ -14425,9 +14427,9 @@ _.LinalgDialect = class extends _.Dialect {
                 this.addBodyWithPayloadOp(result, payloadOpName, payloadOpAttrs, true, true);
             } else {
                 const regionArgs = [];
-                if (parser.match('(')) {
+                if (parser.match(_.Token.l_paren)) {
                     parser.parseLParen();
-                    while (!parser.match(')')) {
+                    while (!parser.match(_.Token.r_paren)) {
                         const value = parser.parseOperand();
                         parser.parseColon();
                         const type = parser.parseType();
@@ -14439,7 +14441,7 @@ _.LinalgDialect = class extends _.Dialect {
                     parser.parseRParen();
                 }
                 const region = result.addRegion();
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseRegion(region, regionArgs);
                 }
             }
@@ -14482,7 +14484,7 @@ _.LinalgDialect = class extends _.Dialect {
         if (opInfo.metadata && opInfo.metadata.assemblyFormat) {
             return super.parseOperation(parser, result);
         }
-        if (parser.match('{') || parser.match(_.Token.bare_identifier, 'ins') || parser.match(_.Token.bare_identifier, 'outs')) {
+        if (parser.match(_.Token.l_brace) || parser.match(_.Token.bare_identifier, 'ins') || parser.match(_.Token.bare_identifier, 'outs')) {
             const parsed = this.parseCommonStructuredOpParts(parser, result);
             if (!parsed) {
                 return false;
@@ -14490,10 +14492,10 @@ _.LinalgDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('attrs')) {
                 parser.parseEqual();
                 parser.parseAttributeDict(result.attributes);
-            } else if (parser.match('{') && !parser.match('{', '^')) {
+            } else if (parser.match(_.Token.l_brace) && !parser.match(_.Token.l_brace, '^')) {
                 const saved = parser.save();
                 parser.parseLBrace();
-                if (!parser.match('%') && !parser.match(_.Token.bare_identifier)) {
+                if (!parser.match(_.Token.percent_identifier) && !parser.match(_.Token.bare_identifier)) {
                     parser.restore(saved);
                 } else {
                     parser.restore(saved);
@@ -14505,7 +14507,7 @@ _.LinalgDialect = class extends _.Dialect {
                 result.addTypes(types);
             }
             // Parse region (for generic ops)
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region, []);
             }
@@ -14522,7 +14524,7 @@ _.LinalgDialect = class extends _.Dialect {
             result.propertiesAttr = parser.parseAttribute();
             parser.parseGreater();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         const inputTypes = [];
@@ -14532,14 +14534,14 @@ _.LinalgDialect = class extends _.Dialect {
                 return null;
             }
             const unresolvedIns = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedIns.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
             }
             if (parser.parseOptionalColon()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     inputTypes.push(parser.parseType());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -14556,14 +14558,14 @@ _.LinalgDialect = class extends _.Dialect {
                 return null;
             }
             const unresolvedOuts = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedOuts.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
             }
             if (parser.parseOptionalColon()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     outputTypes.push(parser.parseType());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -14586,7 +14588,7 @@ _.LinalgDialect = class extends _.Dialect {
         if (!parsed) {
             return false;
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalArrow()) {
@@ -14617,7 +14619,7 @@ _.LinalgDialect = class extends _.Dialect {
         if (parseAttrsFn) {
             parseAttrsFn(parser, op.attributes);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(op.attributes);
         }
         return true;
@@ -14654,7 +14656,7 @@ _.LinalgDialect = class extends _.Dialect {
         const payloadOpAttrs = new Map();
         if (parser.parseOptionalLBrace()) {
             payloadOpName = parser.parseCustomOperationName();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(payloadOpAttrs);
             }
             parser.parseRBrace();
@@ -14671,9 +14673,9 @@ _.LinalgDialect = class extends _.Dialect {
             }
         } else {
             const regionArgs = [];
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 parser.parseLParen();
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     const value = parser.parseOperand();
                     parser.parseColon();
                     const type = parser.parseType();
@@ -14685,7 +14687,7 @@ _.LinalgDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             const region = result.addRegion();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseRegion(region, regionArgs);
             }
         }
@@ -14693,21 +14695,21 @@ _.LinalgDialect = class extends _.Dialect {
     }
 
     parseGenericOp(parser, result) {
-        if (parser.match('{') || parser.match('#')) {
-            if (parser.match('#')) {
-                const attrRef = parser.expect('#');
+        if (parser.match(_.Token.l_brace) || parser.match(_.Token.hash_identifier)) {
+            if (parser.match(_.Token.hash_identifier)) {
+                const attrRef = parser.expect(_.Token.hash_identifier);
                 result.addAttribute('trait', attrRef);
             } else {
                 parser.parseAttributeDict(result.attributes);
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalKeyword('ins')) {
             parser.parseLParen();
             const unresolvedIns = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedIns.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -14715,7 +14717,7 @@ _.LinalgDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 const insTypes = [];
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     insTypes.push(parser.parseType());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -14728,7 +14730,7 @@ _.LinalgDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('outs')) {
             parser.parseLParen();
             const unresolvedOuts = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedOuts.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -14736,7 +14738,7 @@ _.LinalgDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 const outsTypes = [];
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     outsTypes.push(parser.parseType());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -14750,12 +14752,12 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseEqual();
             parser.parseAttributeDict(result.attributes);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
         if (parser.parseOptionalArrow()) {
-            const hasParens = parser.match('(');
+            const hasParens = parser.match(_.Token.l_paren);
             const types = hasParens ? parser.parseTypeListParens() : parser.parseFunctionResultTypes();
             result.addTypes(types);
         }
@@ -14777,8 +14779,8 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseEqual();
             const outerDimsPerm = [];
             parser.parseLSquare();
-            while (!parser.match(']')) {
-                outerDimsPerm.push(parser.expect('int'));
+            while (!parser.match(_.Token.r_square)) {
+                outerDimsPerm.push(parser.expect(_.Token.integer));
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -14790,8 +14792,8 @@ _.LinalgDialect = class extends _.Dialect {
         parser.parseEqual();
         const innerDimsPos = [];
         parser.parseLSquare();
-        while (!parser.match(']')) {
-            innerDimsPos.push(parser.expect('int'));
+        while (!parser.match(_.Token.r_square)) {
+            innerDimsPos.push(parser.expect(_.Token.integer));
             if (!parser.parseOptionalComma()) {
                 break;
             }
@@ -14803,13 +14805,13 @@ _.LinalgDialect = class extends _.Dialect {
         const staticInnerTiles = [];
         const dynamicTileOperands = [];
         parser.parseLSquare();
-        while (!parser.match(']')) {
-            if (parser.match('%')) {
+        while (!parser.match(_.Token.r_square)) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const operand = parser.parseOperand();
                 dynamicTileOperands.push(operand);
                 staticInnerTiles.push(_.ShapedType.kDynamic);
-            } else if (parser.match('int')) {
-                staticInnerTiles.push(BigInt(parser.expect('int')));
+            } else if (parser.match(_.Token.integer)) {
+                staticInnerTiles.push(BigInt(parser.expect(_.Token.integer)));
             }
             if (!parser.parseOptionalComma()) {
                 break;
@@ -14819,7 +14821,7 @@ _.LinalgDialect = class extends _.Dialect {
         result.addAttribute('static_inner_tiles', staticInnerTiles);
         parser.parseKeyword('into');
         const unresolvedDest = parser.parseOperand();
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
@@ -14846,8 +14848,8 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseEqual();
             const outerDimsPerm = [];
             parser.parseLSquare();
-            while (!parser.match(']')) {
-                outerDimsPerm.push(parser.expect('int'));
+            while (!parser.match(_.Token.r_square)) {
+                outerDimsPerm.push(parser.expect(_.Token.integer));
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -14859,8 +14861,8 @@ _.LinalgDialect = class extends _.Dialect {
         parser.parseEqual();
         const innerDimsPos = [];
         parser.parseLSquare();
-        while (!parser.match(']')) {
-            innerDimsPos.push(parser.expect('int'));
+        while (!parser.match(_.Token.r_square)) {
+            innerDimsPos.push(parser.expect(_.Token.integer));
             if (!parser.parseOptionalComma()) {
                 break;
             }
@@ -14872,13 +14874,13 @@ _.LinalgDialect = class extends _.Dialect {
         const staticInnerTiles = [];
         const dynamicTileOperands = [];
         parser.parseLSquare();
-        while (!parser.match(']')) {
-            if (parser.match('%')) {
+        while (!parser.match(_.Token.r_square)) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const operand = parser.parseOperand();
                 dynamicTileOperands.push(operand);
                 staticInnerTiles.push(-9223372036854775808n); // ShapedType::kDynamic
-            } else if (parser.match('int')) {
-                staticInnerTiles.push(BigInt(parser.expect('int')));
+            } else if (parser.match(_.Token.integer)) {
+                staticInnerTiles.push(BigInt(parser.expect(_.Token.integer)));
             }
             if (!parser.parseOptionalComma()) {
                 break;
@@ -14888,7 +14890,7 @@ _.LinalgDialect = class extends _.Dialect {
         result.addAttribute('static_inner_tiles', staticInnerTiles);
         parser.parseKeyword('into');
         const unresolvedDest = parser.parseOperand();
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
@@ -14938,7 +14940,7 @@ _.ONNXDialect = class extends _.Dialect {
             const inputType = parser.parseType();
             parser.resolveOperand(unresolved, inputType, result.operands);
             parser.parseRParen();
-            parser.expect('->');
+            parser.parseArrow();
             const outputType = parser.parseType();
             result.addTypes([outputType]);
             return true;
@@ -14955,8 +14957,8 @@ _.KrnlDialect = class extends _.Dialect {
 
     parseOperation(parser, result) {
         if (result.op === 'krnl.define_loops') {
-            if (parser.match('int')) {
-                const count = parseInt(parser.expect('int'), 10);
+            if (parser.match(_.Token.integer)) {
+                const count = parseInt(parser.expect(_.Token.integer), 10);
                 result.addAttribute('num_loops', count);
                 const loopType = new _.Type('!krnl.loop');
                 const types = Array(count).fill(loopType);
@@ -14971,17 +14973,17 @@ _.KrnlDialect = class extends _.Dialect {
             unresolvedOperands.push(memref);
             if (parser.parseOptionalKeyword('at')) {
                 parser.parseLSquare();
-                while (!parser.match(']')) {
+                while (!parser.match(_.Token.r_square)) {
                     // Indices can be either SSA values (%arg) or integer constants (0, 10, etc.)
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const index = parser.parseOperand();
                         unresolvedOperands.push(index);
                         staticIndices.push(-9223372036854775808n); // ShapedType::kDynamic marker
-                    } else if (parser.match('int') || parser.match('minus')) {
+                    } else if (parser.match(_.Token.integer) || parser.match(_.Token.minus)) {
                         const value = parser.parseInteger();
                         staticIndices.push(BigInt(value));
                     }
-                    if (!parser.match(']')) {
+                    if (!parser.match(_.Token.r_square)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -15005,10 +15007,10 @@ _.KrnlDialect = class extends _.Dialect {
             const memref = parser.parseOperand();
             unresolvedOperands.push(memref);
             if (parser.parseOptionalLSquare()) {
-                while (!parser.match(']')) {
+                while (!parser.match(_.Token.r_square)) {
                     const index = parser.parseOperand();
                     unresolvedOperands.push(index);
-                    if (!parser.match(']')) {
+                    if (!parser.match(_.Token.r_square)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -15044,18 +15046,18 @@ _.KrnlDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('with')) {
                 parser.parseLParen();
                 const numOptimizedLoops = result.operands.length;
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     parser.parseOperand();
-                    parser.expect('->');
+                    parser.parseArrow();
                     parser.parseOperand();
                     parser.parseEqual();
                     parser.parseOptionalKeyword('max');
-                    if (parser.match('kw_affine_map') || parser.match('kw_affine_set')) {
+                    if (parser.match(_.Token.kw_affine_map) || parser.match(_.Token.kw_affine_set)) {
                         parser.parseAttribute();
-                        if (parser.match('(')) {
+                        if (parser.match(_.Token.l_paren)) {
                             parser.skip('(');
                         }
-                        if (parser.match('[')) {
+                        if (parser.match(_.Token.l_square)) {
                             parser.skip('[');
                         }
                     } else {
@@ -15063,18 +15065,18 @@ _.KrnlDialect = class extends _.Dialect {
                     }
                     parser.parseKeyword('to');
                     parser.parseOptionalKeyword('min');
-                    if (parser.match('kw_affine_map') || parser.match('kw_affine_set')) {
+                    if (parser.match(_.Token.kw_affine_map) || parser.match(_.Token.kw_affine_set)) {
                         parser.parseAttribute();
-                        if (parser.match('(')) {
+                        if (parser.match(_.Token.l_paren)) {
                             parser.skip('(');
                         }
-                        if (parser.match('[')) {
+                        if (parser.match(_.Token.l_square)) {
                             parser.skip('[');
                         }
                     } else {
                         parser.parseAttribute();
                     }
-                    if (!parser.match(')')) {
+                    if (!parser.match(_.Token.r_paren)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -15083,11 +15085,11 @@ _.KrnlDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalKeyword('iter_args')) {
                 parser.parseLParen();
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     parser.parseOperand();
                     parser.parseEqual();
                     parser.parseAttribute();
-                    if (!parser.match(')')) {
+                    if (!parser.match(_.Token.r_paren)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -15097,7 +15099,7 @@ _.KrnlDialect = class extends _.Dialect {
                     result.addTypes(types);
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = {};
                 parser.parseRegion(region);
                 result.regions = [region];
@@ -15121,18 +15123,18 @@ _.MhloDialect = class extends _.HLODialect {
         }
         if (result.op === 'mhlo.constant') {
             if (parser.parseOptionalLParen() && parser.parseOptionalRParen()) {
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(result.attributes);
                 }
                 if (parser.parseOptionalColon()) {
                     parser.parseLParen();
                     parser.parseRParen();
-                    parser.expect('->');
+                    parser.parseArrow();
                     const type = parser.parseType();
                     result.addTypes([type]);
                 }
             } else {
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(result.attributes);
                 }
                 const value = parser.parseAttribute();
@@ -15188,14 +15190,14 @@ _.MhloDialect = class extends _.HLODialect {
             // mhlo uses raw array for dimensions (like b.getI64TensorAttr in ref impl)
             return super.parseReduceOp(parser, result, (dims) => dims, 'mhlo.return');
         }
-        if (result.op === 'mhlo.scan' && parser.match('(')) {
+        if (result.op === 'mhlo.scan' && parser.match(_.Token.l_paren)) {
             return super.parseScanOp(parser, result, 'mhlo.return');
         }
         if (result.op === 'mhlo.while') {
             // mhlo.while always uses parenthesized form with named arguments
             parser.parseLParen();
             const unresolvedOperands = [];
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const firstOperand = parser.parseOperand();
                 let operandToResolve = firstOperand;
                 if (parser.parseOptionalEqual()) {
@@ -15217,7 +15219,7 @@ _.MhloDialect = class extends _.HLODialect {
             parser.resolveOperands(unresolvedOperands, types, result.operands);
             result.addTypes(types);
             if (parser.parseOptionalKeyword('attributes')) {
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(result.attributes);
                 }
             }
@@ -15262,7 +15264,7 @@ _.ChloDialect = class extends _.HLODialect {
     }
 
     parseOperation(parser, result) {
-        if (result.op === 'chlo.scan' && parser.match('(')) {
+        if (result.op === 'chlo.scan' && parser.match(_.Token.l_paren)) {
             return super.parseScanOp(parser, result, 'stablehlo.return');
         }
         return super.parseOperation(parser, result);
@@ -15282,7 +15284,7 @@ _.THLODialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('ins')) {
             parser.parseLParen();
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const operand = parser.parseOperand();
                 let type = null;
                 if (parser.parseOptionalColon()) {
@@ -15297,7 +15299,7 @@ _.THLODialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('outs')) {
             parser.parseLParen();
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const operand = parser.parseOperand();
                 let type = null;
                 if (parser.parseOptionalColon()) {
@@ -15310,13 +15312,13 @@ _.THLODialect = class extends _.Dialect {
             }
             parser.parseRParen();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         const blockArguments = [];
-        if (parser.match('(')) {
+        if (parser.match(_.Token.l_paren)) {
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const value = parser.parseOperand();
                 parser.parseColon();
                 const type = parser.parseType();
@@ -15327,7 +15329,7 @@ _.THLODialect = class extends _.Dialect {
             }
             parser.parseRParen();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = { blocks: [] };
             const block = { operations: [], arguments: blockArguments };
             parser.parseLBrace();
@@ -15352,7 +15354,7 @@ _.QuantDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'uniform' || typeName === 'calibrated' || typeName === 'any') {
             let type = `!${dialect}.${typeName}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -15381,7 +15383,7 @@ _.TosaDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'shape') {
             let type = `!${dialect}.${typeName}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -15400,13 +15402,13 @@ _.TosaDialect = class extends _.Dialect {
             const unresolvedCond = [];
             const unresolvedInputs = [];
             const blockArgs = [];
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedCond.push(parser.parseOperand());
             }
             if (parser.parseOptionalLParen()) {
                 hasBlockArgs = true;
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         blockArgs.push(parser.parseOperand());
                         parser.parseEqual();
                         unresolvedInputs.push(parser.parseOperand());
@@ -15431,7 +15433,7 @@ _.TosaDialect = class extends _.Dialect {
                         parser.resolveOperands(unresolvedCond, [condType], result.operands);
                     }
                     // If block args present, parse function type for inputs/outputs
-                    if (hasBlockArgs && parser.match('(')) {
+                    if (hasBlockArgs && parser.match(_.Token.l_paren)) {
                         const functionType = parser.parseFunctionType();
                         if (functionType) {
                             parser.resolveOperands(unresolvedInputs, functionType.inputs, result.operands);
@@ -15450,12 +15452,12 @@ _.TosaDialect = class extends _.Dialect {
                     parser.resolveOperand(input, null, result.operands);
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
             if (parser.parseOptionalKeyword('else') || parser.parseOptionalKeyword('do')) {
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     const secondRegion = {};
                     parser.parseRegion(secondRegion);
                     result.regions.push(secondRegion);
@@ -15465,7 +15467,7 @@ _.TosaDialect = class extends _.Dialect {
         }
         if (this._customOps.has(result.op)) {
             const unresolvedOperands = parser.parseOperandList();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 // Parse attribute dict but check if any are actually inputs
                 const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
                 const tempAttrs = new Map();
@@ -15528,7 +15530,7 @@ _.IRDLDialect = class extends _.Dialect {
     }
 
     parseSingleBlockRegion(parser, op, /* args */) {
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = op.addRegion();
             parser.parseRegion(region);
         }
@@ -15592,8 +15594,8 @@ _.IRDLDialect = class extends _.Dialect {
         const argValues = [];
         const nameValues = [];
         if (parser.parseOptionalLBrace()) {
-            while (!parser.match('}')) {
-                const name = parser.expect('string');
+            while (!parser.match(_.Token.r_brace)) {
+                const name = parser.expect(_.Token.string);
                 nameValues.push(name);
                 parser.parseEqual();
                 const value = parser.parseOperand();
@@ -15623,10 +15625,10 @@ _.XeGPUDialect = class extends _.Dialect {
         const dynamicValues = [];
 
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
-                if (parser.match('int') || parser.match('number')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.integer) || parser.match(_.Token.floatliteral)) {
                     indices.push(parseInt(parser.expect(), 10));
-                } else if (parser.match('%')) {
+                } else if (parser.match(_.Token.percent_identifier)) {
                     const value = parser.parseOperand();
                     dynamicValues.push(value);
                     indices.push(-9223372036854775808);
@@ -15662,10 +15664,10 @@ _.ShardDialect = class extends _.Dialect {
         const dimensions = [];
 
         while (true) {
-            if (parser.match('?')) {
-                parser.expect('?');
+            if (parser.match(_.Token.question)) {
+                parser.expect(_.Token.question);
                 dimensions.push(-1);
-            } else if (parser.match('int')) {
+            } else if (parser.match(_.Token.integer)) {
                 dimensions.push(parser.parseInteger());
             } else {
                 break;
@@ -15695,7 +15697,7 @@ _.ShardDialect = class extends _.Dialect {
                 break;
             }
 
-            if (!parser.match(_.Token.bare_identifier) && !parser.match('?')) {
+            if (!parser.match(_.Token.bare_identifier) && !parser.match(_.Token.question)) {
                 break;
             }
         }
@@ -15717,11 +15719,11 @@ _.spirv.PointerType = class extends _.Type {
     }
 
     static parse(parser) {
-        parser.expect('<');
+        parser.parseLess();
         const pointeeType = parser.parseType();
-        parser.expect(',');
+        parser.parseComma();
         const storageClass = parser.parseOptionalKeyword() || parser.expect(_.Token.bare_identifier);
-        parser.expect('>');
+        parser.parseGreater();
         return new _.spirv.PointerType(pointeeType, storageClass);
     }
 
@@ -15755,13 +15757,13 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         if (!parser.parseOptionalColon()) {
             return;
         }
-        if (!parser.match('^')) {
+        if (!parser.match(_.Token.caret_identifier)) {
             return;
         }
-        const defaultDestination = parser.expect('^');
+        const defaultDestination = parser.expect(_.Token.caret_identifier);
         const defaultDest = { label: defaultDestination, arguments: [] };
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')') && !parser.match(':')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                 const value = parser.parseOperand();
                 defaultDest.arguments.push({ value });
                 if (!parser.parseOptionalComma()) {
@@ -15770,7 +15772,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 let idx = 0;
-                while (idx < defaultDest.arguments.length && !parser.match(')')) {
+                while (idx < defaultDest.arguments.length && !parser.match(_.Token.r_paren)) {
                     const type = parser.parseType();
                     if (defaultDest.arguments[idx]) {
                         defaultDest.arguments[idx].type = type;
@@ -15785,7 +15787,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         result.successors.push(defaultDest);
         const caseValues = [];
         while (parser.parseOptionalComma()) {
-            if (!parser.match('int') && !parser.match('minus')) {
+            if (!parser.match(_.Token.integer) && !parser.match(_.Token.minus)) {
                 break;
             }
             const value = parser.parseInteger();
@@ -15793,13 +15795,13 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (!parser.parseOptionalColon()) {
                 break;
             }
-            if (!parser.match('^')) {
+            if (!parser.match(_.Token.caret_identifier)) {
                 break;
             }
-            const caseDestination = parser.expect('^');
+            const caseDestination = parser.expect(_.Token.caret_identifier);
             const caseDest = { label: caseDestination, arguments: [] };
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')') && !parser.match(':')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                     const argValue = parser.parseOperand();
                     caseDest.arguments.push({ value: argValue });
                     if (!parser.parseOptionalComma()) {
@@ -15808,7 +15810,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalColon()) {
                     let idx = 0;
-                    while (idx < caseDest.arguments.length && !parser.match(')')) {
+                    while (idx < caseDest.arguments.length && !parser.match(_.Token.r_paren)) {
                         const type = parser.parseType();
                         if (caseDest.arguments[idx]) {
                             caseDest.arguments[idx].type = type;
@@ -15827,7 +15829,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     }
 
     parseImageOperands(parser /*, op, args */) {
-        if (parser.match('[')) {
+        if (parser.match(_.Token.l_square)) {
             parser.skip('[');
         }
     }
@@ -15835,7 +15837,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     parseType(parser, dialect) {
         let mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
-            if (mnemonic === 'ptr' && parser.match('<')) {
+            if (mnemonic === 'ptr' && parser.match(_.Token.less)) {
                 return _.spirv.PointerType.parse(parser);
             }
             // Handle sub-dialect types like arm.tensor, KHR.CooperativeMatrix, etc.
@@ -15848,7 +15850,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 }
             }
             let type = `!${dialect}.${mnemonic}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -15930,7 +15932,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         ]);
         if ((result.op.startsWith('spirv.GLSL.') || result.op.startsWith('spv.GLSL.') || result.op.startsWith('spirv.GL.') || result.op.startsWith('spv.GL.')) && !arrowFormatOps.has(result.op)) {
             const unresolvedOperands = [];
-            while (!parser.match(':')) {
+            while (!parser.match(_.Token.colon)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -15953,9 +15955,9 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.parseSymbolName('sym_name', result.attributes);
             parser.parseLParen();
             const constituents = [];
-            while (!parser.match(')')) {
-                if (parser.match('@')) {
-                    constituents.push(parser.expect('@'));
+            while (!parser.match(_.Token.r_paren)) {
+                if (parser.match(_.Token.at_identifier)) {
+                    constituents.push(parser.expect(_.Token.at_identifier));
                 }
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -15972,8 +15974,8 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         if (result.op.endsWith('.SpecConstantCompositeReplicate')) {
             parser.parseSymbolName('sym_name', result.attributes);
             parser.parseLParen();
-            if (parser.match('@')) {
-                const constituent = parser.expect('@');
+            if (parser.match(_.Token.at_identifier)) {
+                const constituent = parser.expect(_.Token.at_identifier);
                 result.addAttribute('constituent', constituent);
             }
             parser.parseRParen();
@@ -16011,16 +16013,16 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.Load' || result.op === 'spv.Load') {
-            const storageClass = parser.expect('string');
+            const storageClass = parser.expect(_.Token.string);
             result.addAttribute('storage_class', storageClass);
             const ptrOperand = parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 const memoryAccess = [];
-                while (!parser.match(']')) {
-                    if (parser.match('string')) {
-                        memoryAccess.push(parser.expect('string'));
-                    } else if (parser.match('int')) {
-                        memoryAccess.push(parser.expect('int'));
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.string)) {
+                        memoryAccess.push(parser.expect(_.Token.string));
+                    } else if (parser.match(_.Token.integer)) {
+                        memoryAccess.push(parser.expect(_.Token.integer));
                     } else {
                         break;
                     }
@@ -16044,8 +16046,8 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             const compositeOperand = parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 const indices = [];
-                while (!parser.match(']')) {
-                    if (parser.match('int')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.integer)) {
                         indices.push(parser.parseInteger());
                     }
                     if (parser.parseOptionalColon()) {
@@ -16074,7 +16076,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             const unresolvedOperands = [];
             unresolvedOperands.push(parser.parseOperand());
             if (parser.parseOptionalLSquare()) {
-                while (!parser.match(']')) {
+                while (!parser.match(_.Token.r_square)) {
                     unresolvedOperands.push(parser.parseOperand());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -16114,7 +16116,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 unresolvedInit = parser.parseOperand();
                 parser.parseRParen();
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             if (parser.parseOptionalColon()) {
@@ -16130,7 +16132,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.Store' || result.op === 'spv.Store') {
-            const storageClass = parser.expect('string');
+            const storageClass = parser.expect(_.Token.string);
             result.addAttribute('storage_class', storageClass);
             const unresolvedOperands = [];
             unresolvedOperands.push(parser.parseOperand());
@@ -16138,11 +16140,11 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             unresolvedOperands.push(parser.parseOperand());
             if (parser.parseOptionalLSquare()) {
                 const memoryAccess = [];
-                while (!parser.match(']')) {
-                    if (parser.match('string')) {
-                        memoryAccess.push(parser.expect('string'));
-                    } else if (parser.match('int')) {
-                        memoryAccess.push(parser.expect('int'));
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.string)) {
+                        memoryAccess.push(parser.expect(_.Token.string));
+                    } else if (parser.match(_.Token.integer)) {
+                        memoryAccess.push(parser.expect(_.Token.integer));
                     } else {
                         break;
                     }
@@ -16170,8 +16172,8 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             unresolvedOperands.push(parser.parseOperand());
             if (parser.parseOptionalLSquare()) {
                 const indices = [];
-                while (!parser.match(']')) {
-                    if (parser.match('int')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.integer)) {
                         indices.push(parser.parseInteger());
                     }
                     if (parser.parseOptionalColon()) {
@@ -16207,9 +16209,9 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             // Parse optional branch weights [trueWeight, falseWeight]
             if (parser.parseOptionalLSquare()) {
                 const weights = [];
-                while (!parser.match(']')) {
-                    if (parser.match('int')) {
-                        weights.push(parser.expect('int'));
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.integer)) {
+                        weights.push(parser.expect(_.Token.integer));
                     }
                     parser.parseOptionalComma();
                 }
@@ -16222,12 +16224,12 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (!result.successors) {
                 result.successors = [];
             }
-            const trueLabel = parser.expect('^');
+            const trueLabel = parser.expect(_.Token.caret_identifier);
             const trueSucc = { label: trueLabel };
             if (parser.parseOptionalLParen()) {
                 trueSucc.arguments = [];
-                while (!parser.match(')') && !parser.match(':')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         trueSucc.arguments.push(parser.parseOperand());
                         parser.parseOptionalComma();
                     } else {
@@ -16236,7 +16238,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalColon()) {
                     let idx = 0;
-                    while (!parser.match(')') && idx < trueSucc.arguments.length) {
+                    while (!parser.match(_.Token.r_paren) && idx < trueSucc.arguments.length) {
                         trueSucc.arguments[idx].type = parser.parseType();
                         idx++;
                         parser.parseOptionalComma();
@@ -16246,12 +16248,12 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             result.successors.push(trueSucc);
             parser.parseComma();
-            const falseLabel = parser.expect('^');
+            const falseLabel = parser.expect(_.Token.caret_identifier);
             const falseSucc = { label: falseLabel };
             if (parser.parseOptionalLParen()) {
                 falseSucc.arguments = [];
-                while (!parser.match(')') && !parser.match(':')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         falseSucc.arguments.push(parser.parseOperand());
                         parser.parseOptionalComma();
                     } else {
@@ -16260,7 +16262,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalColon()) {
                     let idx = 0;
-                    while (!parser.match(')') && idx < falseSucc.arguments.length) {
+                    while (!parser.match(_.Token.r_paren) && idx < falseSucc.arguments.length) {
                         falseSucc.arguments[idx].type = parser.parseType();
                         idx++;
                         parser.parseOptionalComma();
@@ -16274,7 +16276,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         if (result.op === 'spirv.CompositeConstruct' || result.op === 'spv.CompositeConstruct') {
             result.compatibility = true;
             const unresolvedOperands = [];
-            while (!parser.match(':')) {
+            while (!parser.match(_.Token.colon)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -16284,7 +16286,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 if (parser.parseOptionalLParen()) {
                     const types = parser.parseTypeList();
                     parser.parseRParen();
-                    parser.expect('->');
+                    parser.parseArrow();
                     parser.resolveOperands(unresolvedOperands, types, result.operands);
                 } else {
                     for (const unresolvedOp of unresolvedOperands) {
@@ -16320,7 +16322,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.module' || result.op === 'spv.module') {
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.match(_.Token.bare_identifier)) {
@@ -16338,7 +16340,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -16349,24 +16351,24 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.ARM.GraphEntryPoint') {
-            const fn = parser.expect('@');
+            const fn = parser.expect(_.Token.at_identifier);
             result.addAttribute('fn', fn);
             const interfaceVars = [];
             while (parser.parseOptionalComma()) {
-                const varSymbol = parser.expect('@');
+                const varSymbol = parser.expect(_.Token.at_identifier);
                 interfaceVars.push(varSymbol);
             }
             result.addAttribute('interface', interfaceVars);
             return true;
         }
         if (result.op === 'spirv.func' || result.op === 'spv.func') {
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             let inputs = [];
             const results = [];
             const resultAttrs = [];
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 const argResult = parser.parseFunctionArgumentList();
                 inputs = argResult.arguments.map((a) => a.type);
             }
@@ -16374,14 +16376,14 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 parser.parseFunctionResultList(results, resultAttrs);
             }
             result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
-            if (parser.match('string')) {
-                const control = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const control = parser.expect(_.Token.string);
                 result.addAttribute('function_control', control);
             }
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseAttributeDict(result.attributes);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 // spirv.func is IsolatedFromAbove
                 parser.parseRegion(region, undefined, /* isIsolatedNameScope */ true);
@@ -16389,18 +16391,18 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.GlobalVariable' || result.op === 'spv.GlobalVariable') {
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             if (parser.parseOptionalKeyword('initializer')) {
                 parser.parseLParen();
-                const initSymbol = parser.expect('@');
+                const initSymbol = parser.expect(_.Token.at_identifier);
                 parser.parseRParen();
                 result.addAttribute('initializer', initSymbol);
             }
             if (parser.parseOptionalKeyword('built_in')) {
                 parser.parseLParen();
-                const builtIn = parser.expect('string');
+                const builtIn = parser.expect(_.Token.string);
                 parser.parseRParen();
                 result.addAttribute('built_in', builtIn);
             }
@@ -16413,7 +16415,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 result.addAttribute('descriptor_set', set);
                 result.addAttribute('binding', binding);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             if (parser.parseOptionalColon()) {
@@ -16423,30 +16425,30 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.EntryPoint' || result.op === 'spv.EntryPoint') {
-            if (parser.match('string')) {
-                const executionModel = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const executionModel = parser.expect(_.Token.string);
                 result.addAttribute('execution_model', executionModel);
             }
             result.operands = [];
-            while (parser.match('@')) {
-                const symbol = parser.expect('@');
+            while (parser.match(_.Token.at_identifier)) {
+                const symbol = parser.expect(_.Token.at_identifier);
                 result.addAttribute('fn', new _.SymbolRefAttr(symbol));
                 parser.parseOptionalComma();
             }
             return true;
         }
         if (result.op === 'spirv.ExecutionMode' || result.op === 'spv.ExecutionMode') {
-            if (parser.match('@')) {
-                const symbol = parser.expect('@');
+            if (parser.match(_.Token.at_identifier)) {
+                const symbol = parser.expect(_.Token.at_identifier);
                 result.addAttribute('fn', new _.SymbolRefAttr(symbol));
             }
-            if (parser.match('string')) {
-                const mode = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const mode = parser.expect(_.Token.string);
                 result.addAttribute('execution_mode', mode);
             }
             const params = [];
             while (parser.parseOptionalComma()) {
-                if (parser.match('int') || parser.match('number') || parser.match(_.Token.bare_identifier)) {
+                if (parser.match(_.Token.integer) || parser.match(_.Token.floatliteral) || parser.match(_.Token.bare_identifier)) {
                     const param = parser.expect();
                     params.push(param);
                 } else {
@@ -16466,7 +16468,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             result.addTypes(parser.parseOptionalArrowTypeList());
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -16515,7 +16517,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'spirv.INTEL.SubgroupBlockWrite' || result.op === 'spv.INTEL.SubgroupBlockWrite') {
-            const storageClass = parser.expect('string');
+            const storageClass = parser.expect(_.Token.string);
             result.addAttribute('storage_class', storageClass);
             const ptrUnresolved = parser.parseOperand();
             parser.parseComma();
@@ -16531,20 +16533,20 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if ((result.op === 'spirv.CopyMemory' || result.op === 'spv.CopyMemory')) {
-            const targetStorageClass = parser.expect('string');
+            const targetStorageClass = parser.expect(_.Token.string);
             result.addAttribute('target_storage_class', targetStorageClass);
             const targetUnresolved = parser.parseOperand();
             parser.parseComma();
-            const sourceStorageClass = parser.expect('string');
+            const sourceStorageClass = parser.expect(_.Token.string);
             result.addAttribute('source_storage_class', sourceStorageClass);
             const sourceUnresolved = parser.parseOperand();
             if (parser.parseOptionalLSquare()) {
                 const memoryAccess = [];
-                while (!parser.match(']')) {
-                    if (parser.match('string')) {
-                        memoryAccess.push(parser.expect('string'));
-                    } else if (parser.match('int')) {
-                        memoryAccess.push(parser.expect('int'));
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.string)) {
+                        memoryAccess.push(parser.expect(_.Token.string));
+                    } else if (parser.match(_.Token.integer)) {
+                        memoryAccess.push(parser.expect(_.Token.integer));
                     } else {
                         break;
                     }
@@ -16558,11 +16560,11 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalComma()) {
                 if (parser.parseOptionalLSquare()) {
                     const sourceMemoryAccess = [];
-                    while (!parser.match(']')) {
-                        if (parser.match('string')) {
-                            sourceMemoryAccess.push(parser.expect('string'));
-                        } else if (parser.match('int')) {
-                            sourceMemoryAccess.push(parser.expect('int'));
+                    while (!parser.match(_.Token.r_square)) {
+                        if (parser.match(_.Token.string)) {
+                            sourceMemoryAccess.push(parser.expect(_.Token.string));
+                        } else if (parser.match(_.Token.integer)) {
+                            sourceMemoryAccess.push(parser.expect(_.Token.integer));
                         } else {
                             break;
                         }
@@ -16591,8 +16593,8 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     parseSPIRV_I32_1DArmTensor(parser, op, attrName) {
         const values = [];
         parser.parseLSquare();
-        while (!parser.match(']')) {
-            if (parser.match('int') || parser.match('minus') || parser.match('number')) {
+        while (!parser.match(_.Token.r_square)) {
+            if (parser.match(_.Token.integer) || parser.match(_.Token.minus) || parser.match(_.Token.floatliteral)) {
                 const value = parser.parseInteger();
                 values.push(value);
             } else {
@@ -16618,10 +16620,10 @@ _.WasmSSADialect = class extends _.Dialect {
 
     parseOperation(parser, result) {
         if (result.op === 'wasmssa.import_global') {
-            const importName = parser.expect('string');
+            const importName = parser.expect(_.Token.string);
             result.addAttribute('importName', importName);
             parser.parseKeyword('from');
-            const moduleName = parser.expect('string');
+            const moduleName = parser.expect(_.Token.string);
             result.addAttribute('moduleName', moduleName);
             parser.parseKeyword('as');
             parser.parseSymbolName('sym_name', result.attributes);
@@ -16729,13 +16731,13 @@ _.CFDialect = class extends _.Dialect {
         if (!parser.parseOptionalColon()) {
             return false;
         }
-        if (!parser.match('^')) {
+        if (!parser.match(_.Token.caret_identifier)) {
             return false;
         }
-        const defaultDestination = parser.expect('^');
+        const defaultDestination = parser.expect(_.Token.caret_identifier);
         const defaultDest = { label: defaultDestination, arguments: [] };
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')') && !parser.match(':')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                 const value = parser.parseOperand();
                 defaultDest.arguments.push({ value });
                 if (!parser.parseOptionalComma()) {
@@ -16744,7 +16746,7 @@ _.CFDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 let idx = 0;
-                while (idx < defaultDest.arguments.length && !parser.match(')')) {
+                while (idx < defaultDest.arguments.length && !parser.match(_.Token.r_paren)) {
                     const type = parser.parseType();
                     if (defaultDest.arguments[idx]) {
                         defaultDest.arguments[idx].type = type;
@@ -16768,13 +16770,13 @@ _.CFDialect = class extends _.Dialect {
             if (!parser.parseOptionalColon()) {
                 break;
             }
-            if (!parser.match('^')) {
+            if (!parser.match(_.Token.caret_identifier)) {
                 break;
             }
-            const caseDestination = parser.expect('^');
+            const caseDestination = parser.expect(_.Token.caret_identifier);
             const caseDest = { label: caseDestination, arguments: [] };
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')') && !parser.match(':')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                     const operandValue = parser.parseOperand();
                     caseDest.arguments.push({ value: operandValue });
                     if (!parser.parseOptionalComma()) {
@@ -16783,7 +16785,7 @@ _.CFDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalColon()) {
                     let idx = 0;
-                    while (idx < caseDest.arguments.length && !parser.match(')')) {
+                    while (idx < caseDest.arguments.length && !parser.match(_.Token.r_paren)) {
                         const type = parser.parseType();
                         if (caseDest.arguments[idx]) {
                             caseDest.arguments[idx].type = type;
@@ -16890,13 +16892,13 @@ _.pdl.PDLDialect = class extends _.Dialect {
     }
 
     parseOperationOp(parser, result) {
-        if (parser.match('string')) {
-            const opNameValue = parser.expect('string');
+        if (parser.match(_.Token.string)) {
+            const opNameValue = parser.expect(_.Token.string);
             result.addAttribute('opName', opNameValue);
         }
         if (parser.parseOptionalLParen()) {
             const unresolvedOperands = [];
-            while (!parser.match(')') && !parser.match(':')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -16904,7 +16906,7 @@ _.pdl.PDLDialect = class extends _.Dialect {
             }
             const types = [];
             if (parser.parseOptionalColon()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     types.push(parser.parseType());
                     parser.parseOptionalComma();
                 }
@@ -16918,7 +16920,7 @@ _.pdl.PDLDialect = class extends _.Dialect {
         if (parser.parseOptionalArrow()) {
             parser.parseOptionalLParen();
             const unresolvedTypeValues = [];
-            while (!parser.match(')') && !parser.match(':') && !parser.match('{') && !parser.match(_.Token.bare_identifier, 'loc')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon) && !parser.match(_.Token.l_brace) && !parser.match(_.Token.bare_identifier, 'loc')) {
                 unresolvedTypeValues.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -16926,7 +16928,7 @@ _.pdl.PDLDialect = class extends _.Dialect {
             }
             const types = [];
             if (parser.parseOptionalColon()) {
-                while (!parser.match(')') && !parser.match('{') && !parser.match(_.Token.bare_identifier, 'loc')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.l_brace) && !parser.match(_.Token.bare_identifier, 'loc')) {
                     types.push(parser.parseType());
                     parser.parseOptionalComma();
                 }
@@ -16945,7 +16947,7 @@ _.pdl.PDLDialect = class extends _.Dialect {
             return true;
         }
         const attributeNames = [];
-        while (!parser.match('}')) {
+        while (!parser.match(_.Token.r_brace)) {
             const name = parser.parseAttribute();
             if (!parser.parseOptionalEqual()) {
                 break;
@@ -17019,7 +17021,7 @@ _.PDLInterpDialect = class extends _.Dialect {
         parser.parseKeyword('in');
         const range = parser.parseOperand();
         parser.resolveOperand(range, null, result.operands);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = {};
             parser.parseRegion(region);
             if (region.blocks && region.blocks.length > 0) {
@@ -17031,7 +17033,7 @@ _.PDLInterpDialect = class extends _.Dialect {
             result.regions.push(region);
         }
         if (parser.parseOptionalArrow()) {
-            parser.expect('^');
+            parser.expect(_.Token.caret_identifier);
         }
         parser.parseOptionalAttrDict(result.attributes);
         return true;
@@ -17040,7 +17042,7 @@ _.PDLInterpDialect = class extends _.Dialect {
     parseCreateOperationOpAttributes(parser, result) {
         const attrNames = [];
         if (parser.parseOptionalLBrace()) {
-            while (!parser.match('}')) {
+            while (!parser.match(_.Token.r_brace)) {
                 const nameAttr = parser.parseAttribute();
                 parser.parseEqual();
                 const operand = parser.parseOperand();
@@ -17070,7 +17072,7 @@ _.PDLInterpDialect = class extends _.Dialect {
         parser.parseLParen();
         const unresolvedOperands = [];
         const types = [];
-        while (!parser.match(')') && !parser.match(':')) {
+        while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
             const operand = parser.parseOperand();
             unresolvedOperands.push(operand);
             if (!parser.parseOptionalComma()) {
@@ -17140,7 +17142,7 @@ _.ptr.PtrDialect = class extends _.Dialect {
     }
 
     parsePtrType(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             const memorySpace = content.slice(1, -1);
             return new _.ptr.PtrType(memorySpace);
@@ -17190,12 +17192,12 @@ _.EmitCDialect = class extends _.Dialect {
     parseOperation(parser, result) {
         if (result.op === 'emitc.include') {
             if (parser.parseOptionalLess()) {
-                const include = parser.expect('string');
+                const include = parser.expect(_.Token.string);
                 parser.parseGreater();
                 result.addAttribute('is_standard_include', true);
                 result.addAttribute('include', include);
             } else {
-                const include = parser.expect('string');
+                const include = parser.expect(_.Token.string);
                 result.addAttribute('include', include);
             }
             return true;
@@ -17205,7 +17207,7 @@ _.EmitCDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'emitc.expression') {
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const operand = parser.parseOperand();
                 parser.resolveOperand(operand, null, result.operands);
                 if (!parser.parseOptionalComma()) {
@@ -17222,7 +17224,7 @@ _.EmitCDialect = class extends _.Dialect {
                     result.addTypes(type.results);
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -17269,7 +17271,7 @@ _.EmitCDialect = class extends _.Dialect {
                 result.addAttribute('type', type.toString());
             }
             result.addAttribute('iterVar', { value: iterVar, hidden: true });
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -17279,7 +17281,7 @@ _.EmitCDialect = class extends _.Dialect {
     }
 
     parseLValueType(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!emitc.lvalue${content}`);
         }
@@ -17291,7 +17293,7 @@ _.EmitCDialect = class extends _.Dialect {
         while (parser.parseOptionalKeyword('case')) {
             const value = parser.parseInteger();
             caseValues.push(value);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = op.addRegion();
                 parser.parseRegion(region);
             }
@@ -17324,19 +17326,19 @@ _.AsukaDialect = class extends _.Dialect {
         if (result.op === 'asuka.dot' || result.op === 'asuka.add' || result.op === 'asuka.split' || result.op === 'asuka.softmax' || result.op === 'asuka.reduce') {
             result.compatibility = true;
             result.operands = parser.parseOperandList();
-            while (parser.match(_.Token.bare_identifier) && !parser.match(':') && !parser.match('{')) {
+            while (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.colon) && !parser.match(_.Token.l_brace)) {
                 const attrName = parser.expect(_.Token.bare_identifier);
                 if (parser.parseOptionalEqual()) {
                     let attrValue = null;
-                    if (parser.match('[')) {
+                    if (parser.match(_.Token.l_square)) {
                         attrValue = parser.parseAttribute();
                         if (parser.match(_.Token.bare_identifier) && parser.getTokenSpelling().str() === 'x') {
                             parser.expect(_.Token.bare_identifier); // consume 'x'
                             const secondValue = parser.parseAttribute();
                             attrValue = { kind: 'pair', first: attrValue, second: secondValue };
                         }
-                    } else if (parser.match('int')) {
-                        attrValue = parser.expect('int');
+                    } else if (parser.match(_.Token.integer)) {
+                        attrValue = parser.expect(_.Token.integer);
                     } else {
                         attrValue = parser.parseAttribute();
                     }
@@ -17394,9 +17396,9 @@ _.async.ValueType = class extends _.Type {
     }
 
     static parse(parser) {
-        if (parser.accept('<')) {
+        if (parser.consumeIf(_.Token.less)) {
             const innerType = parser.parseType();
-            parser.expect('>');
+            parser.parseGreater();
             return new _.async.ValueType(innerType);
         }
         return parser.parseType();
@@ -17423,9 +17425,9 @@ _.async.AsyncDialect = class extends _.Dialect {
             return new _.async.GroupType();
         }
         if (mnemonic === 'value') {
-            if (parser.accept('<')) {
+            if (parser.consumeIf(_.Token.less)) {
                 const innerType = parser.parseType();
-                parser.expect('>');
+                parser.parseGreater();
                 return new _.async.ValueType(innerType);
             }
             return new _.async.ValueType(null);
@@ -17448,7 +17450,7 @@ _.async.AsyncDialect = class extends _.Dialect {
         const tokenTypes = tokenArgs.map(() => null);
         parser.resolveOperands(tokenArgs, tokenTypes, result.operands);
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const operand = parser.parseOperand();
                 if (parser.parseOptionalKeyword('as')) {
                     parser.parseOperand();
@@ -17467,7 +17469,7 @@ _.async.AsyncDialect = class extends _.Dialect {
         const valueTypes = [];
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     valueTypes.push(parser.parseType());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -17481,7 +17483,7 @@ _.async.AsyncDialect = class extends _.Dialect {
         result.addTypes([new _.async.TokenType()]);
         result.addTypes(valueTypes);
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -17501,7 +17503,7 @@ _.async.AsyncDialect = class extends _.Dialect {
         }
         result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -17536,7 +17538,7 @@ _.ArithDialect = class extends _.Dialect {
 
     parseSelectOp(parser, result) {
         const unresolvedOperands = parser.parseOperandList();
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
@@ -17902,8 +17904,8 @@ _.BufferizationDialect = class extends _.Dialect {
                 return false;
             }
             const unresolvedDynamicDims = [];
-            while (!parser.match(')')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_paren)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedDynamicDims.push(parser.parseOperand());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -17946,7 +17948,7 @@ _.BufferizationDialect = class extends _.Dialect {
         // bufferization.to_memref %tensor read_only : tensor_type to memref_type
         if (result.op === 'bufferization.to_memref') {
             let unresolvedOperand = null;
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperand = parser.parseOperand();
             }
             if (parser.parseOptionalKeyword('read_only')) {
@@ -18021,7 +18023,7 @@ _.SCFDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('unsigned')) {
             result.addAttribute('unsignedCmp', true);
         }
-        if (!parser.match('%')) {
+        if (!parser.match(_.Token.percent_identifier)) {
             return false;
         }
         const inductionVar = parser.parseOperand();
@@ -18030,7 +18032,7 @@ _.SCFDialect = class extends _.Dialect {
         }
         const indexType = new _.IndexType();
         let unresolvedLb = null;
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             unresolvedLb = parser.parseOperand();
         } else {
             return false;
@@ -18039,7 +18041,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         let unresolvedUb = null;
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             unresolvedUb = parser.parseOperand();
         } else {
             return false;
@@ -18048,7 +18050,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         let unresolvedStep = null;
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             unresolvedStep = parser.parseOperand();
         } else {
             return false;
@@ -18059,11 +18061,11 @@ _.SCFDialect = class extends _.Dialect {
             const unresolvedIterArgs = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         parser.parseOperand(); // Skip the loop-carried variable name
                     }
                     if (parser.parseOptionalEqual()) {
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             unresolvedIterArgs.push(parser.parseOperand());
                         } else {
                             const value = parser.parseAttribute();
@@ -18083,7 +18085,7 @@ _.SCFDialect = class extends _.Dialect {
         if (parser.parseOptionalColon()) {
             parser.parseType();
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = {};
             parser.parseRegion(region);
             if (region.blocks && region.blocks.length > 0) {
@@ -18106,7 +18108,7 @@ _.SCFDialect = class extends _.Dialect {
     parseIfOp(parser, result) {
         // Reference impl: condition operand is of type i1
         let unresolvedCond = null;
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             unresolvedCond = parser.parseOperand();
         } else {
             return false;
@@ -18114,14 +18116,14 @@ _.SCFDialect = class extends _.Dialect {
         const i1Type = new _.IntegerType('i1');
         parser.resolveOperands([unresolvedCond], [i1Type], result.operands);
         result.addTypes(parser.parseOptionalArrowTypeList());
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         } else {
             return false;
         }
         if (parser.parseOptionalKeyword('else')) {
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -18134,11 +18136,11 @@ _.SCFDialect = class extends _.Dialect {
         const unresolvedOperands = [];
         if (parser.parseOptionalLParen()) {
             while (!parser.parseOptionalRParen()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     parser.parseOperand(); // Skip variable name
                 }
                 if (parser.parseOptionalEqual()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedOperands.push(parser.parseOperand());
                     }
                     // Note: attribute values are not operands, skip them
@@ -18159,12 +18161,12 @@ _.SCFDialect = class extends _.Dialect {
             parser.resolveOperands(unresolvedOperands, types, result.operands);
             result.addTypes(parser.parseOptionalArrowTypeList());
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
         if (parser.parseOptionalKeyword('do')) {
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -18180,13 +18182,13 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         while (!parser.parseOptionalRParen()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 inductionVars.push(parser.parseOperand().name);
             } else {
                 return false;
             }
             if (!parser.parseOptionalComma()) {
-                if (parser.match(')')) {
+                if (parser.match(_.Token.r_paren)) {
                     parser.parseOptionalRParen();
                     break;
                 }
@@ -18204,10 +18206,10 @@ _.SCFDialect = class extends _.Dialect {
                 return bounds;
             }
             while (!parser.parseOptionalRParen()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     bounds.push(parser.parseOperand());
-                } else if (parser.match('int')) {
-                    parser.expect('int'); // Skip static bound
+                } else if (parser.match(_.Token.integer)) {
+                    parser.expect(_.Token.integer); // Skip static bound
                 }
                 parser.parseOptionalComma();
             }
@@ -18237,11 +18239,11 @@ _.SCFDialect = class extends _.Dialect {
                 return false;
             }
             while (!parser.parseOptionalRParen()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     parser.parseOperand(); // Skip arg name
                 }
                 if (parser.parseOptionalEqual()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         parser.resolveOperand(operand, null, result.operands);
                     } else {
@@ -18263,7 +18265,7 @@ _.SCFDialect = class extends _.Dialect {
                 result.addTypes([type]);
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         } else {
@@ -18280,7 +18282,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         while (!parser.parseOptionalRParen()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 inductionVars.push(parser.parseOperand().name);
             } else {
                 return false;
@@ -18295,7 +18297,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         while (!parser.parseOptionalRParen()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 lowerBounds.push(parser.parseOperand());
             } else {
                 return false;
@@ -18311,7 +18313,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         while (!parser.parseOptionalRParen()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 upperBounds.push(parser.parseOperand());
             } else {
                 return false;
@@ -18327,7 +18329,7 @@ _.SCFDialect = class extends _.Dialect {
             return false;
         }
         while (!parser.parseOptionalRParen()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 steps.push(parser.parseOperand());
             } else {
                 return false;
@@ -18341,7 +18343,7 @@ _.SCFDialect = class extends _.Dialect {
                 return false;
             }
             while (!parser.parseOptionalRParen()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     initVals.push(parser.parseOperand());
                 } else {
                     const value = parser.parseAttribute();
@@ -18366,7 +18368,7 @@ _.SCFDialect = class extends _.Dialect {
                 result.addTypes([type]);
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = {};
             parser.parseRegion(region);
             if (region.blocks && region.blocks.length > 0 && inductionVars.length > 0) {
@@ -18387,7 +18389,7 @@ _.SCFDialect = class extends _.Dialect {
 
     parseInParallelOp(parser, result) {
         // scf.forall.in_parallel { region }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         } else {
@@ -18400,12 +18402,12 @@ _.SCFDialect = class extends _.Dialect {
     parseSwitchCases(parser, op, casesAttrName) {
         const caseValues = [];
         while (parser.parseOptionalKeyword('case')) {
-            if (!parser.match('int')) {
+            if (!parser.match(_.Token.integer)) {
                 break;
             }
             const value = parser.parseInteger();
             caseValues.push(value);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = op.addRegion();
                 parser.parseRegion(region);
             } else {
@@ -18422,7 +18424,7 @@ _.SCFDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('no_inline')) {
             result.addAttribute('no_inline', true);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -18477,7 +18479,7 @@ _.ShapeDialect = class extends _.Dialect {
     }
 
     parseAssumingOp(parser, result) {
-        if (!parser.match('%')) {
+        if (!parser.match(_.Token.percent_identifier)) {
             return false;
         }
         const unresolvedWitness = parser.parseOperand();
@@ -18487,7 +18489,7 @@ _.ShapeDialect = class extends _.Dialect {
             const types = parser.parseFunctionResultTypes();
             result.addTypes(types);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -18507,12 +18509,12 @@ _.ShapeDialect = class extends _.Dialect {
     }
 
     parseReduceOp(parser, result) {
-        if (!parser.match('(')) {
+        if (!parser.match(_.Token.l_paren)) {
             return false;
         }
         parser.parseOptionalLParen();
         const unresolvedOperands = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             if (!parser.parseOptionalComma()) {
                 break;
@@ -18537,7 +18539,7 @@ _.ShapeDialect = class extends _.Dialect {
                 parser.resolveOperand(unresolvedOperands[i], initType, result.operands);
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -18548,7 +18550,7 @@ _.ShapeDialect = class extends _.Dialect {
     parseFunctionLibraryOp(parser, result) {
         parser.parseSymbolName('sym_name', result.attributes);
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -18587,7 +18589,7 @@ _.SparseTensorDialect = class extends _.Dialect {
     }
 
     parseIterateOp(parser, result) {
-        if (!parser.match('%')) {
+        if (!parser.match(_.Token.percent_identifier)) {
             return false;
         }
         const regionArgs = [];
@@ -18596,7 +18598,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         if (!parser.parseOptionalKeyword('in')) {
             return false;
         }
-        if (!parser.match('%')) {
+        if (!parser.match(_.Token.percent_identifier)) {
             return false;
         }
         const unresolvedTensor = parser.parseOperand();
@@ -18604,7 +18606,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         const initValues = [];
         if (parser.parseOptionalKeyword('at')) {
             parser.parseOptionalLParen();
-            while (parser.match('%') || parser.match(_.Token.bare_identifier)) {
+            while (parser.match(_.Token.percent_identifier) || parser.match(_.Token.bare_identifier)) {
                 parser.expect();
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -18614,7 +18616,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('iter_args')) {
             parser.parseOptionalLParen();
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const iterArg = parser.parseOperand();
                 iterArgNames.push(iterArg.name);
                 if (parser.parseOptionalEqual()) {
@@ -18647,7 +18649,7 @@ _.SparseTensorDialect = class extends _.Dialect {
             const initType = resultTypes[i] || null;
             parser.resolveOperand(initValues[i], initType, result.operands);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, regionArgs);
         }
@@ -18660,7 +18662,7 @@ _.SparseTensorDialect = class extends _.Dialect {
             return false;
         }
         const unresolvedTensors = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedTensors.push(parser.parseOperand());
             if (!parser.parseOptionalComma()) {
                 break;
@@ -18669,7 +18671,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         parser.parseOptionalRParen();
         if (parser.parseOptionalKeyword('at')) {
             parser.parseOptionalLParen();
-            while (parser.match('%') || parser.match(_.Token.bare_identifier)) {
+            while (parser.match(_.Token.percent_identifier) || parser.match(_.Token.bare_identifier)) {
                 parser.expect();
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -18681,7 +18683,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         const initValues = [];
         if (parser.parseOptionalKeyword('iter_args')) {
             parser.parseOptionalLParen();
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const iterArg = parser.parseOperand(); // block arg name
                 iterArgNames.push(iterArg.name);
                 if (parser.parseOptionalEqual()) {
@@ -18696,7 +18698,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         const tensorTypes = [];
         if (parser.parseOptionalColon()) {
             parser.parseOptionalLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 tensorTypes.push(parser.parseType());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -18725,7 +18727,7 @@ _.SparseTensorDialect = class extends _.Dialect {
         }
         while (parser.parseOptionalKeyword('case')) {
             const caseArgs = [...regionArgs]; // Start with iter_args
-            while (parser.match('%') || parser.match(_.Token.bare_identifier)) {
+            while (parser.match(_.Token.percent_identifier) || parser.match(_.Token.bare_identifier)) {
                 const caseArg = parser.expect();
                 if (caseArg.startsWith('%')) {
                     caseArgs.push({ name: caseArg, type: null });
@@ -18734,7 +18736,7 @@ _.SparseTensorDialect = class extends _.Dialect {
                     break;
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region, caseArgs);
             }
@@ -18829,7 +18831,7 @@ _.GpuDialect = class extends _.Dialect {
                 result.addAttribute('gpu.kernel', true);
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 // gpu.func is IsolatedFromAbove
                 parser.parseRegion(region, allArgs, /* isIsolatedNameScope */ true);
@@ -18866,19 +18868,19 @@ _.GpuDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalKeyword('module')) {
                 parser.parseLParen();
-                const moduleSymbol = parser.expect('@');
+                const moduleSymbol = parser.expect(_.Token.at_identifier);
                 result.addAttribute('module', moduleSymbol);
                 parser.parseRParen();
             }
             if (parser.parseOptionalKeyword('function')) {
                 parser.parseLParen();
-                const funcSymbol = parser.expect('@');
+                const funcSymbol = parser.expect(_.Token.at_identifier);
                 result.addAttribute('function', funcSymbol);
                 parser.parseRParen();
             }
             if (parser.parseOptionalKeyword('workgroup')) {
                 parser.parseLParen();
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     parser.parseOperand();
                     parser.parseColon();
                     parser.parseType();
@@ -18890,7 +18892,7 @@ _.GpuDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalKeyword('private')) {
                 parser.parseLParen();
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     parser.parseOperand();
                     parser.parseColon();
                     parser.parseType();
@@ -18900,7 +18902,7 @@ _.GpuDialect = class extends _.Dialect {
                 }
                 parser.parseRParen();
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 // gpu.launch is IsolatedFromAbove
                 parser.parseRegion(region, undefined, /* isIsolatedNameScope */ true);
@@ -18921,7 +18923,7 @@ _.GpuDialect = class extends _.Dialect {
         parser.resolveOperand(unresolvedLaneId, indexType, result.operands);
         parser.parseRParen();
         parser.parseLSquare();
-        const warpSize = parser.expect('int');
+        const warpSize = parser.expect(_.Token.integer);
         result.addAttribute('warp_size', parseInt(warpSize, 10));
         parser.parseRSquare();
         if (parser.parseOptionalKeyword('args')) {
@@ -18947,7 +18949,7 @@ _.GpuDialect = class extends _.Dialect {
                 }
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -18957,8 +18959,8 @@ _.GpuDialect = class extends _.Dialect {
 
     parseSizeAssignment(parser, op, indexType) {
         parser.parseLParen();
-        while (!parser.match(')')) {
-            if (parser.match('%')) {
+        while (!parser.match(_.Token.r_paren)) {
+            if (parser.match(_.Token.percent_identifier)) {
                 parser.parseOperand(); // Skip the LHS block arg
                 if (parser.parseOptionalEqual()) {
                     const operand = parser.parseOperand();
@@ -18978,12 +18980,12 @@ _.GpuDialect = class extends _.Dialect {
         if (parser.match(_.Token.bare_identifier, 'args')) {
             parser.expect();
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const operand = parser.parseOperand();
                 parser.parseColon();
                 const type = parser.parseType();
                 parser.resolveOperand(operand, type, op.operands);
-                if (!parser.match(')')) {
+                if (!parser.match(_.Token.r_paren)) {
                     parser.parseComma();
                 }
             }
@@ -18999,7 +19001,7 @@ _.GpuDialect = class extends _.Dialect {
             asyncTokenTypes.push(new _.Type('!gpu.async.token'));
         }
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
+            while (!parser.match(_.Token.r_square)) {
                 if (Array.isArray(asyncDependencies)) {
                     asyncDependencies.push(parser.parseOperand());
                 } else {
@@ -19087,7 +19089,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseTensorMapDescriptor(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!nvgpu.tensormap.descriptor${content}`);
         }
@@ -19095,7 +19097,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseWarpgroupAccumulator(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!nvgpu.warpgroup.accumulator${content}`);
         }
@@ -19103,7 +19105,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseWarpgroupMatrixDescriptor(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!nvgpu.warpgroup.descriptor${content}`);
         }
@@ -19111,7 +19113,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseMBarrierGroup(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!nvgpu.mbarrier.barrier${content}`);
         }
@@ -19131,8 +19133,8 @@ _.NVVMDialect = class extends _.Dialect {
             parser.expect(_.Token.bare_identifier, name);
             parser.parseLSquare();
             const operands = [];
-            while (!parser.match(']')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     operands.push(parser.parseOperand());
                 }
                 if (!parser.parseOptionalComma()) {
@@ -19206,7 +19208,7 @@ _.NVWSDialect = class extends _.Dialect {
     }
 
     parseArefTypeShorthand(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!nvws.aref${content}`);
         }
@@ -19221,7 +19223,7 @@ _.NVWSDialect = class extends _.Dialect {
             while (parser.parseOptionalKeyword(`partition${partitionIndex}`)) {
                 parser.parseKeyword('num_warps');
                 parser.parseLParen();
-                const n = parseInt(parser.expect('int'), 10);
+                const n = parseInt(parser.expect(_.Token.integer), 10);
                 numWarps.push(n);
                 parser.parseRParen();
                 const region = result.addRegion();
@@ -19295,9 +19297,9 @@ _.OpenMPDialect = class extends _.Dialect {
             result.addAttribute('in_type', { value: inType, type: 'type' });
             const unresolvedTypeparams = [];
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     unresolvedTypeparams.push(parser.parseOperand());
-                    if (!parser.match(')')) {
+                    if (!parser.match(_.Token.r_paren)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -19338,7 +19340,7 @@ _.OpenMPDialect = class extends _.Dialect {
         const rangeOperand = parser.parseOperand();
         parser.resolveOperand(rangeOperand, null, result.operands);
         parser.parseRParen();
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             // Pass induction variable as region argument
             const regionArgs = [{ name: inductionVar.name, type: ivType }];
@@ -19366,7 +19368,7 @@ _.OpenMPDialect = class extends _.Dialect {
         // Parse CLI operands (loop handles)
         const unresolvedCli = [];
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 unresolvedCli.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -19377,7 +19379,7 @@ _.OpenMPDialect = class extends _.Dialect {
         // Parse types for CLI operands
         const cliTypes = [];
         if (parser.parseOptionalColon()) {
-            while (!parser.match('=') && !parser.match('{')) {
+            while (!parser.match(_.Token.equal) && !parser.match(_.Token.l_brace)) {
                 cliTypes.push(parser.parseType());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -19388,7 +19390,7 @@ _.OpenMPDialect = class extends _.Dialect {
         if (parser.parseOptionalEqual()) {
             if (parser.parseOptionalLParen()) {
                 const unresolvedLb = [];
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     unresolvedLb.push(parser.parseOperand());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -19402,7 +19404,7 @@ _.OpenMPDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('to')) {
                 if (parser.parseOptionalLParen()) {
                     const unresolvedUb = [];
-                    while (!parser.match(')')) {
+                    while (!parser.match(_.Token.r_paren)) {
                         unresolvedUb.push(parser.parseOperand());
                         if (!parser.parseOptionalComma()) {
                             break;
@@ -19418,7 +19420,7 @@ _.OpenMPDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('step')) {
                 if (parser.parseOptionalLParen()) {
                     const unresolvedStep = [];
-                    while (!parser.match(')')) {
+                    while (!parser.match(_.Token.r_paren)) {
                         unresolvedStep.push(parser.parseOperand());
                         if (!parser.parseOptionalComma()) {
                             break;
@@ -19433,15 +19435,15 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('collapse')) {
             parser.parseLParen();
-            const value = parser.expect('int');
+            const value = parser.expect(_.Token.integer);
             result.addAttribute('collapse_num_loops', parseInt(value, 10));
             parser.parseRParen();
         }
         if (parser.parseOptionalKeyword('tiles')) {
             parser.parseLParen();
             const tiles = [];
-            while (!parser.match(')')) {
-                tiles.push(parseInt(parser.expect('int'), 10));
+            while (!parser.match(_.Token.r_paren)) {
+                tiles.push(parseInt(parser.expect(_.Token.integer), 10));
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
@@ -19449,7 +19451,7 @@ _.OpenMPDialect = class extends _.Dialect {
             parser.parseRParen();
             result.addAttribute('tile_sizes', tiles);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -19522,7 +19524,7 @@ _.OpenMPDialect = class extends _.Dialect {
         const linearVarTypes = [];
         const unresolvedStepVars = [];
         do {
-            if (!parser.match('%')) {
+            if (!parser.match(_.Token.percent_identifier)) {
                 break;
             }
             unresolvedLinearVars.push(parser.parseOperand());
@@ -19551,8 +19553,8 @@ _.OpenMPDialect = class extends _.Dialect {
         const copyprivateSyms = [];
         do {
             unresolvedVars.push(parser.parseOperand());
-            parser.expect('->');
-            const sym = parser.expect('@');
+            parser.parseArrow();
+            const sym = parser.expect(_.Token.at_identifier);
             parser.parseColon();
             const type = parser.parseType();
             varTypes.push(type);
@@ -19566,7 +19568,7 @@ _.OpenMPDialect = class extends _.Dialect {
 
     parseGranularityClause(parser, op, modAttr) {
         let modifier = null;
-        if (parser.match(_.Token.bare_identifier) && !parser.match('%')) {
+        if (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.percent_identifier)) {
             modifier = parser.expect(_.Token.bare_identifier);
             parser.parseComma();
         }
@@ -19584,14 +19586,14 @@ _.OpenMPDialect = class extends _.Dialect {
         const varTypes = [];
         const alignments = [];
         do {
-            if (!parser.match('%')) {
+            if (!parser.match(_.Token.percent_identifier)) {
                 break;
             }
             unresolvedVars.push(parser.parseOperand());
             parser.parseColon();
             const type = parser.parseType();
             varTypes.push(type);
-            parser.expect('->');
+            parser.parseArrow();
             const alignment = parser.parseAttribute();
             alignments.push(alignment);
         } while (parser.parseOptionalComma());
@@ -19623,7 +19625,7 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalEqual()) {
             let unresolvedChunk = null;
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedChunk = parser.parseOperand();
             }
             if (parser.parseOptionalColon()) {
@@ -19653,13 +19655,13 @@ _.OpenMPDialect = class extends _.Dialect {
         const unresolvedAllocates = [];
         const allocateTypes = [];
         do {
-            if (!parser.match('%')) {
+            if (!parser.match(_.Token.percent_identifier)) {
                 break;
             }
             unresolvedAllocators.push(parser.parseOperand());
             parser.parseColon();
             allocatorTypes.push(parser.parseType());
-            parser.expect('->');
+            parser.parseArrow();
             unresolvedAllocates.push(parser.parseOperand());
             parser.parseColon();
             allocateTypes.push(parser.parseType());
@@ -19701,7 +19703,7 @@ _.OpenMPDialect = class extends _.Dialect {
             if (attrName) {
                 op.addAttribute(attrName, enumValue);
             }
-        } else if (parser.match('{')) {
+        } else if (parser.match(_.Token.l_brace)) {
             parser.skip('{');
         }
     }
@@ -19720,7 +19722,7 @@ _.OpenMPDialect = class extends _.Dialect {
         for (const kw of singleValueKeywords) {
             if (parser.parseOptionalKeyword(kw)) {
                 parser.parseLParen();
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const unresolvedOperand = parser.parseOperand();
                     let opType = null;
                     if (parser.parseOptionalColon()) {
@@ -19735,8 +19737,8 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('is_device_ptr')) {
             parser.parseLParen();
-            while (!parser.match(')') && !parser.match(':')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     parser.parseOperand();
                 }
                 if (!parser.parseOptionalComma()) {
@@ -19744,7 +19746,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
             if (parser.parseOptionalColon()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     parser.parseType();
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -19768,31 +19770,31 @@ _.OpenMPDialect = class extends _.Dialect {
                 parser.expect(_.Token.bare_identifier);
                 progress = true;
                 if (parser.parseOptionalLParen()) {
-                    while (!parser.match(')') && !parser.match(':')) {
+                    while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                         parser.parseOptionalKeyword('byref');
-                        if (parser.match('@')) {
-                            parser.expect('@');
+                        if (parser.match(_.Token.at_identifier)) {
+                            parser.expect(_.Token.at_identifier);
                         }
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             parser.parseOperand();
                         }
                         if (parser.parseOptionalArrow()) {
-                            if (parser.match('%')) {
+                            if (parser.match(_.Token.percent_identifier)) {
                                 parser.parseOperand();
                             }
                         }
                         if (parser.parseOptionalLSquare()) {
                             parser.parseKeyword('map_idx');
                             parser.parseEqual();
-                            parser.expect('int');
+                            parser.expect(_.Token.integer);
                             parser.parseRSquare();
                         }
-                        if (!parser.parseOptionalComma() || parser.match(':')) {
+                        if (!parser.parseOptionalComma() || parser.match(_.Token.colon)) {
                             break;
                         }
                     }
                     if (parser.parseOptionalColon()) {
-                        while (!parser.match(')')) {
+                        while (!parser.match(_.Token.r_paren)) {
                             parser.parseType();
                             if (!parser.parseOptionalComma()) {
                                 break;
@@ -19803,7 +19805,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
         }
-        if (!parser.match('{')) {
+        if (!parser.match(_.Token.l_brace)) {
             return;
         }
         const region = {};
@@ -19840,8 +19842,8 @@ _.OpenMPDialect = class extends _.Dialect {
             if (parser.parseOptionalLSquare()) {
                 const indices = [];
                 do {
-                    if (parser.match('int')) {
-                        const idx = parser.expect('int');
+                    if (parser.match(_.Token.integer)) {
+                        const idx = parser.expect(_.Token.integer);
                         indices.push(idx);
                     }
                 } while (parser.parseOptionalComma());
@@ -19870,10 +19872,10 @@ _.OpenMPDialect = class extends _.Dialect {
                     parser.parseLParen();
                     let unresolvedOp = null;
                     let opType = null;
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedOp = parser.parseOperand();
-                    } else if (parser.match('int')) {
-                        const value = parser.expect('int');
+                    } else if (parser.match(_.Token.integer)) {
+                        const value = parser.expect(_.Token.integer);
                         result.addAttribute(kw, value);
                     }
                     if (parser.parseOptionalColon()) {
@@ -19894,7 +19896,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     result.addAttribute(kw, value);
                     // Handle modifier syntax like schedule(static, value)
                     while (parser.parseOptionalComma()) {
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             const unresolvedOp = parser.parseOperand();
                             let opType = null;
                             if (parser.parseOptionalColon()) {
@@ -19916,38 +19918,38 @@ _.OpenMPDialect = class extends _.Dialect {
                 if (parser.parseOptionalKeyword(kw)) {
                     progress = true;
                     if (parser.parseOptionalLParen()) {
-                        if (parser.accept('kw_mod')) {
+                        if (parser.consumeIf(_.Token.kw_mod)) {
                             parser.parseColon();
                             parser.expect(_.Token.bare_identifier);
                             parser.parseComma();
                         }
                         const unresolvedOperands = [];
-                        while (!parser.match(')') && !parser.match(':')) {
+                        while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                             parser.parseOptionalKeyword('byref');
-                            if (parser.match('@')) {
-                                parser.expect('@');
+                            if (parser.match(_.Token.at_identifier)) {
+                                parser.expect(_.Token.at_identifier);
                             }
-                            if (parser.match('%')) {
+                            if (parser.match(_.Token.percent_identifier)) {
                                 unresolvedOperands.push(parser.parseOperand());
                             }
                             if (parser.parseOptionalArrow()) {
-                                if (parser.match('%')) {
+                                if (parser.match(_.Token.percent_identifier)) {
                                     parser.parseOperand();
                                 }
                             }
                             if (parser.parseOptionalLSquare()) {
                                 parser.parseKeyword('map_idx');
                                 parser.parseEqual();
-                                parser.expect('int');
+                                parser.expect(_.Token.integer);
                                 parser.parseRSquare();
                             }
-                            if (!parser.parseOptionalComma() || parser.match(':')) {
+                            if (!parser.parseOptionalComma() || parser.match(_.Token.colon)) {
                                 break;
                             }
                         }
                         const types = [];
                         if (parser.parseOptionalColon()) {
-                            while (!parser.match(')')) {
+                            while (!parser.match(_.Token.r_paren)) {
                                 types.push(parser.parseType());
                                 if (!parser.parseOptionalComma()) {
                                     break;
@@ -19973,18 +19975,18 @@ _.OpenMPDialect = class extends _.Dialect {
                 progress = true;
                 parser.parseLParen();
                 const unresolvedMapVars = [];
-                while (!parser.match(')') && !parser.match(':')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         unresolvedMapVars.push(operand);
                     }
-                    if (!parser.parseOptionalComma() || parser.match(':')) {
+                    if (!parser.parseOptionalComma() || parser.match(_.Token.colon)) {
                         break;
                     }
                 }
                 const mapTypes = [];
                 if (parser.parseOptionalColon()) {
-                    while (!parser.match(')')) {
+                    while (!parser.match(_.Token.r_paren)) {
                         mapTypes.push(parser.parseType());
                         if (!parser.parseOptionalComma()) {
                             break;
@@ -20002,7 +20004,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 progress = true;
                 parser.parseLParen();
                 if (parser.parseOptionalKeyword('to')) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const upper = parser.parseOperand();
                         let upperType = null;
                         if (parser.parseOptionalColon()) {
@@ -20010,7 +20012,7 @@ _.OpenMPDialect = class extends _.Dialect {
                         }
                         parser.resolveOperand(upper, upperType, result.operands);
                     }
-                } else if (parser.match('%')) {
+                } else if (parser.match(_.Token.percent_identifier)) {
                     const lower = parser.parseOperand();
                     let lowerType = null;
                     if (parser.parseOptionalColon()) {
@@ -20018,7 +20020,7 @@ _.OpenMPDialect = class extends _.Dialect {
                     }
                     parser.resolveOperand(lower, lowerType, result.operands);
                     parser.parseKeyword('to');
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const upper = parser.parseOperand();
                         let upperType = null;
                         if (parser.parseOptionalColon()) {
@@ -20035,23 +20037,23 @@ _.OpenMPDialect = class extends _.Dialect {
                     progress = true;
                     parser.parseLParen();
                     const unresolvedOperands = [];
-                    while (!parser.match(')') && !parser.match(':')) {
-                        if (parser.match('%')) {
+                    while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             const operand = parser.parseOperand();
                             unresolvedOperands.push(operand);
                         }
                         if (parser.parseOptionalArrow()) {
-                            if (parser.match('%')) {
+                            if (parser.match(_.Token.percent_identifier)) {
                                 parser.parseOperand();
                             }
                         }
-                        if (!parser.parseOptionalComma() || parser.match(':')) {
+                        if (!parser.parseOptionalComma() || parser.match(_.Token.colon)) {
                             break;
                         }
                     }
                     const types = [];
                     if (parser.parseOptionalColon()) {
-                        while (!parser.match(')')) {
+                        while (!parser.match(_.Token.r_paren)) {
                             types.push(parser.parseType());
                             if (!parser.parseOptionalComma()) {
                                 break;
@@ -20066,7 +20068,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 }
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = {};
             parser.parseRegion(region);
             result.regions.push(region);
@@ -20091,7 +20093,7 @@ _.OpenMPDialect = class extends _.Dialect {
         do {
             const keyword = parser.expect(_.Token.bare_identifier);
             dependKinds.push(keyword);
-            parser.expect('->');
+            parser.parseArrow();
             const operand = parser.parseOperand();
             dependVars.push(operand);
             parser.parseColon();
@@ -20118,8 +20120,8 @@ _.OpenMPDialect = class extends _.Dialect {
         if (!parser.parseOptionalLess()) {
             // Syntax 1: generatees present, parse (generatees) first
             parser.parseLParen();
-            while (!parser.match(')')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_paren)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     generatees.push(parser.parseOperand());
                 }
                 if (!parser.parseOptionalComma()) {
@@ -20129,10 +20131,10 @@ _.OpenMPDialect = class extends _.Dialect {
             parser.parseRParen();
             parser.parseLess();
         }
-        parser.expect('minus');
+        parser.expect(_.Token.minus);
         parser.parseLParen();
-        while (!parser.match(')')) {
-            if (parser.match('%')) {
+        while (!parser.match(_.Token.r_paren)) {
+            if (parser.match(_.Token.percent_identifier)) {
                 applyees.push(parser.parseOperand());
             }
             if (!parser.parseOptionalComma()) {
@@ -20213,7 +20215,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMBlockAddressAttr(parser) {
-        if (!parser.match('<')) {
+        if (!parser.match(_.Token.less)) {
             return null;
         }
         const content = parser.skip('<');
@@ -20221,7 +20223,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMBlockTagAttr(parser) {
-        if (!parser.match('<')) {
+        if (!parser.match(_.Token.less)) {
             return null;
         }
         const content = parser.skip('<');
@@ -20229,7 +20231,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMPointerType(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             const inner = content.startsWith('<') && content.endsWith('>') ? content.slice(1, -1) : content;
             if (/^\d+$/.test(inner)) {
@@ -20323,10 +20325,10 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
 
         const opBundles = [];
         do {
-            const tag = parser.expect('string');
+            const tag = parser.expect(_.Token.string);
             parser.parseLParen();
             const bundleOperands = [];
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 do {
                     bundleOperands.push(parser.parseAttribute());
                 } while (parser.parseOptionalComma());
@@ -20399,24 +20401,24 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         const caseValues = [];
         const caseDestinations = [];
         const caseOperands = [];
-        while (!parser.match(']') && !parser.match('eof')) {
+        while (!parser.match(_.Token.r_square) && !parser.match(_.Token.eof)) {
             // Handle negative case values: -1, -2, etc.
             let sign = 1;
-            if (parser.accept('minus')) {
+            if (parser.consumeIf(_.Token.minus)) {
                 sign = -1;
             }
-            if (!parser.match('int') && !parser.match('number')) {
+            if (!parser.match(_.Token.integer) && !parser.match('number')) {
                 throw new mlir.Error(`Expected integer case value at ${parser.location()}`);
             }
             const value = sign * parseInt(parser.expect(), 10);
             caseValues.push(value);
             parser.parseColon();
-            const successor = parser.expect('^');
+            const successor = parser.expect(_.Token.caret_identifier);
             caseDestinations.push(successor);
             if (parser.parseOptionalLParen()) {
                 const operands = [];
-                while (!parser.match(')') && !parser.match(':') && !parser.match('eof')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon) && !parser.match(_.Token.eof)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         operands.push({ name: operand });
                         if (!parser.parseOptionalComma()) {
@@ -20428,7 +20430,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                 }
                 if (parser.parseOptionalColon()) {
                     let idx = 0;
-                    while (!parser.match(')') && idx < operands.length) {
+                    while (!parser.match(_.Token.r_paren) && idx < operands.length) {
                         const type = parser.parseType();
                         if (operands[idx]) {
                             operands[idx].type = type;
@@ -20468,7 +20470,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             type += content;
         }
@@ -20532,11 +20534,11 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('constant')) {
             result.addAttribute('constant', true);
         }
-        if (parser.match('@')) {
+        if (parser.match(_.Token.at_identifier)) {
             parser.parseSymbolName('sym_name', result.attributes);
         }
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             const value = parser.parseAttribute();
             if (parser.parseOptionalColon()) {
                 parser.parseType();
@@ -20546,18 +20548,18 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         parser.parseRParen();
         if (parser.parseOptionalKeyword('comdat')) {
             parser.parseLParen();
-            const comdat = parser.expect('@');
+            const comdat = parser.expect(_.Token.at_identifier);
             parser.parseRParen();
             result.addAttribute('comdat', comdat);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             result.types = [type];
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -20580,17 +20582,17 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         if (parser.match(_.Token.bare_identifier) && unnamedAddrKeywords.includes(parser.getTokenSpelling().str())) {
             result.addAttribute('unnamed_addr', parser.expect(_.Token.bare_identifier));
         }
-        if (parser.match('@')) {
+        if (parser.match(_.Token.at_identifier)) {
             parser.parseSymbolName('sym_name', result.attributes);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
             result.addAttribute('alias_type', type);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -20602,7 +20604,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         // Note: the reference uses 'none' delimiter with TableGen handling brackets,
         // but mlir.js expects '[' already consumed and needs to handle ']' terminator
         const rawConstantIndices = [];
-        while (!parser.match(']')) {
+        while (!parser.match(_.Token.r_square)) {
             const constIndex = parser.parseOptionalInteger();
             if (constIndex === null) {
                 const operand = parser.parseOperand();
@@ -20622,9 +20624,9 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         // All operands listed first, then colon, then all types
         parser.parseLSquare();
         const segmentSizes = [];
-        if (!parser.match(']')) {
+        if (!parser.match(_.Token.r_square)) {
             do {
-                const successor = parser.expect('^');
+                const successor = parser.expect(_.Token.caret_identifier);
                 if (!op.successors) {
                     op.successors = [];
                 }
@@ -20632,7 +20634,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                 const unresolvedOperands = [];
                 const types = [];
                 if (parser.parseOptionalLParen()) {
-                    while (!parser.match(')') && !parser.match(':')) {
+                    while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.colon)) {
                         const operand = parser.parseOperand();
                         unresolvedOperands.push(operand);
                         if (!parser.parseOptionalComma()) {
@@ -20640,7 +20642,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                         }
                     }
                     if (parser.parseOptionalColon()) {
-                        while (!parser.match(')')) {
+                        while (!parser.match(_.Token.r_paren)) {
                             const type = parser.parseType();
                             types.push(type);
                             parser.parseOptionalComma();
@@ -20670,7 +20672,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         parser.parseKeyword('x');
         const elemType = parser.parseType();
         result.addAttribute('elem_type', elemType);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
@@ -20697,16 +20699,16 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         }
         let isDirect = false;
         let calleePtr = null;
-        if (parser.match('@')) {
-            const callee = parser.expect('@');
+        if (parser.match(_.Token.at_identifier)) {
+            const callee = parser.expect(_.Token.at_identifier);
             result.addAttribute('callee', callee);
             isDirect = true;
-        } else if (parser.match('%')) {
+        } else if (parser.match(_.Token.percent_identifier)) {
             calleePtr = parser.parseOperand();
         }
         const unresolvedOperands = [];
         parser.parseLParen();
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const arg = parser.parseOperand();
             unresolvedOperands.push(arg);
             parser.parseOptionalComma();
@@ -20722,10 +20724,10 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             if (!parser.parseOptionalRSquare()) {
                 const opBundles = [];
                 do {
-                    const tag = parser.expect('string');
+                    const tag = parser.expect(_.Token.string);
                     parser.parseLParen();
                     const bundleOperands = [];
-                    if (!parser.match(')')) {
+                    if (!parser.match(_.Token.r_paren)) {
                         do {
                             bundleOperands.push(parser.parseOperand());
                         } while (parser.parseOptionalComma());
@@ -20743,7 +20745,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                 }
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
@@ -20764,12 +20766,12 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMCallIntrinsicOp(parser, result) {
-        const intrinName = parser.expect('string');
+        const intrinName = parser.expect(_.Token.string);
         result.addAttribute('intrin', intrinName);
 
         const unresolvedOperands = [];
         parser.parseLParen();
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const arg = parser.parseOperand();
             unresolvedOperands.push(arg);
             parser.parseOptionalComma();
@@ -20781,10 +20783,10 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             if (!parser.parseOptionalRSquare()) {
                 const opBundles = [];
                 do {
-                    const tag = parser.expect('string');
+                    const tag = parser.expect(_.Token.string);
                     parser.parseLParen();
                     const bundleOperands = [];
-                    if (!parser.match(')')) {
+                    if (!parser.match(_.Token.r_paren)) {
                         do {
                             bundleOperands.push(parser.parseOperand());
                         } while (parser.parseOptionalComma());
@@ -20803,7 +20805,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             }
         }
 
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
 
@@ -20818,12 +20820,12 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
 
     parseLLVMCmpOp(parser, result) {
         // llvm.icmp "eq" %lhs, %rhs : i32
-        const predicate = parser.expect('string');
+        const predicate = parser.expect(_.Token.string);
         result.addAttribute('predicate', predicate);
         const lhs = parser.parseOperand();
         parser.parseComma();
         const rhs = parser.parseOperand();
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
@@ -20843,13 +20845,13 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     parseLLVMIntrinsicOp(parser, result) {
         const unresolvedOperands = [];
         parser.parseLParen();
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const operand = parser.parseOperand();
             unresolvedOperands.push(operand);
             parser.parseOptionalComma();
         }
         parser.parseRParen();
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         const types = parser.parseColonTypeList();
@@ -20871,28 +20873,28 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         }
         let isDirect = false;
         let funcPtr = null;
-        if (parser.match('@')) {
+        if (parser.match(_.Token.at_identifier)) {
             isDirect = true;
-            const callee = parser.expect('@');
+            const callee = parser.expect(_.Token.at_identifier);
             result.addAttribute('callee', callee);
-        } else if (parser.match('%')) {
+        } else if (parser.match(_.Token.percent_identifier)) {
             funcPtr = parser.parseOperand();
         }
         const unresolvedOperands = [];
         parser.parseLParen();
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const operand = parser.parseOperand();
             unresolvedOperands.push(operand);
             parser.parseOptionalComma();
         }
         parser.parseRParen();
         parser.parseKeyword('to');
-        const normalDest = parser.expect('^');
+        const normalDest = parser.expect(_.Token.caret_identifier);
         result.successors = result.successors || [];
         const normalSucc = { label: normalDest };
         if (parser.parseOptionalLParen()) {
             normalSucc.operands = [];
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const operand = parser.parseOperand();
                 normalSucc.operands.push(operand);
                 if (parser.parseOptionalColon()) {
@@ -20904,11 +20906,11 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         }
         result.successors.push(normalSucc);
         parser.parseKeyword('unwind');
-        const unwindDest = parser.expect('^');
+        const unwindDest = parser.expect(_.Token.caret_identifier);
         const unwindSucc = { label: unwindDest };
         if (parser.parseOptionalLParen()) {
             unwindSucc.operands = [];
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const operand = parser.parseOperand();
                 unwindSucc.operands.push(operand);
                 if (parser.parseOptionalColon()) {
@@ -20929,10 +20931,10 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             if (!parser.parseOptionalRSquare()) {
                 const opBundles = [];
                 do {
-                    const tag = parser.expect('string');
+                    const tag = parser.expect(_.Token.string);
                     parser.parseLParen();
                     const bundleOperands = [];
-                    if (!parser.match(')')) {
+                    if (!parser.match(_.Token.r_paren)) {
                         do {
                             bundleOperands.push(parser.parseOperand());
                         } while (parser.parseOptionalComma());
@@ -20950,7 +20952,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
                 }
             }
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         parser.parseColon();
@@ -20974,7 +20976,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('cleanup')) {
             result.addAttribute('cleanup', true);
         }
-        while (parser.match('(')) {
+        while (parser.match(_.Token.l_paren)) {
             parser.parseLParen();
             parser.expect(_.Token.bare_identifier); // 'catch' or 'filter'
             const operand = parser.parseOperand();
@@ -21030,12 +21032,12 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('comdat')) {
             parser.parseLParen();
-            const comdat = parser.expect('@');
+            const comdat = parser.expect(_.Token.at_identifier);
             parser.parseRParen();
             result.addAttribute('comdat', comdat);
         }
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             // llvm.func is IsolatedFromAbove
             parser.parseRegion(region, argResult.arguments, /* isIsolatedNameScope */ true);
@@ -21074,7 +21076,7 @@ _.ROCDLDialect = class extends _.LLVM.LLVMDialect {
 
     parseRawBufferLoadOp(parser, result) {
         const unresolvedOperands = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             parser.parseOptionalComma();
         }
@@ -21089,7 +21091,7 @@ _.ROCDLDialect = class extends _.LLVM.LLVMDialect {
 
     parseRawBufferStoreOp(parser, result) {
         const unresolvedOperands = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             parser.parseOptionalComma();
         }
@@ -21103,7 +21105,7 @@ _.ROCDLDialect = class extends _.LLVM.LLVMDialect {
 
     parseRawBufferAtomicOp(parser, result) {
         const unresolvedOperands = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             parser.parseOptionalComma();
         }
@@ -21138,7 +21140,7 @@ _.XSMMDialect = class extends _.Dialect {
         unresolvedOperands.push(parser.parseOperand());
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseOptionalComma();
@@ -21150,7 +21152,7 @@ _.XSMMDialect = class extends _.Dialect {
         unresolvedOperands.push(parser.parseOperand());
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseOptionalComma();
@@ -21172,7 +21174,7 @@ _.XSMMDialect = class extends _.Dialect {
         unresolvedOperands.push(parser.parseOperand());
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseOptionalComma();
@@ -21182,7 +21184,7 @@ _.XSMMDialect = class extends _.Dialect {
         unresolvedOperands.push(parser.parseOperand());
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseOptionalComma();
@@ -21192,18 +21194,18 @@ _.XSMMDialect = class extends _.Dialect {
         unresolvedOperands.push(parser.parseOperand());
         if (parser.parseOptionalLSquare()) {
             while (!parser.parseOptionalRSquare()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseOptionalComma();
             }
         }
         while (parser.parseOptionalComma()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (parser.parseOptionalLSquare()) {
                     while (!parser.parseOptionalRSquare()) {
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             unresolvedOperands.push(parser.parseOperand());
                         }
                         parser.parseOptionalComma();
@@ -21246,7 +21248,7 @@ _.StdxDialect = class extends _.Dialect {
         const type = { inputs: argTypes, results: sig.resultTypes };
         result.addAttribute('type', type);
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, sig.arguments);
         }
@@ -21275,18 +21277,18 @@ _.VMDialect = class extends _.Dialect {
             unresolvedOperands.push(firstOp);
             if (parser.parseOptionalComma()) {
                 // Could be second operand or message
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const secondOp = parser.parseOperand();
                     unresolvedOperands.push(secondOp);
                     // Optional message
                     if (parser.parseOptionalComma()) {
-                        if (parser.match('string')) {
-                            const msg = parser.expect('string');
+                        if (parser.match(_.Token.string)) {
+                            const msg = parser.expect(_.Token.string);
                             result.addAttribute('message', msg);
                         }
                     }
-                } else if (parser.match('string')) {
-                    const msg = parser.expect('string');
+                } else if (parser.match(_.Token.string)) {
+                    const msg = parser.expect(_.Token.string);
                     result.addAttribute('message', msg);
                 }
             }
@@ -21301,7 +21303,7 @@ _.VMDialect = class extends _.Dialect {
                 result.addAttribute('is_optional', true);
             }
             parser.parseSymbolName('sym_name', result.attributes);
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 parser.skip('(');
             }
             const inputs = [];
@@ -21315,11 +21317,11 @@ _.VMDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'vm.export') {
-            const functionRef = parser.expect('@');
+            const functionRef = parser.expect(_.Token.at_identifier);
             result.addAttribute('function_ref', functionRef);
             if (parser.parseOptionalKeyword('as')) {
                 parser.parseLParen();
-                const exportName = parser.expect('string');
+                const exportName = parser.expect(_.Token.string);
                 result.addAttribute('export_name', exportName);
                 parser.parseRParen();
             } else {
@@ -21349,11 +21351,11 @@ _.VMDialect = class extends _.Dialect {
         }
         if (result.op === 'vm.initializer') {
             parser.parseOptionalVisibilityKeyword(result.attributes);
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -21361,8 +21363,8 @@ _.VMDialect = class extends _.Dialect {
         }
         if (result.op === 'vm.rodata.inline') {
             result.compatibility = true;
-            if (parser.match('string')) {
-                const name = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const name = parser.expect(_.Token.string);
                 result.addAttribute('name', name);
             }
             parser.parseOptionalAttrDict(result.attributes);
@@ -21380,11 +21382,11 @@ _.VMDialect = class extends _.Dialect {
         }
         if (result.op === 'vm.const.i32.zero') {
             result.compatibility = true;
-            if (parser.match('int') || parser.match('float') || parser.match('string')) {
+            if (parser.match(_.Token.integer) || parser.match(_.Token.floatliteral) || parser.match(_.Token.string)) {
                 const value = parser.parseAttribute();
                 result.addAttribute('value', value.value === undefined ? value : value.value);
-            } else if (parser.match('@')) {
-                const symbol = parser.expect('@');
+            } else if (parser.match(_.Token.at_identifier)) {
+                const symbol = parser.expect(_.Token.at_identifier);
                 result.addAttribute('rodata', symbol);
             }
             parser.parseOptionalAttrDict(result.attributes);
@@ -21398,8 +21400,8 @@ _.VMDialect = class extends _.Dialect {
             const indexUnresolved = parser.parseOperand();
             unresolvedOperands.push(indexUnresolved);
             parser.parseLSquare();
-            while (!parser.match(']')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const value = parser.parseOperand();
                     unresolvedOperands.push(value);
                 }
@@ -21426,17 +21428,17 @@ _.VMDialect = class extends _.Dialect {
         // Variadic has complex syntax like: @callee(op1, op2, [(tuple1), (tuple2)])
         if (result.op === 'vm.call' || result.op === 'vm.call.variadic') {
             result.compatibility = true;
-            if (parser.match('@')) {
-                const callee = parser.expect('@');
+            if (parser.match(_.Token.at_identifier)) {
+                const callee = parser.expect(_.Token.at_identifier);
                 result.addAttribute('callee', callee);
             }
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
-                    if (parser.match('[')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.l_square)) {
                         // Skip complex nested structures in variadic calls
                         parser.skip('[');
                         parser.parseOptionalComma(); // consume trailing comma if present
-                    } else if (parser.match('%')) {
+                    } else if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         parser.resolveOperand(operand, null, result.operands);
                         parser.parseOptionalComma(); // consume trailing comma if present
@@ -21473,18 +21475,18 @@ _.VMDialect = class extends _.Dialect {
     parseBranchTableCases(parser, op /*, args */) {
         if (parser.parseOptionalKeyword('default')) {
             parser.parseColon();
-            const defaultDest = parser.expect('^');
+            const defaultDest = parser.expect(_.Token.caret_identifier);
             op.successors = op.successors || [];
             const succ = { dest: defaultDest };
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 parser.parseLParen();
                 const operands = [];
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         operands.push(parser.parseOperand());
                     }
                     if (parser.parseOptionalColon()) {
-                        while (!parser.match(')') && !parser.match(',')) {
+                        while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.comma)) {
                             parser.parseType();
                             parser.parseOptionalComma();
                         }
@@ -21500,21 +21502,21 @@ _.VMDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         const caseValues = [];
-        while (parser.match('int')) {
+        while (parser.match(_.Token.integer)) {
             const caseValue = parser.parseInteger();
             caseValues.push(caseValue);
             parser.parseColon();
-            const caseDest = parser.expect('^');
+            const caseDest = parser.expect(_.Token.caret_identifier);
             const caseSucc = { dest: caseDest };
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 parser.parseLParen();
                 const operands = [];
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         operands.push(parser.parseOperand());
                     }
                     if (parser.parseOptionalColon()) {
-                        while (!parser.match(')') && !parser.match(',')) {
+                        while (!parser.match(_.Token.r_paren) && !parser.match(_.Token.comma)) {
                             parser.parseType();
                             parser.parseOptionalComma();
                         }
@@ -21574,7 +21576,7 @@ _.MLProgramDialect = class extends _.Dialect {
         if (parser.parseOptionalLParen()) {
             parser.parseRParen();
         } else {
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const tok = parser.parseOperand();
                 parser.resolveOperand(tok, null, result.operands);
                 if (!parser.parseOptionalComma()) {
@@ -21582,7 +21584,7 @@ _.MLProgramDialect = class extends _.Dialect {
                 }
             }
         }
-        parser.expect('->');
+        parser.parseArrow();
         const produceType = parser.parseType();
         result.addAttribute('produceTokenType', { value: produceType, hidden: true });
         parser.parseRParen();
@@ -21627,12 +21629,12 @@ _.TFDeviceDialect = class extends _.Dialect {
         let n = 1;
         if (!parser.parseOptionalLParen()) {
             parser.parseOptionalAttrDict(result.attributes);
-        } else if (parser.match(')')) {
+        } else if (parser.match(_.Token.r_paren)) {
             parser.parseRParen();
             parser.parseOptionalAttrDict(result.attributes);
         } else {
             do {
-                if (parser.match('[')) {
+                if (parser.match(_.Token.l_square)) {
                     const unresolvedInputs = [];
                     parser.parseLSquare();
                     while (!parser.parseOptionalRSquare()) {
@@ -21649,7 +21651,7 @@ _.TFDeviceDialect = class extends _.Dialect {
                     for (const input of unresolvedInputs) {
                         parser.resolveOperand(input, type, result.operands);
                     }
-                } else if (parser.match('%')) {
+                } else if (parser.match(_.Token.percent_identifier)) {
                     const unresolvedValue = parser.parseOperand();
                     parser.parseKeyword('as');
                     parser.parseOperand(); // block arg
@@ -21664,7 +21666,7 @@ _.TFDeviceDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
         }
         n = result.attributes.get('n').value;
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
             if (region.blocks.length > 0) {
@@ -21712,17 +21714,17 @@ _.TFGDialect = class extends _.Dialect {
         }
         if (result.op === 'tfg.return') {
             let dataOperands = [];
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 dataOperands = parser.parseOperandList('paren');
             }
             const controlOperands = [];
             const controlRetAttrs = [];
             if (parser.parseOptionalLSquare()) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const ctlDep = parser.parseOperand();
                         controlOperands.push(ctlDep);
-                        if (parser.match('{')) {
+                        if (parser.match(_.Token.l_brace)) {
                             const attrs = new Map();
                             parser.parseAttributeDict(attrs);
                             controlRetAttrs.push(Object.fromEntries(attrs));
@@ -21759,13 +21761,13 @@ _.TFGDialect = class extends _.Dialect {
 
     parseTFGOperation(parser, result) {
         let unresolvedArgs = [];
-        if (parser.match('(')) {
+        if (parser.match(_.Token.l_paren)) {
             unresolvedArgs = parser.parseOperandList('paren');
         }
         const unresolvedCtls = [];
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedCtls.push(parser.parseOperand());
                 }
                 if (!parser.parseOptionalComma()) {
@@ -21776,17 +21778,17 @@ _.TFGDialect = class extends _.Dialect {
         }
         if (parser.parseOptionalKeyword('device')) {
             parser.parseLParen();
-            const device = parser.expect('string');
+            const device = parser.expect(_.Token.string);
             parser.parseRParen();
             result.addAttribute('device', device);
         }
         if (parser.parseOptionalKeyword('name')) {
             parser.parseLParen();
-            const name = parser.expect('string');
+            const name = parser.expect(_.Token.string);
             parser.parseRParen();
             result.addAttribute('_mlir_name', name);
         }
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
@@ -21844,10 +21846,10 @@ _.TFExecutorDialect = class extends _.Dialect {
             parser.parseComma();
             const unresolvedIndex = parser.parseOperand();
             parser.parseKeyword('of');
-            const numOuts = parseInt(parser.expect('int'), 10);
+            const numOuts = parseInt(parser.expect(_.Token.integer), 10);
             result.addAttribute('num_outs', numOuts);
             let unresolvedControlInputs = [];
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 unresolvedControlInputs = parser.parseOperandList('paren');
             }
             parser.parseColon();
@@ -21893,17 +21895,17 @@ _.TFExecutorDialect = class extends _.Dialect {
 
     parseEnterOp(parser, result) {
         const unresolvedOperands = [];
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             if (!parser.parseOptionalComma()) {
                 break;
             }
         }
         parser.parseKeyword('frame');
-        const frameName = parser.expect('string');
+        const frameName = parser.expect(_.Token.string);
         result.addAttribute('frame_name', frameName);
         if (parser.parseOptionalKeyword('parallel_iterations')) {
-            const parallelIterations = parser.expect('int');
+            const parallelIterations = parser.expect(_.Token.integer);
             result.addAttribute('parallel_iterations', parseInt(parallelIterations, 10));
         } else {
             result.addAttribute('parallel_iterations', 10);
@@ -21926,7 +21928,7 @@ _.TFExecutorDialect = class extends _.Dialect {
     }
 
     parseGraphOp(parser, result) {
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
             if (region.blocks && region.blocks.length > 0) {
@@ -21951,7 +21953,7 @@ _.TFExecutorDialect = class extends _.Dialect {
     parseIslandOp(parser, result) {
         // or: tf_executor.island {...}
         // or: tf_executor.island(%control_inputs) {...}
-        if (parser.match('(')) {
+        if (parser.match(_.Token.l_paren)) {
             const unresolvedOperands = parser.parseOperandList('paren');
             for (const operand of unresolvedOperands) {
                 parser.resolveOperand(operand, null, result.operands);
@@ -21964,7 +21966,7 @@ _.TFExecutorDialect = class extends _.Dialect {
             for (const opResult of wrappedOp.results) {
                 result.addTypes([opResult.type]);
             }
-        } else if (parser.match('{')) {
+        } else if (parser.match(_.Token.l_brace)) {
             parser.parseRegion(region);
             if (region.blocks.length > 0) {
                 const block = region.blocks[region.blocks.length - 1];
@@ -22019,22 +22021,22 @@ _.CoreRTDialect = class extends _.Dialect {
             for (const operand of opHandlerOperands) {
                 parser.resolveOperand(operand, null, result.operands);
             }
-            const opNameAttr = parser.expect('string');
+            const opNameAttr = parser.expect(_.Token.string);
             result.addAttribute('op_name', opNameAttr);
             const operandOperands = parser.parseOperandList('paren');
             for (const operand of operandOperands) {
                 parser.resolveOperand(operand, null, result.operands);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const funcAttrs = new Map();
                 parser.parseAttributeDict(funcAttrs);
                 result.addAttribute('op_func_attrs', Object.fromEntries(funcAttrs));
             }
             if (parser.parseOptionalColon()) {
-                const resultCount = parseInt(parser.expect('int'), 10);
+                const resultCount = parseInt(parser.expect(_.Token.integer), 10);
                 if (isSeq) {
                     result.addTypes([new _.Type('!tfrt.chain')]);
                 }
@@ -22068,14 +22070,14 @@ _.TFRTDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         if (typeName === 'tensor') {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
             return new _.Type(type);
         }
         // Fallback for unknown tfrt types
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             type += parser.skip('<');
         }
         return new _.Type(type);
@@ -22088,13 +22090,13 @@ _.TFRTDialect = class extends _.Dialect {
         }
         if (opInfo.metadata.assemblyFormat === 'operands attr-dict') {
             const unresolvedOperands = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             for (const unresolved of unresolvedOperands) {
@@ -22127,7 +22129,7 @@ _.TFRTDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'tfrt.return') {
-            if (!parser.match('kw_loc') && !parser.match('eof')) {
+            if (!parser.match(_.Token.kw_loc) && !parser.match(_.Token.eof)) {
                 const unresolvedOperands = parser.parseOperandList();
                 parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             }
@@ -22146,7 +22148,7 @@ _.TFRTDialect = class extends _.Dialect {
                 const loopOperands = unresolvedOperands.slice(1);
                 parser.resolveOperands(loopOperands, types, result.operands);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -22174,13 +22176,13 @@ _.TFRTDialect = class extends _.Dialect {
                     parser.resolveOperand(operand, null, result.operands);
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const thenRegion = {};
                 parser.parseRegion(thenRegion);
                 result.regions.push(thenRegion);
             }
             if (parser.parseOptionalKeyword('else')) {
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     const elseRegion = {};
                     parser.parseRegion(elseRegion);
                     result.regions.push(elseRegion);
@@ -22205,7 +22207,7 @@ _.TFRTDialect = class extends _.Dialect {
             parser.resolveOperand(blockSizeUnresolved, i32Type, result.operands);
             parser.resolveOperands(additionalArgs, types, result.operands);
             result.addTypes([new _.Type('!tfrt.chain')]);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -22217,7 +22219,7 @@ _.TFRTDialect = class extends _.Dialect {
             const endUnresolved = parser.parseOperand();
             parser.parseKeyword('fixed');
             const blockSizeUnresolved = parser.parseOperand();
-            const callee = parser.expect('@');
+            const callee = parser.expect(_.Token.at_identifier);
             result.addAttribute('callee', callee);
             const additionalArgs = parser.parseOperandList('paren');
             const types = parser.parseOptionalColonTypeList();
@@ -22231,11 +22233,11 @@ _.TFRTDialect = class extends _.Dialect {
         }
         if (result.op === 'tfrt.while') {
             const condUnresolved = parser.parseOperand();
-            const bodyFn = parser.expect('@');
+            const bodyFn = parser.expect(_.Token.at_identifier);
             result.addAttribute('body_fn', bodyFn);
             parser.parseLParen();
             const argsUnresolved = [];
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const arg = parser.parseOperand();
                 argsUnresolved.push(arg);
                 if (!parser.parseOptionalComma()) {
@@ -22243,18 +22245,18 @@ _.TFRTDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             if (parser.parseOptionalKeyword('parallel_iterations')) {
                 parser.parseLParen();
-                const parallelIterations = parser.expect('int');
+                const parallelIterations = parser.expect(_.Token.integer);
                 result.addAttribute('parallel_iterations', parseInt(parallelIterations, 10));
                 parser.parseRParen();
             }
             parser.parseColon();
             const inputTypes = parser.parseTypeListParens();
-            parser.expect('->');
+            parser.parseArrow();
             const resultTypes = parser.parseTypeListParens();
             parser.resolveOperand(condUnresolved, new _.IntegerType('i1'), result.operands);
             parser.resolveOperands(argsUnresolved, inputTypes, result.operands);
@@ -22281,18 +22283,18 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
         if (result.op === 'tfrt_fallback_async.batch_function') {
             parser.parseKeyword('device');
             parser.parseLParen();
-            const device = parser.expect('string');
+            const device = parser.expect(_.Token.string);
             parser.parseRParen();
             result.addAttribute('device', device);
-            const funcName = parser.expect('@');
+            const funcName = parser.expect(_.Token.at_identifier);
             result.addAttribute('f', funcName);
             const unresolvedOperands = parser.parseOperandList('paren');
             for (const operand of unresolvedOperands) {
                 parser.resolveOperand(operand, null, result.operands);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(result.attributes);
                 }
             }
@@ -22308,13 +22310,13 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
             const isCreateOp = result.op === 'tfrt_fallback_async.createop';
             const hasChain = isCreateOp || result.op.includes('.seq');
             const hasAllocator = result.op.includes('.allocator');
-            if ((hasChain || hasAllocator) && parser.match('(')) {
+            if ((hasChain || hasAllocator) && parser.match(_.Token.l_paren)) {
                 const chainOperands = parser.parseOperandList('paren');
                 for (const operand of chainOperands) {
                     parser.resolveOperand(operand, null, result.operands);
                 }
             }
-            while (!parser.match(':') && !parser.match('{')) {
+            while (!parser.match(_.Token.colon) && !parser.match(_.Token.l_brace)) {
                 if (parser.match(_.Token.bare_identifier)) {
                     const key = parser.expect(_.Token.bare_identifier);
                     if (parser.parseOptionalLParen()) {
@@ -22322,10 +22324,10 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                         parser.parseRParen();
                         result.addAttribute(key, value);
                     }
-                } else if (parser.match('string')) {
-                    const opNameAttr = parser.expect('string');
+                } else if (parser.match(_.Token.string)) {
+                    const opNameAttr = parser.expect(_.Token.string);
                     result.addAttribute('op_name', opNameAttr);
-                    if (parser.match('(')) {
+                    if (parser.match(_.Token.l_paren)) {
                         const unresolvedOperands = parser.parseOperandList('paren');
                         for (const operand of unresolvedOperands) {
                             parser.resolveOperand(operand, null, result.operands);
@@ -22336,9 +22338,9 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                     break;
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(result.attributes);
                 }
             }
@@ -22391,7 +22393,7 @@ _.TileDialect = class extends _.Dialect {
             }
             parser.parseOptionalComma();
             const unresolvedOperands = parser.parseOperandList();
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
@@ -22455,14 +22457,14 @@ _.PXADialect = class extends _.Dialect {
         if (result.op === 'pxa.generic') {
             const unresolvedOperands = [];
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     const operand = parser.parseOperand();
                     unresolvedOperands.push(operand);
-                    if (parser.match('[')) {
+                    if (parser.match(_.Token.l_square)) {
                         parser.skip('[');
                     }
                     if (parser.parseOptionalColon()) {
-                        parser.expect('#');  // Skip affine map reference
+                        parser.expect(_.Token.hash_identifier);  // Skip affine map reference
                     }
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -22475,18 +22477,18 @@ _.PXADialect = class extends _.Dialect {
                 result.addAttribute('reduction', reduction);
                 parser.parseGreater();
             }
-            if (parser.match('@')) {
-                result.addAttribute('kernel', parser.expect('@'));
+            if (parser.match(_.Token.at_identifier)) {
+                result.addAttribute('kernel', parser.expect(_.Token.at_identifier));
             }
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
+                while (!parser.match(_.Token.r_paren)) {
                     const operand = parser.parseOperand();
                     unresolvedOperands.push(operand);
-                    if (parser.match('[')) {
+                    if (parser.match(_.Token.l_square)) {
                         parser.skip('[');
                     }
                     if (parser.parseOptionalColon()) {
-                        parser.expect('#');  // Skip affine map reference
+                        parser.expect(_.Token.hash_identifier);  // Skip affine map reference
                     }
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -22579,7 +22581,7 @@ _.SdfgDialect = class extends _.Dialect {
             }
         }
         if (typeName === 'array' || typeName === 'stream' || typeName === 'memlet' || type.endsWith('stream_array')) {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -22601,7 +22603,7 @@ _.SdfgDialect = class extends _.Dialect {
             }
             result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -22609,7 +22611,7 @@ _.SdfgDialect = class extends _.Dialect {
         }
         if (result.op === 'sdfg.tasklet' || result.op === 'sdir.tasklet') {
             parser.parseOptionalAttrDict(result.attributes);
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             const blockArgs = [];
@@ -22643,7 +22645,7 @@ _.SdfgDialect = class extends _.Dialect {
                     result.addTypes([type]);
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region, blockArgs);
             }
@@ -22652,7 +22654,7 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdfg.consume') {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
-                while (parser.match('%')) {
+                while (parser.match(_.Token.percent_identifier)) {
                     const operand = parser.parseOperand();
                     let type = null;
                     if (parser.parseOptionalColon()) {
@@ -22676,7 +22678,7 @@ _.SdfgDialect = class extends _.Dialect {
                                 parser.parseOperand(); // Parse %p or %e but don't store
                                 result.types.push(null);
                             }
-                        } else if (parser.match('%') || parser.match(')')) {
+                        } else if (parser.match(_.Token.percent_identifier) || parser.match(_.Token.r_paren)) {
                             break;
                         } else {
                             throw new mlir.Error(`Expected named result in sdfg.consume but got '${parser.getTokenSpelling().str()}' ${parser.location()}`);
@@ -22686,7 +22688,7 @@ _.SdfgDialect = class extends _.Dialect {
                 }
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -22694,7 +22696,7 @@ _.SdfgDialect = class extends _.Dialect {
         }
         if (result.op === 'sdfg.state' || result.op === 'sdir.state') {
             parser.parseOptionalAttrDict(result.attributes);
-            if (parser.match('@')) {
+            if (parser.match(_.Token.at_identifier)) {
                 parser.parseSymbolName('sym_name', result.attributes);
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
@@ -22705,7 +22707,7 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdfg.alloc' || result.op === 'sdir.alloc' || result.op === 'sdir.alloc_transient' || result.op === 'sdir.alloc_stream') {
             parser.parseOptionalAttrDict(result.attributes);
             const unresolvedOperands = [];
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 unresolvedOperands.push(...parser.parseOperandList('paren'));
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
@@ -22725,13 +22727,13 @@ _.SdfgDialect = class extends _.Dialect {
             const arrayOp = parser.parseOperand();
             const indices = [];
             if (parser.parseOptionalLSquare()) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         indices.push(parser.parseOperand());
                     } else {
                         parser.expect();
                     }
-                    if (parser.match(',')) {
+                    if (parser.match(_.Token.comma)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -22758,13 +22760,13 @@ _.SdfgDialect = class extends _.Dialect {
             const arrayOp = parser.parseOperand();
             const indices = [];
             if (parser.parseOptionalLSquare()) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         indices.push(parser.parseOperand());
                     } else {
                         parser.expect();
                     }
-                    if (parser.match(',')) {
+                    if (parser.match(_.Token.comma)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -22790,11 +22792,11 @@ _.SdfgDialect = class extends _.Dialect {
             const params = [];
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const param = parser.parseOperand();
                         params.push(param);
                     }
-                    if (parser.match(',')) {
+                    if (parser.match(_.Token.comma)) {
                         parser.parseOptionalComma();
                     }
                 }
@@ -22811,7 +22813,7 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.skip('(');
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -22820,7 +22822,7 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdir.consume') {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
-                while (parser.match('%')) {
+                while (parser.match(_.Token.percent_identifier)) {
                     const operand = parser.parseOperand();
                     let type = null;
                     if (parser.parseOptionalColon()) {
@@ -22841,7 +22843,7 @@ _.SdfgDialect = class extends _.Dialect {
                 }
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -22850,12 +22852,12 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdfg.edge' || result.op === 'sdir.edge') {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
-                    if (parser.match(_.Token.bare_identifier) && !parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.percent_identifier)) {
                         parser.expect(_.Token.bare_identifier); // label like 'ref'
                         parser.parseColon();
                     }
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         let type = null;
                         if (parser.parseOptionalColon()) {
@@ -22870,20 +22872,20 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            if (parser.match('@')) {
-                const src = parser.expect('@');
+            if (parser.match(_.Token.at_identifier)) {
+                const src = parser.expect(_.Token.at_identifier);
                 result.addAttribute('src', src);
             }
             parser.parseOptionalArrow();
-            if (parser.match('@')) {
-                const dst = parser.expect('@');
+            if (parser.match(_.Token.at_identifier)) {
+                const dst = parser.expect(_.Token.at_identifier);
                 result.addAttribute('dst', dst);
             }
             return true;
         }
         if (result.op === 'sdfg.sym' || result.op === 'sdir.sym') {
             if (parser.parseOptionalLParen()) {
-                const expr = parser.expect('string');
+                const expr = parser.expect(_.Token.string);
                 result.addAttribute('expr', expr);
                 parser.parseOptionalRParen();
             }
@@ -22913,8 +22915,8 @@ _.SdfgDialect = class extends _.Dialect {
         }
         if (result.op === 'sdfg.libcall' || result.op === 'sdir.libcall') {
             parser.parseOptionalAttrDict(result.attributes);
-            if (parser.match('string')) {
-                const libname = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const libname = parser.expect(_.Token.string);
                 result.addAttribute('libname', libname);
             }
             const unresolvedOperands = parser.parseOperandList('paren');
@@ -22936,7 +22938,7 @@ _.SdfgDialect = class extends _.Dialect {
         }
         if (result.op === 'sdfg.get_access' || result.op === 'sdir.get_access') {
             let unresolvedOperand = null;
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperand = parser.parseOperand();
             }
             if (parser.parseOptionalColon()) {
@@ -22966,7 +22968,7 @@ _.SdfgDialect = class extends _.Dialect {
             if (callee) {
                 result.addAttribute('callee', callee);
             }
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 const unresolvedOperands = parser.parseOperandList('paren');
                 parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
@@ -22986,14 +22988,14 @@ _.SdfgDialect = class extends _.Dialect {
         }
         if (result.op === 'sdfg.alloc_symbol' || result.op === 'sdir.alloc_symbol') {
             if (parser.parseOptionalLParen()) {
-                const sym = parser.expect('string');
+                const sym = parser.expect(_.Token.string);
                 result.addAttribute('sym', sym);
                 parser.parseOptionalRParen();
             }
             return true;
         }
         if (result.op === 'sdfg.return') {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const unresolvedOperands = parser.parseOperandList('none');
                 const types = parser.parseOptionalColonTypeList();
                 parser.resolveOperands(unresolvedOperands, types, result.operands);
@@ -23113,7 +23115,7 @@ _.TFLDialect = class extends _.Dialect {
                     result.addTypes([opResult.type]);
                 }
                 result.addTypes([new _.Type('!tfl.control')]);
-            } else if (parser.match('{')) {
+            } else if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
                 // Result types from yield terminator + control type
@@ -23131,7 +23133,7 @@ _.TFLDialect = class extends _.Dialect {
         }
         if (this._binaryOps.has(opKind)) {
             // Or: (operands) <properties> : fn-type (generic form)
-            if (parser.match('(')) {
+            if (parser.match(_.Token.l_paren)) {
                 parser.parseLParen();
                 const unresolvedOperands = parser.parseOperandList('none');
                 parser.parseRParen();
@@ -23184,7 +23186,7 @@ _.TFDialect = class extends _.Dialect {
         }
         let type = `!${dialect}.${typeName}`;
         if (typeName === 'resource' || typeName === 'variant') {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -23223,7 +23225,7 @@ _.TFTypeDialect = class extends _.Dialect {
         if (typeName === 'resource' || typeName === 'variant' || typeName === 'resource_handle') {
             if (parser.parseOptionalLess()) {
                 const subtypes = [];
-                while (!parser.match('>')) {
+                while (!parser.match(_.Token.greater)) {
                     subtypes.push(parser.parseType());
                     parser.parseOptionalComma();
                 }
@@ -23236,7 +23238,7 @@ _.TFTypeDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         // Fallback for unknown tf_type types
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             type += parser.skip('<');
         }
         return new _.Type(type);
@@ -23265,8 +23267,8 @@ _.TransformDialect = class extends _.Dialect {
         // C++-only operation: transform.test_transform_op ["message"]
         // Defined in mlir/test/lib/Dialect/Transform/TestTransformDialectExtension.cpp
         if (result.op === 'transform.test_transform_op') {
-            if (parser.match('string')) {
-                const message = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const message = parser.expect(_.Token.string);
                 result.addAttribute('message', message);
             }
             return true;
@@ -23276,7 +23278,7 @@ _.TransformDialect = class extends _.Dialect {
             const unresolvedTarget = parser.parseOperand();
             parser.parseKeyword('after');
             let unresolvedDynamicChunk = null;
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedDynamicChunk = parser.parseOperand();
             } else {
                 const staticChunkSizes = parser.parseInteger();
@@ -23301,10 +23303,10 @@ _.TransformDialect = class extends _.Dialect {
 
     parseSequenceOpOperands(parser, op /*, args */) {
         const unresolvedOperands = [];
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             unresolvedOperands.push(parser.parseOperand());
             if (parser.parseOptionalComma()) {
-                while (parser.match('%')) {
+                while (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                     if (!parser.parseOptionalComma()) {
                         break;
@@ -23328,9 +23330,9 @@ _.TransformDialect = class extends _.Dialect {
         const matchers = [];
         const actions = [];
         do {
-            const matcher = parser.expect('@');
-            parser.expect('->');
-            const action = parser.expect('@');
+            const matcher = parser.expect(_.Token.at_identifier);
+            parser.parseArrow();
+            const action = parser.expect(_.Token.at_identifier);
             matchers.push(matcher);
             actions.push(action);
         } while (parser.parseOptionalComma());
@@ -23372,7 +23374,7 @@ _.TransformDialect = class extends _.Dialect {
             const suffix = parser.expect(_.Token.bare_identifier);
             type += `_${suffix}`;
         }
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             type += content;
         }
@@ -23391,7 +23393,7 @@ _.TransformDialect = class extends _.Dialect {
         }
         result.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region);
         }
@@ -23408,10 +23410,10 @@ _.TransformDialect = class extends _.Dialect {
             return;
         }
         parser.parseRParen();
-        parser.expect('->');
+        parser.parseArrow();
         if (parser.parseOptionalLParen()) {
             let idx = 0;
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const type = parser.parseType();
                 if (idx < op.types.length) {
                     op.types[idx] = type;
@@ -23441,16 +23443,16 @@ _.TransformDialect = class extends _.Dialect {
         let packedOperand = null;
 
         // Check for packed syntax: *(%operand)
-        if (parser.accept('*')) {
+        if (parser.consumeIf(_.Token.star)) {
             parser.parseLParen();
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 packedOperand = parser.parseOperand();
             }
             parser.parseRParen();
         } else if (parser.parseOptionalLSquare()) {
             // List syntax: [int, %operand, int, ...]
-            while (!parser.match(']')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_square)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const value = parser.parseOperand();
                     dynamicOperands.push(value);
                     staticValues.push(-9223372036854775808); // ShapedType::kDynamic
@@ -23459,7 +23461,7 @@ _.TransformDialect = class extends _.Dialect {
                         type = parser.parseType();
                     }
                     dynamicTypes.push(type);
-                } else if (parser.match('int') || parser.match('number')) {
+                } else if (parser.match(_.Token.integer) || parser.match('number')) {
                     const intVal = parseInt(parser.expect(), 10);
                     staticValues.push(intVal);
                 } else {
@@ -23513,18 +23515,18 @@ _.TransformDialect = class extends _.Dialect {
             return;
         }
         const options = {};
-        while (!parser.match('}')) {
-            const key = parser.match('string') ? parser.expect('string') : parser.parseOptionalKeyword();
+        while (!parser.match(_.Token.r_brace)) {
+            const key = parser.match(_.Token.string) ? parser.expect(_.Token.string) : parser.parseOptionalKeyword();
             parser.parseEqual();
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const operand = parser.parseOperand();
                 parser.resolveOperand(operand, null, result.operands);
                 options[key] = `#transform.param_operand<${result.operands.length - 1}>`;
-            } else if (parser.match('[')) {
+            } else if (parser.match(_.Token.l_square)) {
                 parser.parseOptionalLSquare();
                 const arr = [];
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const operand = parser.parseOperand();
                         parser.resolveOperand(operand, null, result.operands);
                         arr.push(`#transform.param_operand<${result.operands.length - 1}>`);
@@ -23547,10 +23549,10 @@ _.TransformDialect = class extends _.Dialect {
     }
 
     parseAlternativesOpSelectedRegion(parser, result) {
-        if (parser.match('int')) {
+        if (parser.match(_.Token.integer)) {
             const value = parser.parseInteger();
             result.addAttribute('selected_region_attr', value);
-        } else if (parser.match('%')) {
+        } else if (parser.match(_.Token.percent_identifier)) {
             const operand = parser.parseOperand();
             parser.resolveOperand(operand, null, result.operands);
         }
@@ -23604,7 +23606,7 @@ _.TestDialect = class extends _.Dialect {
         }
         if (result.op === 'test.region_if') {
             const unresolvedOperands = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
@@ -23613,7 +23615,7 @@ _.TestDialect = class extends _.Dialect {
             parser.parseColon();
             const inputTypes = parser.parseTypeList();
             parser.resolveOperands(unresolvedOperands, inputTypes, result.operands);
-            parser.expect('->');
+            parser.parseArrow();
             const outputTypes = parser.parseFunctionResultTypes();
             for (const t of outputTypes) {
                 result.addTypes([t]);
@@ -23642,9 +23644,9 @@ _.TestDialect = class extends _.Dialect {
             // solely to test custom property print/parse. It uses format: "label" is <integer>
             // instead of the standard prop-dict <{...}> format. This is an exception, not a pattern.
             result.compatibility = true;
-            const label = parser.match('string') ? parser.expect('string') : parser.expect(_.Token.bare_identifier);
+            const label = parser.match(_.Token.string) ? parser.expect(_.Token.string) : parser.expect(_.Token.bare_identifier);
             parser.parseKeyword('is');
-            const negative = parser.accept('minus');
+            const negative = parser.consumeIf(_.Token.minus);
             const value = parser.parseInteger();
             result.addAttribute('prop', { label, value: negative ? -value : value });
             parser.parseOptionalAttrDict(result.attributes);
@@ -23658,15 +23660,15 @@ _.TestDialect = class extends _.Dialect {
             } else {
                 const a = parser.parseInteger();
                 result.addAttribute('a', a);
-                if (parser.match('string')) {
-                    result.addAttribute('b', parser.expect('string'));
+                if (parser.match(_.Token.string)) {
+                    result.addAttribute('b', parser.expect(_.Token.string));
                 }
-                if (parser.match('int') || parser.match('minus')) {
-                    const neg = parser.accept('minus');
+                if (parser.match(_.Token.integer) || parser.match(_.Token.minus)) {
+                    const neg = parser.consumeIf(_.Token.minus);
                     const c = parser.parseInteger();
                     result.addAttribute('c', neg ? -c : c);
                 }
-                if (parser.accept('kw_unit')) {
+                if (parser.consumeIf(_.Token.kw_unit)) {
                     result.addAttribute('unit', true);
                 } else if (parser.parseOptionalKeyword('unit_absent')) {
                     result.addAttribute('unit', false);
@@ -23684,12 +23686,12 @@ _.TestDialect = class extends _.Dialect {
                     let value = null;
                     if (parser.parseOptionalKeyword('none')) {
                         value = null;
-                    } else if (parser.accept('kw_unit')) {
+                    } else if (parser.consumeIf(_.Token.kw_unit)) {
                         value = true;
-                    } else if (parser.match('string')) {
-                        value = parser.expect('string');
+                    } else if (parser.match(_.Token.string)) {
+                        value = parser.expect(_.Token.string);
                     } else {
-                        const neg = parser.accept('minus');
+                        const neg = parser.consumeIf(_.Token.minus);
                         value = parser.parseInteger();
                         if (neg) {
                             value = -value;
@@ -23698,15 +23700,15 @@ _.TestDialect = class extends _.Dialect {
                     parser.parseGreater();
                     return { some: value };
                 }
-                if (parser.match('string')) {
-                    return parser.expect('string');
+                if (parser.match(_.Token.string)) {
+                    return parser.expect(_.Token.string);
                 }
-                const neg = parser.accept('minus');
+                const neg = parser.consumeIf(_.Token.minus);
                 const value = parser.parseInteger();
                 return neg ? -value : value;
             };
             const knownAttrs = new Set(['anAttr', 'simple', 'simplei8', 'simpleui8', 'nonTrivialStorage', 'hasDefault', 'nested', 'longSyntax', 'hasUnit', 'maybeUnit']);
-            while (parser.match(_.Token.bare_identifier) && !parser.match('{') && !parser.match(_.Token.bare_identifier, 'loc')) {
+            while (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.l_brace) && !parser.match(_.Token.bare_identifier, 'loc')) {
                 const tokenValue = parser.getTokenSpelling().str();
                 // Stop if this looks like an operation name (not a known attribute)
                 if (!knownAttrs.has(tokenValue)) {
@@ -23840,7 +23842,7 @@ _.TestDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('bit_enum')) {
             if (parser.parseOptionalLess()) {
                 const flags = [];
-                while (!parser.match('>')) {
+                while (!parser.match(_.Token.greater)) {
                     const value = parser.expect(_.Token.bare_identifier);
                     flags.push(value);
                     parser.parseOptionalComma();
@@ -23859,7 +23861,7 @@ _.TestDialect = class extends _.Dialect {
         parser.parseLess();
         parser.parseKeyword('i');
         // Parse $inner - could be full (!test.cmpnd_inner<...>) or elided (<...>)
-        const inner = parser.match('!') ? parser.parseType() : this.parseCompoundNestedInnerType(parser);
+        const inner = parser.match(_.Token.exclamation_identifier) ? parser.parseType() : this.parseCompoundNestedInnerType(parser);
         parser.parseGreater();
         return new _.Type(`!test.cmpnd_nested_outer<i ${inner}>`);
     }
@@ -23871,7 +23873,7 @@ _.TestDialect = class extends _.Dialect {
         parser.parseLess();
         const someInt = parser.parseInteger();
         // Parse $cmpdA - could be full (!test.cmpnd_a<...>) or elided (<...>)
-        const cmpdA = parser.match('!') ? parser.parseType() : this.parseCompoundTypeA(parser);
+        const cmpdA = parser.match(_.Token.exclamation_identifier) ? parser.parseType() : this.parseCompoundTypeA(parser);
         parser.parseGreater();
         return new _.Type(`!test.cmpnd_inner<${someInt} ${cmpdA}>`);
     }
@@ -23886,7 +23888,7 @@ _.TestDialect = class extends _.Dialect {
         parser.parseComma();
         parser.parseLSquare();
         const arrayOfInts = [];
-        while (!parser.match(']')) {
+        while (!parser.match(_.Token.r_square)) {
             arrayOfInts.push(parser.parseInteger());
             parser.parseOptionalComma();
         }
@@ -23944,7 +23946,7 @@ _.TestDialect = class extends _.Dialect {
         parser.parseLSquare();
         const elements = [];
         parser.parseCommaSeparatedListUntil(_.Token.r_square, () => {
-            if (parser.match('string')) {
+            if (parser.match(_.Token.string)) {
                 elements.push(new _.TypedAttr(parser.parseString(), null));
             } else {
                 const value = parser.parseKeyword();
@@ -23971,9 +23973,9 @@ _.TestDialect = class extends _.Dialect {
             return;
         }
         for (;;) {
-            if (parser.accept('?')) {
+            if (parser.consumeIf(_.Token.question)) {
                 dims.push(-1);
-            } else if (parser.match('int')) {
+            } else if (parser.match(_.Token.integer)) {
                 dims.push(parser.parseInteger());
             } else {
                 break;
@@ -24016,9 +24018,9 @@ _.TestDialect = class extends _.Dialect {
             const unresolvedOptional = parser.parseOperand();
             parser.resolveOperand(unresolvedOptional, null, result.operands);
         }
-        parser.expect('->');
+        parser.parseArrow();
         parser.parseLParen();
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             const unresolvedVar = parser.parseOperand();
             parser.resolveOperand(unresolvedVar, null, result.operands);
             if (!parser.parseOptionalComma()) {
@@ -24047,10 +24049,10 @@ _.TestDialect = class extends _.Dialect {
                 result.operands[1].type = optType;
             }
         }
-        parser.expect('->');
+        parser.parseArrow();
         parser.parseLParen();
         let idx = 2; // Start after first two operands
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const varType = parser.parseType();
             if (result.operands.length > idx) {
                 result.operands[idx].type = varType;
@@ -24083,11 +24085,11 @@ _.TestDialect = class extends _.Dialect {
             result.successors = [];
         }
         const successor = {};
-        successor.label = parser.expect('^');
+        successor.label = parser.expect(_.Token.caret_identifier);
         result.successors.push(successor);
         while (parser.parseOptionalComma()) {
             const varSuccessor = {};
-            varSuccessor.label = parser.expect('^');
+            varSuccessor.label = parser.expect(_.Token.caret_identifier);
             result.successors.push(varSuccessor);
         }
     }
@@ -24134,7 +24136,7 @@ _.TestDialect = class extends _.Dialect {
     parseUsingPropertyInCustom(parser, op, propArg) {
         const values = [];
         parser.parseLSquare();
-        while (!parser.match(']')) {
+        while (!parser.match(_.Token.r_square)) {
             const value = parser.parseInteger();
             values.push(value);
             if (!parser.parseOptionalComma()) {
@@ -24242,13 +24244,13 @@ _.triton.PointerType = class extends _.Type {
     }
 
     static parse(parser) {
-        parser.expect('<');
+        parser.parseLess();
         const pointeeType = parser.parseType();
         let addressSpace = 1;
-        if (parser.accept(',')) {
-            addressSpace = parseInt(parser.expect('int'), 10);
+        if (parser.parseOptionalComma()) {
+            addressSpace = parseInt(parser.expect(_.Token.integer), 10);
         }
-        parser.expect('>');
+        parser.parseGreater();
         return new _.triton.PointerType(pointeeType, addressSpace);
     }
 
@@ -24276,11 +24278,11 @@ _.triton.TritonDialect = class extends _.Dialect {
             return null;
         }
         // Handle ptr type specifically to properly parse pointee type
-        if (typeName === 'ptr' && parser.match('<')) {
+        if (typeName === 'ptr' && parser.match(_.Token.less)) {
             return _.triton.PointerType.parse(parser);
         }
         let type = `!${dialect}.${typeName}`;
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             type += content;
         }
@@ -24296,7 +24298,7 @@ _.triton.TritonDialect = class extends _.Dialect {
     }
 
     parseTensorDescType(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             return new _.Type(`!tt.tensor_desc${content}`);
         }
@@ -24341,9 +24343,9 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
         if (result.op === 'ttg.warp_specialize') {
             const unresolvedOperands = [];
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 unresolvedOperands.push(parser.parseOperand());
-                if (!parser.match(')')) {
+                if (!parser.match(_.Token.r_paren)) {
                     parser.parseComma();
                 }
             }
@@ -24405,7 +24407,7 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             type += content;
         }
@@ -24415,7 +24417,7 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
     parseMemDescType(parser) {
         // Handle shorthand MemDescType notation: <dims x elementType, attributes...>
         // Full notation would be: !ttg.memdesc<dims x elementType, attributes...>
-        if (!parser.match('<')) {
+        if (!parser.match(_.Token.less)) {
             return null;
         }
         const content = parser.skip('<');
@@ -24448,11 +24450,11 @@ _.TritonNvidiaGPUDialect = class extends _.Dialect {
         if (Array.isArray(tokenTypeArr)) {
             tokenTypeArr.push(new _.Type('!ttng.async.token'));
         }
-        if (parser.match(']')) {
+        if (parser.match(_.Token.r_square)) {
             parser.parseRSquare();
             return;
         }
-        if (parser.match('%')) {
+        if (parser.match(_.Token.percent_identifier)) {
             const dep = parser.parseOperand();
             if (!Array.isArray(depOperands)) {
                 throw new mlir.Error(`Expected depOperands to be an array ${parser.location()}`);
@@ -24464,14 +24466,14 @@ _.TritonNvidiaGPUDialect = class extends _.Dialect {
 
     parseBarriersAndPreds(parser, op, barrierOperands, predOperands) {
         while (parser.parseOptionalComma()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const barrier = parser.parseOperand();
                 if (!Array.isArray(barrierOperands)) {
                     throw new mlir.Error(`Expected barrierOperands to be an array ${parser.location()}`);
                 }
                 barrierOperands.push(barrier);
                 if (parser.parseOptionalLSquare()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const pred = parser.parseOperand();
                         if (!Array.isArray(predOperands)) {
                             throw new mlir.Error(`Expected predOperands to be an array ${parser.location()}`);
@@ -24488,7 +24490,7 @@ _.TritonNvidiaGPUDialect = class extends _.Dialect {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             let type = `!${dialect}.${mnemonic}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -24513,7 +24515,7 @@ _.TritonAMDGPUDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             const content = parser.skip('<');
             type += content;
         }
@@ -24551,7 +24553,7 @@ _.MichelsonDialect = class extends _.Dialect {
         }
         const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
         if (typesWithParams.includes(type.substring(11))) {
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 const content = parser.skip('<');
                 type += content;
             }
@@ -24596,16 +24598,16 @@ _.KernelDialect = class extends _.Dialect {
 
     parseKernelFunctionalType(parser, op /*, args */) {
         parser.parseLParen();
-        if (!parser.match(')')) {
+        if (!parser.match(_.Token.r_paren)) {
             do {
                 parser.parseType();
             } while (parser.parseOptionalComma());
         }
         parser.parseRParen();
-        parser.expect('->');
+        parser.parseArrow();
         const resultTypes = [];
         if (parser.parseOptionalLParen()) {
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 do {
                     resultTypes.push(parser.parseType());
                 } while (parser.parseOptionalComma());
@@ -24660,7 +24662,7 @@ _.TensorRTDialect = class extends _.Dialect {
     }
 
     parseEnumAttrBracket(parser) {
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             parser.parseLess();
             const value = parser.expect(_.Token.bare_identifier);
             parser.parseGreater();
@@ -24716,12 +24718,12 @@ _.TensorRTDialect = class extends _.Dialect {
         if (parser.parseOptionalLParen()) {
             while (!parser.parseOptionalRParen()) {
                 let iterArgName = null;
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const iterArg = parser.parseOperand();
                     iterArgName = iterArg.name;
                 }
                 if (parser.parseOptionalEqual()) {
-                    if (parser.match('%')) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const unresolvedInit = parser.parseOperand();
                         parser.resolveOperand(unresolvedInit, null, result.operands);
                         if (iterArgName) {
@@ -24733,7 +24735,7 @@ _.TensorRTDialect = class extends _.Dialect {
             }
         }
         result.addTypes(parser.parseOptionalArrowTypeList());
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, regionArgs);
         }
@@ -24795,38 +24797,38 @@ _.executor.ExecutorDialect = class extends _.Dialect {
             return null;
         }
         if (typeName === 'table') {
-            if (parser.match('<')) {
-                parser.expect('<');
+            if (parser.match(_.Token.less)) {
+                parser.parseLess();
                 const body = [];
-                if (!parser.match('>')) {
+                if (!parser.match(_.Token.greater)) {
                     do {
                         const elementType = parser.parseType();
                         body.push(elementType);
                     } while (parser.parseOptionalComma());
                 }
-                parser.expect('>');
+                parser.parseGreater();
                 return new _.executor.TableType(body);
             }
             return new _.executor.TableType([]);
         }
         let type = `!${dialect}.${typeName}`;
-        if (parser.match('<')) {
+        if (parser.match(_.Token.less)) {
             type += parser.skip('<');
         }
         return new _.Type(type);
     }
 
     parseTable(parser) {
-        if (parser.match('<')) {
-            parser.expect('<');
+        if (parser.match(_.Token.less)) {
+            parser.parseLess();
             const body = [];
-            if (!parser.match('>')) {
+            if (!parser.match(_.Token.greater)) {
                 do {
                     const elementType = parser.parseType();
                     body.push(elementType);
                 } while (parser.parseOptionalComma());
             }
-            parser.expect('>');
+            parser.parseGreater();
             return new _.executor.TableType(body);
         }
         return null;
@@ -24835,7 +24837,7 @@ _.executor.ExecutorDialect = class extends _.Dialect {
     parseExecutorMixedIndices(parser, op /*, args */) {
         const unresolvedOperands = [];
         do {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperands.push(parser.parseOperand());
             } else {
                 parser.parseAttribute();
@@ -24878,13 +24880,13 @@ _.TFRTTestDialect = class extends _.Dialect {
         }
         if (opInfo.metadata.assemblyFormat === 'operands attr-dict') {
             const unresolvedOperands = [];
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperands.push(parser.parseOperand());
                 if (!parser.parseOptionalComma()) {
                     break;
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 parser.parseAttributeDict(result.attributes);
             }
             for (const unresolved of unresolvedOperands) {
@@ -24894,7 +24896,7 @@ _.TFRTTestDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'tfrt_test.do.async') {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const unresolvedOperands = parser.parseOperandList('none');
                 parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
@@ -24906,19 +24908,19 @@ _.TFRTTestDialect = class extends _.Dialect {
                     });
                 }
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
             return true;
         }
         if (result.op === 'tfrt_test.benchmark') {
-            if (parser.match('string')) {
-                const name = parser.expect('string');
+            if (parser.match(_.Token.string)) {
+                const name = parser.expect(_.Token.string);
                 result.addAttribute('name', name);
             }
             parser.parseLParen();
-            while (parser.match('%')) {
+            while (parser.match(_.Token.percent_identifier)) {
                 const unresolved = parser.parseOperand();
                 let type = null;
                 if (parser.parseOptionalColon()) {
@@ -24930,21 +24932,21 @@ _.TFRTTestDialect = class extends _.Dialect {
                 }
             }
             parser.parseRParen();
-            while (parser.match(_.Token.bare_identifier) && !parser.match('{')) {
+            while (parser.match(_.Token.bare_identifier) && !parser.match(_.Token.l_brace)) {
                 const name = parser.expect(_.Token.bare_identifier);
                 parser.parseEqual();
                 let value = null;
-                if (parser.match('int')) {
+                if (parser.match(_.Token.integer)) {
                     value = parser.parseInteger();
-                } else if (parser.match('string')) {
-                    value = parser.expect('string');
+                } else if (parser.match(_.Token.string)) {
+                    value = parser.expect(_.Token.string);
                 } else {
                     value = parser.expect(_.Token.bare_identifier);
                 }
                 result.addAttribute(name, value);
                 parser.parseOptionalComma();
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region);
             }
@@ -25062,7 +25064,7 @@ _.ACCDialect = class extends _.Dialect {
         const keywordOnlyAttrs = [];
         let needComma = false;
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
+            while (!parser.match(_.Token.r_square)) {
                 const attr = parser.parseAttribute();
                 keywordOnlyAttrs.push(attr);
                 parser.parseOptionalComma();
@@ -25079,7 +25081,7 @@ _.ACCDialect = class extends _.Dialect {
         const unresolvedOperands = [];
         const operandTypes = [];
         const deviceTypes = [];
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
@@ -25107,7 +25109,7 @@ _.ACCDialect = class extends _.Dialect {
         const inductionVars = [];
         if (parser.parseOptionalKeyword('control')) {
             parser.parseLParen();
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 const value = parser.parseOperand();
                 parser.parseColon();
                 const type = parser.parseType();
@@ -25139,7 +25141,7 @@ _.ACCDialect = class extends _.Dialect {
     }
 
     parseWaitClause(parser, result) {
-        if (!parser.match('(')) {
+        if (!parser.match(_.Token.l_paren)) {
             return;
         }
         parser.parseLParen();
@@ -25148,11 +25150,11 @@ _.ACCDialect = class extends _.Dialect {
                 parser.parseAttribute();
                 parser.parseOptionalComma();
             }
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 parser.parseOptionalComma();
             }
         }
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             if (parser.parseOptionalLBrace()) {
                 parser.parseOptionalKeyword('devnum');
                 parser.parseOptionalColon();
@@ -25191,7 +25193,7 @@ _.ACCDialect = class extends _.Dialect {
     }
 
     parseDeviceTypeOperands(parser, result) {
-        while (parser.match('%')) {
+        while (parser.match(_.Token.percent_identifier)) {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
@@ -25212,7 +25214,7 @@ _.ACCDialect = class extends _.Dialect {
         const gangOnlyAttrs = [];
         let needComma = false;
         if (parser.parseOptionalLSquare()) {
-            while (!parser.match(']')) {
+            while (!parser.match(_.Token.r_square)) {
                 const attr = parser.parseAttribute();
                 gangOnlyAttrs.push(attr);
                 parser.parseOptionalComma();
@@ -25231,7 +25233,7 @@ _.ACCDialect = class extends _.Dialect {
         const segments = [];
         while (parser.parseOptionalLBrace()) {
             let segmentCount = 0;
-            while (!parser.match('}')) {
+            while (!parser.match(_.Token.r_brace)) {
                 let argType = 'Num';
                 if (parser.parseOptionalKeyword('num')) {
                     parser.parseEqual();
@@ -25289,7 +25291,7 @@ _.ACCDialect = class extends _.Dialect {
     }
 
     parseOperandWithKeywordOnly(parser, result) {
-        if (!parser.match('(')) {
+        if (!parser.match(_.Token.l_paren)) {
             return;
         }
         parser.parseLParen();
@@ -25298,11 +25300,11 @@ _.ACCDialect = class extends _.Dialect {
                 parser.parseAttribute();
                 parser.parseOptionalComma();
             }
-            if (!parser.match(')')) {
+            if (!parser.match(_.Token.r_paren)) {
                 parser.parseOptionalComma();
             }
         }
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
@@ -25319,18 +25321,18 @@ _.ACCDialect = class extends _.Dialect {
     parseOperandsWithKeywordOnly(parser, result) {
         // Handles format: (%v1, %v2 : t1, t2) where all operands are listed before colon
         // and all types are listed after colon
-        if (!parser.match('(')) {
+        if (!parser.match(_.Token.l_paren)) {
             return;
         }
         parser.parseLParen();
-        if (parser.match(')')) {
+        if (parser.match(_.Token.r_paren)) {
             parser.parseRParen();
             return;
         }
         const unresolvedOperands = [];
         do {
             unresolvedOperands.push(parser.parseOperand());
-        } while (parser.parseOptionalComma() && !parser.match(':'));
+        } while (parser.parseOptionalComma() && !parser.match(_.Token.colon));
         parser.parseColon();
         const types = [];
         for (let i = 0; i < unresolvedOperands.length; i++) {
@@ -25348,7 +25350,7 @@ _.ACCDialect = class extends _.Dialect {
     }
 
     parseBindName(parser, result) {
-        while (!parser.match(')')) {
+        while (!parser.match(_.Token.r_paren)) {
             const attr = parser.parseAttribute();
             if (parser.parseOptionalLSquare()) {
                 parser.parseAttribute();
@@ -25361,7 +25363,7 @@ _.ACCDialect = class extends _.Dialect {
 
     parseRoutineGangClause(parser, result) {
         if (parser.parseOptionalLParen()) {
-            while (!parser.match(')')) {
+            while (!parser.match(_.Token.r_paren)) {
                 if (parser.parseOptionalKeyword('dim')) {
                     parser.parseColon();
                 }
@@ -25450,15 +25452,15 @@ _.smt.SMTDialect = class extends _.Dialect {
 
     parseType(parser) {
         const typeName = parser.parseOptionalKeyword();
-        if (typeName === 'bv' && parser.match('<')) {
+        if (typeName === 'bv' && parser.match(_.Token.less)) {
             parser.parseLess();
-            const width = parseInt(parser.expect('int'), 10);
+            const width = parseInt(parser.expect(_.Token.integer), 10);
             parser.parseGreater();
             return new _.smt.BitVectorType(width);
         }
         if (typeName) {
             let type = `!smt.${typeName}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 type += parser.skip('<');
             }
             return new _.Type(type);
@@ -25515,7 +25517,7 @@ _.MPMDDialect = class extends _.Dialect {
         parser.parseGreater();
         const unresolvedInputs = parser.parseOperandList('paren');
         const entryArguments = this.parseBlockArguments(parser);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, entryArguments);
         }
@@ -25536,7 +25538,7 @@ _.MPMDDialect = class extends _.Dialect {
     parseFragmentOp(parser, result) {
         // mpmd.fragment<mesh="m1", origin=["f1"], stage_id=N> (%inputs) {attrs} (%block_args) { region } : (types) -> type
         parser.parseLess();
-        while (!parser.match('>')) {
+        while (!parser.match(_.Token.greater)) {
             const attrName = parser.expect(_.Token.bare_identifier);
             parser.parseEqual();
             // Use custom parser for origin attribute (array of UserOriginAttr)
@@ -25548,7 +25550,7 @@ _.MPMDDialect = class extends _.Dialect {
         const unresolvedInputs = parser.parseOperandList('paren');
         parser.parseOptionalAttrDict(result.attributes);
         const entryArguments = this.parseBlockArguments(parser);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, entryArguments);
         }
@@ -25565,7 +25567,7 @@ _.MPMDDialect = class extends _.Dialect {
     parseFragmentCallOp(parser, result) {
         // mpmd.fragment_call<mesh="m1", origin=["f1"]> @callee(%args) {attrs} : (types) -> type
         parser.parseLess();
-        while (!parser.match('>')) {
+        while (!parser.match(_.Token.greater)) {
             const attrName = parser.expect(_.Token.bare_identifier);
             parser.parseEqual();
             // Use custom parser for origin attribute (array of UserOriginAttr)
@@ -25574,10 +25576,10 @@ _.MPMDDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         parser.parseGreater();
-        const callee = parser.expect('@');
+        const callee = parser.expect(_.Token.at_identifier);
         result.addAttribute('callee', callee);
         const unresolvedArgs = parser.parseOperandList('paren');
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             parser.parseAttributeDict(result.attributes);
         }
         if (parser.parseOptionalColon()) {
@@ -25597,7 +25599,7 @@ _.MPMDDialect = class extends _.Dialect {
         parser.resolveOperands(inputs, types, result.operands);
         parser.parseOptionalAttrDict(result.attributes);
         const entryArguments = this.parseBlockArguments(parser);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, entryArguments);
         }
@@ -25696,7 +25698,7 @@ _.SdyDialect = class extends _.Dialect {
                 if (parser.parseOptionalColon()) {
                     type = parser.parseType();
                 }
-                if (parser.match('{')) {
+                if (parser.match(_.Token.l_brace)) {
                     parser.parseAttributeDict(attrs);
                 }
                 entryArguments.push({ value, type, attributes: attrs.length > 0 ? attrs : undefined });
@@ -25711,8 +25713,8 @@ _.SdyDialect = class extends _.Dialect {
     parseTensorShardingAttr(parser) {
         parser.parseLess();
         let meshOrRef = null;
-        if (parser.match('@')) {
-            meshOrRef = parser.expect('@');
+        if (parser.match(_.Token.at_identifier)) {
+            meshOrRef = parser.expect(_.Token.at_identifier);
         } else if (parser.parseOptionalKeyword('mesh')) {
             meshOrRef = this.parseMeshAttr(parser);
         } else {
@@ -25773,8 +25775,8 @@ _.SdyDialect = class extends _.Dialect {
         parser.parseLBrace();
         let isClosed = true;
         while (!parser.parseOptionalRBrace()) {
-            if (parser.match('?')) {
-                parser.expect('?');
+            if (parser.match(_.Token.question)) {
+                parser.expect(_.Token.question);
                 isClosed = false;
                 parser.parseRBrace();
                 break;
@@ -25782,8 +25784,8 @@ _.SdyDialect = class extends _.Dialect {
             const axis = this.parseAxisRefAttr(parser);
             axes.push(axis);
             if (parser.parseOptionalComma()) {
-                if (parser.match('?')) {
-                    parser.expect('?');
+                if (parser.match(_.Token.question)) {
+                    parser.expect(_.Token.question);
                     isClosed = false;
                     parser.parseRBrace();
                     break;
@@ -25866,7 +25868,7 @@ _.SdyDialect = class extends _.Dialect {
         const axes = this.parseAxisRefList(parser);
         parser.parseColon();
         const splitDim = parser.parseInteger();
-        parser.expect('->');
+        parser.parseArrow();
         const concatDim = parser.parseInteger();
         return { axes, splitDim, concatDim };
     }
@@ -25932,8 +25934,8 @@ _.XlaDialect = class extends _.Dialect {
             const regionArgs = [];
             const indexType = new _.IndexType();
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedDims.push(parser.parseOperand());
                     }
                     if (!parser.parseOptionalComma()) {
@@ -25944,8 +25946,8 @@ _.XlaDialect = class extends _.Dialect {
             }
             // Parse [%ivs] -> (%map_results) - these are block arguments
             if (parser.parseOptionalLSquare()) {
-                while (!parser.match(']')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_square)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const iv = parser.parseOperand();
                         regionArgs.push({ name: iv.name, type: indexType });
                     }
@@ -25957,8 +25959,8 @@ _.XlaDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalArrow()) {
                 parser.parseLParen();
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const mapResult = parser.parseOperand();
                         regionArgs.push({ name: mapResult.name, type: indexType });
                     }
@@ -25974,8 +25976,8 @@ _.XlaDialect = class extends _.Dialect {
             const iterArgNames = [];
             if (parser.parseOptionalKeyword('iter_args')) {
                 parser.parseLParen();
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         const iterArg = parser.parseOperand();
                         iterArgNames.push(iterArg.name);
                     }
@@ -26014,7 +26016,7 @@ _.XlaDialect = class extends _.Dialect {
                 const initType = resultTypes[i] || null;
                 parser.resolveOperand(unresolvedInits[i], initType, result.operands);
             }
-            if (parser.match('{')) {
+            if (parser.match(_.Token.l_brace)) {
                 const region = result.addRegion();
                 parser.parseRegion(region, regionArgs);
             }
@@ -26044,8 +26046,8 @@ _.XlaGpuDialect = class extends _.Dialect {
         if (result.op === 'xla_gpu.shuffle_reduce') {
             const unresolvedOperands = [];
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedOperands.push(parser.parseOperand());
                     }
                     if (!parser.parseOptionalComma()) {
@@ -26055,11 +26057,11 @@ _.XlaGpuDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             parser.parseKeyword('to');
-            const maxDistance = parser.expect('int');
+            const maxDistance = parser.expect(_.Token.integer);
             result.addAttribute('max_distance', parseInt(maxDistance, 10));
             parser.parseKeyword('combiner');
             parser.parseEqual();
-            const combiner = parser.expect('@');
+            const combiner = parser.expect(_.Token.at_identifier);
             result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
@@ -26078,8 +26080,8 @@ _.XlaGpuDialect = class extends _.Dialect {
             const unresolvedInputs = [];
             const unresolvedInits = [];
             if (parser.parseOptionalLParen()) {
-                while (!parser.match(')')) {
-                    if (parser.match('%')) {
+                while (!parser.match(_.Token.r_paren)) {
+                    if (parser.match(_.Token.percent_identifier)) {
                         unresolvedInputs.push(parser.parseOperand());
                     }
                     if (!parser.parseOptionalComma()) {
@@ -26090,8 +26092,8 @@ _.XlaGpuDialect = class extends _.Dialect {
             }
             parser.parseKeyword('inits');
             parser.parseLParen();
-            while (!parser.match(')')) {
-                if (parser.match('%')) {
+            while (!parser.match(_.Token.r_paren)) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedInits.push(parser.parseOperand());
                 }
                 if (!parser.parseOptionalComma()) {
@@ -26105,7 +26107,7 @@ _.XlaGpuDialect = class extends _.Dialect {
             result.addAttribute('dimensions', dimensions);
             parser.parseKeyword('combiner');
             parser.parseEqual();
-            const combiner = parser.expect('@');
+            const combiner = parser.expect(_.Token.at_identifier);
             result.addAttribute('combiner', new _.SymbolRefAttr(`@${combiner}`));
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
@@ -26216,13 +26218,13 @@ _.TritonXlaDialect = class extends _.Dialect {
         // Parse [val1, val2, ...] where vals can be %ssa or integer constants
         parser.parseLSquare();
         const staticValues = [];
-        while (!parser.match(']')) {
-            if (parser.match('%')) {
+        while (!parser.match(_.Token.r_square)) {
+            if (parser.match(_.Token.percent_identifier)) {
                 const unresolved = parser.parseOperand();
                 parser.resolveOperand(unresolved, null, op.operands);
                 staticValues.push(-9223372036854775808n); // ShapedType::kDynamic
-            } else if (parser.match('int')) {
-                const value = parser.expect('int');
+            } else if (parser.match(_.Token.integer)) {
+                const value = parser.expect(_.Token.integer);
                 staticValues.push(BigInt(value));
             }
             if (!parser.parseOptionalComma()) {
@@ -26267,7 +26269,7 @@ _.PolyDialect = class extends _.Dialect {
         }
         let type = `!${dialect}.${typeName}`;
         // poly.poly<N> type has a degree bound parameter
-        if (typeName === 'poly' && parser.match('<')) {
+        if (typeName === 'poly' && parser.match(_.Token.less)) {
             const content = parser.skip('<');
             type += content;
         }
@@ -26282,14 +26284,14 @@ _.NoisyDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        if (parser.match('inttype')) {
-            const inttype = parser.expect('inttype');
+        if (parser.match(_.Token.inttype)) {
+            const inttype = parser.expect(_.Token.inttype);
             return new _.Type(`!${dialect}.${inttype}`);
         }
         const typeName = parser.parseOptionalKeyword();
         if (typeName) {
             let type = `!${dialect}.${typeName}`;
-            if (parser.match('<')) {
+            if (parser.match(_.Token.less)) {
                 type += parser.skip('<');
             }
             return new _.Type(type);
@@ -26336,12 +26338,12 @@ _.XtenNNDialect = class extends _.Dialect {
                 // Parse either (%name = %value : type) or (%value : type)
                 let blockArgName = null;
                 let operandRef = null;
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     const firstOperand = parser.parseOperand();
                     if (parser.parseOptionalEqual()) {
                         // (%name = %value : type) form
                         blockArgName = firstOperand;
-                        if (parser.match('%')) {
+                        if (parser.match(_.Token.percent_identifier)) {
                             operandRef = parser.parseOperand();
                         }
                     } else {
@@ -26357,7 +26359,7 @@ _.XtenNNDialect = class extends _.Dialect {
                 }
                 entryArgs.push({ value: blockArgName, type });
                 if (!parser.parseOptionalComma()) {
-                    if (parser.match(')')) {
+                    if (parser.match(_.Token.r_paren)) {
                         parser.parseOptionalRParen();
                     }
                     break;
@@ -26365,12 +26367,12 @@ _.XtenNNDialect = class extends _.Dialect {
             }
         }
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
-        if (parser.match('{')) {
+        if (parser.match(_.Token.l_brace)) {
             const region = result.addRegion();
             parser.parseRegion(region, entryArgs, /* enableNameShadowing */ true);
         }
         if (parser.parseOptionalArrow()) {
-            const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
+            const types = parser.match(_.Token.l_paren) ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
             result.addTypes(types);
         }
         return true;
@@ -26383,7 +26385,7 @@ _.XtenNNDialect = class extends _.Dialect {
         }
         const unresolvedOperands = [];
         while (!parser.parseOptionalRParen()) {
-            if (parser.match('%')) {
+            if (parser.match(_.Token.percent_identifier)) {
                 unresolvedOperands.push(parser.parseOperand());
             }
             parser.parseColon();
@@ -26391,7 +26393,7 @@ _.XtenNNDialect = class extends _.Dialect {
             parser.resolveOperands(unresolvedOperands, [type], result.operands);
             unresolvedOperands.length = 0;
             if (!parser.parseOptionalComma()) {
-                if (parser.match(')')) {
+                if (parser.match(_.Token.r_paren)) {
                     parser.parseOptionalRParen();
                 }
                 break;
@@ -26410,13 +26412,13 @@ _.XtenNNDialect = class extends _.Dialect {
             const unresolvedOperands = [];
             const types = [];
             while (!parser.parseOptionalRParen()) {
-                if (parser.match('%')) {
+                if (parser.match(_.Token.percent_identifier)) {
                     unresolvedOperands.push(parser.parseOperand());
                 }
                 parser.parseColon();
                 types.push(parser.parseType());
                 if (!parser.parseOptionalComma()) {
-                    if (parser.match(')')) {
+                    if (parser.match(_.Token.r_paren)) {
                         parser.parseOptionalRParen();
                     }
                     break;
@@ -26430,7 +26432,7 @@ _.XtenNNDialect = class extends _.Dialect {
             if (parser.parseOptionalLSquare()) {
                 while (!parser.parseOptionalRSquare()) {
                     // Parse either "name" = value or just value
-                    if (parser.match('string')) {
+                    if (parser.match(_.Token.string)) {
                         const nameOrValue = parser.parseAttribute();
                         if (parser.parseOptionalEqual()) {
                             // "name" = value form
@@ -26455,7 +26457,7 @@ _.XtenNNDialect = class extends _.Dialect {
         }
         parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalArrow()) {
-            const types = parser.match('(') ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
+            const types = parser.match(_.Token.l_paren) ? parser.parseTypeListParens() : parser.parseTypeListNoParens();
             result.addTypes(types);
         }
         return true;
