@@ -650,6 +650,7 @@ openvino.Node = class {
                 case 'I64':  case 'U64': case 'FP64': itemSize = 8; break;
                 case 'F8E4M3':                        itemSize = 1; break;
                 case 'BF16':                          itemSize = 2; break;
+                case 'DYNAMIC':                       itemSize = 0; break;
                 default: throw new openvino.Error(`Unsupported data type size '${precision}'.`);
             }
             const weight = (name, precision, dimensions, data) => {
