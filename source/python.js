@@ -8943,6 +8943,20 @@ python.Execution = class {
                     return [];
                 }
             }
+            if (Number.isInteger(start) && Number.isInteger(stop) && (step === undefined || Number.isInteger(step))) {
+                step = step === undefined ? 1 : step;
+                const result = [];
+                if (step > 0) {
+                    for (let i = start; i < stop; i += step) {
+                        result.push(i);
+                    }
+                } else if (step < 0) {
+                    for (let i = start; i > stop; i += step) {
+                        result.push(i);
+                    }
+                }
+                return result;
+            }
             throw new python.Error(`Unsupported range(${JSON.stringify(start)}, ${JSON.stringify(stop)}, ${JSON.stringify(step)})`);
         });
         this.registerFunction('math.trunc');
