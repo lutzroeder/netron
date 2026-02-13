@@ -270,7 +270,7 @@ openvino.Graph = class {
             }
             if (!values.has(name)) {
                 values.set(name, new openvino.Value(name, type, tensor));
-            } else if (type && !type.equals(values.get(name).type)) {
+            } else if (name === id && type && !type.equals(values.get(name).type)) {
                 throw new openvino.Error(`Duplicate value '${name}'.`);
             }
             return values.get(name);
