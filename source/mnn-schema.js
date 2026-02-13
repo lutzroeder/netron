@@ -2621,6 +2621,7 @@ MNN.OpType = {
     SeqLen2Spatial: 302,
     SplitGeLU: 303,
     GroupNorm: 304,
+    LinearAttention: 305,
     Extra: 512,
     ConvInt8: 513,
     Int8ToFloat: 514,
@@ -2699,6 +2700,31 @@ MNN.AttentionParam = class AttentionParam {
     static decodeText(reader, json) {
         const $ = new MNN.AttentionParam();
         $.kv_cache = reader.value(json.kv_cache, true);
+        return $;
+    }
+};
+
+MNN.LinearAttentionParam = class LinearAttentionParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.LinearAttentionParam();
+        $.attn_type = reader.string_(position, 4, null);
+        $.num_k_heads = reader.int32_(position, 6, 0);
+        $.num_v_heads = reader.int32_(position, 8, 0);
+        $.head_k_dim = reader.int32_(position, 10, 0);
+        $.head_v_dim = reader.int32_(position, 12, 0);
+        $.use_qk_l2norm = reader.bool_(position, 14, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.LinearAttentionParam();
+        $.attn_type = reader.value(json.attn_type, null);
+        $.num_k_heads = reader.value(json.num_k_heads, 0);
+        $.num_v_heads = reader.value(json.num_v_heads, 0);
+        $.head_k_dim = reader.value(json.head_k_dim, 0);
+        $.head_v_dim = reader.value(json.head_v_dim, 0);
+        $.use_qk_l2norm = reader.value(json.use_qk_l2norm, false);
         return $;
     }
 };
@@ -2955,6 +2981,7 @@ MNN.OpParameter = class {
             case 97: return MNN.FmhcaParam.decode(reader, position);
             case 98: return MNN.AttentionParam.decode(reader, position);
             case 99: return MNN.StftParam.decode(reader, position);
+            case 100: return MNN.LinearAttentionParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3060,6 +3087,7 @@ MNN.OpParameter = class {
             case 'FmhcaParam': return MNN.FmhcaParam.decodeText(reader, json);
             case 'AttentionParam': return MNN.AttentionParam.decodeText(reader, json);
             case 'StftParam': return MNN.StftParam.decodeText(reader, json);
+            case 'LinearAttentionParam': return MNN.LinearAttentionParam.decodeText(reader, json);
             default: return undefined;
         }
     }
