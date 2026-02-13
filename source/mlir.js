@@ -2633,11 +2633,23 @@ _.Lexer = class {
             result += this.lexString().getSpelling().str();
             return this.formToken(prefix, result);
         }
-        if (this._current && /[0-9]/.test(this._current)) {
+        if (prefix === '@') {
+            // symbol-ref-id ::= `@` (bare-id | string-literal)
+            // bare-id ::= (letter|[_]) (letter|digit|[_$.])*
+            if (this._current && /[a-zA-Z_]/.test(this._current)) {
+                while (this._current && /[a-zA-Z0-9_$.]/.test(this._current)) {
+                    result += this._read();
+                }
+            } else if (result.length === 1) {
+                throw new mlir.Error(`@ identifier expected to start with letter or '_' ${this.location()}`);
+            }
+        } else if (this._current && /[0-9]/.test(this._current)) {
+            // suffix-id ::= digit+ | ...
             while (this._current && /[0-9]/.test(this._current)) {
                 result += this._read();
             }
         } else if (this._current && /[a-zA-Z_$.-]/.test(this._current)) {
+            // suffix-id ::= ... | (letter|id-punct) (letter|id-punct|digit)*
             while (this._current && /[a-zA-Z_$0-9.-]/.test(this._current)) {
                 if (this._current === '-' && this._peek() === '>') {
                     break;
