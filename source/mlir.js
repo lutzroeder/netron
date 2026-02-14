@@ -501,7 +501,8 @@ mlir.Argument = class {
                     break;
                 default:
                     if (/^[usi]i?[0-9]+$/.test(typeStr) || /^f[0-9]+$/.test(typeStr) ||
-                        typeStr === 'bf16' || typeStr === 'index' || typeStr === 'none' ||
+                        /^f\d+E\d+M\d+/.test(typeStr) ||
+                        typeStr === 'bf16' || typeStr === 'tf32' || typeStr === 'index' || typeStr === 'none' ||
                         typeStr === 'unit' || typeStr.startsWith('!') || typeStr.startsWith('tensor<') ||
                         typeStr.startsWith('memref<') || typeStr.startsWith('vector<')) {
                         this.type = typeStr;
@@ -2440,7 +2441,6 @@ _.Lexer = class {
                     this._read();
                     return this.formToken('{', '{');
                 default:
-                    // Reference: bare-id starts with (letter|[_])
                     if (/[a-zA-Z_]/.test(this._current)) {
                         return this.lexBareIdentifierOrKeyword();
                     }
@@ -2943,11 +2943,6 @@ _.Parser = class {
         }
     }
 
-    parseSymbolName(name, attributes) {
-        const value = this.expect(_.Token.at_identifier).substring(1);
-        attributes.set(name, new _.StringAttr(value));
-    }
-
     parseAttributeDict(attributes) {
         const seenKeys = new Set();
         this.parseCommaSeparatedList('brace', () => {
@@ -3443,9 +3438,8 @@ _.Parser = class {
                     case 'f6E3M2FN':
                         return new _.FloatType(value);
                     default:
-                        break;
+                        throw new mlir.Error(`Invalid type '${value}' ${this.location()}`);
                 }
-                break;
             }
             default: {
                 break;
@@ -3694,7 +3688,7 @@ _.Parser = class {
                 return new _.StringAttr(value, type);
             }
             case _.Token.at_identifier: {
-                const nameStr = this.getTokenSpelling().str().substring(1);
+                const nameStr = this.getToken().getSymbolReference();
                 this.consumeToken(_.Token.at_identifier);
                 const nestedRefs = [];
                 while (this.getToken().is(_.Token.colon)) {
@@ -3707,7 +3701,7 @@ _.Parser = class {
                     if (this.getToken().isNot(_.Token.at_identifier)) {
                         throw new mlir.Error(`Expected nested symbol reference identifier ${this.location()}`);
                     }
-                    nestedRefs.push(this.getTokenSpelling().str().substring(1));
+                    nestedRefs.push(this.getToken().getSymbolReference());
                     this.consumeToken(_.Token.at_identifier);
                 }
                 return new _.SymbolRefAttr(nameStr, nestedRefs);
@@ -3720,7 +3714,7 @@ _.Parser = class {
                 if (tokenValue === 'tensor' || tokenValue === 'vector' || tokenValue === 'memref' ||
                     tokenValue === 'none' || tokenValue === 'index' || /^[su]?i[0-9]+$/.test(tokenValue) ||
                     /^f[0-9]+$/.test(tokenValue) || tokenValue === 'bf16' || tokenValue === 'tf32' ||
-                    tokenValue.startsWith('f8')) {
+                    /^f\d+E\d+M\d+/.test(tokenValue) || tokenValue === 'complex' || tokenValue === 'tuple') {
                     const parsedType = this.parseType();
                     return { value: parsedType, type: new _.PrimitiveType('type') };
                 }
@@ -4039,9 +4033,14 @@ _.Parser = class {
             return null;
         }
         const negative = this.consumeIf(_.Token.minus);
-        const spelling = this.expect(_.Token.integer);
+        const curTok = this.getToken();
+        this.parseToken(_.Token.integer, 'Expected integer value');
+        const spelling = curTok.spelling;
         const isHex = spelling.length > 1 && spelling[1] === 'x';
-        const result = parseInt(spelling, isHex ? 16 : 10);
+        const result = spelling.getAsInteger(isHex ? 0 : 10);
+        if (result === null) {
+            throw new mlir.Error(`Integer value too large ${this.location()}`);
+        }
         return negative ? -result : result;
     }
 
@@ -5341,12 +5340,25 @@ _.AsmParser = class extends _.Parser {
         }
     }
 
-    parseOptionalSymbolName() {
-        if (this.match(_.Token.at_identifier)) {
-            const value = this.expect(_.Token.at_identifier);
-            return value.substring(1);
+    parseSymbolName(attrName, attrs) {
+        const result = this.parseOptionalSymbolName();
+        if (result === null) {
+            throw new mlir.Error(`Expected valid '@'-identifier for symbol name ${this.location()}`);
         }
-        return null;
+        attrs.set(attrName, result);
+    }
+
+    parseOptionalSymbolName() {
+        const atToken = this.parser.getToken();
+        if (atToken.isNot(_.Token.at_identifier)) {
+            return null;
+        }
+        const result = new _.StringAttr(this.parser.getToken().getSymbolReference());
+        this.parser.consumeToken();
+        if (this.parser.state.asmState) {
+            // parser.state.asmState.addUses(SymbolRefAttr::get(result), atToken.getLocRange())
+        }
+        return result;
     }
 };
 
@@ -6201,7 +6213,7 @@ _.DialectReader = class extends _.DialectBytecodeReader {
         this.depth = depth;
         this._floatBuffer = new ArrayBuffer(8);
         this._floatView = new DataView(this._floatBuffer);
-        this._floatBitWidths = { f16: 16, bf16: 16, f32: 32, f64: 64, f80: 80, f128: 128 };
+        this._floatBitWidths = { f16: 16, bf16: 16, f32: 32, f64: 64, f80: 80, f128: 128, tf32: 19, f4E2M1FN: 4, f6E2M3FN: 6, f6E3M2FN: 6, f8E5M2: 8, f8E4M3: 8, f8E4M3FN: 8, f8E5M2FNUZ: 8, f8E4M3FNUZ: 8, f8E4M3B11FNUZ: 8, f8E3M4: 8, f8E8M0FNU: 8 };
     }
 
     readType() {
@@ -6951,7 +6963,7 @@ _.BytecodeReader = class {
                 this.opNames[index++] = opName;
             }
         };
-        if (this.version > 4) { // kElideUnknownBlockArgLocation
+        if (this.version >= 4) { // kElideUnknownBlockArgLocation
             numOps = sectionReader.parseVarInt().toNumber();
             this.opNames = new Array(numOps);
         }
@@ -7133,12 +7145,20 @@ _.BytecodeReader = class {
         const numArgs = reader.parseVarInt().toNumber();
         block.arguments = [];
         for (let i = 0; i < numArgs; i++) {
-            const typeAndLocation = reader.parseVarInt().toNumber();
-            const typeIdx = typeAndLocation >> 1;
-            const hasLocation = (typeAndLocation & 1) === 1;
-            const type = this.attrTypeReader.readType(typeIdx);
+            let type = null;
             let location = null;
-            if (hasLocation) {
+            if (this.version >= 4) { // kElideUnknownBlockArgLocation
+                const typeAndLocation = reader.parseVarInt().toNumber();
+                const typeIdx = typeAndLocation >> 1;
+                const hasLocation = (typeAndLocation & 1) === 1;
+                type = this.attrTypeReader.readType(typeIdx);
+                if (hasLocation) {
+                    const locIdx = reader.parseVarInt().toNumber();
+                    location = this.attrTypeReader.readAttribute(locIdx);
+                }
+            } else {
+                const typeIdx = reader.parseVarInt().toNumber();
+                type = this.attrTypeReader.readType(typeIdx);
                 const locIdx = reader.parseVarInt().toNumber();
                 location = this.attrTypeReader.readAttribute(locIdx);
             }
@@ -7151,8 +7171,8 @@ _.BytecodeReader = class {
             }
         }
         // Use-list ordering (version >= 3) - stored after all arguments
-        // If hasUseListOrders byte is 0, no use-list orders exist
-        if (this.version >= 3 && numArgs > 0) { // kUseListOrdering
+        // hasUseListOrders byte is read whenever hasArgs is true (not dependent on numArgs)
+        if (this.version >= 3) { // kUseListOrdering
             const hasUseListOrders = reader.parseByte();
             if (hasUseListOrders !== 0) {
                 const orders = this.parseUseListOrdersForRange(reader, numArgs);
@@ -7167,38 +7187,24 @@ _.BytecodeReader = class {
     }
 
     parseUseListOrdersForRange(reader, numValues) {
-        // For multiple values, read how many have custom orders
-        // For single value, default count is 1
         const orders = [];
         let numToRead = 1;
         if (numValues > 1) {
             numToRead = reader.parseVarInt().toNumber();
         }
         for (let i = 0; i < numToRead; i++) {
-            // Read the value index if there are multiple values
-            let argIndex = i;
+            let argIndex = 0;
             if (numValues > 1) {
                 argIndex = reader.parseVarInt().toNumber();
             }
-            // Parse use-list order: numUsesAndIndexPairs, then indices
             const numUsesAndFlag = reader.parseVarInt();
             const numUses = (numUsesAndFlag >> 1n).toNumber();
-            const useIndexPairEncoding = (numUsesAndFlag & 1n) === 1n;
-            const ordering = { pairs: useIndexPairEncoding, indices: [] };
-            if (useIndexPairEncoding) {
-                // Index pairs: read pairs of (from, to) indices
-                for (let j = 0; j < numUses; j++) {
-                    const from = reader.parseVarInt().toNumber();
-                    const to = reader.parseVarInt().toNumber();
-                    ordering.indices.push({ from, to });
-                }
-            } else {
-                // Direct indices: read permutation
-                for (let j = 0; j < numUses; j++) {
-                    ordering.indices.push(reader.parseVarInt().toNumber());
-                }
+            const indexPairEncoding = (numUsesAndFlag & 1n) === 1n;
+            const indices = [];
+            for (let j = 0; j < numUses; j++) {
+                indices.push(reader.parseVarInt().toNumber());
             }
-            orders.push({ argIndex, ordering });
+            orders.push({ argIndex, ordering: { indexPairEncoding, indices } });
         }
         return orders;
     }
@@ -7305,25 +7311,12 @@ _.BytecodeReader = class {
             }
         }
         // Parse use-list orders (version >= 3)
-        // Use-list ordering specifies the order in which uses of a value should appear.
-        // This is stored but not currently applied to the IR structure.
-        const useListOrders = [];
-        if (this.version >= _.BytecodeReader.kUseListOrdering && (opMask & kHasUseListOrders)) {
+        if (this.version >= 3 && (opMask & kHasUseListOrders)) { // kUseListOrdering
             const numResults = opState.types.length;
-            for (let i = 0; i < numResults; i++) {
-                const indexBitWidth = reader.parseVarInt().toNumber();
-                if (indexBitWidth > 0) {
-                    const numUses = reader.parseVarInt().toNumber();
-                    const ordering = [];
-                    for (let j = 0; j < numUses; j++) {
-                        ordering.push(reader.parseVarInt().toNumber());
-                    }
-                    useListOrders.push({ resultIndex: i, ordering });
-                }
+            const orders = this.parseUseListOrdersForRange(reader, numResults);
+            if (orders.length > 0) {
+                opState.useListOrders = orders;
             }
-        }
-        if (useListOrders.length > 0) {
-            opState.useListOrders = useListOrders;
         }
         let isIsolatedFromAbove = false;
         if (opMask & kHasInlineRegions) {
