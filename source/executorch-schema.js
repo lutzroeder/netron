@@ -1287,6 +1287,7 @@ vkgraph.VkMemoryLayout = {
     TENSOR_CHANNELS_PACKED: 2,
     PACKED_INT8_4W4C: 3,
     PACKED_INT8_4H4W: 4,
+    PACKED_INT8_4C1W: 8,
     DEFAULT_LAYOUT: 255
 };
 
