@@ -2852,12 +2852,9 @@ python.Execution = class {
                     const [size] = unpickler.read(1);
                     unpickler.read(size);
                 }
-                if (this.order === 'F') {
-                    throw new python.Error('Fortran order not implemented.');
-                }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                 this.data = unpickler.read(size);
-                return execution.invoke(this.subclass, [this.shape, this.dtype, this.data]);
+                return new this.subclass(this.shape, this.dtype, this.data, undefined, undefined, this.order);
             }
         });
         this.registerType('joblib.numpy_pickle.NDArrayWrapper', class {
@@ -3232,9 +3229,16 @@ python.Execution = class {
                     const shape = this.shape;
                     const strides = new Array(shape.length);
                     let stride = this.itemsize;
-                    for (let i = shape.length - 1; i >= 0; i--) {
-                        strides[i] = stride;
-                        stride *= shape[i];
+                    if (this.order === 'F' || this.flags.fn) {
+                        for (let i = 0; i < shape.length; i++) {
+                            strides[i] = stride;
+                            stride *= shape[i];
+                        }
+                    } else {
+                        for (let i = shape.length - 1; i >= 0; i--) {
+                            strides[i] = stride;
+                            stride *= shape[i];
+                        }
                     }
                     return strides;
                 }
@@ -5146,10 +5150,8 @@ python.Execution = class {
                     throw new python.Error(`Unsupported data type '${dtype.str}'.`);
                 }
             }
-            if (fortran_order) {
-                data = null;
-            }
-            return self.invoke('numpy.ndarray', [shape, dtype, data]);
+            const order = fortran_order ? 'F' : 'C';
+            return new numpy.ndarray(shape, dtype, data, undefined, undefined, order);
         });
         this.registerFunction('numpy.save', (file, arr) => {
             const descr = arr.dtype.str;

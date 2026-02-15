@@ -7698,6 +7698,13 @@
   },
   {
     "type":     "sklearn",
+    "target":   "pca_model.pkl",
+    "source":   "https://github.com/user-attachments/files/25328579/pca_model.pkl.zip[pca_model.pkl]",
+    "format":   "scikit-learn v1.8.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":     "sklearn",
     "target":   "pima.xgboost.joblib.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
     "format":   "scikit-learn",
