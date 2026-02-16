@@ -3167,14 +3167,14 @@
     "target":   "ep_model1.zip",
     "source":   "https://github.com/lutzroeder/netron/files/4216033/ep_model1.zip",
     "format":   "ML.NET v1.0.0.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/170"
+    "link":     "https://github.com/lutzroeder/netron/issues/1541"
   },
   {
     "type":     "mlnet",
     "target":   "ep_model3.zip",
     "source":   "https://github.com/lutzroeder/netron/files/4216304/ep_model3.zip",
     "format":   "ML.NET v1.0.0.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/170"
+    "link":     "https://github.com/lutzroeder/netron/issues/1541"
   },
   {
     "type":     "mlnet",
@@ -3213,6 +3213,13 @@
   },
   {
     "type":     "mlnet",
+    "target":   "MLModel1.mlnet",
+    "source":   "https://github.com/joesatriani10/Image-Recognition/raw/master/Image%20Recognition/MLModel1.mlnet",
+    "format":   "ML.NET v3.0.0-preview.23323.1",
+    "link":     "https://github.com/joesatriani10/Image-Recognition"
+  },
+  {
+    "type":     "mlnet",
     "target":   "MovieRecommender_Model.zip",
     "source":   "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/Recommendation-MovieRecommender/MovieRecommender_Model/Model/model.zip",
     "format":   "ML.NET v1.4.28230.4",
@@ -3223,7 +3230,7 @@
     "target":   "ngram.zip",
     "source":   "https://github.com/lutzroeder/netron/files/4216079/ngram.zip",
     "format":   "ML.NET v3.10.29.504",
-    "link":     "https://github.com/lutzroeder/netron/issues/170"
+    "link":     "https://github.com/lutzroeder/netron/issues/1541"
   },
   {
     "type":     "mlnet",
@@ -3286,7 +3293,7 @@
     "target":   "termlookup_with_key.zip",
     "source":   "https://github.com/lutzroeder/netron/files/4216237/termlookup_with_key.zip",
     "format":   "ML.NET v1.0.0.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/170"
+    "link":     "https://github.com/lutzroeder/netron/issues/1541"
   },
   {
     "type":     "mlnet",
