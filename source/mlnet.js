@@ -1903,7 +1903,7 @@ mlnet.TreeEnsembleModelParameters = class extends mlnet.ModelParametersBase {
         const categoricalSplits = context.modelVersionWritten >= this.VerCategoricalSplitSerialized;
         this.TrainedEnsemble = new mlnet.InternalTreeEnsemble(context, usingDefaultValues, categoricalSplits);
         this.InnerOptions = context.string(null);
-        if (context.modelVersionWritten >= this.verNumFeaturesSerialized) {
+        if (context.modelVersionWritten >= this.VerNumFeaturesSerialized) {
             this.NumFeatures = reader.int32();
         }
 
