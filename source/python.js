@@ -8850,6 +8850,9 @@ python.Execution = class {
         this.registerFunction('torchvision.models.vision_transformer.vit_h_14', () => {});
         this.registerFunction('torchvision.ops.boxes.box_iou');
         this.registerFunction('torchvision.ops.focal_loss.sigmoid_focal_loss');
+        this.registerType('ultralytics.nn.modules.block.A2C2f', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.AAttn', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.ABlock', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.Attention', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.Bottleneck', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.C1', class extends torch.nn.modules.module.Module {});
@@ -8875,6 +8878,7 @@ python.Execution = class {
         this.registerType('ultralytics.nn.modules.block.PSA', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.PSABlock', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.RepC3', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.RepVGGDW', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.SCDown', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.SPP', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.SPPF', class extends torch.nn.modules.module.Module {});
@@ -8928,6 +8932,7 @@ python.Execution = class {
         this.registerType('ultralytics.nn.tasks.WorldModel', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.tasks.YOLOEModel', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.tasks.YOLOESegModel', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.tasks.YOLOv10DetectionModel', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.utils.IterableSimpleNamespace', class {});
         this.registerType('ultralytics.utils.loss.BboxLoss', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.utils.loss.DFLoss', class extends torch.nn.modules.module.Module {});
@@ -8938,6 +8943,7 @@ python.Execution = class {
         this.registerType('ultralytics.utils.loss.v8OBBLoss', class {});
         this.registerType('ultralytics.utils.loss.v8PoseLoss', class {});
         this.registerType('ultralytics.utils.loss.v8SegmentationLoss', class {});
+        this.registerType('ultralytics.utils.loss.v10DetectLoss', class {});
         this.registerType('ultralytics.utils.tal.TaskAlignedAssigner', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.utils.torch_utils.ModelEMA', class {});
         this.registerType('ultralytics.yolo.utils.IterableSimpleNamespace', class {});
