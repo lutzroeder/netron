@@ -206,42 +206,48 @@ gguf.Reader = class {
     constructor(context) {
         this.context = context;
         const QK_K = 256;
+        // https://github.com/ggml-org/llama.cpp/blob/master/gguf-py/gguf/constants.py
         gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [gguf.QuantizationType.F32,      [1, 4, 'float32']],
-            [gguf.QuantizationType.F16,      [1, 2, 'float16']],
-            [gguf.QuantizationType.Q4_0,     [32, 2 + 16, '']],
-            [gguf.QuantizationType.Q4_1,     [32, 2 + 2 + 16, '']],
-            [gguf.QuantizationType.Q5_0,     [32, 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q5_1,     [32, 2 + 2 + 4 + 16, '']],
-            [gguf.QuantizationType.Q8_0,     [32, 2 + 32, 'q8_0']],
-            [gguf.QuantizationType.Q8_1,     [32, 4 + 4 + 32, '']],
-            [gguf.QuantizationType.Q2_K,     [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
-            [gguf.QuantizationType.Q3_K,     [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
-            [gguf.QuantizationType.Q4_K,     [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
-            [gguf.QuantizationType.Q5_K,     [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
-            [gguf.QuantizationType.Q6_K,     [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.Q8_K,     [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
-            [gguf.QuantizationType.IQ2_XXS,  [256, 2 + Math.floor(QK_K / 4), '']],
-            [gguf.QuantizationType.IQ2_XS,   [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 32), '']],
-            [gguf.QuantizationType.IQ3_XXS,  [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8), '']],
-            [gguf.QuantizationType.IQ1_S,    [256, 2 + Math.floor(QK_K / 8) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.IQ4_NL,   [32, 2 + 16, '']],
-            [gguf.QuantizationType.IQ3_S,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + Math.floor(QK_K / 32) + 4, '']],
-            [gguf.QuantizationType.IQ2_S,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
-            [gguf.QuantizationType.IQ4_XS,   [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 64), '']],
-            [gguf.QuantizationType.I8,       [1, 1, 'int8']],
-            [gguf.QuantizationType.I16,      [1, 2, 'int16']],
-            [gguf.QuantizationType.I32,      [1, 4, 'int32']],
-            [gguf.QuantizationType.I64,      [1, 8, 'int64']],
-            [gguf.QuantizationType.F64,      [1, 8, 'float64']],
-            [gguf.QuantizationType.IQ1_M,    [256, Math.floor(QK_K / 8) + Math.floor(QK_K / 16)  + Math.floor(QK_K / 32)]],
-            [gguf.QuantizationType.BF16,     [1, 2, 'bfloat16']],
-            [gguf.QuantizationType.Q4_0_4_4, [32, 2 + 16, '']],
-            [gguf.QuantizationType.Q4_0_4_8, [32, 2 + 16, '']],
-            [gguf.QuantizationType.Q4_0_8_8, [32, 2 + 16, '']],
-            [gguf.QuantizationType.TQ1_0,    [256, 2 + 4 * 13, '']],
-            [gguf.QuantizationType.TQ2_0,    [256, 2 + 64, '']],
-            [gguf.QuantizationType.MXFP4,    [32, 1 + 16, 'mxfp4']]
+            [gguf.QuantizationType.F32,        [1, 4, 'float32']],
+            [gguf.QuantizationType.F16,        [1, 2, 'float16']],
+            [gguf.QuantizationType.Q4_0,       [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_1,       [32, 2 + 2 + 16, '']],
+            [gguf.QuantizationType.Q4_2,       [16, 2 + 8, '']],
+            [gguf.QuantizationType.Q4_3,       [16, 2 + 2 + 8, '']],
+            [gguf.QuantizationType.Q5_0,       [32, 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q5_1,       [32, 2 + 2 + 4 + 16, '']],
+            [gguf.QuantizationType.Q8_0,       [32, 2 + 32, 'q8_0']],
+            [gguf.QuantizationType.Q8_1,       [32, 4 + 4 + 32, '']],
+            [gguf.QuantizationType.Q2_K,       [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.Q3_K,       [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q4_K,       [256, 2 + 2 + Math.floor(QK_K / 2) + 12, '']],
+            [gguf.QuantizationType.Q5_K,       [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, '']],
+            [gguf.QuantizationType.Q6_K,       [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.Q8_K,       [256, 4 + QK_K + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.IQ2_XXS,    [256, 2 + Math.floor(QK_K / 4), '']],
+            [gguf.QuantizationType.IQ2_XS,     [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 32), '']],
+            [gguf.QuantizationType.IQ3_XXS,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8), '']],
+            [gguf.QuantizationType.IQ1_S,      [256, 2 + Math.floor(QK_K / 8) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.IQ4_NL,     [32, 2 + 16, '']],
+            [gguf.QuantizationType.IQ3_S,      [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + Math.floor(QK_K / 32) + 4, '']],
+            [gguf.QuantizationType.IQ2_S,      [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), '']],
+            [gguf.QuantizationType.IQ4_XS,     [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 64), '']],
+            [gguf.QuantizationType.I8,         [1, 1, 'int8']],
+            [gguf.QuantizationType.I16,        [1, 2, 'int16']],
+            [gguf.QuantizationType.I32,        [1, 4, 'int32']],
+            [gguf.QuantizationType.I64,        [1, 8, 'int64']],
+            [gguf.QuantizationType.F64,        [1, 8, 'float64']],
+            [gguf.QuantizationType.IQ1_M,      [256, Math.floor(QK_K / 8) + Math.floor(QK_K / 16)  + Math.floor(QK_K / 32)]],
+            [gguf.QuantizationType.BF16,       [1, 2, 'bfloat16']],
+            [gguf.QuantizationType.Q4_0_4_4,   [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_0_4_8,   [32, 2 + 16, '']],
+            [gguf.QuantizationType.Q4_0_8_8,   [32, 2 + 16, '']],
+            [gguf.QuantizationType.TQ1_0,      [256, 2 + 4 * 13, '']],
+            [gguf.QuantizationType.TQ2_0,      [256, 2 + 64, '']],
+            [gguf.QuantizationType.IQ4_NL_4_4, [32, 2 + 16, '']],
+            [gguf.QuantizationType.IQ4_NL_4_8, [32, 2 + 16, '']],
+            [gguf.QuantizationType.IQ4_NL_8_8, [32, 2 + 16, '']],
+            [gguf.QuantizationType.MXFP4,      [32, 1 + 16, 'mxfp4']]
         ]);
     }
 
@@ -434,11 +440,14 @@ gguf.Type = {
     FLOAT64: 12,
 };
 
+// https://github.com/ggml-org/llama.cpp/blob/master/ggml/include/ggml.h
 gguf.QuantizationType = {
     F32: 0,
     F16: 1,
     Q4_0: 2,
     Q4_1: 3,
+    Q4_2: 4, // deprecated
+    Q4_3: 5, // deprecated
     Q5_0: 6,
     Q5_1: 7,
     Q8_0: 8,
@@ -464,11 +473,14 @@ gguf.QuantizationType = {
     F64: 28,
     IQ1_M: 29,
     BF16: 30,
-    Q4_0_4_4: 31,
-    Q4_0_4_8: 32,
-    Q4_0_8_8: 33,
+    Q4_0_4_4: 31, // deprecated
+    Q4_0_4_8: 32, // deprecated
+    Q4_0_8_8: 33, // deprecated
     TQ1_0: 34,
     TQ2_0: 35,
+    IQ4_NL_4_4: 36, // deprecated
+    IQ4_NL_4_8: 37, // deprecated
+    IQ4_NL_8_8: 38, // deprecated
     MXFP4: 39
 };
 
