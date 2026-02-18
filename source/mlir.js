@@ -71,7 +71,7 @@ mlir.ModelFactory = class {
                 const config = new _.ParserConfig(new _.DialectContext(metadata));
                 const reader = new _.BytecodeReader(binary, config);
                 const block = reader.read();
-                const format = `MLIR Bytecode v${reader.version}`;
+                const format = `MLIR Bytecode v${reader.version.value}`;
                 const producer = reader.producer;
                 const model = new mlir.Model(config, format, producer, block, new Map());
                 return model;
@@ -165,7 +165,7 @@ mlir.Model = class {
         for (const [name, attribute] of attributeAliasDefinitions) {
             let value = attribute.type;
             if (!value) {
-                value = typeof attribute.value === 'string' ? attribute.value : JSON.stringify(attribute.value);
+                value = typeof attribute.value === 'string' ? attribute.value : attribute.toString();
             }
             const metadata = new mlir.Argument(name, value, 'attribute');
             this.metadata.push(metadata);
@@ -542,13 +542,13 @@ mlir.Node = class {
         this.attributes = [];
         this.blocks = [];
         torchConstantMap = torchConstantMap || new Map();
-        const segmentSizes = op.attributes && op.attributes.get('operandSegmentSizes');
+        const segmentSizes = op.attributes.get('operandSegmentSizes');
         const operandMeta = this.type && this.type.operands;
         const operands = op.inputs || [];
-        if (segmentSizes && operandMeta && Array.isArray(segmentSizes) && segmentSizes.length === operandMeta.length) {
+        if (segmentSizes && operandMeta && segmentSizes.value.length === operandMeta.length) {
             let offset = 0;
-            for (let i = 0; i < segmentSizes.length; i++) {
-                const size = segmentSizes[i];
+            for (let i = 0; i < segmentSizes.value.length; i++) {
+                const size = segmentSizes.value[i];
                 const name = operandMeta[i].name;
                 for (let j = 0; j < size; j++) {
                     if (offset + j < operands.length) {
@@ -1230,7 +1230,10 @@ _.FloatAttr = class extends _.Attribute {
     }
 };
 
-_.AffineMapAttr = class extends _.Attribute {
+_.MemRefLayoutAttr = class extends _.Attribute {
+};
+
+_.AffineMapAttr = class extends _.MemRefLayoutAttr {
 
     constructor(map) {
         super();
@@ -1259,6 +1262,23 @@ _.IntegerSetAttr = class extends _.Attribute {
 
     toString() {
         return `affine_set<${this._set.toString()}>`;
+    }
+};
+
+_.StridedLayoutAttr = class extends _.MemRefLayoutAttr {
+
+    constructor(offset, strides) {
+        super();
+        this.offset = offset;
+        this.strides = strides;
+    }
+
+    toString() {
+        const strides = `[${this.strides.join(', ')}]`;
+        if (this.offset !== null) {
+            return `strided<${strides}, offset: ${this.offset}>`;
+        }
+        return `strided<${strides}>`;
     }
 };
 
@@ -1383,8 +1403,12 @@ _.AffineExpr = class {
         return this.kind === _.AffineExprKind.Constant || this.kind === _.AffineExprKind.SymbolId;
     }
 
-    toString() {
+    printAffineExprInternal(/* enclosingStrong */) {
         return '';
+    }
+
+    toString() {
+        return this.printAffineExprInternal(false);
     }
 };
 
@@ -1444,7 +1468,7 @@ _.AffineBinaryOpExpr = class extends _.AffineExpr {
         return this.lhs.isSymbolicOrConstant() && this.rhs.isSymbolicOrConstant();
     }
 
-    toString() {
+    printAffineExprInternal(enclosingStrong) {
         let op = '';
         switch (this.kind) {
             case _.AffineExprKind.Add: op = ' + '; break;
@@ -1454,7 +1478,30 @@ _.AffineBinaryOpExpr = class extends _.AffineExpr {
             case _.AffineExprKind.CeilDiv: op = ' ceildiv '; break;
             default: throw new Error(`Unexpected affine expression kind '${this.kind}'.`);
         }
-        return `${this.lhs.toString()}${op}${this.rhs.toString()}`;
+        const isAdd = this.kind === _.AffineExprKind.Add;
+        const needsParens = enclosingStrong === true;
+        if (!isAdd) {
+            if (this.kind === _.AffineExprKind.Mul && this.rhs instanceof _.AffineConstantExpr && this.rhs.value === -1) {
+                const inner = `-${this.lhs.printAffineExprInternal(true)}`;
+                return needsParens ? `(${inner})` : inner;
+            }
+            const inner = `${this.lhs.printAffineExprInternal(true)}${op}${this.rhs.printAffineExprInternal(true)}`;
+            return needsParens ? `(${inner})` : inner;
+        }
+        if (this.rhs instanceof _.AffineBinaryOpExpr && this.rhs.kind === _.AffineExprKind.Mul &&
+            this.rhs.rhs instanceof _.AffineConstantExpr && this.rhs.rhs.value === -1) {
+            const lhsStr = this.lhs.printAffineExprInternal(false);
+            const rhsNeedsParens = this.rhs.lhs instanceof _.AffineBinaryOpExpr && this.rhs.lhs.kind === _.AffineExprKind.Add;
+            const rhsStr = this.rhs.lhs.printAffineExprInternal(rhsNeedsParens);
+            const inner = `${lhsStr} - ${rhsStr}`;
+            return needsParens ? `(${inner})` : inner;
+        }
+        if (this.rhs instanceof _.AffineConstantExpr && this.rhs.value < 0) {
+            const inner = `${this.lhs.printAffineExprInternal(false)} - ${-this.rhs.value}`;
+            return needsParens ? `(${inner})` : inner;
+        }
+        const inner = `${this.lhs.printAffineExprInternal(false)}${op}${this.rhs.printAffineExprInternal(false)}`;
+        return needsParens ? `(${inner})` : inner;
     }
 };
 
@@ -1779,6 +1826,13 @@ _.DenseArrayAttr = class extends _.Attribute {
     }
 };
 
+_.DenseI32ArrayAttr = class extends _.DenseArrayAttr {
+
+    constructor(data) {
+        super(new _.IntegerType('i32'), Array.isArray(data) ? data.length : 0, data);
+    }
+};
+
 _.TypeAttrOf = class extends _.Attribute {
     constructor(type) {
         super();
@@ -2029,12 +2083,10 @@ _.MemRefType = class extends _.ShapedType {
         const prefix = shapeStr ? `${shapeStr}x` : '';
         let result = `memref<${prefix}${elementTypeStr}`;
         if (this.layout) {
-            const layoutStr = typeof this.layout === 'object' ? JSON.stringify(this.layout) : this.layout;
-            result += `, ${layoutStr}`;
+            result += `, ${this.layout.toString()}`;
         }
         if (this.memorySpace) {
-            const memorySpaceStr = typeof this.memorySpace === 'object' ? JSON.stringify(this.memorySpace) : this.memorySpace;
-            result += `, ${memorySpaceStr}`;
+            result += `, ${this.memorySpace.toString()}`;
         }
         result += '>';
         return result;
@@ -2053,8 +2105,7 @@ _.UnrankedMemRefType = class extends _.Type {
         const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
         let result = `memref<*x${elementTypeStr}`;
         if (this.memorySpace) {
-            const memorySpaceStr = typeof this.memorySpace === 'object' ? JSON.stringify(this.memorySpace) : this.memorySpace;
-            result += `, ${memorySpaceStr}`;
+            result += `, ${this.memorySpace.toString()}`;
         }
         result += '>';
         return result;
@@ -2313,14 +2364,14 @@ _.Token.kw_array = 'kw_array';
 _.Token.kw_dense = 'kw_dense';
 _.Token.kw_dense_resource = 'kw_dense_resource';
 _.Token.kw_distinct = 'kw_distinct';
+_.Token.kw_false = 'kw_false';
 _.Token.kw_loc = 'kw_loc';
+_.Token.kw_offset = 'kw_offset';
 _.Token.kw_sparse = 'kw_sparse';
 _.Token.kw_strided = 'kw_strided';
-_.Token.kw_unit = 'kw_unit';
-_.Token.kw_offset = 'kw_offset';
 _.Token.kw_symbol = 'kw_symbol';
 _.Token.kw_true = 'kw_true';
-_.Token.kw_false = 'kw_false';
+_.Token.kw_unit = 'kw_unit';
 
 _.Lexer = class {
 
@@ -2594,28 +2645,26 @@ _.Lexer = class {
             return this.formToken('inttype', result);
         }
         switch (result) {
-            case 'loc':
             case 'affine_map':
             case 'affine_set':
+            case 'array':
+            case 'ceildiv':
             case 'dense':
             case 'dense_resource':
-            case 'sparse':
-            case 'array':
-            case 'strided':
             case 'distinct':
-            case 'unit':
             case 'floordiv':
-            case 'ceildiv':
+            case 'loc':
             case 'mod':
             case 'offset':
+            case 'sparse':
+            case 'strided':
             case 'symbol':
+            case 'unit':
                 return this.formToken(`kw_${result}`, result);
             case 'true':
                 return this.formToken(_.Token.kw_true, result);
             case 'false':
                 return this.formToken(_.Token.kw_false, result);
-            case 'unknown':
-                return this.formToken(_.Token.bare_identifier, result);
             default:
                 return this.formToken(_.Token.bare_identifier, result);
         }
@@ -3252,8 +3301,7 @@ _.Parser = class {
         let memorySpace = null;
         while (this.consumeIf(_.Token.comma)) {
             const attr = this.parseAttribute();
-            const isLayout = attr instanceof _.AffineMapAttr || (attr && attr.type === 'strided') || (attr instanceof _.OpaqueAttr && attr.toString().includes('layout'));
-            if (isLayout) {
+            if (attr instanceof _.MemRefLayoutAttr) {
                 layout = attr;
                 if (isUnranked) {
                     throw new mlir.Error(`Cannot have affine map for unranked memref type ${this.location()}`);
@@ -3480,8 +3528,8 @@ _.Parser = class {
             dialectName = identifier.substring(0, dotIndex);
             symbolData = identifier.substring(dotIndex + 1);
         }
-        const isPrettyName = symbolData.length > 0;
-        const hasTrailingData = this.getToken().is(_.Token.less);
+        const isPrettyName = symbolData.length > 0 || identifier.endsWith('.');
+        const hasTrailingData = this.getToken().is(_.Token.less) && (startPos + tokSpelling.length) === this.getToken().loc.position;
         if (!hasTrailingData && !isPrettyName) {
             if (!aliases.has(tokSpelling)) {
                 throw new mlir.Error(`Undefined symbol alias '${identifier}' ${this.location()}`);
@@ -3835,13 +3883,12 @@ _.Parser = class {
         if (this.consumeIf(_.Token.greater)) {
             return new _.DenseArrayAttr(arrayType, 0, []);
         }
+        this.parseToken(_.Token.colon, "Expected ':' after dense array type");
         const arrayValues = [];
-        if (this.consumeIf(_.Token.colon)) {
-            while (this.getToken().isNot(_.Token.greater)) {
-                const val = this.parseAttribute();
-                arrayValues.push(val && val.value !== undefined ? val.value : val);
-                this.consumeIf(_.Token.comma);
-            }
+        while (this.getToken().isNot(_.Token.greater)) {
+            const val = this.parseAttribute();
+            arrayValues.push(val && val.value !== undefined ? val.value : val);
+            this.consumeIf(_.Token.comma);
         }
         this.parseToken(_.Token.greater, "Expected '>' to close an array attribute");
         return new _.DenseArrayAttr(arrayType, arrayValues.length, arrayValues);
@@ -3914,9 +3961,7 @@ _.Parser = class {
             }
         }
         this.parseToken(_.Token.greater, "Expected '>'");
-        const stridesStr = `[${strides.join(', ')}]`;
-        const offsetStr = offset === null ? '' : `, offset: ${offset}`;
-        return { value: `strided<${stridesStr}${offsetStr}>`, type: 'strided', strides, offset };
+        return new _.StridedLayoutAttr(offset, strides);
     }
 
     // Parse an affine map reference using AffineParser
@@ -4185,11 +4230,8 @@ _.TopLevelOperationParser = class extends _.Parser {
         this.parseToken(_.Token.equal, "Expected '=' in attribute alias definition");
         let attr = null;
         if (this.getToken().is(_.Token.l_paren)) {
-            const dims = this.skip(_.Token.l_paren);
-            const symbols = this.getToken().is(_.Token.l_square) ? this.skip(_.Token.l_square) : '';
-            this.parseToken(_.Token.arrow, "Expected '->'");
-            const results = this.getToken().is(_.Token.l_paren) ? this.skip(_.Token.l_paren) : '';
-            attr = { value: `affine_map<${dims}${symbols} -> ${results}>`, name: 'affine_map' };
+            const map = this.parseAffineMapReference();
+            attr = new _.AffineMapAttr(map);
         } else {
             attr = this.parseAttribute();
         }
@@ -4200,6 +4242,7 @@ _.TopLevelOperationParser = class extends _.Parser {
         const aliasName = this.getTokenSpelling().str();
         this.consumeToken(_.Token.exclamation_identifier);
         this.parseToken(_.Token.equal, "Expected '=' in type alias definition");
+        // Legacy MLIR syntax: !alias = type <actual-type>
         if (this.getToken().is(_.Token.bare_identifier) && this.getTokenSpelling().str() === 'type') {
             this.consumeToken(_.Token.bare_identifier);
         }
@@ -6452,7 +6495,7 @@ _.AttrTypeReader = class {
         }
         context.checkDialect(entry.dialect.interface, entry.dialect.name, 'custom entry');
         const dialect = entry.dialect.interface;
-        const dialectReader = new _.DialectReader(this, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.version, depth);
+        const dialectReader = new _.DialectReader(this, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.bytecodeVersion, depth);
         switch (entryType) {
             case 'type':
                 return dialect.readType(dialectReader);
@@ -6837,6 +6880,7 @@ _.BytecodeReader = class {
 
     constructor(reader, config) {
         this.reader = new _.EncodingReader(reader);
+        this.config = config;
         this.fileLoc = new _.Location(config.context);
         this.valueScopes = [];
         this.opNames = [];
@@ -6845,9 +6889,10 @@ _.BytecodeReader = class {
         this.resourceReader = new _.ResourceSectionReader();
         this.stringReader = new _.StringSectionReader();
         this.propertiesReader = new _.PropertiesSectionReader();
-        this.attrTypeReader = new _.AttrTypeReader(this.stringReader, this.resourceReader, this.dialectsMap, this.version, this.fileLoc, this.config);
+        this.version = { value: 0 };
+        this.attrTypeReader = new _.AttrTypeReader(this.stringReader, this.resourceReader, this.dialectsMap, this.version, this.fileLoc, config);
         // Store buffer start address for alignment validation
-        this._bufferStart = reader instanceof Uint8Array ? reader.byteOffset : 0;
+        this.bufferStart = reader instanceof Uint8Array ? reader.byteOffset : 0;
     }
 
     read() {
@@ -6879,7 +6924,7 @@ _.BytecodeReader = class {
             if (sectionDatas.has(sectionID)) {
                 continue;
             }
-            if (sectionID <= 4 || (sectionID === 8 && this.version >= 5)) { // kString, kDialect, kAttrType, kAttrTypeOffset, kIR, kProperties + kNativePropertiesEncoding
+            if (sectionID <= 4 || (sectionID === 8 && this.version.value >= 5)) { // kString, kDialect, kAttrType, kAttrTypeOffset, kIR, kProperties + kNativePropertiesEncoding
                 throw new mlir.Error(`Missing section '${sectionID}'.`);
             }
         }
@@ -6900,18 +6945,18 @@ _.BytecodeReader = class {
         if (!Number.isInteger(alignment) || alignment <= 0 || (alignment & (alignment - 1)) !== 0) {
             throw new mlir.Error(`Invalid alignment value: ${alignment} (must be a power of 2).`);
         }
-        const isGloballyAligned = (this._bufferStart & (alignment - 1)) === 0;
+        const isGloballyAligned = (this.bufferStart & (alignment - 1)) === 0;
         if (!isGloballyAligned) {
-            throw new mlir.Error(`Expected section alignment ${alignment} but bytecode buffer offset 0x${this._bufferStart.toString(16)} is not aligned.`);
+            throw new mlir.Error(`Expected section alignment ${alignment} but bytecode buffer offset 0x${this.bufferStart.toString(16)} is not aligned.`);
         }
     }
 
     parseVersion(reader) {
-        this.version = reader.parseVarInt().toNumber();
+        this.version.value = reader.parseVarInt().toNumber();
         const kVersion = 6;
         const kMinSupportedVersion = 0;
-        if (this.version < kMinSupportedVersion || this.version > kVersion) {
-            throw new mlir.Error(`Unsupported MLIR bytecode version '${this.version}'.`);
+        if (this.version.value < kMinSupportedVersion || this.version.value > kVersion) {
+            throw new mlir.Error(`Unsupported MLIR bytecode version '${this.version.value}'.`);
         }
     }
 
@@ -6923,8 +6968,9 @@ _.BytecodeReader = class {
         };
         for (let i = 0; i < numDialects; i++) {
             this.dialects.push(new _.BytecodeDialect());
-            if (this.version < 1) { // kDialectVersioning
+            if (this.version.value < 1) { // kDialectVersioning
                 this.dialects[i].name = this.stringReader.parseString();
+                this.dialectsMap.set(this.dialects[i].name, this.dialects[i]);
                 continue;
             }
             const [dialectNameIdx, versionAvailable] = sectionReader.parseVarIntWithFlag();
@@ -6936,13 +6982,14 @@ _.BytecodeReader = class {
                     throw new mlir.Error(`Expected dialect version section.`);
                 }
             }
+            this.dialectsMap.set(this.dialects[i].name, this.dialects[i]);
         }
         let index = 0;
         let numOps = -1;
         const parseOpName = (dialect) => {
             const opName = {};
             opName.dialect = dialect;
-            if (this.version < 5) { // kNativePropertiesEncoding
+            if (this.version.value < 5) { // kNativePropertiesEncoding
                 opName.name = this.stringReader.parseString(sectionReader);
             } else {
                 [opName.name, opName.wasRegistered] = this.stringReader.parseStringWithFlag(sectionReader);
@@ -6953,7 +7000,7 @@ _.BytecodeReader = class {
                 this.opNames[index++] = opName;
             }
         };
-        if (this.version >= 4) { // kElideUnknownBlockArgLocation
+        if (this.version.value >= 4) { // kElideUnknownBlockArgLocation
             numOps = sectionReader.parseVarInt().toNumber();
             this.opNames = new Array(numOps);
         }
@@ -7078,7 +7125,7 @@ _.BytecodeReader = class {
                             owningReader: null
                         };
                         // Isolated regions are encoded as a section in version 2 and above.
-                        if (this.version >= 2 && isIsolatedFromAbove) { // kLazyLoading
+                        if (this.version.value >= 2 && isIsolatedFromAbove) { // kLazyLoading
                             const checkSectionAlignment = (alignment) => {
                                 this.checkSectionAlignment(alignment);
                             };
@@ -7137,7 +7184,7 @@ _.BytecodeReader = class {
         for (let i = 0; i < numArgs; i++) {
             let type = null;
             let location = null;
-            if (this.version >= 4) { // kElideUnknownBlockArgLocation
+            if (this.version.value >= 4) { // kElideUnknownBlockArgLocation
                 const typeAndLocation = reader.parseVarInt().toNumber();
                 const typeIdx = typeAndLocation >> 1;
                 const hasLocation = (typeAndLocation & 1) === 1;
@@ -7162,7 +7209,7 @@ _.BytecodeReader = class {
         }
         // Use-list ordering (version >= 3) - stored after all arguments
         // hasUseListOrders byte is read whenever hasArgs is true (not dependent on numArgs)
-        if (this.version >= 3) { // kUseListOrdering
+        if (this.version.value >= 3) { // kUseListOrdering
             const hasUseListOrders = reader.parseByte();
             if (hasUseListOrders !== 0) {
                 const orders = this.parseUseListOrdersForRange(reader, numArgs);
@@ -7301,7 +7348,7 @@ _.BytecodeReader = class {
             }
         }
         // Parse use-list orders (version >= 3)
-        if (this.version >= 3 && (opMask & kHasUseListOrders)) { // kUseListOrdering
+        if (this.version.value >= 3 && (opMask & kHasUseListOrders)) { // kUseListOrdering
             const numResults = opState.types.length;
             const orders = this.parseUseListOrdersForRange(reader, numResults);
             if (orders.length > 0) {
@@ -9719,7 +9766,7 @@ _.Dialect = class {
                 const entry = vars.get(operandMeta.name);
                 segmentSizes.push(entry?.operands?.length || 0);
             }
-            result.addAttribute('operandSegmentSizes', segmentSizes);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr(segmentSizes));
         }
         this.inferResultTypes(result, vars);
         return true;
@@ -10725,6 +10772,37 @@ _.HLODialect = class extends _.Dialect {
 
         return true;
     }
+
+    parseWhileOp(parser, result) {
+        parser.parseLParen();
+        const unresolvedOperands = [];
+        while (parser.getToken().isNot(_.Token.r_paren)) {
+            parser.parseOperand(); // iter_arg
+            if (parser.parseOptionalEqual()) {
+                unresolvedOperands.push(parser.parseOperand());
+            }
+            if (!parser.parseOptionalComma()) {
+                break;
+            }
+        }
+        parser.parseRParen();
+        const types = [];
+        if (unresolvedOperands.length > 0) {
+            parser.parseColon();
+            const typeList = parser.parseTypeList();
+            types.push(...typeList);
+        }
+        parser.resolveOperands(unresolvedOperands, types, result.operands);
+        result.addTypes(types);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
+        parser.parseKeyword('cond');
+        const cond = result.addRegion();
+        parser.parseRegion(cond);
+        parser.parseKeyword('do');
+        const body = result.addRegion();
+        parser.parseRegion(body);
+        return true;
+    }
 };
 
 _.StableHLODialect = class extends _.HLODialect {
@@ -10765,43 +10843,7 @@ _.StableHLODialect = class extends _.HLODialect {
             return true;
         }
         if (result.op === 'stablehlo.while' && parser.getToken().is(_.Token.l_paren)) {
-            const unresolvedOperands = [];
-            parser.parseOptionalLParen();
-            while (parser.getToken().isNot(_.Token.r_paren)) {
-                parser.parseOperand(); // Skip block argument name
-                if (parser.parseOptionalEqual()) {
-                    unresolvedOperands.push(parser.parseOperand());
-                }
-                parser.parseOptionalComma();
-            }
-            parser.parseRParen();
-            if (parser.parseOptionalColon()) {
-                const types = [];
-                while (!(parser.getToken().is(_.Token.bare_identifier) && parser.getTokenSpelling().str() === 'cond') && !(parser.getToken().is(_.Token.bare_identifier) && parser.getTokenSpelling().str() === 'attributes')) {
-                    types.push(parser.parseType());
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
-                }
-                parser.resolveOperands(unresolvedOperands, types, result.operands);
-                for (const type of types) {
-                    result.addTypes([type]);
-                }
-            }
-            if (parser.parseOptionalKeyword('attributes')) {
-                if (parser.getToken().is(_.Token.l_brace)) {
-                    parser.parseAttributeDict(result.attributes);
-                }
-            }
-            if (parser.parseOptionalKeyword('cond')) {
-                const cond = result.addRegion();
-                parser.parseRegion(cond);
-            }
-            if (parser.parseOptionalKeyword('do')) {
-                const body = result.addRegion();
-                parser.parseRegion(body);
-            }
-            return true;
+            return super.parseWhileOp(parser, result);
         }
         if (result.op === 'stablehlo.reduce' && parser.getToken().is(_.Token.l_paren)) {
             // stablehlo uses DenseI64ArrayAttr for dimensions (like b.getDenseI64ArrayAttr in ref impl)
@@ -14646,7 +14688,7 @@ _.LinalgDialect = class extends _.Dialect {
             }
         }
         if (addOperandSegmentSizes) {
-            result.addAttribute('operandSegmentSizes', [inputTypes.length, outputTypes.length]);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([inputTypes.length, outputTypes.length]));
         }
         return { inputTypes, outputTypes };
     }
@@ -15228,92 +15270,14 @@ _.MhloDialect = class extends _.HLODialect {
             }
             return true;
         }
-        if (result.op === 'mhlo.compare') {
-            // Use modern assemblyFormat if available, but only if this is modern syntax
-            // Old format has 'attributes' keyword, new format has attr-dict directly
-            if (opInfo.metadata && opInfo.metadata.assemblyFormat && !(parser.getToken().is(_.Token.bare_identifier) && parser.getTokenSpelling().str() === 'attributes')) {
-                return super.parseOperation(parser, result);
-            }
-            // Legacy parser for old mhlo.compare without assembly format
-            if (parser.getToken().is(_.Token.bare_identifier)) {
-                const comparisonDirection = parser.getToken().getSpelling().str();
-                parser.consumeToken(_.Token.bare_identifier);
-                result.addAttribute('comparison_direction', comparisonDirection);
-                parser.parseComma();
-                const unresolvedOperands = parser.parseOperandList();
-                // Check for optional compare_type
-                if (parser.parseOptionalComma() && parser.getToken().is(_.Token.bare_identifier)) {
-                    const compareType = parser.getToken().getSpelling().str();
-                    parser.consumeToken(_.Token.bare_identifier);
-                    result.addAttribute('compare_type', compareType);
-                }
-                parser.parseOptionalAttrDict(result.attributes);
-                if (parser.parseOptionalColon()) {
-                    const type = parser.parseType();
-                    if (type instanceof _.FunctionType) {
-                        parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
-                        result.addTypes(type.results);
-                    } else {
-                        // Single type applied to all operands
-                        const types = unresolvedOperands.map(() => type);
-                        parser.resolveOperands(unresolvedOperands, types, result.operands);
-                    }
-                } else {
-                    for (const operand of unresolvedOperands) {
-                        parser.resolveOperand(operand, null, result.operands);
-                    }
-                }
-                return true;
-            }
-        }
         if (result.op === 'mhlo.reduce') {
-            // mhlo uses raw array for dimensions (like b.getI64TensorAttr in ref impl)
             return super.parseReduceOp(parser, result, (dims) => dims, 'mhlo.return');
         }
         if (result.op === 'mhlo.scan' && parser.getToken().is(_.Token.l_paren)) {
             return super.parseScanOp(parser, result, 'mhlo.return');
         }
         if (result.op === 'mhlo.while') {
-            // mhlo.while always uses parenthesized form with named arguments
-            parser.parseLParen();
-            const unresolvedOperands = [];
-            while (parser.getToken().isNot(_.Token.r_paren)) {
-                const firstOperand = parser.parseOperand();
-                let operandToResolve = firstOperand;
-                if (parser.parseOptionalEqual()) {
-                    operandToResolve = parser.parseOperand();
-                }
-                unresolvedOperands.push(operandToResolve);
-                parser.parseOptionalComma();
-            }
-            parser.parseRParen();
-            const types = [];
-            if (parser.parseOptionalColon()) {
-                while (!(parser.getToken().is(_.Token.bare_identifier) && parser.getTokenSpelling().str() === 'cond') && !(parser.getToken().is(_.Token.bare_identifier) && parser.getTokenSpelling().str() === 'attributes')) {
-                    types.push(parser.parseType());
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
-                }
-            }
-            parser.resolveOperands(unresolvedOperands, types, result.operands);
-            result.addTypes(types);
-            if (parser.parseOptionalKeyword('attributes')) {
-                if (parser.getToken().is(_.Token.l_brace)) {
-                    parser.parseAttributeDict(result.attributes);
-                }
-            }
-            if (parser.parseOptionalKeyword('cond')) {
-                const condRegion = {};
-                parser.parseRegion(condRegion);
-                result.regions.push(condRegion);
-            }
-            if (parser.parseOptionalKeyword('do')) {
-                const bodyRegion = {};
-                parser.parseRegion(bodyRegion);
-                result.regions.push(bodyRegion);
-            }
-            return true;
+            return super.parseWhileOp(parser, result);
         }
         return super.parseOperation(parser, result);
     }
@@ -18234,7 +18198,7 @@ _.SCFDialect = class extends _.Dialect {
             result.regions.push(region);
         }
         parser.parseOptionalAttrDict(result.attributes);
-        result.addAttribute('operandSegmentSizes', [1, 1, 1, initArgsCount]);
+        result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([1, 1, 1, initArgsCount]));
         return true;
     }
 
@@ -19479,7 +19443,7 @@ _.OpenMPDialect = class extends _.Dialect {
                 parser.resolveOperand(s, indexType, result.operands);
             }
             parser.parseOptionalAttrDict(result.attributes);
-            result.addAttribute('operandSegmentSizes', [1, unresolvedTypeparams.length, unresolvedShape.length]);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([1, unresolvedTypeparams.length, unresolvedShape.length]));
             result.addTypes([new _.IntegerType('i64')]);
             return true;
         }
@@ -19648,7 +19612,7 @@ _.OpenMPDialect = class extends _.Dialect {
             }
         }
         parser.parseOptionalAttrDict(result.attributes);
-        result.addAttribute('operandSegmentSizes', operandSegmentSizes);
+        result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr(operandSegmentSizes));
         result.addTypes([new _.Type('!omp.map_bounds_ty')]);
         return true;
     }
@@ -26433,10 +26397,34 @@ _.XlaGpuDialect = class extends _.Dialect {
     }
 };
 
+_.XTileLayoutAttr = class extends _.MemRefLayoutAttr {
+
+    constructor(minorToMajor) {
+        super();
+        this.minorToMajor = minorToMajor;
+    }
+
+    toString() {
+        return `#xtile.layout<[${this.minorToMajor.join(', ')}]>`;
+    }
+};
+
 _.XTileDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xtile');
+    }
+
+    parseAttribute(parser) {
+        const keyword = parser.parseOptionalKeyword();
+        if (keyword === 'layout') {
+            parser.parseLess();
+            const content = parser.skip('[');
+            const values = content.slice(1, -1).split(',').map((s) => parseInt(s.trim(), 10));
+            parser.parseGreater();
+            return new _.XTileLayoutAttr(values);
+        }
+        return null;
     }
 
     parseOperation(parser, result) {
