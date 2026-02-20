@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "tosa clean"
+    rm -rf "./third_party/source/tosa"
+}
+
+sync() {
+    echo "tosa sync"
+    mkdir -p "./third_party/source/tosa/v0.80"
+    mkdir -p "./third_party/source/tosa/v1.0"
+    curl --silent --show-error --location --output "./third_party/source/tosa/v0.80/tosa.fbs" "https://gitlab.arm.com/tosa/tosa-serialization/-/raw/v0.80/schema/tosa.fbs"
+    curl --silent --show-error --location --output "./third_party/source/tosa/v0.80/tosa.xml" "https://raw.githubusercontent.com/arm/tosa-specification/v0.80a0/tosa.xml"
+    curl --silent --show-error --location --output "./third_party/source/tosa/v1.0/tosa.fbs" "https://gitlab.arm.com/tosa/tosa-serialization/-/raw/v1.0/schema/tosa.fbs"
+    curl --silent --show-error --location --output "./third_party/source/tosa/v1.0/tosa.xml" "https://raw.githubusercontent.com/arm/tosa-specification/v1.0.0/tosa.xml"
+}
+
+schema() {
+    echo "tosa schema"
+    [[ $(grep -U $'\x0D' ./source/tosa-schema.js 2>/dev/null) ]] && crlf=1
+    node ./tools/flatc.js --text --root tosa --out /tmp/tosa-v080.js ./third_party/source/tosa/v0.80/tosa.fbs
+    node ./tools/flatc.js --text --root tosa --out /tmp/tosa-v1.js ./third_party/source/tosa/v1.0/tosa.fbs
+    sed 's/^export const tosa = {};$//;s/^tosa\./tosa.v0./;s/ tosa\./ tosa.v0./g;s/(tosa\./(tosa.v0./g;s/,tosa\./,tosa.v0./g;s/\[tosa\./[tosa.v0./g' /tmp/tosa-v080.js > /tmp/tosa-v080-ns.js
+    sed 's/^export const tosa = {};$//;s/^tosa\./tosa.v1./;s/ tosa\./ tosa.v1./g;s/(tosa\./(tosa.v1./g;s/,tosa\./,tosa.v1./g;s/\[tosa\./[tosa.v1./g' /tmp/tosa-v1.js > /tmp/tosa-v1-ns.js
+    printf '\nexport const tosa = {};\n\ntosa.v0 = {};\n\n' > ./source/tosa-schema.js
+    sed -n '/[^ ]/,$p' /tmp/tosa-v080-ns.js >> ./source/tosa-schema.js
+    printf '\ntosa.v1 = {};\n\n' >> ./source/tosa-schema.js
+    sed -n '/[^ ]/,$p' /tmp/tosa-v1-ns.js >> ./source/tosa-schema.js
+    rm -f /tmp/tosa-v080.js /tmp/tosa-v1.js /tmp/tosa-v080-ns.js /tmp/tosa-v1-ns.js
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/tosa-schema.js ./source/tosa-schema.js
+    fi
+}
+
+metadata() {
+    echo "tosa metadata"
+    if [[ $(grep -U $'\x0D' ./source/tosa-metadata.json 2>/dev/null) ]]; then crlf=1; else crlf=; fi
+    node ./tools/tosa-script.js
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/tosa-metadata.json ./source/tosa-metadata.json
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done

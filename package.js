@@ -609,7 +609,7 @@ const update = async () => {
         'paddle', 'pytorch',
         'rknn',
         'sentencepiece', 'sklearn',
-        'tf',
+        'tf', 'tosa',
         'uff',
         'xmodel'
     ];

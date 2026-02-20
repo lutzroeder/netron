@@ -6520,6 +6520,7 @@ view.ModelFactoryService = class {
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
         this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
+        this.register('./tosa', ['.tosa'], [], [/^....TOSA/]);
         this.register('./transformers', ['.json']);
         this.register('', ['.cambricon', '.vnnmodel', '.nnc']);
         /* eslint-enable no-control-regex */
@@ -6840,8 +6841,7 @@ view.ModelFactoryService = class {
                         { name: 'NVDA model data', identifier: 'NVDA' },
                         { name: 'BSTM model data', identifier: 'BSTM' },
                         { name: 'onnu model data', identifier: 'onnu' },
-                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' },
-                        { name: 'TOSA model data', identifier: 'TOSA' }
+                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {

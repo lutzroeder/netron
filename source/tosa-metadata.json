@@ -1,0 +1,1827 @@
+[
+  {
+    "name": "ABS",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "ABS",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "ADD",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "ADD",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "ARGMAX",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor, with rank = rank(shape1) - 1" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis in range from 0 to rank(shape1) - 1" }
+    ]
+  },
+  {
+    "name": "ARGMAX",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor, with rank = rank(shape1) - 1" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis in range from 0 to rank(shape1) - 1" },
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "ARITHMETIC_RIGHT_SHIFT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ],
+    "attributes": [
+      { "name": "round", "type": "boolean", "description": "If true then the shift is rounded" }
+    ]
+  },
+  {
+    "name": "ARITHMETIC_RIGHT_SHIFT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "round", "type": "boolean", "description": "If true then the shift is rounded" }
+    ]
+  },
+  {
+    "name": "AVG_POOL2D",
+    "version": "0.80",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor 4D" }
+    ],
+    "attributes": [
+      { "name": "kernel", "type": "int32", "description": "[kernel_y, kernel_x]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "acc_size", "type": "DType", "description": "Enumerated type, must be one of INT32, FP16, FP32, as defined in the Supported Data Types table for this operation" },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "output_zp", "description": "Output tensor zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "AVG_POOL2D",
+    "version": "1.0",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "output_zp", "description": "Output tensor zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor 4D" }
+    ],
+    "attributes": [
+      { "name": "kernel", "type": "int32", "description": "[kernel_y, kernel_x]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "acc_type", "type": "DType", "description": "Enumerated type, must be one of INT32, FP16, FP32 matching the type of acc_t in the Supported Data Types table for this operation" }
+    ]
+  },
+  {
+    "name": "BITWISE_AND",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "BITWISE_AND",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "BITWISE_NOT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "BITWISE_NOT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "BITWISE_OR",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "BITWISE_OR",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "BITWISE_XOR",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "BITWISE_XOR",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "CAST",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "CAST",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "CEIL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "CEIL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "CLAMP",
+    "version": "0.80",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ],
+    "attributes": [
+      { "name": "min_val", "description": "Minimum clip value" },
+      { "name": "max_val", "description": "Maximum clip value" }
+    ]
+  },
+  {
+    "name": "CLAMP",
+    "version": "1.0",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ],
+    "attributes": [
+      { "name": "min_val", "description": "Minimum clip value" },
+      { "name": "max_val", "description": "Maximum clip value" },
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "CLZ",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "CLZ",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "CONCAT",
+    "version": "0.80",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "List of input tensors. All inputs must have the same rank and data type" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis along which concatenation is to occur, in range from 0 to rank(shape)-1" }
+    ]
+  },
+  {
+    "name": "CONCAT",
+    "version": "1.0",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "List of input tensors. All inputs must have the same rank and data type" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis along which concatenation is to occur, in range from 0 to rank(shape)-1" }
+    ]
+  },
+  {
+    "name": "COND_IF",
+    "version": "0.80",
+    "inputs": [
+      { "name": "condition", "type": "boolean", "description": "Input condition as a size 1 tensor" },
+      { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
+    ],
+    "outputs": [
+      { "name": "output_list", "type": "tensor[]", "description": "List of output tensors" }
+    ],
+    "attributes": [
+      { "name": "then_graph", "type": "graph", "description": "TOSA graph to execute if condition is true" },
+      { "name": "else_graph", "type": "graph", "description": "TOSA graph to execute if condition is false" }
+    ]
+  },
+  {
+    "name": "COND_IF",
+    "version": "1.0",
+    "inputs": [
+      { "name": "condition", "type": "boolean", "description": "Input condition as a size 1 tensor" },
+      { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
+    ],
+    "outputs": [
+      { "name": "output_list", "type": "tensor[]", "description": "List of output tensors" }
+    ],
+    "attributes": [
+      { "name": "then_graph", "type": "graph", "description": "TOSA graph to execute if condition is true" },
+      { "name": "else_graph", "type": "graph", "description": "TOSA graph to execute if condition is false" }
+    ]
+  },
+  {
+    "name": "CONST",
+    "version": "0.80",
+    "category": "Constant",
+    "outputs": [
+      { "name": "output", "description": "Output tensor of the same type, size as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "values", "description": "Constant values" }
+    ]
+  },
+  {
+    "name": "CONST",
+    "version": "1.0",
+    "category": "Constant",
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "values", "description": "Constant values" }
+    ]
+  },
+  {
+    "name": "CONST_SHAPE",
+    "version": "1.0",
+    "category": "Constant",
+    "outputs": [
+      { "name": "output", "type": "shape", "description": "Output shape" }
+    ],
+    "attributes": [
+      { "name": "values", "type": "shape", "description": "Constant shape" }
+    ]
+  },
+  {
+    "name": "CONV2D",
+    "version": "0.80",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KH x KW" },
+      { "name": "bias", "description": "Per output channel bias data." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "dilation", "type": "int32", "description": "[dilation_y, dilation_x]" },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "CONV2D",
+    "version": "1.0",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KH x KW" },
+      { "name": "bias", "description": "Per output channel bias data. + Bias data will be broadcast if BC == 1." },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "dilation", "type": "int32", "description": "[dilation_y, dilation_x]" },
+      { "name": "acc_type", "type": "DType", "description": "Enumerated type, must be one of INT32, INT48, FP16, FP32 matching the type of acc_t in the Supported Data Types table for this operation" },
+      { "name": "local_bound", "type": "boolean", "description": "This optional attribute affects the floating-point compliance error bound. The default of false allows for direct and transform based, fast convolution algorithms. Only set to true if direct dot-product calculation precision is required." }
+    ]
+  },
+  {
+    "name": "CONV3D",
+    "version": "0.80",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KDxKHxKW" },
+      { "name": "bias", "description": "Per output channel bias data." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "pad", "type": "int32", "description": "[pad_d0, pad_d1, pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_d, stride_y, stride_x]" },
+      { "name": "dilation", "type": "int32", "description": "[dilation_d, dilation_y, dilation_x]" },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "CONV3D",
+    "version": "1.0",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KDxKHxKW" },
+      { "name": "bias", "description": "Per output channel bias data. + Bias data will be broadcast if BC == 1." },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "pad", "type": "int32", "description": "[pad_d0, pad_d1, pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_d, stride_y, stride_x]" },
+      { "name": "dilation", "type": "int32", "description": "[dilation_d, dilation_y, dilation_x]" },
+      { "name": "acc_type", "type": "DType", "description": "Enumerated type, must be one of INT32, INT48, FP16, FP32 matching the type of acc_t in the Supported Data Types table for this operation" },
+      { "name": "local_bound", "type": "boolean", "description": "This optional attribute affects the floating-point compliance error bound. The default of false allows for direct and transform based, fast convolution algorithms. Only set to true if direct dot-product calculation precision is required." }
+    ]
+  },
+  {
+    "name": "COS",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "CUSTOM",
+    "version": "1.0",
+    "category": "Custom",
+    "inputs": [
+      { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
+    ],
+    "outputs": [
+      { "name": "output_list", "type": "tensor[]", "description": "List of output tensors" }
+    ],
+    "attributes": [
+      { "name": "operator_name", "type": "string", "description": "String which tells the backend which custom operator is being called" },
+      { "name": "domain_name", "type": "string", "description": "String identifier which can help avoid name collisions on the operator field. Different implementations of a given operator would be in different domains. Implementations can choose which domains they want to support." },
+      { "name": "implementation_attrs", "type": "string", "description": "String value containing implementation specific attributes which apply to the operation" }
+    ]
+  },
+  {
+    "name": "DEPTHWISE_CONV2D",
+    "version": "0.80",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KH x KW" },
+      { "name": "bias", "description": "Per output channel bias data." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "dilation", "type": "int32", "description": "[dilation_y, dilation_x]" },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "DEPTHWISE_CONV2D",
+    "version": "1.0",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KH x KW" },
+      { "name": "bias", "description": "Per output channel bias data. + Bias data will be broadcast if BC == 1." },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "dilation", "type": "int32", "description": "[dilation_y, dilation_x]" },
+      { "name": "acc_type", "type": "DType", "description": "Enumerated type, must be one of INT32, INT48, FP16, FP32 matching the type of acc_t in the Supported Data Types table for this operation" },
+      { "name": "local_bound", "type": "boolean", "description": "This optional attribute affects the floating-point compliance error bound. The default of false allows for direct and transform based, fast convolution algorithms. Only set to true if direct dot-product calculation precision is required." }
+    ]
+  },
+  {
+    "name": "EQUAL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "EQUAL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "ERF",
+    "version": "1.0",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "EXP",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "EXP",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "FFT2D",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input_real", "description": "Real part of the complex input. H,W must be powers of two." },
+      { "name": "input_imag", "description": "Imaginary part of the complex input. H,W must be powers of two." }
+    ],
+    "outputs": [
+      { "name": "output_real", "description": "Real part of the complex output." },
+      { "name": "output_imag", "description": "Imaginary part of the complex output." }
+    ],
+    "attributes": [
+      { "name": "inverse", "type": "boolean", "description": "false for forward FFT, true for inverse FFT" }
+    ]
+  },
+  {
+    "name": "FFT2D",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input_real", "description": "Real part of the complex input. H,W must be powers of two." },
+      { "name": "input_imag", "description": "Imaginary part of the complex input. H,W must be powers of two." }
+    ],
+    "outputs": [
+      { "name": "output_real", "description": "Real part of the complex output." },
+      { "name": "output_imag", "description": "Imaginary part of the complex output." }
+    ],
+    "attributes": [
+      { "name": "inverse", "type": "boolean", "description": "false for forward FFT, true for inverse FFT" },
+      { "name": "local_bound", "type": "boolean", "description": "This optional attribute affects the floating-point compliance error bound. The default of false allows for direct and transform based, fast convolution algorithms. Only set to true if direct dot-product calculation precision is required." }
+    ]
+  },
+  {
+    "name": "FLOOR",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "FLOOR",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "FULLY_CONNECTED",
+    "version": "0.80",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "weight", "description": "Weights" },
+      { "name": "bias", "description": "Per output channel bias data." },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "GATHER",
+    "version": "0.80",
+    "category": "Transform",
+    "inputs": [
+      { "name": "values", "description": "3D value tensor" },
+      { "name": "indices", "description": "2D index tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "3D output tensor" }
+    ]
+  },
+  {
+    "name": "GATHER",
+    "version": "1.0",
+    "category": "Transform",
+    "inputs": [
+      { "name": "values", "description": "3D value tensor" },
+      { "name": "indices", "description": "2D index tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "3D output tensor" }
+    ]
+  },
+  {
+    "name": "GREATER",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "GREATER",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "GREATER_EQUAL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "GREATER_EQUAL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "IDENTITY",
+    "version": "0.80",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of the same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "IDENTITY",
+    "version": "1.0",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of the same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "INTDIV",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "INTDIV",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "LOG",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "LOG",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_AND",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "LOGICAL_AND",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_LEFT_SHIFT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "LOGICAL_LEFT_SHIFT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_NOT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_NOT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_OR",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "LOGICAL_OR",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_RIGHT_SHIFT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "LOGICAL_RIGHT_SHIFT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "LOGICAL_XOR",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "LOGICAL_XOR",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "MATMUL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "A", "description": "Input tensor A, N matrices of size HxC" },
+      { "name": "B", "description": "Input tensor B, N matrices of size CxW" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor, N matrices of size HxW" }
+    ],
+    "attributes": [
+      { "name": "A_zp", "description": "Input tensor A zero point. Must be zero for non-int8 types." },
+      { "name": "B_zp", "description": "Input tensor B zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "MATMUL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "A", "description": "Input tensor A, N matrices of size HxC" },
+      { "name": "B", "description": "Input tensor B, N matrices of size CxW" },
+      { "name": "A_zp", "description": "Input tensor A zero point. Must be zero for non-int8 types." },
+      { "name": "B_zp", "description": "Input tensor B zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor, N matrices of size HxW" }
+    ]
+  },
+  {
+    "name": "MAX_POOL2D",
+    "version": "0.80",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input", "description": "Input tensor 4D" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor 4D" }
+    ],
+    "attributes": [
+      { "name": "kernel", "type": "int32", "description": "[kernel_y, kernel_x]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" }
+    ]
+  },
+  {
+    "name": "MAX_POOL2D",
+    "version": "1.0",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input", "description": "Input tensor 4D" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor 4D" }
+    ],
+    "attributes": [
+      { "name": "kernel", "type": "int32", "description": "[kernel_y, kernel_x]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "pad", "type": "int32", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "MAXIMUM",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "MAXIMUM",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "MINIMUM",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "MINIMUM",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "MUL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "MUL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" },
+      { "name": "shift", "type": "int8", "description": "Result right shift (used only when in_t is i32_t)" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "NEGATE",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "input1_zp", "description": "Input 1 zero point. Must be zero for non-int8 types." },
+      { "name": "output_zp", "description": "Output zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "NEGATE",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input1_zp", "description": "Input 1 zero point. Must be zero for non-int8 types." },
+      { "name": "output_zp", "description": "Output zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "PAD",
+    "version": "0.80",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "padding", "type": "int32", "description": "Number of pad elements at the start and end of each dimension" },
+      { "name": "pad_const", "description": "Constant value to be used as padding" }
+    ]
+  },
+  {
+    "name": "PAD",
+    "version": "1.0",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "padding", "type": "shape", "description": "Number of pad elements at the start and end of each dimension. The values in padding are interpreted as start, end of each dimension. As an example for rank 2, the values would be interpreted as [start_dim0, end_dim0, start_dim1, end_dim1]." },
+      { "name": "pad_const", "description": "The value to be used as padding." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type as the input tensor" }
+    ]
+  },
+  {
+    "name": "POW",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "POW",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "RECIPROCAL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "RECIPROCAL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "REDUCE_ALL",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_ALL",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_ANY",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_ANY",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_MAX",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_MAX",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" },
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "REDUCE_MIN",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_MIN",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" },
+      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
+    ]
+  },
+  {
+    "name": "REDUCE_PRODUCT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_PRODUCT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_SUM",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor with rank from 1 to 4" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "REDUCE_SUM",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same rank as the input tensor." }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reduce, in range from 0 to rank(shape1)-1" }
+    ]
+  },
+  {
+    "name": "RESCALE",
+    "version": "0.80",
+    "category": "Quantization",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with the same shape as input" }
+    ],
+    "attributes": [
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "output_zp", "description": "Output tensor zero point. Must be zero for non-int8 types." },
+      { "name": "scale32", "type": "boolean", "description": "if (scale32) mul_t=int32_t else mul_t=int16_t" },
+      { "name": "double_round", "type": "boolean", "description": "Select double round mode" },
+      { "name": "per_channel", "type": "boolean", "description": "if (per_channel) NC=shape[rank(shape)-1] else NC=1" }
+    ]
+  },
+  {
+    "name": "RESCALE",
+    "version": "1.0",
+    "category": "Quantization",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "multiplier", "description": "Scaling multiplier array" },
+      { "name": "shift", "type": "int8", "description": "Scaling shift array" },
+      { "name": "input_zp", "description": "Input tensor zero point. int8/uint8 can have zero point within their valid range. uint16 zero point must be either 0 or 32768. All other types must have zero point equal to 0." },
+      { "name": "output_zp", "description": "Output tensor zero point.int8/uint8 can have zero point within their valid range. uint16 zero point must be either 0 or 32768. All other types must have zero point equal to 0." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with the same shape as input" }
+    ],
+    "attributes": [
+      { "name": "scale32", "type": "boolean", "description": "if (scale32) mul_t=i32_t else mul_t=i16_t" },
+      { "name": "rounding_mode", "type": "RoundingMode", "description": "Select rounding mode" },
+      { "name": "per_channel", "type": "boolean", "description": "if (per_channel) NC=shape[rank(shape)-1] else NC=1" },
+      { "name": "input_unsigned", "type": "boolean", "description": "If True, treat the input values as unsigned." },
+      { "name": "output_unsigned", "type": "boolean", "description": "If True, treat the output values as unsigned." }
+    ]
+  },
+  {
+    "name": "RESHAPE",
+    "version": "0.80",
+    "category": "Shape",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "new_shape", "type": "int32", "description": "List of values, with each element giving the size of the result tensor for the given dimension. At most one dimension may be given as -1 to automatically calculate the dimension size." }
+    ]
+  },
+  {
+    "name": "RESHAPE",
+    "version": "1.0",
+    "category": "Shape",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "shape", "type": "shape", "description": "shape_t giving the new shape." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "RESIZE",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "scale", "type": "int16", "description": "[scale_y_n, scale_y_d, scale_x_n, scale_x_d]" },
+      { "name": "offset", "type": "int16", "description": "[offset_y, offset_x]" },
+      { "name": "border", "type": "int16", "description": "[border_y, border_x]" },
+      { "name": "mode", "type": "ResizeMode", "description": "BILINEAR or NEAREST" }
+    ]
+  },
+  {
+    "name": "RESIZE",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "scale", "type": "shape", "description": "[scale_y_n, scale_y_d, scale_x_n, scale_x_d]" },
+      { "name": "offset", "type": "shape", "description": "[offset_y, offset_x]" },
+      { "name": "border", "type": "shape", "description": "[border_y, border_x]" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "mode", "type": "ResizeMode", "description": "BILINEAR or NEAREST" }
+    ]
+  },
+  {
+    "name": "REVERSE",
+    "version": "0.80",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same shape as input tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reverse, in range from 0 to rank(shape)-1" }
+    ]
+  },
+  {
+    "name": "REVERSE",
+    "version": "1.0",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor. Same shape as input tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "int32", "description": "Axis to reverse, in range from 0 to rank(shape)-1" }
+    ]
+  },
+  {
+    "name": "RFFT2D",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Real input. H,W must be powers of two." }
+    ],
+    "outputs": [
+      { "name": "output_real", "description": "Real part of the complex output" },
+      { "name": "output_imag", "description": "Imaginary part of the complex output." }
+    ]
+  },
+  {
+    "name": "RFFT2D",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input_real", "description": "Real input. H,W must be powers of two." }
+    ],
+    "outputs": [
+      { "name": "output_real", "description": "Real part of the complex output" },
+      { "name": "output_imag", "description": "Imaginary part of the complex output." }
+    ],
+    "attributes": [
+      { "name": "local_bound", "type": "boolean", "description": "This optional attribute affects the floating-point compliance error bound. The default of false allows for direct and transform based, fast convolution algorithms. Only set to true if direct dot-product calculation precision is required." }
+    ]
+  },
+  {
+    "name": "RSQRT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "RSQRT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, size as the input tensor" }
+    ]
+  },
+  {
+    "name": "SCATTER",
+    "version": "0.80",
+    "category": "Transform",
+    "inputs": [
+      { "name": "values_in", "description": "3D values in tensor" },
+      { "name": "indices", "description": "2D index tensor" },
+      { "name": "input", "description": "3D input tensor" }
+    ],
+    "outputs": [
+      { "name": "values_out", "description": "3D output tensor" }
+    ]
+  },
+  {
+    "name": "SCATTER",
+    "version": "1.0",
+    "category": "Transform",
+    "inputs": [
+      { "name": "values_in", "description": "3D values in tensor" },
+      { "name": "indices", "description": "2D index tensor" },
+      { "name": "input", "description": "3D input tensor" }
+    ],
+    "outputs": [
+      { "name": "values_out", "description": "3D output tensor" }
+    ]
+  },
+  {
+    "name": "SELECT",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "type": "boolean", "description": "Input selector tensor" },
+      { "name": "input2", "description": "Input value tensor if input1 is True" },
+      { "name": "input3", "description": "Input value tensor if input1 is False" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type as input2 and input3, with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "SELECT",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "type": "boolean", "description": "Input selector tensor" },
+      { "name": "input2", "description": "Input value tensor if input1 is True" },
+      { "name": "input3", "description": "Input value tensor if input1 is False" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type as input2 and input3" }
+    ]
+  },
+  {
+    "name": "SIGMOID",
+    "version": "0.80",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "SIGMOID",
+    "version": "1.0",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "SIN",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "SLICE",
+    "version": "0.80",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "start", "description": "List of integer coordinates, of length equal to the rank of input1. Start coordinate for slicing." },
+      { "name": "size", "description": "List of integer size values, of length equal to the rank of input1. Size of the input to be used." }
+    ]
+  },
+  {
+    "name": "SLICE",
+    "version": "1.0",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "start", "type": "shape", "description": "List of integer coordinates, of length equal to the rank of input1. Start coordinate for slicing." },
+      { "name": "size", "type": "shape", "description": "List of integer size values, of length equal to the rank of input1. Size of the input to be used." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type as the input tensor" }
+    ]
+  },
+  {
+    "name": "SUB",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor with broadcast shape if necessary" }
+    ]
+  },
+  {
+    "name": "SUB",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "input2", "description": "Input tensor with the same rank as input1" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "TABLE",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "TABLE",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "table", "description": "Lookup table tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ]
+  },
+  {
+    "name": "TANH",
+    "version": "0.80",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "TANH",
+    "version": "1.0",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type and shape as input" }
+    ]
+  },
+  {
+    "name": "TILE",
+    "version": "0.80",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, rank as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "multiples", "type": "int32", "description": "Number of times to replicate input1 in each dimension" }
+    ]
+  },
+  {
+    "name": "TILE",
+    "version": "1.0",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" },
+      { "name": "multiples", "type": "shape", "description": "Number of times to replicate input1 in each dimension" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, rank as the input tensor" }
+    ]
+  },
+  {
+    "name": "TRANSPOSE",
+    "version": "0.80",
+    "category": "Transform",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, rank as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "perms", "type": "int32", "description": "List of integers of length equal to the rank of input1. Values must be valid dimensions within shape1, and may not be repeated." }
+    ]
+  },
+  {
+    "name": "TRANSPOSE",
+    "version": "1.0",
+    "category": "Transform",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor of same type, rank as the input tensor" }
+    ],
+    "attributes": [
+      { "name": "perms", "type": "int32", "description": "List of integers of length equal to the rank of input1. Values must be valid dimensions within shape1, and may not be repeated." }
+    ]
+  },
+  {
+    "name": "TRANSPOSE_CONV2D",
+    "version": "0.80",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KH x KW" },
+      { "name": "bias", "description": "Per output channel bias data." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "out_pad", "type": "int32", "description": "[out_pad_top, out_pad_bottom, out_pad_left, out_pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "out_shape", "type": "int32", "description": "[N,OH,OW,OC]" },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ]
+  },
+  {
+    "name": "TRANSPOSE_CONV2D",
+    "version": "1.0",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "description": "Input tensor" },
+      { "name": "weight", "description": "Weight kernel size KH x KW" },
+      { "name": "bias", "description": "Per output channel bias data. + Bias data will be broadcast if BC == 1." },
+      { "name": "input_zp", "description": "Input tensor zero point. Must be zero for non-int8 types." },
+      { "name": "weight_zp", "description": "Weight zero point. Must be zero for non-int8 types." }
+    ],
+    "outputs": [
+      { "name": "output", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "out_pad", "type": "int32", "description": "[out_pad_top, out_pad_bottom, out_pad_left, out_pad_right]" },
+      { "name": "stride", "type": "int32", "description": "[stride_y, stride_x]" },
+      { "name": "acc_type", "type": "DType", "description": "Enumerated type, must be one of INT32, INT48, FP16, FP32 matching the type of acc_t in the Supported Data Types table for this operation" },
+      { "name": "local_bound", "type": "boolean", "description": "This optional attribute affects the floating-point compliance error bound. The default of false allows for direct and transform based, fast convolution algorithms. Only set to true if direct dot-product calculation precision is required." }
+    ]
+  },
+  {
+    "name": "VARIABLE",
+    "version": "1.0",
+    "attributes": [
+      { "name": "name", "type": "string", "description": "Globally unique identifier for the declared variable tensor." },
+      { "name": "var_shape", "type": "int32[]", "description": "The variable tensor shape" },
+      { "name": "type", "type": "DType", "description": "Type of the tensor variable elements." },
+      { "name": "initial_value", "description": "Initial value of the variable tensor. This argument is optional with default value NULL." }
+    ]
+  },
+  {
+    "name": "VARIABLE_READ",
+    "version": "1.0",
+    "outputs": [
+      { "name": "output1", "description": "Output tensor" }
+    ],
+    "attributes": [
+      { "name": "name", "type": "string", "description": "Globally unique identifier of the variable tensor that is reading from" }
+    ]
+  },
+  {
+    "name": "VARIABLE_WRITE",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input1", "description": "Input tensor" }
+    ],
+    "attributes": [
+      { "name": "name", "type": "string", "description": "Globally unique identifier of the variable tensor that is writing to" }
+    ]
+  },
+  {
+    "name": "WHILE_LOOP",
+    "version": "0.80",
+    "inputs": [
+      { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
+    ],
+    "outputs": [
+      { "name": "output_list", "type": "tensor[]", "description": "List of output tensors" }
+    ],
+    "attributes": [
+      { "name": "cond_graph", "type": "graph", "description": "TOSA graph to evaluate the condition" },
+      { "name": "body_graph", "type": "graph", "description": "TOSA graph to execute the loop body" }
+    ]
+  },
+  {
+    "name": "WHILE_LOOP",
+    "version": "1.0",
+    "inputs": [
+      { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
+    ],
+    "outputs": [
+      { "name": "output_list", "type": "tensor[]", "description": "List of output tensors" }
+    ],
+    "attributes": [
+      { "name": "cond_graph", "type": "graph", "description": "TOSA graph to evaluate the condition" },
+      { "name": "body_graph", "type": "graph", "description": "TOSA graph to execute the loop body" }
+    ]
+  }
+]

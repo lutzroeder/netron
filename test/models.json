@@ -8846,24 +8846,21 @@
     "type":     "tosa",
     "target":   "conv_net_v0.80.tosa",
     "source":   "https://github.com/user-attachments/files/25430429/conv_net_v0.80.tosa.zip[conv_net_v0.80.tosa]",
-    "format":   "TOSA v0.8",
-    "error":    "Invalid file content. File contains TOSA model data.",
+    "format":   "TOSA v0.80.1",
     "link":     "https://github.com/lutzroeder/netron/issues/1546"
   },
   {
     "type":     "tosa",
     "target":   "conv_net_v1.0.tosa",
     "source":   "https://github.com/user-attachments/files/25430431/conv_net_v1.0.tosa.zip[conv_net_v1.0.tosa]",
-    "format":   "TOSA v1.0",
-    "error":    "Invalid file content. File contains TOSA model data.",
+    "format":   "TOSA v1.0.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1546"
   },
   {
     "type":     "tosa",
     "target":   "squeezenet_v1.1.tosa",
     "source":   "https://github.com/user-attachments/files/25430433/squeezenet_v1.1.tosa.zip[squeezenet_v1.1.tosa]",
-    "format":   "TOSA v1.1",
-    "error":    "Invalid file content. File contains TOSA model data.",
+    "format":   "TOSA v1.1.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1546"
   },
   {

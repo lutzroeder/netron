@@ -243,6 +243,23 @@ if (!DataView.prototype.getFloat8e3m4) {
     };
 }
 
+DataView.prototype.getInt48 = DataView.prototype.getInt48 || function(offset, littleEndian) {
+    let value = 0;
+    if (littleEndian) {
+        const low = this.getUint32(offset, true);
+        const high = this.getUint16(offset + 4, true);
+        value = low + high * 0x100000000;
+    } else {
+        const high = this.getUint16(offset, false);
+        const low = this.getUint32(offset + 2, false);
+        value = high * 0x100000000 + low;
+    }
+    if (value >= 0x800000000000) {
+        value -= 0x1000000000000;
+    }
+    return value;
+};
+
 DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset *= bits;
     const position = Math.floor(offset / 8);
@@ -1334,7 +1351,7 @@ base.Metadata = class {
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
             'pkl', 'pickle', 'joblib', 'safetensors',
             'ptl', 't7',
-            'dlc', 'uff', 'armnn', 'kann', 'kgraph',
+            'dlc', 'uff', 'armnn', 'kann', 'kgraph', 'tosa',
             'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
             'tar', 'zip'
         ];
