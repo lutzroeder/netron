@@ -367,7 +367,7 @@ openvino.Graph = class {
         const ports = new Map();
         if (Array.isArray(net.input)) {
             for (const input of net.input) {
-                const value = values.map('', input.precision, input);
+                const value = values.map('', input.precision || null, input);
                 const argument = new openvino.Argument(input.id, [value]);
                 this.inputs.push(argument);
                 ports.set(input.id, value);
@@ -375,7 +375,7 @@ openvino.Graph = class {
         }
         if (Array.isArray(net.output)) {
             for (const output of net.output) {
-                const value = values.map('', output.precision, output);
+                const value = values.map('', output.precision || null, output);
                 const argument = new openvino.Argument(output.id, [value]);
                 this.outputs.push(argument);
                 ports.set(output.id, value);
@@ -443,7 +443,7 @@ openvino.Graph = class {
                         }
                     }
                 }
-                return values.map(layer.id, input.precision || layer.precision, input, body.edges);
+                return values.map(layer.id, input.precision || layer.precision || null, input, body.edges);
             });
             const outputs = layer.output.map((output) => {
                 let precision = null;
@@ -637,7 +637,7 @@ openvino.Node = class {
             let dimensions = blob.shape || null;
             const category = blob.kind || 'Blob';
             const id = blob.id || '';
-            const precision = blob.precision || layer.precision;
+            const precision = blob.precision || layer.precision || null;
             let itemSize = -1;
             switch (precision) {
                 case 'BOOL': case 'BOOLEAN':          itemSize = 1; break;
