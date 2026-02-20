@@ -6840,7 +6840,8 @@ view.ModelFactoryService = class {
                         { name: 'NVDA model data', identifier: 'NVDA' },
                         { name: 'BSTM model data', identifier: 'BSTM' },
                         { name: 'onnu model data', identifier: 'onnu' },
-                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' }
+                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' },
+                        { name: 'TOSA model data', identifier: 'TOSA' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {
