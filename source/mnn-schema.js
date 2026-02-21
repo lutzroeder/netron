@@ -2,44 +2,44 @@
 export const MNN = {};
 
 MNN.NetSource = {
-    CAFFE: 0,
-    TENSORFLOW: 1,
-    TFLITE: 2,
-    ONNX: 3,
-    TORCH: 4
+    CAFFE: 0, '0': 'CAFFE',
+    TENSORFLOW: 1, '1': 'TENSORFLOW',
+    TFLITE: 2, '2': 'TFLITE',
+    ONNX: 3, '3': 'ONNX',
+    TORCH: 4, '4': 'TORCH'
 };
 
 MNN.DataType = {
-    DT_INVALID: 0,
-    DT_FLOAT: 1,
-    DT_DOUBLE: 2,
-    DT_INT32: 3,
-    DT_UINT8: 4,
-    DT_INT16: 5,
-    DT_INT8: 6,
-    DT_STRING: 7,
-    DT_COMPLEX64: 8,
-    DT_INT64: 9,
-    DT_BOOL: 10,
-    DT_QINT8: 11,
-    DT_QUINT8: 12,
-    DT_QINT32: 13,
-    DT_BFLOAT16: 14,
-    DT_QINT16: 15,
-    DT_QUINT16: 16,
-    DT_UINT16: 17,
-    DT_COMPLEX128: 18,
-    DT_HALF: 19,
-    DT_RESOURCE: 20,
-    DT_VARIANT: 21
+    DT_INVALID: 0, '0': 'DT_INVALID',
+    DT_FLOAT: 1, '1': 'DT_FLOAT',
+    DT_DOUBLE: 2, '2': 'DT_DOUBLE',
+    DT_INT32: 3, '3': 'DT_INT32',
+    DT_UINT8: 4, '4': 'DT_UINT8',
+    DT_INT16: 5, '5': 'DT_INT16',
+    DT_INT8: 6, '6': 'DT_INT8',
+    DT_STRING: 7, '7': 'DT_STRING',
+    DT_COMPLEX64: 8, '8': 'DT_COMPLEX64',
+    DT_INT64: 9, '9': 'DT_INT64',
+    DT_BOOL: 10, '10': 'DT_BOOL',
+    DT_QINT8: 11, '11': 'DT_QINT8',
+    DT_QUINT8: 12, '12': 'DT_QUINT8',
+    DT_QINT32: 13, '13': 'DT_QINT32',
+    DT_BFLOAT16: 14, '14': 'DT_BFLOAT16',
+    DT_QINT16: 15, '15': 'DT_QINT16',
+    DT_QUINT16: 16, '16': 'DT_QUINT16',
+    DT_UINT16: 17, '17': 'DT_UINT16',
+    DT_COMPLEX128: 18, '18': 'DT_COMPLEX128',
+    DT_HALF: 19, '19': 'DT_HALF',
+    DT_RESOURCE: 20, '20': 'DT_RESOURCE',
+    DT_VARIANT: 21, '21': 'DT_VARIANT'
 };
 
 MNN.MNN_DATA_FORMAT = {
-    NCHW: 0,
-    NHWC: 1,
-    NC4HW4: 2,
-    NHWC4: 3,
-    UNKNOWN: 4
+    NCHW: 0, '0': 'NCHW',
+    NHWC: 1, '1': 'NHWC',
+    NC4HW4: 2, '2': 'NC4HW4',
+    NHWC4: 3, '3': 'NHWC4',
+    UNKNOWN: 4, '4': 'UNKNOWN'
 };
 
 MNN.Blob = class Blob {
@@ -147,9 +147,9 @@ MNN.NamedAttrList = class NamedAttrList {
 };
 
 MNN.PadMode = {
-    CAFFE: 0,
-    VALID: 1,
-    SAME: 2
+    CAFFE: 0, '0': 'CAFFE',
+    VALID: 1, '1': 'VALID',
+    SAME: 2, '2': 'SAME'
 };
 
 MNN.Convolution2DCommon = class Convolution2DCommon {
@@ -237,8 +237,8 @@ MNN.Convolution3DCommon = class Convolution3DCommon {
 };
 
 MNN.SparseAlgo = {
-    RANDOM: 0,
-    SIMD_OC: 1
+    RANDOM: 0, '0': 'RANDOM',
+    SIMD_OC: 1, '1': 'SIMD_OC'
 };
 
 MNN.SparseCommon = class SparseCommon {
@@ -300,9 +300,9 @@ MNN.IDSTQuan = class IDSTQuan {
 };
 
 MNN.QuantizeAlgo = {
-    DEFAULT: 0,
-    OVERFLOW_AWARE: 1,
-    WINOGRAD_AWARE: 2
+    DEFAULT: 0, '0': 'DEFAULT',
+    OVERFLOW_AWARE: 1, '1': 'OVERFLOW_AWARE',
+    WINOGRAD_AWARE: 2, '2': 'WINOGRAD_AWARE'
 };
 
 MNN.QuantizedFloatParam = class QuantizedFloatParam {
@@ -422,20 +422,20 @@ MNN.InnerProduct = class InnerProduct {
 };
 
 MNN.PoolType = {
-    MAXPOOL: 0,
-    AVEPOOL: 1
+    MAXPOOL: 0, '0': 'MAXPOOL',
+    AVEPOOL: 1, '1': 'AVEPOOL'
 };
 
 MNN.PoolPadType = {
-    CAFFE: 0,
-    VALID: 1,
-    SAME: 2
+    CAFFE: 0, '0': 'CAFFE',
+    VALID: 1, '1': 'VALID',
+    SAME: 2, '2': 'SAME'
 };
 
 MNN.AvgPoolCountType = {
-    DEFAULT: 0,
-    INCLUDE_PADDING: 1,
-    EXCLUDE_PADDING: 2
+    DEFAULT: 0, '0': 'DEFAULT',
+    INCLUDE_PADDING: 1, '1': 'INCLUDE_PADDING',
+    EXCLUDE_PADDING: 2, '2': 'EXCLUDE_PADDING'
 };
 
 MNN.Pool = class Pool {
@@ -745,10 +745,10 @@ MNN.Scale = class Scale {
 };
 
 MNN.EltwiseType = {
-    PROD: 0,
-    SUM: 1,
-    MAXIMUM: 2,
-    SUB: 3
+    PROD: 0, '0': 'PROD',
+    SUM: 1, '1': 'SUM',
+    MAXIMUM: 2, '2': 'MAXIMUM',
+    SUB: 3, '3': 'SUB'
 };
 
 MNN.Eltwise = class Eltwise {
@@ -909,13 +909,13 @@ MNN.Proposal = class Proposal {
 };
 
 MNN.CoordinateTransformationMode = {
-    NotSet: 0,
-    AlignCorners: 1,
-    HalfPixels: 2,
-    PytorchHalfPixels: 3,
-    Asymmetric: 4,
-    TensorflowHalfPixels: 5,
-    TensorflowCropAndResize: 6
+    NotSet: 0, '0': 'NotSet',
+    AlignCorners: 1, '1': 'AlignCorners',
+    HalfPixels: 2, '2': 'HalfPixels',
+    PytorchHalfPixels: 3, '3': 'PytorchHalfPixels',
+    Asymmetric: 4, '4': 'Asymmetric',
+    TensorflowHalfPixels: 5, '5': 'TensorflowHalfPixels',
+    TensorflowCropAndResize: 6, '6': 'TensorflowCropAndResize'
 };
 
 MNN.Interp = class Interp {
@@ -1071,34 +1071,34 @@ MNN.CumSum = class CumSum {
 };
 
 MNN.BinaryOpOperation = {
-    ADD: 0,
-    SUB: 1,
-    MUL: 2,
-    DIV: 3,
-    MAX_TEMP: 4,
-    MIN_TEMP: 5,
-    POW: 6,
-    REALDIV: 7,
-    MINIMUM: 8,
-    MAXIMUM: 9,
-    GREATER: 10,
-    GREATER_EQUAL: 11,
-    LESS: 12,
-    FLOORDIV: 13,
-    SquaredDifference: 14,
-    EQUAL: 15,
-    LESS_EQUAL: 16,
-    FLOORMOD: 17,
-    MOD: 19,
-    ATAN2: 20,
-    LOGICALOR: 21,
-    NOTEQUAL: 22,
-    BITWISE_AND: 23,
-    BITWISE_OR: 24,
-    BITWISE_XOR: 25,
-    LOGICALXOR: 26,
-    LEFTSHIFT: 27,
-    RIGHTSHIFT: 28
+    ADD: 0, '0': 'ADD',
+    SUB: 1, '1': 'SUB',
+    MUL: 2, '2': 'MUL',
+    DIV: 3, '3': 'DIV',
+    MAX_TEMP: 4, '4': 'MAX_TEMP',
+    MIN_TEMP: 5, '5': 'MIN_TEMP',
+    POW: 6, '6': 'POW',
+    REALDIV: 7, '7': 'REALDIV',
+    MINIMUM: 8, '8': 'MINIMUM',
+    MAXIMUM: 9, '9': 'MAXIMUM',
+    GREATER: 10, '10': 'GREATER',
+    GREATER_EQUAL: 11, '11': 'GREATER_EQUAL',
+    LESS: 12, '12': 'LESS',
+    FLOORDIV: 13, '13': 'FLOORDIV',
+    SquaredDifference: 14, '14': 'SquaredDifference',
+    EQUAL: 15, '15': 'EQUAL',
+    LESS_EQUAL: 16, '16': 'LESS_EQUAL',
+    FLOORMOD: 17, '17': 'FLOORMOD',
+    MOD: 19, '19': 'MOD',
+    ATAN2: 20, '20': 'ATAN2',
+    LOGICALOR: 21, '21': 'LOGICALOR',
+    NOTEQUAL: 22, '22': 'NOTEQUAL',
+    BITWISE_AND: 23, '23': 'BITWISE_AND',
+    BITWISE_OR: 24, '24': 'BITWISE_OR',
+    BITWISE_XOR: 25, '25': 'BITWISE_XOR',
+    LOGICALXOR: 26, '26': 'LOGICALXOR',
+    LEFTSHIFT: 27, '27': 'LEFTSHIFT',
+    RIGHTSHIFT: 28, '28': 'RIGHTSHIFT'
 };
 
 MNN.BinaryOp = class BinaryOp {
@@ -1199,15 +1199,15 @@ MNN.CastParam = class CastParam {
 };
 
 MNN.ReductionType = {
-    SUM: 0,
-    ASUM: 1,
-    SUMSQ: 2,
-    MEAN: 3,
-    MAXIMUM: 4,
-    MINIMUM: 5,
-    PROD: 6,
-    ANY: 7,
-    ALL: 8
+    SUM: 0, '0': 'SUM',
+    ASUM: 1, '1': 'ASUM',
+    SUMSQ: 2, '2': 'SUMSQ',
+    MEAN: 3, '3': 'MEAN',
+    MAXIMUM: 4, '4': 'MAXIMUM',
+    MINIMUM: 5, '5': 'MINIMUM',
+    PROD: 6, '6': 'PROD',
+    ANY: 7, '7': 'ANY',
+    ALL: 8, '8': 'ALL'
 };
 
 MNN.ReductionParam = class ReductionParam {
@@ -1333,41 +1333,41 @@ MNN.ReduceJoin = class ReduceJoin {
 };
 
 MNN.UnaryOpOperation = {
-    ABS: 0,
-    NEG: 1,
-    FLOOR: 2,
-    CEIL: 3,
-    SQUARE: 4,
-    SQRT: 5,
-    RSQRT: 6,
-    EXP: 7,
-    LOG: 8,
-    SIN: 9,
-    COS: 10,
-    TAN: 11,
-    ASIN: 12,
-    ACOS: 13,
-    ATAN: 14,
-    RECIPROCAL: 15,
-    LOG1P: 16,
-    BNLL: 17,
-    ACOSH: 18,
-    SINH: 19,
-    ASINH: 20,
-    ATANH: 21,
-    SIGN: 22,
-    ROUND: 23,
-    COSH: 24,
-    ERF: 25,
-    ERFC: 26,
-    ERFINV: 27,
-    EXPM1: 28,
-    SIGMOID: 29,
-    TANH: 30,
-    HARDSWISH: 31,
-    GELU: 32,
-    GELU_STANDARD: 33,
-    SILU: 34
+    ABS: 0, '0': 'ABS',
+    NEG: 1, '1': 'NEG',
+    FLOOR: 2, '2': 'FLOOR',
+    CEIL: 3, '3': 'CEIL',
+    SQUARE: 4, '4': 'SQUARE',
+    SQRT: 5, '5': 'SQRT',
+    RSQRT: 6, '6': 'RSQRT',
+    EXP: 7, '7': 'EXP',
+    LOG: 8, '8': 'LOG',
+    SIN: 9, '9': 'SIN',
+    COS: 10, '10': 'COS',
+    TAN: 11, '11': 'TAN',
+    ASIN: 12, '12': 'ASIN',
+    ACOS: 13, '13': 'ACOS',
+    ATAN: 14, '14': 'ATAN',
+    RECIPROCAL: 15, '15': 'RECIPROCAL',
+    LOG1P: 16, '16': 'LOG1P',
+    BNLL: 17, '17': 'BNLL',
+    ACOSH: 18, '18': 'ACOSH',
+    SINH: 19, '19': 'SINH',
+    ASINH: 20, '20': 'ASINH',
+    ATANH: 21, '21': 'ATANH',
+    SIGN: 22, '22': 'SIGN',
+    ROUND: 23, '23': 'ROUND',
+    COSH: 24, '24': 'COSH',
+    ERF: 25, '25': 'ERF',
+    ERFC: 26, '26': 'ERFC',
+    ERFINV: 27, '27': 'ERFINV',
+    EXPM1: 28, '28': 'EXPM1',
+    SIGMOID: 29, '29': 'SIGMOID',
+    TANH: 30, '30': 'TANH',
+    HARDSWISH: 31, '31': 'HARDSWISH',
+    GELU: 32, '32': 'GELU',
+    GELU_STANDARD: 33, '33': 'GELU_STANDARD',
+    SILU: 34, '34': 'SILU'
 };
 
 MNN.UnaryOp = class UnaryOp {
@@ -1409,8 +1409,8 @@ MNN.TopKV2 = class TopKV2 {
 };
 
 MNN.CropAndResizeMethod = {
-    BILINEAR: 0,
-    NEAREST: 1
+    BILINEAR: 0, '0': 'BILINEAR',
+    NEAREST: 1, '1': 'NEAREST'
 };
 
 MNN.CropAndResize = class CropAndResize {
@@ -1698,8 +1698,8 @@ MNN.BatchMatMulParam = class BatchMatMulParam {
 };
 
 MNN.DepthToSpaceMode = {
-    DCR: 0,
-    CRD: 1
+    DCR: 0, '0': 'DCR',
+    CRD: 1, '1': 'CRD'
 };
 
 MNN.DepthSpaceParam = class DepthSpaceParam {
@@ -1783,10 +1783,10 @@ MNN.OneHotParam = class OneHotParam {
 };
 
 MNN.PadValueMode = {
-    CONSTANT: 0,
-    REFLECT: 1,
-    SYMMETRIC: 2,
-    EDGE: 3
+    CONSTANT: 0, '0': 'CONSTANT',
+    REFLECT: 1, '1': 'REFLECT',
+    SYMMETRIC: 2, '2': 'SYMMETRIC',
+    EDGE: 3, '3': 'EDGE'
 };
 
 MNN.PadParam = class PadParam {
@@ -1928,13 +1928,13 @@ MNN.LSTMBlockCell = class LSTMBlockCell {
 };
 
 MNN.FusedActivation = {
-    kTfLiteActNone: 0,
-    kTfLiteActRelu: 1,
-    kTfLiteActRelu1: 2,
-    kTfLiteActRelu6: 3,
-    kTfLiteActTanh: 4,
-    kTfLiteActSignBit: 5,
-    kTfLiteActSigmoid: 6
+    kTfLiteActNone: 0, '0': 'kTfLiteActNone',
+    kTfLiteActRelu: 1, '1': 'kTfLiteActRelu',
+    kTfLiteActRelu1: 2, '2': 'kTfLiteActRelu1',
+    kTfLiteActRelu6: 3, '3': 'kTfLiteActRelu6',
+    kTfLiteActTanh: 4, '4': 'kTfLiteActTanh',
+    kTfLiteActSignBit: 5, '5': 'kTfLiteActSignBit',
+    kTfLiteActSigmoid: 6, '6': 'kTfLiteActSigmoid'
 };
 
 MNN.QuantizedParam = class QuantizedParam {
@@ -1976,14 +1976,14 @@ MNN.QuantizedAdd = class QuantizedAdd {
 };
 
 MNN.ModeFormat = {
-    TENSORFLOW: 0,
-    TFLITE: 1
+    TENSORFLOW: 0, '0': 'TENSORFLOW',
+    TFLITE: 1, '1': 'TFLITE'
 };
 
 MNN.QuantizeMode = {
-    MIN_COMBINED: 0,
-    MIN_FIRST: 1,
-    SCALED: 2
+    MIN_COMBINED: 0, '0': 'MIN_COMBINED',
+    MIN_FIRST: 1, '1': 'MIN_FIRST',
+    SCALED: 2, '2': 'SCALED'
 };
 
 MNN.Dequantize = class Dequantize {
@@ -2222,8 +2222,8 @@ MNN.QuantizedSoftmax = class QuantizedSoftmax {
 };
 
 MNN.QuantizeRoundMode = {
-    HALF_AWAY_FROM_ZERO: 0,
-    HALF_TO_EVEN: 1
+    HALF_AWAY_FROM_ZERO: 0, '0': 'HALF_AWAY_FROM_ZERO',
+    HALF_TO_EVEN: 1, '1': 'HALF_TO_EVEN'
 };
 
 MNN.QuantizeV2 = class QuantizeV2 {
@@ -2351,15 +2351,15 @@ MNN.TensorConvertInfo = class TensorConvertInfo {
 };
 
 MNN.SampleMode = {
-    BILINEAR: 0,
-    NEAREST: 1
+    BILINEAR: 0, '0': 'BILINEAR',
+    NEAREST: 1, '1': 'NEAREST'
 };
 
 MNN.BorderMode = {
-    ZEROS: 0,
-    CLAMP: 1,
-    REFLECTION: 2,
-    CUBE: 3
+    ZEROS: 0, '0': 'ZEROS',
+    CLAMP: 1, '1': 'CLAMP',
+    REFLECTION: 2, '2': 'REFLECTION',
+    CUBE: 3, '3': 'CUBE'
 };
 
 MNN.GridSample = class GridSample {
@@ -2384,33 +2384,33 @@ MNN.GridSample = class GridSample {
 };
 
 MNN.ImageFormatType = {
-    RGBA: 0,
-    RGB: 1,
-    BGR: 2,
-    GRAY: 3,
-    BGRA: 4,
-    YCrCb: 5,
-    YUV: 6,
-    HSV: 7,
-    XYZ: 8,
-    BGR555: 9,
-    BGR565: 10,
-    YUV_NV21: 11,
-    YUV_NV12: 12,
-    YUV_I420: 13,
-    HSV_FULL: 14
+    RGBA: 0, '0': 'RGBA',
+    RGB: 1, '1': 'RGB',
+    BGR: 2, '2': 'BGR',
+    GRAY: 3, '3': 'GRAY',
+    BGRA: 4, '4': 'BGRA',
+    YCrCb: 5, '5': 'YCrCb',
+    YUV: 6, '6': 'YUV',
+    HSV: 7, '7': 'HSV',
+    XYZ: 8, '8': 'XYZ',
+    BGR555: 9, '9': 'BGR555',
+    BGR565: 10, '10': 'BGR565',
+    YUV_NV21: 11, '11': 'YUV_NV21',
+    YUV_NV12: 12, '12': 'YUV_NV12',
+    YUV_I420: 13, '13': 'YUV_I420',
+    HSV_FULL: 14, '14': 'HSV_FULL'
 };
 
 MNN.FilterType = {
-    NEAREST: 0,
-    BILINEAR: 1,
-    BICUBIC: 2
+    NEAREST: 0, '0': 'NEAREST',
+    BILINEAR: 1, '1': 'BILINEAR',
+    BICUBIC: 2, '2': 'BICUBIC'
 };
 
 MNN.WrapType = {
-    CLAMP_TO_EDGE: 0,
-    ZERO: 1,
-    REPEAT: 2
+    CLAMP_TO_EDGE: 0, '0': 'CLAMP_TO_EDGE',
+    ZERO: 1, '1': 'ZERO',
+    REPEAT: 2, '2': 'REPEAT'
 };
 
 MNN.ImageProcessParam = class ImageProcessParam {
@@ -2449,189 +2449,189 @@ MNN.ImageProcessParam = class ImageProcessParam {
 };
 
 MNN.OpType = {
-    AbsVal: 0,
-    QuantizedAdd: 1,
-    ArgMax: 2,
-    AsString: 3,
-    InstanceNorm: 4,
-    BatchToSpaceND: 5,
-    Copy: 6,
-    BinaryOp: 7,
-    Bnll: 8,
-    Cast: 9,
-    Concat: 10,
-    Const: 11,
-    Convolution: 12,
-    ConvolutionDepthwise: 13,
-    Crop: 14,
-    CropAndResize: 15,
-    ImageProcess: 16,
-    Deconvolution: 17,
-    DeconvolutionDepthwise: 18,
-    Dequantize: 19,
-    DetectionOutput: 20,
-    Dropout: 21,
-    Eltwise: 22,
-    ELU: 23,
-    Unique: 24,
-    Exp: 25,
-    ExpandDims: 26,
-    Fill: 27,
-    Flatten: 28,
-    Im2Col: 29,
-    Gather: 30,
-    GatherV2: 31,
-    Im2Seq: 32,
-    InnerProduct: 33,
-    Input: 34,
-    Interp: 35,
-    Log: 36,
-    LRN: 37,
-    LSTM: 38,
-    MatMul: 39,
-    MoE: 40,
-    NonMaxSuppression: 41,
-    NonMaxSuppressionV2: 42,
-    Normalize: 43,
-    Pack: 44,
-    Padding: 45,
-    Permute: 46,
-    Pooling: 47,
-    Power: 48,
-    PReLU: 49,
-    PriorBox: 50,
-    Proposal: 51,
-    QuantizedAvgPool: 52,
-    QuantizedBiasAdd: 53,
-    QuantizedConcat: 54,
-    QuantizedDepthwiseConv2D: 55,
-    QuantizedLogistic: 56,
-    RasterAndInterpolate: 57,
-    QuantizedMaxPool: 58,
-    Texture: 59,
-    RasterDiff: 60,
-    QuantizedReshape: 61,
-    QuantizedSoftmax: 62,
-    QuantizeMaxMin: 63,
-    QuantizeV2: 64,
-    Range: 65,
-    Rank: 66,
-    ReduceJoin: 67,
-    Reduction: 68,
-    ReLU: 69,
-    ReLU6: 70,
-    RequantizationRange: 71,
-    Requantize: 72,
-    Reshape: 73,
-    Resize: 74,
-    RNN: 75,
-    ROIPooling: 76,
-    Scale: 77,
-    Selu: 78,
-    Seq2Out: 79,
-    Shape: 80,
-    Sigmoid: 81,
-    Size: 82,
-    Slice: 83,
-    SliceTf: 84,
-    Softmax: 85,
-    SpaceToBatchND: 86,
-    SpatialProduct: 87,
-    Col2Im: 88,
-    Segment: 89,
-    Squeeze: 90,
-    StridedSlice: 91,
-    CastLike: 92,
-    StringSplit: 93,
-    StringToNumber: 94,
-    TanH: 95,
-    TfQuantizedConv2D: 96,
-    Threshold: 97,
-    Tile: 98,
-    TopKV2: 99,
-    Transpose: 100,
-    UnaryOp: 101,
-    Unpack: 102,
-    Where: 103,
-    Moments: 104,
-    RNNSequenceGRU: 105,
-    BatchMatMul: 106,
-    Unsqueeze: 107,
-    CosineSimilarity: 108,
-    DepthToSpace: 109,
-    SpaceToDepth: 110,
-    ReverseSequence: 111,
-    Pooling3D: 112,
-    Convolution3D: 113,
-    MatrixBandPart: 114,
-    GatherND: 115,
-    DetectionPostProcess: 116,
-    UnravelIndex: 117,
-    ScatterNd: 118,
-    OneHot: 119,
-    BroadcastTo: 120,
-    Dilation2D: 121,
-    Interp3D: 122,
-    Raster: 128,
-    ConvertTensor: 129,
-    ArgMin: 130,
-    LinSpace: 131,
-    RandomUniform: 132,
-    TensorArray: 133,
-    TensorArraySize: 134,
-    TensorArrayRead: 135,
-    TensorArrayWrite: 136,
-    TensorArrayGather: 137,
-    TensorArrayScatter: 138,
-    TensorArraySplit: 139,
-    TensorArrayConcat: 140,
-    LSTMBlockCell: 141,
-    Reverse: 142,
-    ROIAlign: 143,
-    RandomNormal: 144,
-    TensorArrayInsert: 145,
-    TensorArrayErase: 146,
-    EyeLike: 147,
-    CumSum: 148,
-    Det: 149,
-    CumProd: 150,
-    ScatterElements: 151,
-    GatherElements: 152,
-    Svd: 153,
-    Histogram: 154,
-    DynamicQuant: 155,
-    Stft: 156,
-    Plugin: 256,
-    Select: 257,
-    ZerosLike: 258,
-    Broastcast: 259,
-    SetDiff1D: 260,
-    ReluGrad: 261,
-    Identity: 262,
-    PoolGrad: 263,
-    SoftmaxGrad: 264,
-    Conv2DBackPropFilter: 265,
-    TrainableParam: 266,
-    BatchNorm: 267,
-    ConvTranspose3D: 268,
-    ZeroGrad: 269,
-    Attention: 299,
-    FmhaV2: 300,
-    Fmhca: 301,
-    SeqLen2Spatial: 302,
-    SplitGeLU: 303,
-    GroupNorm: 304,
-    LinearAttention: 305,
-    Extra: 512,
-    ConvInt8: 513,
-    Int8ToFloat: 514,
-    DepthwiseConvInt8: 515,
-    FloatToInt8: 517,
-    EltwiseInt8: 518,
-    While: 600,
-    If: 601,
-    LayerNorm: 603,
-    GridSample: 604
+    AbsVal: 0, '0': 'AbsVal',
+    QuantizedAdd: 1, '1': 'QuantizedAdd',
+    ArgMax: 2, '2': 'ArgMax',
+    AsString: 3, '3': 'AsString',
+    InstanceNorm: 4, '4': 'InstanceNorm',
+    BatchToSpaceND: 5, '5': 'BatchToSpaceND',
+    Copy: 6, '6': 'Copy',
+    BinaryOp: 7, '7': 'BinaryOp',
+    Bnll: 8, '8': 'Bnll',
+    Cast: 9, '9': 'Cast',
+    Concat: 10, '10': 'Concat',
+    Const: 11, '11': 'Const',
+    Convolution: 12, '12': 'Convolution',
+    ConvolutionDepthwise: 13, '13': 'ConvolutionDepthwise',
+    Crop: 14, '14': 'Crop',
+    CropAndResize: 15, '15': 'CropAndResize',
+    ImageProcess: 16, '16': 'ImageProcess',
+    Deconvolution: 17, '17': 'Deconvolution',
+    DeconvolutionDepthwise: 18, '18': 'DeconvolutionDepthwise',
+    Dequantize: 19, '19': 'Dequantize',
+    DetectionOutput: 20, '20': 'DetectionOutput',
+    Dropout: 21, '21': 'Dropout',
+    Eltwise: 22, '22': 'Eltwise',
+    ELU: 23, '23': 'ELU',
+    Unique: 24, '24': 'Unique',
+    Exp: 25, '25': 'Exp',
+    ExpandDims: 26, '26': 'ExpandDims',
+    Fill: 27, '27': 'Fill',
+    Flatten: 28, '28': 'Flatten',
+    Im2Col: 29, '29': 'Im2Col',
+    Gather: 30, '30': 'Gather',
+    GatherV2: 31, '31': 'GatherV2',
+    Im2Seq: 32, '32': 'Im2Seq',
+    InnerProduct: 33, '33': 'InnerProduct',
+    Input: 34, '34': 'Input',
+    Interp: 35, '35': 'Interp',
+    Log: 36, '36': 'Log',
+    LRN: 37, '37': 'LRN',
+    LSTM: 38, '38': 'LSTM',
+    MatMul: 39, '39': 'MatMul',
+    MoE: 40, '40': 'MoE',
+    NonMaxSuppression: 41, '41': 'NonMaxSuppression',
+    NonMaxSuppressionV2: 42, '42': 'NonMaxSuppressionV2',
+    Normalize: 43, '43': 'Normalize',
+    Pack: 44, '44': 'Pack',
+    Padding: 45, '45': 'Padding',
+    Permute: 46, '46': 'Permute',
+    Pooling: 47, '47': 'Pooling',
+    Power: 48, '48': 'Power',
+    PReLU: 49, '49': 'PReLU',
+    PriorBox: 50, '50': 'PriorBox',
+    Proposal: 51, '51': 'Proposal',
+    QuantizedAvgPool: 52, '52': 'QuantizedAvgPool',
+    QuantizedBiasAdd: 53, '53': 'QuantizedBiasAdd',
+    QuantizedConcat: 54, '54': 'QuantizedConcat',
+    QuantizedDepthwiseConv2D: 55, '55': 'QuantizedDepthwiseConv2D',
+    QuantizedLogistic: 56, '56': 'QuantizedLogistic',
+    RasterAndInterpolate: 57, '57': 'RasterAndInterpolate',
+    QuantizedMaxPool: 58, '58': 'QuantizedMaxPool',
+    Texture: 59, '59': 'Texture',
+    RasterDiff: 60, '60': 'RasterDiff',
+    QuantizedReshape: 61, '61': 'QuantizedReshape',
+    QuantizedSoftmax: 62, '62': 'QuantizedSoftmax',
+    QuantizeMaxMin: 63, '63': 'QuantizeMaxMin',
+    QuantizeV2: 64, '64': 'QuantizeV2',
+    Range: 65, '65': 'Range',
+    Rank: 66, '66': 'Rank',
+    ReduceJoin: 67, '67': 'ReduceJoin',
+    Reduction: 68, '68': 'Reduction',
+    ReLU: 69, '69': 'ReLU',
+    ReLU6: 70, '70': 'ReLU6',
+    RequantizationRange: 71, '71': 'RequantizationRange',
+    Requantize: 72, '72': 'Requantize',
+    Reshape: 73, '73': 'Reshape',
+    Resize: 74, '74': 'Resize',
+    RNN: 75, '75': 'RNN',
+    ROIPooling: 76, '76': 'ROIPooling',
+    Scale: 77, '77': 'Scale',
+    Selu: 78, '78': 'Selu',
+    Seq2Out: 79, '79': 'Seq2Out',
+    Shape: 80, '80': 'Shape',
+    Sigmoid: 81, '81': 'Sigmoid',
+    Size: 82, '82': 'Size',
+    Slice: 83, '83': 'Slice',
+    SliceTf: 84, '84': 'SliceTf',
+    Softmax: 85, '85': 'Softmax',
+    SpaceToBatchND: 86, '86': 'SpaceToBatchND',
+    SpatialProduct: 87, '87': 'SpatialProduct',
+    Col2Im: 88, '88': 'Col2Im',
+    Segment: 89, '89': 'Segment',
+    Squeeze: 90, '90': 'Squeeze',
+    StridedSlice: 91, '91': 'StridedSlice',
+    CastLike: 92, '92': 'CastLike',
+    StringSplit: 93, '93': 'StringSplit',
+    StringToNumber: 94, '94': 'StringToNumber',
+    TanH: 95, '95': 'TanH',
+    TfQuantizedConv2D: 96, '96': 'TfQuantizedConv2D',
+    Threshold: 97, '97': 'Threshold',
+    Tile: 98, '98': 'Tile',
+    TopKV2: 99, '99': 'TopKV2',
+    Transpose: 100, '100': 'Transpose',
+    UnaryOp: 101, '101': 'UnaryOp',
+    Unpack: 102, '102': 'Unpack',
+    Where: 103, '103': 'Where',
+    Moments: 104, '104': 'Moments',
+    RNNSequenceGRU: 105, '105': 'RNNSequenceGRU',
+    BatchMatMul: 106, '106': 'BatchMatMul',
+    Unsqueeze: 107, '107': 'Unsqueeze',
+    CosineSimilarity: 108, '108': 'CosineSimilarity',
+    DepthToSpace: 109, '109': 'DepthToSpace',
+    SpaceToDepth: 110, '110': 'SpaceToDepth',
+    ReverseSequence: 111, '111': 'ReverseSequence',
+    Pooling3D: 112, '112': 'Pooling3D',
+    Convolution3D: 113, '113': 'Convolution3D',
+    MatrixBandPart: 114, '114': 'MatrixBandPart',
+    GatherND: 115, '115': 'GatherND',
+    DetectionPostProcess: 116, '116': 'DetectionPostProcess',
+    UnravelIndex: 117, '117': 'UnravelIndex',
+    ScatterNd: 118, '118': 'ScatterNd',
+    OneHot: 119, '119': 'OneHot',
+    BroadcastTo: 120, '120': 'BroadcastTo',
+    Dilation2D: 121, '121': 'Dilation2D',
+    Interp3D: 122, '122': 'Interp3D',
+    Raster: 128, '128': 'Raster',
+    ConvertTensor: 129, '129': 'ConvertTensor',
+    ArgMin: 130, '130': 'ArgMin',
+    LinSpace: 131, '131': 'LinSpace',
+    RandomUniform: 132, '132': 'RandomUniform',
+    TensorArray: 133, '133': 'TensorArray',
+    TensorArraySize: 134, '134': 'TensorArraySize',
+    TensorArrayRead: 135, '135': 'TensorArrayRead',
+    TensorArrayWrite: 136, '136': 'TensorArrayWrite',
+    TensorArrayGather: 137, '137': 'TensorArrayGather',
+    TensorArrayScatter: 138, '138': 'TensorArrayScatter',
+    TensorArraySplit: 139, '139': 'TensorArraySplit',
+    TensorArrayConcat: 140, '140': 'TensorArrayConcat',
+    LSTMBlockCell: 141, '141': 'LSTMBlockCell',
+    Reverse: 142, '142': 'Reverse',
+    ROIAlign: 143, '143': 'ROIAlign',
+    RandomNormal: 144, '144': 'RandomNormal',
+    TensorArrayInsert: 145, '145': 'TensorArrayInsert',
+    TensorArrayErase: 146, '146': 'TensorArrayErase',
+    EyeLike: 147, '147': 'EyeLike',
+    CumSum: 148, '148': 'CumSum',
+    Det: 149, '149': 'Det',
+    CumProd: 150, '150': 'CumProd',
+    ScatterElements: 151, '151': 'ScatterElements',
+    GatherElements: 152, '152': 'GatherElements',
+    Svd: 153, '153': 'Svd',
+    Histogram: 154, '154': 'Histogram',
+    DynamicQuant: 155, '155': 'DynamicQuant',
+    Stft: 156, '156': 'Stft',
+    Plugin: 256, '256': 'Plugin',
+    Select: 257, '257': 'Select',
+    ZerosLike: 258, '258': 'ZerosLike',
+    Broastcast: 259, '259': 'Broastcast',
+    SetDiff1D: 260, '260': 'SetDiff1D',
+    ReluGrad: 261, '261': 'ReluGrad',
+    Identity: 262, '262': 'Identity',
+    PoolGrad: 263, '263': 'PoolGrad',
+    SoftmaxGrad: 264, '264': 'SoftmaxGrad',
+    Conv2DBackPropFilter: 265, '265': 'Conv2DBackPropFilter',
+    TrainableParam: 266, '266': 'TrainableParam',
+    BatchNorm: 267, '267': 'BatchNorm',
+    ConvTranspose3D: 268, '268': 'ConvTranspose3D',
+    ZeroGrad: 269, '269': 'ZeroGrad',
+    Attention: 299, '299': 'Attention',
+    FmhaV2: 300, '300': 'FmhaV2',
+    Fmhca: 301, '301': 'Fmhca',
+    SeqLen2Spatial: 302, '302': 'SeqLen2Spatial',
+    SplitGeLU: 303, '303': 'SplitGeLU',
+    GroupNorm: 304, '304': 'GroupNorm',
+    LinearAttention: 305, '305': 'LinearAttention',
+    Extra: 512, '512': 'Extra',
+    ConvInt8: 513, '513': 'ConvInt8',
+    Int8ToFloat: 514, '514': 'Int8ToFloat',
+    DepthwiseConvInt8: 515, '515': 'DepthwiseConvInt8',
+    FloatToInt8: 517, '517': 'FloatToInt8',
+    EltwiseInt8: 518, '518': 'EltwiseInt8',
+    While: 600, '600': 'While',
+    If: 601, '601': 'If',
+    LayerNorm: 603, '603': 'LayerNorm',
+    GridSample: 604, '604': 'GridSample'
 };
 
 MNN.Plugin = class Plugin {
@@ -3182,20 +3182,20 @@ MNN.TensorDescribe = class TensorDescribe {
 };
 
 MNN.ForwardType = {
-    CPU: 0,
-    METAL: 1,
-    CUDA: 2,
-    OPENCL: 3,
-    AUTO: 4,
-    NNAPI: 5,
-    OPENGLES: 6,
-    VULKAN: 7
+    CPU: 0, '0': 'CPU',
+    METAL: 1, '1': 'METAL',
+    CUDA: 2, '2': 'CUDA',
+    OPENCL: 3, '3': 'OPENCL',
+    AUTO: 4, '4': 'AUTO',
+    NNAPI: 5, '5': 'NNAPI',
+    OPENGLES: 6, '6': 'OPENGLES',
+    VULKAN: 7, '7': 'VULKAN'
 };
 
 MNN.Usage = {
-    INFERENCE: 0,
-    TRAIN: 1,
-    INFERENCE_STATIC: 2
+    INFERENCE: 0, '0': 'INFERENCE',
+    TRAIN: 1, '1': 'TRAIN',
+    INFERENCE_STATIC: 2, '2': 'INFERENCE_STATIC'
 };
 
 MNN.SubGraphProto = class SubGraphProto {

@@ -290,7 +290,6 @@ tosa.Context = class {
     constructor(schema, metadata) {
         this._schema = schema;
         this._metadata = metadata;
-        this._enums = new Map();
         const mapping = {
             BOOL: 'boolean',
             UINT8: 'uint8', UINT16: 'uint16',
@@ -319,16 +318,7 @@ tosa.Context = class {
 
     enum(name, value) {
         const type = name && this._schema ? this._schema[name] : undefined;
-        if (type) {
-            if (!this._enums.has(name)) {
-                this._enums.set(name, new Map(Object.entries(type).map(([key, val]) => [val, key])));
-            }
-            const map = this._enums.get(name);
-            if (map.has(value)) {
-                return map.get(value);
-            }
-        }
-        return value.toString();
+        return type && type[value] ? type[value] : value.toString();
     }
 };
 

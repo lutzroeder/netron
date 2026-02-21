@@ -4,19 +4,19 @@ export const onnxruntime = {};
 onnxruntime.fbs = onnxruntime.fbs || {};
 
 onnxruntime.fbs.AttributeType = {
-    UNDEFINED: 0,
-    FLOAT: 1,
-    INT: 2,
-    STRING: 3,
-    TENSOR: 4,
-    GRAPH: 5,
-    FLOATS: 6,
-    INTS: 7,
-    STRINGS: 8,
-    TENSORS: 9,
-    GRAPHS: 10,
-    SPARSE_TENSOR: 11,
-    SPARSE_TENSORS: 12
+    UNDEFINED: 0, '0': 'UNDEFINED',
+    FLOAT: 1, '1': 'FLOAT',
+    INT: 2, '2': 'INT',
+    STRING: 3, '3': 'STRING',
+    TENSOR: 4, '4': 'TENSOR',
+    GRAPH: 5, '5': 'GRAPH',
+    FLOATS: 6, '6': 'FLOATS',
+    INTS: 7, '7': 'INTS',
+    STRINGS: 8, '8': 'STRINGS',
+    TENSORS: 9, '9': 'TENSORS',
+    GRAPHS: 10, '10': 'GRAPHS',
+    SPARSE_TENSOR: 11, '11': 'SPARSE_TENSOR',
+    SPARSE_TENSORS: 12, '12': 'SPARSE_TENSORS'
 };
 
 onnxruntime.fbs.Shape = class Shape {
@@ -39,9 +39,9 @@ onnxruntime.fbs.Dimension = class Dimension {
 };
 
 onnxruntime.fbs.DimensionValueType = {
-    UNKNOWN: 0,
-    VALUE: 1,
-    PARAM: 2
+    UNKNOWN: 0, '0': 'UNKNOWN',
+    VALUE: 1, '1': 'VALUE',
+    PARAM: 2, '2': 'PARAM'
 };
 
 onnxruntime.fbs.DimensionValue = class DimensionValue {
@@ -56,27 +56,27 @@ onnxruntime.fbs.DimensionValue = class DimensionValue {
 };
 
 onnxruntime.fbs.TensorDataType = {
-    UNDEFINED: 0,
-    FLOAT: 1,
-    UINT8: 2,
-    INT8: 3,
-    UINT16: 4,
-    INT16: 5,
-    INT32: 6,
-    INT64: 7,
-    STRING: 8,
-    BOOL: 9,
-    FLOAT16: 10,
-    DOUBLE: 11,
-    UINT32: 12,
-    UINT64: 13,
-    COMPLEX64: 14,
-    COMPLEX128: 15,
-    BFLOAT16: 16,
-    FLOAT8E4M3FN: 17,
-    FLOAT8E4M3FNUZ: 18,
-    FLOAT8E5M2: 19,
-    FLOAT8E5M2FNUZ: 20
+    UNDEFINED: 0, '0': 'UNDEFINED',
+    FLOAT: 1, '1': 'FLOAT',
+    UINT8: 2, '2': 'UINT8',
+    INT8: 3, '3': 'INT8',
+    UINT16: 4, '4': 'UINT16',
+    INT16: 5, '5': 'INT16',
+    INT32: 6, '6': 'INT32',
+    INT64: 7, '7': 'INT64',
+    STRING: 8, '8': 'STRING',
+    BOOL: 9, '9': 'BOOL',
+    FLOAT16: 10, '10': 'FLOAT16',
+    DOUBLE: 11, '11': 'DOUBLE',
+    UINT32: 12, '12': 'UINT32',
+    UINT64: 13, '13': 'UINT64',
+    COMPLEX64: 14, '14': 'COMPLEX64',
+    COMPLEX128: 15, '15': 'COMPLEX128',
+    BFLOAT16: 16, '16': 'BFLOAT16',
+    FLOAT8E4M3FN: 17, '17': 'FLOAT8E4M3FN',
+    FLOAT8E4M3FNUZ: 18, '18': 'FLOAT8E4M3FNUZ',
+    FLOAT8E5M2: 19, '19': 'FLOAT8E5M2',
+    FLOAT8E5M2FNUZ: 20, '20': 'FLOAT8E5M2FNUZ'
 };
 
 onnxruntime.fbs.TensorTypeAndShape = class TensorTypeAndShape {
@@ -109,8 +109,8 @@ onnxruntime.fbs.SequenceType = class SequenceType {
 };
 
 onnxruntime.fbs.NodeType = {
-    Primitive: 0,
-    Fused: 1
+    Primitive: 0, '0': 'Primitive',
+    Fused: 1, '1': 'Fused'
 };
 
 onnxruntime.fbs.EdgeEnd = class EdgeEnd {
@@ -378,8 +378,8 @@ onnxruntime.fbs.DeprecatedSessionState = class DeprecatedSessionState {
 };
 
 onnxruntime.fbs.ArgType = {
-    INPUT: 0,
-    OUTPUT: 1
+    INPUT: 0, '0': 'INPUT',
+    OUTPUT: 1, '1': 'OUTPUT'
 };
 
 onnxruntime.fbs.ArgTypeAndIndex = class ArgTypeAndIndex {

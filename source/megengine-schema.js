@@ -6,27 +6,27 @@ mgb.serialization = mgb.serialization || {};
 mgb.serialization.fbs = mgb.serialization.fbs || {};
 
 mgb.serialization.fbs.DTypeEnum = {
-    Float32: 0,
-    Uint8: 1,
-    Int8: 2,
-    Int16: 3,
-    Int32: 4,
-    IntB1: 5,
-    IntB2: 6,
-    IntB4: 7,
-    Byte: 8,
-    Float16: 9,
-    UintB4: 10,
-    Quantized8Asymm: 11,
-    QuantizedS32: 12,
-    QuantizedS8: 13,
-    Quantized4Asymm: 14,
-    QuantizedS4: 15,
-    QuantizedS16: 16,
-    BFloat16: 17,
-    Bool: 18,
-    Uint16: 19,
-    QuantizedS1: 20
+    Float32: 0, '0': 'Float32',
+    Uint8: 1, '1': 'Uint8',
+    Int8: 2, '2': 'Int8',
+    Int16: 3, '3': 'Int16',
+    Int32: 4, '4': 'Int32',
+    IntB1: 5, '5': 'IntB1',
+    IntB2: 6, '6': 'IntB2',
+    IntB4: 7, '7': 'IntB4',
+    Byte: 8, '8': 'Byte',
+    Float16: 9, '9': 'Float16',
+    UintB4: 10, '10': 'UintB4',
+    Quantized8Asymm: 11, '11': 'Quantized8Asymm',
+    QuantizedS32: 12, '12': 'QuantizedS32',
+    QuantizedS8: 13, '13': 'QuantizedS8',
+    Quantized4Asymm: 14, '14': 'Quantized4Asymm',
+    QuantizedS4: 15, '15': 'QuantizedS4',
+    QuantizedS16: 16, '16': 'QuantizedS16',
+    BFloat16: 17, '17': 'BFloat16',
+    Bool: 18, '18': 'Bool',
+    Uint16: 19, '19': 'Uint16',
+    QuantizedS1: 20, '20': 'QuantizedS1'
 };
 
 mgb.serialization.fbs.LinearQuantizationParam = class LinearQuantizationParam {
@@ -66,490 +66,490 @@ mgb.serialization.fbs = mgb.serialization.fbs || {};
 mgb.serialization.fbs.param = mgb.serialization.fbs.param || {};
 
 mgb.serialization.fbs.param.ArgsortOrder = {
-    ASCENDING: 0,
-    DESCENDING: 1
+    ASCENDING: 0, '0': 'ASCENDING',
+    DESCENDING: 1, '1': 'DESCENDING'
 };
 
 mgb.serialization.fbs.param.BNFwdMode = {
-    TRAINING: 0,
-    INFERENCE: 1
+    TRAINING: 0, '0': 'TRAINING',
+    INFERENCE: 1, '1': 'INFERENCE'
 };
 
 mgb.serialization.fbs.param.BNParamDim = {
-    DIM_11HW: 0,
-    DIM_1CHW: 1,
-    DIM_1C11: 2,
-    DIM_111C: 3
+    DIM_11HW: 0, '0': 'DIM_11HW',
+    DIM_1CHW: 1, '1': 'DIM_1CHW',
+    DIM_1C11: 2, '2': 'DIM_1C11',
+    DIM_111C: 3, '3': 'DIM_111C'
 };
 
 mgb.serialization.fbs.param.CondTakeMode = {
-    EQ: 0,
-    NEQ: 1,
-    LT: 2,
-    LEQ: 3,
-    GT: 4,
-    GEQ: 5
+    EQ: 0, '0': 'EQ',
+    NEQ: 1, '1': 'NEQ',
+    LT: 2, '2': 'LT',
+    LEQ: 3, '3': 'LEQ',
+    GT: 4, '4': 'GT',
+    GEQ: 5, '5': 'GEQ'
 };
 
 mgb.serialization.fbs.param.Conv3DBiasNonlineMode = {
-    IDENTITY: 0,
-    RELU: 1,
-    SIGMOID: 2
+    IDENTITY: 0, '0': 'IDENTITY',
+    RELU: 1, '1': 'RELU',
+    SIGMOID: 2, '2': 'SIGMOID'
 };
 
 mgb.serialization.fbs.param.ConvBiasV0NonlineMode = {
-    IDENTITY: 0,
-    RELU: 1,
-    SIGMOID: 2,
-    H_SWISH: 3
+    IDENTITY: 0, '0': 'IDENTITY',
+    RELU: 1, '1': 'RELU',
+    SIGMOID: 2, '2': 'SIGMOID',
+    H_SWISH: 3, '3': 'H_SWISH'
 };
 
 mgb.serialization.fbs.param.ConvPoolingMethod = {
-    WITH_TEXTURE_OBJ: 0,
-    WITH_SHARED_MEM: 1
+    WITH_TEXTURE_OBJ: 0, '0': 'WITH_TEXTURE_OBJ',
+    WITH_SHARED_MEM: 1, '1': 'WITH_SHARED_MEM'
 };
 
 mgb.serialization.fbs.param.ConvPoolingNonlineMode = {
-    IDENTITY: 0,
-    RELU: 1,
-    SIGMOID: 2
+    IDENTITY: 0, '0': 'IDENTITY',
+    RELU: 1, '1': 'RELU',
+    SIGMOID: 2, '2': 'SIGMOID'
 };
 
 mgb.serialization.fbs.param.ConvPoolingPoolMode = {
-    AVERAGE: 0,
-    MAX_: 1
+    AVERAGE: 0, '0': 'AVERAGE',
+    MAX_: 1, '1': 'MAX_'
 };
 
 mgb.serialization.fbs.param.ConvolutionFormat = {
-    NCHW: 0,
-    NHWC: 1,
-    NHWCD4: 2,
-    NCHW4: 3,
-    NCHW8: 4,
-    NCHW32: 5,
-    NCHW88: 6,
-    NCHW44: 7,
-    NCHW44_DOT: 8,
-    NCHW4_NCHW32: 9,
-    NCHW32_NCHW4: 10,
-    NCHW4_NCHW: 11,
-    NHWC_NCHW: 12,
-    NHWC_NCHW4_IC_SMALL: 13,
-    NCHW_NCHW4_IC_SMALL: 14,
-    CHWN4: 15,
-    NCHW64: 16,
-    NCHW4_NHWC: 17
+    NCHW: 0, '0': 'NCHW',
+    NHWC: 1, '1': 'NHWC',
+    NHWCD4: 2, '2': 'NHWCD4',
+    NCHW4: 3, '3': 'NCHW4',
+    NCHW8: 4, '4': 'NCHW8',
+    NCHW32: 5, '5': 'NCHW32',
+    NCHW88: 6, '6': 'NCHW88',
+    NCHW44: 7, '7': 'NCHW44',
+    NCHW44_DOT: 8, '8': 'NCHW44_DOT',
+    NCHW4_NCHW32: 9, '9': 'NCHW4_NCHW32',
+    NCHW32_NCHW4: 10, '10': 'NCHW32_NCHW4',
+    NCHW4_NCHW: 11, '11': 'NCHW4_NCHW',
+    NHWC_NCHW: 12, '12': 'NHWC_NCHW',
+    NHWC_NCHW4_IC_SMALL: 13, '13': 'NHWC_NCHW4_IC_SMALL',
+    NCHW_NCHW4_IC_SMALL: 14, '14': 'NCHW_NCHW4_IC_SMALL',
+    CHWN4: 15, '15': 'CHWN4',
+    NCHW64: 16, '16': 'NCHW64',
+    NCHW4_NHWC: 17, '17': 'NCHW4_NHWC'
 };
 
 mgb.serialization.fbs.param.Convolution3DDataType = {
-    FLOAT: 0,
-    FLOAT_IO16xC32: 1
+    FLOAT: 0, '0': 'FLOAT',
+    FLOAT_IO16xC32: 1, '1': 'FLOAT_IO16xC32'
 };
 
 mgb.serialization.fbs.param.Convolution3DFormat = {
-    NCDHW: 0,
-    NDHWC: 1
+    NCDHW: 0, '0': 'NCDHW',
+    NDHWC: 1, '1': 'NDHWC'
 };
 
 mgb.serialization.fbs.param.Convolution3DMode = {
-    CROSS_CORRELATION: 0,
-    CONVOLUTION: 1
+    CROSS_CORRELATION: 0, '0': 'CROSS_CORRELATION',
+    CONVOLUTION: 1, '1': 'CONVOLUTION'
 };
 
 mgb.serialization.fbs.param.Convolution3DSparse = {
-    DENSE: 0,
-    GROUP: 1
+    DENSE: 0, '0': 'DENSE',
+    GROUP: 1, '1': 'GROUP'
 };
 
 mgb.serialization.fbs.param.ConvolutionV0DataType = {
-    FLOAT: 0,
-    INT8x8x16: 1,
-    INT8x8x32: 2,
-    FLOAT_IO16xC32: 3,
-    QUINT8x8x32: 4,
-    INT8x8xX: 5,
-    QUINT4x4x32: 6
+    FLOAT: 0, '0': 'FLOAT',
+    INT8x8x16: 1, '1': 'INT8x8x16',
+    INT8x8x32: 2, '2': 'INT8x8x32',
+    FLOAT_IO16xC32: 3, '3': 'FLOAT_IO16xC32',
+    QUINT8x8x32: 4, '4': 'QUINT8x8x32',
+    INT8x8xX: 5, '5': 'INT8x8xX',
+    QUINT4x4x32: 6, '6': 'QUINT4x4x32'
 };
 
 mgb.serialization.fbs.param.ConvolutionV0Format = {
-    NCHW: 0,
-    NHWC: 1,
-    NHWCD4: 2,
-    NCHW4: 3,
-    NCHW8: 4,
-    NCHW32: 5,
-    NCHW88: 6,
-    NCHW44: 7,
-    NCHW44_DOT: 8,
-    NCHW_WINOGRAD: 9,
-    NCHW88_WINOGRAD: 10,
-    NCHW44_WINOGRAD: 11,
-    NCHW4_NCHW32: 12,
-    NCHW32_NCHW4: 13,
-    NCHW4_NCHW: 14,
-    NHWC_NCHW: 15,
-    NHWC_NCHW4_IC_SMALL: 16,
-    NCHW_NCHW4_IC_SMALL: 17,
-    CHWN4: 18,
-    NCHW4_NHWC: 19
+    NCHW: 0, '0': 'NCHW',
+    NHWC: 1, '1': 'NHWC',
+    NHWCD4: 2, '2': 'NHWCD4',
+    NCHW4: 3, '3': 'NCHW4',
+    NCHW8: 4, '4': 'NCHW8',
+    NCHW32: 5, '5': 'NCHW32',
+    NCHW88: 6, '6': 'NCHW88',
+    NCHW44: 7, '7': 'NCHW44',
+    NCHW44_DOT: 8, '8': 'NCHW44_DOT',
+    NCHW_WINOGRAD: 9, '9': 'NCHW_WINOGRAD',
+    NCHW88_WINOGRAD: 10, '10': 'NCHW88_WINOGRAD',
+    NCHW44_WINOGRAD: 11, '11': 'NCHW44_WINOGRAD',
+    NCHW4_NCHW32: 12, '12': 'NCHW4_NCHW32',
+    NCHW32_NCHW4: 13, '13': 'NCHW32_NCHW4',
+    NCHW4_NCHW: 14, '14': 'NCHW4_NCHW',
+    NHWC_NCHW: 15, '15': 'NHWC_NCHW',
+    NHWC_NCHW4_IC_SMALL: 16, '16': 'NHWC_NCHW4_IC_SMALL',
+    NCHW_NCHW4_IC_SMALL: 17, '17': 'NCHW_NCHW4_IC_SMALL',
+    CHWN4: 18, '18': 'CHWN4',
+    NCHW4_NHWC: 19, '19': 'NCHW4_NHWC'
 };
 
 mgb.serialization.fbs.param.ConvolutionV0Mode = {
-    CROSS_CORRELATION: 0,
-    CONVOLUTION: 1
+    CROSS_CORRELATION: 0, '0': 'CROSS_CORRELATION',
+    CONVOLUTION: 1, '1': 'CONVOLUTION'
 };
 
 mgb.serialization.fbs.param.ConvolutionV0Sparse = {
-    DENSE: 0,
-    GROUP: 1
+    DENSE: 0, '0': 'DENSE',
+    GROUP: 1, '1': 'GROUP'
 };
 
 mgb.serialization.fbs.param.ConvolutionV1ComputeMode = {
-    DEFAULT: 0,
-    FLOAT32: 1
+    DEFAULT: 0, '0': 'DEFAULT',
+    FLOAT32: 1, '1': 'FLOAT32'
 };
 
 mgb.serialization.fbs.param.CvtColorMode = {
-    RGB2GRAY: 0,
-    RGB2YUV: 1,
-    YUV2RGB: 2,
-    GRAY2RGB: 3,
-    RGBA2RGB: 4,
-    RGBA2BGR: 5,
-    RGBA2GRAY: 6,
-    RGB2BGR: 7,
-    BGR2GRAY: 8,
-    BGR2RGB: 9,
-    YUV2GRAY_NV21: 10,
-    YUV2RGB_NV21: 11,
-    YUV2BGR_NV21: 12,
-    YUV2GRAY_NV12: 13,
-    YUV2RGB_NV12: 14,
-    YUV2BGR_NV12: 15,
-    YUV2GRAY_YV12: 16,
-    YUV2RGB_YV12: 17,
-    YUV2BGR_YV12: 18,
-    YUV2GRAY_YU12: 19,
-    YUV2RGB_YU12: 20,
-    YUV2BGR_YU12: 21,
-    YCrCb2RGB: 22,
-    YCrCb2BGR: 23,
-    BT601_YUV2RGB_NV21: 24,
-    BT601_YUV2BGR_NV21: 25,
-    BT601_YUV2RGB_NV12: 26,
-    BT601_YUV2BGR_NV12: 27,
-    BT601_YUV2RGB_YV12: 28,
-    BT601_YUV2BGR_YV12: 29,
-    BT601_YUV2RGB_YU12: 30,
-    BT601_YUV2BGR_YU12: 31
+    RGB2GRAY: 0, '0': 'RGB2GRAY',
+    RGB2YUV: 1, '1': 'RGB2YUV',
+    YUV2RGB: 2, '2': 'YUV2RGB',
+    GRAY2RGB: 3, '3': 'GRAY2RGB',
+    RGBA2RGB: 4, '4': 'RGBA2RGB',
+    RGBA2BGR: 5, '5': 'RGBA2BGR',
+    RGBA2GRAY: 6, '6': 'RGBA2GRAY',
+    RGB2BGR: 7, '7': 'RGB2BGR',
+    BGR2GRAY: 8, '8': 'BGR2GRAY',
+    BGR2RGB: 9, '9': 'BGR2RGB',
+    YUV2GRAY_NV21: 10, '10': 'YUV2GRAY_NV21',
+    YUV2RGB_NV21: 11, '11': 'YUV2RGB_NV21',
+    YUV2BGR_NV21: 12, '12': 'YUV2BGR_NV21',
+    YUV2GRAY_NV12: 13, '13': 'YUV2GRAY_NV12',
+    YUV2RGB_NV12: 14, '14': 'YUV2RGB_NV12',
+    YUV2BGR_NV12: 15, '15': 'YUV2BGR_NV12',
+    YUV2GRAY_YV12: 16, '16': 'YUV2GRAY_YV12',
+    YUV2RGB_YV12: 17, '17': 'YUV2RGB_YV12',
+    YUV2BGR_YV12: 18, '18': 'YUV2BGR_YV12',
+    YUV2GRAY_YU12: 19, '19': 'YUV2GRAY_YU12',
+    YUV2RGB_YU12: 20, '20': 'YUV2RGB_YU12',
+    YUV2BGR_YU12: 21, '21': 'YUV2BGR_YU12',
+    YCrCb2RGB: 22, '22': 'YCrCb2RGB',
+    YCrCb2BGR: 23, '23': 'YCrCb2BGR',
+    BT601_YUV2RGB_NV21: 24, '24': 'BT601_YUV2RGB_NV21',
+    BT601_YUV2BGR_NV21: 25, '25': 'BT601_YUV2BGR_NV21',
+    BT601_YUV2RGB_NV12: 26, '26': 'BT601_YUV2RGB_NV12',
+    BT601_YUV2BGR_NV12: 27, '27': 'BT601_YUV2BGR_NV12',
+    BT601_YUV2RGB_YV12: 28, '28': 'BT601_YUV2RGB_YV12',
+    BT601_YUV2BGR_YV12: 29, '29': 'BT601_YUV2BGR_YV12',
+    BT601_YUV2RGB_YU12: 30, '30': 'BT601_YUV2RGB_YU12',
+    BT601_YUV2BGR_YU12: 31, '31': 'BT601_YUV2BGR_YU12'
 };
 
 mgb.serialization.fbs.param.DctChannelSelectV0FastImpl = {
-    NONE: 0,
-    FIX_32_MASK: 1
+    NONE: 0, '0': 'NONE',
+    FIX_32_MASK: 1, '1': 'FIX_32_MASK'
 };
 
 mgb.serialization.fbs.param.ElemwiseMode = {
-    RELU: 0,
-    ABS: 1,
-    ACOS: 2,
-    ASIN: 3,
-    CEIL: 4,
-    COS: 5,
-    EXP: 6,
-    EXPM1: 7,
-    FLOOR: 8,
-    LOG: 9,
-    LOG1P: 10,
-    NEGATE: 11,
-    SIGMOID: 12,
-    SIN: 13,
-    TANH: 14,
-    ABS_GRAD: 15,
-    ADD: 16,
-    FLOOR_DIV: 17,
-    MAX_: 18,
-    MIN_: 19,
-    MOD: 20,
-    MUL: 21,
-    POW: 22,
-    SIGMOID_GRAD: 23,
-    SUB: 24,
-    SWITCH_GT0: 25,
-    TANH_GRAD: 26,
-    TRUE_DIV: 27,
-    LOG_SUM_EXP: 28,
-    LT: 29,
-    LEQ: 30,
-    EQ: 31,
-    SHL: 32,
-    SHR: 33,
-    COND_LEQ_MOV: 34,
-    FUSE_MUL_ADD3: 35,
-    FUSE_MUL_ADD4: 36,
-    FUSE_ADD_RELU: 37,
-    FUSE_ADD_SIGMOID: 38,
-    FUSE_ADD_TANH: 39,
-    FAST_TANH: 40,
-    FAST_TANH_GRAD: 41,
-    ROUND: 42,
-    RMULH: 43,
-    ATAN2: 44,
-    ERF: 45,
-    ERFINV: 46,
-    ERFC: 47,
-    ERFCINV: 48,
-    H_SWISH: 49,
-    H_SWISH_GRAD: 50,
-    FUSE_ADD_H_SWISH: 51,
-    NOT: 52,
-    AND: 53,
-    OR: 54,
-    XOR: 55,
-    SILU: 56,
-    SILU_GRAD: 57,
-    GELU: 58,
-    GELU_GRAD: 59
+    RELU: 0, '0': 'RELU',
+    ABS: 1, '1': 'ABS',
+    ACOS: 2, '2': 'ACOS',
+    ASIN: 3, '3': 'ASIN',
+    CEIL: 4, '4': 'CEIL',
+    COS: 5, '5': 'COS',
+    EXP: 6, '6': 'EXP',
+    EXPM1: 7, '7': 'EXPM1',
+    FLOOR: 8, '8': 'FLOOR',
+    LOG: 9, '9': 'LOG',
+    LOG1P: 10, '10': 'LOG1P',
+    NEGATE: 11, '11': 'NEGATE',
+    SIGMOID: 12, '12': 'SIGMOID',
+    SIN: 13, '13': 'SIN',
+    TANH: 14, '14': 'TANH',
+    ABS_GRAD: 15, '15': 'ABS_GRAD',
+    ADD: 16, '16': 'ADD',
+    FLOOR_DIV: 17, '17': 'FLOOR_DIV',
+    MAX_: 18, '18': 'MAX_',
+    MIN_: 19, '19': 'MIN_',
+    MOD: 20, '20': 'MOD',
+    MUL: 21, '21': 'MUL',
+    POW: 22, '22': 'POW',
+    SIGMOID_GRAD: 23, '23': 'SIGMOID_GRAD',
+    SUB: 24, '24': 'SUB',
+    SWITCH_GT0: 25, '25': 'SWITCH_GT0',
+    TANH_GRAD: 26, '26': 'TANH_GRAD',
+    TRUE_DIV: 27, '27': 'TRUE_DIV',
+    LOG_SUM_EXP: 28, '28': 'LOG_SUM_EXP',
+    LT: 29, '29': 'LT',
+    LEQ: 30, '30': 'LEQ',
+    EQ: 31, '31': 'EQ',
+    SHL: 32, '32': 'SHL',
+    SHR: 33, '33': 'SHR',
+    COND_LEQ_MOV: 34, '34': 'COND_LEQ_MOV',
+    FUSE_MUL_ADD3: 35, '35': 'FUSE_MUL_ADD3',
+    FUSE_MUL_ADD4: 36, '36': 'FUSE_MUL_ADD4',
+    FUSE_ADD_RELU: 37, '37': 'FUSE_ADD_RELU',
+    FUSE_ADD_SIGMOID: 38, '38': 'FUSE_ADD_SIGMOID',
+    FUSE_ADD_TANH: 39, '39': 'FUSE_ADD_TANH',
+    FAST_TANH: 40, '40': 'FAST_TANH',
+    FAST_TANH_GRAD: 41, '41': 'FAST_TANH_GRAD',
+    ROUND: 42, '42': 'ROUND',
+    RMULH: 43, '43': 'RMULH',
+    ATAN2: 44, '44': 'ATAN2',
+    ERF: 45, '45': 'ERF',
+    ERFINV: 46, '46': 'ERFINV',
+    ERFC: 47, '47': 'ERFC',
+    ERFCINV: 48, '48': 'ERFCINV',
+    H_SWISH: 49, '49': 'H_SWISH',
+    H_SWISH_GRAD: 50, '50': 'H_SWISH_GRAD',
+    FUSE_ADD_H_SWISH: 51, '51': 'FUSE_ADD_H_SWISH',
+    NOT: 52, '52': 'NOT',
+    AND: 53, '53': 'AND',
+    OR: 54, '54': 'OR',
+    XOR: 55, '55': 'XOR',
+    SILU: 56, '56': 'SILU',
+    SILU_GRAD: 57, '57': 'SILU_GRAD',
+    GELU: 58, '58': 'GELU',
+    GELU_GRAD: 59, '59': 'GELU_GRAD'
 };
 
 mgb.serialization.fbs.param.ElemwiseMultiTypeMode = {
-    FUSE_MUL_ADD3_INT16x32x32x32: 0,
-    FUSE_MUL_ADD3_IXxF32xF32xI8: 1,
-    ROUND_SHR_SATURATE_IXxI8xI8: 2,
-    FUSE_ADD_RMULH_ROUND_SHR_SATURATE_INT16x16x16x8: 3,
-    FUSE_ADD_RMULH_ROUND_SHR_SATURATE_INT32x32x32x8: 4,
-    ROUND_SHR_SATURATE_IXxI8xI16: 5,
-    QADD: 6,
-    QFUSE_ADD_RELU: 7,
-    QMUL: 8,
-    QMIN: 9,
-    QMAX: 10,
-    QSUB: 11,
-    QTRUE_DIV: 12,
-    QFUSE_ADD_SIGMOID: 13,
-    QFUSE_ADD_TANH: 14,
-    QRELU: 15,
-    QABS: 16,
-    QSIGMOID: 17,
-    QEXP: 18,
-    QTANH: 19,
-    QFUSE_MUL_ADD3: 20,
-    QFAST_TANH: 21,
-    QNEGATE: 22,
-    QACOS: 23,
-    QASIN: 24,
-    QCEIL: 25,
-    QCOS: 26,
-    QEXPM1: 27,
-    QFLOOR: 28,
-    QLOG: 29,
-    QLOG1P: 30,
-    QSIN: 31,
-    QROUND: 32,
-    QERF: 33,
-    QERFINV: 34,
-    QERFC: 35,
-    QERFCINV: 36,
-    QABS_GRAD: 37,
-    QFLOOR_DIV: 38,
-    QMOD: 39,
-    QSIGMOID_GRAD: 40,
-    QSWITCH_GT0: 41,
-    QTANH_GRAD: 42,
-    QLT: 43,
-    QLEQ: 44,
-    QEQ: 45,
-    QPOW: 46,
-    QLOG_SUM_EXP: 47,
-    QFAST_TANH_GRAD: 48,
-    QATAN2: 49,
-    QCOND_LEQ_MOV: 50,
-    QH_SWISH: 51,
-    QFUSE_ADD_H_SWISH: 52,
-    QH_SWISH_GRAD: 53,
-    FUSE_MUL_ADD3_INT16xF32xF32xF32: 54,
-    MUL_INT16xF32xF32: 55,
-    FUSE_MUL_ADD3_UINT8xF32xF32xF32: 56
+    FUSE_MUL_ADD3_INT16x32x32x32: 0, '0': 'FUSE_MUL_ADD3_INT16x32x32x32',
+    FUSE_MUL_ADD3_IXxF32xF32xI8: 1, '1': 'FUSE_MUL_ADD3_IXxF32xF32xI8',
+    ROUND_SHR_SATURATE_IXxI8xI8: 2, '2': 'ROUND_SHR_SATURATE_IXxI8xI8',
+    FUSE_ADD_RMULH_ROUND_SHR_SATURATE_INT16x16x16x8: 3, '3': 'FUSE_ADD_RMULH_ROUND_SHR_SATURATE_INT16x16x16x8',
+    FUSE_ADD_RMULH_ROUND_SHR_SATURATE_INT32x32x32x8: 4, '4': 'FUSE_ADD_RMULH_ROUND_SHR_SATURATE_INT32x32x32x8',
+    ROUND_SHR_SATURATE_IXxI8xI16: 5, '5': 'ROUND_SHR_SATURATE_IXxI8xI16',
+    QADD: 6, '6': 'QADD',
+    QFUSE_ADD_RELU: 7, '7': 'QFUSE_ADD_RELU',
+    QMUL: 8, '8': 'QMUL',
+    QMIN: 9, '9': 'QMIN',
+    QMAX: 10, '10': 'QMAX',
+    QSUB: 11, '11': 'QSUB',
+    QTRUE_DIV: 12, '12': 'QTRUE_DIV',
+    QFUSE_ADD_SIGMOID: 13, '13': 'QFUSE_ADD_SIGMOID',
+    QFUSE_ADD_TANH: 14, '14': 'QFUSE_ADD_TANH',
+    QRELU: 15, '15': 'QRELU',
+    QABS: 16, '16': 'QABS',
+    QSIGMOID: 17, '17': 'QSIGMOID',
+    QEXP: 18, '18': 'QEXP',
+    QTANH: 19, '19': 'QTANH',
+    QFUSE_MUL_ADD3: 20, '20': 'QFUSE_MUL_ADD3',
+    QFAST_TANH: 21, '21': 'QFAST_TANH',
+    QNEGATE: 22, '22': 'QNEGATE',
+    QACOS: 23, '23': 'QACOS',
+    QASIN: 24, '24': 'QASIN',
+    QCEIL: 25, '25': 'QCEIL',
+    QCOS: 26, '26': 'QCOS',
+    QEXPM1: 27, '27': 'QEXPM1',
+    QFLOOR: 28, '28': 'QFLOOR',
+    QLOG: 29, '29': 'QLOG',
+    QLOG1P: 30, '30': 'QLOG1P',
+    QSIN: 31, '31': 'QSIN',
+    QROUND: 32, '32': 'QROUND',
+    QERF: 33, '33': 'QERF',
+    QERFINV: 34, '34': 'QERFINV',
+    QERFC: 35, '35': 'QERFC',
+    QERFCINV: 36, '36': 'QERFCINV',
+    QABS_GRAD: 37, '37': 'QABS_GRAD',
+    QFLOOR_DIV: 38, '38': 'QFLOOR_DIV',
+    QMOD: 39, '39': 'QMOD',
+    QSIGMOID_GRAD: 40, '40': 'QSIGMOID_GRAD',
+    QSWITCH_GT0: 41, '41': 'QSWITCH_GT0',
+    QTANH_GRAD: 42, '42': 'QTANH_GRAD',
+    QLT: 43, '43': 'QLT',
+    QLEQ: 44, '44': 'QLEQ',
+    QEQ: 45, '45': 'QEQ',
+    QPOW: 46, '46': 'QPOW',
+    QLOG_SUM_EXP: 47, '47': 'QLOG_SUM_EXP',
+    QFAST_TANH_GRAD: 48, '48': 'QFAST_TANH_GRAD',
+    QATAN2: 49, '49': 'QATAN2',
+    QCOND_LEQ_MOV: 50, '50': 'QCOND_LEQ_MOV',
+    QH_SWISH: 51, '51': 'QH_SWISH',
+    QFUSE_ADD_H_SWISH: 52, '52': 'QFUSE_ADD_H_SWISH',
+    QH_SWISH_GRAD: 53, '53': 'QH_SWISH_GRAD',
+    FUSE_MUL_ADD3_INT16xF32xF32xF32: 54, '54': 'FUSE_MUL_ADD3_INT16xF32xF32xF32',
+    MUL_INT16xF32xF32: 55, '55': 'MUL_INT16xF32xF32',
+    FUSE_MUL_ADD3_UINT8xF32xF32xF32: 56, '56': 'FUSE_MUL_ADD3_UINT8xF32xF32xF32'
 };
 
 mgb.serialization.fbs.param.MatrixMulFormat = {
-    DEFAULT: 0,
-    MK4: 1,
-    MK8: 2,
-    MK4_DOT: 3
+    DEFAULT: 0, '0': 'DEFAULT',
+    MK4: 1, '1': 'MK4',
+    MK8: 2, '2': 'MK8',
+    MK4_DOT: 3, '3': 'MK4_DOT'
 };
 
 mgb.serialization.fbs.param.MatrixMulV0DataType = {
-    FLOAT: 0,
-    INT8x8x16: 1,
-    INT8x8x32: 2,
-    FLOAT_IO16xC32: 3,
-    QUINT8x8x32: 4,
-    QUINT4x4x32: 5
+    FLOAT: 0, '0': 'FLOAT',
+    INT8x8x16: 1, '1': 'INT8x8x16',
+    INT8x8x32: 2, '2': 'INT8x8x32',
+    FLOAT_IO16xC32: 3, '3': 'FLOAT_IO16xC32',
+    QUINT8x8x32: 4, '4': 'QUINT8x8x32',
+    QUINT4x4x32: 5, '5': 'QUINT4x4x32'
 };
 
 mgb.serialization.fbs.param.MatrixMulV1ComputeMode = {
-    DEFAULT: 0,
-    FLOAT32: 1
+    DEFAULT: 0, '0': 'DEFAULT',
+    FLOAT32: 1, '1': 'FLOAT32'
 };
 
 mgb.serialization.fbs.param.PaddingPaddingMode = {
-    REPLICATE: 0,
-    REFLECT: 1,
-    CONSTANT: 2
+    REPLICATE: 0, '0': 'REPLICATE',
+    REFLECT: 1, '1': 'REFLECT',
+    CONSTANT: 2, '2': 'CONSTANT'
 };
 
 mgb.serialization.fbs.param.PoolingV0Mode = {
-    MAX_: 0,
-    AVERAGE: 1,
-    AVERAGE_COUNT_EXCLUDE_PADDING: 2
+    MAX_: 0, '0': 'MAX_',
+    AVERAGE: 1, '1': 'AVERAGE',
+    AVERAGE_COUNT_EXCLUDE_PADDING: 2, '2': 'AVERAGE_COUNT_EXCLUDE_PADDING'
 };
 
 mgb.serialization.fbs.param.RNNCellNonlineMode = {
-    IDENTITY: 0,
-    RELU: 1,
-    TANH: 2
+    IDENTITY: 0, '0': 'IDENTITY',
+    RELU: 1, '1': 'RELU',
+    TANH: 2, '2': 'TANH'
 };
 
 mgb.serialization.fbs.param.ROIAlignV0Mode = {
-    MAX_: 0,
-    AVERAGE: 1
+    MAX_: 0, '0': 'MAX_',
+    AVERAGE: 1, '1': 'AVERAGE'
 };
 
 mgb.serialization.fbs.param.ROIPoolingMode = {
-    MAX_: 0,
-    AVERAGE: 1
+    MAX_: 0, '0': 'MAX_',
+    AVERAGE: 1, '1': 'AVERAGE'
 };
 
 mgb.serialization.fbs.param.ReduceDataType = {
-    DEFAULT: 0,
-    FLOAT_IO16xC32: 1,
-    FLOAT_O32xC32: 2,
-    FLOAT_O16xC32: 3,
-    QUINT_I8xO32: 4,
-    QINT_I8xO32: 5
+    DEFAULT: 0, '0': 'DEFAULT',
+    FLOAT_IO16xC32: 1, '1': 'FLOAT_IO16xC32',
+    FLOAT_O32xC32: 2, '2': 'FLOAT_O32xC32',
+    FLOAT_O16xC32: 3, '3': 'FLOAT_O16xC32',
+    QUINT_I8xO32: 4, '4': 'QUINT_I8xO32',
+    QINT_I8xO32: 5, '5': 'QINT_I8xO32'
 };
 
 mgb.serialization.fbs.param.ReduceMode = {
-    SUM: 0,
-    SUM_SQR: 1,
-    PRODUCT: 2,
-    MIN_: 3,
-    MAX_: 4,
-    MEAN: 5
+    SUM: 0, '0': 'SUM',
+    SUM_SQR: 1, '1': 'SUM_SQR',
+    PRODUCT: 2, '2': 'PRODUCT',
+    MIN_: 3, '3': 'MIN_',
+    MAX_: 4, '4': 'MAX_',
+    MEAN: 5, '5': 'MEAN'
 };
 
 mgb.serialization.fbs.param.ReduceV0Mode = {
-    SUM: 0,
-    SUM_SQR: 1,
-    PRODUCT: 2,
-    MIN_: 3,
-    MAX_: 4
+    SUM: 0, '0': 'SUM',
+    SUM_SQR: 1, '1': 'SUM_SQR',
+    PRODUCT: 2, '2': 'PRODUCT',
+    MIN_: 3, '3': 'MIN_',
+    MAX_: 4, '4': 'MAX_'
 };
 
 mgb.serialization.fbs.param.ReduceV1DataType = {
-    DEFAULT: 0,
-    FLOAT_IO16xC32: 1,
-    FLOAT_O32xC32: 2,
-    FLOAT_O16xC32: 3,
-    QUINT_I8xO32: 4,
-    QINT_I8xO32: 5
+    DEFAULT: 0, '0': 'DEFAULT',
+    FLOAT_IO16xC32: 1, '1': 'FLOAT_IO16xC32',
+    FLOAT_O32xC32: 2, '2': 'FLOAT_O32xC32',
+    FLOAT_O16xC32: 3, '3': 'FLOAT_O16xC32',
+    QUINT_I8xO32: 4, '4': 'QUINT_I8xO32',
+    QINT_I8xO32: 5, '5': 'QINT_I8xO32'
 };
 
 mgb.serialization.fbs.param.ReduceV1Mode = {
-    SUM: 0,
-    SUM_SQR: 1,
-    PRODUCT: 2,
-    MIN_: 3,
-    MAX_: 4,
-    MEAN: 5
+    SUM: 0, '0': 'SUM',
+    SUM_SQR: 1, '1': 'SUM_SQR',
+    PRODUCT: 2, '2': 'PRODUCT',
+    MIN_: 3, '3': 'MIN_',
+    MAX_: 4, '4': 'MAX_',
+    MEAN: 5, '5': 'MEAN'
 };
 
 mgb.serialization.fbs.param.RelayoutFormatV0Mode = {
-    NHWC_NHWCD4: 0,
-    NHWCD4_NHWC: 1,
-    NHWC_NHWCD4I: 2,
-    NCHW_NHWCD4: 3,
-    NCHW_NHWCD4I: 4,
-    NHWCD4I_NCHW: 5,
-    NHWCD4_NCHW: 6,
-    INTER_WEIGHT_DENSE: 7,
-    INTER_WEIGHT_DENSEI: 8,
-    INTER_WEIGHT_GROUP: 9,
-    INTER_WEIGHT_GROUPI: 10,
-    INTER_WEIGHT_CHAN: 11,
-    INTER_WEIGHT_CHANI: 12,
-    INTER_WEIGHT_DENSEI_DOT: 13,
-    INTER_WEIGHT_GROUPI_DOT: 14,
-    NCHW4_CHWN4: 15,
-    CHWN4_NCHW4: 16,
-    NCHW_NCHW88_CONV_DENSE_WEIGHT: 17,
-    NCHW_NCHW88_CONV_CHAN_WEIGHT: 18,
-    NCHW_NCHW88_CONV_GROUP_WEIGHT: 19,
-    NCHW_NCHW88: 20,
-    NCHW88_NCHW: 21,
-    NCHW_NCHW4_IC_SMALL: 22,
-    NCHW_NCHW4_IC_SMALL_CONV_DENSE_WEIGHT: 23,
-    NCHW_NCHW4: 24,
-    NCHW4_NCHW: 25,
-    NCHW_NCHW4_WEIGHT: 26,
-    NCHW_NCHW64: 27,
-    NCHW64_NCHW: 28,
-    NCHW_NHWC: 29,
-    NHWC_NCHW: 30,
-    NHWCD4I_NHWC: 31
+    NHWC_NHWCD4: 0, '0': 'NHWC_NHWCD4',
+    NHWCD4_NHWC: 1, '1': 'NHWCD4_NHWC',
+    NHWC_NHWCD4I: 2, '2': 'NHWC_NHWCD4I',
+    NCHW_NHWCD4: 3, '3': 'NCHW_NHWCD4',
+    NCHW_NHWCD4I: 4, '4': 'NCHW_NHWCD4I',
+    NHWCD4I_NCHW: 5, '5': 'NHWCD4I_NCHW',
+    NHWCD4_NCHW: 6, '6': 'NHWCD4_NCHW',
+    INTER_WEIGHT_DENSE: 7, '7': 'INTER_WEIGHT_DENSE',
+    INTER_WEIGHT_DENSEI: 8, '8': 'INTER_WEIGHT_DENSEI',
+    INTER_WEIGHT_GROUP: 9, '9': 'INTER_WEIGHT_GROUP',
+    INTER_WEIGHT_GROUPI: 10, '10': 'INTER_WEIGHT_GROUPI',
+    INTER_WEIGHT_CHAN: 11, '11': 'INTER_WEIGHT_CHAN',
+    INTER_WEIGHT_CHANI: 12, '12': 'INTER_WEIGHT_CHANI',
+    INTER_WEIGHT_DENSEI_DOT: 13, '13': 'INTER_WEIGHT_DENSEI_DOT',
+    INTER_WEIGHT_GROUPI_DOT: 14, '14': 'INTER_WEIGHT_GROUPI_DOT',
+    NCHW4_CHWN4: 15, '15': 'NCHW4_CHWN4',
+    CHWN4_NCHW4: 16, '16': 'CHWN4_NCHW4',
+    NCHW_NCHW88_CONV_DENSE_WEIGHT: 17, '17': 'NCHW_NCHW88_CONV_DENSE_WEIGHT',
+    NCHW_NCHW88_CONV_CHAN_WEIGHT: 18, '18': 'NCHW_NCHW88_CONV_CHAN_WEIGHT',
+    NCHW_NCHW88_CONV_GROUP_WEIGHT: 19, '19': 'NCHW_NCHW88_CONV_GROUP_WEIGHT',
+    NCHW_NCHW88: 20, '20': 'NCHW_NCHW88',
+    NCHW88_NCHW: 21, '21': 'NCHW88_NCHW',
+    NCHW_NCHW4_IC_SMALL: 22, '22': 'NCHW_NCHW4_IC_SMALL',
+    NCHW_NCHW4_IC_SMALL_CONV_DENSE_WEIGHT: 23, '23': 'NCHW_NCHW4_IC_SMALL_CONV_DENSE_WEIGHT',
+    NCHW_NCHW4: 24, '24': 'NCHW_NCHW4',
+    NCHW4_NCHW: 25, '25': 'NCHW4_NCHW',
+    NCHW_NCHW4_WEIGHT: 26, '26': 'NCHW_NCHW4_WEIGHT',
+    NCHW_NCHW64: 27, '27': 'NCHW_NCHW64',
+    NCHW64_NCHW: 28, '28': 'NCHW64_NCHW',
+    NCHW_NHWC: 29, '29': 'NCHW_NHWC',
+    NHWC_NCHW: 30, '30': 'NHWC_NCHW',
+    NHWCD4I_NHWC: 31, '31': 'NHWCD4I_NHWC'
 };
 
 mgb.serialization.fbs.param.SeparableConvBorderMode = {
-    BORDER_REPLICATE: 0,
-    BORDER_REFLECT: 1,
-    BORDER_REFLECT_101: 2,
-    BORDER_WRAP: 3,
-    BORDER_CONSTANT: 4,
-    BORDER_TRANSPARENT: 5,
-    BORDER_ISOLATED: 6
+    BORDER_REPLICATE: 0, '0': 'BORDER_REPLICATE',
+    BORDER_REFLECT: 1, '1': 'BORDER_REFLECT',
+    BORDER_REFLECT_101: 2, '2': 'BORDER_REFLECT_101',
+    BORDER_WRAP: 3, '3': 'BORDER_WRAP',
+    BORDER_CONSTANT: 4, '4': 'BORDER_CONSTANT',
+    BORDER_TRANSPARENT: 5, '5': 'BORDER_TRANSPARENT',
+    BORDER_ISOLATED: 6, '6': 'BORDER_ISOLATED'
 };
 
 mgb.serialization.fbs.param.SeparableConv3DBorderMode = {
-    BORDER_REPLICATE: 0,
-    BORDER_REFLECT: 1,
-    BORDER_REFLECT_101: 2,
-    BORDER_WRAP: 3,
-    BORDER_CONSTANT: 4,
-    BORDER_TRANSPARENT: 5,
-    BORDER_ISOLATED: 6
+    BORDER_REPLICATE: 0, '0': 'BORDER_REPLICATE',
+    BORDER_REFLECT: 1, '1': 'BORDER_REFLECT',
+    BORDER_REFLECT_101: 2, '2': 'BORDER_REFLECT_101',
+    BORDER_WRAP: 3, '3': 'BORDER_WRAP',
+    BORDER_CONSTANT: 4, '4': 'BORDER_CONSTANT',
+    BORDER_TRANSPARENT: 5, '5': 'BORDER_TRANSPARENT',
+    BORDER_ISOLATED: 6, '6': 'BORDER_ISOLATED'
 };
 
 mgb.serialization.fbs.param.SpatialTfGridGeneratorMode = {
-    AFFINE: 0
+    AFFINE: 0, '0': 'AFFINE'
 };
 
 mgb.serialization.fbs.param.SpatialTfSamplerMode = {
-    BILINEAR: 0
+    BILINEAR: 0, '0': 'BILINEAR'
 };
 
 mgb.serialization.fbs.param.TopKMode = {
-    KTH_ONLY: 0,
-    VALUE_IDX_NOSORT: 1,
-    VALUE_IDX_SORTED: 2
+    KTH_ONLY: 0, '0': 'KTH_ONLY',
+    VALUE_IDX_NOSORT: 1, '1': 'VALUE_IDX_NOSORT',
+    VALUE_IDX_SORTED: 2, '2': 'VALUE_IDX_SORTED'
 };
 
 mgb.serialization.fbs.param.WarpPerspectiveV1BorderMode = {
-    REPLICATE: 0,
-    REFLECT: 1,
-    REFLECT_101: 2,
-    WRAP: 3,
-    CONSTANT: 4,
-    TRANSPARENT: 5,
-    ISOLATED: 6
+    REPLICATE: 0, '0': 'REPLICATE',
+    REFLECT: 1, '1': 'REFLECT',
+    REFLECT_101: 2, '2': 'REFLECT_101',
+    WRAP: 3, '3': 'WRAP',
+    CONSTANT: 4, '4': 'CONSTANT',
+    TRANSPARENT: 5, '5': 'TRANSPARENT',
+    ISOLATED: 6, '6': 'ISOLATED'
 };
 
 mgb.serialization.fbs.param.WarpPerspectiveV1InterpolationMode = {
-    NEAREST: 0,
-    LINEAR: 1,
-    AREA: 2,
-    CUBIC: 3,
-    LANCZOS4: 4
+    NEAREST: 0, '0': 'NEAREST',
+    LINEAR: 1, '1': 'LINEAR',
+    AREA: 2, '2': 'AREA',
+    CUBIC: 3, '3': 'CUBIC',
+    LANCZOS4: 4, '4': 'LANCZOS4'
 };
 
 mgb.serialization.fbs.param.Empty = class Empty {
@@ -1824,65 +1824,65 @@ mgb.serialization.fbs.param.LSTM = class LSTM {
 };
 
 mgb.serialization.fbs.param.CollectiveCommMode = {
-    REDUCE_SUM: 0,
-    BROADCAST: 1,
-    ALL_GATHER: 2,
-    REDUCE_SCATTER_SUM: 3,
-    ALL_REDUCE_SUM: 4,
-    ALL_REDUCE_MAX: 5,
-    ALL_REDUCE_MIN: 6,
-    ALL_REDUCE_PROD: 7,
-    GATHER: 8,
-    SCATTER: 9,
-    ALL_TO_ALL: 10
+    REDUCE_SUM: 0, '0': 'REDUCE_SUM',
+    BROADCAST: 1, '1': 'BROADCAST',
+    ALL_GATHER: 2, '2': 'ALL_GATHER',
+    REDUCE_SCATTER_SUM: 3, '3': 'REDUCE_SCATTER_SUM',
+    ALL_REDUCE_SUM: 4, '4': 'ALL_REDUCE_SUM',
+    ALL_REDUCE_MAX: 5, '5': 'ALL_REDUCE_MAX',
+    ALL_REDUCE_MIN: 6, '6': 'ALL_REDUCE_MIN',
+    ALL_REDUCE_PROD: 7, '7': 'ALL_REDUCE_PROD',
+    GATHER: 8, '8': 'GATHER',
+    SCATTER: 9, '9': 'SCATTER',
+    ALL_TO_ALL: 10, '10': 'ALL_TO_ALL'
 };
 
 mgb.serialization.fbs.param.CondExecMarkGradMode = {
-    SUM: 0,
-    SUM_COND_OUT: 1
+    SUM: 0, '0': 'SUM',
+    SUM_COND_OUT: 1, '1': 'SUM_COND_OUT'
 };
 
 mgb.serialization.fbs.param.CondExecMarkStaticInfer = {
-    SHAPE_VALUE: 0,
-    SHAPE_ONLY: 1,
-    NONE: 2
+    SHAPE_VALUE: 0, '0': 'SHAPE_VALUE',
+    SHAPE_ONLY: 1, '1': 'SHAPE_ONLY',
+    NONE: 2, '2': 'NONE'
 };
 
 mgb.serialization.fbs.param.CondExecMergeMode = {
-    EXACT_ONE: 0,
-    EXACT_ONE_SAME_SHAPE: 1,
-    SUM: 2,
-    SUM_COND_OUT: 3
+    EXACT_ONE: 0, '0': 'EXACT_ONE',
+    EXACT_ONE_SAME_SHAPE: 1, '1': 'EXACT_ONE_SAME_SHAPE',
+    SUM: 2, '2': 'SUM',
+    SUM_COND_OUT: 3, '3': 'SUM_COND_OUT'
 };
 
 mgb.serialization.fbs.param.CondExecPredMode = {
-    CASE: 0,
-    CASE_FALLBACK: 1,
-    PIECEWISE: 2
+    CASE: 0, '0': 'CASE',
+    CASE_FALLBACK: 1, '1': 'CASE_FALLBACK',
+    PIECEWISE: 2, '2': 'PIECEWISE'
 };
 
 mgb.serialization.fbs.param.CondExecPredLogicalMode = {
-    OR: 0,
-    AND: 1,
-    XOR: 2,
-    NOR: 3,
-    NAND: 4,
-    XNOR: 5
+    OR: 0, '0': 'OR',
+    AND: 1, '1': 'AND',
+    XOR: 2, '2': 'XOR',
+    NOR: 3, '3': 'NOR',
+    NAND: 4, '4': 'NAND',
+    XNOR: 5, '5': 'XNOR'
 };
 
 mgb.serialization.fbs.param.ExecutionPolicyStrategy = {
-    HEURISTIC: 0,
-    PROFILE: 1,
-    REPRODUCIBLE: 2,
-    OPTIMIZED: 3
+    HEURISTIC: 0, '0': 'HEURISTIC',
+    PROFILE: 1, '1': 'PROFILE',
+    REPRODUCIBLE: 2, '2': 'REPRODUCIBLE',
+    OPTIMIZED: 3, '3': 'OPTIMIZED'
 };
 
 mgb.serialization.fbs.param.ExecutionPolicyV0Strategy = {
-    HEURISTIC: 0,
-    HEURISTIC_REPRODUCIBLE: 1,
-    PROFILE: 2,
-    PROFILE_REPRODUCIBLE: 3,
-    PROFILE_HEURISTIC: 4
+    HEURISTIC: 0, '0': 'HEURISTIC',
+    HEURISTIC_REPRODUCIBLE: 1, '1': 'HEURISTIC_REPRODUCIBLE',
+    PROFILE: 2, '2': 'PROFILE',
+    PROFILE_REPRODUCIBLE: 3, '3': 'PROFILE_REPRODUCIBLE',
+    PROFILE_HEURISTIC: 4, '4': 'PROFILE_HEURISTIC'
 };
 
 mgb.serialization.fbs.param.DType = class DType {
@@ -2039,7 +2039,7 @@ mgb.serialization.fbs.param.PersistentDTypeScalar = class PersistentDTypeScalar 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.PersistentDTypeScalar();
         $.dtype = reader.int8(position + 0);
-        $.storage = undefined; // not implemented
+        $.storage = reader.read(position + 1, 4);
         return $;
     }
 };
@@ -2077,8 +2077,8 @@ mgb.serialization.fbs.param.Dimshuffle = class Dimshuffle {
 };
 
 mgb.serialization.fbs.param.AxisDescMethod = {
-    ADD_1: 0,
-    REMOVE: 1
+    ADD_1: 0, '0': 'ADD_1',
+    REMOVE: 1, '1': 'REMOVE'
 };
 
 mgb.serialization.fbs.param.AxisDesc = class AxisDesc {

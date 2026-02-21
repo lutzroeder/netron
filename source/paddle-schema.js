@@ -8,22 +8,22 @@ paddle.lite.fbs = paddle.lite.fbs || {};
 paddle.lite.fbs.proto = paddle.lite.fbs.proto || {};
 
 paddle.lite.fbs.proto.AttrType = {
-    INT: 0,
-    FLOAT: 1,
-    STRING: 2,
-    INTS: 3,
-    FLOATS: 4,
-    STRINGS: 5,
-    BOOLEAN: 6,
-    BOOLEANS: 7,
-    BLOCK: 8,
-    LONG: 9,
-    BLOCKS: 10,
-    LONGS: 11,
-    FLOAT64S: 12,
-    VAR: 13,
-    VARS: 14,
-    FLOAT64: 15
+    INT: 0, '0': 'INT',
+    FLOAT: 1, '1': 'FLOAT',
+    STRING: 2, '2': 'STRING',
+    INTS: 3, '3': 'INTS',
+    FLOATS: 4, '4': 'FLOATS',
+    STRINGS: 5, '5': 'STRINGS',
+    BOOLEAN: 6, '6': 'BOOLEAN',
+    BOOLEANS: 7, '7': 'BOOLEANS',
+    BLOCK: 8, '8': 'BLOCK',
+    LONG: 9, '9': 'LONG',
+    BLOCKS: 10, '10': 'BLOCKS',
+    LONGS: 11, '11': 'LONGS',
+    FLOAT64S: 12, '12': 'FLOAT64S',
+    VAR: 13, '13': 'VAR',
+    VARS: 14, '14': 'VARS',
+    FLOAT64: 15, '15': 'FLOAT64'
 };
 
 paddle.lite.fbs.proto.Version = class Version {
@@ -241,27 +241,27 @@ paddle.lite.fbs.proto = paddle.lite.fbs.proto || {};
 paddle.lite.fbs.proto.VarType_ = paddle.lite.fbs.proto.VarType_ || {};
 
 paddle.lite.fbs.proto.VarType_.Type = {
-    BOOL: 0,
-    INT16: 1,
-    INT32: 2,
-    INT64: 3,
-    FP16: 4,
-    FP32: 5,
-    FP64: 6,
-    DENSE_TENSOR: 7,
-    SELECTED_ROWS: 8,
-    FEED_MINIBATCH: 9,
-    FETCH_LIST: 10,
-    STEP_SCOPES: 11,
-    LOD_RANK_TABLE: 12,
-    DENSE_TENSOR_ARRAY: 13,
-    PLACE_LIST: 14,
-    READER: 15,
-    RAW: 17,
-    TUPLE: 18,
-    SIZE_T: 19,
-    UINT8: 20,
-    INT8: 21
+    BOOL: 0, '0': 'BOOL',
+    INT16: 1, '1': 'INT16',
+    INT32: 2, '2': 'INT32',
+    INT64: 3, '3': 'INT64',
+    FP16: 4, '4': 'FP16',
+    FP32: 5, '5': 'FP32',
+    FP64: 6, '6': 'FP64',
+    DENSE_TENSOR: 7, '7': 'DENSE_TENSOR',
+    SELECTED_ROWS: 8, '8': 'SELECTED_ROWS',
+    FEED_MINIBATCH: 9, '9': 'FEED_MINIBATCH',
+    FETCH_LIST: 10, '10': 'FETCH_LIST',
+    STEP_SCOPES: 11, '11': 'STEP_SCOPES',
+    LOD_RANK_TABLE: 12, '12': 'LOD_RANK_TABLE',
+    DENSE_TENSOR_ARRAY: 13, '13': 'DENSE_TENSOR_ARRAY',
+    PLACE_LIST: 14, '14': 'PLACE_LIST',
+    READER: 15, '15': 'READER',
+    RAW: 17, '17': 'RAW',
+    TUPLE: 18, '18': 'TUPLE',
+    SIZE_T: 19, '19': 'SIZE_T',
+    UINT8: 20, '20': 'UINT8',
+    INT8: 21, '21': 'INT8'
 };
 
 paddle.lite.fbs.proto.VarType_.TensorDesc = class TensorDesc {
@@ -354,11 +354,11 @@ paddle.lite.fbs.proto = paddle.lite.fbs.proto || {};
 paddle.lite.fbs.proto.CompatibleInfo_ = paddle.lite.fbs.proto.CompatibleInfo_ || {};
 
 paddle.lite.fbs.proto.CompatibleInfo_.Type = {
-    COMPATIBLE: 0,
-    DEFINITELY_NOT: 1,
-    POSSIBLE: 2,
-    BUG_FIX: 3,
-    PRECISION_CHANGE: 4
+    COMPATIBLE: 0, '0': 'COMPATIBLE',
+    DEFINITELY_NOT: 1, '1': 'DEFINITELY_NOT',
+    POSSIBLE: 2, '2': 'POSSIBLE',
+    BUG_FIX: 3, '3': 'BUG_FIX',
+    PRECISION_CHANGE: 4, '4': 'PRECISION_CHANGE'
 };
 
 paddle.lite = paddle.lite || {};

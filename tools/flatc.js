@@ -1149,7 +1149,26 @@ flatc.Generator = class {
                         if (field.length === undefined) {
                             throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
                         }
-                        this._builder.add(`$.${field.name} = undefined; // not implemented`);
+                        const fieldType = field.type instanceof flatc.Enum ? field.type.base : field.type;
+                        if (fieldType instanceof flatc.PrimitiveType) {
+                            const totalBytes = field.length * fieldType.size;
+                            if (fieldType.size === 1) {
+                                this._builder.add(`$.${field.name} = reader.read(position + ${field.offset}, ${totalBytes});`);
+                            } else {
+                                const arrayType = `${fieldType.name[0].toUpperCase() + fieldType.name.substring(1)}Array`;
+                                this._builder.add(`$.${field.name} = new ${arrayType}(reader.read(position + ${field.offset}, ${totalBytes}).buffer, 0, ${field.length});`);
+                            }
+                        } else if (field.type instanceof flatc.Struct) {
+                            const fieldRef = `${field.type.parent.name}.${field.type.name}`;
+                            this._builder.add(`$.${field.name} = new Array(${field.length});`);
+                            this._builder.add(`for (let i = 0; i < ${field.length}; i++) {`);
+                            this._builder.indent();
+                            this._builder.add(`$.${field.name}[i] = ${fieldRef}.decode(reader, position + ${field.offset} + i * ${field.type.size});`);
+                            this._builder.outdent();
+                            this._builder.add('}');
+                        } else {
+                            throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
+                        }
                     } else if (field.type instanceof flatc.PrimitiveType) {
                         this._builder.add(`$.${field.name} = reader.${field.type.name}(position + ${field.offset});`);
                     } else if (field.type instanceof flatc.Enum) {
@@ -1172,7 +1191,19 @@ flatc.Generator = class {
                     this._builder.add(`const $ = new ${typeReference}();`);
                     for (const field of type.fields.values()) {
                         if (field.repeated) {
-                            throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
+                            if (field.length === undefined) {
+                                throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
+                            }
+                            const fieldType = field.type instanceof flatc.Enum ? field.type.base : field.type;
+                            if (fieldType instanceof flatc.PrimitiveType) {
+                                const arrayType = `${fieldType.name[0].toUpperCase() + fieldType.name.substring(1)}Array`;
+                                this._builder.add(`$.${field.name} = reader.array(json.${field.name}, ${arrayType});`);
+                            } else if (field.type instanceof flatc.Struct) {
+                                const fieldRef = `${field.type.parent.name}.${field.type.name}`;
+                                this._builder.add(`$.${field.name} = reader.objects(json.${field.name}, ${fieldRef});`);
+                            } else {
+                                throw new flatc.Error(`Struct '${typeName}' may contain only scalar or struct fields.`);
+                            }
                         } else if (field.type instanceof flatc.PrimitiveType) {
                             this._builder.add(`$.${field.name} = json.${field.name};`);
                         } else if (field.type instanceof flatc.Enum) {
@@ -1282,7 +1313,8 @@ flatc.Generator = class {
             const keys = Array.from(type.values.keys());
             for (let i = 0; i < keys.length; i++) {
                 const key = keys[i];
-                this._builder.add(`${key}: ${type.values.get(key)}${i === keys.length - 1 ? '' : ','}`);
+                const value = type.values.get(key);
+                this._builder.add(`${key}: ${value}, '${value}': '${key}'${i === keys.length - 1 ? '' : ','}`);
             }
         this._builder.outdent();
         this._builder.add('};');

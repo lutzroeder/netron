@@ -381,7 +381,10 @@ tflite.Node = class {
                     visible = false;
                 }
                 if (type) {
-                    value = tflite.Utility.enum(type, value);
+                    const enumType = tflite.schema[type];
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 }
                 if (metadata) {
                     if (metadata.visible === false) {
@@ -492,7 +495,16 @@ tflite.TensorType = class {
 
     constructor(tensor, denotation) {
         const shape = tensor.shape_signature && tensor.shape_signature.length > 0 ? tensor.shape_signature : tensor.shape;
-        this.dataType = tflite.Utility.dataType(tensor.type);
+        switch (tensor.type) {
+            case tflite.schema.TensorType.BOOL: this.dataType = 'boolean'; break;
+            case tflite.schema.TensorType.COMPLEX64: this.dataType = 'complex<float32>'; break;
+            case tflite.schema.TensorType.COMPLEX128: this.dataType = 'complex<float64>'; break;
+            default: {
+                const name = tflite.schema.TensorType[tensor.type];
+                this.dataType = name ? name.toLowerCase() : '?';
+                break;
+            }
+        }
         this.shape = new tflite.TensorShape(Array.from(shape || []));
         this.denotation = denotation;
     }
@@ -513,36 +525,6 @@ tflite.TensorShape = class {
             return '';
         }
         return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
-    }
-};
-
-tflite.Utility = class {
-
-    static dataType(type) {
-        if (!tflite.Utility._tensorTypes) {
-            const TensorType = tflite.schema.TensorType;
-            tflite.Utility._tensorTypes = new Map(Object.entries(tflite.schema.TensorType).map(([key, value]) => [value, key.toLowerCase()]));
-            tflite.Utility._tensorTypes.set(TensorType.BOOL, 'boolean');
-            tflite.Utility._tensorTypes.set(tflite.schema.TensorType.COMPLEX64, 'complex<float32>');
-            tflite.Utility._tensorTypes.set(tflite.schema.TensorType.COMPLEX128, 'complex<float64>');
-        }
-        return tflite.Utility._tensorTypes.has(type) ? tflite.Utility._tensorTypes.get(type) : '?';
-    }
-
-    static enum(name, value) {
-        const type = name && tflite.schema ? tflite.schema[name] : undefined;
-        if (type) {
-            tflite.Utility._enums = tflite.Utility._enums || new Map();
-            if (!tflite.Utility._enums.has(name)) {
-                const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
-                tflite.Utility._enums.set(name, entries);
-            }
-            const map = tflite.Utility._enums.get(name);
-            if (map.has(value)) {
-                return map.get(value);
-            }
-        }
-        return value;
     }
 };
 

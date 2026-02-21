@@ -373,7 +373,10 @@ circle.Node = class {
                     visible = false;
                 }
                 if (type) {
-                    value = circle.Utility.enum(type, value);
+                    const enumType = circle.schema[type];
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 }
                 if (metadata) {
                     if (metadata.visible === false) {
@@ -484,7 +487,14 @@ circle.TensorType = class {
 
     constructor(tensor, denotation) {
         const shape = tensor.shape_signature && tensor.shape_signature.length > 0 ? tensor.shape_signature : tensor.shape;
-        this.dataType = circle.Utility.dataType(tensor.type);
+        switch (tensor.type) {
+            case circle.schema.TensorType.BOOL: this.dataType = 'boolean'; break;
+            default: {
+                const name = circle.schema.TensorType[tensor.type];
+                this.dataType = name ? name.toLowerCase() : '?';
+                break;
+            }
+        }
         this.shape = new circle.TensorShape(Array.from(shape || []));
         this.denotation = denotation;
     }
@@ -505,33 +515,6 @@ circle.TensorShape = class {
             return '';
         }
         return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
-    }
-};
-
-circle.Utility = class {
-
-    static dataType(type) {
-        if (!circle.Utility._tensorTypes) {
-            circle.Utility._tensorTypes = new Map(Object.entries(circle.schema.TensorType).map(([key, value]) => [value, key.toLowerCase()]));
-            circle.Utility._tensorTypes.set(6, 'boolean');
-        }
-        return circle.Utility._tensorTypes.has(type) ? circle.Utility._tensorTypes.get(type) : '?';
-    }
-
-    static enum(name, value) {
-        const type = name && circle.schema ? circle.schema[name] : undefined;
-        if (type) {
-            circle.Utility._enums = circle.Utility._enums || new Map();
-            if (!circle.Utility._enums.has(name)) {
-                const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
-                circle.Utility._enums.set(name, entries);
-            }
-            const map = circle.Utility._enums.get(name);
-            if (map.has(value)) {
-                return map.get(value);
-            }
-        }
-        return value;
     }
 };
 

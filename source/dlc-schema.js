@@ -75,8 +75,8 @@ dlc.v3.Attribute = class Attribute {
 };
 
 dlc.v3.Activation = {
-    ReLU: 1,
-    Sigmoid: 3
+    ReLU: 1, '1': 'ReLU',
+    Sigmoid: 3, '3': 'Sigmoid'
 };
 
 dlc.v3.ModelParameters = class ModelParameters {

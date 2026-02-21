@@ -6,29 +6,29 @@ export const fb_xnnpack = {};
 export const vkgraph = {};
 
 executorch_flatbuffer.ScalarType = {
-    BYTE: 0,
-    CHAR: 1,
-    SHORT: 2,
-    INT: 3,
-    LONG: 4,
-    HALF: 5,
-    FLOAT: 6,
-    DOUBLE: 7,
-    BOOL: 11,
-    QINT8: 12,
-    QUINT8: 13,
-    QINT32: 14,
-    BFLOAT16: 15,
-    QUINT4X2: 16,
-    QUINT2X4: 17,
-    BITS16: 22,
-    FLOAT8E5M2: 23,
-    FLOAT8E4M3FN: 24,
-    FLOAT8E5M2FNUZ: 25,
-    FLOAT8E4M3FNUZ: 26,
-    UINT16: 27,
-    UINT32: 28,
-    UINT64: 29
+    BYTE: 0, '0': 'BYTE',
+    CHAR: 1, '1': 'CHAR',
+    SHORT: 2, '2': 'SHORT',
+    INT: 3, '3': 'INT',
+    LONG: 4, '4': 'LONG',
+    HALF: 5, '5': 'HALF',
+    FLOAT: 6, '6': 'FLOAT',
+    DOUBLE: 7, '7': 'DOUBLE',
+    BOOL: 11, '11': 'BOOL',
+    QINT8: 12, '12': 'QINT8',
+    QUINT8: 13, '13': 'QUINT8',
+    QINT32: 14, '14': 'QINT32',
+    BFLOAT16: 15, '15': 'BFLOAT16',
+    QUINT4X2: 16, '16': 'QUINT4X2',
+    QUINT2X4: 17, '17': 'QUINT2X4',
+    BITS16: 22, '22': 'BITS16',
+    FLOAT8E5M2: 23, '23': 'FLOAT8E5M2',
+    FLOAT8E4M3FN: 24, '24': 'FLOAT8E4M3FN',
+    FLOAT8E5M2FNUZ: 25, '25': 'FLOAT8E5M2FNUZ',
+    FLOAT8E4M3FNUZ: 26, '26': 'FLOAT8E4M3FNUZ',
+    UINT16: 27, '27': 'UINT16',
+    UINT32: 28, '28': 'UINT32',
+    UINT64: 29, '29': 'UINT64'
 };
 
 executorch_flatbuffer.ContainerMetadata = class ContainerMetadata {
@@ -61,14 +61,14 @@ executorch_flatbuffer.AllocationDetails = class AllocationDetails {
 };
 
 executorch_flatbuffer.TensorShapeDynamism = {
-    STATIC: 0,
-    DYNAMIC_BOUND: 1,
-    DYNAMIC_UNBOUND: 2
+    STATIC: 0, '0': 'STATIC',
+    DYNAMIC_BOUND: 1, '1': 'DYNAMIC_BOUND',
+    DYNAMIC_UNBOUND: 2, '2': 'DYNAMIC_UNBOUND'
 };
 
 executorch_flatbuffer.TensorDataLocation = {
-    SEGMENT: 0,
-    EXTERNAL: 1
+    SEGMENT: 0, '0': 'SEGMENT',
+    EXTERNAL: 1, '1': 'EXTERNAL'
 };
 
 executorch_flatbuffer.ExtraTensorInfo = class ExtraTensorInfo {
@@ -314,8 +314,8 @@ executorch_flatbuffer.FrameList = class FrameList {
 };
 
 executorch_flatbuffer.DataLocation = {
-    INLINE: 0,
-    SEGMENT: 1
+    INLINE: 0, '0': 'INLINE',
+    SEGMENT: 1, '1': 'SEGMENT'
 };
 
 executorch_flatbuffer.BackendDelegateDataReference = class BackendDelegateDataReference {
@@ -451,21 +451,21 @@ executorch_flatbuffer.Program = class Program {
 };
 
 fb_xnnpack.XNNDatatype = {
-    xnn_datatype_invalid: 0,
-    xnn_datatype_fp32: 1,
-    xnn_datatype_fp16: 2,
-    xnn_datatype_qint8: 3,
-    xnn_datatype_quint8: 4,
-    xnn_datatype_qint32: 5,
-    xnn_datatype_qcint8: 6,
-    xnn_datatype_qcint32: 7,
-    xnn_datatype_qcint4: 8,
-    xnn_datatype_qdint8: 9,
-    xnn_datatype_qbint4: 10,
-    xnn_datatype_qpint8: 11,
-    xnn_datatype_int32: 12,
-    xnn_datatype_pfp32: 13,
-    xnn_datatype_bf16: 14
+    xnn_datatype_invalid: 0, '0': 'xnn_datatype_invalid',
+    xnn_datatype_fp32: 1, '1': 'xnn_datatype_fp32',
+    xnn_datatype_fp16: 2, '2': 'xnn_datatype_fp16',
+    xnn_datatype_qint8: 3, '3': 'xnn_datatype_qint8',
+    xnn_datatype_quint8: 4, '4': 'xnn_datatype_quint8',
+    xnn_datatype_qint32: 5, '5': 'xnn_datatype_qint32',
+    xnn_datatype_qcint8: 6, '6': 'xnn_datatype_qcint8',
+    xnn_datatype_qcint32: 7, '7': 'xnn_datatype_qcint32',
+    xnn_datatype_qcint4: 8, '8': 'xnn_datatype_qcint4',
+    xnn_datatype_qdint8: 9, '9': 'xnn_datatype_qdint8',
+    xnn_datatype_qbint4: 10, '10': 'xnn_datatype_qbint4',
+    xnn_datatype_qpint8: 11, '11': 'xnn_datatype_qpint8',
+    xnn_datatype_int32: 12, '12': 'xnn_datatype_int32',
+    xnn_datatype_pfp32: 13, '13': 'xnn_datatype_pfp32',
+    xnn_datatype_bf16: 14, '14': 'xnn_datatype_bf16'
 };
 
 fb_xnnpack.XNNQuantParams = class {
@@ -1263,33 +1263,33 @@ vkgraph.OperatorCall = class OperatorCall {
 };
 
 vkgraph.VkDataType = {
-    BOOL: 0,
-    UINT8: 1,
-    INT8: 2,
-    INT32: 3,
-    FLOAT16: 4,
-    FLOAT32: 5,
-    FLOAT64: 6,
-    INT64: 7,
-    UNSET: 127
+    BOOL: 0, '0': 'BOOL',
+    UINT8: 1, '1': 'UINT8',
+    INT8: 2, '2': 'INT8',
+    INT32: 3, '3': 'INT32',
+    FLOAT16: 4, '4': 'FLOAT16',
+    FLOAT32: 5, '5': 'FLOAT32',
+    FLOAT64: 6, '6': 'FLOAT64',
+    INT64: 7, '7': 'INT64',
+    UNSET: 127, '127': 'UNSET'
 };
 
 vkgraph.VkStorageType = {
-    BUFFER: 0,
-    TEXTURE_3D: 1,
-    TEXTURE_2D: 2,
-    DEFAULT_STORAGE: 255
+    BUFFER: 0, '0': 'BUFFER',
+    TEXTURE_3D: 1, '1': 'TEXTURE_3D',
+    TEXTURE_2D: 2, '2': 'TEXTURE_2D',
+    DEFAULT_STORAGE: 255, '255': 'DEFAULT_STORAGE'
 };
 
 vkgraph.VkMemoryLayout = {
-    TENSOR_WIDTH_PACKED: 0,
-    TENSOR_HEIGHT_PACKED: 1,
-    TENSOR_CHANNELS_PACKED: 2,
-    PACKED_INT8_4W4C: 3,
-    PACKED_INT8_4H4W: 4,
-    PACKED_INT8_4W: 5,
-    PACKED_INT8_4C1W: 8,
-    DEFAULT_LAYOUT: 255
+    TENSOR_WIDTH_PACKED: 0, '0': 'TENSOR_WIDTH_PACKED',
+    TENSOR_HEIGHT_PACKED: 1, '1': 'TENSOR_HEIGHT_PACKED',
+    TENSOR_CHANNELS_PACKED: 2, '2': 'TENSOR_CHANNELS_PACKED',
+    PACKED_INT8_4W4C: 3, '3': 'PACKED_INT8_4W4C',
+    PACKED_INT8_4H4W: 4, '4': 'PACKED_INT8_4H4W',
+    PACKED_INT8_4W: 5, '5': 'PACKED_INT8_4W',
+    PACKED_INT8_4C1W: 8, '8': 'PACKED_INT8_4C1W',
+    DEFAULT_LAYOUT: 255, '255': 'DEFAULT_LAYOUT'
 };
 
 vkgraph.VkTensor = class VkTensor {

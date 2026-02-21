@@ -545,11 +545,20 @@ megengine.Node = class {
             }
             if (megengine.schema) {
                 if (megengine.schema.param[type]) {
-                    value = megengine.Utility.enum(megengine.schema.param, type, value);
+                    const enumType = megengine.schema.param[type];
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 } else if (megengine.schema[type]) {
-                    value = megengine.Utility.enum(megengine.schema, type, value);
+                    const enumType = megengine.schema[type];
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 } else if (megengine.schema.v2[type]) {
-                    value = megengine.Utility.enum(megengine.schema.v2, type, value);
+                    const enumType = megengine.schema.v2[type];
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 }
             }
             return new megengine.Argument(name, value, type, visible);
@@ -570,7 +579,9 @@ megengine.Tensor = class {
 megengine.TensorType = class {
 
     constructor(dataType, shape) {
-        dataType = megengine.Utility.enum(megengine.schema, 'DTypeEnum', dataType);
+        if (typeof dataType === 'number') {
+            dataType = megengine.schema.DTypeEnum[dataType] || dataType;
+        }
         dataType = typeof dataType === 'string' ? dataType.toLowerCase() : dataType;
         megengine.TensorType._dataTypes = megengine.TensorType._dataTypes || new Map([
             ['bool', 'boolean'],
@@ -609,25 +620,6 @@ megengine.TensorShape = class {
             return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
-    }
-};
-
-megengine.Utility = class {
-
-    static enum(schema, name, value) {
-        const type = name && schema ? schema[name] : undefined;
-        if (type) {
-            megengine.Utility._enums = megengine.Utility._enums || new Map();
-            if (!megengine.Utility._enums.has(name)) {
-                const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
-                megengine.Utility._enums.set(name, entries);
-            }
-            const map = megengine.Utility._enums.get(name);
-            if (map.has(value)) {
-                return map.get(value);
-            }
-        }
-        return value;
     }
 };
 

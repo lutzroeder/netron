@@ -47,7 +47,7 @@ dlc.Model = class {
             }
         }
         for (const graph of target.graphs) {
-            this.modules = [new dlc.Graph(metadata, target.version, graph)];
+            this.modules = [new dlc.Graph(metadata, target.version.major, graph)];
         }
     }
 };
@@ -59,7 +59,7 @@ dlc.Graph = class {
         this.inputs = [];
         this.outputs = [];
         const values = new Map();
-        switch (version.major) {
+        switch (version) {
             case 3: {
                 for (const node of graph.nodes) {
                     for (const name of node.inputs) {
@@ -192,7 +192,15 @@ dlc.Node = class {
                 }
                 if (schema && schema.type) {
                     type = schema.type;
-                    value = dlc.Utility.enum(version, type, value);
+                    let enumType = null;
+                    switch (version) {
+                        case 3: enumType = dlc.schema.v3[type]; break;
+                        case 4: enumType = dlc.schema.v4[type]; break;
+                        default: throw new dlc.Error(`Unsupported version '${version}'.`);
+                    }
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 }
                 const attribute = new dlc.Argument(attr.name, value, type);
                 this.attributes.push(attribute);
@@ -656,34 +664,6 @@ dlc.Container = class {
             }
         }
         return signature;
-    }
-};
-
-dlc.Utility = class {
-
-    static enum(version, name, value) {
-        switch (version) {
-            case 3: version = 'v3'; break;
-            case 4: version = 'v4'; break;
-            default: version = '';
-        }
-        const schema = dlc.schema[version];
-        if (schema && name) {
-            const type = schema[name];
-            if (type) {
-                dlc.Utility[version] = dlc.Utility[version] || new Map();
-                const enums = dlc.Utility[version];
-                if (!enums.has(name)) {
-                    const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
-                    enums.set(name, entries);
-                }
-                const values = enums.get(name);
-                if (values.has(value)) {
-                    return values.get(value);
-                }
-            }
-        }
-        return value;
     }
 };
 

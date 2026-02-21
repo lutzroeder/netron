@@ -149,11 +149,11 @@ torch.jit.mobile.serialization.Dict = class Dict {
 };
 
 torch.jit.mobile.serialization.TypeType = {
-    UNSET: 0,
-    CLASS_WITH_FIELD: 1,
-    CUSTOM_CLASS: 2,
-    CLASS_WITH_SETSTATE: 3,
-    NON_OBJ: 4
+    UNSET: 0, '0': 'UNSET',
+    CLASS_WITH_FIELD: 1, '1': 'CLASS_WITH_FIELD',
+    CUSTOM_CLASS: 2, '2': 'CUSTOM_CLASS',
+    CLASS_WITH_SETSTATE: 3, '3': 'CLASS_WITH_SETSTATE',
+    NON_OBJ: 4, '4': 'NON_OBJ'
 };
 
 torch.jit.mobile.serialization.ObjectType = class ObjectType {

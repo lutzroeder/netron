@@ -123,7 +123,10 @@ mslite.Node = class {
                 const schema = metadata.attribute(this.type.name, key);
                 if (schema && schema.type) {
                     type = schema.type;
-                    value = type ? mslite.Utility.enum(type, value) : value;
+                    const enumType = mslite.schema[type];
+                    if (enumType) {
+                        value = enumType[value] || value;
+                    }
                 }
                 return new mslite.Argument(key.toString(), value, type);
             });
@@ -305,27 +308,6 @@ mslite.TensorShape = class {
             return `[${this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',')}]`;
         }
         return '';
-    }
-};
-
-mslite.Utility = class {
-
-    static enum(name, value) {
-        mslite.Utility._enumKeyMap = mslite.Utility._enumKeyMap || new Map();
-        if (!mslite.Utility._enumKeyMap.has(name)) {
-            const type = name && mslite.schema ? mslite.schema[name] : undefined;
-            if (type) {
-                if (!mslite.Utility._enumKeyMap.has(name)) {
-                    const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
-                    mslite.Utility._enumKeyMap.set(name, entries);
-                }
-            }
-        }
-        const map = mslite.Utility._enumKeyMap.get(name);
-        if (map && map.has(value)) {
-            return map.get(value);
-        }
-        return value;
     }
 };
 

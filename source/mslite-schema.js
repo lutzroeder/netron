@@ -4,125 +4,125 @@ export const mindspore = {};
 mindspore.schema = mindspore.schema || {};
 
 mindspore.schema.ResizeMethod = {
-    UNKNOWN: -1,
-    LINEAR: 0,
-    NEAREST: 1,
-    CUBIC: 2
+    UNKNOWN: -1, '-1': 'UNKNOWN',
+    LINEAR: 0, '0': 'LINEAR',
+    NEAREST: 1, '1': 'NEAREST',
+    CUBIC: 2, '2': 'CUBIC'
 };
 
 mindspore.schema.CoordinateTransformMode = {
-    ASYMMETRIC: 0,
-    ALIGN_CORNERS: 1,
-    HALF_PIXEL: 2
+    ASYMMETRIC: 0, '0': 'ASYMMETRIC',
+    ALIGN_CORNERS: 1, '1': 'ALIGN_CORNERS',
+    HALF_PIXEL: 2, '2': 'HALF_PIXEL'
 };
 
 mindspore.schema.NearestMode = {
-    NORMAL: 0,
-    ROUND_HALF_DOWN: 1,
-    ROUND_HALF_UP: 2,
-    FLOOR: 3,
-    CEIL: 4
+    NORMAL: 0, '0': 'NORMAL',
+    ROUND_HALF_DOWN: 1, '1': 'ROUND_HALF_DOWN',
+    ROUND_HALF_UP: 2, '2': 'ROUND_HALF_UP',
+    FLOOR: 3, '3': 'FLOOR',
+    CEIL: 4, '4': 'CEIL'
 };
 
 mindspore.schema.Format = {
-    NCHW: 0,
-    NHWC: 1,
-    NHWC4: 2,
-    HWKC: 3,
-    HWCK: 4,
-    KCHW: 5,
-    CKHW: 6,
-    KHWC: 7,
-    CHWK: 8,
-    HW: 9,
-    HW4: 10,
-    NC: 11,
-    NC4: 12,
-    NC4HW4: 13,
-    NUM_OF_FORMAT: 14,
-    NCDHW: 15,
-    NWC: 16,
-    NCW: 17,
-    NC8HW8: 18
+    NCHW: 0, '0': 'NCHW',
+    NHWC: 1, '1': 'NHWC',
+    NHWC4: 2, '2': 'NHWC4',
+    HWKC: 3, '3': 'HWKC',
+    HWCK: 4, '4': 'HWCK',
+    KCHW: 5, '5': 'KCHW',
+    CKHW: 6, '6': 'CKHW',
+    KHWC: 7, '7': 'KHWC',
+    CHWK: 8, '8': 'CHWK',
+    HW: 9, '9': 'HW',
+    HW4: 10, '10': 'HW4',
+    NC: 11, '11': 'NC',
+    NC4: 12, '12': 'NC4',
+    NC4HW4: 13, '13': 'NC4HW4',
+    NUM_OF_FORMAT: 14, '14': 'NUM_OF_FORMAT',
+    NCDHW: 15, '15': 'NCDHW',
+    NWC: 16, '16': 'NWC',
+    NCW: 17, '17': 'NCW',
+    NC8HW8: 18, '18': 'NC8HW8'
 };
 
 mindspore.schema.ActivationType = {
-    NO_ACTIVATION: 0,
-    RELU: 1,
-    SIGMOID: 2,
-    RELU6: 3,
-    ELU: 4,
-    LEAKY_RELU: 5,
-    ABS: 6,
-    RELU1: 7,
-    SOFTSIGN: 8,
-    SOFTPLUS: 9,
-    TANH: 10,
-    SELU: 11,
-    HSWISH: 12,
-    HSIGMOID: 13,
-    THRESHOLDRELU: 14,
-    LINEAR: 15,
-    HARD_TANH: 16,
-    SIGN: 17,
-    SWISH: 18,
-    GELU: 19,
-    FAST_GELU: 20,
-    UNKNOWN: 21
+    NO_ACTIVATION: 0, '0': 'NO_ACTIVATION',
+    RELU: 1, '1': 'RELU',
+    SIGMOID: 2, '2': 'SIGMOID',
+    RELU6: 3, '3': 'RELU6',
+    ELU: 4, '4': 'ELU',
+    LEAKY_RELU: 5, '5': 'LEAKY_RELU',
+    ABS: 6, '6': 'ABS',
+    RELU1: 7, '7': 'RELU1',
+    SOFTSIGN: 8, '8': 'SOFTSIGN',
+    SOFTPLUS: 9, '9': 'SOFTPLUS',
+    TANH: 10, '10': 'TANH',
+    SELU: 11, '11': 'SELU',
+    HSWISH: 12, '12': 'HSWISH',
+    HSIGMOID: 13, '13': 'HSIGMOID',
+    THRESHOLDRELU: 14, '14': 'THRESHOLDRELU',
+    LINEAR: 15, '15': 'LINEAR',
+    HARD_TANH: 16, '16': 'HARD_TANH',
+    SIGN: 17, '17': 'SIGN',
+    SWISH: 18, '18': 'SWISH',
+    GELU: 19, '19': 'GELU',
+    FAST_GELU: 20, '20': 'FAST_GELU',
+    UNKNOWN: 21, '21': 'UNKNOWN'
 };
 
 mindspore.schema.ReduceMode = {
-    ReduceMean: 0,
-    ReduceMax: 1,
-    ReduceMin: 2,
-    ReduceProd: 3,
-    ReduceSum: 4,
-    ReduceSumSquare: 5,
-    ReduceASum: 6,
-    ReduceAll: 7,
-    ReduceL2: 8
+    ReduceMean: 0, '0': 'ReduceMean',
+    ReduceMax: 1, '1': 'ReduceMax',
+    ReduceMin: 2, '2': 'ReduceMin',
+    ReduceProd: 3, '3': 'ReduceProd',
+    ReduceSum: 4, '4': 'ReduceSum',
+    ReduceSumSquare: 5, '5': 'ReduceSumSquare',
+    ReduceASum: 6, '6': 'ReduceASum',
+    ReduceAll: 7, '7': 'ReduceAll',
+    ReduceL2: 8, '8': 'ReduceL2'
 };
 
 mindspore.schema.PoolMode = {
-    MAX_POOLING: 0,
-    MEAN_POOLING: 1
+    MAX_POOLING: 0, '0': 'MAX_POOLING',
+    MEAN_POOLING: 1, '1': 'MEAN_POOLING'
 };
 
 mindspore.schema.EltwiseMode = {
-    PROD: 0,
-    SUM: 1,
-    MAXIMUM: 2,
-    UNKNOWN: 3
+    PROD: 0, '0': 'PROD',
+    SUM: 1, '1': 'SUM',
+    MAXIMUM: 2, '2': 'MAXIMUM',
+    UNKNOWN: 3, '3': 'UNKNOWN'
 };
 
 mindspore.schema.PadMode = {
-    PAD: 0,
-    SAME: 1,
-    VALID: 2
+    PAD: 0, '0': 'PAD',
+    SAME: 1, '1': 'SAME',
+    VALID: 2, '2': 'VALID'
 };
 
 mindspore.schema.RoundMode = {
-    FLOOR: 0,
-    CEIL: 1
+    FLOOR: 0, '0': 'FLOOR',
+    CEIL: 1, '1': 'CEIL'
 };
 
 mindspore.schema.PaddingMode = {
-    CONSTANT: 0,
-    REFLECT: 1,
-    SYMMETRIC: 2,
-    MODE_RESERVED: 3
+    CONSTANT: 0, '0': 'CONSTANT',
+    REFLECT: 1, '1': 'REFLECT',
+    SYMMETRIC: 2, '2': 'SYMMETRIC',
+    MODE_RESERVED: 3, '3': 'MODE_RESERVED'
 };
 
 mindspore.schema.LshProjectionType = {
-    UNKNOWN: 0,
-    SPARSE: 1,
-    DENSE: 2
+    UNKNOWN: 0, '0': 'UNKNOWN',
+    SPARSE: 1, '1': 'SPARSE',
+    DENSE: 2, '2': 'DENSE'
 };
 
 mindspore.schema.Reduction = {
-    REDUCTION_SUM: 0,
-    MEAN: 1,
-    NONE: 2
+    REDUCTION_SUM: 0, '0': 'REDUCTION_SUM',
+    MEAN: 1, '1': 'MEAN',
+    NONE: 2, '2': 'NONE'
 };
 
 mindspore.schema.Vec = class Vec {
@@ -4408,13 +4408,13 @@ mindspore.schema.QuantParam = class QuantParam {
 };
 
 mindspore.schema.WeightQuantCompressType = {
-    NONE: 0,
-    INDEXING: 1,
-    SPARSE: 2,
-    FSE: 3,
-    BITPACKING: 4,
-    FSE_INT: 5,
-    FSE_INFER: 6
+    NONE: 0, '0': 'NONE',
+    INDEXING: 1, '1': 'INDEXING',
+    SPARSE: 2, '2': 'SPARSE',
+    FSE: 3, '3': 'FSE',
+    BITPACKING: 4, '4': 'BITPACKING',
+    FSE_INT: 5, '5': 'FSE_INT',
+    FSE_INFER: 6, '6': 'FSE_INFER'
 };
 
 mindspore.schema.ExternalData = class ExternalData {
@@ -4478,13 +4478,13 @@ mindspore.schema.Tensor = class Tensor {
 };
 
 mindspore.schema.QuantType = {
-    QUANT_NONE: 0,
-    AwareTraining: 1,
-    WeightQuant: 2,
-    PostTraining: 3,
-    QUANT_WEIGHT: 4,
-    QUANT_ALL: 5,
-    QUANT_DYNAMIC: 6
+    QUANT_NONE: 0, '0': 'QUANT_NONE',
+    AwareTraining: 1, '1': 'AwareTraining',
+    WeightQuant: 2, '2': 'WeightQuant',
+    PostTraining: 3, '3': 'PostTraining',
+    QUANT_WEIGHT: 4, '4': 'QUANT_WEIGHT',
+    QUANT_ALL: 5, '5': 'QUANT_ALL',
+    QUANT_DYNAMIC: 6, '6': 'QUANT_DYNAMIC'
 };
 
 mindspore.schema.Primitive = class Primitive {

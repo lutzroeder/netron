@@ -2,66 +2,66 @@
 export const armnnSerializer = {};
 
 armnnSerializer.ActivationFunction = {
-    Sigmoid: 0,
-    TanH: 1,
-    Linear: 2,
-    ReLu: 3,
-    BoundedReLu: 4,
-    SoftReLu: 5,
-    LeakyReLu: 6,
-    Abs: 7,
-    Sqrt: 8,
-    Square: 9,
-    Elu: 10,
-    HardSwish: 11,
-    Gelu: 12
+    Sigmoid: 0, '0': 'Sigmoid',
+    TanH: 1, '1': 'TanH',
+    Linear: 2, '2': 'Linear',
+    ReLu: 3, '3': 'ReLu',
+    BoundedReLu: 4, '4': 'BoundedReLu',
+    SoftReLu: 5, '5': 'SoftReLu',
+    LeakyReLu: 6, '6': 'LeakyReLu',
+    Abs: 7, '7': 'Abs',
+    Sqrt: 8, '8': 'Sqrt',
+    Square: 9, '9': 'Square',
+    Elu: 10, '10': 'Elu',
+    HardSwish: 11, '11': 'HardSwish',
+    Gelu: 12, '12': 'Gelu'
 };
 
 armnnSerializer.ArgMinMaxFunction = {
-    Min: 0,
-    Max: 1
+    Min: 0, '0': 'Min',
+    Max: 1, '1': 'Max'
 };
 
 armnnSerializer.DataType = {
-    Float16: 0,
-    Float32: 1,
-    QuantisedAsymm8: 2,
-    Signed32: 3,
-    Boolean: 4,
-    QuantisedSymm16: 5,
-    QAsymmU8: 6,
-    QSymmS16: 7,
-    QAsymmS8: 8,
-    QSymmS8: 9,
-    Signed64: 10
+    Float16: 0, '0': 'Float16',
+    Float32: 1, '1': 'Float32',
+    QuantisedAsymm8: 2, '2': 'QuantisedAsymm8',
+    Signed32: 3, '3': 'Signed32',
+    Boolean: 4, '4': 'Boolean',
+    QuantisedSymm16: 5, '5': 'QuantisedSymm16',
+    QAsymmU8: 6, '6': 'QAsymmU8',
+    QSymmS16: 7, '7': 'QSymmS16',
+    QAsymmS8: 8, '8': 'QAsymmS8',
+    QSymmS8: 9, '9': 'QSymmS8',
+    Signed64: 10, '10': 'Signed64'
 };
 
 armnnSerializer.DataLayout = {
-    NHWC: 0,
-    NCHW: 1,
-    NDHWC: 2,
-    NCDHW: 3
+    NHWC: 0, '0': 'NHWC',
+    NCHW: 1, '1': 'NCHW',
+    NDHWC: 2, '2': 'NDHWC',
+    NCDHW: 3, '3': 'NCDHW'
 };
 
 armnnSerializer.ReduceOperation = {
-    Sum: 0,
-    Max: 1,
-    Mean: 2,
-    Min: 3,
-    Prod: 4
+    Sum: 0, '0': 'Sum',
+    Max: 1, '1': 'Max',
+    Mean: 2, '2': 'Mean',
+    Min: 3, '3': 'Min',
+    Prod: 4, '4': 'Prod'
 };
 
 armnnSerializer.ResizeMethod = {
-    NearestNeighbor: 0,
-    Bilinear: 1
+    NearestNeighbor: 0, '0': 'NearestNeighbor',
+    Bilinear: 1, '1': 'Bilinear'
 };
 
 armnnSerializer.ScatterNdFunction = {
-    Update: 0,
-    Add: 1,
-    Sub: 2,
-    Max: 3,
-    Min: 4
+    Update: 0, '0': 'Update',
+    Add: 1, '1': 'Add',
+    Sub: 2, '2': 'Sub',
+    Max: 3, '3': 'Max',
+    Min: 4, '4': 'Min'
 };
 
 armnnSerializer.TensorInfo = class TensorInfo {
@@ -251,79 +251,79 @@ armnnSerializer.OutputSlot = class OutputSlot {
 };
 
 armnnSerializer.LayerType = {
-    Addition: 0,
-    Input: 1,
-    Multiplication: 2,
-    Output: 3,
-    Pooling2d: 4,
-    Reshape: 5,
-    Softmax: 6,
-    Convolution2d: 7,
-    DepthwiseConvolution2d: 8,
-    Activation: 9,
-    Permute: 10,
-    FullyConnected: 11,
-    Constant: 12,
-    SpaceToBatchNd: 13,
-    BatchToSpaceNd: 14,
-    Division: 15,
-    Minimum: 16,
-    Equal: 17,
-    Maximum: 18,
-    Normalization: 19,
-    Pad: 20,
-    Rsqrt: 21,
-    Floor: 22,
-    BatchNormalization: 23,
-    Greater: 24,
-    ResizeBilinear: 25,
-    Subtraction: 26,
-    StridedSlice: 27,
-    Gather: 28,
-    Mean: 29,
-    Merger: 30,
-    L2Normalization: 31,
-    Splitter: 32,
-    DetectionPostProcess: 33,
-    Lstm: 34,
-    Quantize: 35,
-    Dequantize: 36,
-    Merge: 37,
-    Switch: 38,
-    Concat: 39,
-    SpaceToDepth: 40,
-    Prelu: 41,
-    TransposeConvolution2d: 42,
-    Resize: 43,
-    Stack: 44,
-    QuantizedLstm: 45,
-    Abs: 46,
-    ArgMinMax: 47,
-    Slice: 48,
-    DepthToSpace: 49,
-    InstanceNormalization: 50,
-    LogSoftmax: 51,
-    Comparison: 52,
-    StandIn: 53,
-    ElementwiseUnary: 54,
-    Transpose: 55,
-    QLstm: 56,
-    Fill: 57,
-    Rank: 58,
-    LogicalBinary: 59,
-    Reduce: 60,
-    Cast: 61,
-    Shape: 62,
-    UnidirectionalSequenceLstm: 63,
-    ChannelShuffle: 64,
-    Convolution3d: 65,
-    Pooling3d: 66,
-    GatherNd: 67,
-    BatchMatMul: 68,
-    ElementwiseBinary: 69,
-    ReverseV2: 70,
-    Tile: 71,
-    ScatterNd: 72
+    Addition: 0, '0': 'Addition',
+    Input: 1, '1': 'Input',
+    Multiplication: 2, '2': 'Multiplication',
+    Output: 3, '3': 'Output',
+    Pooling2d: 4, '4': 'Pooling2d',
+    Reshape: 5, '5': 'Reshape',
+    Softmax: 6, '6': 'Softmax',
+    Convolution2d: 7, '7': 'Convolution2d',
+    DepthwiseConvolution2d: 8, '8': 'DepthwiseConvolution2d',
+    Activation: 9, '9': 'Activation',
+    Permute: 10, '10': 'Permute',
+    FullyConnected: 11, '11': 'FullyConnected',
+    Constant: 12, '12': 'Constant',
+    SpaceToBatchNd: 13, '13': 'SpaceToBatchNd',
+    BatchToSpaceNd: 14, '14': 'BatchToSpaceNd',
+    Division: 15, '15': 'Division',
+    Minimum: 16, '16': 'Minimum',
+    Equal: 17, '17': 'Equal',
+    Maximum: 18, '18': 'Maximum',
+    Normalization: 19, '19': 'Normalization',
+    Pad: 20, '20': 'Pad',
+    Rsqrt: 21, '21': 'Rsqrt',
+    Floor: 22, '22': 'Floor',
+    BatchNormalization: 23, '23': 'BatchNormalization',
+    Greater: 24, '24': 'Greater',
+    ResizeBilinear: 25, '25': 'ResizeBilinear',
+    Subtraction: 26, '26': 'Subtraction',
+    StridedSlice: 27, '27': 'StridedSlice',
+    Gather: 28, '28': 'Gather',
+    Mean: 29, '29': 'Mean',
+    Merger: 30, '30': 'Merger',
+    L2Normalization: 31, '31': 'L2Normalization',
+    Splitter: 32, '32': 'Splitter',
+    DetectionPostProcess: 33, '33': 'DetectionPostProcess',
+    Lstm: 34, '34': 'Lstm',
+    Quantize: 35, '35': 'Quantize',
+    Dequantize: 36, '36': 'Dequantize',
+    Merge: 37, '37': 'Merge',
+    Switch: 38, '38': 'Switch',
+    Concat: 39, '39': 'Concat',
+    SpaceToDepth: 40, '40': 'SpaceToDepth',
+    Prelu: 41, '41': 'Prelu',
+    TransposeConvolution2d: 42, '42': 'TransposeConvolution2d',
+    Resize: 43, '43': 'Resize',
+    Stack: 44, '44': 'Stack',
+    QuantizedLstm: 45, '45': 'QuantizedLstm',
+    Abs: 46, '46': 'Abs',
+    ArgMinMax: 47, '47': 'ArgMinMax',
+    Slice: 48, '48': 'Slice',
+    DepthToSpace: 49, '49': 'DepthToSpace',
+    InstanceNormalization: 50, '50': 'InstanceNormalization',
+    LogSoftmax: 51, '51': 'LogSoftmax',
+    Comparison: 52, '52': 'Comparison',
+    StandIn: 53, '53': 'StandIn',
+    ElementwiseUnary: 54, '54': 'ElementwiseUnary',
+    Transpose: 55, '55': 'Transpose',
+    QLstm: 56, '56': 'QLstm',
+    Fill: 57, '57': 'Fill',
+    Rank: 58, '58': 'Rank',
+    LogicalBinary: 59, '59': 'LogicalBinary',
+    Reduce: 60, '60': 'Reduce',
+    Cast: 61, '61': 'Cast',
+    Shape: 62, '62': 'Shape',
+    UnidirectionalSequenceLstm: 63, '63': 'UnidirectionalSequenceLstm',
+    ChannelShuffle: 64, '64': 'ChannelShuffle',
+    Convolution3d: 65, '65': 'Convolution3d',
+    Pooling3d: 66, '66': 'Pooling3d',
+    GatherNd: 67, '67': 'GatherNd',
+    BatchMatMul: 68, '68': 'BatchMatMul',
+    ElementwiseBinary: 69, '69': 'ElementwiseBinary',
+    ReverseV2: 70, '70': 'ReverseV2',
+    Tile: 71, '71': 'Tile',
+    ScatterNd: 72, '72': 'ScatterNd'
 };
 
 armnnSerializer.LayerBase = class LayerBase {
@@ -516,12 +516,12 @@ armnnSerializer.ChannelShuffleDescriptor = class ChannelShuffleDescriptor {
 };
 
 armnnSerializer.ComparisonOperation = {
-    Equal: 0,
-    Greater: 1,
-    GreaterOrEqual: 2,
-    Less: 3,
-    LessOrEqual: 4,
-    NotEqual: 5
+    Equal: 0, '0': 'Equal',
+    Greater: 1, '1': 'Greater',
+    GreaterOrEqual: 2, '2': 'GreaterOrEqual',
+    Less: 3, '3': 'Less',
+    LessOrEqual: 4, '4': 'LessOrEqual',
+    NotEqual: 5, '5': 'NotEqual'
 };
 
 armnnSerializer.ComparisonDescriptor = class ComparisonDescriptor {
@@ -735,15 +735,15 @@ armnnSerializer.DivisionLayer = class DivisionLayer {
 };
 
 armnnSerializer.BinaryOperation = {
-    Add: 0,
-    Div: 1,
-    Maximum: 2,
-    Minimum: 3,
-    Mul: 4,
-    Sub: 5,
-    SqDiff: 6,
-    Power: 7,
-    FloorDiv: 8
+    Add: 0, '0': 'Add',
+    Div: 1, '1': 'Div',
+    Maximum: 2, '2': 'Maximum',
+    Minimum: 3, '3': 'Minimum',
+    Mul: 4, '4': 'Mul',
+    Sub: 5, '5': 'Sub',
+    SqDiff: 6, '6': 'SqDiff',
+    Power: 7, '7': 'Power',
+    FloorDiv: 8, '8': 'FloorDiv'
 };
 
 armnnSerializer.ElementwiseBinaryDescriptor = class ElementwiseBinaryDescriptor {
@@ -779,15 +779,15 @@ armnnSerializer.ElementwiseBinaryLayer = class ElementwiseBinaryLayer {
 };
 
 armnnSerializer.UnaryOperation = {
-    Abs: 0,
-    Rsqrt: 1,
-    Sqrt: 2,
-    Exp: 3,
-    Neg: 4,
-    LogicalNot: 5,
-    Log: 6,
-    Sin: 7,
-    Ceil: 8
+    Abs: 0, '0': 'Abs',
+    Rsqrt: 1, '1': 'Rsqrt',
+    Sqrt: 2, '2': 'Sqrt',
+    Exp: 3, '3': 'Exp',
+    Neg: 4, '4': 'Neg',
+    LogicalNot: 5, '5': 'LogicalNot',
+    Log: 6, '6': 'Log',
+    Sin: 7, '7': 'Sin',
+    Ceil: 8, '8': 'Ceil'
 };
 
 armnnSerializer.ElementwiseUnaryDescriptor = class ElementwiseUnaryDescriptor {
@@ -1108,8 +1108,8 @@ armnnSerializer.L2NormalizationDescriptor = class L2NormalizationDescriptor {
 };
 
 armnnSerializer.LogicalBinaryOperation = {
-    LogicalAnd: 0,
-    LogicalOr: 1
+    LogicalAnd: 0, '0': 'LogicalAnd',
+    LogicalOr: 1, '1': 'LogicalOr'
 };
 
 armnnSerializer.LogicalBinaryDescriptor = class LogicalBinaryDescriptor {
@@ -1224,19 +1224,19 @@ armnnSerializer.Pooling3dLayer = class Pooling3dLayer {
 };
 
 armnnSerializer.PoolingAlgorithm = {
-    Max: 0,
-    Average: 1,
-    L2: 2
+    Max: 0, '0': 'Max',
+    Average: 1, '1': 'Average',
+    L2: 2, '2': 'L2'
 };
 
 armnnSerializer.OutputShapeRounding = {
-    Floor: 0,
-    Ceiling: 1
+    Floor: 0, '0': 'Floor',
+    Ceiling: 1, '1': 'Ceiling'
 };
 
 armnnSerializer.PaddingMethod = {
-    IgnoreValue: 0,
-    Exclude: 1
+    IgnoreValue: 0, '0': 'IgnoreValue',
+    Exclude: 1, '1': 'Exclude'
 };
 
 armnnSerializer.Pooling2dDescriptor = class Pooling2dDescriptor {
@@ -1640,13 +1640,13 @@ armnnSerializer.BatchToSpaceNdDescriptor = class BatchToSpaceNdDescriptor {
 };
 
 armnnSerializer.NormalizationAlgorithmChannel = {
-    Across: 0,
-    Within: 1
+    Across: 0, '0': 'Across',
+    Within: 1, '1': 'Within'
 };
 
 armnnSerializer.NormalizationAlgorithmMethod = {
-    LocalBrightness: 0,
-    LocalContrast: 1
+    LocalBrightness: 0, '0': 'LocalBrightness',
+    LocalContrast: 1, '1': 'LocalContrast'
 };
 
 armnnSerializer.NormalizationLayer = class NormalizationLayer {
@@ -1745,9 +1745,9 @@ armnnSerializer.PadLayer = class PadLayer {
 };
 
 armnnSerializer.PaddingMode = {
-    Constant: 0,
-    Reflect: 1,
-    Symmetric: 2
+    Constant: 0, '0': 'Constant',
+    Reflect: 1, '1': 'Reflect',
+    Symmetric: 2, '2': 'Symmetric'
 };
 
 armnnSerializer.PadDescriptor = class PadDescriptor {
