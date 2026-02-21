@@ -877,6 +877,21 @@ vulkan.TensorType = class {
         }
         this.dataType = types[tensor.datatype];
         this.shape = new vulkan.TensorShape(Array.from(tensor.dims));
+        const vkgraph = executorch.schema.vkgraph;
+        if (tensor.memory_layout !== vkgraph.VkMemoryLayout.DEFAULT_LAYOUT) {
+            const entry = Object.entries(vkgraph.VkMemoryLayout).find(([, v]) => v === tensor.memory_layout);
+            if (!entry) {
+                throw new vulkan.Error(`Unsupported memory layout '${tensor.memory_layout}'.`);
+            }
+            this.denotation = entry[0];
+        }
+        if (tensor.storage_type !== vkgraph.VkStorageType.DEFAULT_STORAGE) {
+            const entry = Object.entries(vkgraph.VkStorageType).find(([, v]) => v === tensor.storage_type);
+            if (!entry) {
+                throw new vulkan.Error(`Unsupported storage type '${tensor.storage_type}'.`);
+            }
+            this.layout = entry[0];
+        }
     }
 
     toString() {
