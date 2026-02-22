@@ -4854,23 +4854,18 @@ _.OperationParser = class extends _.Parser {
         if (nameTok.kind !== _.Token.bare_identifier && !nameTok.isKeyword()) {
             throw new mlir.Error(`Expected bare identifier or keyword ${this.location()}`);
         }
-        let identifier = nameTok.getSpelling().str(); // Workaround: keep the original source file identifier
+        const identifier = nameTok.getSpelling().str(); // Workaround: keep the original source file identifier
         this.consumeToken();
-        let index = identifier.indexOf('.');
+        let opName = this.redirect(identifier);
+        let opInfo = _.RegisteredOperationName.lookup(opName, this.context);
+        if (opInfo) {
+            opInfo.identifier = identifier;
+            return opInfo;
+        }
+        let index = opName.indexOf('.');
         if (index === -1) {
             const dialect = this.state.defaultDialectStack[this.state.defaultDialectStack.length - 1];
-            identifier = `${dialect}.${identifier}`;
-        }
-        let opName = identifier;
-        if (opName === 'func.constant' && this.getToken().isNot(_.Token.at_identifier)) {
-            // Workaround: old std.constant should be arith.constant
-            opName = 'arith.constant';
-        } else if (opName.startsWith('check.')) {
-            // Workaround: Handle conflicting dialects from stablehlo and iree
-            const dialect = this.getToken().is(_.Token.l_paren) || this.getToken().is(_.Token.less) ? 'iree' : 'stablehlo';
-            opName = opName.replace('check.', `check.<${dialect}>.`);
-        } else if (this._redirect.has(opName)) {
-            opName = this._redirect.get(opName);
+            opName = this.redirect(`${dialect}.${opName}`);
         }
         index = opName.indexOf('.');
         if (index === -1) {
@@ -4881,33 +4876,38 @@ _.OperationParser = class extends _.Parser {
         this.context.checkDialect(dialect, dialectName, 'operation');
         // Normalize operation name to canonical dialect name for metadata lookup
         // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
-        opName = dialectName === dialect.name ? opName : opName.replace(`${dialectName}.`, `${dialect.name}.`);
-        const name = _.RegisteredOperationName.lookup(opName, this.context);
-        if (!name) {
+        if (dialectName !== dialect.name) {
+            opName = opName.replace(`${dialectName}.`, `${dialect.name}.`);
+        }
+        opInfo = _.RegisteredOperationName.lookup(opName, this.context);
+        if (!opInfo) {
             throw new mlir.Error(`Unsupported operation '${opName}'.`);
         }
-        name.identifier = identifier; // Workaround
-        return name;
+        opInfo.identifier = identifier; // Workaround
+        return opInfo;
     }
 
     parseGenericOperation() {
         const srcLocation = this.getToken().loc.copy();
-        const name = this.getToken().getStringValue();
-        if (name.length === 0) {
+        const identifier = this.getToken().getStringValue();
+        if (identifier.length === 0) {
             throw new mlir.Error(`Empty operation name is invalid ${this.location()}`);
         }
-        if (name.indexOf('\0') !== -1) {
+        if (identifier.indexOf('\0') !== -1) {
             throw new mlir.Error(`Null character not allowed in operation name ${this.location()}`);
         }
         this.consumeToken(_.Token.string);
+        const name = this.redirect(identifier);
         let opName = _.RegisteredOperationName.lookup(name, this.context);
         if (!opName) {
-            opName = new _.OperationName(null, name);
+            const index = name.indexOf('.');
+            const dialect = index === -1 ? null : this.context.getOrLoadDialect(name.substring(0, index));
+            opName = new _.OperationName(dialect || null, name);
         }
-        opName.identifier = name; // Workaround
-        const state = new _.OperationState(srcLocation, opName);
-        this.parseGenericOperationAfterOpName(state);
-        return _.Operation.create(state);
+        opName.identifier = identifier; // Workaround
+        const result = new _.OperationState(srcLocation, opName);
+        this.parseGenericOperationAfterOpName(result);
+        return _.Operation.create(result);
     }
 
     parseGenericOperationAfterOpName(result) {
@@ -5180,6 +5180,20 @@ _.OperationParser = class extends _.Parser {
         }
         this.parseToken(_.Token.r_paren, "expected ')' in location");
         return directLoc;
+    }
+
+    redirect(name) {
+        if (name === 'func.constant' && this.getToken().isNot(_.Token.at_identifier)) {
+            // Workaround: old std.constant should be arith.constant
+            name = 'arith.constant';
+        } else if (name.startsWith('check.')) {
+            // Workaround: Handle conflicting dialects from stablehlo and iree
+            const dialect = this.getToken().is(_.Token.l_paren) || this.getToken().is(_.Token.less) ? 'iree' : 'stablehlo';
+            name = name.replace('check.', `check.<${dialect}>.`);
+        } else if (this._redirect.has(name)) {
+            name = this._redirect.get(name);
+        }
+        return name;
     }
 };
 
@@ -8327,10 +8341,6 @@ _.DialectContext = class {
                     throw new mlir.Error(`Unsupported ${context} dialect '${dialectName}'.`);
             }
         }
-    }
-
-    redirect(name) {
-        return this._redirect.has(name) ? this._redirect.get(name) : name;
     }
 };
 
