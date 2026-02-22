@@ -37,9 +37,6 @@ sync() {
         git -C "${onnx_src_dir}" reset --quiet --hard FETCH_HEAD
         git -C "${onnx_src_dir}" gc --quiet --prune=all
     fi
-    git pull --quiet --prune
-    git submodule sync --quiet
-    git submodule update --quiet --init --recursive
     popd > /dev/null
     mkdir -p "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema"
     curl --silent --show-error --location --output "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/raw/main/onnxruntime/core/flatbuffers/schema/ort.fbs"
