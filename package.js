@@ -600,7 +600,7 @@ const update = async () => {
         'bigdl',
         'caffe', 'circle', 'cntk', 'coreml',
         'dlc', 'dnn',
-        'executorch',
+        'espdl', 'executorch',
         'gguf',
         'kann', 'keras',
         'mlir', 'mnn', 'mslite', 'megengine',

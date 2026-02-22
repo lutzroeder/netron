@@ -6518,6 +6518,7 @@ view.ModelFactoryService = class {
         this.register('./catboost', ['.cbm']);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
+        this.register('./espdl', ['.espdl'], [], [/^EDL2/]);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
         this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
         this.register('./tosa', ['.tosa'], [], [/^....TOSA/]);
@@ -7090,7 +7091,6 @@ view.ModelFactoryService = class {
                 { name: 'CviModel data', value: /^CviModel/ }, // https://github.com/sophgo/tpu-mlir/blob/master/include/tpu_mlir/Builder/CV18xx/proto/cvimodel.fbs
                 { name: 'DRTcrypt data', value: /^DRTcrypt/ },
                 { name: 'ELF executable', value: /^\x7FELF/ },
-                { name: 'EDL2 data', value: /^EDL2/ },
                 { name: 'encrypted data', value: /^ENCRYPTED_FILE|EV_ENCRYPTED/ },
                 { name: 'encrypted data', value: /^Salted__/ },
                 { name: 'encrypted data', value: /^KINGSOFTOFFICE/ },
