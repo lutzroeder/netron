@@ -994,6 +994,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/logical-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/memory-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/misc-ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/non-uniform-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/ocl-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/structure-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/types.mlir',
