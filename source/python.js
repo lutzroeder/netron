@@ -5710,6 +5710,7 @@ python.Execution = class {
         });
         torch.nn.Module = torch.nn.modules.module.Module;
         torch.nn.modules.Module = torch.nn.modules.module.Module;
+        this.registerType('torch._C.Generator', class {});
         this.registerType('torch._C._TensorBase', class extends builtins.object {});
         this.registerType('torch._C._TensorMeta', class extends builtins.type {});
         this.registerType('torch._C._VariableFunctionsClass', class extends builtins.object {});
@@ -9025,6 +9026,9 @@ python.Execution = class {
         this.registerType('ultralytics.utils.torch_utils.EarlyStopping', class {});
         this.registerType('ultralytics.utils.torch_utils.ModelEMA', class {});
         this.registerType('ultralytics.yolo.utils.IterableSimpleNamespace', class {});
+        this.registerType('ultralytics.yolo.utils.loss.BboxLoss', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.yolo.utils.loss.v8DetectionLoss', class {});
+        this.registerType('ultralytics.yolo.utils.tal.TaskAlignedAssigner', class extends torch.nn.modules.module.Module {});
         this.registerFunction('builtins.annotate', (type, value) => {
             if (type === builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
