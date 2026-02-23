@@ -703,10 +703,10 @@ protobuf.TextReader = class {
         const tags = new Map();
         this.reset();
         try {
-            this.start(false);
+            this.start();
             while (!this.end()) {
                 const tag = this.tag();
-                if (this.token() === '{') {
+                if (this.token() === '{' || this.token() === '<') {
                     this.start();
                     tags.set(tag, true);
                     while (!this.end()) {
@@ -734,13 +734,20 @@ protobuf.TextReader = class {
         this._position = 0;
         this._depth = 0;
         this._arrayDepth = 0;
+        this._brackets = [];
         this._token = '';
         this.next();
     }
 
     start() {
         if (this._depth > 0) {
-            this.expect('{');
+            if (this._token === '<') {
+                this.expect('<');
+                this._brackets.push('>');
+            } else {
+                this.expect('{');
+                this._brackets.push('}');
+            }
         }
         this._depth++;
     }
@@ -749,9 +756,13 @@ protobuf.TextReader = class {
         if (this._depth <= 0) {
             throw new protobuf.Error(`Invalid depth ${this.location()}`);
         }
-        if (this._token === '}') {
-            this.expect('}');
-            this.match(';');
+        const close = this._brackets.length > 0 ? this._brackets[this._brackets.length - 1] : '}';
+        if (this._token === '}' || this._token === '>') {
+            this.expect(close);
+            this._brackets.pop();
+            if (!this.match(';')) {
+                this.match(',');
+            }
             this._depth--;
             return true;
         }
@@ -768,7 +779,7 @@ protobuf.TextReader = class {
     tag() {
         const name = this._token;
         this.next();
-        if (this._token !== '[' && this._token !== '{') {
+        if (this._token !== '[' && this._token !== '{' && this._token !== '<') {
             this.expect(':');
         }
         return name;
@@ -1054,15 +1065,18 @@ protobuf.TextReader = class {
 
     skip() {
         switch (this._token) {
+            case '<':
             case '{': {
                 const depth = this._depth;
                 this.start();
                 while (!this.end() || depth < this._depth) {
-                    if (this._token === '{') {
+                    if (this._token === '{' || this._token === '<') {
                         this.start();
-                    } else if (this._token !== '}') {
+                    } else if (this._token !== '}' && this._token !== '>') {
                         this.next();
-                        this.match(';');
+                        if (!this.match(';')) {
+                            this.match(',');
+                        }
                     }
                 }
                 break;
@@ -1158,6 +1172,8 @@ protobuf.TextReader = class {
         switch (c) {
             case '{':
             case '}':
+            case '<':
+            case '>':
             case ':':
             case ',':
             case ']':
@@ -1354,7 +1370,9 @@ protobuf.TextReader = class {
 
     semicolon() {
         if (this._arrayDepth === 0) {
-            this.match(';');
+            if (!this.match(';')) {
+                this.match(',');
+            }
         }
     }
 };
