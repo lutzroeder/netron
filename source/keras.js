@@ -939,7 +939,7 @@ keras.Node = class {
                     delete config.output_layers;
                 }
                 this.inputs = [new keras.Argument('inputs', inputs.map((input) => values.map(input.name)))];
-                this.outputs = [new keras.Argument('outputs', outputs.map((name) => values.map(name)))];
+                this.outputs = [new keras.Argument('outputs', outputs.filter((name) => name !== undefined).map((name) => values.map(name)))];
                 inputs = [];
                 outputs = [];
                 break;
