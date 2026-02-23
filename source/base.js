@@ -243,6 +243,19 @@ if (!DataView.prototype.getFloat8e3m4) {
     };
 }
 
+if (!DataView.prototype.getFloat8e8m0fnu) {
+    DataView.__float8e8m0fnu_float32 = new Float32Array(1);
+    DataView.__float8e8m0fnu_uint32 = new Uint32Array(DataView.__float8e8m0fnu_float32.buffer, DataView.__float8e8m0fnu_float32.byteOffset, 1);
+    DataView.prototype.getFloat8e8m0fnu = function(byteOffset) {
+        const value = this.getUint8(byteOffset);
+        if (value === 255) {
+            return NaN;
+        }
+        DataView.__float8e8m0fnu_uint32[0] = value << 23;
+        return DataView.__float8e8m0fnu_float32[0];
+    };
+}
+
 DataView.prototype.getInt48 = DataView.prototype.getInt48 || function(offset, littleEndian) {
     let value = 0;
     if (littleEndian) {
@@ -1041,6 +1054,11 @@ base.Tensor = class {
                 case 'float8e5m2fnuz':
                     for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e5m2(offset, true, true));
+                    }
+                    break;
+                case 'float8e8m0fnu':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat8e8m0fnu(offset));
                     }
                     break;
                 default:

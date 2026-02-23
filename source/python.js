@@ -9208,12 +9208,14 @@ python.Execution = class {
                 [dict_state, slots_state] = state;
             }
             if (dict_state) {
-                for (const [name, value] of Object.entries(dict_state)) {
+                const entries = dict_state instanceof Map ? dict_state : Object.entries(dict_state);
+                for (const [name, value] of entries) {
                     builtins.setattr(obj, name, value);
                 }
             }
             if (slots_state) {
-                for (const [name, value] of Object.entries(slots_state)) {
+                const entries = slots_state instanceof Map ? slots_state : Object.entries(slots_state);
+                for (const [name, value] of entries) {
                     builtins.setattr(obj, name, value);
                 }
             }
@@ -9225,7 +9227,7 @@ python.Execution = class {
         this.registerFunction('torch._tensor._rebuild_from_type_v2', (func, new_type, args, state) => {
             let ret = func(...args);
             if (ret.__class__ !== new_type) {
-                // ret = ret.as_subclass(new_type);
+                ret.__class__ = new_type;
             }
             const setstate = builtins.getattr(ret.__class__, '__setstate__', torch.Tensor.__setstate__);
             if (setstate === torch.Tensor.__setstate__) {
@@ -20393,6 +20395,12 @@ python.Execution = class {
             constructor(size) {
                 this._size = size;
             }
+            size() {
+                return this._size;
+            }
+            get data() {
+                return this._cdata;
+            }
             _set_cdata(data) {
                 if (this._size !== data.length) {
                     throw new python.Error('Untyped storage data size mismatch.');
@@ -20739,6 +20747,33 @@ python.Execution = class {
                 }
                 return NaN;
             }
+            tolist() {
+                const storage = this.storage();
+                const dtype = storage.dtype.__reduce__();
+                const itemsize = storage.dtype.itemsize();
+                const offset = (this._storage_offset || 0) * itemsize;
+                const data = storage.data.peek ? storage.data.peek() : storage.data;
+                const view = new DataView(data.buffer, data.byteOffset + offset, data.byteLength - offset);
+                const size = this._shape.reduce((a, b) => a * b, 1);
+                const list = new Array(size);
+                switch (dtype) {
+                    case 'int16':
+                        for (let i = 0; i < size; i++) {
+                            list[i] = view.getInt16(i * 2, true);
+                        }
+                        return list;
+                    case 'int64':
+                        for (let i = 0; i < size; i++) {
+                            list[i] = view.getInt32(i * 8, true);
+                            if (view.getUint32(i * 8 + 4, true) !== 0) {
+                                throw new python.Error('Signed 64-bit value exceeds 32-bit range.');
+                            }
+                        }
+                        return list;
+                    default:
+                        throw new python.Error(`Unsupported tolist dtype '${dtype}'.`);
+                }
+            }
             __str__() {
                 return 'tensor(...)';
             }
@@ -20920,6 +20955,12 @@ python.Execution = class {
         this.registerType('torchao.quantization.linear_activation_quantized_tensor.LinearActivationQuantizedTensor', class extends torchao.utils.TorchAOBaseTensor {});
         this.registerFunction('torchao.quantization.quant_api._int8_symm_per_token_reduced_range_quant');
         this.registerType('torchao.quantization.quant_primitives.ZeroPointDomain', class extends this.enum.Enum {});
+        this.registerType('torchao.prototype.mx_formats.mx_tensor.MXTensor', class extends torchao.utils.TorchAOBaseTensor {});
+        torchao.prototype.mx_formats.mx_tensor.MXTensor.tensor_attribute_names = ['_elem_dtype', 'block_size'];
+        torchao.prototype.mx_formats.mx_tensor.MXTensor.tensor_data_names = ['qdata', 'scale'];
+        this.registerType('torchao.prototype.mx_formats.mx_tensor.QuantizeTensorToMXKwargs', class {});
+        this.registerType('torchao.prototype.mx_formats.config.ScaleCalculationMode', class extends this.enum.Enum {});
+        this.registerType('torchao.quantization.quantize_.common.kernel_preference.KernelPreference', class extends this.enum.Enum {});
         this.registerFunction('torch.cuda.amp.grad_scaler._refresh_per_optimizer_state');
         this.registerType('torch.SymBool', class {
             constructor(node) {
@@ -20967,6 +21008,8 @@ python.Execution = class {
         torch.float8_e5m2fnuz = new torch.dtype(24, 'float8_e5m2fnuz', 1);
         torch.float8_e4m3fn = new torch.dtype(25, 'float8_e4m3fn', 1);
         torch.float8_e4m3fnuz = new torch.dtype(26, 'float8_e4m3fnuz', 1);
+        torch.float8_e8m0fnu = new torch.dtype(44, 'float8_e8m0fnu', 1);
+        torch.float4_e2m1fn_x2 = new torch.dtype(45, 'float4_e2m1fn_x2', 1);
         torch.uint16 = torch.UInt16Storage.dtype = new torch.dtype(27, 'uint16', 2);
         torch.uint32 = torch.UInt32Storage.dtype = new torch.dtype(28, 'uint32', 4);
         torch.uint64 = torch.UInt64Storage.dtype = new torch.dtype(29, 'uint64', 8);

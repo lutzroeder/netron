@@ -6168,6 +6168,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "linear_mxfp8.pt2",
+    "source":   "https://github.com/user-attachments/files/25470555/linear_mxfp8.pt2.zip[linear_mxfp8.pt2]",
+    "format":   "PyTorch Export v8.15",
+    "assert":   "model.modules[0].nodes[0].inputs[1].value[0].initializer.attributes.length == 4",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "lite_real_sr.ptl",
     "source":   "https://github.com/lutzroeder/netron/files/12137599/lite_real_sr.ptl.zip[lite_real_sr.ptl]",
     "format":   "TorchScript v1.12",

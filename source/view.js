@@ -3873,6 +3873,13 @@ view.TensorSidebar = class extends view.ObjectSidebar {
             }
             const value = new view.TensorView(this._view, tensor, this._tensor);
             this.addEntry('value', value);
+            const attributes = tensor.attributes;
+            if (Array.isArray(attributes) && attributes.length > 0) {
+                this.addSection('Attributes');
+                for (const attribute of attributes) {
+                    this.addArgument(attribute.name, attribute, 'attribute');
+                }
+            }
             const metadata = this._view.model.attachment.metadata.tensor(tensor);
             if (Array.isArray(metadata) && metadata.length > 0) {
                 this.addSection('Metadata');
