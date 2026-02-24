@@ -1972,7 +1972,7 @@
       ],
       "blocks": [
         { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization" },
-        { "name": "ssm", "type": "MAMBA", "category": "Layer", "tensors": ["ssm_in", "ssm_conv1d", "ssm_x", "ssm_dt", "ssm_a", "ssm_d", "ssm_out"] }
+        { "name": "ssm", "type": "MAMBA", "tensors": ["ssm_in", "ssm_conv1d", "ssm_x", "ssm_dt", "ssm_a", "ssm_d", "ssm_out"] }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -1989,7 +1989,7 @@
       ],
       "blocks": [
         { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization" },
-        { "name": "ssm", "type": "MAMBA2", "category": "Layer", "tensors": ["ssm_in", "ssm_conv1d", "ssm_dt", "ssm_a", "ssm_d", "ssm_norm", "ssm_out"] }
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["ssm_in", "ssm_conv1d", "ssm_dt", "ssm_a", "ssm_d", "ssm_norm", "ssm_out"] }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -2121,7 +2121,7 @@
       "blocks": [
         { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"], "position_encoding": "rope" },
-        { "name": "ssm", "type": "MAMBA2", "category": "Layer", "tensors": ["ssm_in", "ssm_conv1d", "ssm_dt", "ssm_a", "ssm_d", "ssm_norm", "ssm_out"], "parallel": true },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["ssm_in", "ssm_conv1d", "ssm_dt", "ssm_a", "ssm_d", "ssm_norm", "ssm_out"], "parallel": true },
         { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "ffn_gate", "type": "MUL_MAT" },
         { "name": "ffn_up", "type": "MUL_MAT" },

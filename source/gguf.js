@@ -152,6 +152,30 @@ gguf.Graph = class {
                     const ffnOut = buildFfn(normOut);
                     addOp('ADD', [attnOut, ffnOut, inp], out);
                     prevValue = out;
+                } else if (has('attn_norm') && has('attention') && has('cross_attn_norm') && has('cross_attention') && has('ffn_norm') && hasFfn) {
+                    // Pre-norm with cross-attention (T5 decoder)
+                    const inp = prevValue || newValue();
+                    let cur = inp;
+                    const n1 = newValue();
+                    addNode(use('attn_norm'), [cur], n1);
+                    const a1 = newValue();
+                    addNode(use('attention'), [n1], a1);
+                    const r1 = newValue();
+                    addOp('ADD', [a1, cur], r1);
+                    cur = r1;
+                    const cn = newValue();
+                    addNode(use('cross_attn_norm'), [cur], cn);
+                    const ca = newValue();
+                    addNode(use('cross_attention'), [cn], ca);
+                    const r2 = newValue();
+                    addOp('ADD', [ca, cur], r2);
+                    cur = r2;
+                    const n2 = newValue();
+                    addNode(use('ffn_norm'), [cur], n2);
+                    const f1 = buildFfn(n2);
+                    const r3 = newValue();
+                    addOp('ADD', [f1, cur], r3);
+                    prevValue = r3;
                 } else if (has('attn_norm') && has('attention') && has('ffn_norm') && hasFfn) {
                     // Pre-norm transformer (llama, qwen, gemma, etc.)
                     const inp = prevValue || newValue();
@@ -161,9 +185,16 @@ gguf.Graph = class {
                     const a1 = newValue();
                     addNode(use('attention'), [n1], a1);
                     let preAdd1 = a1;
+                    if (has('ssm')) {
+                        const s1 = newValue();
+                        addNode(use('ssm'), [n1], s1);
+                        const sum = newValue();
+                        addOp('ADD', [a1, s1], sum);
+                        preAdd1 = sum;
+                    }
                     if (has('attn_post_norm')) {
                         const pn = newValue();
-                        addNode(use('attn_post_norm'), [a1], pn);
+                        addNode(use('attn_post_norm'), [preAdd1], pn);
                         preAdd1 = pn;
                     }
                     const r1 = newValue();
@@ -207,6 +238,37 @@ gguf.Graph = class {
                         cur = n2;
                     }
                     prevValue = cur;
+                } else if (has('attn_norm') && has('ssm') && hasFfn) {
+                    // SSM + FFN (hybrid SSM-variant block: jamba, granitehybrid, etc.)
+                    const inp = prevValue || newValue();
+                    const n1 = newValue();
+                    addNode(use('attn_norm'), [inp], n1);
+                    const s1 = newValue();
+                    addNode(use('ssm'), [n1], s1);
+                    let preAdd1 = s1;
+                    if (has('attn_post_norm')) {
+                        const pn = newValue();
+                        addNode(use('attn_post_norm'), [s1], pn);
+                        preAdd1 = pn;
+                    }
+                    const r1 = newValue();
+                    addOp('ADD', [preAdd1, inp], r1);
+                    let cur = r1;
+                    if (has('ffn_norm')) {
+                        const n2 = newValue();
+                        addNode(use('ffn_norm'), [cur], n2);
+                        cur = n2;
+                    }
+                    const f1 = buildFfn(cur);
+                    let preAdd2 = f1;
+                    if (has('ffn_post_norm')) {
+                        const pn = newValue();
+                        addNode(use('ffn_post_norm'), [f1], pn);
+                        preAdd2 = pn;
+                    }
+                    const r2 = newValue();
+                    addOp('ADD', [preAdd2, r1], r2);
+                    prevValue = r2;
                 } else if (has('attn_norm') && has('ssm')) {
                     // SSM (Mamba)
                     const inp = prevValue || newValue();
@@ -689,7 +751,7 @@ gguf.Context = class {
         this._blockCount = kvMetadata.get(`${architecture}.block_count`) || 0;
         this._blockTypes = new Map();
         if (archDef && archDef.graph) {
-            for (const section of [archDef.graph.input, archDef.graph.blocks, archDef.graph.output]) {
+            const registerSection = (section) => {
                 if (section) {
                     for (const block of section) {
                         this._blockTypes.set(block.name, block);
@@ -698,6 +760,16 @@ gguf.Context = class {
                                 this._blockTypes.set(tensor, block);
                             }
                         }
+                    }
+                }
+            };
+            for (const section of [archDef.graph.input, archDef.graph.blocks, archDef.graph.output]) {
+                registerSection(section);
+            }
+            for (const subgraph of [archDef.graph.encoder, archDef.graph.decoder]) {
+                if (subgraph) {
+                    for (const section of [subgraph.input, subgraph.blocks, subgraph.output]) {
+                        registerSection(section);
                     }
                 }
             }
@@ -728,58 +800,7 @@ gguf.Context = class {
             return weights;
         };
         // Classify tensor prefix into a semantic component group
-        const componentGroups = [
-            { match: /^attn_norm/, group: 'attn_norm' },
-            { match: /^attn_q_norm/, group: 'attn_norm' },
-            { match: /^attn_k_norm/, group: 'attn_norm' },
-            { match: /^attn_sub_norm/, group: 'attn_norm' },
-            { match: /^attn_q_a/, group: 'attention' },
-            { match: /^attn_q_b/, group: 'attention' },
-            { match: /^attn_kv_a/, group: 'attention' },
-            { match: /^attn_kv_b/, group: 'attention' },
-            { match: /^attn_k_b/, group: 'attention' },
-            { match: /^attn_qkv/, group: 'attention' },
-            { match: /^attn_q/, group: 'attention' },
-            { match: /^attn_k/, group: 'attention' },
-            { match: /^attn_v/, group: 'attention' },
-            { match: /^attn_output/, group: 'attention' },
-            { match: /^attn_out/, group: 'attention' },
-            { match: /^attn_sinks/, group: 'attention' },
-            { match: /^attn_rot_embd/, group: 'attention' },
-            { match: /^attn_post_norm/, group: 'attn_post_norm' },
-            { match: /^ffn_norm/, group: 'ffn_norm' },
-            { match: /^ffn_gate_inp/, group: 'ffn_gate_inp' },
-            { match: /^ffn_exp_probs/, group: 'ffn_gate_inp' },
-            { match: /^ffn_gate_exps/, group: 'ffn_gate_exps' },
-            { match: /^ffn_gate\.\d+/, group: 'ffn_gate_exps' },
-            { match: /^ffn_up_exps/, group: 'ffn_up_exps' },
-            { match: /^ffn_up\.\d+/, group: 'ffn_up_exps' },
-            { match: /^ffn_down_exps/, group: 'ffn_down_exps' },
-            { match: /^ffn_down\.\d+/, group: 'ffn_down_exps' },
-            { match: /^ffn_gate_shexp/, group: 'ffn_gate_shexp' },
-            { match: /^ffn_up_shexp/, group: 'ffn_up_shexp' },
-            { match: /^ffn_down_shexp/, group: 'ffn_down_shexp' },
-            { match: /^ffn_gate/, group: 'ffn_gate' },
-            { match: /^ffn_up/, group: 'ffn_up' },
-            { match: /^ffn_down/, group: 'ffn_down' },
-            { match: /^ffn_act/, group: 'ffn_act' },
-            { match: /^ffn_sub_norm/, group: 'ffn_sub_norm' },
-            { match: /^ffn_post_norm/, group: 'ffn_post_norm' },
-            { match: /^ssm_/, group: 'ssm' },
-            { match: /^time_mix_/, group: 'time_mix' },
-            { match: /^channel_mix_/, group: 'channel_mix' },
-            { match: /^layer_output_norm/, group: 'layer_output_norm' },
-            { match: /^attn_output_norm/, group: 'attn_output_norm' },
-            { match: /^post_attention_norm/, group: 'attn_post_norm' }
-        ];
-        const classifyTensor = (name) => {
-            for (const rule of componentGroups) {
-                if (rule.match.test(name)) {
-                    return rule.group;
-                }
-            }
-            return 'other';
-        };
+        const classifyTensor = (name) => this._classifyTensor(name);
         // Resolve display type and category for a component group using metadata
         const resolveBlock = (group) => {
             const block = this._blockTypes.get(group);
@@ -844,13 +865,63 @@ gguf.Context = class {
                 layers.push({ name: prefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
             }
         }
-        // Collect encoder/decoder prefixes for T5-style models
-        for (const encPrefix of ['enc', 'dec']) {
+        // Build encoder/decoder sub-graphs for T5-style models
+        for (const [encPrefix, label] of [['enc', 'Encoder'], ['dec', 'Decoder']]) {
+            const graph = this._archDef.graph;
+            const subgraph = graph ? graph[encPrefix === 'enc' ? 'encoder' : 'decoder'] : null;
+            if (subgraph) {
+                for (const prefix of globalPrefixes) {
+                    const fullPrefix = `${encPrefix}.${prefix}`;
+                    const weights = collectWeights(fullPrefix);
+                    if (weights.size > 0) {
+                        const resolved = resolveBlock(prefix);
+                        layers.push({ name: fullPrefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
+                    }
+                }
+            }
             for (let i = 0; i < this._blockCount; i++) {
                 const blockPrefix = `${encPrefix}.blk.${i}`;
-                const weights = collectWeights(blockPrefix);
-                if (weights.size > 0) {
-                    layers.push({ name: blockPrefix, type: `${encPrefix === 'enc' ? 'Encoder' : 'Decoder'}Block`, weights, metadata: new Map(), layers: [] });
+                const groups = new Map();
+                const order = [];
+                for (const [name] of tensors) {
+                    if (name.startsWith(`${blockPrefix}.`)) {
+                        const rest = name.slice(blockPrefix.length + 1);
+                        const group = classifyTensor(rest);
+                        if (!groups.has(group)) {
+                            groups.set(group, new Map());
+                            order.push(group);
+                        }
+                        groups.get(group).set(rest, name);
+                    }
+                }
+                const blockLayers = [];
+                for (const group of order) {
+                    const tensorMap = groups.get(group);
+                    const weights = new Map();
+                    for (const [suffix, fullName] of tensorMap) {
+                        const tensor = tensors.get(fullName);
+                        if (tensor) {
+                            weights.set(suffix, tensor);
+                            claimed.add(fullName);
+                        }
+                    }
+                    if (weights.size > 0) {
+                        const resolved = resolveBlock(group);
+                        blockLayers.push({ name: group, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
+                    }
+                }
+                if (blockLayers.length > 0) {
+                    layers.push({ name: blockPrefix, type: `${this._architecture} ${label}`, layers: blockLayers, metadata: new Map(), weights: new Map() });
+                }
+            }
+            if (subgraph) {
+                for (const prefix of outputPrefixes) {
+                    const fullPrefix = `${encPrefix}.${prefix}`;
+                    const weights = collectWeights(fullPrefix);
+                    if (weights.size > 0) {
+                        const resolved = resolveBlock(prefix);
+                        layers.push({ name: fullPrefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
+                    }
                 }
             }
         }
@@ -872,17 +943,183 @@ gguf.Context = class {
     }
 
     _buildFlat() {
-        const layers = new Map();
-        for (const [name, tensor] of this._tensors) {
+        const tensors = this._tensors;
+        const layers = [];
+        const claimed = new Set();
+        const blockPattern = /^blk\.(\d+)\./;
+        const encDecPattern = /^(enc|dec)\.blk\.(\d+)\./;
+        const blockIndices = new Set();
+        const encDecIndices = new Map();
+        for (const [name] of tensors) {
+            const m = name.match(blockPattern);
+            if (m) {
+                blockIndices.add(parseInt(m[1], 10));
+            }
+            const m2 = name.match(encDecPattern);
+            if (m2) {
+                if (!encDecIndices.has(m2[1])) {
+                    encDecIndices.set(m2[1], new Set());
+                }
+                encDecIndices.get(m2[1]).add(parseInt(m2[2], 10));
+            }
+        }
+        if (blockIndices.size > 0 || encDecIndices.size > 0) {
+            const collectWeights = (prefix) => {
+                const weights = new Map();
+                for (const [name, tensor] of tensors) {
+                    if (name.startsWith(`${prefix}.`) || name === prefix) {
+                        const suffix = name.slice(prefix.length + 1) || 'data';
+                        weights.set(suffix, tensor);
+                        claimed.add(name);
+                    }
+                }
+                return weights;
+            };
+            const globalPrefixes = ['token_embd', 'token_types', 'token_embd_norm', 'position_embd', 'rope_freqs'];
+            for (const prefix of globalPrefixes) {
+                const weights = collectWeights(prefix);
+                if (weights.size > 0) {
+                    layers.push({ name: prefix, type: 'weights', metadata: new Map(), weights, layers: [] });
+                }
+            }
+            const buildStructuredBlocks = (blockPrefix) => {
+                const groups = new Map();
+                const order = [];
+                for (const [name] of tensors) {
+                    if (name.startsWith(`${blockPrefix}.`)) {
+                        const rest = name.slice(blockPrefix.length + 1);
+                        const group = this._classifyTensor(rest);
+                        if (!groups.has(group)) {
+                            groups.set(group, new Map());
+                            order.push(group);
+                        }
+                        groups.get(group).set(rest, name);
+                    }
+                }
+                const blockLayers = [];
+                for (const group of order) {
+                    const tensorMap = groups.get(group);
+                    const weights = new Map();
+                    for (const [suffix, fullName] of tensorMap) {
+                        const tensor = tensors.get(fullName);
+                        if (tensor) {
+                            weights.set(suffix, tensor);
+                            claimed.add(fullName);
+                        }
+                    }
+                    if (weights.size > 0) {
+                        blockLayers.push({ name: group, type: 'weights', metadata: new Map(), weights, layers: [] });
+                    }
+                }
+                return blockLayers;
+            };
+            for (const i of Array.from(blockIndices).sort((a, b) => a - b)) {
+                const blockLayers = buildStructuredBlocks(`blk.${i}`);
+                if (blockLayers.length > 0) {
+                    layers.push({ name: `blk.${i}`, type: this._architecture, layers: blockLayers, metadata: new Map(), weights: new Map() });
+                }
+            }
+            for (const [prefix, indices] of encDecIndices) {
+                for (const i of Array.from(indices).sort((a, b) => a - b)) {
+                    const blockLayers = buildStructuredBlocks(`${prefix}.blk.${i}`);
+                    if (blockLayers.length > 0) {
+                        const label = prefix === 'enc' ? 'Encoder' : 'Decoder';
+                        layers.push({ name: `${prefix}.blk.${i}`, type: `${this._architecture} ${label}`, layers: blockLayers, metadata: new Map(), weights: new Map() });
+                    }
+                }
+            }
+            const outputPrefixes = ['output_norm', 'output'];
+            for (const prefix of outputPrefixes) {
+                const weights = collectWeights(prefix);
+                if (weights.size > 0) {
+                    layers.push({ name: prefix, type: 'weights', metadata: new Map(), weights, layers: [] });
+                }
+            }
+            for (const [name, tensor] of tensors) {
+                if (!claimed.has(name)) {
+                    const parts = name.split('.');
+                    const param = parts.pop();
+                    const key = parts.join('.');
+                    const existing = layers.find((l) => l.name === key && l.type === 'weights');
+                    if (existing) {
+                        existing.weights.set(param, tensor);
+                    } else {
+                        layers.push({ name: key || name, type: 'weights', metadata: new Map(), weights: new Map([[param, tensor]]), layers: [] });
+                    }
+                }
+            }
+            return layers;
+        }
+        const flatLayers = new Map();
+        for (const [name, tensor] of tensors) {
             const parts = name.split('.');
             const param = parts.pop();
             const key = parts.join('.');
-            if (!layers.has(key)) {
-                layers.set(key, { name: key, type: 'weights', metadata: new Map(), weights: new Map() });
+            if (!flatLayers.has(key)) {
+                flatLayers.set(key, { name: key, type: 'weights', metadata: new Map(), weights: new Map() });
             }
-            layers.get(key).weights.set(param, tensor);
+            flatLayers.get(key).weights.set(param, tensor);
         }
-        return Array.from(layers.values());
+        return Array.from(flatLayers.values());
+    }
+
+    _classifyTensor(name) {
+        if (!gguf.Context._componentGroups) {
+            gguf.Context._componentGroups = [
+                { match: /^attn_norm/, group: 'attn_norm' },
+                { match: /^attn_q_norm/, group: 'attn_norm' },
+                { match: /^attn_k_norm/, group: 'attn_norm' },
+                { match: /^attn_sub_norm/, group: 'attn_norm' },
+                { match: /^attn_q_a/, group: 'attention' },
+                { match: /^attn_q_b/, group: 'attention' },
+                { match: /^attn_kv_a/, group: 'attention' },
+                { match: /^attn_kv_b/, group: 'attention' },
+                { match: /^attn_k_b/, group: 'attention' },
+                { match: /^attn_qkv/, group: 'attention' },
+                { match: /^attn_q/, group: 'attention' },
+                { match: /^attn_k/, group: 'attention' },
+                { match: /^attn_v/, group: 'attention' },
+                { match: /^attn_output/, group: 'attention' },
+                { match: /^attn_out/, group: 'attention' },
+                { match: /^attn_o\./, group: 'attention' },
+                { match: /^attn_rel_b/, group: 'attention' },
+                { match: /^attn_sinks/, group: 'attention' },
+                { match: /^attn_rot_embd/, group: 'attention' },
+                { match: /^attn_post_norm/, group: 'attn_post_norm' },
+                { match: /^cross_attn_norm/, group: 'cross_attn_norm' },
+                { match: /^cross_attn_/, group: 'cross_attention' },
+                { match: /^ffn_norm/, group: 'ffn_norm' },
+                { match: /^ffn_gate_inp/, group: 'ffn_gate_inp' },
+                { match: /^ffn_exp_probs/, group: 'ffn_gate_inp' },
+                { match: /^ffn_gate_exps/, group: 'ffn_gate_exps' },
+                { match: /^ffn_gate\.\d+/, group: 'ffn_gate_exps' },
+                { match: /^ffn_up_exps/, group: 'ffn_up_exps' },
+                { match: /^ffn_up\.\d+/, group: 'ffn_up_exps' },
+                { match: /^ffn_down_exps/, group: 'ffn_down_exps' },
+                { match: /^ffn_down\.\d+/, group: 'ffn_down_exps' },
+                { match: /^ffn_gate_shexp/, group: 'ffn_gate_shexp' },
+                { match: /^ffn_up_shexp/, group: 'ffn_up_shexp' },
+                { match: /^ffn_down_shexp/, group: 'ffn_down_shexp' },
+                { match: /^ffn_gate/, group: 'ffn_gate' },
+                { match: /^ffn_up/, group: 'ffn_up' },
+                { match: /^ffn_down/, group: 'ffn_down' },
+                { match: /^ffn_act/, group: 'ffn_act' },
+                { match: /^ffn_sub_norm/, group: 'ffn_sub_norm' },
+                { match: /^ffn_post_norm/, group: 'ffn_post_norm' },
+                { match: /^ssm_/, group: 'ssm' },
+                { match: /^time_mix_/, group: 'time_mix' },
+                { match: /^channel_mix_/, group: 'channel_mix' },
+                { match: /^layer_output_norm/, group: 'layer_output_norm' },
+                { match: /^attn_output_norm/, group: 'attn_output_norm' },
+                { match: /^post_attention_norm/, group: 'attn_post_norm' }
+            ];
+        }
+        for (const rule of gguf.Context._componentGroups) {
+            if (rule.match.test(name)) {
+                return rule.group;
+            }
+        }
+        return 'other';
     }
 };
 

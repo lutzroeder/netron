@@ -2226,6 +2226,30 @@
   },
   {
     "type":     "gguf",
+    "target":   "all-MiniLM-L6-v2.F16.gguf",
+    "source":   "https://github.com/user-attachments/files/25527189/all-MiniLM-L6-v2.F16.gguf.zip[all-MiniLM-L6-v2.F16.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf",
+    "source":   "https://github.com/user-attachments/files/25527191/Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf.zip[Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "flan-t5-small-q2_k.gguf",
+    "source":   "https://github.com/user-attachments/files/25527190/flan-t5-small-q2_k.gguf.zip[flan-t5-small-q2_k.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "gpt-oss-20b-MXFP4.gguf",
     "source":   "https://github.com/user-attachments/files/21702620/gpt-oss-20b-MXFP4.gguf.zip[gpt-oss-20b-MXFP4.gguf]",
     "format":   "GGUF v3",
@@ -2246,6 +2270,14 @@
     "source":   "https://github.com/lutzroeder/netron/files/13825087/phi-2.Q2_K.gguf.zip[phi-2.Q2_K.gguf]",
     "format":   "GGUF v3",
     "tags":     "validation,quantization",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "qwen2.5-coder-7b-instruct-q4_k_m.gguf",
+    "source":   "https://github.com/user-attachments/files/25527192/qwen2.5-coder-7b-instruct-q4_k_m.gguf.zip[qwen2.5-coder-7b-instruct-q4_k_m.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
