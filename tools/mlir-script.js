@@ -93,7 +93,7 @@ const schema = async () => {
         'TensorRT-Incubator/mlir-tensorrt/executor/include',
         'TensorRT-Incubator/mlir-tensorrt/compiler/include',
         'TensorRT-Incubator/mlir-tensorrt/kernel/include',
-        'TensorRT-Incubator/mlir-tensorrt/common/include',
+        'TensorRT-Incubator/mlir-tensorrt/common',
         'triton/third_party/nvidia/include',
         'triton/third_party/nvidia/include/Dialect/NVGPU/IR',
         'triton/third_party/nvidia/include/Dialect/NVWS/IR',
@@ -971,21 +971,45 @@ const test = async (pattern) => {
     });
     const validFiles = new Set();
     const invalidFiles = new Set([
+        'third_party/source/mlir/TensorRT-Incubator/mlir-tensorrt/compiler/test/Dialect/CUDA/invalid.mlir',
+        'third_party/source/mlir/TensorRT-Incubator/mlir-tensorrt/compiler/test/Dialect/Plan/invalid.mlir',
+        'third_party/source/mlir/TensorRT-Incubator/mlir-tensorrt/kernel/test/Kernel/invalid.mlir',
         'third_party/source/mlir/ensemble-compilation/tests/benchmarks/quantum_volume.mlir',
         'third_party/source/mlir/ensemble-compilation/tests/ensemble_gate_distribution.mlir',
         'third_party/source/mlir/iree/compiler/src/iree/compiler/Codegen/Dialect/Codegen/IR/test/lowering_config_attr.mlir',
+        'third_party/source/mlir/iree/compiler/src/iree/compiler/Codegen/Dialect/PCF/IR/test/invalid.mlir',
+        'third_party/source/mlir/iree/compiler/src/iree/compiler/Dialect/LinalgExt/IR/test/invalid.mlir',
         'third_party/source/mlir/iree/samples/compiler_plugins/simple_io_sample/test/print.mlir',
         'third_party/source/mlir/lltz/mlir/dialect/irdl/michelson.irdl.mlir',
-        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Builtin/ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Affine/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Arith/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Bufferization/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Builtin/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/ControlFlow/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/EmitC/invalid_ops.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Func/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/GPU/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/invalid.irdl.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/regions-ops.irdl.mlir',
-        'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/testd.irdl.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/IRDL/variadics.irdl.mlir',
-        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Linalg/tile-to-forall.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Linalg/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Linalg/transform-ops-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/func.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/global.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/MLProgram/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/MemRef/high-rank-overflow.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/MemRef/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/OpenACC/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/OpenMP/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/PDL/invalid-types.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-any-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-calibrated-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Quant/parse-uniform-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Shape/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Shard/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SMT/bitvector-errors.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SparseTensor/invalid_encoding.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/barrier-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/composite-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/control-flow-ops.mlir',
@@ -998,20 +1022,41 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/ocl-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/structure-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/types.mlir',
-        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Tosa/level_check.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Tosa/verifier.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Transform/include/test-interpreter-library-invalid/definitions-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Transform/test-pass-application.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Vector/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/WasmSSA/global-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/WasmSSA/locals-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/XeGPU/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Examples/transform-opt/syntax-error.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/attribute.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/dynamic.mlir',
-        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-unregistered.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/enum-attr-invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/fail-invalid-tensor-encoding.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-affinemap.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-builtin-attributes.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-builtin-types.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-custom-print-parse.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-dense-array-attr.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-file-metadata.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-func-op.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-locations.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid-ops.mlir',
+
+        'third_party/source/mlir/llvm-project/mlir/test/IR/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/parser.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/parser-string-literal-comment.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/zero_whitespace.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/mlir-tblgen/attr-or-type-format.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/consume.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/lib.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/nested.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/simple_sdfg.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/stream.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/symbol.mlir',
+        'third_party/source/mlir/mlir-dace/design/mlir/transient_array.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Converter/toSDFG/llvm/load.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Converter/toSDFG/llvm/store.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/consume/too_many_params.mlir',
@@ -1019,33 +1064,39 @@ const test = async (pattern) => {
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/state/missing_identifier.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/state/missing_region.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/tasklet/missing_return_type.mlir',
-        'third_party/source/mlir/runtime/mlir_tests/bef_executor/tutorial.mlir',
-        'third_party/source/mlir/runtime/mlir_tests/core_runtime/basic_ops.mlir',
+        'third_party/source/mlir/mlir-xten/test/Dialect/XTenNN/ops_invalid.mlir',
         'third_party/source/mlir/shardy/shardy/dialect/mpmd/ir/test/memory_kind_parse_and_print.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
-        'third_party/source/mlir/stablehlo/stablehlo/tests/vhlo/invalid_vhlo_future.mlir',
+
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr-invalid.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
-        'third_party/source/mlir/torch-mlir/test/RefBackend/mlprogram-bufferize.mlir',
         'third_party/source/mlir/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/core/ir/tests/invalid.mlir',
+        'third_party/source/mlir/tensorflow/tensorflow/core/ir/tests/invalid_types.mlir',
+        'third_party/source/mlir/torch-mlir/test/RefBackend/mlprogram-bufferize.mlir',
+        'third_party/source/mlir/triton/test/Conversion/amd/invalid_extractslice_to_llvm.mlir',
         'third_party/source/mlir/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/invalid.mlir',
         'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
-        'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library.mlir',
+        'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr-invalid.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/compile_mlir_util/serialized-mlir-module-str-attr.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tensorflow/tests/tf_executor_ops_invalid.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/tfr/tests/ops.mlir',
+        'third_party/source/tensorflow/tensorflow/core/ir/tests/invalid.mlir',
+        'third_party/source/tensorflow/tensorflow/core/ir/tests/invalid_types.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/invalid.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
-        'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/verifier_reduce_op.mlir',
         'third_party/test/mlir/sample.mlir',
     ]);
     const readRunHeader = async (filePath) => {
@@ -1057,18 +1108,12 @@ const test = async (pattern) => {
         return content.startsWith('// RUN:') ? content : null;
     };
     for (const file of allFiles) {
-        if (file.toLowerCase().includes('invalid')) {
-            invalidFiles.add(file);
-        } else if (file.startsWith('third_party/source/mlir/mlir-dace/design')) {
+        // eslint-disable-next-line no-await-in-loop
+        const run = await readRunHeader(file);
+        if (run?.includes('mlir-translate --import-wasm')) {
             invalidFiles.add(file);
         } else {
-            // eslint-disable-next-line no-await-in-loop
-            const run = await readRunHeader(file);
-            if (run?.includes('mlir-translate --import-wasm')) {
-                invalidFiles.add(file);
-            } else {
-                validFiles.add(file);
-            }
+            validFiles.add(file);
         }
     }
     const filesByError = new Map();
@@ -1119,6 +1164,14 @@ const test = async (pattern) => {
             }
             writeLine('');
         }
+    }
+    const invalidWithoutErrors = Array.from(invalidFiles).filter((file) => allFiles.has(file) && !fileErrors.has(file)).sort();
+    if (invalidWithoutErrors.length > 0) {
+        writeLine(`Invalid files without errors (${invalidWithoutErrors.length}):`);
+        for (const file of invalidWithoutErrors) {
+            writeLine(`  ${file}`);
+        }
+        writeLine('');
     }
     if (totalValid > 0) {
         const succeeded = totalValid - filesWithErrors.size;
