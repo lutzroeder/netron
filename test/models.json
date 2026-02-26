@@ -1844,13 +1844,6 @@
   },
   {
     "type":     "darknet",
-    "target":   "yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg",
-    "source":   "https://github.com/lutzroeder/netron/files/4074756/yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg.zip[yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg]",
-    "format":   "Darknet",
-    "link":     "https://github.com/lutzroeder/netron/issues/410"
-  },
-  {
-    "type":     "darknet",
     "target":   "yolov3_1088x608.cfg",
     "source":   "https://github.com/lutzroeder/netron/files/4391007/yolov3_1088x608.cfg.zip[yolov3_1088x608.cfg]",
     "format":   "Darknet",
@@ -4460,32 +4453,32 @@
   },
   {
     "type":     "onnx",
-    "target":   "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
+    "target":   "denotation_Bgr8_SRGB_0_255.onnx",
+    "source":   "https://github.com/user-attachments/files/25537163/onnx_denotation_models.zip[denotation_Bgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
     "assert":   "model.modules[0].nodes[0].outputs[0].value[0].type.denotation == 'Image(Bgr8,SRGB,NominalRange_0_255)'",
-    "link":     "https://github.com/lutzroeder/netron/issues/183"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
-    "target":   "denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgra8_SRGB_0_255.onnx]",
+    "target":   "denotation_Bgra8_SRGB_0_255.onnx",
+    "source":   "https://github.com/user-attachments/files/25537163/onnx_denotation_models.zip[denotation_Bgra8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/183"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
-    "target":   "denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgb8_SRGB_0_255.onnx]",
+    "target":   "denotation_Rgb8_SRGB_0_255.onnx",
+    "source":   "https://github.com/user-attachments/files/25537163/onnx_denotation_models.zip[denotation_Rgb8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/183"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
-    "target":   "denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx]",
+    "target":   "denotation_Rgba8_SRGB_0_255.onnx",
+    "source":   "https://github.com/user-attachments/files/25537163/onnx_denotation_models.zip[denotation_Rgba8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/183"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
@@ -5206,13 +5199,6 @@
     "type":     "openvino",
     "target":   "2018_R4_single-image-super-resolution-0034.xml",
     "source":   "https://github.com/lutzroeder/netron/files/8983769/2018_R4_single-image-super-resolution-0034.xml.zip[2018_R4_single-image-super-resolution-0034.xml]",
-    "format":   "OpenVINO IR",
-    "link":     "https://github.com/lutzroeder/netron/issues/191"
-  },
-  {
-    "type":     "openvino",
-    "target":   "2018_R5_vehicle-license-plate-detection-barrier-0106.xml",
-    "source":   "https://github.com/lutzroeder/netron/files/8983770/2018_R5_vehicle-license-plate-detection-barrier-0106.xml.zip[2018_R5_vehicle-license-plate-detection-barrier-0106.xml]",
     "format":   "OpenVINO IR",
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
@@ -9032,13 +9018,6 @@
     "type":     "xmodel",
     "target":   "mobilenet_1_0_224_tf2-zcu102_zcu104-r1.3.1.xmodel",
     "source":   "https://www.xilinx.com/bin/public/openDownload?filename=mobilenet_1_0_224_tf2-zcu102_zcu104-r1.3.1.tar.gz[mobilenet_1_0_224_tf2/mobilenet_1_0_224_tf2.xmodel]",
-    "format":   "xmodel",
-    "link":     "https://github.com/Xilinx/Vitis-AI/blob/master/models/AI-Model-Zoo/model-list/tf2_mobilenetv1_imagenet_224_224_1.15G_1.3/model.yaml"
-  },
-  {
-    "type":     "xmodel",
-    "target":   "mobilenet_1_0_224_tf2-u50-u50lv-u280-v3me-r1.3.1.xmodel",
-    "source":   "https://www.xilinx.com/bin/public/openDownload?filename=mobilenet_1_0_224_tf2-u50-u50lv-u280-v3me-r1.3.1.tar.gz[mobilenet_1_0_224_tf2/mobilenet_1_0_224_tf2.xmodel]",
     "format":   "xmodel",
     "link":     "https://github.com/Xilinx/Vitis-AI/blob/master/models/AI-Model-Zoo/model-list/tf2_mobilenetv1_imagenet_224_224_1.15G_1.3/model.yaml"
   },
