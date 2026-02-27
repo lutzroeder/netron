@@ -103,18 +103,28 @@ if (!DataView.prototype.getFloat4e2m1) {
 if (!DataView.prototype.getFloat8e4m3) {
     DataView.__float8e4m3_float32 = new Float32Array(1);
     DataView.__float8e4m3_uint32 = new Uint32Array(DataView.__float8e4m3_float32.buffer, DataView.__float8e4m3_float32.byteOffset, 1);
-    DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz) {
+    DataView.prototype.getFloat8e4m3 = function(byteOffset, fn, uz, bias) {
         const value = this.getUint8(byteOffset);
-        let exponent_bias = 7;
+        const exponent_bias = bias || (uz ? 8 : 7);
         if (uz) {
-            exponent_bias = 8;
             if (value === 0x80) {
                 return NaN;
             }
-        } else if (value === 255) {
-            return -NaN;
-        } else if (value === 0x7f) {
-            return NaN;
+        } else if (fn) {
+            if (value === 255) {
+                return -NaN;
+            } else if (value === 0x7f) {
+                return NaN;
+            }
+        } else {
+            const expo = (value & 0x78) >> 3;
+            const mant = value & 0x07;
+            if (expo === 15) {
+                if (mant === 0) {
+                    return (value & 0x80) ? -Infinity : Infinity;
+                }
+                return NaN;
+            }
         }
         let expo = (value & 0x78) >> 3;
         let mant = value & 0x07;
@@ -1036,6 +1046,11 @@ base.Tensor = class {
                         results.push(view.getFloat8e3m4(offset));
                     }
                     break;
+                case 'float8e4m3':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat8e4m3(offset, false, false));
+                    }
+                    break;
                 case 'float8e4m3fn':
                     for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, false));
@@ -1044,6 +1059,11 @@ base.Tensor = class {
                 case 'float8e4m3fnuz':
                     for (; offset < max; offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, true));
+                    }
+                    break;
+                case 'float8e4m3b11fnuz':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat8e4m3(offset, true, true, 11));
                     }
                     break;
                 case 'float8e5m2':

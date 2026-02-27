@@ -1209,6 +1209,15 @@ tf.Tensor = class {
                         this.encoding = '|';
                         break;
                     }
+                    case DataType.DT_FLOAT8_E5M2:
+                    case DataType.DT_FLOAT8_E4M3FN:
+                    case DataType.DT_FLOAT8_E4M3FNUZ:
+                    case DataType.DT_FLOAT8_E4M3B11FNUZ:
+                    case DataType.DT_FLOAT8_E5M2FNUZ: {
+                        this._values = tensor.float8_val || null;
+                        this.encoding = '<';
+                        break;
+                    }
                     default: {
                         throw new tf.Error(`Unsupported tensor data type '${tensor.dtype}'.`);
                     }
@@ -2181,6 +2190,11 @@ tf.Utility = class {
             dataTypes.set(DataType.DT_BOOL, 'boolean');
             dataTypes.set(DataType.DT_COMPLEX64, 'complex<float32>');
             dataTypes.set(DataType.DT_COMPLEX128, 'complex<float64>');
+            dataTypes.set(DataType.DT_FLOAT8_E5M2, 'float8e5m2');
+            dataTypes.set(DataType.DT_FLOAT8_E4M3FN, 'float8e4m3fn');
+            dataTypes.set(DataType.DT_FLOAT8_E4M3FNUZ, 'float8e4m3fnuz');
+            dataTypes.set(DataType.DT_FLOAT8_E4M3B11FNUZ, 'float8e4m3b11fnuz');
+            dataTypes.set(DataType.DT_FLOAT8_E5M2FNUZ, 'float8e5m2fnuz');
             tf.Utility._dataTypes = dataTypes;
         }
         return tf.Utility._dataTypes.has(type) ? tf.Utility._dataTypes.get(type) : '?';

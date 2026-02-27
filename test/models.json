@@ -8112,6 +8112,13 @@
   },
   {
     "type":     "tf",
+    "target":   "float8.pb",
+    "source":   "https://github.com/user-attachments/files/25608278/float8.pb.zip[float8.pb]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
+  },
+  {
+    "type":     "tf",
     "target":   "float16.txt",
     "source":   "https://github.com/lutzroeder/netron/files/8547644/float16.txt.zip[float16.txt]",
     "format":   "TensorFlow Graph",
