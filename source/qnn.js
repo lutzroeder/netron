@@ -200,7 +200,7 @@ qnn.Node = class {
             const argument = new qnn.Argument(outputs.length === 1 ? 'output' : 'outputs', outputs);
             this.outputs.push(argument);
         }
-        for (const [name, value] of Object.entries(obj.scalar_params)) {
+        for (const [name, value] of Object.entries(obj.scalar_params || {})) {
             const entries = Object.entries(value);
             if (entries.length === 1 && name !== 'packageName') {
                 const dataType = qnn.Utility.dataType(parseInt(entries[0][0], 10));
@@ -208,7 +208,7 @@ qnn.Node = class {
                 this.attributes.push(argument);
             }
         }
-        for (const [name, value] of Object.entries(obj.tensor_params)) {
+        for (const [name, value] of Object.entries(obj.tensor_params || {})) {
             const entries = Object.entries(value);
             if (entries.length === 1 && name !== 'packageName') {
                 const tensor = new qnn.Tensor(name, null, entries[0][1]);
