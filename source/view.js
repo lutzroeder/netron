@@ -4209,13 +4209,15 @@ view.FindSidebar = class extends view.Control {
             query: '',
             node: true,
             connection: true,
-            weight: true
+            weight: true,
+            nodeType: ''
         };
         this._toggles = {
             node: { hide: 'Hide Nodes', show: 'Show Nodes' },
             connection: { hide: 'Hide Connections', show: 'Show Connections' },
             weight: { hide: 'Hide Weights', show: 'Show Weights' }
         };
+        this._isOnnxModel = this._view._model && this._view._model.format && this._view._model.format.startsWith('ONNX');
     }
 
     get identifier() {
@@ -4331,6 +4333,13 @@ view.FindSidebar = class extends view.Control {
             const name = node.name;
             const type = node.type.name;
             const identifier = node.identifier;
+            // Apply node type filter for ONNX models
+            if (this._isOnnxModel && this._state.nodeType && this._state.nodeType !== '') {
+                const nodeTypeName = type.split('.').pop(); // Get base type name (e.g., "Conv" from "ai.onnx.Conv")
+                if (nodeTypeName.toLowerCase() !== this._state.nodeType.toLowerCase()) {
+                    return; // Skip nodes that don't match the selected type
+                }
+            }
             if ((name && this._term(name)) || (type && this._term(type)) || (identifier && this._term(identifier))) {
                 const content = `${name || `[${type}]`}`;
                 this._add(node, content, 'node');
@@ -4396,6 +4405,20 @@ view.FindSidebar = class extends view.Control {
         }
     }
 
+    _collectNodeTypes() {
+        if (!this._isOnnxModel || !this._target || !this._target.nodes) {
+            return [];
+        }
+        const nodeTypes = new Set();
+        for (const node of this._target.nodes) {
+            if (node.type && node.type.name) {
+                const typeName = node.type.name.split('.').pop(); // Get base type name (e.g., "Conv" from "ai.onnx.Conv")
+                nodeTypes.add(typeName);
+            }
+        }
+        return Array.from(nodeTypes).sort();
+    }
+
     _update() {
         try {
             this._reset();
@@ -4432,6 +4455,97 @@ view.FindSidebar = class extends view.Control {
         this._search = this.createElement('div', 'sidebar-find-search');
         this._query = this.createElement('input', 'sidebar-find-query');
         this._search.appendChild(this._query);
+
+        // Add node type filter button for ONNX models
+        if (this._isOnnxModel) {
+            const container = this.createElement('div');
+            container.style.position = 'relative';
+
+            this._nodeTypeFilterButton = this.createElement('label', 'sidebar-find-toggle');
+            this._nodeTypeFilterButton.innerHTML = `<svg class='sidebar-find-toggle-icon'><use href="#sidebar-icon-filter"></use></svg>`;
+            this._nodeTypeFilterButton.setAttribute('title', 'Filter by Node Type');
+
+            // Create dropdown menu (initially hidden)
+            this._nodeTypeDropdown = this.createElement('div', 'sidebar-find-nodetype-dropdown');
+            this._nodeTypeDropdown.style.display = 'none';
+
+            const defaultOption = this.createElement('div');
+            defaultOption.style.padding = '6px 12px';
+            defaultOption.style.cursor = 'pointer';
+            defaultOption.style.fontSize = '12px';
+            defaultOption.textContent = 'All Types';
+            defaultOption.addEventListener('click', () => {
+                this._state.nodeType = '';
+                this._updateDropdownSelection();
+                this.emit('state-changed', this._state);
+                this._update();
+                this._nodeTypeDropdown.style.display = 'none';
+            });
+            this._nodeTypeDropdown.appendChild(defaultOption);
+
+            const nodeTypes = this._collectNodeTypes();
+            for (const nodeType of nodeTypes) {
+                const option = this.createElement('div');
+                option.style.padding = '6px 12px';
+                option.style.cursor = 'pointer';
+                option.style.fontSize = '12px';
+                option.textContent = nodeType;
+                option.addEventListener('click', () => {
+                    this._state.nodeType = nodeType;
+                    this._updateDropdownSelection();
+                    this.emit('state-changed', this._state);
+                    this._update();
+                    this._nodeTypeDropdown.style.display = 'none';
+                });
+                option.addEventListener('mouseenter', () => {
+                    if (this._state.nodeType !== nodeType) {
+                        option.style.background = '#f5f5f5';
+                    }
+                });
+                option.addEventListener('mouseleave', () => {
+                    if (this._state.nodeType !== nodeType) {
+                        option.style.background = 'transparent';
+                    }
+                });
+                this._nodeTypeDropdown.appendChild(option);
+            }
+
+            container.appendChild(this._nodeTypeFilterButton);
+            container.appendChild(this._nodeTypeDropdown);
+
+            this._nodeTypeFilterButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isVisible = this._nodeTypeDropdown.style.display !== 'none';
+                this._nodeTypeDropdown.style.display = isVisible ? 'none' : 'block';
+            });
+
+            // Close dropdown when clicking outside
+            const closeDropdown = (e) => {
+                if (container && !container.contains(e.target)) {
+                    this._nodeTypeDropdown.style.display = 'none';
+                }
+            };
+            this._host.document.addEventListener('click', closeDropdown);
+
+            const nodeTypesList = nodeTypes;
+            this._updateDropdownSelection = () => {
+                const options = this._nodeTypeDropdown.children;
+                for (let i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    const isSelected = (i === 0 && this._state.nodeType === '') ||
+                                      (i > 0 && this._state.nodeType === nodeTypesList[i - 1]);
+                    option.style.color = isSelected ? '#2e6bd2' : '';
+                    option.style.fontWeight = isSelected ? 'bold' : 'normal';
+                    if (!isSelected) {
+                        option.style.background = 'transparent';
+                    }
+                }
+            };
+
+            this._search.appendChild(container);
+            this._updateDropdownSelection();
+        }
+
         this._content = this.createElement('ol', 'sidebar-find-content');
         this._elements = [this._query, this._content];
         this._query.setAttribute('id', 'search');
@@ -4495,6 +4609,9 @@ view.FindSidebar = class extends view.Control {
         for (const [name, toggle] of Object.entries(this._toggles)) {
             toggle.checkbox.checked = this._state[name];
             toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
+        }
+        if (this._isOnnxModel && this._updateDropdownSelection) {
+            this._updateDropdownSelection();
         }
         this._update();
         this._host.event('open_sidebar', {

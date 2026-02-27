@@ -247,7 +247,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 }
 .sidebar-separator { margin-bottom: 20px; }
 .sidebar-find-search { display: flex; align-items: center; background: #fff; border-radius: 16px; margin: 0px 20px 8px 20px; padding: 0px 8px 0px 8px; }
-.sidebar-find-query { width: 100vw; background: none; font-family: inherit; font-size: 13px; padding: 8px 8px 8px 8px; border: 0; outline: 0; }
+.sidebar-find-query { flex: 1; background: none; font-family: inherit; font-size: 13px; padding: 8px 8px 8px 8px; border: 0; outline: 0; }
+.sidebar-find-nodetype-dropdown { position: absolute; right: 0; top: 100%; margin-top: 4px; background: #fff; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000; min-width: 120px; max-height: 200px; overflow-y: auto; }
+.sidebar-find-nodetype-dropdown > div { padding: 6px 12px; cursor: pointer; font-size: 12px; color: #333; }
+.sidebar-find-nodetype-dropdown > div:hover { background: #f5f5f5; }
 .sidebar-find-toggle { margin-left: auto; margin-right: 2px; width: 16px; height: 16px; cursor: pointer; }
 .sidebar-find-toggle input[type="checkbox"] { display: none; }
 .sidebar-find-toggle input[type="checkbox"]:not(:checked) + svg { fill: #ccc; stroke: #ccc; }
@@ -291,6 +294,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     .sidebar-documentation code { background-color: #1e1e1e; }
     .sidebar-documentation pre { background-color: #1e1e1e; }
     .sidebar-find-search { background: #383838; color: #dfdfdf; border-color: #424242; }
+    .sidebar-find-nodetype-dropdown { background: #383838; border-color: #555; }
+    .sidebar-find-nodetype-dropdown > div { color: #dfdfdf; }
+    .sidebar-find-nodetype-dropdown > div:hover { background: #424242; }
     .sidebar-find-toggle input[type="checkbox"]:not(:checked) + svg { fill: #555; stroke: #555; }
     .sidebar-find-toggle input[type="checkbox"]:checked + svg { fill: #aaa; stroke: #aaa; }
     .sidebar-find-content li { color: #aaaaaa; }
@@ -335,6 +341,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
                 <circle cx="10" cy="15" r="1" />
                 <circle cx="15" cy="15" r="1" />
           </symbol>
+            <symbol id="sidebar-icon-filter" viewBox="0 0 20 20">
+                <line x1="4" y1="5" x2="16" y2="5" stroke-width="2" stroke-linecap="round"/>
+                <line x1="6" y1="10" x2="14" y2="10" stroke-width="2" stroke-linecap="round"/>
+                <line x1="8" y1="15" x2="12" y2="15" stroke-width="2" stroke-linecap="round"/>
+            </symbol>
         </defs>
     </svg>
 </div>
