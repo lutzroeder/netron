@@ -445,9 +445,12 @@ om.Container = class {
                             case 9: // STATIC_TASK_DESC
                             case 10: // DYNAMIC_TASK_DESC
                             case 11: // TASK_PARAM
+                            case 12: // TILING_DATA
                             case 20: // PRE_MODEL_DESC
                             case 21: // PRE_MODEL_SQE
-                            case 22: { // PRE_KERNEL_ARGS
+                            case 22: // PRE_KERNEL_ARGS
+                            case 23: // PRE_MODEL_DESC_EXTEND
+                            case 24: { // BUNDLE_MODEL_INFO
                                 break;
                             }
                             default: {
