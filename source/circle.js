@@ -353,11 +353,17 @@ circle.Node = class {
             if (options) {
                 for (const [name, value] of Object.entries(options)) {
                     if (name === 'fused_activation_function' && value) {
-                        if (value < 1 || value > 5) {
-                            throw new circle.Error(`Unsupported activation function index '${value}'.`);
+                        const ActivationFunctionType = circle.schema.ActivationFunctionType;
+                        let type = '';
+                        switch (value) {
+                            case ActivationFunctionType.RELU: type = 'Relu'; break;
+                            case ActivationFunctionType.RELU_N1_TO_1: type = 'ReluN1To1'; break;
+                            case ActivationFunctionType.RELU6: type = 'Relu6'; break;
+                            case ActivationFunctionType.TANH: type = 'Tanh'; break;
+                            case ActivationFunctionType.SIGN_BIT: type = 'SignBit'; break;
+                            case 6: type = 'Sigmoid'; break;
+                            default: type = value.toString(); break;
                         }
-                        const list = ['Unknown', 'Relu', 'ReluN1To1', 'Relu6', 'Tanh', 'SignBit'];
-                        const type = list[value];
                         const node = new circle.Node(metadata, null, { name: type }, null, []);
                         this.chain = [node];
                     }
