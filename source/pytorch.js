@@ -1072,6 +1072,9 @@ pytorch.Context = class {
             }
             if (obj.op === 'output') {
                 for (const output of obj.args) {
+                    if (output === null || output === undefined) {
+                        continue;
+                    }
                     if (output.op === 'call_function' && output.target.__module__ === 'operator' && output.target.__name__ === 'getitem') {
                         continue;
                     }

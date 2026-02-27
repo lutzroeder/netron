@@ -19008,7 +19008,7 @@ python.Execution = class {
                         this.as_sym_float = new torch._export.serde.schema.SymFloatArgument(this.as_sym_float);
                         break;
                     case 'as_sym_floats':
-                        this.as_sym_floats = this.as_sym_float.map((item) => new torch._export.serde.schema.SymFloatArgument(item));
+                        this.as_sym_floats = this.as_sym_floats.map((item) => new torch._export.serde.schema.SymFloatArgument(item));
                         break;
                     case 'as_optional_tensors':
                         this.as_optional_tensors = this.as_optional_tensors.map((item) => new torch._export.serde.schema.OptionalTensorArgument(item));
@@ -19570,10 +19570,16 @@ python.Execution = class {
                     return this.serialized_name_to_node.get(output.as_sym_int.as_name);
                 } else if (output.type === 'as_sym_bool') {
                     return this.serialized_name_to_node.get(output.as_sym_bool.as_name);
+                } else if (output.type === 'as_sym_float') {
+                    return this.serialized_name_to_node.get(output.as_sym_float.as_name);
                 } else if (output.type === 'as_int') {
-                    return this.serialized_name_to_node.get(output.as_int.as_name);
+                    return output.as_int;
+                } else if (output.type === 'as_float') {
+                    return output.as_float;
+                } else if (output.type === 'as_bool') {
+                    return output.as_bool;
                 } else if (output.type === 'as_none') {
-                    return this.serialized_name_to_node.get(output.as_sym_bool.as_name);
+                    return null;
                 }
                 throw new python.Error(`Unsupported graph node ${output.type}.`);
             }
@@ -19623,10 +19629,9 @@ python.Execution = class {
                 if (serialized_graph.is_single_tensor_return) {
                     output_node.meta.set('val', output_node.args[0].meta.get('val'));
                 } else {
-                    /* output_node.meta['val'] = tuple(
-                        arg.meta['val'] if isinstance(arg, torch.fx.Node) else arg
-                        for arg in output_node.args[0]
-                    ) */
+                    output_node.meta.set('val', new builtins.tuple(Array.from(output_node.args[0]).map((arg) =>
+                        arg instanceof torch.fx.Node ? arg.meta.get('val') : arg
+                    )));
                 }
                 return self.graph;
             }
@@ -20011,6 +20016,8 @@ python.Execution = class {
                         name = arg.name;
                     } else if (arg instanceof torch._export.serde.schema.SymIntArgument) {
                         name = arg.as_name;
+                    } else if (arg instanceof torch._export.serde.schema.SymFloatArgument) {
+                        name = arg.as_name;
                     } else {
                         throw new python.Error(`Unsupported argument type '${arg}'.`);
                     }
@@ -20027,32 +20034,56 @@ python.Execution = class {
                 };
                 const generate_getitems = (meta_val, fx_node, args) => {
                     for (let idx = 0; idx < args.length; idx++) {
-                        let arg = args[idx];
-                        if (arg instanceof torch._export.serde.schema.Argument) {
-                            arg = arg.value;
-                        }
-                        if (arg instanceof torch._export.serde.schema.TensorArgument || arg instanceof torch._export.serde.schema.SymIntArgument) {
+                        const arg = args[idx];
+                        if (arg instanceof torch._export.serde.schema.TensorArgument ||
+                            arg instanceof torch._export.serde.schema.SymIntArgument ||
+                            arg instanceof torch._export.serde.schema.SymFloatArgument) {
                             generate_getitem(meta_val, fx_node, arg, idx);
-                        } else if (Array.isArray(arg)) { // arg instanceof (list, tuple))
+                        } else if (arg instanceof torch._export.serde.schema.Argument) {
+                            if (arg.type === 'as_tensor' || arg.type === 'as_sym_int' || arg.type === 'as_sym_float') {
+                                generate_getitem(meta_val, fx_node, arg.value, idx);
+                            } else if (arg.type === 'as_none') {
+                                const individual_output = this.graph.create_node(
+                                    'call_function',
+                                    operator.getitem,
+                                    new builtins.tuple([fx_node, idx]),
+                                    null,
+                                    'as_none',
+                                );
+                                meta_val.push(null);
+                                individual_output.meta.set('val', null);
+                                individual_output.meta.update(deserialized_metadata);
+                            } else if (Array.isArray(arg.value)) {
+                                const list_output = this.graph.create_node(
+                                    'call_function',
+                                    operator.getitem,
+                                    new builtins.tuple([fx_node, idx]),
+                                );
+                                meta_val.push([]);
+                                generate_getitems(meta_val[meta_val.length - 1], list_output, arg.value);
+                                list_output.meta.update(deserialized_metadata);
+                                list_output.meta.set('val', meta_val[meta_val.length - 1]);
+                            } else {
+                                throw new python.Error(`Unsupported node output type '${arg.type}'.`);
+                            }
+                        } else if (Array.isArray(arg)) {
                             const list_output = this.graph.create_node(
                                 'call_function',
                                 operator.getitem,
-                                (fx_node, idx),
+                                new builtins.tuple([fx_node, idx]),
                             );
                             meta_val.push([]);
                             generate_getitems(meta_val[meta_val.length - 1], list_output, arg);
                             list_output.meta.update(deserialized_metadata);
                             list_output.meta.set('val', meta_val[meta_val.length - 1]);
                         } else {
-                            throw new python.Error(`Unsupported node output type: '${arg}'.`);
+                            throw new python.Error(`Unsupported node output type '${arg}'.`);
                         }
                     }
                 };
                 const meta_val = [];
                 if (serialized_node.outputs.length === 1) {
-                    // assert isinstance(serialized_node.outputs[0].value, list)
-                    // assert isinstance(serialized_node.outputs[0].value[0], TensorArgument)
-                    generate_getitems(meta_val, fx_node, serialized_node.outputs[0].as_tensors);
+                    generate_getitems(meta_val, fx_node, serialized_node.outputs[0].value);
                 } else {
                     generate_getitems(meta_val, fx_node, serialized_node.outputs);
                 }

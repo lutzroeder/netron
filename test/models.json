@@ -7054,6 +7054,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "sym_output.pt2",
+    "source":   "https://github.com/user-attachments/files/25610202/sym_output.pt2.zip[sym_output.pt2]",
+    "format":   "PyTorch Export v8.16",
+    "link":     "https://github.com/lutzroeder/netron/issues/1211"
+  },
+  {
+    "type":     "pytorch",
     "target":   "tensor.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/14733020/tensor.pkl.zip[tensor.pkl]",
     "format":   "PyTorch Pickle",
