@@ -77,7 +77,6 @@ onnx.Model = class {
             imports.set('ai.onnx', 1);
             imports.set('ai.onnx.ml', 1);
         }
-        let imageFormat = '';
         const metadata_props = model.metadata_props;
         if (metadata_props) {
             const metadata = new Map(metadata_props.map((entry) => [entry.key, entry.value]));
@@ -106,22 +105,12 @@ onnx.Model = class {
             metadata.delete('converted_from');
             metadata.delete('license');
             metadata.delete('license_url');
-            const imageMetadata = {};
             for (const [name, value] of metadata) {
-                switch (name) {
-                    case 'Image.BitmapPixelFormat':
-                    case 'Image.ColorSpaceGamma':
-                    case 'Image.NominalPixelRange':
-                        imageMetadata[name] = value;
-                        break;
-                    default:
-                        this._metadata.push(new onnx.Argument(name, value));
-                        break;
-                }
+                const argument = new onnx.Argument(name, value);
+                this._metadata.push(argument);
             }
-            imageFormat = [imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange']].filter((item) => item);
         }
-        const context = new onnx.Context.Model(metadata, target.locations, imageFormat, imports, model.graph, model.functions);
+        const context = new onnx.Context.Model(metadata, target.locations, imports, model.graph, model.functions);
         const graph = context.graph(null);
         if (graph) {
             this._modules.push(graph);
@@ -818,7 +807,7 @@ onnx.Context = class {};
 
 onnx.Context.Model = class {
 
-    constructor(metadata, locations, imageFormat, imports, graph, functions) {
+    constructor(metadata, locations, imports, graph, functions) {
         this._metadata = metadata;
         this._locations = locations;
         this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [value, name.toLowerCase()]));
@@ -828,7 +817,6 @@ onnx.Context.Model = class {
         this._dataTypes.set(onnx.DataType.DOUBLE, 'float64');
         this._dataTypes.set(onnx.DataType.COMPLEX64, 'complex<float32>');
         this._dataTypes.set(onnx.DataType.COMPLEX128, 'complex<float64>');
-        this._imageFormat = imageFormat;
         this._imports = imports;
         this._types = new Map();
         this._attributes = new Map();
@@ -1096,27 +1084,7 @@ onnx.Context.Model = class {
         if (!type) {
             return null;
         }
-        let denotation = '';
-        switch (type.denotation) {
-            case undefined:
-            case null:
-            case '':
-                break;
-            case 'TENSOR':
-                denotation = 'Tensor';
-                break;
-            case 'IMAGE':
-                denotation = `Image${this._imageFormat ? `(${this._imageFormat.join(',')})` : ''}`;
-                break;
-            case 'AUDIO':
-                denotation = 'Audio';
-                break;
-            case 'TEXT':
-                denotation = 'Text';
-                break;
-            default:
-                throw new onnx.Error(`Unsupported tensor type denotation '${type.denotation}'.`);
-        }
+        const denotation = type.denotation || '';
         if (type.tensor_type) {
             const tensor_type = type.tensor_type;
             const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
@@ -2006,6 +1974,9 @@ onnx.JsonReader = class {
     }
 
     _attribute(value) {
+        if (typeof value.type === 'string' && value.type in onnx.AttributeType) {
+            value.type = onnx.AttributeType[value.type];
+        }
         if (value.ref_attr_name) {
             value.ref_attr_name = value.ref_attr_name.toString();
         } else if (value.type === onnx.AttributeType.FLOATS || (Array.isArray(value.floats) && value.floats.length > 0)) {

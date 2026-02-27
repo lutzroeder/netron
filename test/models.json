@@ -4456,7 +4456,7 @@
     "target":   "denotation_Bgr8_SRGB_0_255.onnx",
     "source":   "https://github.com/user-attachments/files/25537163/onnx_denotation_models.zip[denotation_Bgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "assert":   "model.modules[0].nodes[0].outputs[0].value[0].type.denotation == 'Image(Bgr8,SRGB,NominalRange_0_255)'",
+    "assert":   "model.modules[0].nodes[0].outputs[0].value[0].type.denotation == 'IMAGE'",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -4464,6 +4464,7 @@
     "target":   "denotation_Bgra8_SRGB_0_255.onnx",
     "source":   "https://github.com/user-attachments/files/25537163/onnx_denotation_models.zip[denotation_Bgra8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
+    "assert":   "model.metadata[0].value == 'Bgra8'",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -5095,6 +5096,13 @@
     "target":   "vgg19.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6558105/vgg19.onnx.zip",
     "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "transpose_ints.json",
+    "source":   "https://github.com/user-attachments/files/25611169/transpose_ints.json.zip[transpose_ints.json]",
+    "format":   "ONNX JSON v13",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
