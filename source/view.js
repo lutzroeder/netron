@@ -2844,6 +2844,10 @@ view.Control = class {
     error(error, fatal) {
         this._view.exception(error, fatal || false);
     }
+
+    escape(value) {
+        return value.toString().split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;');
+    }
 };
 
 view.Expander = class extends view.Control {
@@ -2858,11 +2862,13 @@ view.Expander = class extends view.Control {
         return [this.element];
     }
 
-    enable() {
-        this._expander = this.createElement('div', 'sidebar-item-value-expander');
-        this._expander.innerText = '+';
-        this._expander.addEventListener('click', () => this.toggle());
-        this.add(this._expander);
+    expandable() {
+        if (!this._expander) {
+            this._expander = this.createElement('div', 'sidebar-item-value-expander');
+            this._expander.innerText = '+';
+            this._expander.addEventListener('click', () => this.toggle());
+            this.add(this._expander);
+        }
     }
 
     add(element) {
@@ -3311,7 +3317,7 @@ view.PrimitiveView = class extends view.Expander {
             const type = argument.type === 'attribute' ? null : argument.type;
             const value = argument.value;
             if (type) {
-                this.enable();
+                this.expandable();
             }
             switch (type) {
                 case 'graph': {
@@ -3339,18 +3345,22 @@ view.PrimitiveView = class extends view.Expander {
                 default: {
                     const formatter = new view.Formatter(value, type);
                     let content = formatter.toString();
-                    if (content && content.length > 1000) {
-                        content = `${content.substring(0, 1000)}\u2026`;
+                    if (content) {
+                        if (content.length > 2000) {
+                            content = `${content.substring(0, 2000)}\u2026`;
+                        }
+                        const multiline = content.includes('\n');
+                        if (!multiline && content.length > 80) {
+                            this.expandable();
+                        }
+                        content = this.escape(content);
+                        if (multiline) {
+                            content = content.split('\n').join('<br>');
+                        }
                     }
-                    if (content && typeof content === 'string') {
-                        content = content.split('<').join('&lt;').split('>').join('&gt;');
-                    }
-                    if (content.indexOf('\n') >= 0) {
-                        content = content.split('\n').join('<br>');
-                    }
-                    const line = this.createElement('div', 'sidebar-item-value-line');
-                    line.innerHTML = content ? content : '&nbsp;';
-                    this.add(line);
+                    this._line = this.createElement('div', 'sidebar-item-value-line');
+                    this._line.innerHTML = content ? content : '&nbsp;';
+                    this.add(this._line);
                 }
             }
         } catch (error) {
@@ -3361,12 +3371,18 @@ view.PrimitiveView = class extends view.Expander {
 
     expand() {
         try {
+            if (this._line) {
+                this._line.classList.add('sidebar-item-value-line-wrap');
+            }
             const type = this._argument.type;
             const value = this._argument.value;
-            const content = type === 'tensor' && value && value.type ? value.type.toString() : this._argument.type;
-            const line = this.createElement('div', 'sidebar-item-value-line-border');
-            line.innerHTML = `type: <code><b>${content}</b></code>`;
-            this.add(line);
+            let content = type === 'tensor' && value && value.type ? value.type.toString() : this._argument.type;
+            if (content) {
+                content = this.escape(content);
+                const line = this.createElement('div', 'sidebar-item-value-line-border');
+                line.innerHTML = `type: <code><b>${content}</b></code>`;
+                this.add(line);
+            }
             const description = this._argument.description;
             if (description) {
                 const line = this.createElement('div', 'sidebar-item-value-line-border');
@@ -3379,9 +3395,15 @@ view.PrimitiveView = class extends view.Expander {
         }
     }
 
+    collapse() {
+        if (this._line) {
+            this._line.classList.remove('sidebar-item-value-line-wrap');
+        }
+    }
+
     _info(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = `<b>${name}:</b> ${value}`;
+        line.innerHTML = `<b>${name}:</b> ${this.escape(value)}`;
         this._add(line);
     }
 
@@ -3409,7 +3431,7 @@ view.ValueView = class extends view.Expander {
                 this.element.classList.add('sidebar-item-value-content');
             }
             if (type || initializer || quantization || location || source === 'attribute') {
-                this.enable();
+                this.expandable();
             }
             if (initializer && source !== 'attribute') {
                 const element = this.createElement('div', 'sidebar-item-value-button');
@@ -3445,8 +3467,7 @@ view.ValueView = class extends view.Expander {
             } else if (this._hasCategory) {
                 this._bold('category', initializer.category);
             } else if (type) {
-                const value = type.toString().split('<').join('&lt;').split('>').join('&gt;');
-                this._code('tensor', value);
+                this._code('tensor', type);
             }
         } catch (error) {
             super.error(error, false);
@@ -3471,7 +3492,7 @@ view.ValueView = class extends view.Expander {
                 denotation = this._value.type.denotation || null;
             }
             if (type && (this._hasId || this._hasCategory)) {
-                this._code('tensor', type.split('<').join('&lt;').split('>').join('&gt;'));
+                this._code('tensor', type);
             }
             if (denotation) {
                 this._code('denotation', denotation);
@@ -3530,19 +3551,19 @@ view.ValueView = class extends view.Expander {
 
     _bold(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = `${name}: <b>${value}</b>`;
+        line.innerHTML = `${name}: <b>${this.escape(value)}</b>`;
         this._add(line);
     }
 
     _code(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = `${name}: <code><b>${value}</b></code>`;
+        line.innerHTML = `${name}: <code><b>${this.escape(value)}</b></code>`;
         this._add(line);
     }
 
     _info(name, value) {
         const line = this.createElement('div');
-        line.innerHTML = `<b>${name}:</b> ${value}`;
+        line.innerHTML = `<b>${name}:</b> ${this.escape(value)}`;
         this._add(line);
     }
 
@@ -3563,7 +3584,7 @@ view.TensorView = class extends view.Expander {
 
     render() {
         if (!this._button) {
-            this.enable();
+            this.expandable();
             this._button = this.createElement('div', 'sidebar-item-value-button');
             this._button.setAttribute('style', 'float: left;');
             this._button.innerHTML = `<svg class='sidebar-find-content-icon'><use href="#sidebar-icon-weight"></use></svg>`;
@@ -3681,7 +3702,7 @@ view.NodeView = class extends view.Expander {
         const name = node.name;
         const type = node.type ? node.type.name : '';
         if (name && type) {
-            this.enable();
+            this.expandable();
         }
         if (type) {
             const type = node.type.name;
@@ -4810,7 +4831,7 @@ view.Formatter = class {
                 return `"${value}"`;
             }
             if (value.trim().length === 0) {
-                return '&nbsp;';
+                return value;
             }
             return value;
         }
@@ -4819,8 +4840,8 @@ view.Formatter = class {
                 return quote ? '[]' : '';
             }
             let ellipsis = false;
-            if (value.length > 1000) {
-                value = value.slice(0, 1000);
+            if (value.length > 2000) {
+                value = value.slice(0, 2000);
                 ellipsis = true;
             }
             const itemType = (type && type.endsWith('[]')) ? type.substring(0, type.length - 2) : null;
