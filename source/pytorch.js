@@ -520,8 +520,23 @@ pytorch.Node = class {
                 const block = blocks[i];
                 const nodes = Array.from(block.nodes());
                 if (nodes.length > 0) {
-                    const name = `block${i.toString()}`;
-                    const graph = { name: '', nodes: [] }; // new pytorch.Graph(execution, metadata, null, name, blocks[i]);
+                    const name = `block${i}`;
+                    const graph = { name, nodes: [], inputs: [], outputs: [] };
+                    for (const v of block.inputs()) {
+                        const identifier = pytorch.Utility.unique(v);
+                        const value = context.values.map(identifier);
+                        graph.inputs.push(new pytorch.Argument(v.debugName() || identifier, [value]));
+                    }
+                    for (const v of block.outputs()) {
+                        const identifier = pytorch.Utility.unique(v);
+                        graph.outputs.push(new pytorch.Argument(identifier, [context.values.map(identifier)]));
+                    }
+                    for (const n of nodes) {
+                        if (n === block.param_node() || n === block.return_node()) {
+                            continue;
+                        }
+                        graph.nodes.push(new pytorch.Node(execution, metadata, null, null, n, initializers, context));
+                    }
                     const argument = new pytorch.Argument(name, graph, 'graph');
                     this.blocks.push(argument);
                 }
