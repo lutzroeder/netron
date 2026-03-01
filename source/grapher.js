@@ -103,9 +103,9 @@ grapher.Graph = class {
         return null;
     }
 
-    build(document) {
+    build(document, origin) {
 
-        const origin = document.getElementById('origin');
+        origin = origin || document.getElementById('origin');
 
         const createGroup = (name) => {
             const element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -214,7 +214,9 @@ grapher.Graph = class {
             const entry = this.node(key);
             if (this.children(key).length === 0) {
                 const node = entry.label;
-                node.measure();
+                /* eslint-disable no-await-in-loop */
+                await node.measure();
+                /* eslint-enable no-await-in-loop */
             }
         }
     }
@@ -272,6 +274,10 @@ grapher.Graph = class {
             const fs = await import('fs');
             fs.writeFileSync(`dist/test/${this.identifier}.log`, state.log);
         }
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
         for (const node of nodes) {
             const label = this.node(node.v).label;
             label.x = node.x;
@@ -280,6 +286,18 @@ grapher.Graph = class {
                 label.width = node.width;
                 label.height = node.height;
             }
+            const hw = (node.width || 0) / 2;
+            const hh = (node.height || 0) / 2;
+            minX = Math.min(minX, node.x - hw);
+            minY = Math.min(minY, node.y - hh);
+            maxX = Math.max(maxX, node.x + hw);
+            maxY = Math.max(maxY, node.y + hh);
+        }
+        if (isFinite(minX)) {
+            this.width = maxX - minX;
+            this.height = maxY - minY;
+            this.originX = minX;
+            this.originY = minY;
         }
         for (const edge of edges) {
             const label = this.edge(edge.v, edge.w).label;
@@ -293,7 +311,8 @@ grapher.Graph = class {
             const entry = this.node(key);
             if (this.children(key).length === 0) {
                 const node = entry.label;
-                node.layout();
+                // eslint-disable-next-line no-await-in-loop
+                await node.layout();
             }
         }
         return '';
@@ -366,10 +385,11 @@ grapher.Node = class {
         this.element.appendChild(this.border);
     }
 
-    measure() {
+    async measure() {
         this.height = 0;
         for (const block of this._blocks) {
-            block.measure();
+            // eslint-disable-next-line no-await-in-loop
+            await block.measure();
             this.height += block.height;
         }
         this.width = Math.max(...this._blocks.map((block) => block.width));
@@ -378,13 +398,14 @@ grapher.Node = class {
         }
     }
 
-    layout() {
+    async layout() {
         let y = 0;
         for (const block of this._blocks) {
             block.x = 0;
             block.y = y;
             block.width = this.width;
-            block.layout();
+            // eslint-disable-next-line no-await-in-loop
+            await block.layout();
             y += block.height;
         }
     }
@@ -625,12 +646,14 @@ grapher.ArgumentList = class {
         }
     }
 
-    measure() {
+    async measure() {
         this.width = 75;
         this.height = 3;
         for (let i = 0; i < this._items.length; i++) {
             const item = this._items[i];
-            item.measure();
+            /* eslint-disable no-await-in-loop */
+            await item.measure();
+            /* eslint-enable no-await-in-loop */
             this.height += item.height;
             this.width = Math.max(this.width, item.width);
             if (item.type === 'node' || item.type === 'node[]') {
@@ -645,13 +668,15 @@ grapher.ArgumentList = class {
         this.height += 3;
     }
 
-    layout() {
+    async layout() {
         let y = 3;
         for (const item of this._items) {
             item.x = this.x;
             item.y = y;
             item.width = this.width;
-            item.layout();
+            /* eslint-disable no-await-in-loop */
+            await item.layout();
+            /* eslint-enable no-await-in-loop */
             y += item.height;
         }
     }
@@ -748,7 +773,7 @@ grapher.Argument = class {
         }
     }
 
-    measure() {
+    async measure() {
         const yPadding = 1;
         const xPadding = 6;
         const size = this.text.getBBox();
@@ -758,32 +783,35 @@ grapher.Argument = class {
         this.height = this.bottom;
         if (this.type === 'node') {
             const node = this.content;
-            node.measure();
+            await node.measure();
             this.width = Math.max(150, this.width, node.width + (2 * xPadding));
             this.height += node.height + yPadding + yPadding + yPadding + yPadding;
         } else if (this.type === 'node[]') {
             for (const node of this.content) {
-                node.measure();
+                /* eslint-disable no-await-in-loop */
+                await node.measure();
+                /* eslint-enable no-await-in-loop */
                 this.width = Math.max(150, this.width, node.width + (2 * xPadding));
                 this.height += node.height + yPadding + yPadding + yPadding + yPadding;
             }
         }
     }
 
-    layout() {
+    async layout() {
         const yPadding = 1;
         const xPadding = 6;
         let y = this.y + this.bottom;
         if (this.type === 'node') {
             const node = this.content;
             node.width = this.width - xPadding - xPadding;
-            node.layout();
+            await node.layout();
             node.x = this.x + xPadding + (node.width / 2);
             node.y = y + (node.height / 2) + yPadding + yPadding;
         } else if (this.type === 'node[]') {
             for (const node of this.content) {
                 node.width = this.width - xPadding - xPadding;
-                node.layout();
+                // eslint-disable-next-line no-await-in-loop
+                await node.layout();
                 node.x = this.x + xPadding + (node.width / 2);
                 node.y = y + (node.height / 2) + yPadding + yPadding;
                 y += node.height + yPadding + yPadding + yPadding + yPadding;
