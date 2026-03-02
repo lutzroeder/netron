@@ -697,7 +697,7 @@ base.Tensor = class {
             ['qint8', 1], ['qint16', 2], ['qint32', 4],
             ['quint8', 1], ['quint16', 2], ['quint32', 4],
             ['xint8', 1],
-            ['int8', 1], ['int16', 2], ['int32', 4], ['int64', 8], ['int128', 16],
+            ['int8', 1], ['int16', 2], ['int32', 4], ['int48', 6], ['int64', 8], ['int128', 16],
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
             ['complex<float32>', 8], ['complex<float64>', 16], ['complex<int32>', 8],
@@ -956,6 +956,11 @@ base.Tensor = class {
                 case 'int32':
                     for (; offset < max; offset += stride) {
                         results.push(view.getInt32(offset, this._littleEndian));
+                    }
+                    break;
+                case 'int48':
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getInt48(offset, this._littleEndian));
                     }
                     break;
                 case 'int64':

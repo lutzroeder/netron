@@ -3882,6 +3882,7 @@ view.TensorView = class extends view.Expander {
                     case 'float8e5m2fnuz': data_type = 'float16'; break;
                     case 'float8e8m0fnu': data_type = 'float16'; break;
                     case 'int4': data_type = 'int8'; break;
+                    case 'int48': data_type = 'int64'; break;
                     default: data_type = tensor.type.dataType; break;
                 }
                 const python = await import('./python.js');
