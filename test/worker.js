@@ -361,7 +361,7 @@ export class Target {
                             } else {
                                 tensor.toString();
                                 if (this.tags.has('validation')) {
-                                    const size = tensor.type.shape.dimensions.reduce((a, b) => a * b, 1);
+                                    const size = tensor.type.shape.dimensions.reduce((a, b) => BigInt(a) * BigInt(b), 1n).toNumber();
                                     if (size < 8192 && tensor.type &&
                                         tensor.type.dataType !== '?' &&
                                         tensor.type.dataType !== 'string' &&

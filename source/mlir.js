@@ -336,7 +336,7 @@ mlir.Graph = class {
                     const valueAttr = op.attributes.get('value') || op.attributes.get('values');
                     if ((valueAttr instanceof _.DenseElementsAttr || valueAttr instanceof _.DenseResourceElementsAttr) && valueAttr.value !== null && valueAttr.type && valueAttr.type.toString().startsWith('tensor<')) {
                         const type = mlir.Utility.valueType(valueAttr.type);
-                        if (type instanceof mlir.TensorType) {
+                        if (type instanceof mlir.TensorType && !type.dataType.startsWith('!')) {
                             constantMap.set(result.name, new mlir.Tensor(type, valueAttr.value));
                             op.delete = true;
                         }
@@ -648,8 +648,13 @@ mlir.Node = class {
                         type = 'function';
                     }
                 } else if (attr instanceof _.DenseElementsAttr) {
-                    value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.value);
-                    type = 'tensor';
+                    const tensorType = mlir.Utility.valueType(attr.type);
+                    if (tensorType instanceof mlir.TensorType && tensorType.dataType.startsWith('!')) {
+                        value = `dense<${attr.type}>`;
+                    } else {
+                        value = new mlir.Tensor(tensorType, attr.value);
+                        type = 'tensor';
+                    }
                 } else if (attr instanceof _.DenseResourceElementsAttr) {
                     value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.value);
                     type = 'tensor';
@@ -884,12 +889,7 @@ mlir.Utility = class {
                         numStr += spec[i];
                         i++;
                     }
-                    const dim = parseInt(numStr, 10);
-                    if (isNaN(dim)) {
-                        shape.push('?');
-                    } else {
-                        shape.push(dim);
-                    }
+                    shape.push(BigInt(numStr));
                 } else {
                     break;
                 }
@@ -2002,14 +2002,14 @@ _.ComplexType = class extends _.Type {
 _.ShapedType = class extends _.Type {
 
     getNumElements() {
-        if (this.shape.some((d) => d < 0 || d === _.ShapedType.kDynamic)) {
-            return 0;
+        if (this.shape.some((d) => d < 0n || d === _.ShapedType.kDynamic)) {
+            return 0n;
         }
-        return this.shape.length === 0 ? 1 : this.shape.reduce((a, b) => a * b, 1);
+        return this.shape.length === 0 ? 1n : this.shape.reduce((a, b) => a * b, 1n);
     }
 };
 
-_.ShapedType.kDynamic = Number.MIN_SAFE_INTEGER;
+_.ShapedType.kDynamic = -9223372036854775808n;
 
 _.RankedTensorType = class extends _.ShapedType {
 
@@ -2021,7 +2021,7 @@ _.RankedTensorType = class extends _.ShapedType {
     }
 
     toString() {
-        const shapeStr = this.shape.map((d) => d < 0 ? '?' : d).join('x');
+        const shapeStr = this.shape.map((d) => d < 0n ? '?' : d.toString()).join('x');
         const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
         const prefix = shapeStr ? `${shapeStr}x` : '';
         if (this.encoding) {
@@ -2076,7 +2076,7 @@ _.MemRefType = class extends _.ShapedType {
     }
 
     toString() {
-        const shapeStr = this.shape.map((d) => d < 0 ? '?' : d).join('x');
+        const shapeStr = this.shape.map((d) => d < 0n ? '?' : d.toString()).join('x');
         const elementTypeStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
         const prefix = shapeStr ? `${shapeStr}x` : '';
         let result = `memref<${prefix}${elementTypeStr}`;
@@ -3150,14 +3150,14 @@ _.Parser = class {
         if (spelling[0] === '0' && spelling.length > 1 && spelling[1] === 'x') {
             this.state.lex.resetPointer(this.getToken().loc.position + 1);
             this.state.curToken = this.state.lex.lexToken();
-            return 0;
+            return 0n;
         }
         const dimension = this.getToken().getUInt64IntegerValue();
         if (dimension === null) {
             throw new mlir.Error(`Invalid dimension ${this.location()}`);
         }
         this.consumeToken(_.Token.integer);
-        return dimension.toNumber();
+        return dimension;
     }
 
     parseVectorDimensionList() {
@@ -3786,6 +3786,15 @@ _.Parser = class {
     parseDenseElementsAttr(attrType) {
         this.consumeToken(_.Token.kw_dense);
         this.parseToken(_.Token.less, "Expected '<' after 'dense'");
+        // Type-first syntax: dense<TYPE : [ATTR, ...]>
+        // Reference: AttributeParser.cpp parseDenseElementsAttrTyped()
+        if (!this.getToken().is(_.Token.l_paren)) {
+            const type = this.parseDenseElementsAttrTyped();
+            if (type) {
+                return type;
+            }
+        }
+        // Literal-first syntax: dense<[values]> : type
         let literalParser = null;
         if (!this.consumeIf(_.Token.greater)) {
             literalParser = new _.TensorLiteralParser(this);
@@ -3795,6 +3804,56 @@ _.Parser = class {
         const type = this.parseElementsLiteralType(attrType);
         const value = literalParser ? literalParser.getAttr(type) : null;
         return new _.DenseElementsAttr(value, type);
+    }
+
+    parseDenseElementsAttrTyped() {
+        // Reference: AttributeParser.cpp parseDenseElementsAttrTyped()
+        const token = this.getToken();
+        if (!token.isAny(_.Token.bare_identifier, _.Token.inttype, _.Token.exclamation_identifier)) {
+            return null;
+        }
+        const savedPos = token.loc.position;
+        let type = null;
+        try {
+            type = this.parseType();
+        } catch {
+            this.resetToken(savedPos);
+            return null;
+        }
+        if (!this.consumeIf(_.Token.colon)) {
+            this.resetToken(savedPos);
+            return null;
+        }
+        if (!(type instanceof _.RankedTensorType) && !(type instanceof _.VectorType)) {
+            throw new mlir.Error(`Expected a shaped type for dense elements ${this.location()}`);
+        }
+        const values = [];
+        const parseElement = () => {
+            values.push(this.parseAttribute());
+        };
+        if (this.getToken().is(_.Token.l_square)) {
+            const parseElements = (shape) => {
+                if (shape.length <= 1) {
+                    this.parseCommaSeparatedList('square', parseElement);
+                } else {
+                    this.parseCommaSeparatedList('square', () => parseElements(shape.slice(1)));
+                }
+            };
+            parseElements(type.shape || []);
+        } else {
+            parseElement();
+        }
+        this.parseToken(_.Token.greater, "Expected '>' to close dense attribute");
+        const extractedValues = values.map((v) => {
+            if (v instanceof _.IntegerAttr) {
+                return typeof v.value === 'bigint' ? v.value : Number(v.value);
+            }
+            if (v instanceof _.FloatAttr) {
+                return parseFloat(v.value);
+            }
+            return v;
+        });
+        return new _.DenseElementsAttr(extractedValues, type);
     }
 
     parseDenseResourceElementsAttr(attrType) {
@@ -4001,13 +4060,13 @@ _.Parser = class {
         }
     }
 
-    parseOptionalInteger() {
+    parseOptionalInteger(type) {
         // Parse `false` and `true` keywords as 0 and 1 respectively.
         if (this.consumeIf(_.Token.kw_false)) {
-            return 0;
+            return type === 'int64' ? 0n : 0;
         }
         if (this.consumeIf(_.Token.kw_true)) {
-            return 1;
+            return type === 'int64' ? 1n : 1;
         }
         if (this.getToken().isNot(_.Token.integer) && this.getToken().isNot(_.Token.minus)) {
             return null;
@@ -4015,6 +4074,11 @@ _.Parser = class {
         const negative = this.consumeIf(_.Token.minus);
         const curTok = this.getToken();
         this.parseToken(_.Token.integer, 'Expected integer value');
+        if (type === 'int64') {
+            const str = curTok.spelling.str();
+            const result = BigInt(str);
+            return negative ? -result : result;
+        }
         const spelling = curTok.spelling;
         const isHex = spelling.length > 1 && spelling[1] === 'x';
         const result = spelling.getAsInteger(isHex ? 0 : 10);
@@ -4024,8 +4088,8 @@ _.Parser = class {
         return negative ? -result : result;
     }
 
-    parseInteger() {
-        const result = this.parseOptionalInteger();
+    parseInteger(type) {
+        const result = this.parseOptionalInteger(type);
         if (result === null) {
             throw new mlir.Error(`Expected integer value ${this.location()}`);
         }
@@ -4723,6 +4787,12 @@ _.OperationParser = class extends _.Parser {
             ['builtin.br', 'cf.br'], ['func.br', 'cf.br'],
             ['builtin.switch', 'cf.switch'], ['func.switch', 'cf.switch'],
             ['builtin.assert', 'cf.assert'], ['func.assert', 'cf.assert'],
+            // AMX -> X86 AMX redirects
+            ['amx.tile_load', 'x86.amx.tile_load'],
+            ['amx.tile_mulf', 'x86.amx.tile_mulf'],
+            ['amx.tile_muli', 'x86.amx.tile_muli'],
+            ['amx.tile_store', 'x86.amx.tile_store'],
+            ['amx.tile_zero', 'x86.amx.tile_zero'],
             // Other redirects
             ['flow.constant', 'flow.tensor.constant'],
             ['util.initializer.return', 'util.return']
@@ -5355,16 +5425,16 @@ _.AsmParser = class {
         return value;
     }
 
-    parseOptionalInteger() {
-        return this.parser.parseOptionalInteger();
+    parseOptionalInteger(type) {
+        return this.parser.parseOptionalInteger(type);
     }
 
     parseOptionalDecimalInteger() {
         return this.parser.parseOptionalDecimalInteger();
     }
 
-    parseInteger() {
-        return this.parser.parseInteger();
+    parseInteger(type) {
+        return this.parser.parseInteger(type);
     }
 
     parseDecimalInteger() {
@@ -6148,7 +6218,7 @@ _.TensorLiteralParser = class {
             return this._hexStorage;
         }
         const elementType = type && type.elementType ? type.elementType : null;
-        const numElements = type && type.getNumElements ? type.getNumElements() : 0;
+        const numElements = type && type.getNumElements ? type.getNumElements().toNumber() : 0;
         const isComplex = elementType instanceof _.ComplexType;
         const baseElemType = isComplex && elementType.elementType ? elementType.elementType : elementType;
 
@@ -6510,7 +6580,7 @@ _.DialectReader = class extends _.DialectBytecodeReader {
         const count = this.reader.parseVarInt().toNumber();
         const result = new Array(count);
         for (let i = 0; i < count; i++) {
-            result[i] = this.reader.parseSignedVarInt().toNumber();
+            result[i] = this.reader.parseSignedVarInt();
         }
         return result;
     }
@@ -8368,7 +8438,6 @@ _.DialectContext = class {
         this._dialects.set('arm_neon', new _.ArmNeonDialect(operations));
         this._dialects.set('arm_sve', new _.ArmSVEDialect(operations));
         this._dialects.set('shard', new _.ShardDialect(operations));
-        this._dialects.set('amx', new _.Dialect(operations, 'amx'));
         this._dialects.set('smt', new _.smt.SMTDialect(operations));
         this._dialects.set('lagrad', new _.Dialect(operations, 'lagrad'));
         this._dialects.set('iree_codegen', new _.IREECodegenDialect(operations));
@@ -8705,7 +8774,7 @@ _.Dialect = class {
             case 'Async_CoroStateType': return new _.Type('!async.coro.state');
             case 'Async_GroupType': return new _.async.GroupType();
             case 'Async_TokenType': return new _.async.TokenType();
-            case 'Async_ValueType': return new _.async.ValueType(new _.MemRefType([-1], new _.Type('f32')));
+            case 'Async_ValueType': return new _.async.ValueType(new _.MemRefType([-1n], new _.Type('f32')));
             case 'BF16': return new _.Type('bf16');
             case 'BoolType': return new _.Type('!smt.bool');
             case 'CanonicalLoopInfoType': return new _.Type('!omp.canonical_loop_info');
@@ -8778,7 +8847,7 @@ _.Dialect = class {
             case 'NoneType': return new _.Type('none');
             case 'NullPointer': return new _.Type('!iree_codegen.null_pointer');
             case 'NVGPU_DeviceAsyncToken': return new _.Type('!nvgpu.device.async.token');
-            case 'NVGPU_MmaSparseSyncMetadataType': return new _.VectorType([2], new _.IntegerType('i16'));
+            case 'NVGPU_MmaSparseSyncMetadataType': return new _.VectorType([2n], new _.IntegerType('i16'));
             case 'OMP_MapBoundsType': return new _.Type('!omp.map.bounds');
             case 'OpaqueTensorType': return new _.Type('!tf_type.tensor');
             case 'OpenACC_DataBoundsType': return new _.Type('!acc.data_bounds');
@@ -8794,22 +8863,22 @@ _.Dialect = class {
             case 'PDL_Value': return new _.pdl.ValueType();
             case 'PDL_ValueType': return new _.pdl.ValueType();
             case 'Ptr_PtrType': return new _.Type('!ptr.ptr');
-            case 'ROCDL_V16BF16Type': return new _.VectorType([16], new _.Type('bf16'));
-            case 'ROCDL_V16F16Type': return new _.VectorType([16], new _.Type('f16'));
-            case 'ROCDL_V16F32Type': return new _.VectorType([16], new _.Type('f32'));
-            case 'ROCDL_V2BF16Type': return new _.VectorType([2], new _.Type('bf16'));
-            case 'ROCDL_V2F16Type': return new _.VectorType([2], new _.Type('f16'));
-            case 'ROCDL_V2F32Type': return new _.VectorType([2], new _.Type('f32'));
-            case 'ROCDL_V2I16Type': return new _.VectorType([2], new _.IntegerType('i16'));
-            case 'ROCDL_V2I32Type': return new _.VectorType([2], new _.IntegerType('i32'));
-            case 'ROCDL_V32BF16Type': return new _.VectorType([32], new _.Type('bf16'));
-            case 'ROCDL_V32F16Type': return new _.VectorType([32], new _.Type('f16'));
-            case 'ROCDL_V32F32Type': return new _.VectorType([32], new _.Type('f32'));
-            case 'ROCDL_V3I32Type': return new _.VectorType([3], new _.IntegerType('i32'));
-            case 'ROCDL_V6I32Type': return new _.VectorType([6], new _.IntegerType('i32'));
-            case 'ROCDL_V8BF16Type': return new _.VectorType([8], new _.Type('bf16'));
-            case 'ROCDL_V8F16Type': return new _.VectorType([8], new _.Type('f16'));
-            case 'ROCDL_V8F32Type': return new _.VectorType([8], new _.Type('f32'));
+            case 'ROCDL_V16BF16Type': return new _.VectorType([16n], new _.Type('bf16'));
+            case 'ROCDL_V16F16Type': return new _.VectorType([16n], new _.Type('f16'));
+            case 'ROCDL_V16F32Type': return new _.VectorType([16n], new _.Type('f32'));
+            case 'ROCDL_V2BF16Type': return new _.VectorType([2n], new _.Type('bf16'));
+            case 'ROCDL_V2F16Type': return new _.VectorType([2n], new _.Type('f16'));
+            case 'ROCDL_V2F32Type': return new _.VectorType([2n], new _.Type('f32'));
+            case 'ROCDL_V2I16Type': return new _.VectorType([2n], new _.IntegerType('i16'));
+            case 'ROCDL_V2I32Type': return new _.VectorType([2n], new _.IntegerType('i32'));
+            case 'ROCDL_V32BF16Type': return new _.VectorType([32n], new _.Type('bf16'));
+            case 'ROCDL_V32F16Type': return new _.VectorType([32n], new _.Type('f16'));
+            case 'ROCDL_V32F32Type': return new _.VectorType([32n], new _.Type('f32'));
+            case 'ROCDL_V3I32Type': return new _.VectorType([3n], new _.IntegerType('i32'));
+            case 'ROCDL_V6I32Type': return new _.VectorType([6n], new _.IntegerType('i32'));
+            case 'ROCDL_V8BF16Type': return new _.VectorType([8n], new _.Type('bf16'));
+            case 'ROCDL_V8F16Type': return new _.VectorType([8n], new _.Type('f16'));
+            case 'ROCDL_V8F32Type': return new _.VectorType([8n], new _.Type('f32'));
             case 'Shape_ExtentTensorType': return new _.Type('tensor<?xindex>');
             case 'Shape_ShapeType': return new _.Type('!shape.shape');
             case 'Shape_SizeType': return new _.Type('!shape.size');
@@ -8829,7 +8898,7 @@ _.Dialect = class {
             case 'SPIRV_Int8': return new _.IntegerType('i8');
             case 'SPIRV_Int16': return new _.IntegerType('i16');
             case 'SPIRV_Int32': return new _.IntegerType('i32');
-            case 'SPIRV_Int32Vec4': return new _.VectorType([4], new _.IntegerType('i32'));
+            case 'SPIRV_Int32Vec4': return new _.VectorType([4n], new _.IntegerType('i32'));
             case 'Stream_Channel': return new _.Type('!stream.channel');
             case 'Stream_Dim': return new _.IndexType();
             case 'Stream_Offset': return new _.IndexType();
@@ -11978,7 +12047,7 @@ _.VectorDialect = class extends _.Dialect {
             if (maskAttr instanceof _.DenseI64ArrayAttr && op.operands.length > 0) {
                 const v1Type = op.operands[0].type;
                 if (v1Type instanceof _.VectorType) {
-                    const maskLength = maskAttr.value.length;
+                    const maskLength = BigInt(maskAttr.value.length);
                     const trailingDims = v1Type.shape.slice(1);
                     const resultShape = [maskLength, ...trailingDims];
                     const resultType = new _.VectorType(resultShape, v1Type.elementType, v1Type.scalableDims ? [false, ...v1Type.scalableDims.slice(1)] : []);
@@ -11991,7 +12060,7 @@ _.VectorDialect = class extends _.Dialect {
             const vecType = op.operands[0].type;
             if (vecType instanceof _.VectorType) {
                 const elType = vecType.elementType;
-                for (let i = 0; i < vecType.getNumElements(); i++) {
+                for (let i = 0n; i < vecType.getNumElements(); i++) {
                     op.addTypes([elType]);
                 }
                 return;
@@ -13000,10 +13069,9 @@ _.IREECodegenDialect = class extends _.Dialect {
                     const operand = parser.parseOptionalOperand();
                     if (operand) {
                         unresolvedSizes.push(operand);
-                        staticSizes.push(-9223372036854775808);
+                        staticSizes.push(-9223372036854775808n);
                     } else {
-                        const intVal = parser.parseInteger();
-                        staticSizes.push(intVal);
+                        staticSizes.push(parser.parseInteger('int64'));
                     }
                 } while (parser.parseOptionalComma());
                 parser.parseRParen();
@@ -15097,7 +15165,7 @@ _.LinalgDialect = class extends _.Dialect {
                     dynamicTileOperands.push(dynOp);
                     staticInnerTiles.push(_.ShapedType.kDynamic);
                 } else {
-                    staticInnerTiles.push(BigInt(String(parser.parseInteger())));
+                    staticInnerTiles.push(parser.parseInteger('int64'));
                 }
             } while (parser.parseOptionalComma());
             parser.parseRSquare();
@@ -15161,7 +15229,7 @@ _.LinalgDialect = class extends _.Dialect {
                     dynamicTileOperands.push(dynOp);
                     staticInnerTiles.push(-9223372036854775808n); // ShapedType::kDynamic
                 } else {
-                    staticInnerTiles.push(BigInt(String(parser.parseInteger())));
+                    staticInnerTiles.push(parser.parseInteger('int64'));
                 }
             } while (parser.parseOptionalComma());
             parser.parseRSquare();
@@ -15258,8 +15326,7 @@ _.KrnlDialect = class extends _.Dialect {
                             unresolvedOperands.push(operand);
                             staticIndices.push(-9223372036854775808n); // ShapedType::kDynamic marker
                         } else {
-                            const value = parser.parseInteger();
-                            staticIndices.push(BigInt(value));
+                            staticIndices.push(parser.parseInteger('int64'));
                         }
                     } while (parser.parseOptionalComma());
                     parser.parseRSquare();
@@ -15774,13 +15841,13 @@ _.XeGPUDialect = class extends _.Dialect {
                     const operand = parser.parseOptionalOperand();
                     if (operand) {
                         dynamicValues.push(operand);
-                        indices.push(-9223372036854775808);
+                        indices.push(-9223372036854775808n);
                     } else {
-                        const intVal = parser.parseOptionalInteger();
+                        const intVal = parser.parseOptionalInteger('int64');
                         if (intVal === null) {
                             break;
                         }
-                        indices.push(parseInt(intVal, 10));
+                        indices.push(intVal);
                     }
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
@@ -23308,19 +23375,18 @@ _.TransformDialect = class extends _.Dialect {
                 const __dynOp = parser.parseOptionalOperand();
                 if (__dynOp) {
                     dynamicOperands.push(__dynOp);
-                    staticValues.push(-9223372036854775808); // ShapedType::kDynamic
+                    staticValues.push(-9223372036854775808n); // ShapedType::kDynamic
                     let type = null;
                     if (parser.parseOptionalColon()) {
                         type = parser.parseType();
                     }
                     dynamicTypes.push(type);
                 } else {
-                    const __intVal = parser.parseOptionalInteger();
+                    const __intVal = parser.parseOptionalInteger('int64');
                     if (__intVal === null) {
                         break;
                     }
-                    const intVal = parseInt(__intVal, 10);
-                    staticValues.push(intVal);
+                    staticValues.push(__intVal);
                 }
                 parser.parseOptionalComma();
             }
@@ -26004,9 +26070,9 @@ _.TritonXlaDialect = class extends _.Dialect {
                     parser.resolveOperand(__dynUnresolved, null, op.operands);
                     staticValues.push(-9223372036854775808n); // ShapedType::kDynamic
                 } else {
-                    const __dynIntVal = parser.parseOptionalInteger();
+                    const __dynIntVal = parser.parseOptionalInteger('int64');
                     if (__dynIntVal !== null) {
-                        staticValues.push(BigInt(__dynIntVal));
+                        staticValues.push(__dynIntVal);
                     }
                 }
             } while (parser.parseOptionalComma());

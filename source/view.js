@@ -2777,7 +2777,7 @@ view.Value = class {
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
                     type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || typeof dim === 'bigint' || (typeof dim === 'string'))) {
-                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined && dim !== -1) ? dim : '?').join('\u00D7');
+                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined && dim !== -1 && dim !== -1n) ? dim : '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
                 if (this.context.options.names) {
@@ -6087,11 +6087,11 @@ metrics.Target = class {
                 }
                 for (const tensor of initializers) {
                     const shape = tensor && tensor.type && tensor.type.shape && Array.isArray(tensor.type.shape.dimensions) ? tensor.type.shape.dimensions : [];
-                    if (!shape.every((dim) => typeof dim === 'number')) {
+                    if (!shape.every((dim) => typeof dim === 'number' || typeof dim === 'bigint')) {
                         parameters = 0;
                         break;
                     }
-                    parameters += shape.reduce((a, b) => a * b, 1);
+                    parameters += shape.reduce((a, b) => BigInt(a) * BigInt(b), 1n).toNumber();
                 }
                 if (parameters > 0) {
                     this._metrics.push(new metadata.Argument('parameters', parameters, 'attribute'));
@@ -6120,7 +6120,7 @@ metrics.Tensor = class {
             const keys = new Set(this._metrics.map((metrics) => metrics.name));
             const type = this._tensor.type;
             const shape = type.shape.dimensions;
-            const size = shape.reduce((a, b) => a * b, 1);
+            const size = shape.reduce((a, b) => BigInt(a) * BigInt(b), 1n).toNumber();
             if (size < 0x800000 &&
                 (type.dataType.startsWith('float') || type.dataType.startsWith('bfloat')) &&
                 (!keys.has('sparsity') || !keys.has('min') || !keys.has('max') && !keys.has('mean') || !keys.has('max') || !keys.has('std'))) {
