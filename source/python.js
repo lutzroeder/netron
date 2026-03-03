@@ -6295,7 +6295,7 @@ python.Execution = class {
             constructor(inputs, return_types, return_field_names, schema_name) {
                 this.inputs = inputs;
                 this.return_types = return_types;
-                this.register_field_names = return_field_names;
+                this.return_field_names = return_field_names;
                 this.schema_name = schema_name;
             }
         });
@@ -10849,12 +10849,15 @@ python.Execution = class {
                 return new torch.TupleType(elements, null, null);
             }
             static createNamed(qualified_name, field_names, field_types /*, field_defaults */) {
-                const args = [];
-                for (let i = 0; i < field_names.length; i++) {
-                    const arg = new torch.Argument(field_names[i], field_types[i], field_types[i]);
-                    args.push(arg);
+                let schema = null;
+                if (qualified_name) {
+                    const args = [];
+                    for (let i = 0; i < field_names.length; i++) {
+                        const arg = new torch.Argument(field_names[i], field_types[i], field_types[i]);
+                        args.push(arg);
+                    }
+                    schema = new torch.FunctionSchema(qualified_name, '', args, []);
                 }
-                const schema = new torch.FunctionSchema(qualified_name, '', args, []);
                 return new torch.TupleType(field_types, qualified_name, schema);
             }
             elements() {
@@ -14575,7 +14578,7 @@ python.Execution = class {
             let named_tuple = null;
             if (field_names) {
                 const types = values.map((v) => v.type());
-                named_tuple = torch.TupleType.createNamed(null, field_names.value(), types);
+                named_tuple = torch.TupleType.createNamed(null, field_names, types);
             }
             return g.insertNode(g.createTuple(values, named_tuple)).output();
         });
@@ -14950,7 +14953,7 @@ python.Execution = class {
                 }
                 return result;
             });
-            const return_has_field_names = returns.every((r) => !r.name);
+            const return_has_field_names = returns.every((r) => r.name);
             let return_field_names = null;
             if (return_has_field_names) {
                 return_field_names = returns.map((r) => r.name);
