@@ -214,6 +214,35 @@ tosa.Node = class {
                         }
                     }
                 }
+                // Some attributes are stored as byte arrays, but their type can be determined from the output tensor type.
+                if (obj instanceof Uint8Array && opName !== 'CUSTOM') {
+                    const ofm = this.outputs[0];
+                    const dataType = ofm && ofm.value && ofm.value[0] && ofm.value[0].type ? ofm.value[0].type.dataType : null;
+                    const getValue = (buffer, type) => {
+                        const view = new DataView(buffer);
+                        switch (type) {
+                            case 'int8':
+                                return view.getInt8(0);
+                            case 'int16':
+                                return  view.getInt16(0, true);
+                            case 'int32':
+                                return view.getInt32(0, true);
+                            case 'float16':
+                                return view.getFloat16(0, true);
+                            case 'bfloat16':
+                                return view.getBfloat16(0, true);
+                            case 'float32':
+                                return view.getFloat32(0, true);
+                            case 'float8e4m3':
+                                return view.getFloat8e4m3(0);
+                            case 'float8e5m2':
+                                return view.getFloat8e5m2(0);
+                            default:
+                                return attrValue;
+                        }
+                    };
+                    attrValue = getValue(obj.buffer, dataType);
+                }
                 this.attributes.push(new tosa.Argument(name, attrValue, type, visible));
             }
         }
