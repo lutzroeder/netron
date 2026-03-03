@@ -336,7 +336,7 @@ mlir.Graph = class {
                     const valueAttr = op.attributes.get('value') || op.attributes.get('values');
                     if ((valueAttr instanceof _.DenseElementsAttr || valueAttr instanceof _.DenseResourceElementsAttr) && valueAttr.value !== null && valueAttr.type && valueAttr.type.toString().startsWith('tensor<')) {
                         const type = mlir.Utility.valueType(valueAttr.type);
-                        if (type instanceof mlir.TensorType) {
+                        if (type instanceof mlir.TensorType && !type.dataType.startsWith('!')) {
                             constantMap.set(result.name, new mlir.Tensor(type, valueAttr.value));
                             op.delete = true;
                         }
@@ -648,8 +648,13 @@ mlir.Node = class {
                         type = 'function';
                     }
                 } else if (attr instanceof _.DenseElementsAttr) {
-                    value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.value);
-                    type = 'tensor';
+                    const tensorType = mlir.Utility.valueType(attr.type);
+                    if (tensorType instanceof mlir.TensorType && tensorType.dataType.startsWith('!')) {
+                        value = `dense<${attr.type}>`;
+                    } else {
+                        value = new mlir.Tensor(tensorType, attr.value);
+                        type = 'tensor';
+                    }
                 } else if (attr instanceof _.DenseResourceElementsAttr) {
                     value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.value);
                     type = 'tensor';
@@ -3786,6 +3791,15 @@ _.Parser = class {
     parseDenseElementsAttr(attrType) {
         this.consumeToken(_.Token.kw_dense);
         this.parseToken(_.Token.less, "Expected '<' after 'dense'");
+        // Type-first syntax: dense<TYPE : [ATTR, ...]>
+        // Reference: AttributeParser.cpp parseDenseElementsAttrTyped()
+        if (!this.getToken().is(_.Token.l_paren)) {
+            const type = this.parseDenseElementsAttrTyped();
+            if (type) {
+                return type;
+            }
+        }
+        // Literal-first syntax: dense<[values]> : type
         let literalParser = null;
         if (!this.consumeIf(_.Token.greater)) {
             literalParser = new _.TensorLiteralParser(this);
@@ -3795,6 +3809,48 @@ _.Parser = class {
         const type = this.parseElementsLiteralType(attrType);
         const value = literalParser ? literalParser.getAttr(type) : null;
         return new _.DenseElementsAttr(value, type);
+    }
+
+    parseDenseElementsAttrTyped() {
+        // Reference: AttributeParser.cpp parseDenseElementsAttrTyped()
+        const token = this.getToken();
+        if (!token.isAny(_.Token.bare_identifier, _.Token.inttype, _.Token.exclamation_identifier)) {
+            return null;
+        }
+        const savedPos = token.loc.position;
+        let type = null;
+        try {
+            type = this.parseType();
+        } catch {
+            this.resetToken(savedPos);
+            return null;
+        }
+        if (!this.consumeIf(_.Token.colon)) {
+            this.resetToken(savedPos);
+            return null;
+        }
+        if (!(type instanceof _.RankedTensorType) && !(type instanceof _.VectorType)) {
+            throw new mlir.Error(`Expected a shaped type for dense elements ${this.location()}`);
+        }
+        const values = [];
+        const parseElement = () => {
+            values.push(this.parseAttribute());
+        };
+        if (this.getToken().is(_.Token.l_square)) {
+            const parseElements = (shape) => {
+                if (shape.length <= 1) {
+                    this.parseCommaSeparatedList('square', parseElement);
+                } else {
+                    this.parseCommaSeparatedList('square', () => parseElements(shape.slice(1)));
+                }
+            };
+            parseElements(type.shape || []);
+        } else {
+            parseElement();
+        }
+        this.parseToken(_.Token.greater, "Expected '>' to close dense attribute");
+        const extractedValues = values.map((v) => v instanceof _.IntegerAttr ? (typeof v.value === 'bigint' ? v.value : Number(v.value)) : v instanceof _.FloatAttr ? parseFloat(v.value) : v);
+        return new _.DenseElementsAttr(extractedValues, type);
     }
 
     parseDenseResourceElementsAttr(attrType) {
@@ -4723,6 +4779,12 @@ _.OperationParser = class extends _.Parser {
             ['builtin.br', 'cf.br'], ['func.br', 'cf.br'],
             ['builtin.switch', 'cf.switch'], ['func.switch', 'cf.switch'],
             ['builtin.assert', 'cf.assert'], ['func.assert', 'cf.assert'],
+            // AMX -> X86 AMX redirects
+            ['amx.tile_load', 'x86.amx.tile_load'],
+            ['amx.tile_mulf', 'x86.amx.tile_mulf'],
+            ['amx.tile_muli', 'x86.amx.tile_muli'],
+            ['amx.tile_store', 'x86.amx.tile_store'],
+            ['amx.tile_zero', 'x86.amx.tile_zero'],
             // Other redirects
             ['flow.constant', 'flow.tensor.constant'],
             ['util.initializer.return', 'util.return']
@@ -8368,7 +8430,6 @@ _.DialectContext = class {
         this._dialects.set('arm_neon', new _.ArmNeonDialect(operations));
         this._dialects.set('arm_sve', new _.ArmSVEDialect(operations));
         this._dialects.set('shard', new _.ShardDialect(operations));
-        this._dialects.set('amx', new _.Dialect(operations, 'amx'));
         this._dialects.set('smt', new _.smt.SMTDialect(operations));
         this._dialects.set('lagrad', new _.Dialect(operations, 'lagrad'));
         this._dialects.set('iree_codegen', new _.IREECodegenDialect(operations));
