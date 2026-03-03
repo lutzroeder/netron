@@ -2162,18 +2162,17 @@ view.Graph = class extends grapher.Graph {
         if (e.pointerType === 'touch' || e.buttons !== 1) {
             return;
         }
-        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed
-        if (e.originalTarget) {
-            try {
-                /* eslint-disable no-unused-expressions */
-                e.originalTarget.id;
-                /* eslint-enable no-unused-expressions */
-            } catch {
-                return;
-            }
-        }
+
         const document = this.host.document;
         const container = document.getElementById('target');
+
+        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed
+        if (e.target === container) {
+            // The graph's SVG and background <rect> cover the entire draggable area.
+            // If the event target is the container itself, the user is directly interacting
+            // with the native scrollbar or an empty non-scrollable gap.
+            return;
+        }
         e.target.setPointerCapture(e.pointerId);
         this._mousePosition = {
             left: container.scrollLeft,
