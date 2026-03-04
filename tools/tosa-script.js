@@ -7,10 +7,8 @@ import * as xml from '../source/xml.js';
 const types = new Map([
     ['i32_t', 'int32'], ['int32_t', 'int32'], ['i8_t', 'int8'], ['int16_t', 'int16'],
     ['bool_t', 'boolean'], ['String', 'string'],
-    ['acc_type_t', 'DType'], ['acc_size_t', 'DType'], ['var_t', 'DType'],
     ['resize_mode_t', 'ResizeMode'], ['nan_propagation_mode_t', 'NanPropagationMode'], ['rounding_mode_t', 'RoundingMode'],
-    ['shape_t', 'shape'], ['tensor_list_t', 'tensor[]'], ['tensor_size_t', 'int32[]'], ['tosa_graph_t', 'graph'],
-    ['in_t', ''], ['out_t', ''], ['in_out_t', ''], ['weight_t', ''], ['mul_t', ''], ['index_t', ''], ['table_t', '']
+    ['shape_t', 'shape'], ['tensor_list_t', 'tensor[]'], ['tensor_size_t', 'int32[]'], ['tosa_graph_t', 'graph']
 ]);
 
 const categories = (name) => {
@@ -48,7 +46,8 @@ const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
     const versions = [
         { version: '0.80', dir: 'v0.80' },
-        { version: '1.0', dir: 'v1.0' }
+        { version: '1.0', dir: 'v1.0' },
+        { version: '1.1', dir: 'v1.1' }
     ];
     const files = await Promise.all(versions.map(({ dir }) => {
         const xmlPath = path.join(dirname, '..', 'third_party', 'source', 'tosa', dir, 'tosa.xml');
@@ -113,6 +112,59 @@ const main = async () => {
                         }
                         if (attributes.length > 0) {
                             entry.attributes = attributes;
+                        }
+                    }
+                    const typesupportTypes = [];
+                    const typesElements = operator.getElementsByTagName('types');
+                    if (typesElements.length > 0) {
+                        for (const type of typesElements[0].getElementsByTagName('type')) {
+                            const typeName = type.getAttribute('name');
+                            if (typeName) {
+                                typesupportTypes.push(typeName);
+                            }
+                        }
+                    }
+                    const typesupportElements = operator.getElementsByTagName('typesupport');
+                    if (typesupportTypes.length > 0 && typesupportElements.length > 0) {
+                        const type_constraints = [];
+                        for (const typesupport of typesupportElements) {
+                            const item = { description: "", type_param_str: "", allowed_type_strs: [] };
+                            const profiles = [];
+                            typesupport.getElementsByTagName('profile').forEach((profile) => {
+                                const profileName = profile.getAttribute('name');
+                                if (profileName) {
+                                    profiles.push(profileName);
+                                }
+                            });
+                            typesupport.getElementsByTagName('op_profile').forEach((profile) => {
+                                const profileName = profile.getAttribute('name');
+                                if (profileName) {
+                                    profiles.push(profileName);
+                                }
+                            });
+                            if (profiles.length === 0) {
+                                profiles.push('BI');
+                            }
+                            profiles.forEach((profile, index) => {
+                                if (!profile.includes('-')) {
+                                    profiles[index] = `TOSA-${profile}`;
+                                }
+                            });
+                            item.type_param_str = profiles.join(', ');
+                            const mode = typesupport.getAttribute('mode');
+                            if (mode) {
+                                item.description = mode;
+                            }
+                            typesupportTypes.forEach((type) => {
+                                const value = typesupport.getAttribute(type);
+                                if (value) {
+                                    item.allowed_type_strs.push(`${type}(${value})`);
+                                }
+                            });
+                            type_constraints.push(item);
+                        }
+                        if (type_constraints.length > 0) {
+                            entry.type_constraints = type_constraints;
                         }
                     }
                     entries.push(entry);
