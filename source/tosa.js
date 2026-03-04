@@ -72,12 +72,15 @@ tosa.ModelFactory = class {
         }
         const file_version = `${major}.${minor}.${patch}`;
         let schema_version = '';
+        let metadata_version = '';
         if (major === 0 && minor >= 80) {
             schema_version = '0.80';
+            metadata_version = '0.80';
         } else if (major === 1) {
-            schema_version = '1.0';
+            schema_version = '1.x';
+            metadata_version = `${major}.${minor}`;
         }
-        const schema = { '0.80': tosa.schema.v0, '1.0': tosa.schema.v1 }[schema_version];
+        const schema = { '0.80': tosa.schema.v0, '1.x': tosa.schema.v1 }[schema_version];
         if (!schema) {
             throw new tosa.Error(`Unsupported TOSA version '${file_version}'.`);
         }
@@ -102,7 +105,7 @@ tosa.ModelFactory = class {
             throw new tosa.Error(`File format is not tosa.TosaGraph (${message.replace(/\.$/, '')}).`);
         }
         const data = await context.asset('tosa-metadata.json');
-        const metadata = new tosa.Metadata(data, schema_version);
+        const metadata = new tosa.Metadata(data, metadata_version);
         return new tosa.Model(new tosa.Context(schema, metadata), model, file_version);
     }
 };
@@ -310,9 +313,12 @@ tosa.Context = class {
         const mapping = {
             BOOL: 'boolean',
             UINT8: 'uint8', UINT16: 'uint16',
-            INT4: 'int4', INT8: 'int8', INT16: 'int16', INT32: 'int32', INT48: 'int48',
+            INT4: 'int4', INT8: 'int8', INT16: 'int16', INT32: 'int32', INT48: 'int48', INT64: 'int64',
+            MXINT8: 'int8',
             FP16: 'float16', BF16: 'bfloat16', FP32: 'float32',
-            FP8E4M3: 'float8e4m3', FP8E5M2: 'float8e5m2',
+            FP8E4M3: 'float8e4m3', FP8E5M2: 'float8e5m2', FP8UE8M0: 'float8e8m0fnu',
+            FP6E2M3: 'float6e2m3fn', FP6E3M2: 'float6e3m2fn',
+            FP4E2M1: 'float4e2m1fn',
             SHAPE: 'int64'
         };
         this._dataTypes = new Map();
