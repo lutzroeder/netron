@@ -2649,6 +2649,13 @@ view.Block = class {
     }
 
     async measure() {
+        for (const edge of this._graph.edges.values()) {
+            if (edge.label.labelElement) {
+                const box = edge.label.labelElement.getBBox();
+                edge.label.width = box.width;
+                edge.label.height = box.height;
+            }
+        }
         await this._graph.measure();
         await this._graph.layout();
         const padding = 10;
