@@ -12440,6 +12440,9 @@ _.HALDialect = class extends _.IREEDialect {
         this.registerCustomDirective('ExportConditionRegion', this.parseExportConditionRegion.bind(this));
         this.registerCustomDirective('TargetConditionObjects', this.parseTargetConditionObjects.bind(this));
         this.registerCustomDirective('WorkgroupCountRegion', this.parseWorkgroupCountRegion.bind(this));
+        this.registerCustomDirective('DeviceQueueAffinityList', this.parseDeviceQueueAffinityList.bind(this));
+        this.registerCustomDirective('Bindings', this.parseBindingList.bind(this));
+        this.registerCustomDirective('BindingTable', this.parseBindingList.bind(this));
     }
 
     parseType(parser, dialect) {
@@ -12564,49 +12567,32 @@ _.HALDialect = class extends _.IREEDialect {
                 if (!paramName) {
                     break;
                 }
-                if (!parser.parseOptionalLParen()) {
-                    break;
-                }
-                const firstOperand = inputNames.has(paramName) ? parser.parseOptionalOperand() : null;
-                if (firstOperand) {
-                    let operandType = null;
-                    if (parser.parseOptionalColon()) {
-                        operandType = parser.parseType();
-                    }
-                    parser.parseRParen();
-                    parser.resolveOperand(firstOperand, operandType, result.operands);
-                } else if (inputNames.has(paramName) && parser.parseOptionalLSquare()) {
-                    if (!parser.parseOptionalRSquare()) {
-                        do {
-                            const operand = parser.parseOptionalOperand();
-                            if (operand) {
-                                parser.resolveOperand(operand, null, result.operands);
-                            }
-                        } while (parser.parseOptionalComma());
-                        parser.parseRSquare();
-                    }
-                    parser.parseRParen();
-                } else {
-                    let parenDepth = 1;
-                    let paramValue = '';
-                    while (parenDepth > 0 && parser.parser.getToken().isNot(_.Token.eof)) {
-                        if (parser.parser.getToken().is(_.Token.l_paren)) {
-                            parenDepth++;
-                            paramValue += parser.parser.getToken().getSpelling().str();
-                            parser.parser.consumeToken();
-                        } else if (parser.parser.getToken().is(_.Token.r_paren)) {
-                            parenDepth--;
-                            if (parenDepth > 0) {
-                                paramValue += parser.parser.getToken().getSpelling().str();
-                                parser.parser.consumeToken();
-                            } else {
-                                parser.parseRParen();
-                            }
-                        } else {
-                            paramValue += parser.parser.getToken().getSpelling().str();
-                            parser.parser.consumeToken();
+                if (inputNames.has(paramName) && parser.parseOptionalLParen()) {
+                    const firstOperand = parser.parseOptionalOperand();
+                    if (firstOperand) {
+                        let operandType = null;
+                        if (parser.parseOptionalColon()) {
+                            operandType = parser.parseType();
                         }
+                        parser.parseRParen();
+                        parser.resolveOperand(firstOperand, operandType, result.operands);
+                    } else if (parser.parseOptionalLSquare()) {
+                        if (!parser.parseOptionalRSquare()) {
+                            do {
+                                const operand = parser.parseOptionalOperand();
+                                if (operand) {
+                                    parser.resolveOperand(operand, null, result.operands);
+                                }
+                            } while (parser.parseOptionalComma());
+                            parser.parseRSquare();
+                        }
+                        parser.parseRParen();
+                    } else {
+                        parser.parseRParen();
                     }
+                } else {
+                    // Non-operand parameter: collect balanced paren content as raw string
+                    const paramValue = parser.parseBody(_.Token.l_paren);
                     // Normalize old 'layouts' parameter to 'affinity' for consistency
                     const normalizedName = paramName === 'layouts' ? 'affinity' : paramName;
                     result.addAttribute(normalizedName, paramValue);
@@ -12615,35 +12601,20 @@ _.HALDialect = class extends _.IREEDialect {
             result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
-        // Handle operations with <%operand : type> syntax and/or named parameters
+        // Handle old IREE HAL operations with <%operand : type> syntax and/or named parameters
         // e.g., hal.allocator.compute_size<%allocator : !hal.allocator> shape([...]) type(...) encoding(...) : index
-        // or hal.executable_layout.lookup device(%device : !hal.device) layouts([[...]]) : !hal.executable_layout
-        // Exclude hal.executable, hal.interface, and hal.device.switch which have special handling
+        // Ops with assemblyFormat use the generic format engine via super.parseOperation() instead.
         if ((result.op.startsWith('hal.allocator.') || result.op.startsWith('hal.buffer.') || result.op.startsWith('hal.buffer_view.') ||
             result.op.startsWith('hal.command_buffer.') || result.op.startsWith('hal.executable_layout') ||
-            result.op.startsWith('hal.executable.') || result.op.startsWith('hal.descriptor_set_layout') ||
+            result.op.startsWith('hal.descriptor_set_layout') ||
             result.op.startsWith('hal.device.')) &&
-            result.op !== 'hal.device.allocator' &&
-            result.op !== 'hal.buffer_view.buffer' &&
-            result.op !== 'hal.executable' &&
-            result.op !== 'hal.interface' &&
+            (!(opInfo && opInfo.metadata && opInfo.metadata.assemblyFormat) ||
+                result.op === 'hal.allocator.allocate' || result.op === 'hal.command_buffer.create' ||
+                result.op === 'hal.buffer_view.create' || result.op === 'hal.command_buffer.device' ||
+                result.op === 'hal.command_buffer.dispatch' || result.op === 'hal.device.query') &&
             result.op !== 'hal.device.switch' &&
-            result.op !== 'hal.device.memoize' &&
-            result.op !== 'hal.command_buffer.execution_barrier' &&
-            result.op !== 'hal.executable.entry_point' &&
-            result.op !== 'hal.executable.variant' &&
-            result.op !== 'hal.executable.lookup' &&
-            result.op !== 'hal.interface.binding' &&
-            result.op !== 'hal.executable.create' &&
-            result.op !== 'hal.executable.export' &&
-            result.op !== 'hal.executable.binary' &&
-            result.op !== 'hal.executable.source' &&
-            result.op !== 'hal.executable.condition' &&
-            result.op !== 'hal.executable.constant.block' &&
-            result.op !== 'hal.executable.constant.load') {
-            if (result.op === 'hal.allocator.allocate' || result.op === 'hal.command_buffer.create' || result.op === 'hal.buffer_view.create' || result.op === 'hal.command_buffer.device' || result.op === 'hal.command_buffer.dispatch' || result.op === 'hal.device.query') {
-                result.compatibility = true;
-            }
+            result.op !== 'hal.device.memoize') {
+            result.compatibility = true;
             if (parser.parseOptionalLess()) {
                 while (!parser.parseOptionalGreater()) {
                     const operand = parser.parseOperand();
@@ -12680,51 +12651,34 @@ _.HALDialect = class extends _.IREEDialect {
                     continue;
                 }
                 const paramName = parser.parseKeyword();
-                if (!parser.parseOptionalLParen()) {
-                    break;
-                }
                 // Check if this named parameter is actually an input from the operation metadata
                 const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
-                const firstOperand = inputNames.has(paramName) ? parser.parseOptionalOperand() : null;
-                if (firstOperand) {
-                    let operandType = null;
-                    if (parser.parseOptionalColon()) {
-                        operandType = parser.parseType();
-                    }
-                    parser.parseRParen();
-                    parser.resolveOperand(firstOperand, operandType, result.operands);
-                } else if (inputNames.has(paramName) && parser.parseOptionalLSquare()) {
-                    if (!parser.parseOptionalRSquare()) {
-                        do {
-                            const operand = parser.parseOptionalOperand();
-                            if (operand) {
-                                parser.resolveOperand(operand, null, result.operands);
-                            }
-                        } while (parser.parseOptionalComma());
-                        parser.parseRSquare();
-                    }
-                    parser.parseRParen();
-                } else {
-                    let parenDepth = 1;
-                    let paramValue = '';
-                    while (parenDepth > 0 && parser.parser.getToken().isNot(_.Token.eof)) {
-                        if (parser.parser.getToken().is(_.Token.l_paren)) {
-                            parenDepth++;
-                            paramValue += parser.parser.getToken().getSpelling().str();
-                            parser.parser.consumeToken();
-                        } else if (parser.parser.getToken().is(_.Token.r_paren)) {
-                            parenDepth--;
-                            if (parenDepth > 0) {
-                                paramValue += parser.parser.getToken().getSpelling().str();
-                                parser.parser.consumeToken();
-                            } else {
-                                parser.parseRParen();
-                            }
-                        } else {
-                            paramValue += parser.parser.getToken().getSpelling().str();
-                            parser.parser.consumeToken();
+                if (inputNames.has(paramName) && parser.parseOptionalLParen()) {
+                    const firstOperand = parser.parseOptionalOperand();
+                    if (firstOperand) {
+                        let operandType = null;
+                        if (parser.parseOptionalColon()) {
+                            operandType = parser.parseType();
                         }
+                        parser.parseRParen();
+                        parser.resolveOperand(firstOperand, operandType, result.operands);
+                    } else if (parser.parseOptionalLSquare()) {
+                        if (!parser.parseOptionalRSquare()) {
+                            do {
+                                const operand = parser.parseOptionalOperand();
+                                if (operand) {
+                                    parser.resolveOperand(operand, null, result.operands);
+                                }
+                            } while (parser.parseOptionalComma());
+                            parser.parseRSquare();
+                        }
+                        parser.parseRParen();
+                    } else {
+                        parser.parseRParen();
                     }
+                } else {
+                    // Non-operand parameter: collect balanced paren content as raw string
+                    const paramValue = parser.parseBody(_.Token.l_paren);
                     result.addAttribute(paramName, paramValue);
                 }
             }
@@ -12825,7 +12779,7 @@ _.HALDialect = class extends _.IREEDialect {
             return true;
         }
         // Handle operations with named parameters: hal.interface.binding, hal.executable.variant, etc.
-        if (result.op === 'hal.interface.binding' || result.op === 'hal.executable.variant' || result.op === 'hal.executable.entry_point' || result.op === 'hal.executable.export') {
+        if (result.op === 'hal.interface.binding' || result.op === 'hal.executable.variant' || result.op === 'hal.executable.entry_point') {
             result.compatibility = true;
             this.parseSymbolVisibility(parser, result);
             const sym = parser.parseOptionalSymbolName();
@@ -12860,28 +12814,9 @@ _.HALDialect = class extends _.IREEDialect {
                     result.regions.push(conditionRegion);
                     continue;
                 }
-                if (parser.parseOptionalLParen()) {
-                    let parenDepth = 1;
-                    let paramValue = '';
-                    while (parenDepth > 0 && parser.parser.getToken().isNot(_.Token.eof)) {
-                        if (parser.parser.getToken().is(_.Token.l_paren)) {
-                            parenDepth++;
-                            paramValue += parser.parser.getToken().getSpelling().str();
-                            parser.parser.consumeToken();
-                        } else if (parser.parser.getToken().is(_.Token.r_paren)) {
-                            parenDepth--;
-                            if (parenDepth > 0) {
-                                paramValue += parser.parser.getToken().getSpelling().str();
-                                parser.parser.consumeToken();
-                            } else {
-                                parser.parseRParen();
-                            }
-                        } else {
-                            paramValue += parser.parser.getToken().getSpelling().str();
-                            parser.parser.consumeToken();
-                        }
-                    }
-                    result.addAttribute(paramName, paramValue);
+                const paramBody = parser.parseOptionalBody(_.Token.l_paren);
+                if (paramBody) {
+                    result.addAttribute(paramName, paramBody);
                     parser.parseOptionalComma();
                 } else if (parser.parseOptionalEqual()) {
                     const attrValue = parser.parseOptionalAttribute();
@@ -13038,6 +12973,46 @@ _.HALDialect = class extends _.IREEDialect {
             Object.assign(region, regionObj);
         }
         result.regions.push(region);
+    }
+
+    // custom<DeviceQueueAffinityList>($devices, type($devices), $queue_affinities)
+    // C++ ref: HALOps.cpp:52 — [(%dev, %aff : !hal.device, i64), ...]
+    parseDeviceQueueAffinityList(parser, result) {
+        parser.parseLSquare();
+        do {
+            parser.parseLParen();
+            const device = parser.parseOperand();
+            parser.parseComma();
+            const queueAffinity = parser.parseOperand();
+            parser.parseColon();
+            const deviceType = parser.parseType();
+            parser.parseComma();
+            const queueAffinityType = parser.parseType();
+            parser.parseRParen();
+            parser.resolveOperand(device, deviceType, result.operands);
+            parser.resolveOperand(queueAffinity, queueAffinityType, result.operands);
+        } while (parser.parseOptionalComma());
+        parser.parseRSquare();
+    }
+
+    // custom<Bindings> and custom<BindingTable>
+    // C++ ref: HALOps.cpp:213,267 — (%buf : !hal.buffer)[%off, %len], ...
+    parseBindingList(parser, result) {
+        do {
+            parser.parseLParen();
+            const buffer = parser.parseOperand();
+            parser.parseColon();
+            const bufferType = parser.parseType();
+            parser.parseRParen();
+            parser.parseLSquare();
+            const bufferOffset = parser.parseOperand();
+            parser.parseComma();
+            const bufferLength = parser.parseOperand();
+            parser.parseRSquare();
+            parser.resolveOperand(buffer, bufferType, result.operands);
+            parser.resolveOperand(bufferOffset, null, result.operands);
+            parser.resolveOperand(bufferLength, null, result.operands);
+        } while (parser.parseOptionalComma());
     }
 };
 
