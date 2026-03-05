@@ -3889,6 +3889,7 @@ view.TensorView = class extends view.Expander {
                     case 'float8e5m2fnuz': data_type = 'float16'; break;
                     case 'float8e8m0fnu': data_type = 'float16'; break;
                     case 'int4': data_type = 'int8'; break;
+                    case 'int48': data_type = 'int64'; break;
                     default: data_type = tensor.type.dataType; break;
                 }
                 const python = await import('./python.js');
@@ -6764,7 +6765,7 @@ view.ModelFactoryService = class {
         this.register('./espdl', ['.espdl'], [], [/^EDL2/]);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
         this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
-        this.register('./tosa', ['.tosa'], [], [/^....TOSA/]);
+        this.register('./tosa', ['.tosa', '.json'], [], [/^....TOSA/]);
         this.register('./transformers', ['.json']);
         this.register('', ['.cambricon', '.vnnmodel', '.nnc']);
         /* eslint-enable no-control-regex */
@@ -7085,7 +7086,8 @@ view.ModelFactoryService = class {
                         { name: 'NVDA model data', identifier: 'NVDA' },
                         { name: 'BSTM model data', identifier: 'BSTM' },
                         { name: 'onnu model data', identifier: 'onnu' },
-                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' }
+                        { name: 'ONNX Runtime On-Device Training Checkpoint', identifier: 'ODTC' },
+                        { name: 'TOSA model data', identifier: 'TOSA' }
                     ];
                     for (const format of formats) {
                         if (identifier === format.identifier) {

@@ -188,33 +188,49 @@ tosa.Node = class {
                     continue;
                 }
                 const schema = context.attribute(opName, name);
-                let attrValue = obj;
-                attrValue = ArrayBuffer.isView(attrValue) ? Array.from(attrValue) : attrValue;
+                let value = obj;
+                value = ArrayBuffer.isView(value) ? Array.from(value) : value;
                 let visible = true;
                 let type = null;
                 if (schema) {
                     if (schema.visible === false) {
                         visible = false;
                     } else if (schema.default !== undefined) {
-                        if (attrValue === schema.default) {
+                        if (value === schema.default) {
                             visible = false;
                         }
                     }
                 }
                 if (typeof attrValue === 'bigint') {
-                    attrValue = Number(attrValue);
+                    value = value.toNumber();
                 }
-                if (typeof attrValue === 'number' && Number.isInteger(attrValue)) {
+                if (typeof attrValue === 'number' && Number.isInteger(value)) {
                     const enumType = enumTypes[name] || null;
                     if (enumType) {
-                        const enumValue = context.enum(enumType, attrValue);
-                        if (enumValue !== attrValue.toString()) {
+                        const enumValue = context.enum(enumType, value);
+                        if (enumValue !== value.toString()) {
                             type = enumType;
-                            attrValue = enumValue;
+                            value = enumValue;
                         }
                     }
                 }
-                this.attributes.push(new tosa.Argument(name, attrValue, type, visible));
+                if (opName !== 'CUSTOM' && obj instanceof Uint8Array) {
+                    const view = new DataView(obj.buffer);
+                    const output = this.outputs[0];
+                    type = output && output.value && output.value[0] && output.value[0].type ? output.value[0].type.dataType : null;
+                    switch (type) {
+                        case 'int8': value = view.getInt8(0); break;
+                        case 'int16': value = view.getInt16(0, true); break;
+                        case 'int32': value = view.getInt32(0, true); break;
+                        case 'float16': value = view.getFloat16(0, true); break;
+                        case 'bfloat16': value = view.getBfloat16(0, true); break;
+                        case 'float32': value = view.getFloat32(0, true); break;
+                        case 'float8e4m3': value = view.getFloat8e4m3(0); break;
+                        case 'float8e5m2': value = view.getFloat8e5m2(0); break;
+                        default: throw new tosa.Error(`Unsupported attribute type '${type}.`);
+                    }
+                }
+                this.attributes.push(new tosa.Argument(name, value, type, visible));
             }
         }
     }
