@@ -165,11 +165,10 @@ mnn.Node = class {
                 this.inputs.push(argument);
                 parameters.splice(0, parameters.length);
             } else if (param instanceof mnn.schema.Convolution2D) {
-                const common = param.common;
-                const outputCount = common.outputCount;
-                const inputCount = common.inputCount;
-                const kernelX = common.kernelX;
-                const kernelY = common.kernelY;
+                const outputCount = param.common ? param.common.outputCount : 0;
+                const inputCount = param.common ? param.common.inputCount : 0;
+                const kernelX = param.common ? param.common.kernelX : 0;
+                const kernelY = param.common ? param.common.kernelY : 0;
                 this._buildTensor('weight', mnn.schema.DataType.DT_FLOAT, [outputCount, inputCount, kernelX, kernelY], param.weight);
                 this._buildTensor('bias', mnn.schema.DataType.DT_FLOAT, [outputCount], param.bias);
                 delete param.weight;
