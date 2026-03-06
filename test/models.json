@@ -8927,6 +8927,13 @@
   },
   {
     "type":     "tosa",
+    "target":   "conv_net_v1.0.json",
+    "source":   "https://github.com/user-attachments/files/25799955/conv_net_v1.0.json.zip[conv_net_v1.0.json]",
+    "format":   "TOSA v1.0.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1546"
+  },
+  {
+    "type":     "tosa",
     "target":   "squeezenet_v1.1.tosa",
     "source":   "https://github.com/user-attachments/files/25430433/squeezenet_v1.1.tosa.zip[squeezenet_v1.1.tosa]",
     "format":   "TOSA v1.1.0",
