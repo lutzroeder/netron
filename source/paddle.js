@@ -101,6 +101,8 @@ paddle.ModelFactory = class {
                                 reader.field = function(tag, message) {
                                     if (message instanceof paddle.proto.VarType && tag === 'lod_tensor') {
                                         message.dense_tensor = paddle.proto.VarType.DenseTensorDesc.decodeText(reader);
+                                    } else if (message instanceof paddle.proto.VarType.DenseTensorDesc && tag === 'lod_level') {
+                                        message.legacy_lod_level = reader.int32();
                                     } else {
                                         throw new Error(`Unknown field '${tag}' ${this.location()}`);
                                     }
