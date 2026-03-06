@@ -8852,6 +8852,7 @@ _.Dialect = class {
             case 'OpaqueTensorType': return new _.Type('!tf_type.tensor');
             case 'OpenACC_DataBoundsType': return new _.Type('!acc.data_bounds');
             case 'OpenACC_DeclareTokenType': return new _.Type('!acc.declare_token');
+            case 'OpenACC_ParWidthType': return new _.Type('!acc.par_width');
             case 'OpenMP_MapBoundsType': return new _.Type('!omp.map.bounds');
             case 'PDL_Attribute': return new _.pdl.AttributeType();
             case 'PDL_Operation': return new _.pdl.OperationType();
@@ -12975,8 +12976,6 @@ _.HALDialect = class extends _.IREEDialect {
         result.regions.push(region);
     }
 
-    // custom<DeviceQueueAffinityList>($devices, type($devices), $queue_affinities)
-    // C++ ref: HALOps.cpp:52 — [(%dev, %aff : !hal.device, i64), ...]
     parseDeviceQueueAffinityList(parser, result) {
         parser.parseLSquare();
         do {
@@ -12995,8 +12994,6 @@ _.HALDialect = class extends _.IREEDialect {
         parser.parseRSquare();
     }
 
-    // custom<Bindings> and custom<BindingTable>
-    // C++ ref: HALOps.cpp:213,267 — (%buf : !hal.buffer)[%off, %len], ...
     parseBindingList(parser, result) {
         do {
             parser.parseLParen();
@@ -25210,6 +25207,78 @@ _.ACCDialect = class extends _.Dialect {
                 parser.parseOptionalComma();
             }
         }
+    }
+
+    parseOperation(parser, result) {
+        if (result.op === 'acc.compute_region') {
+            const entryArguments = [];
+            const launchOperands = [];
+            const inputOperands = [];
+            const inputTypes = [];
+            let streamOperand = null;
+            if (parser.parseOptionalKeyword('stream')) {
+                parser.parseLParen();
+                streamOperand = parser.parseOperand();
+                parser.parseColon();
+                const type = parser.parseType();
+                parser.resolveOperand(streamOperand, type, result.operands);
+                parser.parseRParen();
+            }
+            if (parser.parseOptionalKeyword('launch')) {
+                parser.parseLParen();
+                do {
+                    const argName = parser.parseOperand();
+                    parser.parseEqual();
+                    const val = parser.parseOperand();
+                    launchOperands.push(val);
+                    entryArguments.push({ name: argName.name, type: new _.Type('!acc.par_width') });
+                } while (parser.parseOptionalComma());
+                parser.parseRParen();
+            }
+            if (parser.parseOptionalKeyword('ins')) {
+                parser.parseLParen();
+                do {
+                    const argName = parser.parseOperand();
+                    parser.parseEqual();
+                    const val = parser.parseOperand();
+                    inputOperands.push(val);
+                    entryArguments.push({ name: argName.name, type: null });
+                } while (parser.parseOptionalComma());
+                parser.parseRParen();
+                parser.parseColon();
+                parser.parseLParen();
+                if (!parser.parseOptionalRParen()) {
+                    do {
+                        inputTypes.push(parser.parseType());
+                    } while (parser.parseOptionalComma());
+                    parser.parseRParen();
+                }
+                let typeIdx = 0;
+                for (const arg of entryArguments) {
+                    if (!arg.type) {
+                        arg.type = inputTypes[typeIdx++];
+                    }
+                }
+            }
+            const resultTypes = parser.parseOptionalArrowTypeList();
+            for (const type of resultTypes) {
+                result.types.push(type);
+            }
+            for (const op of launchOperands) {
+                parser.resolveOperand(op, null, result.operands);
+            }
+            for (let i = 0; i < inputOperands.length; i++) {
+                parser.resolveOperand(inputOperands[i], inputTypes[i] || null, result.operands);
+            }
+            const region = result.addRegion();
+            parser.parseRegion(region, entryArguments, true);
+            parser.parseOptionalAttrDict(result.attributes);
+            const segmentSizes = [launchOperands.length, inputOperands.length, streamOperand ? 1 : 0];
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr(segmentSizes));
+            this.inferResultTypes(result, new Map());
+            return true;
+        }
+        return super.parseOperation(parser, result);
     }
 };
 
