@@ -2778,6 +2778,27 @@ MNN.StftParam = class StftParam {
     }
 };
 
+MNN.ShapeParam = class ShapeParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.ShapeParam();
+        $.hasStart = reader.bool_(position, 4, false);
+        $.start = reader.int32_(position, 6, 0);
+        $.hasEnd = reader.bool_(position, 8, false);
+        $.end = reader.int32_(position, 10, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.ShapeParam();
+        $.hasStart = reader.value(json.hasStart, false);
+        $.start = reader.value(json.start, 0);
+        $.hasEnd = reader.value(json.hasEnd, false);
+        $.end = reader.value(json.end, 0);
+        return $;
+    }
+};
+
 MNN.WhileParam = class WhileParam {
 
     static decode(reader, position) {
@@ -2982,6 +3003,7 @@ MNN.OpParameter = class {
             case 98: return MNN.AttentionParam.decode(reader, position);
             case 99: return MNN.StftParam.decode(reader, position);
             case 100: return MNN.LinearAttentionParam.decode(reader, position);
+            case 101: return MNN.ShapeParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3088,6 +3110,7 @@ MNN.OpParameter = class {
             case 'AttentionParam': return MNN.AttentionParam.decodeText(reader, json);
             case 'StftParam': return MNN.StftParam.decodeText(reader, json);
             case 'LinearAttentionParam': return MNN.LinearAttentionParam.decodeText(reader, json);
+            case 'ShapeParam': return MNN.ShapeParam.decodeText(reader, json);
             default: return undefined;
         }
     }
