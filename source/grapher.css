@@ -10,7 +10,7 @@
 .node-item-function:hover { cursor: pointer; }
 .node-item-function:hover path { fill: #eee; }
 
-.node-item-type path { fill: #000; }
+.node-item-type path { fill: #333; }
 .node-item-type text { fill: #fff; }
 .node-item-type:hover { cursor: pointer; }
 .node-item-type:hover path { fill: #fff; }
@@ -81,6 +81,7 @@
 
 .node-block > .node-block-background { fill: #fff; stroke: none; stroke-width: 0; }
 .node-block .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
+.node-block .select.edge-path { stroke: rgba(220, 0, 0, 0.9); marker-end: url("#arrowhead-select"); }
 
 @keyframes pulse { from { stroke-dashoffset: 100px; } to { stroke-dashoffset: 0; } }
 
@@ -88,8 +89,8 @@
 
     .edge-path { stroke: #888; }
 
-    .node path { stroke: #1d1d1d; }
-    .node line { stroke: #1d1d1d; }
+    .node path { stroke: #242424; }
+    .node line { stroke: #242424; }
 
     .select > .node.node-border { stroke: rgba(192, 0, 0, 0.8); }
     .select.edge-path { stroke: rgba(192, 0, 0, 0.8); }
@@ -148,4 +149,5 @@
 
     .node-block > .node-block-background { fill: #404040; stroke: none; }
     .node-block .edge-path { stroke: #888; }
+    .node-block .select.edge-path { stroke: rgba(192, 0, 0, 0.8); marker-end: url("#arrowhead-select"); }
 }

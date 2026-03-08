@@ -293,12 +293,6 @@ grapher.Graph = class {
             maxX = Math.max(maxX, node.x + hw);
             maxY = Math.max(maxY, node.y + hh);
         }
-        if (isFinite(minX)) {
-            this.width = maxX - minX;
-            this.height = maxY - minY;
-            this.originX = minX;
-            this.originY = minY;
-        }
         for (const edge of edges) {
             const label = this.edge(edge.v, edge.w).label;
             label.points = edge.points;
@@ -306,6 +300,28 @@ grapher.Graph = class {
                 label.x = edge.x;
                 label.y = edge.y;
             }
+            if (label.points) {
+                for (const point of label.points) {
+                    minX = Math.min(minX, point.x);
+                    minY = Math.min(minY, point.y);
+                    maxX = Math.max(maxX, point.x);
+                    maxY = Math.max(maxY, point.y);
+                }
+            }
+            if (label.x !== undefined && label.width && label.height) {
+                const hw = label.width / 2;
+                const hh = label.height / 2;
+                minX = Math.min(minX, label.x - hw);
+                minY = Math.min(minY, label.y - hh);
+                maxX = Math.max(maxX, label.x + hw);
+                maxY = Math.max(maxY, label.y + hh);
+            }
+        }
+        if (isFinite(minX)) {
+            this.width = maxX - minX;
+            this.height = maxY - minY;
+            this.originX = minX;
+            this.originY = minY;
         }
         for (const key of this.nodes.keys()) {
             const entry = this.node(key);
@@ -345,24 +361,24 @@ grapher.Graph = class {
 grapher.Node = class {
 
     constructor() {
-        this._blocks = [];
+        this.blocks = [];
     }
 
     header() {
         const block = new grapher.Node.Header();
-        this._blocks.push(block);
+        this.blocks.push(block);
         return block;
     }
 
     list() {
         const block = new grapher.ArgumentList();
-        this._blocks.push(block);
+        this.blocks.push(block);
         return block;
     }
 
     canvas() {
         const block = new grapher.Node.Canvas();
-        this._blocks.push(block);
+        this.blocks.push(block);
         return block;
     }
 
@@ -376,10 +392,10 @@ grapher.Node = class {
         parent.appendChild(this.element);
         this.border = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         this.border.setAttribute('class', 'node node-border');
-        for (let i = 0; i < this._blocks.length; i++) {
-            const block = this._blocks[i];
+        for (let i = 0; i < this.blocks.length; i++) {
+            const block = this.blocks[i];
             block.first = i === 0;
-            block.last = i === this._blocks.length - 1;
+            block.last = i === this.blocks.length - 1;
             block.build(document, this.element);
         }
         this.element.appendChild(this.border);
@@ -387,20 +403,20 @@ grapher.Node = class {
 
     async measure() {
         this.height = 0;
-        for (const block of this._blocks) {
+        for (const block of this.blocks) {
             // eslint-disable-next-line no-await-in-loop
             await block.measure();
             this.height += block.height;
         }
-        this.width = Math.max(...this._blocks.map((block) => block.width));
-        for (const block of this._blocks) {
+        this.width = Math.max(...this.blocks.map((block) => block.width));
+        for (const block of this.blocks) {
             block.width = this.width;
         }
     }
 
     async layout() {
         let y = 0;
-        for (const block of this._blocks) {
+        for (const block of this.blocks) {
             block.x = 0;
             block.y = y;
             block.width = this.width;
@@ -411,7 +427,7 @@ grapher.Node = class {
     }
 
     update() {
-        for (const block of this._blocks) {
+        for (const block of this.blocks) {
             block.update();
         }
         this.border.setAttribute('d', grapher.Node.roundedRect(0, 0, this.width, this.height, true, true, true, true));
@@ -508,15 +524,6 @@ grapher.Node.Header = class {
             entry.path.setAttribute('d', grapher.Node.roundedRect(0, 0, entry.width, entry.height, r1, r2, r3, r4));
             entry.text.setAttribute('x', 6);
             entry.text.setAttribute('y', entry.ty);
-        }
-        for (let i = 1; i < this._entries.length; i++) {
-            const entry = this._entries[i];
-            const line = entry.line;
-            line.setAttribute('class', 'node');
-            line.setAttribute('x1', entry.x);
-            line.setAttribute('x2', entry.x);
-            line.setAttribute('y1', this.y);
-            line.setAttribute('y2', this.y + this.height);
         }
         if (this.line) {
             this.line.setAttribute('class', 'node');

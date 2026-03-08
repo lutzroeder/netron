@@ -433,7 +433,7 @@ view.View = class {
         this._target.zoom = 1;
     }
 
-    async refresh() {
+    async refresh(anchor) {
         const snapshot = new Map();
         if (this._target) {
             for (const [key, entry] of this._target.nodes) {
@@ -448,20 +448,72 @@ view.View = class {
         }
         const document = this._host.document;
         const container = document.getElementById('target');
-        const scrollLeft = container ? container.scrollLeft : 0;
-        const scrollTop = container ? container.scrollTop : 0;
         const zoom = this._target ? this._target._zoom : 1;
         const blocks = this._target ? this._target.blocks : null;
         if (blocks && blocks.size > 0 && this._path.length > 0) {
             this._path[0].state = Object.assign(this._path[0].state || {}, { blocks });
         }
-        await this.render(this.activeTarget, this.activeSignature);
+        const origin = document.getElementById('origin');
+        let previous = null;
+        if (origin && this.activeTarget) {
+            previous = origin.getScreenCTM();
+            const oldChildren = Array.from(origin.children);
+            const graph = this.activeTarget;
+            const groups = graph.groups || false;
+            const viewGraph = new view.Graph(this, groups);
+            const state = this._path && this._path.length > 0 && this._path[0] ? this._path[0].state : null;
+            if (state && state.blocks) {
+                viewGraph.blocks = state.blocks;
+            }
+            viewGraph.add(graph, this.activeSignature);
+            viewGraph.build(document, origin);
+            await viewGraph.measure();
+            const status = await viewGraph.layout(this._worker);
+            if (status === '') {
+                for (const child of oldChildren) {
+                    if (child.parentNode === origin) {
+                        origin.removeChild(child);
+                    }
+                }
+                viewGraph.update();
+                origin.setAttribute('transform', 'translate(0,0) scale(1)');
+                document.getElementById('background').setAttribute('width', 0);
+                document.getElementById('background').setAttribute('height', 0);
+                viewGraph.restore(state);
+                this.target = viewGraph;
+            } else {
+                for (const child of Array.from(origin.children)) {
+                    if (!oldChildren.includes(child)) {
+                        origin.removeChild(child);
+                    }
+                }
+            }
+        } else {
+            await this.render(this.activeTarget, this.activeSignature);
+        }
         this.show(null);
         if (this._target) {
             this._target.zoom = zoom;
-            if (container) {
-                container.scrollTo({ left: scrollLeft, top: scrollTop, behavior: 'instant' });
+            if (container && anchor) {
+                const anchorNode = this._target.find(anchor.value);
+                if (anchorNode instanceof grapher.Node && anchorNode.element) {
+                    let newRect = anchorNode.element.getBoundingClientRect();
+                    if (anchorNode.definition && anchorNode.definition.element) {
+                        newRect = anchorNode.definition.element.getBoundingClientRect();
+                    }
+                    if (container.scrollWidth > container.clientWidth) {
+                        container.scrollLeft += (newRect.left - anchor.rect.left);
+                    }
+                    if (container.scrollHeight > container.clientHeight) {
+                        container.scrollTop += (newRect.top - anchor.rect.top);
+                    }
+                }
+                delete this._target._scrollLeft;
+                delete this._target._scrollTop;
             }
+            const current = origin ? origin.getScreenCTM() : null;
+            const ox = previous && current ? (previous.e - current.e) / current.a : 0;
+            const oy = previous && current ? (previous.f - current.f) / current.d : 0;
             const animateTransition = (snapshot) => {
                 if (!this._target || snapshot.size === 0) {
                     return;
@@ -481,7 +533,7 @@ view.View = class {
                         if (isCluster) {
                             animations.push({
                                 type: 'cluster', element: label.element, rect: label.rectangle,
-                                fromX: old.x, fromY: old.y, toX: label.x, toY: label.y,
+                                fromX: old.x + ox, fromY: old.y + oy, toX: label.x, toY: label.y,
                                 fromW: old.width, fromH: old.height, toW: label.width, toH: label.height
                             });
                         } else {
@@ -491,7 +543,7 @@ view.View = class {
                             const th = label.height;
                             animations.push({
                                 type: 'node', element: label.element,
-                                fromX: old.x - fw / 2, fromY: old.y - fh / 2,
+                                fromX: old.x - fw / 2 + ox, fromY: old.y - fh / 2 + oy,
                                 toX: label.x - tw / 2, toY: label.y - th / 2
                             });
                         }
@@ -500,13 +552,69 @@ view.View = class {
                         animations.push({ type: 'fadein', element: label.element });
                     }
                 }
-                const edgePaths = this._host.document.querySelector('.edge-paths');
-                const edgeLabels = this._host.document.querySelector('.edge-labels');
-                if (edgePaths) {
-                    edgePaths.style.opacity = '0';
+                for (const edge of this._target.edges.values()) {
+                    const label = edge.label;
+                    if (!label || !label.element) {
+                        continue;
+                    }
+                    const fromNode = snapshot.get(label.from.value || edge.v);
+                    const toNode = snapshot.get(label.to.value || edge.w);
+                    if (fromNode && toNode) {
+                        const newFrom = this._target.node(edge.v);
+                        const newTo = this._target.node(edge.w);
+                        if (newFrom && newTo) {
+                            const dfx = fromNode.x - newFrom.label.x;
+                            const dfy = fromNode.y - newFrom.label.y;
+                            const dtx = toNode.x - newTo.label.x;
+                            const dty = toNode.y - newTo.label.y;
+                            const edgeOx = (dfx + dtx) / 2 + ox;
+                            const edgeOy = (dfy + dty) / 2 + oy;
+                            if (Math.abs(edgeOx) > 0.5 || Math.abs(edgeOy) > 0.5) {
+                                const labelTransform = label.labelElement ? label.labelElement.getAttribute('transform') : null;
+                                animations.push({
+                                    type: 'edge', element: label.element,
+                                    hitTest: label.hitTest, labelElement: label.labelElement,
+                                    labelTransform,
+                                    fromX: edgeOx, fromY: edgeOy
+                                });
+                            }
+                        }
+                    } else {
+                        label.element.style.opacity = '0';
+                        animations.push({ type: 'fadein', element: label.element });
+                        if (label.hitTest) {
+                            label.hitTest.style.opacity = '0';
+                            animations.push({ type: 'fadein', element: label.hitTest });
+                        }
+                        if (label.labelElement) {
+                            label.labelElement.style.opacity = '0';
+                            animations.push({ type: 'fadein', element: label.labelElement });
+                        }
+                    }
                 }
-                if (edgeLabels) {
-                    edgeLabels.style.opacity = '0';
+                for (const anim of animations) {
+                    if (anim.type === 'node') {
+                        anim.element.setAttribute('transform', `translate(${anim.fromX},${anim.fromY})`);
+                    } else if (anim.type === 'cluster') {
+                        anim.element.setAttribute('transform', `translate(${anim.fromX},${anim.fromY})`);
+                        if (anim.rect) {
+                            anim.rect.setAttribute('x', -anim.fromW / 2);
+                            anim.rect.setAttribute('y', -anim.fromH / 2);
+                            anim.rect.setAttribute('width', anim.fromW);
+                            anim.rect.setAttribute('height', anim.fromH);
+                        }
+                    } else if (anim.type === 'edge') {
+                        const t = `translate(${anim.fromX},${anim.fromY})`;
+                        anim.element.setAttribute('transform', t);
+                        if (anim.hitTest) {
+                            anim.hitTest.setAttribute('transform', t);
+                        }
+                        if (anim.labelElement) {
+                            anim.labelElement.setAttribute('transform', `translate(${anim.fromX},${anim.fromY}) ${anim.labelTransform || ''}`);
+                        }
+                    } else if (anim.type === 'fadein') {
+                        anim.element.style.opacity = '0';
+                    }
                 }
                 const tick = (now) => {
                     if (!startTime) {
@@ -532,6 +640,17 @@ view.View = class {
                                 anim.rect.setAttribute('width', w);
                                 anim.rect.setAttribute('height', h);
                             }
+                        } else if (anim.type === 'edge') {
+                            const x = anim.fromX * (1 - ease);
+                            const y = anim.fromY * (1 - ease);
+                            const tr = `translate(${x},${y})`;
+                            anim.element.setAttribute('transform', tr);
+                            if (anim.hitTest) {
+                                anim.hitTest.setAttribute('transform', tr);
+                            }
+                            if (anim.labelElement) {
+                                anim.labelElement.setAttribute('transform', `translate(${x},${y}) ${anim.labelTransform || ''}`);
+                            }
                         } else if (anim.type === 'fadein') {
                             anim.element.style.opacity = String(ease);
                         }
@@ -542,23 +661,19 @@ view.View = class {
                         for (const anim of animations) {
                             if (anim.type === 'fadein') {
                                 anim.element.style.removeProperty('opacity');
+                            } else if (anim.type === 'edge') {
+                                anim.element.removeAttribute('transform');
+                                if (anim.hitTest) {
+                                    anim.hitTest.removeAttribute('transform');
+                                }
+                                if (anim.labelElement) {
+                                    if (anim.labelTransform) {
+                                        anim.labelElement.setAttribute('transform', anim.labelTransform);
+                                    } else {
+                                        anim.labelElement.removeAttribute('transform');
+                                    }
+                                }
                             }
-                        }
-                        if (edgePaths) {
-                            edgePaths.style.transition = 'opacity 150ms ease-in';
-                            edgePaths.style.opacity = '1';
-                            edgePaths.addEventListener('transitionend', () => {
-                                edgePaths.style.removeProperty('transition');
-                                edgePaths.style.removeProperty('opacity');
-                            }, { once: true });
-                        }
-                        if (edgeLabels) {
-                            edgeLabels.style.transition = 'opacity 150ms ease-in';
-                            edgeLabels.style.opacity = '1';
-                            edgeLabels.addEventListener('transitionend', () => {
-                                edgeLabels.style.removeProperty('transition');
-                                edgeLabels.style.removeProperty('opacity');
-                            }, { once: true });
                         }
                     }
                 };
@@ -971,12 +1086,12 @@ view.View = class {
         }
     }
 
-    showTargetProperties() {
-        if (this._sidebar.identifier === 'target') {
+    showTargetProperties(target) {
+        if (this._sidebar.identifier === 'target' && !target) {
             this.showModelProperties();
             return;
         }
-        const target = this.activeTarget;
+        target = target || this.activeTarget;
         if (!target) {
             return;
         }
@@ -1765,6 +1880,10 @@ view.Graph = class extends grapher.Graph {
         return this.view.options;
     }
 
+    get values() {
+        return this._values;
+    }
+
     get selection() {
         return this._selection;
     }
@@ -1823,7 +1942,27 @@ view.Graph = class extends grapher.Graph {
         return null;
     }
 
+    find(value) {
+        if (this._table.has(value)) {
+            return this._table.get(value);
+        }
+        for (const obj of this._table.values()) {
+            if (obj instanceof grapher.Node) {
+                for (const block of obj.blocks) {
+                    if (block instanceof view.Block) {
+                        const found = block.target.find(value);
+                        if (found) {
+                            return found;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     add(graph, signature) {
+        this.target = graph;
         this.identifier = this.model.identifier;
         this.identifier += graph && graph.name ? `.${graph.name.replace(/\/|\\/g, '.')}` : '';
         const clusters = new Set();
@@ -1978,12 +2117,29 @@ view.Graph = class extends grapher.Graph {
         await super.measure();
     }
 
-    select(selection) {
+    clearSelection() {
         if (this._selection.size > 0) {
             for (const element of this._selection) {
                 element.deselect();
             }
             this._selection.clear();
+        }
+        for (const entry of this._table.values()) {
+            if (entry instanceof grapher.Node) {
+                for (const block of entry.blocks) {
+                    if (block.target && block.target.clearSelection) {
+                        block.target.clearSelection();
+                    }
+                }
+            }
+        }
+    }
+
+    select(selection) {
+        if (selection && this.view.target && this.view.target !== this) {
+            this.view.target.clearSelection();
+        } else {
+            this.clearSelection();
         }
         if (selection) {
             let array = [];
@@ -2458,18 +2614,19 @@ view.Node = class extends grapher.Node {
             const expanded = this.context.blocks.has(value);
             const icon = expanded ? '\u2212' : '+';
             const tooltip = expanded ? 'Collapse Graph' : 'Expand Graph';
-            const definition = header.add(null, styles, icon, tooltip);
-            definition.on('click', () => {
+            this.definition = header.add(null, styles, icon, tooltip);
+            this.definition.on('click', () => {
+                const rect = this.definition.element.getBoundingClientRect();
                 if (this.context.blocks.has(value)) {
                     this.context.blocks.delete(value);
                 } else {
                     this.context.blocks.add(value);
                 }
-                this.context.view.refresh();
+                this.context.view.refresh({ value: this.value, rect });
             });
         } else if (type === 'graph') {
-            const definition = header.add(null, styles, '\u25CB', 'Show Subgraph');
-            definition.on('click', async () => await this.context.view.pushTarget(value, this.value));
+            this.definition = header.add(null, styles, '\u25CB', 'Show Subgraph');
+            this.definition.on('click', async () => await this.context.view.pushTarget(value, this.value));
         } else if (node.type.type || (Array.isArray(node.type.nodes) && node.type.nodes.length > 0)) {
             let icon = '\u0192';
             let tooltip = 'Show Function Definition';
@@ -2477,8 +2634,8 @@ view.Node = class extends grapher.Node {
                 icon = '\u25CF';
                 tooltip = 'Show Weights';
             }
-            const definition = header.add(null, styles, icon, tooltip);
-            definition.on('click', async () => await this.context.view.pushTarget(node.type, this.value));
+            this.definition = header.add(null, styles, icon, tooltip);
+            this.definition.on('click', async () => await this.context.view.pushTarget(node.type, this.value));
         }
         let current = null;
         const list = () => {
@@ -2571,13 +2728,13 @@ view.Node = class extends grapher.Node {
             let content = null;
             if (type === 'graph' && this.context.blocks.has(argument.value)) {
                 content = this.context.createGraph(argument.value);
-                content._blocks.push(new view.Block(this.context.view, argument.value));
-                this.context.setNode(content);
+                content.blocks.push(new view.Block(this.context.view, argument.value, this.context.blocks));
+                content.activate = () => this.context.view.showTargetProperties(argument.value);
                 const item = list().argument(argument.name, content);
                 list().add(item);
             } else if (type === 'graph' || type === 'function') {
                 content = this.context.createGraph(argument.value, type);
-                this.context.setNode(content);
+                content.activate = () => this.context.view.showTargetProperties(argument.value);
                 const item = list().argument(argument.name, content);
                 list().add(item);
             } else if (type === 'graph[]') {
@@ -2621,9 +2778,12 @@ view.Node = class extends grapher.Node {
 
 view.Block = class {
 
-    constructor(viewRef, graphData) {
-        this._graph = new view.Graph(viewRef, false);
-        this._graph.add(graphData);
+    constructor(viewRef, target, blocks) {
+        this.target = new view.Graph(viewRef, false);
+        if (blocks) {
+            this.target.blocks = blocks;
+        }
+        this.target.add(target);
         this.x = 0;
         this.y = 0;
     }
@@ -2642,38 +2802,38 @@ view.Block = class {
         this.element.appendChild(this._background);
         this._origin = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         this.element.appendChild(this._origin);
-        for (const value of this._graph._values.values()) {
+        for (const value of this.target.values.values()) {
             value.build();
         }
-        this._graph.build(document, this._origin);
+        this.target.build(document, this._origin);
     }
 
     async measure() {
-        for (const edge of this._graph.edges.values()) {
+        for (const edge of this.target.edges.values()) {
             if (edge.label.labelElement) {
                 const box = edge.label.labelElement.getBBox();
                 edge.label.width = box.width;
                 edge.label.height = box.height;
             }
         }
-        await this._graph.measure();
-        await this._graph.layout();
+        await this.target.measure();
+        await this.target.layout();
         const padding = 10;
         this._padding = padding;
-        this.width = this._graph.width + 2 * padding;
-        this.height = this._graph.height + 2 * padding;
+        this.width = (this.target.width || 0) + 2 * padding;
+        this.height = (this.target.height || 0) + 2 * padding;
     }
 
     async layout() {
     }
 
     update() {
-        const offsetX = this._padding - (this._graph.originX || 0);
-        const offsetY = this._padding - (this._graph.originY || 0);
+        const offsetX = this._padding - (this.target.originX || 0);
+        const offsetY = this._padding - (this.target.originY || 0);
         this.element.setAttribute('transform', `translate(0,${this.y})`);
         this._origin.setAttribute('transform', `translate(${offsetX},${offsetY})`);
         this._background.setAttribute('d', grapher.Node.roundedRect(0, 0, this.width, this.height, false, false, this.last, this.last));
-        this._graph.update();
+        this.target.update();
         if (this.line) {
             this.line.setAttribute('x1', 0);
             this.line.setAttribute('x2', this.width);
@@ -2697,8 +2857,12 @@ view.Input = class extends grapher.Node {
         }
         const header = this.header();
         const title = header.add(null, ['graph-item-input'], name, types);
-        title.on('click', () => this.context.view.showTargetProperties());
+        title.on('click', () => this.context.view.showTargetProperties(this.target));
         this.id = `input-${name ? `name-${name}` : `id-${(view.Input.counter++)}`}`;
+    }
+
+    get target() {
+        return this.context.target === this.context.view.activeTarget ? null : this.context.target;
     }
 
     get class() {
@@ -2714,7 +2878,7 @@ view.Input = class extends grapher.Node {
     }
 
     activate() {
-        this.context.view.showTargetProperties();
+        this.context.view.showTargetProperties(this.target);
     }
 
     edge(to) {
@@ -2740,8 +2904,12 @@ view.Output = class extends grapher.Node {
             }
             const header = this.header();
             const title = header.add(null, ['graph-item-output'], name, types);
-            title.on('click', () => this.context.view.showTargetProperties());
+            title.on('click', () => this.context.view.showTargetProperties(this.target));
         }
+    }
+
+    get target() {
+        return this.context.target === this.context.view.activeTarget ? null : this.context.target;
     }
 
     get inputs() {
@@ -2753,7 +2921,7 @@ view.Output = class extends grapher.Node {
     }
 
     activate() {
-        this.context.view.showTargetProperties();
+        this.context.view.showTargetProperties(this.target);
     }
 };
 
