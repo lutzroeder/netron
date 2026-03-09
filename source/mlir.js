@@ -4636,14 +4636,16 @@ _.AffineParser = class extends _.Parser {
             throw new mlir.Error(`Expected SSA identifier ${this.location()}`);
         }
         const name = this.getTokenSpelling().str();
-        this.consumeToken(_.Token.percent_identifier);
         for (const entry of this.dimsAndSymbols) {
             if (entry.name === name) {
+                this.consumeToken(_.Token.percent_identifier);
                 return entry.expr;
             }
         }
         if (this.parseElement) {
             this.parseElement(isSymbol);
+        } else {
+            this.consumeToken(_.Token.percent_identifier);
         }
         const idExpr = isSymbol
             ? this.getAffineSymbolExpr(this.numSymbolOperands++)
@@ -4652,14 +4654,12 @@ _.AffineParser = class extends _.Parser {
         return idExpr;
     }
 
-    // Parse integer literal
     parseIntegerExpr() {
         const val = this.getToken().getUInt64IntegerValue();
         this.consumeToken(_.Token.integer);
         return this.getAffineConstantExpr(Number(val));
     }
 
-    // Parse parenthesized expression
     parseParentheticalExpr() {
         this.parseToken(_.Token.l_paren, "Expected '('");
         if (this.getToken().is(_.Token.r_paren)) {
@@ -5614,6 +5614,24 @@ _.AsmParser = class {
         return result;
     }
 
+    parseAffineMapOfSSAIds(mapOperands, mapAttr, attrName, attrs, delimiter = 'Square') {
+        const dimOperands = [];
+        const symOperands = [];
+        const parseElement = (isSymbol) => {
+            const operand = this.parseOperand();
+            if (isSymbol) {
+                symOperands.push(operand);
+            } else {
+                dimOperands.push(operand);
+            }
+        };
+        const map = this.parser.parseAffineMapOfSSAIds(parseElement, delimiter);
+        if (map) {
+            attrs.set(attrName, map);
+        }
+        mapOperands.push(...dimOperands, ...symOperands);
+    }
+
     // Workaround: consumes balanced delimiter content as raw string.
     // Not present in C++ reference implementation (OpImplementation.h).
     // Call sites should be updated to do what the reference implementation actually does.
@@ -5998,6 +6016,23 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
             return null;
         };
         return this.parseCommaSeparatedList(delimiter, parseOneOperand);
+    }
+
+    parseTrailingOperandList(delimiter) {
+        if (!this.parseOptionalComma()) {
+            return [];
+        }
+        return this.parseOperandList(delimiter);
+    }
+
+    parseDimAndSymbolList(operands) {
+        const indexType = new _.IndexType();
+        const opInfos = this.parseOperandList('paren');
+        const numDims = opInfos.length;
+        const symInfos = this.parseOperandList('optionalSquare');
+        opInfos.push(...symInfos);
+        this.resolveOperands(opInfos, opInfos.map(() => indexType), operands);
+        return numDims;
     }
 
     resolveOperand(operand, type, result) {
@@ -11264,44 +11299,13 @@ _.AffineDialect = class extends _.Dialect {
         if (result.op === 'affine.parallel') {
             return this.parseParallelOp(parser, result);
         }
-        // Special handling for affine.for - similar to scf.for but with affine expressions
         if (result.op === 'affine.for') {
             return this.parseForOp(parser, result);
         }
-        // Special handling for affine.if - has condition before region
         if (result.op === 'affine.if') {
-            // affine.if #set(dims)[symbols] [-> (type)] { region }
-            // Or: affine.if affine_set<(d0) : (constraint)>(dims)[symbols]
-            const condAttr = parser.parseOptionalAttribute();
-            if (condAttr) {
-                result.addAttribute('condition', condAttr);
-            } else if (parser.parseOptionalKeyword('affine_set')) {
-                const content = parser.parseBody(_.Token.less);
-                result.addAttribute('condition', `affine_set${content}`);
-            }
-            const indexType = new _.IndexType();
-            if (parser.parseOptionalLParen()) {
-                if (!parser.parseOptionalRParen()) {
-                    do {
-                        const operand = parser.parseOptionalOperand();
-                        if (operand) {
-                            parser.resolveOperand(operand, indexType, result.operands);
-                        }
-                    } while (parser.parseOptionalComma());
-                    parser.parseRParen();
-                }
-            }
-            if (parser.parseOptionalLSquare()) {
-                if (!parser.parseOptionalRSquare()) {
-                    do {
-                        const operand = parser.parseOptionalOperand();
-                        if (operand) {
-                            parser.resolveOperand(operand, indexType, result.operands);
-                        }
-                    } while (parser.parseOptionalComma());
-                    parser.parseRSquare();
-                }
-            }
+            const condAttr = parser.parseAttribute();
+            result.addAttribute('condition', condAttr);
+            parser.parseDimAndSymbolList(result.operands);
             result.addTypes(parser.parseOptionalArrowTypeList());
             const region = result.addRegion();
             parser.parseRegion(region);
@@ -11313,19 +11317,11 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        // Special handling for affine.apply, affine.min, and affine.max
         if (result.op === 'affine.apply' || result.op === 'affine.min' || result.op === 'affine.max') {
-            const mapAttr = parser.parseOptionalAttribute();
-            if (mapAttr) {
-                result.addAttribute('map', mapAttr);
-            }
             const indexType = new _.IndexType();
-            const unresolvedDims = parser.parseOperandList('optionalParen');
-            if (unresolvedDims.length > 0) {
-                parser.resolveOperands(unresolvedDims, unresolvedDims.map(() => indexType), result.operands);
-            }
-            const unresolvedSyms = parser.parseOperandList('optionalSquare');
-            parser.resolveOperands(unresolvedSyms, unresolvedSyms.map(() => indexType), result.operands);
+            const mapAttr = parser.parseAttribute();
+            result.addAttribute('map', mapAttr);
+            parser.parseDimAndSymbolList(result.operands);
             parser.parseOptionalAttrDict(result.attributes);
             result.addTypes([indexType]);
             return true;
@@ -11343,8 +11339,10 @@ _.AffineDialect = class extends _.Dialect {
             return this.parseVectorStoreOp(parser, result);
         }
         if (result.op === 'affine.prefetch') {
+            const indexType = new _.IndexType();
             const memref = parser.parseOperand();
-            parser.parseBody(_.Token.l_square);
+            const mapOperands = [];
+            parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
             parser.parseComma();
             const rwSpecifier = parser.parseOptionalKeyword();
             result.addAttribute('isWrite', rwSpecifier === 'write');
@@ -11360,60 +11358,48 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             const type = parser.parseColonType();
             parser.resolveOperand(memref, type, result.operands);
+            parser.resolveOperands(mapOperands, mapOperands.map(() => indexType), result.operands);
             return true;
         }
-        // C++-only operation: affine.dma_start
-        // Defined in mlir/lib/Dialect/Affine/IR/AffineOps.cpp
         if (result.op === 'affine.dma_start') {
             const indexType = new _.IndexType();
-            const unresolvedOperands = [];
-            for (;;) {
-                const operand = parser.parseOptionalOperand();
-                if (operand) {
-                    unresolvedOperands.push(operand);
-                }
-                if (parser.parser.getToken().is(_.Token.l_square)) {
-                    parser.parseBody(_.Token.l_square);
-                    parser.parseOptionalComma();
-                } else if (!operand && !parser.parseOptionalComma()) {
-                    break;
-                }
-            }
-            parser.parseOptionalAttrDict(result.attributes);
-            const types = [];
-            if (parser.parseOptionalColon()) {
-                do {
-                    types.push(parser.parseType());
-                } while (parser.parseOptionalComma());
-            }
-            // Resolve operands with types, use index for any operands beyond type count
-            const resolveTypes = unresolvedOperands.map((_, i) => i < types.length ? types[i] : indexType);
-            parser.resolveOperands(unresolvedOperands, resolveTypes, result.operands);
+            const srcMemRef = parser.parseOperand();
+            const srcMapOperands = [];
+            parser.parseAffineMapOfSSAIds(srcMapOperands, null, 'src_map', result.attributes);
+            parser.parseComma();
+            const dstMemRef = parser.parseOperand();
+            const dstMapOperands = [];
+            parser.parseAffineMapOfSSAIds(dstMapOperands, null, 'dst_map', result.attributes);
+            parser.parseComma();
+            const tagMemRef = parser.parseOperand();
+            const tagMapOperands = [];
+            parser.parseAffineMapOfSSAIds(tagMapOperands, null, 'tag_map', result.attributes);
+            parser.parseComma();
+            const numElements = parser.parseOperand();
+            // Parse optional stride operands
+            const strideOperands = parser.parseTrailingOperandList();
+            const types = parser.parseColonTypeList();
+            parser.resolveOperand(srcMemRef, types[0], result.operands);
+            parser.resolveOperands(srcMapOperands, srcMapOperands.map(() => indexType), result.operands);
+            parser.resolveOperand(dstMemRef, types[1], result.operands);
+            parser.resolveOperands(dstMapOperands, dstMapOperands.map(() => indexType), result.operands);
+            parser.resolveOperand(tagMemRef, types[2], result.operands);
+            parser.resolveOperands(tagMapOperands, tagMapOperands.map(() => indexType), result.operands);
+            parser.resolveOperand(numElements, indexType, result.operands);
+            parser.resolveOperands(strideOperands, strideOperands.map(() => indexType), result.operands);
             return true;
         }
         if (result.op === 'affine.dma_wait') {
             const indexType = new _.IndexType();
-            const unresolvedOperands = [];
-            for (;;) {
-                const operand = parser.parseOptionalOperand();
-                if (operand) {
-                    unresolvedOperands.push(operand);
-                }
-                if (parser.parser.getToken().is(_.Token.l_square)) {
-                    parser.parseBody(_.Token.l_square);
-                    parser.parseOptionalComma();
-                } else if (!operand && !parser.parseOptionalComma()) {
-                    break;
-                }
-            }
-            parser.parseOptionalAttrDict(result.attributes);
-            let memrefType = null;
-            if (parser.parseOptionalColon()) {
-                memrefType = parser.parseType();
-            }
-            // First operand is tag (memref type), rest are indices (index type)
-            const resolveTypes = unresolvedOperands.map((_, i) => i === 0 ? memrefType : indexType);
-            parser.resolveOperands(unresolvedOperands, resolveTypes, result.operands);
+            const tagMemRef = parser.parseOperand();
+            const tagMapOperands = [];
+            parser.parseAffineMapOfSSAIds(tagMapOperands, null, 'tag_map', result.attributes);
+            parser.parseComma();
+            const numElements = parser.parseOperand();
+            const type = parser.parseColonType();
+            parser.resolveOperand(tagMemRef, type, result.operands);
+            parser.resolveOperands(tagMapOperands, tagMapOperands.map(() => indexType), result.operands);
+            parser.resolveOperand(numElements, indexType, result.operands);
             return true;
         }
         return super.parseOperation(parser, result);
@@ -11423,9 +11409,9 @@ _.AffineDialect = class extends _.Dialect {
         const inductionVar = parser.parseOperand();
         parser.parseOptionalLocationSpecifier();
         parser.parseEqual();
-        this.parseAffineBound(parser, result, 'lowerBound');
+        this.parseBound(true, parser, result);
         parser.parseKeyword('to');
-        this.parseAffineBound(parser, result, 'upperBound');
+        this.parseBound(false, parser, result);
         if (parser.parseOptionalKeyword('step')) {
             const step = parser.parseOptionalInteger();
             if (step !== null) {
@@ -11446,7 +11432,6 @@ _.AffineDialect = class extends _.Dialect {
                             if (operand) {
                                 unresolvedIterOperands.push(operand);
                             } else {
-                                // Non-SSA values like constants - skip as they're not operands
                                 parser.parseAttribute();
                             }
                         }
@@ -11478,121 +11463,91 @@ _.AffineDialect = class extends _.Dialect {
         return true;
     }
 
-    parseAffineBound(parser, op, boundName) {
-        // Parse affine bound following reference implementation in AffineOps.cpp parseBound()
-        // All affine operands have type index
+    parseBound(isLower, parser, result) {
         const indexType = new _.IndexType();
-
-        // Try parsing SSA value first (shorthand for identity map)
-        const ssaOperand = parser.parseOptionalOperand();
-        if (ssaOperand) {
-            parser.resolveOperands([ssaOperand], [indexType], op.operands);
-            const mapAttrName = boundName === 'lowerBound' ? 'lowerBoundMap' : 'upperBoundMap';
-            op.addAttribute(mapAttrName, 'symbol_identity');
-            return;
-        }
-
-        // Try parsing integer literal (shorthand for constant map)
-        const negate = parser.parseOptionalMinus();
-        if (negate) {
-            let value = parser.parseInteger();
-            value = -value;
-            const mapAttrName = boundName === 'lowerBound' ? 'lowerBoundMap' : 'upperBoundMap';
-            op.addAttribute(mapAttrName, value);
-            return;
-        }
-        const intLiteral = parser.parseOptionalInteger();
-        if (intLiteral !== null) {
-            const mapAttrName = boundName === 'lowerBound' ? 'lowerBoundMap' : 'upperBoundMap';
-            op.addAttribute(mapAttrName, intLiteral);
-            return;
-        }
-
-        if (!parser.parseOptionalKeyword('min')) {
+        const boundAttrName = isLower ? 'lowerBoundMap' : 'upperBoundMap';
+        if (isLower) {
             parser.parseOptionalKeyword('max');
+        } else {
+            parser.parseOptionalKeyword('min');
         }
-        const mapValue = parser.parseOptionalAttribute();
-        if (mapValue) {
-            const mapAttrName = boundName === 'lowerBound' ? 'lowerBoundMap' : 'upperBoundMap';
-            op.addAttribute(mapAttrName, mapValue);
-
-            // Parse dim and symbol operands in ()[...]  or (...)
-            const unresolvedOperands = parser.parseOperandList('optionalParen');
-            const symOperands = parser.parseOperandList('optionalSquare');
-            unresolvedOperands.push(...symOperands);
-            parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
+        const boundOpInfos = parser.parseOperandList();
+        if (boundOpInfos.length > 0) {
+            parser.resolveOperand(boundOpInfos[0], indexType, result.operands);
+            result.addAttribute(boundAttrName, 'symbol_identity');
             return;
         }
-        throw new mlir.Error(`Expected loop bound (SSA value, integer, or affine map) in affine.for ${parser.getCurrentLocation()}`);
+        const boundAttr = parser.parseAttribute();
+        if (boundAttr instanceof _.AffineMapAttr) {
+            result.addAttribute(boundAttrName, boundAttr);
+            parser.parseDimAndSymbolList(result.operands);
+            return;
+        }
+        if (boundAttr instanceof _.IntegerAttr || typeof boundAttr === 'number' || typeof boundAttr === 'bigint') {
+            result.addAttribute(boundAttrName, boundAttr);
+            return;
+        }
+        result.addAttribute(boundAttrName, boundAttr);
     }
 
     parseStoreOp(parser, result) {
-        const unresolvedValue = parser.parseOptionalOperand();
-        if (unresolvedValue) {
-            // SSA operand parsed
-        }
-        // Note: attribute values are not operands
-        if (!parser.parseOptionalKeyword('to')) {
-            parser.parseOptionalComma();
-        }
-        const unresolvedAddress = parser.parseOperand();
-        parser.parseBody(_.Token.l_square);
-        if (parser.parseOptionalColon()) {
-            const memrefType = parser.parseType();
-            // Value type is element type of memref
-            const valueType = memrefType.elementType || memrefType;
-            if (unresolvedValue) {
-                parser.resolveOperands([unresolvedValue], [valueType], result.operands);
-            }
-            parser.resolveOperands([unresolvedAddress], [memrefType], result.operands);
-        }
+        const indexType = new _.IndexType();
+        const storeValue = parser.parseOperand();
+        parser.parseComma();
+        const memref = parser.parseOperand();
+        const mapOperands = [];
+        parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
+        parser.parseOptionalAttrDict(result.attributes);
+        const type = parser.parseColonType();
+        const valueType = type.elementType || type;
+        parser.resolveOperand(storeValue, valueType, result.operands);
+        parser.resolveOperand(memref, type, result.operands);
+        parser.resolveOperands(mapOperands, mapOperands.map(() => indexType), result.operands);
         return true;
     }
 
     parseLoadOp(parser, result) {
+        const indexType = new _.IndexType();
         const memref = parser.parseOperand();
-        parser.parseBody(_.Token.l_square);
+        const mapOperands = [];
+        parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
         parser.parseOptionalAttrDict(result.attributes);
         const type = parser.parseColonType();
         parser.resolveOperand(memref, type, result.operands);
-        // Result type is element type of memref
+        parser.resolveOperands(mapOperands, mapOperands.map(() => indexType), result.operands);
         result.addTypes([type.elementType || type]);
         return true;
     }
 
     parseVectorLoadOp(parser, result) {
+        const indexType = new _.IndexType();
         const memref = parser.parseOperand();
-        parser.parseBody(_.Token.l_square);
+        const mapOperands = [];
+        parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
         parser.parseOptionalAttrDict(result.attributes);
-        if (parser.parseOptionalColon()) {
-            const memrefType = parser.parseType();
-            parser.resolveOperand(memref, memrefType, result.operands);
-            parser.parseComma();
-            const vectorType = parser.parseType();
-            result.addTypes([vectorType]);
-        } else {
-            parser.resolveOperand(memref, null, result.operands);
-        }
+        const memrefType = parser.parseColonType();
+        parser.parseComma();
+        const vectorType = parser.parseType();
+        parser.resolveOperand(memref, memrefType, result.operands);
+        parser.resolveOperands(mapOperands, mapOperands.map(() => indexType), result.operands);
+        result.addTypes([vectorType]);
         return true;
     }
 
     parseVectorStoreOp(parser, result) {
-        const value = parser.parseOperand();
+        const indexType = new _.IndexType();
+        const storeValue = parser.parseOperand();
         parser.parseComma();
         const memref = parser.parseOperand();
-        parser.parseBody(_.Token.l_square);
+        const mapOperands = [];
+        parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
         parser.parseOptionalAttrDict(result.attributes);
-        if (parser.parseOptionalColon()) {
-            const memrefType = parser.parseType();
-            parser.parseComma();
-            const vectorType = parser.parseType();
-            // Resolve operands: value first, then memref
-            parser.resolveOperand(value, vectorType, result.operands);
-            parser.resolveOperand(memref, memrefType, result.operands);
-        } else {
-            parser.resolveOperand(value, null, result.operands);
-            parser.resolveOperand(memref, null, result.operands);
-        }
+        const memrefType = parser.parseColonType();
+        parser.parseComma();
+        const vectorType = parser.parseType();
+        parser.resolveOperand(storeValue, vectorType, result.operands);
+        parser.resolveOperand(memref, memrefType, result.operands);
+        parser.resolveOperands(mapOperands, mapOperands.map(() => indexType), result.operands);
         return true;
     }
 
@@ -11628,11 +11583,8 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseFunctionResultList(resultTypes, resultAttrs);
             result.addTypes(resultTypes);
         }
-        {
-            // Pass iv arguments to parseRegion - they become block arguments
-            const region = result.addRegion();
-            parser.parseOptionalRegion(region, ivArgs);
-        }
+        const region = result.addRegion();
+        parser.parseOptionalRegion(region, ivArgs);
         parser.parseOptionalAttrDict(result.attributes);
         return true;
     }
@@ -19412,11 +19364,19 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
-    parseAffinityClause(parser, result, affinityVars, affinityTypes) {
+    // Following reference: parseAffinityClause / parseSplitIteratedList in OpenMPDialect.cpp:4658/1438
+    parseAffinityClause(parser, result, iterated, affinityVars, iteratedTypes, affinityTypes) {
         parser.parseCommaSeparatedList('none', () => {
-            affinityVars.push(parser.parseOperand());
-            parser.parseColon();
-            affinityTypes.push(parser.parseType());
+            const operand = parser.parseOperand();
+            const type = parser.parseColonType();
+            // Split into iterated vs plain based on type name
+            if (type && type.name && type.name.includes('iterated')) {
+                iterated.push(operand);
+                iteratedTypes.push(type);
+            } else {
+                affinityVars.push(operand);
+                affinityTypes.push(type);
+            }
         });
     }
 
@@ -21186,46 +21146,76 @@ _.VMDialect = class extends _.Dialect {
             }
             return true;
         }
-        // Handle vm.call.variadic
-        // Variadic has complex syntax like: @callee(op1, op2, [(tuple1), (tuple2)])
+        // Following reference: CallVariadicOp::parse in VMOps.cpp:1251
         if (result.op === 'vm.call.variadic') {
-            result.compatibility = true;
-            const __callee = parser.parseOptionalSymbolName();
-            if (__callee !== null) {
-                result.addAttribute('callee', __callee);
-            }
-            if (parser.parseOptionalLParen()) {
-                while (parser.parser.getToken().isNot(_.Token.r_paren)) {
-                    if (parser.parser.getToken().is(_.Token.l_square)) {
-                        // Skip complex nested structures in variadic calls
-                        parser.parseBody(_.Token.l_square);
-                        parser.parseOptionalComma(); // consume trailing comma if present
-                    } else if (parser.parser.getToken().is(_.Token.percent_identifier)) {
-                        const operand = parser.parseOperand();
-                        parser.resolveOperand(operand, null, result.operands);
-                        parser.parseOptionalComma(); // consume trailing comma if present
-                    } else {
-                        // Unexpected token, break to avoid infinite loop
-                        break;
+            const calleeAttr = parser.parseAttribute();
+            result.addAttribute('callee', calleeAttr);
+            parser.parseLParen();
+            const flatOperands = [];
+            const flatSegmentSizes = [];
+            while (!parser.parseOptionalRParen()) {
+                if (parser.parseOptionalLSquare()) {
+                    // Variadic list
+                    const flatSegmentOperands = [];
+                    while (!parser.parseOptionalRSquare()) {
+                        if (parser.parseOptionalLParen()) {
+                            // Tuple inside variadic list
+                            while (!parser.parseOptionalRParen()) {
+                                flatSegmentOperands.push(parser.parseOperand());
+                                if (!parser.parseOptionalComma()) {
+                                    parser.parseRParen();
+                                    break;
+                                }
+                            }
+                        } else {
+                            flatSegmentOperands.push(parser.parseOperand());
+                        }
+                        if (!parser.parseOptionalComma()) {
+                            parser.parseRSquare();
+                            break;
+                        }
                     }
+                    flatSegmentSizes.push(flatSegmentOperands.length);
+                    flatOperands.push(...flatSegmentOperands);
+                } else {
+                    // Normal single operand
+                    flatOperands.push(parser.parseOperand());
+                    flatSegmentSizes.push(-1);
                 }
-                parser.parseRParen();
+                if (!parser.parseOptionalComma()) {
+                    parser.parseRParen();
+                    break;
+                }
             }
             parser.parseOptionalAttrDict(result.attributes);
-            // vm.call.variadic has special syntax with '...' ellipsis
-            if (parser.parseOptionalColon()) {
-                if (result.op === 'vm.call.variadic') {
-                    parser.parseBody(_.Token.l_paren);
-                    result.addTypes(parser.parseOptionalArrowTypeList());
-                } else {
-                    // Regular vm.call - Reference: uses functional-type(operands, results)
-                    const type = parser.parseType();
-                    if (type instanceof _.FunctionType) {
-                        parser.resolveOperands(result.operands, type.inputs);
-                        result.addTypes(type.results);
+            parser.parseColon();
+            parser.parseLParen();
+            const flatOperandTypes = [];
+            const segmentTypes = [];
+            const segmentSizes = [];
+            let segmentIndex = 0;
+            while (!parser.parseOptionalRParen()) {
+                const operandType = parser.parseType();
+                const isVariadic = parser.parseOptionalEllipsis();
+                if (isVariadic) {
+                    const flatSegmentSize = flatSegmentSizes[segmentIndex];
+                    for (let i = 0; i < flatSegmentSize; i++) {
+                        flatOperandTypes.push(operandType);
                     }
+                    segmentSizes.push(flatSegmentSize);
+                } else {
+                    flatOperandTypes.push(operandType);
+                    segmentSizes.push(-1);
+                }
+                segmentTypes.push(operandType);
+                segmentIndex++;
+                if (!parser.parseOptionalComma()) {
+                    parser.parseRParen();
+                    break;
                 }
             }
+            parser.resolveOperands(flatOperands, flatOperandTypes, result.operands);
+            result.addTypes(parser.parseOptionalArrowTypeList());
             return true;
         }
         return super.parseOperation(parser, result);
