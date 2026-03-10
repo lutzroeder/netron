@@ -8919,12 +8919,17 @@ python.Execution = class {
         this.registerType('ultralytics.nn.extra_modules.attention.EMA', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.attention.SimAM', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.C2f_DWR_DRB', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.block.C2f_PKIModule', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.Conv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.block.Cut', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.block.DRFD2', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.DWR_DRB', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.DilatedReparamBlock', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.DySample', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.block.FGM', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.GSBottleneckC', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.GSConv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.extra_modules.block.PKIModule2', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.block.VoVGSCSPC', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.extra_modules.head.Detect_Efficient', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.jirui_seg.FuseModule', class extends torch.nn.modules.module.Module {});
@@ -8939,7 +8944,9 @@ python.Execution = class {
         this.registerType('ultralytics.nn.modules.block.AdaHGConv', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.AdaHyperedgeGen', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.Attention', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.BasicBlock', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.BNContrastiveHead', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.Blocks', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.BlockSplitAttention', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.Bottleneck', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.BottleneckCSP', class extends torch.nn.modules.module.Module {});
@@ -8971,6 +8978,7 @@ python.Execution = class {
         this.registerType('ultralytics.nn.modules.block.Channels', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.ContrastiveHead', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.Conv', class extends torch.nn.modules.module.Module {});
+        this.registerType('ultralytics.nn.modules.block.ConvNormLayer', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.CoordAtt', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.DFL', class extends torch.nn.modules.module.Module {});
         this.registerType('ultralytics.nn.modules.block.DiffISP', class extends torch.nn.modules.module.Module {});
