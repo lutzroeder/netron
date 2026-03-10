@@ -8660,6 +8660,8 @@ _.Dialect = class {
         this.registerCustomDirective('AsyncParameterGatherOperations', this.parseAsyncParameterGatherOperations.bind(this));
         this.registerCustomDirective('CmdParameterScatterOperations', this.parseCmdParameterScatterOperations.bind(this));
         this.registerCustomDirective('AsyncParameterScatterOperations', this.parseAsyncParameterScatterOperations.bind(this));
+        this.registerCustomDirective('PipelineAttr', this.parsePipelineAttr.bind(this));
+        this.registerCustomDirective('KnobsDictionary', this.parseKnobsDictionary.bind(this));
         this.registerCustomAttribute('TypedAttrInterface', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('VM_ConstantIntegerValueAttr', this.parseTypedAttrInterface.bind(this));
         this.registerCustomAttribute('Util_AnySerializableAttr', this.parseTypedAttrInterface.bind(this));
@@ -10440,6 +10442,23 @@ _.Dialect = class {
         }
     }
 
+    parsePipelineAttr(parser, op, attrName) {
+        const keyword = parser.parseOptionalKeyword();
+        if (keyword) {
+            op.addAttribute(attrName, keyword);
+        } else {
+            const attr = parser.parseAttribute();
+            op.addAttribute(attrName, attr);
+        }
+    }
+
+    parseKnobsDictionary(parser, op, attrName) {
+        parser.parseKeyword('knobs');
+        parser.parseEqual();
+        const attr = parser.parseAttribute();
+        op.addAttribute(attrName, attr);
+    }
+
     parseCmdParameterGatherOperations(parser, op, sourceScopeOps, sourceKeysOps, sourceOffsetsOps, targetOps, targetTypes, targetSizeOps, targetOffsetsOps, targetLengthsOps) {
         do {
             const firstOperand = parser.parseOperand();
@@ -11955,21 +11974,25 @@ _.VectorDialect = class extends _.Dialect {
         //    or: vector.transfer_write %value, %dest[%i, %j, ...] {attrs} : vector_type, memref_type
         //    or: vector.transfer_write %value, %dest[%i, %j, ...], %mask {attrs} : vector_type, memref_type
 
-        const unresolvedFirst = parser.parseOperand();
-        const hasIndicesAfterFirst = parser.parser.getToken().is(_.Token.l_square);
-        if (hasIndicesAfterFirst) {
-            parser.parseBody(_.Token.l_square);
-        }
-        parser.parseOptionalComma();
-        const unresolvedSecond = parser.parseOperand();
-        if (!hasIndicesAfterFirst && parser.parser.getToken().is(_.Token.l_square)) {
-            parser.parseBody(_.Token.l_square);
-        }
-
-        // Optional mask parameter (third operand)
+        let unresolvedFirst = null;
+        let unresolvedSecond = null;
         let unresolvedMask = null;
-        if (parser.parseOptionalComma()) {
-            unresolvedMask = parser.parseOperand();
+        if (result.op === 'vector.transfer_read') {
+            unresolvedFirst = parser.parseOperand();
+            parser.parseBody(_.Token.l_square);
+            parser.parseComma();
+            unresolvedSecond = parser.parseOperand();
+            if (parser.parseOptionalComma()) {
+                unresolvedMask = parser.parseOperand();
+            }
+        } else {
+            unresolvedFirst = parser.parseOperand();
+            parser.parseComma();
+            unresolvedSecond = parser.parseOperand();
+            parser.parseBody(_.Token.l_square);
+            if (parser.parseOptionalComma()) {
+                unresolvedMask = parser.parseOperand();
+            }
         }
         parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
@@ -15486,8 +15509,7 @@ _.TosaDialect = class extends _.Dialect {
                     if (unresolvedCond.length > 0) {
                         parser.resolveOperands(unresolvedCond, [condType], result.operands);
                     }
-                    // If block args present, parse function type for inputs/outputs
-                    if (hasBlockArgs && parser.parser.getToken().is(_.Token.l_paren)) {
+                    if (hasBlockArgs) {
                         const functionType = parser.parseType();
                         if (functionType) {
                             parser.resolveOperands(unresolvedInputs, functionType.inputs, result.operands);
@@ -16397,10 +16419,9 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             const params = [];
             while (parser.parseOptionalComma()) {
-                if (parser.parser.getToken().is(_.Token.integer) || parser.parser.getToken().is(_.Token.floatliteral) || parser.parser.getToken().is(_.Token.bare_identifier)) {
-                    const param = parser.parser.getToken().getSpelling().str();
-                    parser.parser.consumeToken();
-                    params.push(param);
+                const value = parser.parseAttribute();
+                if (value) {
+                    params.push(value);
                 } else {
                     break;
                 }
@@ -16813,19 +16834,14 @@ _.pdl.PDLDialect = class extends _.Dialect {
             return true;
         }
         const attributeNames = [];
-        while (parser.parser.getToken().isNot(_.Token.r_brace)) {
+        parser.parseCommaSeparatedList('none', () => {
             const name = parser.parseAttribute();
-            if (!parser.parseOptionalEqual()) {
-                break;
-            }
+            parser.parseEqual();
             const unresolvedValue = parser.parseOperand();
             parser.resolveOperand(unresolvedValue, null, result.operands);
             attributeNames.push(name);
-            if (!parser.parseOptionalComma()) {
-                break;
-            }
-        }
-        parser.parseOptionalRBrace();
+        });
+        parser.parseRBrace();
         if (attributeNames.length > 0) {
             result.addAttribute('attributeValueNames', attributeNames);
         }
@@ -19463,8 +19479,8 @@ _.OpenMPDialect = class extends _.Dialect {
             if (attrName) {
                 op.addAttribute(attrName, enumValue);
             }
-        } else if (parser.parser.getToken().is(_.Token.l_brace)) {
-            parser.parseBody(_.Token.l_brace);
+        } else {
+            parser.parseOptionalBody(_.Token.l_brace);
         }
     }
 
@@ -21097,11 +21113,13 @@ _.VMDialect = class extends _.Dialect {
         if (result.op === 'vm.const.i32.zero') {
             result.compatibility = true;
             const __symbol = parser.parseOptionalSymbolName();
-            if (__symbol !== null) {
+            if (__symbol === null) {
+                const value = parser.parseOptionalAttribute();
+                if (value !== null) {
+                    result.addAttribute('value', value.value === undefined ? value : value.value);
+                }
+            } else {
                 result.addAttribute('rodata', __symbol);
-            } else if (parser.parser.getToken().is(_.Token.integer) || parser.parser.getToken().is(_.Token.floatliteral) || parser.parser.getToken().is(_.Token.string)) {
-                const value = parser.parseAttribute();
-                result.addAttribute('value', value.value === undefined ? value : value.value);
             }
             parser.parseOptionalAttrDict(result.attributes);
             const types = parser.parseOptionalColonTypeList();
@@ -21219,23 +21237,10 @@ _.VMDialect = class extends _.Dialect {
             op.successors = op.successors || [];
             const succ = { dest: defaultDest };
             if (parser.parseOptionalLParen()) {
-                const operands = [];
-                while (parser.parser.getToken().isNot(_.Token.r_paren)) {
-                    const __brOp = parser.parseOptionalOperand();
-                    if (__brOp) {
-                        operands.push(__brOp);
-                    }
-                    if (parser.parseOptionalColon()) {
-                        while (parser.parser.getToken().isNot(_.Token.r_paren) && parser.parser.getToken().isNot(_.Token.comma)) {
-                            parser.parseType();
-                            parser.parseOptionalComma();
-                        }
-                    }
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
-                }
+                const operands = parser.parseOperandList('none');
+                const types = parser.parseOptionalColonTypeList();
                 parser.parseRParen();
+                parser.resolveOperands(operands, types);
                 succ.operands = operands;
             }
             op.successors.push(succ);
@@ -21252,23 +21257,10 @@ _.VMDialect = class extends _.Dialect {
             const caseDest = parser.parseOptionalSuccessor();
             const caseSucc = { dest: caseDest };
             if (parser.parseOptionalLParen()) {
-                const operands = [];
-                while (parser.parser.getToken().isNot(_.Token.r_paren)) {
-                    const __csOp = parser.parseOptionalOperand();
-                    if (__csOp) {
-                        operands.push(__csOp);
-                    }
-                    if (parser.parseOptionalColon()) {
-                        while (parser.parser.getToken().isNot(_.Token.r_paren) && parser.parser.getToken().isNot(_.Token.comma)) {
-                            parser.parseType();
-                            parser.parseOptionalComma();
-                        }
-                    }
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
-                }
+                const operands = parser.parseOperandList('none');
+                const types = parser.parseOptionalColonTypeList();
                 parser.parseRParen();
+                parser.resolveOperands(operands, types);
                 caseSucc.operands = operands;
             }
             op.successors.push(caseSucc);
@@ -22166,18 +22158,17 @@ _.PXADialect = class extends _.Dialect {
         if (result.op === 'pxa.generic') {
             const unresolvedOperands = [];
             if (parser.parseOptionalLParen()) {
-                while (parser.parser.getToken().isNot(_.Token.r_paren)) {
-                    const operand = parser.parseOperand();
-                    unresolvedOperands.push(operand);
-                    parser.parseOptionalBody(_.Token.l_square);
-                    if (parser.parseOptionalColon()) {
-                        parser.parser.consumeToken(_.Token.hash_identifier); // Skip affine map reference
-                    }
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
+                if (!parser.parseOptionalRParen()) {
+                    parser.parseCommaSeparatedList('none', () => {
+                        const operand = parser.parseOperand();
+                        unresolvedOperands.push(operand);
+                        parser.parseOptionalBody(_.Token.l_square);
+                        if (parser.parseOptionalColon()) {
+                            parser.parseAttribute();
+                        }
+                    });
+                    parser.parseRParen();
                 }
-                parser.parseRParen();
             }
             if (parser.parseOptionalLess()) {
                 const reduction = parser.parseKeyword();
@@ -22190,18 +22181,17 @@ _.PXADialect = class extends _.Dialect {
                 result.addAttribute('kernel', __kernel);
             }
             if (parser.parseOptionalLParen()) {
-                while (parser.parser.getToken().isNot(_.Token.r_paren)) {
-                    const operand = parser.parseOperand();
-                    unresolvedOperands.push(operand);
-                    parser.parseOptionalBody(_.Token.l_square);
-                    if (parser.parseOptionalColon()) {
-                        parser.parser.consumeToken(_.Token.hash_identifier); // Skip affine map reference
-                    }
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
+                if (!parser.parseOptionalRParen()) {
+                    parser.parseCommaSeparatedList('none', () => {
+                        const operand = parser.parseOperand();
+                        unresolvedOperands.push(operand);
+                        parser.parseOptionalBody(_.Token.l_square);
+                        if (parser.parseOptionalColon()) {
+                            parser.parseAttribute();
+                        }
+                    });
+                    parser.parseRParen();
                 }
-                parser.parseRParen();
             }
             if (parser.parseOptionalKeyword('tile')) {
                 parser.parseColon();
@@ -22427,14 +22417,18 @@ _.SdfgDialect = class extends _.Dialect {
             const arrayOp = parser.parseOperand();
             const indices = [];
             if (parser.parseOptionalLSquare()) {
-                while (!parser.parseOptionalRSquare()) {
-                    const __idx = parser.parseOptionalOperand();
-                    if (__idx) {
-                        indices.push(__idx);
-                    } else {
-                        parser.parser.consumeToken();
-                    }
-                    parser.parseOptionalComma();
+                if (!parser.parseOptionalRSquare()) {
+                    parser.parseCommaSeparatedList('none', () => {
+                        const __idx = parser.parseOptionalOperand();
+                        if (__idx) {
+                            indices.push(__idx);
+                        } else if (parser.parseOptionalKeyword('sym')) {
+                            parser.parseBody(_.Token.l_paren);
+                        } else {
+                            parser.parseAttribute();
+                        }
+                    });
+                    parser.parseRSquare();
                 }
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
@@ -22458,14 +22452,18 @@ _.SdfgDialect = class extends _.Dialect {
             const arrayOp = parser.parseOperand();
             const indices = [];
             if (parser.parseOptionalLSquare()) {
-                while (!parser.parseOptionalRSquare()) {
-                    const __idx = parser.parseOptionalOperand();
-                    if (__idx) {
-                        indices.push(__idx);
-                    } else {
-                        parser.parser.consumeToken();
-                    }
-                    parser.parseOptionalComma();
+                if (!parser.parseOptionalRSquare()) {
+                    parser.parseCommaSeparatedList('none', () => {
+                        const __idx = parser.parseOptionalOperand();
+                        if (__idx) {
+                            indices.push(__idx);
+                        } else if (parser.parseOptionalKeyword('sym')) {
+                            parser.parseBody(_.Token.l_paren);
+                        } else {
+                            parser.parseAttribute();
+                        }
+                    });
+                    parser.parseRSquare();
                 }
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
@@ -22526,11 +22524,7 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             if (parser.parseOptionalArrow()) {
-                if (parser.parseOptionalLParen()) {
-                    while (!parser.parseOptionalRParen()) {
-                        parser.parser.consumeToken();
-                    }
-                }
+                parser.parseOptionalBody(_.Token.l_paren);
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             parser.parseOptionalRegion(result.addRegion());
@@ -22751,11 +22745,7 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdfg.subview' || result.op === 'sdir.subview') {
             parser.parseOptionalAttrDict(result.attributes);
             const unresolvedInput = parser.parseOperand();
-            while (parser.parseOptionalLSquare()) {
-                while (!parser.parseOptionalRSquare()) {
-                    parser.parser.consumeToken();
-                }
-            }
+            while (parser.parseOptionalBody(_.Token.l_square)) { /* skip bracket groups */ }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let inputType = null;
             if (parser.parseOptionalColon()) {
@@ -23335,10 +23325,9 @@ _.TestDialect = class extends _.Dialect {
                 if (__bVal !== null) {
                     result.addAttribute('b', __bVal);
                 }
-                if (parser.parser.getToken().is(_.Token.integer) || parser.parser.getToken().is(_.Token.minus)) {
-                    const neg = parser.parseOptionalMinus();
-                    const c = parser.parseInteger();
-                    result.addAttribute('c', neg ? -c : c);
+                const c = parser.parseOptionalInteger();
+                if (c !== null) {
+                    result.addAttribute('c', c);
                 }
                 if (parser.parseOptionalKeyword('unit')) {
                     result.addAttribute('unit', true);
@@ -24508,8 +24497,8 @@ _.TFRTTestDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'tfrt_test.do.async') {
-            if (parser.parser.getToken().is(_.Token.percent_identifier)) {
-                const unresolvedOperands = parser.parseOperandList('none');
+            const unresolvedOperands = parser.parseOperandList('none');
+            if (unresolvedOperands.length > 0) {
                 parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => null), result.operands);
             }
             if (parser.parseOptionalColon()) {
@@ -25948,11 +25937,6 @@ _.NoisyDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        if (parser.parser.getToken().is(_.Token.inttype)) {
-            const inttype = parser.parser.getToken().getSpelling().str();
-            parser.parser.consumeToken(_.Token.inttype);
-            return new _.Type(`!${dialect}.${inttype}`);
-        }
         const typeName = parser.parseOptionalKeyword();
         if (typeName) {
             let type = `!${dialect}.${typeName}`;
@@ -26080,32 +26064,12 @@ _.XtenNNDialect = class extends _.Dialect {
             parser.resolveOperands(unresolvedOperands, types, result.operands);
         }
         if (parser.parseOptionalKeyword('instantiation_args')) {
-            const instArgs = [];
-            const instArgNames = [];
-            if (parser.parseOptionalLSquare()) {
-                while (!parser.parseOptionalRSquare()) {
-                    // Parse either "name" = value or just value
-                    if (parser.parser.getToken().is(_.Token.string)) {
-                        const nameOrValue = parser.parseAttribute();
-                        if (parser.parseOptionalEqual()) {
-                            // "name" = value form
-                            instArgNames.push(nameOrValue);
-                            instArgs.push(parser.parseAttribute());
-                        } else {
-                            // Just a string value
-                            instArgs.push(nameOrValue);
-                        }
-                    } else {
-                        instArgs.push(parser.parseAttribute());
-                    }
-                    parser.parseOptionalComma();
-                }
-            }
-            if (instArgs.length > 0) {
-                result.addAttribute('instantiation_args', instArgs);
-            }
-            if (instArgNames.length > 0) {
-                result.addAttribute('instantiation_arg_names', instArgNames);
+            const values = [];
+            const names = [];
+            this.parseKernelInstantiationArgs(parser, values, names);
+            result.addAttribute('instantiation_args', new _.ArrayAttr(values));
+            if (names.length > 0) {
+                result.addAttribute('instantiation_arg_names', new _.ArrayAttr(names));
             }
         }
         parser.parseOptionalAttrDict(result.attributes);
@@ -26113,6 +26077,22 @@ _.XtenNNDialect = class extends _.Dialect {
             result.addTypes(parser.parseTypeList());
         }
         return true;
+    }
+
+    parseKernelInstantiationArgs(parser, values, names) {
+        if (!parser.parseOptionalLSquare()) {
+            return;
+        }
+        while (!parser.parseOptionalRSquare()) {
+            const attr = parser.parseAttribute();
+            if (parser.parseOptionalEqual()) {
+                names.push(attr);
+                values.push(parser.parseAttribute());
+            } else {
+                values.push(attr);
+            }
+            parser.parseOptionalComma();
+        }
     }
 };
 
