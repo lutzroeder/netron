@@ -188,8 +188,7 @@ tosa.Node = class {
                     continue;
                 }
                 const schema = context.attribute(opName, name);
-                let value = obj;
-                value = ArrayBuffer.isView(value) ? Array.from(value) : value;
+                let value = ArrayBuffer.isView(obj) ? Array.from(obj) : obj;
                 let visible = true;
                 let type = null;
                 if (schema) {
@@ -201,10 +200,10 @@ tosa.Node = class {
                         }
                     }
                 }
-                if (typeof attrValue === 'bigint') {
+                if (typeof value === 'bigint') {
                     value = value.toNumber();
                 }
-                if (typeof attrValue === 'number' && Number.isInteger(value)) {
+                if (typeof value === 'number' && Number.isInteger(value)) {
                     const enumType = enumTypes[name] || null;
                     if (enumType) {
                         const enumValue = context.enum(enumType, value);
@@ -219,9 +218,11 @@ tosa.Node = class {
                     const output = this.outputs[0];
                     type = output && output.value && output.value[0] && output.value[0].type ? output.value[0].type.dataType : null;
                     switch (type) {
+                        case 'boolean': value = view.getUint8(0) !== 0; break;
                         case 'int8': value = view.getInt8(0); break;
                         case 'int16': value = view.getInt16(0, true); break;
                         case 'int32': value = view.getInt32(0, true); break;
+                        case 'int64': value = view.getBigInt64(0, true); break;
                         case 'float16': value = view.getFloat16(0, true); break;
                         case 'bfloat16': value = view.getBfloat16(0, true); break;
                         case 'float32': value = view.getFloat32(0, true); break;
