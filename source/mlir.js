@@ -12397,6 +12397,16 @@ _.HALDialect = class extends _.IREEDialect {
         this.registerCustomDirective('DeviceQueueAffinityList', this.parseDeviceQueueAffinityList.bind(this));
         this.registerCustomDirective('Bindings', this.parseBindingList.bind(this));
         this.registerCustomDirective('BindingTable', this.parseBindingList.bind(this));
+        this.legacyOps = new Set([
+            'hal.allocator.allocate', 'hal.allocator.compute_size',
+            'hal.buffer_view.create',
+            'hal.command_buffer.begin', 'hal.command_buffer.create', 'hal.command_buffer.device',
+            'hal.command_buffer.dispatch', 'hal.command_buffer.dispatch.symbol',
+            'hal.command_buffer.end', 'hal.command_buffer.push_descriptor_set',
+            'hal.descriptor_set_layout.create',
+            'hal.device.query',
+            'hal.executable_layout.create', 'hal.executable_layout.lookup',
+        ]);
     }
 
     parseType(parser, dialect) {
@@ -12556,17 +12566,7 @@ _.HALDialect = class extends _.IREEDialect {
         }
         // Handle old IREE HAL operations with <%operand : type> syntax and/or named parameters
         // e.g., hal.allocator.compute_size<%allocator : !hal.allocator> shape([...]) type(...) encoding(...) : index
-        // Ops with assemblyFormat use the generic format engine via super.parseOperation() instead.
-        if ((result.op.startsWith('hal.allocator.') || result.op.startsWith('hal.buffer.') || result.op.startsWith('hal.buffer_view.') ||
-            result.op.startsWith('hal.command_buffer.') || result.op.startsWith('hal.executable_layout') ||
-            result.op.startsWith('hal.descriptor_set_layout') ||
-            result.op.startsWith('hal.device.')) &&
-            (!(opInfo && opInfo.metadata && opInfo.metadata.assemblyFormat) ||
-                result.op === 'hal.allocator.allocate' || result.op === 'hal.command_buffer.create' ||
-                result.op === 'hal.buffer_view.create' || result.op === 'hal.command_buffer.device' ||
-                result.op === 'hal.command_buffer.dispatch' || result.op === 'hal.device.query') &&
-            result.op !== 'hal.device.switch' &&
-            result.op !== 'hal.device.memoize') {
+        if (this.legacyOps.has(result.op)) {
             if (parser.parseOptionalLess()) {
                 while (!parser.parseOptionalGreater()) {
                     const operand = parser.parseOperand();
@@ -12728,86 +12728,77 @@ _.HALDialect = class extends _.IREEDialect {
             }
             return true;
         }
-        // Handle operations with named parameters: hal.interface.binding, hal.executable.variant, etc.
-        if (result.op === 'hal.interface.binding' || result.op === 'hal.executable.variant' || result.op === 'hal.executable.entry_point') {
+        // Old IREE hal.interface.binding: visibility @sym, key=value, key="string", ...
+        if (result.op === 'hal.interface.binding') {
             this.parseSymbolVisibility(parser, result);
             const sym = parser.parseOptionalSymbolName();
             if (sym) {
                 result.addAttribute('sym_name', sym.value || sym);
-                parser.parseOptionalComma();
             }
-            while (parser.parser.getToken().is(_.Token.bare_identifier) && parser.parser.getTokenSpelling().str() !== 'attributes' && parser.parser.getToken().isNot(_.Token.l_brace) && parser.parser.getToken().isNot(_.Token.kw_loc)) {
-                const tokenValue = parser.parser.getTokenSpelling().str();
-                if (tokenValue && tokenValue.includes('.')) {
-                    break;
-                }
-                const paramName = parser.parseKeyword();
-                if (paramName === 'condition') {
-                    parser.parseLParen();
-                    const regionArgs = [];
-                    if (!parser.parseOptionalRParen()) {
-                        do {
-                            const arg = parser.parseOperand();
-                            let type = null;
-                            if (parser.parseOptionalColon()) {
-                                type = parser.parseType();
-                            }
-                            regionArgs.push({ value: arg, type });
-                        } while (parser.parseOptionalComma());
-                        parser.parseRParen();
-                    }
-                    parser.parseArrow();
-                    parser.parseType();
-                    const conditionRegion = { arguments: regionArgs };
-                    parser.parseRegion(conditionRegion);
-                    result.regions.push(conditionRegion);
-                    continue;
-                }
-                const paramBody = parser.parseOptionalBody(_.Token.l_paren);
-                if (paramBody) {
-                    result.addAttribute(paramName, paramBody);
-                    parser.parseOptionalComma();
-                } else if (parser.parseOptionalEqual()) {
-                    const attrValue = parser.parseOptionalAttribute();
-                    if (attrValue === null) {
-                        const str = parser.parseOptionalString();
-                        if (str === null) {
-                            const kw = parser.parseKeyword();
-                            result.addAttribute(paramName, kw);
-                        } else {
-                            result.addAttribute(paramName, str);
-                        }
-                    } else {
-                        result.addAttribute(paramName, attrValue.value === undefined ? attrValue : attrValue.value);
-                    }
-                    if (!parser.parseOptionalComma()) {
-                        break;
-                    }
+            while (parser.parseOptionalComma()) {
+                const key = parser.parseKeyword();
+                parser.parseEqual();
+                const value = parser.parseOptionalAttribute();
+                if (value === null) {
+                    const str = parser.parseOptionalString();
+                    result.addAttribute(key, str === null ? parser.parseKeyword() : str);
                 } else {
-                    break;
+                    result.addAttribute(key, value.value === undefined ? value : value.value);
                 }
             }
-            if (parser.parseOptionalArrow()) {
-                const resultTypes = [];
-                const resultAttrs = [];
-                parser.parseFunctionResultList(resultTypes, resultAttrs);
+            return true;
+        }
+        // hal.executable.variant:
+        // New: @sym target(#attr) objects(...)? sources(...)? attr-dict-with-keyword { body }
+        // Old: @sym, target = #attr attributes {...} { body }
+        if (result.op === 'hal.executable.variant') {
+            this.parseSymbolVisibility(parser, result);
+            const sym = parser.parseOptionalSymbolName();
+            if (sym) {
+                result.addAttribute('sym_name', sym.value || sym);
+            }
+            if (parser.parseOptionalComma()) {
+                // Old syntax: , target = #attr
+                const key = parser.parseKeyword();
+                parser.parseEqual();
+                const value = parser.parseAttribute();
+                result.addAttribute(key, value.value === undefined ? value : value.value);
+            } else if (parser.parseOptionalKeyword('target')) {
+                // New syntax: target(#attr)
+                parser.parseLParen();
+                const value = parser.parseAttribute();
+                result.addAttribute('target', value.value === undefined ? value : value.value);
+                parser.parseRParen();
+                if (parser.parseOptionalKeyword('objects')) {
+                    parser.parseLParen();
+                    const objects = parser.parseAttribute();
+                    result.addAttribute('objects', objects.value === undefined ? objects : objects.value);
+                    parser.parseRParen();
+                }
+                if (parser.parseOptionalKeyword('sources')) {
+                    parser.parseLParen();
+                    const sources = parser.parseAttribute();
+                    result.addAttribute('sources', sources.value === undefined ? sources : sources.value);
+                    parser.parseRParen();
+                }
+            }
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            const region = result.addRegion();
+            parser.parseOptionalRegion(region);
+            return true;
+        }
+        // Old IREE hal.executable.entry_point: visibility @sym attributes {...} { optional region }
+        if (result.op === 'hal.executable.entry_point') {
+            this.parseSymbolVisibility(parser, result);
+            const sym = parser.parseOptionalSymbolName();
+            if (sym) {
+                result.addAttribute('sym_name', sym.value || sym);
             }
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseOptionalAttrDict(result.attributes);
             }
-            if (parser.parseOptionalKeyword('count')) {
-                this.parseWorkgroupCountRegion(parser, result);
-            }
-            {
-                const region = result.addRegion();
-                parser.parseOptionalRegion(region);
-            }
-            if (parser.parseOptionalKeyword('attributes')) {
-                parser.parseOptionalAttrDict(result.attributes);
-            }
-            if (parser.parseOptionalKeyword('count')) {
-                this.parseWorkgroupCountRegion(parser, result);
-            }
+            const region = result.addRegion();
+            parser.parseOptionalRegion(region);
             return true;
         }
         return super.parseOperation(parser, result);
