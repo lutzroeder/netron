@@ -11,13 +11,10 @@ clean() {
 sync() {
     echo "tosa sync"
     mkdir -p "./third_party/source/tosa/v0.80"
-    mkdir -p "./third_party/source/tosa/v1.0"
-    mkdir -p "./third_party/source/tosa/v1.1"
     mkdir -p "./third_party/source/tosa/main"
     curl --silent --show-error --location --output "./third_party/source/tosa/v0.80/tosa.fbs" "https://gitlab.arm.com/tosa/tosa-serialization/-/raw/v0.80/schema/tosa.fbs"
     curl --silent --show-error --location --output "./third_party/source/tosa/v0.80/tosa.xml" "https://raw.githubusercontent.com/arm/tosa-specification/v0.80a0/tosa.xml"
-    curl --silent --show-error --location --output "./third_party/source/tosa/v1.0/tosa.xml" "https://raw.githubusercontent.com/arm/tosa-specification/v1.0.0/tosa.xml"
-    curl --silent --show-error --location --output "./third_party/source/tosa/v1.1/tosa.xml" "https://raw.githubusercontent.com/arm/tosa-specification/main/tosa.xml"
+    curl --silent --show-error --location --output "./third_party/source/tosa/main/tosa.xml" "https://raw.githubusercontent.com/arm/tosa-specification/main/tosa.xml"
     curl --silent --show-error --location --output "./third_party/source/tosa/main/tosa.fbs" "https://gitlab.arm.com/tosa/tosa-tools/-/raw/main/serialization/schema/tosa.fbs"
 }
 
