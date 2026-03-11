@@ -9,7 +9,7 @@ tosa.ModelFactory = class {
             return context.set('tosa.flatbuffers', reader);
         }
         const obj = await context.peek('json');
-        if (obj && obj.regions && obj.version && obj.version._major) {
+        if (obj && obj.regions && obj.version && obj.version._major !== undefined) {
             return context.set('tosa.flatbuffers.json', obj);
         }
         return null;
@@ -72,13 +72,10 @@ tosa.ModelFactory = class {
         }
         const file_version = `${major}.${minor}.${patch}`;
         let schema_version = '';
-        let metadata_version = '';
         if (major === 0 && minor >= 80) {
             schema_version = '0.80';
-            metadata_version = '0.80';
         } else if (major === 1) {
             schema_version = '1.x';
-            metadata_version = `${major}.${minor}`;
         }
         const schema = { '0.80': tosa.schema.v0, '1.x': tosa.schema.v1 }[schema_version];
         if (!schema) {
@@ -105,7 +102,7 @@ tosa.ModelFactory = class {
             throw new tosa.Error(`File format is not tosa.TosaGraph (${message.replace(/\.$/, '')}).`);
         }
         const data = await context.asset('tosa-metadata.json');
-        const metadata = new tosa.Metadata(data, metadata_version);
+        const metadata = new tosa.Metadata(data, schema_version);
         return new tosa.Model(new tosa.Context(schema, metadata), model, file_version);
     }
 };
