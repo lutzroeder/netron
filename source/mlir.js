@@ -9276,6 +9276,10 @@ _.Dialect = class {
             }
             return false;
         };
+        const peek = (...kinds) => {
+            const token = parser.parser.getToken();
+            return kinds.some((kind) => kind === 'keyword' ? token.isKeyword() : token.is(kind));
+        };
         switch (directive.type) {
             case 'whitespace':
                 // Skip whitespace directives - they're just formatting hints
@@ -9913,18 +9917,30 @@ _.Dialect = class {
                             clause.parsed = true;
                             continue;
                         }
-                        const [firstElem] = clause.elements;
+                        const firstElem = clause.elements.find((elem) => elem.type !== 'whitespace');
                         let matches = false;
-                        if (firstElem.type === 'literal') {
-                            if (firstElem.value.length === 1 && /[(){}[\],:<>=]/.test(firstElem.value)) {
-                                matches = parser.parser.getToken().is(firstElem.value);
-                            } else {
-                                matches = parser.parser.getToken().is(_.Token.bare_identifier) && parser.parser.getTokenSpelling().str() === firstElem.value || parser.parser.getToken().is(`kw_${firstElem.value}`);
+                        if (firstElem && firstElem.type === 'literal') {
+                            switch (firstElem.value) {
+                                case '(': matches = parser.parseOptionalLParen(); break;
+                                case ')': matches = parser.parseOptionalRParen(); break;
+                                case '[': matches = parser.parseOptionalLSquare(); break;
+                                case ']': matches = parser.parseOptionalRSquare(); break;
+                                case '{': matches = parser.parseOptionalLBrace(); break;
+                                case '}': matches = parser.parseOptionalRBrace(); break;
+                                case ':': matches = parser.parseOptionalColon(); break;
+                                case '=': matches = parser.parseOptionalEqual(); break;
+                                case ',': matches = parser.parseOptionalComma(); break;
+                                case '<': matches = parser.parseOptionalLess(); break;
+                                case '>': matches = parser.parseOptionalGreater(); break;
+                                case '->': matches = parser.parseOptionalArrow(); break;
+                                case '...': matches = parser.parseOptionalEllipsis(); break;
+                                default: matches = parser.parseOptionalKeyword(firstElem.value); break;
                             }
                         }
                         if (matches) {
-                            for (const elem of clause.elements) {
-                                this.parseDirective(elem, parser, op, opInfo, directives, i, vars);
+                            const firstElemIdx = clause.elements.indexOf(firstElem) + 1;
+                            for (let elemIdx = firstElemIdx; elemIdx < clause.elements.length; elemIdx++) {
+                                this.parseDirective(clause.elements[elemIdx], parser, op, opInfo, directives, i, vars);
                             }
                             clause.parsed = true;
                             progress = true;
@@ -9938,14 +9954,25 @@ _.Dialect = class {
                 const firstElem = directive.elements.find((elem) => elem.type !== 'whitespace');
                 if (firstElem) {
                     if (firstElem.type === 'literal') {
-                        if (firstElem.value.length === 1 && /[(){}[\],:<>=?]/.test(firstElem.value)) {
-                            shouldParse = parser.parser.getToken().is(firstElem.value);
-                        } else if (firstElem.value === '->') {
-                            shouldParse = parser.parser.getToken().is(_.Token.arrow);
-                        } else if (firstElem.value === '...') {
-                            shouldParse = parser.parser.getToken().is(_.Token.ellipsis);
-                        } else {
-                            shouldParse = parser.parser.getToken().is(_.Token.bare_identifier) && parser.parser.getTokenSpelling().str() === firstElem.value || parser.parser.getToken().is(`kw_${firstElem.value}`);
+                        switch (firstElem.value) {
+                            case '(': shouldParse = parser.parseOptionalLParen(); break;
+                            case ')': shouldParse = parser.parseOptionalRParen(); break;
+                            case '[': shouldParse = parser.parseOptionalLSquare(); break;
+                            case ']': shouldParse = parser.parseOptionalRSquare(); break;
+                            case '{': shouldParse = parser.parseOptionalLBrace(); break;
+                            case '}': shouldParse = parser.parseOptionalRBrace(); break;
+                            case ':': shouldParse = parser.parseOptionalColon(); break;
+                            case '=': shouldParse = parser.parseOptionalEqual(); break;
+                            case ',': shouldParse = parser.parseOptionalComma(); break;
+                            case '<': shouldParse = parser.parseOptionalLess(); break;
+                            case '>': shouldParse = parser.parseOptionalGreater(); break;
+                            case '?': shouldParse = parser.parseOptionalQuestion(); break;
+                            case '->': shouldParse = parser.parseOptionalArrow(); break;
+                            case '...': shouldParse = parser.parseOptionalEllipsis(); break;
+                            default: shouldParse = parser.parseOptionalKeyword(firstElem.value); break;
+                        }
+                        if (shouldParse) {
+                            shouldParse = 'skip_first';
                         }
                     } else if (firstElem.type === 'attribute_ref') {
                         const attrInfo = opInfo.metadata && opInfo.metadata.attributes && opInfo.metadata.attributes.find((attr) => attr.name === firstElem.name);
@@ -9971,17 +9998,15 @@ _.Dialect = class {
                         const typeName = getTypeName(elementType);
                         let shouldTryParse = false;
                         if (typeContains(elementType, 'TypedArrayAttrBase') || typeContains(elementType, 'ArrayAttr')) {
-                            shouldTryParse = parser.parser.getToken().is(_.Token.l_square);
+                            shouldTryParse = peek(_.Token.l_square);
                         } else if (typeName && /^[SU]?I\d+Attr$|^IntegerAttr$|^IndexAttr$/.test(typeName)) {
-                            shouldTryParse = parser.parser.getToken().is(_.Token.integer) || parser.parser.getToken().is(_.Token.minus);
+                            shouldTryParse = peek(_.Token.integer, _.Token.minus);
                         } else if (typeContains(elementType, 'ElementsAttr')) {
-                            // ElementsAttr values start with specific keywords: dense, sparse, array, dense_resource
-                            shouldTryParse = parser.parser.getToken().is(_.Token.kw_dense) || parser.parser.getToken().is(_.Token.kw_sparse) ||
-                                parser.parser.getToken().is(_.Token.kw_array) || parser.parser.getToken().is(_.Token.kw_dense_resource);
+                            shouldTryParse = peek(_.Token.kw_dense, _.Token.kw_sparse, _.Token.kw_array, _.Token.kw_dense_resource);
                         } else if (typeName === 'StrAttr' || typeName === 'StringAttr') {
-                            shouldTryParse = parser.parser.getToken().is(_.Token.string);
+                            shouldTryParse = peek(_.Token.string);
                         } else {
-                            shouldTryParse = parser.parser.getToken().is(_.Token.bare_identifier) || parser.parser.getToken().isKeyword() || parser.parser.getToken().is(_.Token.hash_identifier) || parser.parser.getToken().is(_.Token.at_identifier) || parser.parser.getToken().is(_.Token.string) || parser.parser.getToken().is(_.Token.l_square) || parser.parser.getToken().is(_.Token.integer);
+                            shouldTryParse = peek(_.Token.bare_identifier, 'keyword', _.Token.hash_identifier, _.Token.at_identifier, _.Token.string, _.Token.l_square, _.Token.integer);
                         }
                         if (shouldTryParse) {
                             let result = null;
@@ -9996,9 +10021,9 @@ _.Dialect = class {
                             }
                         }
                     } else if (firstElem.type === 'successor_ref') {
-                        shouldParse = parser.parser.getToken().is(_.Token.caret_identifier);
+                        shouldParse = peek(_.Token.caret_identifier);
                     } else if (firstElem.type === 'region_ref') {
-                        shouldParse = parser.parser.getToken().is(_.Token.l_brace);
+                        shouldParse = peek(_.Token.l_brace);
                     } else if (firstElem.type === 'operand_ref') {
                         let isKeywordInput = false;
                         if (opInfo.metadata && opInfo.metadata.operands) {
@@ -10013,12 +10038,12 @@ _.Dialect = class {
                             }
                         }
                         if (isKeywordInput) {
-                            shouldParse = parser.parser.getToken().is(_.Token.bare_identifier);
+                            shouldParse = peek(_.Token.bare_identifier);
                         } else {
-                            shouldParse = parser.parser.getToken().is(_.Token.percent_identifier);
+                            shouldParse = peek(_.Token.percent_identifier);
                         }
                     } else if (firstElem.type === 'operands') {
-                        shouldParse = parser.parser.getToken().is(_.Token.l_paren) || parser.parser.getToken().is(_.Token.percent_identifier);
+                        shouldParse = peek(_.Token.l_paren, _.Token.percent_identifier);
                     } else if (firstElem.type === 'custom') {
                         const fn = this._customDirectives.get(firstElem.parser);
                         if (fn) {
@@ -10034,46 +10059,61 @@ _.Dialect = class {
                         if (firstElem.args && firstElem.args.length > 0) {
                             const [arg] = firstElem.args;
                             if (arg.startsWith('$')) {
-                                shouldParse = parser.parser.getToken().is(_.Token.hash_identifier);
+                                shouldParse = peek(_.Token.hash_identifier);
                             } else if (arg.startsWith('type($')) {
-                                shouldParse = parser.parser.getToken().is(_.Token.exclamation_identifier) || parser.parser.getToken().is(_.Token.bare_identifier);
+                                shouldParse = peek(_.Token.exclamation_identifier, _.Token.bare_identifier);
                             }
                         }
                     }
                 }
                 if (shouldParse) {
                     // Recursively parse nested elements using the same parseDirective method
-                    // If shouldParse === 'skip_first', the custom directive already parsed the first element
-                    const startIdx = shouldParse === 'skip_first' ? 1 : 0;
-                    for (let elemIdx = startIdx; elemIdx < directive.elements.length; elemIdx++) {
+                    // If shouldParse === 'skip_first', the anchor element was already consumed
+                    const firstElemIdx = shouldParse === 'skip_first' ? directive.elements.indexOf(firstElem) + 1 : 0;
+                    for (let elemIdx = firstElemIdx; elemIdx < directive.elements.length; elemIdx++) {
                         this.parseDirective(directive.elements[elemIdx], parser, op, opInfo, directive.elements, elemIdx, vars);
                     }
                 }
                 break;
             }
             case 'conditional_alternative': {
+                const tryParseLiteral = (value) => {
+                    switch (value) {
+                        case '(': return parser.parseOptionalLParen();
+                        case ')': return parser.parseOptionalRParen();
+                        case '[': return parser.parseOptionalLSquare();
+                        case ']': return parser.parseOptionalRSquare();
+                        case '{': return parser.parseOptionalLBrace();
+                        case '}': return parser.parseOptionalRBrace();
+                        case ':': return parser.parseOptionalColon();
+                        case '=': return parser.parseOptionalEqual();
+                        case ',': return parser.parseOptionalComma();
+                        case '<': return parser.parseOptionalLess();
+                        case '>': return parser.parseOptionalGreater();
+                        case '?': return parser.parseOptionalQuestion();
+                        case '->': return parser.parseOptionalArrow();
+                        case '...': return parser.parseOptionalEllipsis();
+                        default: return parser.parseOptionalKeyword(value);
+                    }
+                };
                 const checkMatch = (elem) => {
                     if (elem.type === 'literal') {
-                        if (elem.value.length === 1 && /[(){}[\],:<>=?]/.test(elem.value)) {
-                            return parser.parser.getToken().is(elem.value);
-                        }
-                        return parser.parser.getToken().is(_.Token.bare_identifier) && parser.parser.getTokenSpelling().str() === elem.value || parser.parser.getToken().is(`kw_${elem.value}`);
+                        return tryParseLiteral(elem.value);
                     }
                     if (elem.type === 'operand_ref') {
-                        return parser.parser.getToken().is(_.Token.percent_identifier);
+                        return peek(_.Token.percent_identifier);
                     }
                     if (elem.type === 'attribute_ref') {
-                        return parser.parser.getToken().is(_.Token.bare_identifier) || parser.parser.getToken().is(_.Token.integer) || parser.parser.getToken().is(_.Token.floatliteral) || parser.parser.getToken().is(_.Token.l_square) || parser.parser.getToken().is(_.Token.at_identifier) || parser.parser.getToken().is(_.Token.hash_identifier);
+                        return peek(_.Token.bare_identifier, _.Token.integer, _.Token.floatliteral, _.Token.l_square, _.Token.at_identifier, _.Token.hash_identifier);
                     }
                     if (elem.type === 'region_ref') {
-                        return parser.parser.getToken().is(_.Token.l_brace);
+                        return peek(_.Token.l_brace);
                     }
                     if (elem.type === 'successor_ref') {
-                        return parser.parser.getToken().is(_.Token.caret_identifier);
+                        return peek(_.Token.caret_identifier);
                     }
                     if (elem.type === 'custom') {
-                        // Custom directives can start with various tokens including negative integers
-                        return parser.parser.getToken().is(_.Token.bare_identifier) || parser.parser.getToken().is(_.Token.integer) || parser.parser.getToken().is(_.Token.minus) || parser.parser.getToken().is(_.Token.percent_identifier) || parser.parser.getToken().is(_.Token.l_square) || parser.parser.getToken().is(_.Token.l_paren) || parser.parser.getToken().is(_.Token.question);
+                        return peek(_.Token.bare_identifier, _.Token.integer, _.Token.minus, _.Token.percent_identifier, _.Token.l_square, _.Token.l_paren, _.Token.question);
                     }
                     return false;
                 };
@@ -10098,8 +10138,10 @@ _.Dialect = class {
                         }
                     }
                 }
+                const literalHandledFirst = matchedFirst && firstElem.type === 'literal';
                 if (matchedFirst) {
-                    const startIdx = customDirectiveHandledFirst ? 1 : 0;
+                    const skipFirst = customDirectiveHandledFirst || literalHandledFirst;
+                    const startIdx = skipFirst ? directive.firstAlt.indexOf(firstElem) + 1 : 0;
                     for (let elemIdx = startIdx; elemIdx < directive.firstAlt.length; elemIdx++) {
                         this.parseDirective(directive.firstAlt[elemIdx], parser, op, opInfo, directive.firstAlt, elemIdx, vars);
                     }
@@ -10107,8 +10149,9 @@ _.Dialect = class {
                     const secondElem = directive.secondAlt.find((e) => e.type !== 'whitespace');
                     const matchedSecond = secondElem && checkMatch(secondElem);
                     if (matchedSecond) {
-                        for (const elem of directive.secondAlt) {
-                            this.parseDirective(elem, parser, op, opInfo, directive.secondAlt, 0, vars);
+                        const startIdx = secondElem.type === 'literal' ? directive.secondAlt.indexOf(secondElem) + 1 : 0;
+                        for (let elemIdx = startIdx; elemIdx < directive.secondAlt.length; elemIdx++) {
+                            this.parseDirective(directive.secondAlt[elemIdx], parser, op, opInfo, directive.secondAlt, elemIdx, vars);
                         }
                     }
                 } else if (directive.secondAlt && directive.secondAlt.length > 0) {
@@ -10619,14 +10662,22 @@ _.Dialect = class {
         } while (parser.parseOptionalComma());
     }
 
-    parseEnumFlags(parser, type, separator) {
+    parseEnumFlags(parser, type, separator, optional) {
         const flags = [];
         do {
-            const value = parser.parseKeyword();
-            if (!type.values.includes(value)) {
-                throw new mlir.Error(`Invalid enum value '${value}' ${parser.getCurrentLocation()}`);
+            if (optional && flags.length === 0) {
+                const value = parser.parseOptionalKeyword(type.values);
+                if (!value) {
+                    return null;
+                }
+                flags.push(value);
+            } else {
+                const value = parser.parseKeyword();
+                if (!type.values.includes(value)) {
+                    throw new mlir.Error(`Invalid enum value '${value}' ${parser.getCurrentLocation()}`);
+                }
+                flags.push(value);
             }
-            flags.push(value);
         } while (separator === ',' ? parser.parseOptionalComma() : parser.parseOptionalVerticalBar());
         return new _.TypedAttr(flags.join(', '));
     }
@@ -12420,16 +12471,6 @@ _.HALDialect = class extends _.IREEDialect {
         this.registerCustomDirective('DeviceQueueAffinityList', this.parseDeviceQueueAffinityList.bind(this));
         this.registerCustomDirective('Bindings', this.parseBindingList.bind(this));
         this.registerCustomDirective('BindingTable', this.parseBindingList.bind(this));
-        this.legacyOps = new Set([
-            'hal.allocator.allocate', 'hal.allocator.compute_size',
-            'hal.buffer_view.create',
-            'hal.command_buffer.begin', 'hal.command_buffer.create', 'hal.command_buffer.device',
-            'hal.command_buffer.dispatch', 'hal.command_buffer.dispatch.symbol',
-            'hal.command_buffer.end', 'hal.command_buffer.push_descriptor_set',
-            'hal.descriptor_set_layout.create',
-            'hal.device.query',
-            'hal.executable_layout.create', 'hal.executable_layout.lookup',
-        ]);
     }
 
     parseType(parser, dialect) {
@@ -12587,62 +12628,152 @@ _.HALDialect = class extends _.IREEDialect {
             result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
-        // Handle old IREE HAL operations with <%operand : type> syntax and/or named parameters
-        // e.g., hal.allocator.compute_size<%allocator : !hal.allocator> shape([...]) type(...) encoding(...) : index
-        if (this.legacyOps.has(result.op)) {
-            if (parser.parseOptionalLess()) {
-                while (!parser.parseOptionalGreater()) {
-                    const operand = parser.parseOperand();
-                    let type = null;
-                    if (parser.parseOptionalColon()) {
-                        type = parser.parseType();
+        if (result.op === 'hal.allocator.allocate') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseLegacyNamedParam(parser, result, 'affinity');
+            this.parseLegacyNamedParam(parser, result, 'type');
+            this.parseLegacyNamedParam(parser, result, 'usage');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            if (parser.parseOptionalLBrace()) {
+                parser.parseOptionalOperand();
+                parser.parseRBrace();
+            }
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.allocator.compute_size') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseLegacyNamedAttr(parser, result, 'shape');
+            this.parseLegacyNamedParam(parser, result, 'type');
+            this.parseLegacyNamedParam(parser, result, 'encoding');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.buffer_view.create') {
+            if (parser.parseOptionalKeyword('buffer')) {
+                parser.parseLParen();
+                const operand = parser.parseOperand();
+                let type = null;
+                if (parser.parseOptionalColon()) {
+                    type = parser.parseType();
+                }
+                parser.parseRParen();
+                parser.resolveOperand(operand, type, result.operands);
+                if (parser.parseOptionalLSquare()) {
+                    if (!parser.parseOptionalRSquare()) {
+                        do {
+                            const op = parser.parseOptionalOperand();
+                            if (op) {
+                                parser.resolveOperand(op, null, result.operands);
+                            }
+                        } while (parser.parseOptionalComma());
+                        parser.parseRSquare();
                     }
-                    parser.resolveOperand(operand, type, result.operands);
-                    parser.parseOptionalComma();
                 }
             }
-            // Also handle bracket expressions between parameters like layout(...)[%c0]
-            // Stop when we hit a colon (result type) or something that doesn't look like a parameter
-            // Named parameters don't have dots, so if we see an id with a dot, it's likely the next operation
-            // Also exclude common operation keywords that shouldn't be treated as parameters
-            const notParameterNames = new Set(['br', 'cond_br', 'return', 'yield', 'call', 'unreachable', 'assert']);
-            while (parser.parser.getToken().is(_.Token.l_square) || (parser.parser.getToken().is(_.Token.bare_identifier) && parser.parser.getTokenSpelling().str() !== 'attributes' && parser.parser.getToken().isNot(_.Token.colon) && parser.parser.getToken().isNot(_.Token.kw_loc) && parser.parser.getTokenSpelling().str() && parser.parser.getTokenSpelling().str().indexOf('.') === -1 && !notParameterNames.has(parser.parser.getTokenSpelling().str()))) {
-                if (parser.parseOptionalLSquare()) {
-                    // Skip balanced bracket content
-                    let depth = 1;
-                    while (depth > 0) {
-                        if (parser.parseOptionalLSquare()) {
-                            depth++;
-                        } else if (parser.parseOptionalRSquare()) {
-                            depth--;
-                        } else {
-                            const operand = parser.parseOptionalOperand();
-                            if (!operand) {
-                                parser.parseAttribute();
-                            }
-                            parser.parseOptionalComma();
-                        }
-                    }
-                    continue;
+            this.parseLegacyNamedAttr(parser, result, 'shape');
+            this.parseLegacyNamedParam(parser, result, 'type');
+            this.parseLegacyNamedParam(parser, result, 'encoding');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.command_buffer.begin' || result.op === 'hal.command_buffer.end' || result.op === 'hal.command_buffer.device') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.command_buffer.create') {
+            this.parseLegacyNamedParam(parser, result, 'device');
+            this.parseLegacyNamedParam(parser, result, 'mode');
+            this.parseLegacyNamedParam(parser, result, 'categories');
+            this.parseLegacyNamedParam(parser, result, 'affinity');
+            this.parseLegacyNamedParam(parser, result, 'bindings');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.command_buffer.dispatch') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            if (parser.parseOptionalKeyword('target')) {
+                parser.parseLParen();
+                const operand = parser.parseOperand();
+                let type = null;
+                if (parser.parseOptionalColon()) {
+                    type = parser.parseType();
                 }
-                const paramName = parser.parseKeyword();
-                // Check if this named parameter is actually an input from the operation metadata
-                const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
+                parser.parseRParen();
+                parser.resolveOperand(operand, type, result.operands);
+                if (parser.parseOptionalLSquare()) {
+                    parser.parseOptionalOperand();
+                    parser.parseOptionalAttribute();
+                    parser.parseRSquare();
+                }
+            }
+            this.parseLegacyNamedAttr(parser, result, 'workgroups');
+            this.parseLegacyNamedAttr(parser, result, 'constants');
+            this.parseLegacyNamedAttr(parser, result, 'bindings');
+            this.parseLegacyNamedParam(parser, result, 'flags');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.command_buffer.dispatch.symbol') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseLegacyNamedAttr(parser, result, 'target');
+            this.parseLegacyNamedAttr(parser, result, 'workgroups');
+            this.parseLegacyNamedAttr(parser, result, 'constants');
+            this.parseLegacyNamedAttr(parser, result, 'bindings');
+            this.parseLegacyNamedParam(parser, result, 'flags');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.command_buffer.push_descriptor_set') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            if (parser.parseOptionalKeyword('layout')) {
+                parser.parseLParen();
+                const operand = parser.parseOperand();
+                let type = null;
+                if (parser.parseOptionalColon()) {
+                    type = parser.parseType();
+                }
+                parser.parseRParen();
+                parser.resolveOperand(operand, type, result.operands);
+                if (parser.parseOptionalLSquare()) {
+                    parser.parseOptionalOperand();
+                    parser.parseRSquare();
+                }
+            }
+            this.parseLegacyNamedAttr(parser, result, 'bindings');
+            result.addTypes(parser.parseOptionalColonTypeList());
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.descriptor_set_layout.create' || result.op === 'hal.executable_layout.create' || result.op === 'hal.executable_layout.lookup') {
+            const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
+            for (;;) {
+                const paramName = parser.parseOptionalKeyword();
+                if (!paramName) {
+                    break;
+                }
                 if (inputNames.has(paramName) && parser.parseOptionalLParen()) {
-                    const firstOperand = parser.parseOptionalOperand();
-                    if (firstOperand) {
-                        let operandType = null;
+                    const operand = parser.parseOptionalOperand();
+                    if (operand) {
+                        let type = null;
                         if (parser.parseOptionalColon()) {
-                            operandType = parser.parseType();
+                            type = parser.parseType();
                         }
                         parser.parseRParen();
-                        parser.resolveOperand(firstOperand, operandType, result.operands);
+                        parser.resolveOperand(operand, type, result.operands);
                     } else if (parser.parseOptionalLSquare()) {
                         if (!parser.parseOptionalRSquare()) {
                             do {
-                                const operand = parser.parseOptionalOperand();
-                                if (operand) {
-                                    parser.resolveOperand(operand, null, result.operands);
+                                const op = parser.parseOptionalOperand();
+                                if (op) {
+                                    parser.resolveOperand(op, null, result.operands);
                                 }
                             } while (parser.parseOptionalComma());
                             parser.parseRSquare();
@@ -12652,27 +12783,18 @@ _.HALDialect = class extends _.IREEDialect {
                         parser.parseRParen();
                     }
                 } else {
-                    // Non-operand parameter: collect balanced paren content as raw string
                     const paramValue = parser.parseBody(_.Token.l_paren);
                     result.addAttribute(paramName, paramValue);
                 }
             }
             result.addTypes(parser.parseOptionalColonTypeList());
-            // Handle old IREE format: !hal.buffer{%size} where {%size} follows the type
-            if (parser.parseOptionalLBrace()) {
-                // Skip balanced brace content
-                let depth = 1;
-                while (depth > 0) {
-                    if (parser.parseOptionalLBrace()) {
-                        depth++;
-                    } else if (parser.parseOptionalRBrace()) {
-                        depth--;
-                    } else {
-                        parser.parseOptionalOperand();
-                        parser.parseOptionalComma();
-                    }
-                }
-            }
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            return true;
+        }
+        if (result.op === 'hal.device.query') {
+            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseLegacyNamedAttr(parser, result, 'key');
+            result.addTypes(parser.parseOptionalColonTypeList());
             if (parser.parseOptionalEqual()) {
                 const value = parser.parseAttribute();
                 result.addAttribute('default', value.value);
@@ -12708,9 +12830,6 @@ _.HALDialect = class extends _.IREEDialect {
             }
             return true;
         }
-        // Handle hal.interface.binding.subspan with old syntax (symbol reference)
-        // Old syntax: hal.interface.binding.subspan @io::@binding[operand] : type
-        // New syntax: hal.interface.binding.subspan layout(...) binding(...) : type
         const subspanSym = result.op === 'hal.interface.binding.subspan' ? parser.parseOptionalSymbolName() : null;
         if (subspanSym) {
             // Old syntax - parse symbol reference and bracket expression
@@ -12832,6 +12951,43 @@ _.HALDialect = class extends _.IREEDialect {
         // Try parseAttribute first (handles <...> syntax), fall back to optional
         const attr = parser.parseOptionalAttribute();
         return attr;
+    }
+
+    parseLegacyAngleBracketOperand(parser, result) {
+        if (parser.parseOptionalLess()) {
+            const operand = parser.parseOperand();
+            let type = null;
+            if (parser.parseOptionalColon()) {
+                type = parser.parseType();
+            }
+            parser.resolveOperand(operand, type, result.operands);
+            parser.parseGreater();
+        }
+    }
+
+    parseLegacyNamedAttr(parser, result, name) {
+        if (parser.parseOptionalKeyword(name)) {
+            const value = parser.parseBody(_.Token.l_paren);
+            result.addAttribute(name, value);
+        }
+    }
+
+    parseLegacyNamedParam(parser, result, name) {
+        if (parser.parseOptionalKeyword(name)) {
+            parser.parseLParen();
+            const operand = parser.parseOptionalOperand();
+            if (operand) {
+                let type = null;
+                if (parser.parseOptionalColon()) {
+                    type = parser.parseType();
+                }
+                parser.resolveOperand(operand, type, result.operands);
+            } else {
+                const attr = parser.parseAttribute();
+                result.addAttribute(name, attr);
+            }
+            parser.parseRParen();
+        }
     }
 
     parseExportConditionRegion(parser, result) {
@@ -14421,17 +14577,8 @@ _.StreamDialect = class extends _.IREEDialect {
             return new _.Type(type);
         }
         // Handle test.fence type (Stream_TestFence in StreamTypes.td)
-        if (typeName === 'test') {
-            if (parser.parser.consumeIf('.')) {
-                const subtype = parser.parseOptionalKeyword();
-                if (subtype === 'fence') {
-                    return new _.Type(`!${dialect}.test.fence`);
-                }
-                // Handle unknown test.X subtypes generically
-                return new _.Type(`!${dialect}.test.${subtype}`);
-            }
-            // Just "test" without subtype - return as is
-            return new _.Type(type);
+        if (typeName === 'test' || typeName === 'test.fence') {
+            return new _.Type(`!${dialect}.${typeName}`);
         }
         // Fallback for unknown stream types - parse generically like base Dialect
         type += parser.parseOptionalBody(_.Token.less);
@@ -15841,7 +15988,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        let mnemonic = parser.parseOptionalKeyword();
+        const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             if (mnemonic === 'ptr' && parser.parseOptionalLess()) {
                 const pointeeType = parser.parseType();
@@ -15849,15 +15996,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 const storageClass = parser.parseKeyword();
                 parser.parseGreater();
                 return new _.spirv.PointerType(pointeeType, storageClass);
-            }
-            // Handle sub-dialect types like arm.tensor, KHR.CooperativeMatrix, etc.
-            while (parser.parser.consumeIf('.')) {
-                const subType = parser.parseOptionalKeyword();
-                if (subType) {
-                    mnemonic += `.${subType}`;
-                } else {
-                    break;
-                }
             }
             let type = `!${dialect}.${mnemonic}`;
             type += parser.parseOptionalBody(_.Token.less);
@@ -16993,20 +17131,13 @@ _.ptr.PtrDialect = class extends _.Dialect {
     constructor(operations) {
         super(operations, 'ptr');
         this.registerCustomAttribute('EnumProp', this.parseEnumProp.bind(this));
-        this.registerCustomAttribute('Ptr_PtrDiffFlags', this.parsePtrDiffFlags.bind(this));
+        this.registerCustomAttribute('Ptr_PtrDiffFlags', (parser, type) => this.parseEnumFlags(parser, type, '|', true));
         this.registerCustomType('Ptr_PtrType', this.parsePtrType.bind(this));
     }
 
     parseEnumProp(parser, type) {
         const [innerType] = type.args;
         return this.parseCustomAttributeWithFallback(parser, innerType);
-    }
-
-    parsePtrDiffFlags(parser, type) {
-        if (type.values.includes(parser.parser.getTokenSpelling().str())) {
-            return this.parseEnumFlags(parser, type, '|');
-        }
-        return null;
     }
 
     parsePtrType(parser) {
@@ -18266,13 +18397,7 @@ _.ShapeDialect = class extends _.Dialect {
         if (!typeName) {
             return null;
         }
-        let type = `!${dialect}.${typeName}`;
-        if (typeName === 'value' && parser.parser.getToken().is('_')) {
-            parser.parser.consumeToken('_');
-            const subType = parser.parser.getToken().getSpelling().str();
-            parser.parser.consumeToken(_.Token.bare_identifier);
-            type += `_${subType}`;
-        }
+        const type = `!${dialect}.${typeName}`;
         const simpleTypes = ['shape', 'witness', 'size', 'value_shape'];
         if (simpleTypes.includes(type.substring(7))) { // Remove "!shape." prefix
             return new _.Type(type);
@@ -19180,15 +19305,10 @@ _.OpenMPDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
         }
-        // Parse types for CLI operands
+        // Parse types for CLI operands — C++ uses parseColonType (single type)
         const cliTypes = [];
         if (parser.parseOptionalColon()) {
-            while (parser.parser.getToken().isNot(_.Token.equal) && parser.parser.getToken().isNot(_.Token.l_brace)) {
-                cliTypes.push(parser.parseType());
-                if (!parser.parseOptionalComma()) {
-                    break;
-                }
-            }
+            cliTypes.push(parser.parseType());
         }
         parser.resolveOperands(unresolvedCli, cliTypes, result.operands);
         if (parser.parseOptionalEqual()) {
@@ -19971,7 +20091,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
         this.registerCustomDirective('ShuffleType', this.parseShuffleType.bind(this));
         this.registerCustomDirective('SwitchOpCases', this.parseSwitchOpCases.bind(this));
         this.registerCustomAttribute('LLVM_IntegerOverflowFlagsProp', this.parseLLVMIntegerOverflowFlagsProp.bind(this));
-        this.registerCustomAttribute('GEPNoWrapFlagsProp', this.parseGEPNoWrapFlagsProp.bind(this));
+        this.registerCustomAttribute('GEPNoWrapFlagsProp', (parser, type) => this.parseEnumFlags(parser, type, '|', true));
         this.registerCustomAttribute('LLVM_BlockAddressAttr', this.parseLLVMBlockAddressAttr.bind(this));
         this.registerCustomAttribute('LLVM_BlockTagAttr', this.parseLLVMBlockTagAttr.bind(this));
         this.registerCustomType('LLVM_AnyPointer', this.parseLLVMPointerType.bind(this));
@@ -19982,13 +20102,6 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     parseLLVMIntegerOverflowFlagsProp(parser) {
         if (parser.parseOptionalKeyword('overflow')) {
             return this.parseEnumFlagsAngleBracketComma(parser, { values: ['wrap', 'nuw', 'nsw'] });
-        }
-        return null;
-    }
-
-    parseGEPNoWrapFlagsProp(parser, type) {
-        if (type.values.includes(parser.parser.getTokenSpelling().str())) {
-            return this.parseEnumFlags(parser, type, '|');
         }
         return null;
     }
@@ -22023,12 +22136,11 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                     parser.resolveOperand(operand, null, result.operands);
                 }
             }
-            while (parser.parser.getToken().isNot(_.Token.colon) && parser.parser.getToken().isNot(_.Token.l_brace)) {
+            for (;;) {
                 const __key = parser.parseOptionalKeyword();
                 if (__key) {
                     if (parser.parseOptionalLParen()) {
-                        const value = parser.parser.getToken().getSpelling().str();
-                        parser.parser.consumeToken();
+                        const value = parser.parseAttribute();
                         parser.parseRParen();
                         result.addAttribute(__key, value);
                     }
@@ -22270,14 +22382,6 @@ _.SdfgDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        if (typeName === 'stream' && parser.parser.getToken().is('_')) {
-            parser.parser.consumeToken('_');
-            const suffix = parser.parseKeyword();
-
-            if (suffix === 'array') {
-                type += `_${suffix}`;
-            }
-        }
         if (typeName === 'array' || typeName === 'stream' || typeName === 'memlet' || type.endsWith('stream_array')) {
             type += parser.parseOptionalBody(_.Token.less);
             return new _.Type(type);
@@ -23036,12 +23140,6 @@ _.TransformDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        if (typeName === 'any' && parser.parser.getToken().is('_')) {
-            parser.parser.consumeToken('_');
-            const suffix = parser.parseKeyword();
-
-            type += `_${suffix}`;
-        }
         type += parser.parseOptionalBody(_.Token.less);
         return new _.Type(type);
     }
@@ -23251,7 +23349,7 @@ _.TestDialect = class extends _.Dialect {
         this.registerCustomAttribute('TestEnumAttr', this.parseTestEnumAttr.bind(this));
         this.registerCustomAttribute('TestEnumProp', this.parseTestEnumAttr.bind(this));
         this.registerCustomAttribute('TestEnumPropAttrForm', this.parseTestEnumPropAttrForm.bind(this));
-        this.registerCustomAttribute('TestBitEnumProp', this.parseTestBitEnumProp.bind(this));
+        this.registerCustomAttribute('TestBitEnumProp', (parser, type) => this.parseEnumFlags(parser, type, ',', true));
         this.registerCustomAttribute('TestBitEnumPropNamed', this.parseTestBitEnumPropNamed.bind(this));
         this.registerCustomAttribute('TestArrayOfUglyAttrs', this.parseTestArrayOfUglyAttrs.bind(this));
         this.registerCustomAttribute('TestArrayOfInts', this.parseTestArrayOfInts.bind(this));
@@ -23480,13 +23578,6 @@ _.TestDialect = class extends _.Dialect {
         return super.parseOperation(parser, result);
     }
 
-    parseTestBitEnumProp(parser, type) {
-        if (type.values.includes(parser.parser.getTokenSpelling().str())) {
-            return this.parseEnumFlags(parser, type, ',');
-        }
-        return null;
-    }
-
     parseTestEnumAttr(parser, type) {
         const keyword = parser.parseOptionalKeyword(type.values);
         if (keyword) {
@@ -23521,7 +23612,7 @@ _.TestDialect = class extends _.Dialect {
         parser.parseLess();
         parser.parseKeyword('i');
         // Parse $inner - could be full (!test.cmpnd_inner<...>) or elided (<...>)
-        const inner = parser.parser.getToken().is(_.Token.exclamation_identifier) ? parser.parseType() : this.parseCompoundNestedInnerType(parser);
+        const inner = parser.parseOptionalType() || this.parseCompoundNestedInnerType(parser);
         parser.parseGreater();
         return new _.Type(`!test.cmpnd_nested_outer<i ${inner}>`);
     }
@@ -23533,7 +23624,7 @@ _.TestDialect = class extends _.Dialect {
         parser.parseLess();
         const someInt = parser.parseInteger();
         // Parse $cmpdA - could be full (!test.cmpnd_a<...>) or elided (<...>)
-        const cmpdA = parser.parser.getToken().is(_.Token.exclamation_identifier) ? parser.parseType() : this.parseCompoundTypeA(parser);
+        const cmpdA = parser.parseOptionalType() || this.parseCompoundTypeA(parser);
         parser.parseGreater();
         return new _.Type(`!test.cmpnd_inner<${someInt} ${cmpdA}>`);
     }
@@ -24161,11 +24252,6 @@ _.MichelsonDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        if ((typeName === 'big' || typeName === 'chain' || typeName === 'key') && parser.parser.getToken().is('_')) {
-            parser.parser.consumeToken('_');
-            const suffix = parser.parseKeyword();
-            type += `_${suffix}`;
-        }
         const simpleTypes = ['int', 'bytes', 'operation', 'nat', 'string', 'unit', 'bool', 'mutez', 'timestamp', 'address', 'key', 'signature', 'chain_id', 'key_hash'];
         if (simpleTypes.includes(type.substring(11))) { // Remove "!michelson." prefix
             return new _.Type(type);
