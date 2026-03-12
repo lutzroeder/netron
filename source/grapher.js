@@ -104,22 +104,18 @@ grapher.Graph = class {
     }
 
     build(document, origin) {
-
         origin = origin || document.getElementById('origin');
-
         const createGroup = (name) => {
             const element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             element.setAttribute('id', name);
             element.setAttribute('class', name);
             return element;
         };
-
         const clusterGroup = createGroup('clusters');
         const edgePathGroup = createGroup('edge-paths');
         const edgePathHitTestGroup = createGroup('edge-paths-hit-test');
         const edgeLabelGroup = createGroup('edge-labels');
         const nodeGroup = createGroup('nodes');
-
         const edgePathGroupDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
         edgePathGroup.appendChild(edgePathGroupDefs);
         const marker = (id) => {
@@ -187,18 +183,23 @@ grapher.Graph = class {
                 clusterGroup.appendChild(node.element);
             }
         }
-
         this._focusable.clear();
         this._focused = null;
         for (const edge of this.edges.values()) {
             edge.label.build(document, edgePathGroup, edgePathHitTestGroup, edgeLabelGroup);
-            this._focusable.set(edge.label.hitTest, edge.label);
+            if (edge.label.hitTest) {
+                this._focusable.set(edge.label.hitTest, edge.label);
+            }
         }
+        const tunnelGroup = createGroup('tunnel-edges');
         origin.appendChild(clusterGroup);
         origin.appendChild(edgePathGroup);
         origin.appendChild(edgePathHitTestGroup);
         origin.appendChild(edgeLabelGroup);
         origin.appendChild(nodeGroup);
+        origin.appendChild(tunnelGroup);
+        this._tunnelGroup = tunnelGroup;
+        this._document = document;
         for (const edge of this.edges.values()) {
             if (edge.label.labelElement) {
                 const label = edge.label;
@@ -882,6 +883,10 @@ grapher.Edge = class {
     }
 
     build(document, edgePathGroupElement, edgePathHitTestGroupElement, edgeLabelGroupElement) {
+        if (this._tunnel) {
+            // Tunnel edges are rendered separately
+            return;
+        }
         const createElement = (name) => {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
@@ -911,6 +916,9 @@ grapher.Edge = class {
     }
 
     update() {
+        if (this._tunnel) {
+            return;
+        }
         const intersectRect = (node, point) => {
             const x = node.x;
             const y = node.y;

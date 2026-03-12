@@ -466,6 +466,7 @@ view.View = class {
                 viewGraph.blocks = state.blocks;
             }
             viewGraph.add(graph, this.activeSignature);
+            viewGraph.addTunnels();
             viewGraph.build(document, origin);
             await viewGraph.measure();
             const status = await viewGraph.layout(this._worker);
@@ -476,6 +477,7 @@ view.View = class {
                     }
                 }
                 viewGraph.update();
+                viewGraph.updateTunnels();
                 origin.setAttribute('transform', 'translate(0,0) scale(1)');
                 document.getElementById('background').setAttribute('width', 0);
                 document.getElementById('background').setAttribute('height', 0);
@@ -933,11 +935,13 @@ view.View = class {
                 viewGraph.blocks = state.blocks;
             }
             viewGraph.add(graph, signature);
+            viewGraph.addTunnels();
             viewGraph.build(document);
             await viewGraph.measure();
             status = await viewGraph.layout(this._worker);
             if (status === '') {
                 viewGraph.update();
+                viewGraph.updateTunnels();
                 viewGraph.restore(state);
                 this.target = viewGraph;
             }
@@ -2064,6 +2068,211 @@ view.Graph = class extends grapher.Graph {
                     }
                 }
             }
+        }
+    }
+
+    addTunnels() {
+        this._tunnels = [];
+        const subgraphOuterRefs = (graph) => {
+            const produced = new Set();
+            if (Array.isArray(graph.inputs)) {
+                for (const arg of graph.inputs) {
+                    if (!Array.isArray(arg.value)) {
+                        continue;
+                    }
+                    for (const val of arg.value) {
+                        if (val.name) {
+                            produced.add(val.name);
+                        }
+                    }
+                }
+            }
+            for (const node of (graph.nodes || [])) {
+                for (const arg of (node.outputs || [])) {
+                    if (!Array.isArray(arg.value)) {
+                        continue;
+                    }
+                    for (const val of arg.value) {
+                        if (val.name) {
+                            produced.add(val.name);
+                        }
+                    }
+                }
+            }
+            const refs = new Set();
+            for (const node of (graph.nodes || [])) {
+                for (const arg of (node.inputs || [])) {
+                    if (!Array.isArray(arg.value)) {
+                        continue;
+                    }
+                    for (const val of arg.value) {
+                        if (val.name && !val.initializer && !produced.has(val.name)) {
+                            refs.add(val.name);
+                        }
+                    }
+                }
+            }
+            return refs;
+        };
+        // Collect tunnel refs per (source, parent, attrName)
+        const seen = new Set();
+        for (const entry of this._nodes.values()) {
+            const node = entry.label;
+            if (!(node instanceof view.Node)) {
+                continue;
+            }
+            const modelNode = node.value;
+            const subgraphs = (modelNode.attributes || []).concat(modelNode.blocks || []);
+            for (const attr of subgraphs) {
+                if (attr.type !== 'graph' || !attr.value) {
+                    continue;
+                }
+                const refs = subgraphOuterRefs(attr.value);
+                for (const valueName of refs) {
+                    const outerValue = this._values.get(valueName);
+                    if (!outerValue || !outerValue.from) {
+                        continue;
+                    }
+                    const sourceNode = outerValue.from;
+                    const refKey = `${sourceNode.name}:${node.name}:${attr.name}`;
+                    if (seen.has(refKey)) {
+                        continue;
+                    }
+                    seen.add(refKey);
+                    const edge = sourceNode.edge(node);
+                    if (!edge._tunnel) {
+                        edge._tunnel = true;
+                    }
+                    const edgeKey = `${edge.v}:${edge.w}`;
+                    if (!this._edges.has(edgeKey)) {
+                        this.setEdge(edge);
+                    }
+                    this._tunnels.push({
+                        sourceNode,
+                        parentNode: node,
+                        attrName: attr.name,
+                        valueName,
+                        edge
+                    });
+                }
+            }
+        }
+    }
+
+    updateTunnels() {
+        if (!this._tunnelGroup || !this._tunnels || !this._document) {
+            return;
+        }
+        while (this._tunnelGroup.lastChild) {
+            this._tunnelGroup.removeChild(this._tunnelGroup.lastChild);
+        }
+        if (this._tunnels.length === 0) {
+            return;
+        }
+        const document = this._document;
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+        marker.setAttribute('id', 'arrowhead-tunnel');
+        marker.setAttribute('viewBox', '0 0 10 10');
+        marker.setAttribute('refX', 9);
+        marker.setAttribute('refY', 5);
+        marker.setAttribute('markerUnits', 'strokeWidth');
+        marker.setAttribute('markerWidth', 8);
+        marker.setAttribute('markerHeight', 6);
+        marker.setAttribute('orient', 'auto');
+        const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
+        markerPath.style.setProperty('stroke-width', 1);
+        marker.appendChild(markerPath);
+        defs.appendChild(marker);
+        this._tunnelGroup.appendChild(defs);
+        const intersectRect = (node, point) => {
+            const dx = point.x - node.x;
+            const dy = point.y - node.y;
+            let h = node.height / 2;
+            let w = node.width / 2;
+            if (Math.abs(dy) * w > Math.abs(dx) * h) {
+                if (dy < 0) {
+                    h = -h;
+                }
+                return { x: node.x + (dy === 0 ? 0 : h * dx / dy), y: node.y + h };
+            }
+            if (dx < 0) {
+                w = -w;
+            }
+            return { x: node.x + w, y: node.y + (dx === 0 ? 0 : w * dy / dx) };
+        };
+        const findTarget = (node, attrName, valueName) => {
+            const nodeTop = node.y - node.height / 2;
+            const nodeLeft = node.x - node.width / 2;
+            for (const block of node.blocks) {
+                if (!block._items) {
+                    continue;
+                }
+                for (const item of block._items) {
+                    if (item.name !== attrName) {
+                        continue;
+                    }
+                    if (item.content && item.content.blocks) {
+                        for (const innerBlock of item.content.blocks) {
+                            if (innerBlock instanceof view.Block && innerBlock.target && innerBlock.target._values) {
+                                const innerValue = innerBlock.target._values.get(valueName);
+                                if (innerValue && innerValue.to.length > 0) {
+                                    const innerNode = innerValue.to[0];
+                                    if (innerNode.x !== undefined && innerNode.y !== undefined) {
+                                        const padding = innerBlock._padding || 10;
+                                        const originX = innerBlock.target.originX || 0;
+                                        const originY = innerBlock.target.originY || 0;
+                                        const contentNode = item.content;
+                                        const cx = nodeLeft + block.x + (contentNode.x - contentNode.width / 2);
+                                        const cy = nodeTop + block.y + (contentNode.y - contentNode.height / 2);
+                                        return {
+                                            x: cx + innerBlock.x + (padding - originX) + innerNode.x,
+                                            y: cy + innerBlock.y + (padding - originY) + innerNode.y,
+                                            width: innerNode.width || 0,
+                                            height: innerNode.height || 0
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (item.content && item.content.x !== undefined) {
+                        const contentNode = item.content;
+                        return {
+                            x: nodeLeft + block.x + contentNode.x,
+                            y: nodeTop + block.y + contentNode.y,
+                            width: contentNode.width,
+                            height: contentNode.height
+                        };
+                    }
+                    return {
+                        x: nodeLeft + block.x + item.x + item.width / 2,
+                        y: nodeTop + block.y + item.y + item.height / 2,
+                        width: item.width,
+                        height: item.height
+                    };
+                }
+            }
+            return { x: node.x, y: node.y, width: node.width || 0, height: node.height || 0 };
+        };
+        for (const ref of this._tunnels) {
+            const { parentNode, attrName, valueName, edge } = ref;
+            if (!edge.points || edge.points.length < 3) {
+                continue;
+            }
+            const target = findTarget(parentNode, attrName, valueName);
+            const points = edge.points.slice(1, edge.points.length - 1);
+            points.unshift(intersectRect(edge.from, points[0]));
+            // Intersect the target block boundary from the previous point
+            const lastPoint = points[points.length - 1];
+            points.push(intersectRect(target, lastPoint));
+            const curve = new grapher.Edge.Curve(points);
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('class', 'edge-path edge-path-tunnel');
+            path.setAttribute('d', curve.path.data);
+            path.setAttribute('marker-end', 'url(#arrowhead-tunnel)');
+            this._tunnelGroup.appendChild(path);
         }
     }
 
