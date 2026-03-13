@@ -2256,21 +2256,55 @@ view.Graph = class extends grapher.Graph {
             }
             return { x: node.x, y: node.y, width: node.width || 0, height: node.height || 0 };
         };
-        for (const ref of this._tunnels) {
-            const { parentNode, attrName, valueName, edge } = ref;
-            if (!edge.points || edge.points.length < 3) {
+        // Group tunnels by parent node to detect all overlaps into same target
+        const groups = new Map();
+        for (let i = 0; i < this._tunnels.length; i++) {
+            const ref = this._tunnels[i];
+            const key = ref.parentNode.name;
+            if (!groups.has(key)) {
+                groups.set(key, []);
+            }
+            groups.get(key).push(i);
+        }
+        for (let i = 0; i < this._tunnels.length; i++) {
+            const { parentNode, attrName, valueName, edge } = this._tunnels[i];
+            if (!edge.points || edge.points.length < 2) {
                 continue;
             }
             const target = findTarget(parentNode, attrName, valueName);
-            const points = edge.points.slice(1, edge.points.length - 1);
-            points.unshift(intersectRect(edge.from, points[0]));
-            // Intersect the target block boundary from the previous point
-            const lastPoint = points[points.length - 1];
-            points.push(intersectRect(target, lastPoint));
-            const curve = new grapher.Edge.Curve(points);
+            const points = [];
+            const inner = edge.points.slice(1, edge.points.length - 1);
+            if (inner.length > 0) {
+                points.push(intersectRect(edge.from, inner[0]));
+                points.push(...inner);
+            } else {
+                points.push(intersectRect(edge.from, edge.points[edge.points.length - 1]));
+            }
+            points.push(intersectRect(target, points[points.length - 1]));
+            // If multiple tunnels target the same parent, draw arcs to separate them
+            const group = groups.get(parentNode.name);
+            let pathData = '';
+            if (group && group.length > 1) {
+                const j = group.indexOf(i);
+                const end = points[points.length - 1];
+                const start = intersectRect(edge.from, end);
+                const dy = Math.abs(end.y - start.y);
+                const arcBase = Math.min(80, dy * 0.2);
+                const arc = (j - (group.length - 1) / 2) * arcBase;
+                const p = new grapher.Edge.Path();
+                p.moveTo(start.x, start.y);
+                p.bezierCurveTo(
+                    start.x, start.y + (end.y - start.y) * 0.33,
+                    end.x + arc, start.y + (end.y - start.y) * 0.67,
+                    end.x, end.y
+                );
+                pathData = p.data;
+            } else {
+                pathData = new grapher.Edge.Curve(points).path.data;
+            }
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.setAttribute('class', 'edge-path edge-path-tunnel');
-            path.setAttribute('d', curve.path.data);
+            path.setAttribute('d', pathData);
             path.setAttribute('marker-end', 'url(#arrowhead-tunnel)');
             this._tunnelGroup.appendChild(path);
         }
