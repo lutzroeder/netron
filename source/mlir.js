@@ -3482,9 +3482,7 @@ _.Parser = class {
         }
         if (hasTrailingData) {
             if (this.getToken().is(_.Token.less)) {
-                symbolData += this.parseBody(_.Token.less);
-            } else if (this.getToken().is(_.Token.l_paren)) {
-                symbolData += this.parseBody(_.Token.l_paren);
+                symbolData += this.parseDialectSymbolBody();
             }
             if (!isPrettyName) {
                 symbolData = symbolData.slice(1, -1);
@@ -3711,9 +3709,6 @@ _.Parser = class {
                     return { value: tokenValue };
                 }
                 this.consumeToken(_.Token.bare_identifier);
-                if (this.getToken().is(_.Token.less)) {
-                    return { value: tokenValue + this.parseBody(_.Token.less) };
-                }
                 return { value: tokenValue };
             }
             case _.Token.exclamation_identifier: {
@@ -3726,7 +3721,7 @@ _.Parser = class {
                 return { value };
             }
             case _.Token.less: {
-                const value = this.parseBody(_.Token.less);
+                const value = this.parseDialectSymbolBody();
                 return { value };
             }
             default: {
@@ -3807,22 +3802,12 @@ _.Parser = class {
     }
 
     parseDenseElementsAttrTyped() {
-        // Reference: AttributeParser.cpp parseDenseElementsAttrTyped()
-        const token = this.getToken();
-        if (!token.isAny(_.Token.bare_identifier, _.Token.inttype, _.Token.exclamation_identifier)) {
-            return null;
-        }
-        const savedPos = token.loc.position;
-        let type = null;
-        try {
-            type = this.parseType();
-        } catch {
-            this.resetToken(savedPos);
+        const type = this.parseOptionalType();
+        if (!type) {
             return null;
         }
         if (!this.consumeIf(_.Token.colon)) {
-            this.resetToken(savedPos);
-            return null;
+            throw new mlir.Error(`Expected ':' after type in dense attribute ${this.location()}`);
         }
         if (!(type instanceof _.RankedTensorType) && !(type instanceof _.VectorType)) {
             throw new mlir.Error(`Expected a shaped type for dense elements ${this.location()}`);
@@ -4137,54 +4122,37 @@ _.Parser = class {
         return string;
     }
 
-    // Workaround: consumes balanced delimiter content as raw string.
-    // Not present in C++ reference implementation (OpImplementation.h).
-    // Call sites should be updated to do what the reference implementation actually does.
-    parseBody(open) {
+    parseDialectSymbolBody() {
         const closingFor = { '<': '>', '[': ']', '(': ')', '{': '}' };
         const openingFor = { '>': '<', ']': '[', ')': '(', '}': '{' };
         const delimiters = new Set(['<', '>', '[', ']', '(', ')', '{', '}', ',', ':', '=']);
-        let value = '';
-        let prevToken = '';
-        if (this.getToken().is(open)) {
-            const stack = [open];
-            prevToken = this.getToken().getSpelling().str();
-            this.consumeToken();
-            value += prevToken;
-            while (stack.length > 0) {
-                if (this.getToken().is(_.Token.eof)) {
+        this.parseToken(_.Token.less, "expected '<'");
+        const stack = ['<'];
+        let value = '<';
+        let prevToken = '<';
+        while (stack.length > 0) {
+            if (this.getToken().is(_.Token.eof)) {
+                throw new mlir.Error(`Unbalanced '<' ${this.location()}`);
+            }
+            const token = this.getToken().getSpelling().str();
+            if (closingFor[token]) {
+                stack.push(token);
+            } else if (openingFor[token]) {
+                if (stack[stack.length - 1] === openingFor[token]) {
+                    stack.pop();
+                } else if (token !== '>') {
                     throw new mlir.Error(`Unbalanced '${stack[stack.length - 1]}' ${this.location()}`);
                 }
-                const token = this.getToken().getSpelling().str();
-                if (closingFor[token]) {
-                    stack.push(token);
-                } else if (openingFor[token]) {
-                    if (stack[stack.length - 1] === openingFor[token]) {
-                        stack.pop();
-                    } else if (token !== '>') {
-                        throw new mlir.Error(`Unbalanced '${stack[stack.length - 1]}' ${this.location()}`);
-                    }
-                }
-                const curToken = this.getToken().getSpelling().str();
-                this.consumeToken();
-                if (!delimiters.has(prevToken) && !delimiters.has(curToken)) {
-                    value += ' ';
-                }
-                value += curToken;
-                prevToken = curToken;
             }
+            const curToken = this.getToken().getSpelling().str();
+            this.consumeToken();
+            if (!delimiters.has(prevToken) && !delimiters.has(curToken)) {
+                value += ' ';
+            }
+            value += curToken;
+            prevToken = curToken;
         }
         return value;
-    }
-
-    // Workaround: consumes balanced delimiter content as raw string.
-    // Not present in C++ reference implementation (OpImplementation.h).
-    // Call sites should be updated to do what the reference implementation actually does.
-    parseOptionalBody(open) {
-        if (this.getToken().is(open)) {
-            return this.parseBody(open);
-        }
-        return '';
     }
 
     getToken() {
@@ -5632,15 +5600,33 @@ _.AsmParser = class {
         mapOperands.push(...dimOperands, ...symOperands);
     }
 
-    // Workaround: consumes balanced delimiter content as raw string.
-    // Not present in C++ reference implementation (OpImplementation.h).
-    // Call sites should be updated to do what the reference implementation actually does.
-    parseBody(open) {
-        return this.parser.parseBody(open);
+    parseAffineMap() {
+        return this.parser.parseAffineMapReference();
     }
 
-    parseOptionalBody(open) {
-        return this.parser.parseOptionalBody(open);
+    parseAffineExprOfSSAIds(mapOperands) {
+        const dimOperands = [];
+        const symOperands = [];
+        const parseElement = (isSymbol) => {
+            const operand = this.parseOperand();
+            if (isSymbol) {
+                symOperands.push(operand);
+            } else {
+                dimOperands.push(operand);
+            }
+        };
+        const expr = this.parser.parseAffineExprOfSSAIds(parseElement);
+        mapOperands.push(...dimOperands, ...symOperands);
+        return expr;
+    }
+
+    // Workaround: captures optional <...> type parameters as raw string.
+    // Should be replaced by assembly format driven type parameter parsing.
+    parseTypeParameters() {
+        if (this.parser.getToken().is(_.Token.less)) {
+            return this.parser.parseDialectSymbolBody();
+        }
+        return '';
     }
 };
 
@@ -5787,8 +5773,15 @@ _.OpAsmParser = class extends _.AsmParser {
     parseDenseI64ArrayAttr(attributeName, attributes) {
         this.parseKeyword(attributeName);
         this.parseEqual();
-        const value = this.parser.parseBody(_.Token.l_square);
-        attributes.set(attributeName, value);
+        this.parseLSquare();
+        const values = [];
+        if (!this.parseOptionalRSquare()) {
+            do {
+                values.push(this.parseInteger());
+            } while (this.parseOptionalComma());
+            this.parseRSquare();
+        }
+        attributes.set(attributeName, new _.DenseI64ArrayAttr(values));
     }
 
     parseOptionalVisibilityKeyword(attributes) {
@@ -5804,7 +5797,8 @@ _.OpAsmParser = class extends _.AsmParser {
         });
     }
 
-    parseShapedResultList(operands, operandTypes, resultTypes, tiedOperands) {
+    parseShapedResultList(operands, operandTypes, resultTypes, tiedOperands, resolvedOperands) {
+        const indexType = new _.IndexType();
         const tiedOperandIndices = [];
         do {
             let type = null;
@@ -5820,8 +5814,9 @@ _.OpAsmParser = class extends _.AsmParser {
             } else {
                 type = this.parseType();
             }
-            if (this.parser.getToken().is(_.Token.l_brace)) {
-                this.parser.parseBody(_.Token.l_brace);
+            const dims = this.parseOperandList('optionalBrace');
+            if (resolvedOperands) {
+                this.resolveOperands(dims, dims.map(() => indexType), resolvedOperands);
             }
             if (type) {
                 resultTypes.push(type);
@@ -10221,7 +10216,7 @@ _.Dialect = class {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -11621,6 +11616,20 @@ _.AffineDialect = class extends _.Dialect {
         return true;
     }
 
+    parseAffineMapWithMinMax(parser, mapOperands, minMaxKeyword) {
+        parser.parseLParen();
+        if (!parser.parseOptionalRParen()) {
+            do {
+                if (parser.parseOptionalKeyword(minMaxKeyword)) {
+                    parser.parseAffineMapOfSSAIds(mapOperands, null, '__bound', new Map(), 'Paren');
+                } else {
+                    parser.parseAffineExprOfSSAIds(mapOperands);
+                }
+            } while (parser.parseOptionalComma());
+            parser.parseRParen();
+        }
+    }
+
     parseParallelOp(parser, result) {
         const ivArgs = parser.parseArgumentList('paren', false);
         const indexType = new _.IndexType();
@@ -11630,14 +11639,19 @@ _.AffineDialect = class extends _.Dialect {
         if (!parser.parseOptionalEqual()) {
             return false;
         }
-        parser.parseBody(_.Token.l_paren);
+        const lowerMapOperands = [];
+        this.parseAffineMapWithMinMax(parser, lowerMapOperands, 'max');
         if (!parser.parseOptionalKeyword('to')) {
             return false;
         }
-        parser.parseBody(_.Token.l_paren);
+        const upperMapOperands = [];
+        this.parseAffineMapWithMinMax(parser, upperMapOperands, 'min');
         if (parser.parseOptionalKeyword('step')) {
-            parser.parseBody(_.Token.l_paren);
+            const stepMapOperands = [];
+            parser.parseAffineMapOfSSAIds(stepMapOperands, null, 'step', result.attributes, 'Paren');
         }
+        parser.resolveOperands(lowerMapOperands, lowerMapOperands.map(() => indexType), result.operands);
+        parser.resolveOperands(upperMapOperands, upperMapOperands.map(() => indexType), result.operands);
         if (parser.parseOptionalKeyword('reduce')) {
             parser.parseLParen();
             if (!parser.parseOptionalRParen()) {
@@ -11814,11 +11828,8 @@ _.MemRefDialect = class extends _.Dialect {
 
     parseTransposeOp(parser, result) {
         const operand = parser.parseOperand();
-        const dims = parser.parseBody(_.Token.l_paren);
-        parser.parseArrow();
-        const results = parser.parseBody(_.Token.l_paren);
-        const permutation = `affine_map<${dims} -> ${results}>`;
-        result.addAttribute('permutation', permutation);
+        const permutation = parser.parseAffineMap();
+        result.addAttribute('permutation', new _.AffineMapAttr(permutation));
         parser.parseOptionalAttrDict(result.attributes);
         const srcType = parser.parseColonType();
         parser.resolveOperand(operand, srcType, result.operands);
@@ -11852,7 +11863,7 @@ _.MemRefDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         const memrefOperand = parser.parseOperand();
-        parser.parseBody(_.Token.l_square);
+        const indices = parser.parseOperandList('square');
         parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const memrefType = parser.parseType();
@@ -11862,6 +11873,8 @@ _.MemRefDialect = class extends _.Dialect {
                 parser.resolveOperand(valueOperand, valueType, result.operands);
             }
             parser.resolveOperand(memrefOperand, memrefType, result.operands);
+            const indexType = new _.IndexType();
+            parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
         }
         return true;
     }
@@ -12021,16 +12034,18 @@ _.VectorDialect = class extends _.Dialect {
     }
 
     parseTransferOp(parser, result) {
-        //    or: vector.transfer_read %source[%i, %j, ...], %padding, %mask {attrs} : memref_type, vector_type
-        //    or: vector.transfer_write %value, %dest[%i, %j, ...] {attrs} : vector_type, memref_type
-        //    or: vector.transfer_write %value, %dest[%i, %j, ...], %mask {attrs} : vector_type, memref_type
+        // C++ ref: TransferReadOp::parse / TransferWriteOp::parse in VectorOps.cpp
+        //    vector.transfer_read %source[%i, %j, ...], %padding, %mask {attrs} : memref_type, vector_type
+        //    vector.transfer_write %value, %dest[%i, %j, ...] {attrs} : vector_type, memref_type
+        //    vector.transfer_write %value, %dest[%i, %j, ...], %mask {attrs} : vector_type, memref_type
 
         let unresolvedFirst = null;
         let unresolvedSecond = null;
         let unresolvedMask = null;
+        let indexInfo = [];
         if (result.op === 'vector.transfer_read') {
             unresolvedFirst = parser.parseOperand();
-            parser.parseBody(_.Token.l_square);
+            indexInfo = parser.parseOperandList('square');
             parser.parseComma();
             unresolvedSecond = parser.parseOperand();
             if (parser.parseOptionalComma()) {
@@ -12040,7 +12055,7 @@ _.VectorDialect = class extends _.Dialect {
             unresolvedFirst = parser.parseOperand();
             parser.parseComma();
             unresolvedSecond = parser.parseOperand();
-            parser.parseBody(_.Token.l_square);
+            indexInfo = parser.parseOperandList('square');
             if (parser.parseOptionalComma()) {
                 unresolvedMask = parser.parseOperand();
             }
@@ -12050,10 +12065,16 @@ _.VectorDialect = class extends _.Dialect {
             const type1 = parser.parseType();
             parser.parseOptionalComma();
             const type2 = parser.parseType();
+            const indexType = new _.IndexType();
             parser.resolveOperand(unresolvedFirst, type1, result.operands);
-            parser.resolveOperand(unresolvedSecond, type2, result.operands);
+            if (result.op === 'vector.transfer_read') {
+                parser.resolveOperands(indexInfo, indexInfo.map(() => indexType), result.operands);
+                parser.resolveOperand(unresolvedSecond, type2, result.operands);
+            } else {
+                parser.resolveOperand(unresolvedSecond, type2, result.operands);
+                parser.resolveOperands(indexInfo, indexInfo.map(() => indexType), result.operands);
+            }
             if (unresolvedMask) {
-                // Mask type would be a vector of i1, use type2 as approximation
                 parser.resolveOperand(unresolvedMask, type2, result.operands);
             }
             // For transfer_read, type2 is the result type
@@ -12153,7 +12174,7 @@ _.TorchDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         if (mnemonic === 'vtensor' || mnemonic === 'tensor' || mnemonic === 'list' || mnemonic === 'tuple' || mnemonic === 'union' || mnemonic === 'optional' || mnemonic === 'dict' || mnemonic.startsWith('nn.')) {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -12307,11 +12328,11 @@ _.IREEDialect = class extends _.Dialect {
         const resultTypes = [];
         if (parser.parseOptionalLParen()) {
             if (!parser.parseOptionalRParen()) {
-                parser.parseShapedResultList(operands, operandTypes, resultTypes, null);
+                parser.parseShapedResultList(operands, operandTypes, resultTypes, null, op.operands);
                 parser.parseRParen();
             }
         } else {
-            parser.parseShapedResultList(operands, operandTypes, resultTypes, null);
+            parser.parseShapedResultList(operands, operandTypes, resultTypes, null, op.operands);
         }
         op.addTypes(resultTypes);
     }
@@ -12487,7 +12508,6 @@ _.HALDialect = class extends _.IREEDialect {
     }
 
     parseOperation(parser, result) {
-        const opInfo = result.name.getRegisteredInfo();
         if (result.op === 'hal.tensor.cast') {
             const unresolvedOperands = parser.parseOperandList();
             if (parser.parseOptionalColon()) {
@@ -12588,51 +12608,22 @@ _.HALDialect = class extends _.IREEDialect {
         }
         // Handle hal.executable.create with both old (layouts) and new (affinity) syntax
         if (result.op === 'hal.executable.create') {
-            const inputNames = new Set(opInfo.metadata.operands.map((input) => input.name));
             for (;;) {
                 const paramName = parser.parseOptionalKeyword();
                 if (!paramName) {
                     break;
                 }
-                if (inputNames.has(paramName) && parser.parseOptionalLParen()) {
-                    const firstOperand = parser.parseOptionalOperand();
-                    if (firstOperand) {
-                        let operandType = null;
-                        if (parser.parseOptionalColon()) {
-                            operandType = parser.parseType();
-                        }
-                        parser.parseRParen();
-                        parser.resolveOperand(firstOperand, operandType, result.operands);
-                    } else if (parser.parseOptionalLSquare()) {
-                        if (!parser.parseOptionalRSquare()) {
-                            do {
-                                const operand = parser.parseOptionalOperand();
-                                if (operand) {
-                                    parser.resolveOperand(operand, null, result.operands);
-                                }
-                            } while (parser.parseOptionalComma());
-                            parser.parseRSquare();
-                        }
-                        parser.parseRParen();
-                    } else {
-                        parser.parseRParen();
-                    }
-                } else {
-                    // Non-operand parameter: collect balanced paren content as raw string
-                    const paramValue = parser.parseBody(_.Token.l_paren);
-                    // Normalize old 'layouts' parameter to 'affinity' for consistency
-                    const normalizedName = paramName === 'layouts' ? 'affinity' : paramName;
-                    result.addAttribute(normalizedName, paramValue);
-                }
+                const normalizedName = paramName === 'layouts' ? 'affinity' : paramName;
+                this.parseParamValue(parser, result,normalizedName);
             }
             result.addTypes(parser.parseOptionalColonTypeList());
             return true;
         }
         if (result.op === 'hal.allocator.allocate') {
-            this.parseLegacyAngleBracketOperand(parser, result);
-            this.parseLegacyNamedParam(parser, result, 'affinity');
-            this.parseLegacyNamedParam(parser, result, 'type');
-            this.parseLegacyNamedParam(parser, result, 'usage');
+            this.parseAngleBracketOperand(parser, result);
+            this.parseNamedAttr(parser, result,'affinity');
+            this.parseNamedAttr(parser, result,'type');
+            this.parseNamedAttr(parser, result,'usage');
             result.addTypes(parser.parseOptionalColonTypeList());
             if (parser.parseOptionalLBrace()) {
                 parser.parseOptionalOperand();
@@ -12642,10 +12633,10 @@ _.HALDialect = class extends _.IREEDialect {
             return true;
         }
         if (result.op === 'hal.allocator.compute_size') {
-            this.parseLegacyAngleBracketOperand(parser, result);
-            this.parseLegacyNamedAttr(parser, result, 'shape');
-            this.parseLegacyNamedParam(parser, result, 'type');
-            this.parseLegacyNamedParam(parser, result, 'encoding');
+            this.parseAngleBracketOperand(parser, result);
+            this.parseNamedAttr(parser, result,'shape');
+            this.parseNamedAttr(parser, result,'type');
+            this.parseNamedAttr(parser, result,'encoding');
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
@@ -12672,31 +12663,31 @@ _.HALDialect = class extends _.IREEDialect {
                     }
                 }
             }
-            this.parseLegacyNamedAttr(parser, result, 'shape');
-            this.parseLegacyNamedParam(parser, result, 'type');
-            this.parseLegacyNamedParam(parser, result, 'encoding');
+            this.parseNamedAttr(parser, result,'shape');
+            this.parseNamedAttr(parser, result,'type');
+            this.parseNamedAttr(parser, result,'encoding');
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.command_buffer.begin' || result.op === 'hal.command_buffer.end' || result.op === 'hal.command_buffer.device') {
-            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseAngleBracketOperand(parser, result);
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.command_buffer.create') {
-            this.parseLegacyNamedParam(parser, result, 'device');
-            this.parseLegacyNamedParam(parser, result, 'mode');
-            this.parseLegacyNamedParam(parser, result, 'categories');
-            this.parseLegacyNamedParam(parser, result, 'affinity');
-            this.parseLegacyNamedParam(parser, result, 'bindings');
+            this.parseNamedAttr(parser, result,'device');
+            this.parseNamedAttr(parser, result,'mode');
+            this.parseNamedAttr(parser, result,'categories');
+            this.parseNamedAttr(parser, result,'affinity');
+            this.parseNamedAttr(parser, result,'bindings');
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.command_buffer.dispatch') {
-            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseAngleBracketOperand(parser, result);
             if (parser.parseOptionalKeyword('target')) {
                 parser.parseLParen();
                 const operand = parser.parseOperand();
@@ -12712,27 +12703,35 @@ _.HALDialect = class extends _.IREEDialect {
                     parser.parseRSquare();
                 }
             }
-            this.parseLegacyNamedAttr(parser, result, 'workgroups');
-            this.parseLegacyNamedAttr(parser, result, 'constants');
-            this.parseLegacyNamedAttr(parser, result, 'bindings');
-            this.parseLegacyNamedParam(parser, result, 'flags');
+            this.parseNamedAttr(parser, result,'workgroups');
+            this.parseNamedAttr(parser, result,'constants');
+            if (parser.parseOptionalKeyword('bindings')) {
+                parser.parseLParen();
+                this.parseBindings(parser, result);
+                parser.parseRParen();
+            }
+            this.parseNamedAttr(parser, result,'flags');
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.command_buffer.dispatch.symbol') {
-            this.parseLegacyAngleBracketOperand(parser, result);
-            this.parseLegacyNamedAttr(parser, result, 'target');
-            this.parseLegacyNamedAttr(parser, result, 'workgroups');
-            this.parseLegacyNamedAttr(parser, result, 'constants');
-            this.parseLegacyNamedAttr(parser, result, 'bindings');
-            this.parseLegacyNamedParam(parser, result, 'flags');
+            this.parseAngleBracketOperand(parser, result);
+            this.parseNamedAttr(parser, result,'target');
+            this.parseNamedAttr(parser, result,'workgroups');
+            this.parseNamedAttr(parser, result,'constants');
+            if (parser.parseOptionalKeyword('bindings')) {
+                parser.parseLParen();
+                this.parseBindings(parser, result);
+                parser.parseRParen();
+            }
+            this.parseNamedAttr(parser, result,'flags');
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.command_buffer.push_descriptor_set') {
-            this.parseLegacyAngleBracketOperand(parser, result);
+            this.parseAngleBracketOperand(parser, result);
             if (parser.parseOptionalKeyword('layout')) {
                 parser.parseLParen();
                 const operand = parser.parseOperand();
@@ -12747,53 +12746,30 @@ _.HALDialect = class extends _.IREEDialect {
                     parser.parseRSquare();
                 }
             }
-            this.parseLegacyNamedAttr(parser, result, 'bindings');
+            if (parser.parseOptionalKeyword('bindings')) {
+                parser.parseLParen();
+                this.parseBindings(parser, result);
+                parser.parseRParen();
+            }
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.descriptor_set_layout.create' || result.op === 'hal.executable_layout.create' || result.op === 'hal.executable_layout.lookup') {
-            const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
             for (;;) {
                 const paramName = parser.parseOptionalKeyword();
                 if (!paramName) {
                     break;
                 }
-                if (inputNames.has(paramName) && parser.parseOptionalLParen()) {
-                    const operand = parser.parseOptionalOperand();
-                    if (operand) {
-                        let type = null;
-                        if (parser.parseOptionalColon()) {
-                            type = parser.parseType();
-                        }
-                        parser.parseRParen();
-                        parser.resolveOperand(operand, type, result.operands);
-                    } else if (parser.parseOptionalLSquare()) {
-                        if (!parser.parseOptionalRSquare()) {
-                            do {
-                                const op = parser.parseOptionalOperand();
-                                if (op) {
-                                    parser.resolveOperand(op, null, result.operands);
-                                }
-                            } while (parser.parseOptionalComma());
-                            parser.parseRSquare();
-                        }
-                        parser.parseRParen();
-                    } else {
-                        parser.parseRParen();
-                    }
-                } else {
-                    const paramValue = parser.parseBody(_.Token.l_paren);
-                    result.addAttribute(paramName, paramValue);
-                }
+                this.parseParamValue(parser, result,paramName);
             }
             result.addTypes(parser.parseOptionalColonTypeList());
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             return true;
         }
         if (result.op === 'hal.device.query') {
-            this.parseLegacyAngleBracketOperand(parser, result);
-            this.parseLegacyNamedAttr(parser, result, 'key');
+            this.parseAngleBracketOperand(parser, result);
+            this.parseNamedAttr(parser, result,'key');
             result.addTypes(parser.parseOptionalColonTypeList());
             if (parser.parseOptionalEqual()) {
                 const value = parser.parseAttribute();
@@ -12953,7 +12929,38 @@ _.HALDialect = class extends _.IREEDialect {
         return attr;
     }
 
-    parseLegacyAngleBracketOperand(parser, result) {
+    // Parses [(%op : type)[off, sz], ...] or [%idx = (%op : type)[off, sz], ...]
+    parseBindings(parser, result) {
+        parser.parseLSquare();
+        if (!parser.parseOptionalRSquare()) {
+            do {
+                if (parser.parseOptionalOperand()) {
+                    parser.parseEqual();
+                }
+                parser.parseLParen();
+                const bindOp = parser.parseOperand();
+                let bindType = null;
+                if (parser.parseOptionalColon()) {
+                    bindType = parser.parseType();
+                }
+                parser.parseRParen();
+                parser.resolveOperand(bindOp, bindType, result.operands);
+                if (parser.parseOptionalLSquare()) {
+                    if (!parser.parseOptionalRSquare()) {
+                        do {
+                            const sizeOp = parser.parseOperand();
+                            parser.resolveOperand(sizeOp, null, result.operands);
+                        } while (parser.parseOptionalComma());
+                        parser.parseRSquare();
+                    }
+                }
+            } while (parser.parseOptionalComma());
+            parser.parseRSquare();
+        }
+    }
+
+    // Parses <%operand : type> from old IREE HAL format.
+    parseAngleBracketOperand(parser, result) {
         if (parser.parseOptionalLess()) {
             const operand = parser.parseOperand();
             let type = null;
@@ -12965,16 +12972,22 @@ _.HALDialect = class extends _.IREEDialect {
         }
     }
 
-    parseLegacyNamedAttr(parser, result, name) {
+    parseNamedAttr(parser, result, name) {
         if (parser.parseOptionalKeyword(name)) {
-            const value = parser.parseBody(_.Token.l_paren);
-            result.addAttribute(name, value);
+            this.parseParamValue(parser, result, name);
         }
     }
 
-    parseLegacyNamedParam(parser, result, name) {
-        if (parser.parseOptionalKeyword(name)) {
-            parser.parseLParen();
+    parseParamValue(parser, result, name) {
+        parser.parseLParen();
+        if (name === 'key') {
+            const category = parser.parseString();
+            result.addAttribute('category', category);
+            parser.parseColon();
+            parser.parseColon();
+            const key = parser.parseString();
+            result.addAttribute(name, key);
+        } else {
             const operand = parser.parseOptionalOperand();
             if (operand) {
                 let type = null;
@@ -12982,12 +12995,40 @@ _.HALDialect = class extends _.IREEDialect {
                     type = parser.parseType();
                 }
                 parser.resolveOperand(operand, type, result.operands);
+                while (parser.parseOptionalComma()) {
+                    const nextOp = parser.parseOperand();
+                    let nextType = null;
+                    if (parser.parseOptionalColon()) {
+                        nextType = parser.parseType();
+                    }
+                    parser.parseOptionalEllipsis();
+                    parser.resolveOperand(nextOp, nextType, result.operands);
+                }
+            } else if (parser.parseOptionalLSquare()) {
+                if (!parser.parseOptionalRSquare()) {
+                    const firstOp = parser.parseOptionalOperand();
+                    if (firstOp) {
+                        const ops = [firstOp];
+                        while (parser.parseOptionalComma()) {
+                            ops.push(parser.parseOperand());
+                        }
+                        const indexType = new _.IndexType();
+                        parser.resolveOperands(ops, ops.map(() => indexType), result.operands);
+                    } else {
+                        const value = parser.parseAttribute();
+                        result.addAttribute(name, value);
+                        while (parser.parseOptionalComma()) {
+                            parser.parseAttribute();
+                        }
+                    }
+                    parser.parseRSquare();
+                }
             } else {
-                const attr = parser.parseAttribute();
-                result.addAttribute(name, attr);
+                const value = parser.parseAttribute();
+                result.addAttribute(name, value);
             }
-            parser.parseRParen();
         }
+        parser.parseRParen();
     }
 
     parseExportConditionRegion(parser, result) {
@@ -13271,7 +13312,7 @@ _.UtilDialect = class extends _.IREEDialect {
                 return new _.util.ListType(elementType);
             }
             let type = `!${dialect}.${typeName}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -13616,7 +13657,7 @@ _.FlowDialect = class extends _.IREEDialect {
             return new _.Type(type);
         }
         if (typeName === 'dispatch.tensor') {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -13671,7 +13712,16 @@ _.FlowDialect = class extends _.IREEDialect {
                         const resultType = parser.parseType();
                         results.push(resultType);
                     }
-                    parser.parseOptionalBody(_.Token.l_brace);
+                    if (parser.parseOptionalLBrace()) {
+                        const resultAttrs = new Map();
+                        if (!parser.parseOptionalRBrace()) {
+                            do {
+                                const key = parser.parseAttribute();
+                                resultAttrs.set(String(key.value || key), true);
+                            } while (parser.parseOptionalComma());
+                            parser.parseRBrace();
+                        }
+                    }
                     if (!hasParens) {
                         break;
                     }
@@ -14219,15 +14269,18 @@ _.StreamDialect = class extends _.IREEDialect {
         } while (parser.parseOptionalComma());
     }
 
-    parseEncodedResourceOperands(parser /*, op, args */) {
+    parseEncodedResourceOperands(parser, op) {
+        const indexType = new _.IndexType();
         do {
             parser.parseOperand();
             parser.parseColon();
             parser.parseType();
-            parser.parseBody(_.Token.l_brace);
+            const encodingDims = parser.parseOperandList('optionalBrace');
+            parser.resolveOperands(encodingDims, encodingDims.map(() => indexType), op.operands);
             parser.parseKeyword('in');
             parser.parseType();
-            parser.parseBody(_.Token.l_brace);
+            const sizeDims = parser.parseOperandList('optionalBrace');
+            parser.resolveOperands(sizeDims, sizeDims.map(() => indexType), op.operands);
         } while (parser.parseOptionalComma());
     }
 
@@ -14261,13 +14314,20 @@ _.StreamDialect = class extends _.IREEDialect {
         }
     }
 
-    parseEncodedShapedTypeList(parser, types) {
+    parseEncodedShapedTypeList(parser, types, operands) {
+        const indexType = new _.IndexType();
         do {
             const type0 = parser.parseType();
-            parser.parseBody(_.Token.l_brace);
+            const dims0 = parser.parseOperandList('optionalBrace');
+            if (operands) {
+                parser.resolveOperands(dims0, dims0.map(() => indexType), operands);
+            }
             if (parser.parseOptionalKeyword('in')) {
                 const type1 = parser.parseType();
-                parser.parseBody(_.Token.l_brace);
+                const dims1 = parser.parseOperandList('optionalBrace');
+                if (operands) {
+                    parser.resolveOperands(dims1, dims1.map(() => indexType), operands);
+                }
                 types.push(type1);
             } else {
                 types.push(type0);
@@ -14275,13 +14335,17 @@ _.StreamDialect = class extends _.IREEDialect {
         } while (parser.parseOptionalComma());
     }
 
-    parseEncodedShapedResultList(parser, operands, operandTypes, resultTypes) {
+    parseEncodedShapedResultList(parser, operands, operandTypes, resultTypes, resolvedOperands) {
+        const indexType = new _.IndexType();
         do {
             let type0 = null;
             const tryTied0 = parser.parseOptionalOperand();
             if (!tryTied0) {
                 type0 = parser.parseType();
-                parser.parseBody(_.Token.l_brace);
+                const dims0 = parser.parseOperandList('optionalBrace');
+                if (resolvedOperands) {
+                    parser.resolveOperands(dims0, dims0.map(() => indexType), resolvedOperands);
+                }
             }
             if (!parser.parseOptionalKeyword('in')) {
                 if (type0) {
@@ -14301,7 +14365,10 @@ _.StreamDialect = class extends _.IREEDialect {
             } else {
                 resultType = parser.parseType();
             }
-            parser.parseBody(_.Token.l_brace);
+            const dims1 = parser.parseOperandList('optionalBrace');
+            if (resolvedOperands) {
+                parser.resolveOperands(dims1, dims1.map(() => indexType), resolvedOperands);
+            }
             if (resultType) {
                 resultTypes.push(resultType);
             }
@@ -14311,17 +14378,17 @@ _.StreamDialect = class extends _.IREEDialect {
     parseEncodedShapedFunctionType(parser, op, operandsRef, operandTypes /* , ... */) {
         parser.parseLParen();
         if (!parser.parseOptionalRParen()) {
-            this.parseEncodedShapedTypeList(parser, operandTypes);
+            this.parseEncodedShapedTypeList(parser, operandTypes, op.operands);
             parser.parseRParen();
         }
         parser.parseArrow();
         if (parser.parseOptionalLParen()) {
             if (!parser.parseOptionalRParen()) {
-                this.parseEncodedShapedResultList(parser, operandsRef, operandTypes, op.types);
+                this.parseEncodedShapedResultList(parser, operandsRef, operandTypes, op.types, op.operands);
                 parser.parseRParen();
             }
         } else {
-            this.parseEncodedShapedResultList(parser, operandsRef, operandTypes, op.types);
+            this.parseEncodedShapedResultList(parser, operandsRef, operandTypes, op.types, op.operands);
         }
     }
 
@@ -14387,18 +14454,27 @@ _.StreamDialect = class extends _.IREEDialect {
     }
 
     parseDispatchFunctionSignature(parser, op /*, args */) {
+        const indexType = new _.IndexType();
         const inputs = [];
         const results = [];
         parser.parseLParen();
         if (!parser.parseOptionalRParen()) {
             do {
                 parser.parseOperand();
-                // skip('[', ']') already handles checking for '[' presence
-                parser.parseBody(_.Token.l_square);
+                if (parser.parseOptionalLSquare()) {
+                    if (!parser.parseOptionalRSquare()) {
+                        parser.parseOperand();
+                        if (parser.parseOptionalKeyword('for')) {
+                            parser.parseOperand();
+                        }
+                        parser.parseRSquare();
+                    }
+                }
                 parser.parseColon();
                 const type = parser.parseType();
                 inputs.push(type);
-                parser.parseBody(_.Token.l_brace);
+                const dims = parser.parseOperandList('optionalBrace');
+                parser.resolveOperands(dims, dims.map(() => indexType), op.operands);
             } while (parser.parseOptionalComma());
             parser.parseRParen();
         }
@@ -14417,13 +14493,15 @@ _.StreamDialect = class extends _.IREEDialect {
                 if (!parser.parseOptionalRParen()) {
                     do {
                         results.push(parseResultTypeOrTied());
-                        parser.parseBody(_.Token.l_brace);
+                        const dims = parser.parseOperandList('optionalBrace');
+                        parser.resolveOperands(dims, dims.map(() => indexType), op.operands);
                     } while (parser.parseOptionalComma());
                     parser.parseRParen();
                 }
             } else {
                 results.push(parseResultTypeOrTied());
-                parser.parseBody(_.Token.l_brace);
+                const dims = parser.parseOperandList('optionalBrace');
+                parser.resolveOperands(dims, dims.map(() => indexType), op.operands);
             }
         }
         op.addAttribute('function_type', new _.TypeAttrOf(new _.FunctionType(inputs, results)));
@@ -14573,7 +14651,7 @@ _.StreamDialect = class extends _.IREEDialect {
             return new _.Type(type);
         }
         if (typeName === 'resource') {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         // Handle test.fence type (Stream_TestFence in StreamTypes.td)
@@ -14581,7 +14659,7 @@ _.StreamDialect = class extends _.IREEDialect {
             return new _.Type(`!${dialect}.${typeName}`);
         }
         // Fallback for unknown stream types - parse generically like base Dialect
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
@@ -14750,7 +14828,7 @@ _.IREETensorExtDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'dispatch.tensor') {
             let type = `!${dialect}.${typeName}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -15383,40 +15461,65 @@ _.KrnlDialect = class extends _.Dialect {
                 parser.resolveOperand(operand, null, result.operands);
             }
             result.addAttribute('num_optimized_loops', result.operands.length);
+            const indexType = new _.IndexType();
+            const boundMaps = [];
+            const inductionVarRefs = [];
             parser.parseKeyword('with');
             parser.parseLParen();
             if (!parser.parseOptionalRParen()) {
                 parser.parseCommaSeparatedList('none', () => {
-                    parser.parseOperand();
+                    const loop = parser.parseOperand();
+                    parser.resolveOperand(loop, null, result.operands);
                     parser.parseArrow();
-                    parser.parseOperand();
+                    const inductionVar = parser.parseOperand();
+                    inductionVarRefs.push(inductionVar);
                     parser.parseEqual();
-                    parser.parseOptionalKeyword('max');
-                    parser.parseAttribute();
-                    parser.parseOptionalBody(_.Token.l_paren);
-                    parser.parseOptionalBody(_.Token.l_square);
-                    parser.parseKeyword('to');
-                    parser.parseOptionalKeyword('min');
-                    parser.parseAttribute();
-                    parser.parseOptionalBody(_.Token.l_paren);
-                    parser.parseOptionalBody(_.Token.l_square);
+                    for (let i = 0; i < 2; i++) {
+                        if (i > 0) {
+                            parser.parseKeyword('to');
+                        }
+                        parser.parseOptionalKeyword(i === 0 ? 'max' : 'min');
+                        const boundAttr = parser.parseAttribute();
+                        if (boundAttr instanceof _.AffineMapAttr || (boundAttr && boundAttr.value instanceof _.AffineMap)) {
+                            boundMaps.push(boundAttr);
+                            parser.parseDimAndSymbolList(result.operands);
+                        } else {
+                            const op = parser.parseOptionalOperand();
+                            if (op) {
+                                parser.resolveOperand(op, indexType, result.operands);
+                            }
+                            boundMaps.push(boundAttr);
+                        }
+                    }
                 });
                 parser.parseRParen();
             }
+            result.addAttribute('bounds', boundMaps);
+            const entryArgs = inductionVarRefs.map((ref) => ({ value: ref, type: indexType }));
             if (parser.parseOptionalKeyword('iter_args')) {
+                const iterOperands = [];
+                const iterArgs = [];
                 parser.parseLParen();
                 if (!parser.parseOptionalRParen()) {
                     do {
-                        parser.parseOperand();
+                        iterArgs.push(parser.parseOperand());
                         parser.parseEqual();
-                        parser.parseAttribute();
+                        iterOperands.push(parser.parseOperand());
                     } while (parser.parseOptionalComma());
                     parser.parseRParen();
                 }
-                result.addTypes(parser.parseOptionalArrowTypeList());
+                const iterTypes = parser.parseOptionalArrowTypeList();
+                result.addTypes(iterTypes);
+                for (let i = 0; i < iterArgs.length; i++) {
+                    const type = i < iterTypes.length ? iterTypes[i] : null;
+                    if (type) {
+                        parser.resolveOperand(iterOperands[i], type, result.operands);
+                    }
+                    entryArgs.push({ value: iterArgs[i], type });
+                }
             }
             const region = {};
-            parser.parseRegion(region);
+            parser.parseRegion(region, entryArgs);
             result.regions = [region];
             return true;
         }
@@ -15583,7 +15686,7 @@ _.QuantDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'uniform' || typeName === 'calibrated' || typeName === 'any') {
             let type = `!${dialect}.${typeName}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -15609,7 +15712,7 @@ _.TosaDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'shape') {
             let type = `!${dialect}.${typeName}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         if (typeName === 'mxint8') {
@@ -15983,8 +16086,12 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         }
     }
 
-    parseImageOperands(parser /*, op, args */) {
-        parser.parseOptionalBody(_.Token.l_square);
+    parseImageOperands(parser, op) {
+        if (parser.parseOptionalLSquare()) {
+            const value = parser.parseAttribute();
+            op.addAttribute('image_operands', value);
+            parser.parseRSquare();
+        }
     }
 
     parseType(parser, dialect) {
@@ -15998,7 +16105,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 return new _.spirv.PointerType(pointeeType, storageClass);
             }
             let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -17141,7 +17248,7 @@ _.ptr.PtrDialect = class extends _.Dialect {
     }
 
     parsePtrType(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             const memorySpace = content.slice(1, -1);
             return new _.ptr.PtrType(memorySpace);
@@ -17277,7 +17384,7 @@ _.EmitCDialect = class extends _.Dialect {
     }
 
     parseLValueType(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!emitc.lvalue${content}`);
         }
@@ -19003,7 +19110,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseTensorMapDescriptor(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!nvgpu.tensormap.descriptor${content}`);
         }
@@ -19011,7 +19118,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseWarpgroupAccumulator(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!nvgpu.warpgroup.accumulator${content}`);
         }
@@ -19019,7 +19126,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseWarpgroupMatrixDescriptor(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!nvgpu.warpgroup.descriptor${content}`);
         }
@@ -19027,7 +19134,7 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseMBarrierGroup(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!nvgpu.mbarrier.barrier${content}`);
         }
@@ -19145,7 +19252,7 @@ _.NVWSDialect = class extends _.Dialect {
     }
 
     parseArefTypeShorthand(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!nvws.aref${content}`);
         }
@@ -19593,14 +19700,9 @@ _.OpenMPDialect = class extends _.Dialect {
     }
 
     parseClauseAttr(parser, op, attrName) {
-        // Parses a keyword (enum value) and converts to attribute
         const enumValue = parser.parseOptionalKeyword();
-        if (enumValue) {
-            if (attrName) {
-                op.addAttribute(attrName, enumValue);
-            }
-        } else {
-            parser.parseOptionalBody(_.Token.l_brace);
+        if (enumValue && attrName) {
+            op.addAttribute(attrName, enumValue);
         }
     }
 
@@ -19612,7 +19714,16 @@ _.OpenMPDialect = class extends _.Dialect {
             }
         }
         if (parser.parseOptionalKeyword('depend')) {
-            parser.parseBody(_.Token.l_paren);
+            parser.parseLParen();
+            if (!parser.parseOptionalRParen()) {
+                do {
+                    parser.parseKeyword();
+                    parser.parseArrow();
+                    parser.parseOperand();
+                    parser.parseColonType();
+                } while (parser.parseOptionalComma());
+                parser.parseRParen();
+            }
         }
         const singleValueKeywords = ['device', 'if', 'thread_limit'];
         for (const kw of singleValueKeywords) {
@@ -20107,7 +20218,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMBlockAddressAttr(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (!content) {
             return null;
         }
@@ -20115,7 +20226,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMBlockTagAttr(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (!content) {
             return null;
         }
@@ -20123,7 +20234,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseLLVMPointerType(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             const inner = content.startsWith('<') && content.endsWith('>') ? content.slice(1, -1) : content;
             if (/^\d+$/.test(inner)) {
@@ -20353,7 +20464,7 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
@@ -21187,8 +21298,17 @@ _.VMDialect = class extends _.Dialect {
                 result.addAttribute('is_optional', true);
             }
             parser.parseSymbolName('sym_name', result.attributes);
-            parser.parseOptionalBody(_.Token.l_paren);
             const inputs = [];
+            parser.parseLParen();
+            while (!parser.parseOptionalRParen()) {
+                if (parser.parseOptionalOperand()) {
+                    inputs.push(parser.parseColonType());
+                } else {
+                    inputs.push(parser.parseType());
+                }
+                parser.parseOptionalEllipsis();
+                parser.parseOptionalComma();
+            }
             const results = [];
             const resultAttrs = [];
             if (parser.parseOptionalArrow()) {
@@ -21917,11 +22037,11 @@ _.TFRTDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         if (typeName === 'tensor') {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         // Fallback for unknown tfrt types
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
@@ -22233,7 +22353,8 @@ _.PXADialect = class extends _.Dialect {
             const unresolvedVal = parser.parseOperand();
             parser.parseOptionalComma();
             const unresolvedMemref = parser.parseOperand();
-            parser.parseBody(_.Token.l_square);
+            const mapOperands = [];
+            parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
             parser.parseOptionalAttrDict(result.attributes);
             let memrefType = null;
             let valType = null;
@@ -22250,7 +22371,8 @@ _.PXADialect = class extends _.Dialect {
         }
         if (result.op === 'pxa.load' || result.op === 'pxa.vector_load') {
             const unresolvedMemref = parser.parseOperand();
-            parser.parseBody(_.Token.l_square);
+            const mapOperands = [];
+            parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
             parser.parseOptionalAttrDict(result.attributes);
             let memrefType = null;
             if (parser.parseOptionalColon()) {
@@ -22269,22 +22391,27 @@ _.PXADialect = class extends _.Dialect {
         }
         if (result.op === 'pxa.generic') {
             const unresolvedOperands = [];
+            const allMapOperands = [];
+            const parseGenericOperandList = () => {
+                parser.parseCommaSeparatedList('none', () => {
+                    const operand = parser.parseOperand();
+                    unresolvedOperands.push(operand);
+                    const mapOperands = [];
+                    parser.parseAffineMapOfSSAIds(mapOperands, null, null, new Map());
+                    allMapOperands.push(...mapOperands);
+                    if (parser.parseOptionalColon()) {
+                        parser.parseAttribute();
+                    }
+                });
+            };
             if (parser.parseOptionalLParen()) {
                 if (!parser.parseOptionalRParen()) {
-                    parser.parseCommaSeparatedList('none', () => {
-                        const operand = parser.parseOperand();
-                        unresolvedOperands.push(operand);
-                        parser.parseOptionalBody(_.Token.l_square);
-                        if (parser.parseOptionalColon()) {
-                            parser.parseAttribute();
-                        }
-                    });
+                    parseGenericOperandList();
                     parser.parseRParen();
                 }
             }
             if (parser.parseOptionalLess()) {
                 const reduction = parser.parseKeyword();
-
                 result.addAttribute('reduction', reduction);
                 parser.parseGreater();
             }
@@ -22294,21 +22421,21 @@ _.PXADialect = class extends _.Dialect {
             }
             if (parser.parseOptionalLParen()) {
                 if (!parser.parseOptionalRParen()) {
-                    parser.parseCommaSeparatedList('none', () => {
-                        const operand = parser.parseOperand();
-                        unresolvedOperands.push(operand);
-                        parser.parseOptionalBody(_.Token.l_square);
-                        if (parser.parseOptionalColon()) {
-                            parser.parseAttribute();
-                        }
-                    });
+                    parseGenericOperandList();
                     parser.parseRParen();
                 }
             }
             if (parser.parseOptionalKeyword('tile')) {
                 parser.parseColon();
-                const tile = parser.parseBody(_.Token.l_square);
-                result.addAttribute('tile', tile);
+                parser.parseLSquare();
+                const tileValues = [];
+                if (!parser.parseOptionalRSquare()) {
+                    do {
+                        tileValues.push(parser.parseInteger());
+                    } while (parser.parseOptionalComma());
+                    parser.parseRSquare();
+                }
+                result.addAttribute('tile', new _.DenseI64ArrayAttr(tileValues));
             }
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
@@ -22316,6 +22443,8 @@ _.PXADialect = class extends _.Dialect {
                 if (funcType && funcType.inputs) {
                     parser.resolveOperands(unresolvedOperands, funcType.inputs, result.operands);
                 }
+                const indexType = new _.IndexType();
+                parser.resolveOperands(allMapOperands, allMapOperands.map(() => indexType), result.operands);
                 if (funcType && funcType.results) {
                     for (const resultType of funcType.results) {
                         result.addTypes([resultType]);
@@ -22376,6 +22505,31 @@ _.SdfgDialect = class extends _.Dialect {
         super(operations, 'sdfg');
     }
 
+    parseNumberList(parser, result, attrName) {
+        const operands = [];
+        const attrs = [];
+        do {
+            if (parser.parseOptionalKeyword('sym')) {
+                parser.parseLParen();
+                attrs.push(parser.parseAttribute());
+                parser.parseRParen();
+            } else {
+                const op = parser.parseOptionalOperand();
+                if (op) {
+                    operands.push(op);
+                } else {
+                    attrs.push(parser.parseAttribute());
+                }
+            }
+        } while (parser.parseOptionalComma());
+        if (attrName) {
+            result.addAttribute(attrName, attrs);
+        }
+        const indexType = new _.IndexType();
+        parser.resolveOperands(operands, operands.map(() => indexType), result.operands);
+        return operands;
+    }
+
     parseType(parser, dialect) {
         const typeName = parser.parseOptionalKeyword();
         if (!typeName) {
@@ -22383,7 +22537,7 @@ _.SdfgDialect = class extends _.Dialect {
         }
         let type = `!${dialect}.${typeName}`;
         if (typeName === 'array' || typeName === 'stream' || typeName === 'memlet' || type.endsWith('stream_array')) {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -22519,19 +22673,9 @@ _.SdfgDialect = class extends _.Dialect {
             const valueOp = parser.parseOperand();
             parser.parseOptionalComma();
             const arrayOp = parser.parseOperand();
-            const indices = [];
             if (parser.parseOptionalLSquare()) {
                 if (!parser.parseOptionalRSquare()) {
-                    parser.parseCommaSeparatedList('none', () => {
-                        const __idx = parser.parseOptionalOperand();
-                        if (__idx) {
-                            indices.push(__idx);
-                        } else if (parser.parseOptionalKeyword('sym')) {
-                            parser.parseBody(_.Token.l_paren);
-                        } else {
-                            parser.parseAttribute();
-                        }
-                    });
+                    this.parseNumberList(parser, result, 'indices');
                     parser.parseRSquare();
                 }
             }
@@ -22542,31 +22686,18 @@ _.SdfgDialect = class extends _.Dialect {
                 const arrayType = parser.parseType();
                 parser.resolveOperand(valueOp, valueType, result.operands);
                 parser.resolveOperand(arrayOp, arrayType, result.operands);
-                const indexType = new _.IndexType();
-                parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
             } else {
                 parser.resolveOperand(valueOp, null, result.operands);
                 parser.resolveOperand(arrayOp, null, result.operands);
-                parser.resolveOperands(indices, indices.map(() => null), result.operands);
             }
             return true;
         }
         if (result.op === 'sdfg.load' || result.op === 'sdir.load') {
             parser.parseOptionalAttrDict(result.attributes);
             const arrayOp = parser.parseOperand();
-            const indices = [];
             if (parser.parseOptionalLSquare()) {
                 if (!parser.parseOptionalRSquare()) {
-                    parser.parseCommaSeparatedList('none', () => {
-                        const __idx = parser.parseOptionalOperand();
-                        if (__idx) {
-                            indices.push(__idx);
-                        } else if (parser.parseOptionalKeyword('sym')) {
-                            parser.parseBody(_.Token.l_paren);
-                        } else {
-                            parser.parseAttribute();
-                        }
-                    });
+                    this.parseNumberList(parser, result, 'indices');
                     parser.parseRSquare();
                 }
             }
@@ -22576,12 +22707,9 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.parseOptionalArrow();
                 const resultType = parser.parseType();
                 parser.resolveOperand(arrayOp, arrayType, result.operands);
-                const indexType = new _.IndexType();
-                parser.resolveOperands(indices, indices.map(() => indexType), result.operands);
                 result.addTypes([resultType]);
             } else {
                 parser.resolveOperand(arrayOp, null, result.operands);
-                parser.resolveOperands(indices, indices.map(() => null), result.operands);
             }
             return true;
         }
@@ -22598,13 +22726,25 @@ _.SdfgDialect = class extends _.Dialect {
                 }
             }
             if (parser.parseOptionalEqual()) {
-                parser.parseBody(_.Token.l_paren);
+                parser.parseLParen();
+                if (!parser.parseOptionalRParen()) {
+                    this.parseNumberList(parser, result, 'lowerBounds');
+                    parser.parseRParen();
+                }
             }
             if (parser.parseOptionalKeyword('to')) {
-                parser.parseBody(_.Token.l_paren);
+                parser.parseLParen();
+                if (!parser.parseOptionalRParen()) {
+                    this.parseNumberList(parser, result, 'upperBounds');
+                    parser.parseRParen();
+                }
             }
             if (parser.parseOptionalKeyword('step')) {
-                parser.parseBody(_.Token.l_paren);
+                parser.parseLParen();
+                if (!parser.parseOptionalRParen()) {
+                    this.parseNumberList(parser, result, 'steps');
+                    parser.parseRParen();
+                }
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             parser.parseOptionalRegion(result.addRegion());
@@ -22628,7 +22768,15 @@ _.SdfgDialect = class extends _.Dialect {
                 parser.parseRParen();
             }
             if (parser.parseOptionalArrow()) {
-                parser.parseOptionalBody(_.Token.l_paren);
+                parser.parseLParen();
+                if (!parser.parseOptionalRParen()) {
+                    do {
+                        parser.parseKeyword();
+                        parser.parseColon();
+                        parser.parseOperand();
+                    } while (parser.parseOptionalComma());
+                    parser.parseRParen();
+                }
             }
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             parser.parseOptionalRegion(result.addRegion());
@@ -22849,7 +22997,15 @@ _.SdfgDialect = class extends _.Dialect {
         if (result.op === 'sdfg.subview' || result.op === 'sdir.subview') {
             parser.parseOptionalAttrDict(result.attributes);
             const unresolvedInput = parser.parseOperand();
-            while (parser.parseOptionalBody(_.Token.l_square)) { /* skip bracket groups */ }
+            parser.parseLSquare();
+            this.parseNumberList(parser, result, 'offsets');
+            parser.parseRSquare();
+            parser.parseLSquare();
+            this.parseNumberList(parser, result, 'sizes');
+            parser.parseRSquare();
+            parser.parseLSquare();
+            this.parseNumberList(parser, result, 'strides');
+            parser.parseRSquare();
             parser.parseOptionalAttrDictWithKeyword(result.attributes);
             let inputType = null;
             if (parser.parseOptionalColon()) {
@@ -22965,7 +23121,7 @@ _.TFDialect = class extends _.Dialect {
         }
         let type = `!${dialect}.${typeName}`;
         if (typeName === 'resource' || typeName === 'variant') {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         if (typeName === 'string' || typeName === 'control') {
@@ -23013,7 +23169,7 @@ _.TFTypeDialect = class extends _.Dialect {
             return new _.Type(type);
         }
         // Fallback for unknown tf_type types
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 };
@@ -23140,7 +23296,7 @@ _.TransformDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
@@ -24005,7 +24161,7 @@ _.triton.TritonDialect = class extends _.Dialect {
             return new _.triton.PointerType(pointeeType, addressSpace);
         }
         let type = `!${dialect}.${typeName}`;
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
@@ -24018,7 +24174,7 @@ _.triton.TritonDialect = class extends _.Dialect {
     }
 
     parseTensorDescType(parser) {
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (content) {
             return new _.Type(`!tt.tensor_desc${content}`);
         }
@@ -24125,14 +24281,14 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
     parseMemDescType(parser) {
         // Handle shorthand MemDescType notation: <dims x elementType, attributes...>
         // Full notation would be: !ttg.memdesc<dims x elementType, attributes...>
-        const content = parser.parseOptionalBody(_.Token.less);
+        const content = parser.parseTypeParameters();
         if (!content) {
             return null;
         }
@@ -24206,7 +24362,7 @@ _.TritonNvidiaGPUDialect = class extends _.Dialect {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -24228,7 +24384,7 @@ _.TritonAMDGPUDialect = class extends _.Dialect {
             return null;
         }
         let type = `!${dialect}.${typeName}`;
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 };
@@ -24258,7 +24414,7 @@ _.MichelsonDialect = class extends _.Dialect {
         }
         const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
         if (typesWithParams.includes(type.substring(11))) {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -24509,7 +24665,7 @@ _.executor.ExecutorDialect = class extends _.Dialect {
             return new _.executor.TableType([]);
         }
         let type = `!${dialect}.${typeName}`;
-        type += parser.parseOptionalBody(_.Token.less);
+        type += parser.parseTypeParameters();
         return new _.Type(type);
     }
 
@@ -25198,7 +25354,7 @@ _.smt.SMTDialect = class extends _.Dialect {
         }
         if (typeName) {
             let type = `!smt.${typeName}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -25868,8 +26024,14 @@ _.XTileDialect = class extends _.Dialect {
         const keyword = parser.parseOptionalKeyword();
         if (keyword === 'layout') {
             parser.parseLess();
-            const content = parser.parseBody(_.Token.l_square);
-            const values = content.slice(1, -1).split(',').map((s) => parseInt(s.trim(), 10));
+            parser.parseLSquare();
+            const values = [];
+            if (!parser.parseOptionalRSquare()) {
+                do {
+                    values.push(parser.parseInteger());
+                } while (parser.parseOptionalComma());
+                parser.parseRSquare();
+            }
             parser.parseGreater();
             return new _.XTileLayoutAttr(values);
         }
@@ -26010,7 +26172,7 @@ _.PolyDialect = class extends _.Dialect {
         let type = `!${dialect}.${typeName}`;
         // poly.poly<N> type has a degree bound parameter
         if (typeName === 'poly') {
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
         }
         return new _.Type(type);
     }
@@ -26026,7 +26188,7 @@ _.NoisyDialect = class extends _.Dialect {
         const typeName = parser.parseOptionalKeyword();
         if (typeName) {
             let type = `!${dialect}.${typeName}`;
-            type += parser.parseOptionalBody(_.Token.less);
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
@@ -26043,8 +26205,9 @@ _.XtenNNDialect = class extends _.Dialect {
         const keyword = parser.parseOptionalKeyword();
         if (keyword === 'dict_loc') {
             parser.parseLParen();
-            const content = parser.parseBody(_.Token.l_paren);
-            return new _.XtenNNDictLoc(content);
+            const attrs = parser.parseAttribute();
+            parser.parseRParen();
+            return new _.XtenNNDictLoc(attrs);
         }
         return null;
     }
