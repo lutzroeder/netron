@@ -3439,6 +3439,10 @@
       {
         "name": "flash_attention",
         "description": "If `None`, the layer attempts to use flash\n        attention for faster and more memory-efficient attention\n        computations when possible. This behavior can be configured using\n        `keras.config.enable_flash_attention()` or\n        `keras.config.disable_flash_attention()`."
+      },
+      {
+        "name": "use_gate",
+        "description": "Boolean, whether to apply a gated attention mechanism.\n        When True, an additional gating branch is added based on the\n        (Gated Attention for Large Language Models)[https://arxiv.org/abs/2505.06708].\n        It applies a sigmoid-activated linear projection to the query\n        which then gates the attention output. This helps improve training\n        stability and eliminates \"attention sinks\"."
       }
     ],
     "examples": [
