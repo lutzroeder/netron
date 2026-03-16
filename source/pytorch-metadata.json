@@ -6856,6 +6856,9 @@
     "name": "executorch_prim::eq.Scalar(Scalar a, Scalar b) -> bool"
   },
   {
+    "name": "executorch_prim::et_copy_index.tensor(Tensor(a!) copy_to, Tensor copy_from, int index) -> Tensor(a!)"
+  },
+  {
     "name": "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)"
   },
   {

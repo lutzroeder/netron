@@ -85,6 +85,7 @@ known_legacy_schema_definitions = [
     "dim_order_ops::_clone_dim_order.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_empty_dim_order.out(int[] size, *, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_to_dim_order_copy.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "executorch_prim::et_copy_index.tensor(Tensor(a!) copy_to, Tensor copy_from, int index) -> Tensor(a!)",  # noqa: E501
     "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)",
     "executorch_prim::add.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar",
