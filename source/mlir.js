@@ -334,7 +334,7 @@ mlir.Graph = class {
                         continue;
                     }
                     const valueAttr = op.attributes.get('value') || op.attributes.get('values');
-                    if ((valueAttr instanceof _.DenseElementsAttr || valueAttr instanceof _.DenseResourceElementsAttr) && valueAttr.value !== null && valueAttr.type && valueAttr.type.toString().startsWith('tensor<')) {
+                    if ((valueAttr instanceof _.DenseElementsAttr || valueAttr instanceof _.DenseResourceElementsAttr) && valueAttr.value !== null && valueAttr.type && valueAttr.type instanceof _.RankedTensorType) {
                         const type = mlir.Utility.valueType(valueAttr.type);
                         if (type instanceof mlir.TensorType && !type.dataType.startsWith('!')) {
                             constantMap.set(result.name, new mlir.Tensor(type, valueAttr.value));
@@ -8912,7 +8912,7 @@ _.Dialect = class {
             case 'ROCDL_V8BF16Type': return new _.VectorType([8n], new _.Type('bf16'));
             case 'ROCDL_V8F16Type': return new _.VectorType([8n], new _.Type('f16'));
             case 'ROCDL_V8F32Type': return new _.VectorType([8n], new _.Type('f32'));
-            case 'Shape_ExtentTensorType': return new _.Type('tensor<?xindex>');
+            case 'Shape_ExtentTensorType': return new _.RankedTensorType([_.ShapedType.kDynamic], new _.IndexType());
             case 'Shape_ShapeType': return new _.Type('!shape.shape');
             case 'Shape_SizeType': return new _.Type('!shape.size');
             case 'Shape_ValueShapeType': return new _.Type('!shape.value_shape');
@@ -10815,7 +10815,7 @@ _.HLODialect = class extends _.Dialect {
                             break;
                         }
                     } else {
-                        dims.push(parseInt(String(intVal), 10));
+                        dims.push(intVal);
                     }
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
@@ -11079,7 +11079,7 @@ _.HLODialect = class extends _.Dialect {
                 if (intVal === null) {
                     throw new mlir.Error(`Expected integer dimension in reduce operation ${parser.getCurrentLocation()}`);
                 }
-                return String(intVal);
+                return intVal;
             });
             result.addAttribute('dimensions', createDimensions(dimensions));
             parser.parseOptionalAttrDict(result.attributes);
@@ -11127,7 +11127,7 @@ _.HLODialect = class extends _.Dialect {
         parser.parseKeyword('dimensions');
         parser.parseEqual();
         const dimensions = parser.parseCommaSeparatedList('square', () => {
-            return String(parser.parseInteger());
+            return parser.parseInteger();
         });
         result.addAttribute('dimensions', createDimensions(dimensions));
         parser.parseOptionalAttrDict(result.attributes);
@@ -11180,8 +11180,7 @@ _.HLODialect = class extends _.Dialect {
 
         parser.parseKeyword('dimension');
         parser.parseOptionalEqual();
-        const dimension = String(parser.parseInteger());
-        result.addAttribute('dimension', dimension);
+        result.addAttribute('dimension', parser.parseInteger());
 
         // Parse optional attributes: is_reverse=true, is_associative=true
         while (parser.parseOptionalComma()) {
@@ -11414,8 +11413,7 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseComma();
             parser.parseKeyword('locality');
             parser.parseLess();
-            const locality = String(parser.parseInteger());
-            result.addAttribute('localityHint', locality);
+            result.addAttribute('localityHint', parser.parseInteger());
             parser.parseGreater();
             parser.parseComma();
             const cacheType = parser.parseOptionalKeyword();
@@ -11752,8 +11750,7 @@ _.MemRefDialect = class extends _.Dialect {
             parser.parseComma();
             parser.parseKeyword('locality');
             parser.parseLess();
-            const localityHint = parseInt(String(parser.parseInteger()), 10);
-            result.addAttribute('localityHint', localityHint);
+            result.addAttribute('localityHint', parser.parseInteger());
             parser.parseGreater();
             parser.parseComma();
             const cacheType = parser.parseKeyword();
@@ -13507,8 +13504,7 @@ _.UtilDialect = class extends _.IREEDialect {
                     do {
                         const key = parser.parseKeyword();
                         parser.parseEqual();
-                        const value = String(parser.parseInteger());
-                        assumption[key] = value;
+                        assumption[key] = parser.parseInteger();
                     } while (parser.parseOptionalComma());
                     parser.parseGreater();
                 }
@@ -13543,8 +13539,7 @@ _.UtilDialect = class extends _.IREEDialect {
                 if (!parser.parseOptionalEqual()) {
                     throw new mlir.Error(`Expected '=' after ${key} ${parser.getCurrentLocation()}`);
                 }
-                const value = String(parser.parseInteger());
-                assumption[key] = value;
+                assumption[key] = parser.parseInteger();
             } while (parser.parseOptionalComma());
             parser.parseGreater();
         }
@@ -14016,9 +14011,8 @@ _.FlowDialect = class extends _.IREEDialect {
             parser.parseColon();
             const valueType = parser.parseType();
             valueTypes.push(valueType);
-            if (valueType) {
-                const typeStr = valueType.toString();
-                const dynamicDimCount = (typeStr.match(/\?/g) || []).length;
+            if (valueType && valueType.shape) {
+                const dynamicDimCount = valueType.shape.filter((d) => d < 0n).length;
                 if (dynamicDimCount > 0 && parser.parseOptionalLBrace()) {
                     for (let i = 0; i < dynamicDimCount; i++) {
                         if (i > 0) {
@@ -15211,11 +15205,11 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseLSquare();
             if (!parser.parseOptionalRSquare()) {
                 do {
-                    outerDimsPerm.push(String(parser.parseInteger()));
+                    outerDimsPerm.push(parser.parseInteger('int64'));
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
             }
-            result.addAttribute('outer_dims_perm', outerDimsPerm.map((v) => BigInt(v)));
+            result.addAttribute('outer_dims_perm', outerDimsPerm);
         }
         parser.parseKeyword('inner_dims_pos');
         parser.parseEqual();
@@ -15223,11 +15217,11 @@ _.LinalgDialect = class extends _.Dialect {
         parser.parseLSquare();
         if (!parser.parseOptionalRSquare()) {
             do {
-                innerDimsPos.push(String(parser.parseInteger()));
+                innerDimsPos.push(parser.parseInteger('int64'));
             } while (parser.parseOptionalComma());
             parser.parseRSquare();
         }
-        result.addAttribute('inner_dims_pos', innerDimsPos.map((v) => BigInt(v)));
+        result.addAttribute('inner_dims_pos', innerDimsPos);
         parser.parseKeyword('inner_tiles');
         parser.parseEqual();
         const staticInnerTiles = [];
@@ -15261,7 +15255,7 @@ _.LinalgDialect = class extends _.Dialect {
         for (const dynOp of dynamicTileOperands) {
             parser.resolveOperand(dynOp, null, result.operands);
         }
-        if (!sourceType.toString().startsWith('memref')) {
+        if (!(sourceType instanceof _.MemRefType)) {
             result.addTypes([destType]);
         }
         return true;
@@ -15275,11 +15269,11 @@ _.LinalgDialect = class extends _.Dialect {
             parser.parseLSquare();
             if (!parser.parseOptionalRSquare()) {
                 do {
-                    outerDimsPerm.push(String(parser.parseInteger()));
+                    outerDimsPerm.push(parser.parseInteger('int64'));
                 } while (parser.parseOptionalComma());
                 parser.parseRSquare();
             }
-            result.addAttribute('outer_dims_perm', outerDimsPerm.map((v) => BigInt(v)));
+            result.addAttribute('outer_dims_perm', outerDimsPerm);
         }
         parser.parseKeyword('inner_dims_pos');
         parser.parseEqual();
@@ -15287,11 +15281,11 @@ _.LinalgDialect = class extends _.Dialect {
         parser.parseLSquare();
         if (!parser.parseOptionalRSquare()) {
             do {
-                innerDimsPos.push(String(parser.parseInteger()));
+                innerDimsPos.push(parser.parseInteger('int64'));
             } while (parser.parseOptionalComma());
             parser.parseRSquare();
         }
-        result.addAttribute('inner_dims_pos', innerDimsPos.map((v) => BigInt(v)));
+        result.addAttribute('inner_dims_pos', innerDimsPos);
         parser.parseKeyword('inner_tiles');
         parser.parseEqual();
         const staticInnerTiles = [];
@@ -15322,7 +15316,7 @@ _.LinalgDialect = class extends _.Dialect {
         for (const dynOp of dynamicTileOperands) {
             parser.resolveOperand(dynOp, null, result.operands);
         }
-        if (!sourceType.toString().startsWith('memref')) {
+        if (!(sourceType instanceof _.MemRefType)) {
             result.addTypes([destType]);
         }
         return true;
@@ -16694,7 +16688,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalLSquare()) {
                 const indices = [];
                 while (!parser.parseOptionalRSquare()) {
-                    const index = String(parser.parseInteger());
+                    const index = parser.parseInteger();
                     if (parser.parseOptionalColon()) {
                         parser.parseType();
                     }
@@ -20352,38 +20346,22 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseShuffleType(parser, op, v1Types, resTypes, maskAttr) {
-        // custom<ShuffleType>(ref(type($v1)), type($res), ref($mask))
-        // Computes the result type: same element type as input, length = mask.size()
         if (resTypes.length > 0) {
-            return; // Result type already set
+            return;
         }
         if (!v1Types || v1Types.length === 0 || !maskAttr) {
             return;
         }
         const v1Type = v1Types[0];
-        const typeStr = v1Type.toString ? v1Type.toString() : String(v1Type);
-        const vecMatch = typeStr.match(/^vector<(?:\[)?(\d+)(?:\])?\s*x\s*(.+)>$/);
-        if (!vecMatch) {
+        if (!(v1Type instanceof _.VectorType)) {
             return;
         }
-        const elemType = vecMatch[2];
-        const isScalable = typeStr.includes('[') && typeStr.includes(']');
-        // Get mask length
-        let maskLen = 0;
         const mask = maskAttr.value === undefined ? maskAttr : maskAttr.value;
-        if (Array.isArray(mask)) {
-            maskLen = mask.length;
-        } else if (typeof mask === 'string') {
-            const stripped = mask.replace(/[[\]]/g, '').trim();
-            if (stripped) {
-                maskLen = stripped.split(',').length;
-            }
-        }
+        const maskLen = Array.isArray(mask) ? mask.length : 0;
         if (maskLen > 0) {
-            const resultTypeStr = isScalable ?
-                `vector<[${maskLen}]x${elemType}>` :
-                `vector<${maskLen}x${elemType}>`;
-            op.addTypes([new _.Type(resultTypeStr)]);
+            const isScalable = v1Type.scalableDims && v1Type.scalableDims.some(Boolean);
+            const resType = new _.VectorType([BigInt(maskLen)], v1Type.elementType, isScalable ? [true] : []);
+            op.addTypes([resType]);
         }
     }
 
@@ -21813,7 +21791,7 @@ _.TFExecutorDialect = class extends _.Dialect {
             parser.parseComma();
             const unresolvedIndex = parser.parseOperand();
             parser.parseKeyword('of');
-            const numOuts = parseInt(parser.parseInteger(), 10);
+            const numOuts = parser.parseInteger();
             result.addAttribute('num_outs', numOuts);
             let unresolvedControlInputs = [];
             if (parser.parseOptionalLParen()) {
@@ -22003,7 +21981,7 @@ _.CoreRTDialect = class extends _.Dialect {
                 result.addAttribute('op_func_attrs', Object.fromEntries(funcAttrs));
             }
             if (parser.parseOptionalColon()) {
-                const resultCount = parseInt(parser.parseInteger(), 10);
+                const resultCount = parser.parseInteger();
                 if (isSeq) {
                     result.addTypes([new _.Type('!tfrt.chain')]);
                 }
@@ -22292,7 +22270,7 @@ _.TFRTFallbackAsyncDialect = class extends _.Dialect {
                 // createop always returns !tfrt.chain
                 result.addTypes([new _.Type('!tfrt.chain')]);
             } else if (parser.parseOptionalColon()) {
-                const resultCount = parseInt(parser.parseInteger(), 10);
+                const resultCount = parser.parseInteger();
                 result.addAttribute('result_count', resultCount);
                 if (hasChain) {
                     result.addTypes([new _.Type('!tfrt.chain')]);
@@ -22889,7 +22867,7 @@ _.SdfgDialect = class extends _.Dialect {
                     result.addTypes([result.operands[0].type]);
                 } else {
                     // Fallback: use a generic memref type
-                    result.addTypes([new _.Type('memref<*xf32>')]);
+                    result.addTypes([new _.UnrankedMemRefType(new _.Type('f32'))]);
                 }
             }
             return true;
@@ -24120,7 +24098,7 @@ _.triton.PointerType = class extends _.Type {
         const pointeeType = parser.parseType();
         let addressSpace = 1;
         if (parser.parseOptionalComma()) {
-            addressSpace = parseInt(parser.parseInteger(), 10);
+            addressSpace = parser.parseInteger();
 
         }
         parser.parseGreater();
@@ -24155,7 +24133,7 @@ _.triton.TritonDialect = class extends _.Dialect {
             const pointeeType = parser.parseType();
             let addressSpace = 1;
             if (parser.parseOptionalComma()) {
-                addressSpace = parseInt(parser.parseInteger(), 10);
+                addressSpace = parser.parseInteger();
             }
             parser.parseGreater();
             return new _.triton.PointerType(pointeeType, addressSpace);
@@ -25347,7 +25325,7 @@ _.smt.SMTDialect = class extends _.Dialect {
     parseType(parser) {
         const typeName = parser.parseOptionalKeyword();
         if (typeName === 'bv' && parser.parseOptionalLess()) {
-            const width = parseInt(parser.parseInteger(), 10);
+            const width = parser.parseInteger();
 
             parser.parseGreater();
             return new _.smt.BitVectorType(width);
@@ -26101,18 +26079,11 @@ _.TritonXlaDialect = class extends _.Dialect {
     }
 
     _extractMemRefInfo(memrefType, op, shapeAttrName, layoutAttrName) {
-        // Extract shape and layout from memref type like memref<512x1x128xbf16, #xtile.layout<[2, 1, 0]>>
-        const typeStr = memrefType.toString();
-        const shapeMatch = typeStr.match(/memref<([\d?x]+)/);
-        if (shapeMatch) {
-            const dims = shapeMatch[1].split('x').filter((d) => d).map((d) => d === '?' ? -1 : parseInt(d, 10));
-            op.addAttribute(shapeAttrName, dims);
+        op.addAttribute(shapeAttrName, memrefType.shape.map((d) => Number(d)));
+        if (!(memrefType.layout instanceof _.XTileLayoutAttr)) {
+            throw new mlir.Error('Expected layout attribute');
         }
-        const layoutMatch = typeStr.match(/#[a-z_.]+\.<\[([^\]]+)\]>/);
-        if (layoutMatch) {
-            const layout = layoutMatch[1].split(',').map((s) => parseInt(s.trim(), 10));
-            op.addAttribute(layoutAttrName, layout);
-        }
+        op.addAttribute(layoutAttrName, memrefType.layout.minorToMajor.map((d) => Number(d)));
     }
 
     parseDynamicIndexList(parser, op, dynamicName, staticName) {
