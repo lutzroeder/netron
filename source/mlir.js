@@ -11894,13 +11894,18 @@ _.VectorDialect = class extends _.Dialect {
             return true;
         }
         if (result.op === 'vector.contract') {
-            parser.parseOptionalAttribute();
+            const dictAttr = parser.parseAttribute();
             const unresolvedOperands = parser.parseOperandList();
             parser.parseOptionalAttrDict(result.attributes);
             const types = parser.parseColonTypeList();
             parser.resolveOperands(unresolvedOperands, types, result.operands);
             const resultType = parser.parseKeywordType('into');
             result.addTypes([resultType]);
+            if (dictAttr instanceof _.DictionaryAttr) {
+                for (const [key, value] of dictAttr.value) {
+                    result.attributes.set(key, value);
+                }
+            }
             return true;
         }
         if (result.op === 'vector.mask') {
@@ -15691,14 +15696,22 @@ _.TosaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tosa');
-        this._customOps = new Set([
-            'tosa.apply_scale', 'tosa.argmax', 'tosa.cast_from_block_scaled',
-            'tosa.cast_to_block_scaled', 'tosa.clamp', 'tosa.conv2d_block_scaled',
-            'tosa.matmul_t_block_scaled', 'tosa.max_pool2d', 'tosa.maximum',
-            'tosa.minimum', 'tosa.reduce_max', 'tosa.reduce_min', 'tosa.rescale',
-            'tosa.resize'
+        this._enumOps = new Map([
+            ['tosa.rescale', 'rounding_mode'],
+            ['tosa.apply_scale', 'rounding_mode'],
+            ['tosa.resize', 'mode'],
+            ['tosa.argmax', 'nan_mode'],
+            ['tosa.max_pool2d', 'nan_mode'],
+            ['tosa.clamp', 'nan_mode'],
+            ['tosa.maximum', 'nan_mode'],
+            ['tosa.minimum', 'nan_mode'],
+            ['tosa.reduce_max', 'nan_mode'],
+            ['tosa.reduce_min', 'nan_mode'],
+            ['tosa.matmul_t_block_scaled', 'block_size'],
+            ['tosa.cast_from_block_scaled', 'block_size'],
+            ['tosa.cast_to_block_scaled', 'block_size'],
+            ['tosa.conv2d_block_scaled', 'block_size'],
         ]);
-        this._regionOps = new Set(['tosa.cond_if', 'tosa.while_loop']);
         this.registerCustomDirective('VariableOpTypeOrInitialValue', this.parseVariableOpTypeOrInitialValue.bind(this));
     }
 
@@ -15716,108 +15729,98 @@ _.TosaDialect = class extends _.Dialect {
     }
 
     parseOperation(parser, result) {
-        const opInfo = result.name.getRegisteredInfo();
-        if (this._regionOps.has(result.op)) {
-            let hasBlockArgs = false;
-            const unresolvedCond = [];
-            const unresolvedInputs = [];
-            const blockArgs = [];
-            const condOperand = parser.parseOptionalOperand();
-            if (condOperand) {
-                unresolvedCond.push(condOperand);
-            }
-            if (parser.parseOptionalLParen()) {
-                hasBlockArgs = true;
-                if (!parser.parseOptionalRParen()) {
-                    do {
-                        const blockArg = parser.parseOptionalOperand();
-                        if (blockArg) {
-                            blockArgs.push(blockArg);
-                            parser.parseEqual();
-                            unresolvedInputs.push(parser.parseOperand());
-                        }
-                    } while (parser.parseOptionalComma());
-                    parser.parseRParen();
-                }
-            }
-            if (parser.parseOptionalColon()) {
-                // For tosa.while_loop: no condition operand, has block args, function type after colon
-                if (unresolvedCond.length === 0 && hasBlockArgs) {
-                    const functionType = parser.parseType();
-                    if (functionType) {
-                        parser.resolveOperands(unresolvedInputs, functionType.inputs, result.operands);
-                        result.addTypes(functionType.results);
-                    }
-                } else {
-                    const condType = parser.parseType();
-                    if (unresolvedCond.length > 0) {
-                        parser.resolveOperands(unresolvedCond, [condType], result.operands);
-                    }
-                    if (hasBlockArgs) {
-                        const functionType = parser.parseType();
-                        if (functionType) {
-                            parser.resolveOperands(unresolvedInputs, functionType.inputs, result.operands);
-                            result.addTypes(functionType.results);
-                        }
-                    } else {
-                        result.addTypes(parser.parseOptionalArrowTypeList());
-                    }
-                }
-            } else {
-                for (const cond of unresolvedCond) {
-                    parser.resolveOperand(cond, null, result.operands);
-                }
-                for (const input of unresolvedInputs) {
-                    parser.resolveOperand(input, null, result.operands);
-                }
-            }
-            const region = result.addRegion();
-            parser.parseRegion(region);
-            if (parser.parseOptionalKeyword('else') || parser.parseOptionalKeyword('do')) {
-                const secondRegion = {};
-                parser.parseRegion(secondRegion);
-                result.regions.push(secondRegion);
-            }
-            return true;
+        if (result.op === 'tosa.cond_if') {
+            return this.parseIfOp(parser, result);
         }
-        if (this._customOps.has(result.op)) {
-            const unresolvedOperands = parser.parseOperandList();
-            {
-                // Parse attribute dict but check if any are actually inputs
-                const inputNames = new Set((opInfo.metadata && opInfo.metadata.operands || []).map((i) => i.name));
-                const tempAttrs = new Map();
-                parser.parseOptionalAttrDict(tempAttrs);
-                for (const [name, value] of tempAttrs) {
-                    // If this is an input (like input_zp, output_zp), add as operand
-                    if (inputNames.has(name) && value && typeof value === 'string' && value.startsWith('%')) {
-                        const unresolvedOperand = new _.UnresolvedOperand(null,value, 0);
-                        unresolvedOperands.push(unresolvedOperand);
-                    } else if (inputNames.has(name) && value && value.value && typeof value.value === 'string' && value.value.startsWith('%')) {
-                        const unresolvedOperand = new _.UnresolvedOperand(null, value.value, 0);
-                        unresolvedOperands.push(unresolvedOperand);
-                    } else {
-                        result.attributes.set(name, value);
-                    }
-                }
-            }
-            if (parser.parseOptionalColon()) {
-                const type = parser.parseType();
-                if (type instanceof _.FunctionType) {
-                    parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
-                    result.addTypes(type.results);
-                } else {
-                    const types = unresolvedOperands.map(() => type);
-                    parser.resolveOperands(unresolvedOperands, types, result.operands);
-                    result.addTypes(parser.parseOptionalArrowTypeList());
-                }
-            } else {
-                for (const operand of unresolvedOperands) {
-                    parser.resolveOperand(operand, null, result.operands);
-                }
-            }
-            return true;
+        if (result.op === 'tosa.while_loop') {
+            return this.parseWhileOp(parser, result);
+        }
+        if (this._enumOps.has(result.op)) {
+            return this.parseWithEnumHandling(parser, result, this._enumOps.get(result.op));
         }
         return super.parseOperation(parser, result);
+    }
+
+    parseIfOp(parser, result) {
+        const thenRegion = result.addRegion();
+        const elseRegion = result.addRegion();
+        const cond = parser.parseOperand();
+        const regionArgs = [];
+        const operands = [];
+        const hasAssignment = parser.parseOptionalAssignmentList(regionArgs, operands);
+        parser.parseColon();
+        const condType = parser.parseType();
+        parser.resolveOperand(cond, condType, result.operands);
+        if (hasAssignment) {
+            const functionType = parser.parseType();
+            result.addTypes(functionType.results);
+            parser.resolveOperands(operands, functionType.inputs, result.operands);
+        } else {
+            result.addTypes(parser.parseOptionalArrowTypeList());
+        }
+        parser.parseRegion(thenRegion);
+        if (parser.parseOptionalKeyword('else')) {
+            parser.parseRegion(elseRegion);
+        }
+        parser.parseOptionalAttrDict(result.attributes);
+        return true;
+    }
+
+    parseWhileOp(parser, result) {
+        const regionArgs = [];
+        const operands = [];
+        parser.parseOptionalAssignmentList(regionArgs, operands);
+        const functionType = parser.parseColonType();
+        result.addTypes(functionType.results);
+        parser.resolveOperands(operands, functionType.inputs, result.operands);
+        for (let i = 0; i < regionArgs.length; i++) {
+            regionArgs[i].type = functionType.inputs[i];
+        }
+        const condRegion = result.addRegion();
+        parser.parseRegion(condRegion, regionArgs);
+        parser.parseKeyword('do');
+        const bodyRegion = result.addRegion();
+        parser.parseRegion(bodyRegion);
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
+        return true;
+    }
+
+    parseAttrEntryWithEnumHandling(parser, attrs, enumKey) {
+        const name = parser.parseKeyword();
+        parser.parseEqual();
+        if (name === enumKey) {
+            const kw = parser.parseOptionalKeyword();
+            if (kw) {
+                attrs.set(name, kw);
+                return;
+            }
+        }
+        const attr = parser.parseAttribute();
+        attrs.set(name, attr);
+    }
+
+    parseWithEnumHandling(parser, result, enumKey) {
+        const operands = [];
+        do {
+            operands.push(parser.parseOperand());
+        } while (parser.parseOptionalComma());
+        const attrs = new Map();
+        if (parser.parseOptionalLBrace()) {
+            if (!parser.parseOptionalRBrace()) {
+                do {
+                    this.parseAttrEntryWithEnumHandling(parser, attrs, enumKey);
+                } while (parser.parseOptionalComma());
+                parser.parseRBrace();
+            }
+        }
+        parser.parseColon();
+        const fnTy = parser.parseType();
+        parser.resolveOperands(operands, fnTy.inputs, result.operands);
+        result.addTypes(fnTy.results);
+        for (const [name, value] of attrs) {
+            result.attributes.set(name, value);
+        }
+        return true;
     }
 
     parseVariableOpTypeOrInitialValue(parser, op /*, args */) {
@@ -18103,78 +18106,33 @@ _.SCFDialect = class extends _.Dialect {
         if (parser.parseOptionalKeyword('unsigned')) {
             result.addAttribute('unsignedCmp', true);
         }
-        const inductionVar = parser.parseOptionalOperand();
-        if (!inductionVar) {
-            return false;
-        }
-        if (!parser.parseOptionalEqual()) {
-            return false;
-        }
-        const indexType = new _.IndexType();
-        const unresolvedLb = parser.parseOptionalOperand();
-        if (!unresolvedLb) {
-            return false;
-        }
-        if (!parser.parseOptionalKeyword('to')) {
-            return false;
-        }
-        const unresolvedUb = parser.parseOptionalOperand();
-        if (!unresolvedUb) {
-            return false;
-        }
-        if (!parser.parseOptionalKeyword('step')) {
-            return false;
-        }
-        const unresolvedStep = parser.parseOptionalOperand();
-        if (!unresolvedStep) {
-            return false;
-        }
-        parser.resolveOperands([unresolvedLb, unresolvedUb, unresolvedStep], [indexType, indexType, indexType], result.operands);
-        let initArgsCount = 0;
-        if (parser.parseOptionalKeyword('iter_args')) {
-            const unresolvedIterArgs = [];
-            if (parser.parseOptionalLParen()) {
-                while (!parser.parseOptionalRParen()) {
-                    parser.parseOptionalOperand(); // Skip the loop-carried variable name
-                    if (parser.parseOptionalEqual()) {
-                        const iterArg = parser.parseOptionalOperand();
-                        if (iterArg) {
-                            unresolvedIterArgs.push(iterArg);
-                        } else {
-                            const value = parser.parseAttribute();
-                            if (value) {
-                                // Attribute values aren't operands - skip for now
-                            }
-                        }
-                    }
-                    parser.parseOptionalComma();
-                }
-            }
+        const inductionVariable = parser.parseArgument();
+        parser.parseEqual();
+        const lb = parser.parseOperand();
+        parser.parseKeyword('to');
+        const ub = parser.parseOperand();
+        parser.parseKeyword('step');
+        const step = parser.parseOperand();
+        const regionArgs = [inductionVariable];
+        const operands = [];
+        const hasIterArgs = parser.parseOptionalKeyword('iter_args');
+        if (hasIterArgs) {
+            parser.parseAssignmentList(regionArgs, operands);
             result.addTypes(parser.parseArrowTypeList());
-            const iterArgTypes = result.types.map((t) => t || indexType);
-            parser.resolveOperands(unresolvedIterArgs, iterArgTypes, result.operands);
-            initArgsCount = unresolvedIterArgs.length;
         }
-        if (parser.parseOptionalColon()) {
-            parser.parseType();
+        const type = parser.parseOptionalColon() ? parser.parseType() : new _.IndexType();
+        inductionVariable.type = type;
+        for (let i = 0; i < operands.length; i++) {
+            regionArgs[i + 1].type = result.types[i];
         }
-        {
-            const region = {};
-            parser.parseRegion(region);
-            if (region.blocks && region.blocks.length > 0) {
-                if (!region.blocks[0].arguments) {
-                    region.blocks[0].arguments = [];
-                }
-                if (region.blocks[0].arguments.length > 0) {
-                    region.blocks[0].arguments[0] = { value: inductionVar };
-                } else {
-                    region.blocks[0].arguments.push({ value: inductionVar });
-                }
-            }
-            result.regions.push(region);
+        const region = result.addRegion();
+        parser.parseRegion(region, regionArgs);
+        parser.resolveOperands([lb, ub, step], [type, type, type], result.operands);
+        if (hasIterArgs) {
+            parser.resolveOperands(operands, result.types, result.operands);
         }
         parser.parseOptionalAttrDict(result.attributes);
-        result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([1, 1, 1, initArgsCount]));
+        result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([1, 1, 1, operands.length]));
         return true;
     }
 
