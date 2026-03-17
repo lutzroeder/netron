@@ -16,7 +16,6 @@ view.View = class {
             weights: true,
             attributes: false,
             names: false,
-            blocks: true,
             direction: 'vertical',
             mousewheel: 'scroll'
         };
@@ -2849,17 +2848,27 @@ view.Node = class extends grapher.Node {
             content = `${begin}\u2026${end}`;
         }
         const styles = category ? ['node-item-type', `node-item-type-${category.toLowerCase()}`] : ['node-item-type'];
-        const title = header.add(null, styles, content, tooltip);
+        const title = header.add(null, styles);
+        title.content = content;
+        title.tooltip = tooltip;
         title.on('click', () => {
             this.context.activate(value);
         });
-        if (type === 'graph' && this.context.view.options.blocks) {
+        if (type === 'graph') {
+            this.definition = header.add(null, styles);
+            this.definition.content = '\u25CB';
+            this.definition.tooltip = 'Show Graph';
+            this.definition.padding = 4;
+            this.definition.on('click', async () => await this.context.view.pushTarget(value, this.value));
             const expanded = this.context.blocks.has(value);
             const icon = expanded ? '\u2212' : '+';
             const tooltip = expanded ? 'Collapse Graph' : 'Expand Graph';
-            this.definition = header.add(null, styles, icon, tooltip);
-            this.definition.on('click', () => {
-                const rect = this.definition.element.getBoundingClientRect();
+            this.expander = header.add(null, styles);
+            this.expander.content = icon;
+            this.expander.tooltip = tooltip;
+            this.expander.padding = 6;
+            this.expander.on('click', () => {
+                const rect = this.expander.element.getBoundingClientRect();
                 if (this.context.blocks.has(value)) {
                     this.context.blocks.delete(value);
                 } else {
@@ -2867,9 +2876,6 @@ view.Node = class extends grapher.Node {
                 }
                 this.context.view.refresh({ value: this.value, rect });
             });
-        } else if (type === 'graph') {
-            this.definition = header.add(null, styles, '\u25CB', 'Show Subgraph');
-            this.definition.on('click', async () => await this.context.view.pushTarget(value, this.value));
         } else if (node.type.type || (Array.isArray(node.type.nodes) && node.type.nodes.length > 0)) {
             let icon = '\u0192';
             let tooltip = 'Show Function Definition';
@@ -2877,7 +2883,10 @@ view.Node = class extends grapher.Node {
                 icon = '\u25CF';
                 tooltip = 'Show Weights';
             }
-            this.definition = header.add(null, styles, icon, tooltip);
+            this.definition = header.add(null, styles);
+            this.definition.content = icon;
+            this.definition.tooltip = tooltip;
+            this.definition.padding = 4;
             this.definition.on('click', async () => await this.context.view.pushTarget(node.type, this.value));
         }
         let current = null;
@@ -3099,7 +3108,9 @@ view.Input = class extends grapher.Node {
             name = name.split('/').pop();
         }
         const header = this.header();
-        const title = header.add(null, ['graph-item-input'], name, types);
+        const title = header.add(null, ['graph-item-input']);
+        title.content = name;
+        title.tooltip = types;
         title.on('click', () => this.context.view.showTargetProperties(this.target));
         this.id = `input-${name ? `name-${name}` : `id-${(view.Input.counter++)}`}`;
     }
@@ -3146,7 +3157,9 @@ view.Output = class extends grapher.Node {
                 name = name.split('/').pop();
             }
             const header = this.header();
-            const title = header.add(null, ['graph-item-output'], name, types);
+            const title = header.add(null, ['graph-item-output']);
+            title.content = name;
+            title.tooltip = types;
             title.on('click', () => this.context.view.showTargetProperties(this.target));
         }
     }

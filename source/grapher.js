@@ -466,8 +466,8 @@ grapher.Node.Header = class {
         this._entries = [];
     }
 
-    add(id, classList, content, tooltip, handler) {
-        const entry = new grapher.Node.Header.Entry(id, classList, content, tooltip, handler);
+    add(id, classes) {
+        const entry = new grapher.Node.Header.Entry(id, classes);
         this._entries.push(entry);
         return entry;
     }
@@ -523,7 +523,7 @@ grapher.Node.Header = class {
             const r3 = i === this._entries.length - 1 && this.last;
             const r4 = i === 0 && this.last;
             entry.path.setAttribute('d', grapher.Node.roundedRect(0, 0, entry.width, entry.height, r1, r2, r3, r4));
-            entry.text.setAttribute('x', 6);
+            entry.text.setAttribute('x', entry.tx || 6);
             entry.text.setAttribute('y', entry.ty);
         }
         if (this.line) {
@@ -538,12 +538,9 @@ grapher.Node.Header = class {
 
 grapher.Node.Header.Entry = class {
 
-    constructor(id, classList, content, tooltip, handler) {
+    constructor(id, classes) {
         this.id = id;
-        this.classList = classList;
-        this.content = content;
-        this.tooltip = tooltip;
-        this.handler = handler;
+        this.classes = classes;
         this._events = {};
     }
 
@@ -568,8 +565,8 @@ grapher.Node.Header.Entry = class {
         this.element.appendChild(this.path);
         this.element.appendChild(this.text);
         const classList = ['node-item'];
-        if (this.classList) {
-            classList.push(...this.classList);
+        if (this.classes) {
+            classList.push(...this.classes);
         }
         this.element.setAttribute('class', classList.join(' '));
         if (this.id) {
@@ -591,7 +588,7 @@ grapher.Node.Header.Entry = class {
 
     measure() {
         const yPadding = 4;
-        const xPadding = 7;
+        const xPadding = this.padding || 7;
         const boundingBox = this.text.getBBox();
         this.width = boundingBox.width + xPadding + xPadding;
         this.height = boundingBox.height + yPadding + yPadding;
