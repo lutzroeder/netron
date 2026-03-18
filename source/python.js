@@ -2339,6 +2339,12 @@ python.Execution = class {
                     this.push(...iterable);
                 }
             }
+            append(item) {
+                this.push(item);
+            }
+            extend(items) {
+                this.push(...items);
+            }
         });
         this.registerType('builtins.number', class {});
         this.registerFunction('builtins.__import__', (name, globals, locals, fromlist, level) => {
@@ -2525,6 +2531,12 @@ python.Execution = class {
                         this.push(value);
                     }
                 }
+            }
+            append(item) {
+                this.push(item);
+            }
+            extend(items) {
+                this.push(...items);
             }
         });
         this.registerType('collections.OrderedDict', class extends dict {});
@@ -3801,7 +3813,7 @@ python.Execution = class {
             load() {
                 const reader = this._reader;
                 const marker = [];
-                let stack = [];
+                let stack = new builtins.list();
                 const memo = {};
                 let size = 0;
                 while (reader.position < reader.length) {
@@ -4069,14 +4081,21 @@ python.Execution = class {
                             break;
                         case 97: { // APPEND 'a'
                             const append = stack.pop();
-                            stack[stack.length - 1].push(append);
+                            const list = stack[stack.length - 1];
+                            list.append(append);
                             break;
                         }
                         case 101: { // APPENDS 'e'
                             const appends = stack;
                             stack = marker.pop();
-                            const list = stack[stack.length - 1];
-                            list.push(...appends);
+                            const list_obj = stack[stack.length - 1];
+                            if (list_obj.extend) {
+                                list_obj.extend(appends);
+                            } else {
+                                for (const item of appends) {
+                                    list_obj.append(item);
+                                }
+                            }
                             break;
                         }
                         case 83: { // STRING 'S'
@@ -4135,7 +4154,7 @@ python.Execution = class {
                         }
                         case 40: // MARK '('
                             marker.push(stack);
-                            stack = [];
+                            stack = new builtins.list();
                             break;
                         case 136: // NEWTRUE '\x88'
                             stack.push(true);
@@ -11789,6 +11808,12 @@ python.Execution = class {
             }
             elementType() {
                 return this.type;
+            }
+            append(item) {
+                this.push(item);
+            }
+            extend(items) {
+                this.push(...items);
             }
         });
         this.registerFunction('torch._C.builtin_cast_method_to_scalar_type', () => {
