@@ -8645,6 +8645,7 @@ _.Dialect = class {
         this._customTypes = new Map();
         this._customAttributes = new Map();
         this.registerCustomDirective('DynamicIndexList', this.parseDynamicIndexList.bind(this));
+        this.registerCustomDirective('NestedDynamicIndexList', this.parseNestedDynamicIndexList.bind(this));
         this.registerCustomDirective('Offsets', this.parseOffsets.bind(this));
         this.registerCustomDirective('SymbolVisibility', this.parseSymbolVisibility.bind(this));
         this.registerCustomDirective('TypeOrAttr', this.parseTypeOrAttr.bind(this));
@@ -10391,6 +10392,33 @@ _.Dialect = class {
                 throw new mlir.Error(`Scalable indices found but no scalable attribute name provided ${parser.getCurrentLocation()}`);
             }
             op.addAttribute(scalableAttrName, scalableFlags);
+        }
+    }
+
+    parseNestedDynamicIndexList(parser, op, operandsArr, staticAttrName) {
+        const unresolvedOperands = [];
+        const innerArrayAttrs = [];
+        parser.parseLSquare();
+        do {
+            const staticVals = [];
+            parser.parseLSquare();
+            do {
+                const operand = parser.parseOptionalOperand();
+                if (operand) {
+                    unresolvedOperands.push(operand);
+                    staticVals.push(_.ShapedType.kDynamic);
+                } else {
+                    staticVals.push(parser.parseInteger());
+                }
+            } while (parser.parseOptionalComma());
+            parser.parseRSquare();
+            innerArrayAttrs.push(staticVals);
+        } while (parser.parseOptionalComma());
+        parser.parseRSquare();
+        const indexType = new _.IndexType();
+        parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => indexType), op.operands);
+        if (staticAttrName && innerArrayAttrs.length > 0) {
+            op.addAttribute(staticAttrName, innerArrayAttrs);
         }
     }
 
@@ -16013,6 +16041,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     constructor(operations) {
         super(operations, 'spirv');
         this.typesWithOptionalParams = new Set(['sampler', 'sampled_image', 'matrix', 'image', 'rtarray', 'ptr', 'array', 'struct', 'coopmatrix']);
+        this.registerCustomType('SPIRV_Type', (parser) => parser.parseType());
         this.registerCustomDirective('ImageOperands', this.parseImageOperands.bind(this));
         this.registerCustomDirective('SwitchOpCases', this.parseSwitchOpCases.bind(this));
         this.registerCustomDirective('SPIRV_I32_1DArmTensor', this.parseSPIRV_I32_1DArmTensor.bind(this));
@@ -16670,6 +16699,28 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             if (params.length > 0) {
                 result.addAttribute('values', params);
+            }
+            return true;
+        }
+        if (result.op === 'spirv.ExecutionModeId') {
+            const fnSym = parser.parseOptionalSymbolName();
+            if (fnSym) {
+                result.addAttribute('fn', new _.SymbolRefAttr(fnSym));
+            }
+            const mode = parser.parseOptionalString();
+            if (mode !== null) {
+                result.addAttribute('execution_mode', mode);
+            }
+            const values = [];
+            do {
+                const sym = parser.parseOptionalSymbolName();
+                if (!sym) {
+                    break;
+                }
+                values.push(new _.SymbolRefAttr(sym));
+            } while (parser.parseOptionalComma());
+            if (values.length > 0) {
+                result.addAttribute('values', values);
             }
             return true;
         }
