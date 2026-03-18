@@ -63,7 +63,7 @@ ncnn.ModelFactory = class {
             return context.set('ncnn.weights');
         } else if (identifier.endsWith('.pnnx.bin')) {
             const entries = await context.peek('zip');
-            if (entries) { // can be empty
+            if (entries instanceof Map) {
                 return context.set('pnnx.weights', entries);
             }
         } else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
@@ -939,7 +939,10 @@ ncnn.BlobReader = class {
         if (context) {
             identifier = context.identifier;
             if (identifier.toLowerCase().endsWith('.pnnx.bin')) {
-                entries = await context.peek('zip');
+                const content = await context.peek('zip');
+                if (content instanceof Map) {
+                    entries = content;
+                }
             } else {
                 buffer = context.stream.peek();
                 position = 0;
