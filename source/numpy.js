@@ -14,7 +14,7 @@ numpy.ModelFactory = class {
             return context.set('npy');
         }
         const entries = await context.peek('npz');
-        if (entries && entries.size > 0) {
+        if (entries instanceof Map && entries.size > 0) {
             return context.set('npz', entries);
         }
         return null;
