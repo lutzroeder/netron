@@ -10307,14 +10307,14 @@ python.Execution = class {
         this.registerType('torch._higher_order_ops.wrap.WrapWithSetGradEnabled', class extends torch._ops.HigherOrderOperator {
             constructor(name) {
                 super(name, false);
-                this._schema = torch.FunctionSchema.parse('higher_order::wrap_with_set_grad_enabled(bool enable_grad, Any wrapped_func) -> Tensor');
+                this._schema = torch.FunctionSchema.parse('higher_order::wrap_with_set_grad_enabled(bool enable_grad, Any wrapped_func, ...) -> Tensor');
             }
         });
         torch.ops.higher_order.wrap_with_set_grad_enabled = new torch._higher_order_ops.wrap.WrapWithSetGradEnabled('wrap_with_set_grad_enabled');
         this.registerType('torch._higher_order_ops.wrap.Wrap', class extends torch._ops.HigherOrderOperator {
             constructor(name) {
                 super(name, false);
-                this._schema = torch.FunctionSchema.parse('higher_order::wrap(Any func) -> Tensor');
+                this._schema = torch.FunctionSchema.parse('higher_order::wrap(Any func, ...) -> Tensor');
             }
         });
         torch.ops.higher_order.wrap = new torch._higher_order_ops.wrap.Wrap('wrap');
@@ -12048,6 +12048,9 @@ python.Execution = class {
             __getattr__(key) {
                 key = key === 'default' ? '' : key;
                 const op_dk_tags = torch._C._get_operation_overload(this._qualified_op_name, key);
+                if (op_dk_tags === null) {
+                    throw new python.Error(`The underlying op of '${this._qualified_op_name}' has no overload name '${key}'.`);
+                }
                 const [op_, op_dk_, tags] = op_dk_tags;
                 const schema = torch._C._get_schema(this._qualified_op_name, key);
                 const overload = this._has_script_object_arg(schema) ?
@@ -19191,6 +19194,7 @@ python.Execution = class {
             constructor(obj) {
                 this.arg = new torch._export.serde.schema.Argument(obj.arg);
                 this.name = obj.name;
+                this.kind = obj.kind === undefined ? null : obj.kind;
             }
         });
         this.registerType('torch._export.serde.schema.Argument', class extends torch._export.serde.union._Union {
@@ -20101,9 +20105,18 @@ python.Execution = class {
             deserialize_inputs(target, serialized_node) {
                 const schema_args = this._get_schema_from_target(target).arguments;
                 const actual_args = new Map(serialized_node.inputs.map((input) => [input.name, this.deserialize_input(input.arg)]));
+                const argument_kinds = new Map(serialized_node.inputs.map((input) => [input.name, input.kind]));
                 const args = new builtins.list();
                 const kwargs = new builtins.dict();
                 for (const schema_arg of schema_args) {
+                    const kind = argument_kinds.get(schema_arg.name);
+                    if (kind === 1 /* ArgumentKind.POSITIONAL */) {
+                        args.push(actual_args.get(schema_arg.name));
+                        continue;
+                    } else if (kind === 2 /* ArgumentKind.KEYWORD */ && actual_args.has(schema_arg.name)) {
+                        kwargs.set(schema_arg.name, actual_args.get(schema_arg.name));
+                        continue;
+                    }
                     const is_positional = !schema_arg.has_default_value() && !schema_arg.kwarg_only;
                     if (is_positional) {
                         args.push(actual_args.get(schema_arg.name));
