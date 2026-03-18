@@ -625,6 +625,10 @@ gguf.BinaryReader = class {
         return this._reader.float32();
     }
 
+    float64() {
+        return this._reader.float64();
+    }
+
     string() {
         const size = this.uint64().toNumber();
         const buffer = this.read(size);
@@ -642,6 +646,7 @@ gguf.BinaryReader = class {
             case gguf.Type.UINT64: return this.uint64();
             case gguf.Type.INT64: return this.int64();
             case gguf.Type.FLOAT32: return this.float32();
+            case gguf.Type.FLOAT64: return this.float64();
             case gguf.Type.BOOL: return this.byte() !== 0;
             case gguf.Type.STRING: return this.string();
             case gguf.Type.ARRAY: {
