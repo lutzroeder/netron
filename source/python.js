@@ -7529,19 +7529,19 @@ python.Execution = class {
             }
             return changed;
         });
-        this.registerFunction('torch._C.TORCH_INTERNAL_ASSERT', (cond) => {
+        this.registerFunction('torch._C.TORCH_INTERNAL_ASSERT', (cond, ...args) => {
             if (!cond) {
-                throw new python.Error('Assertion failed.');
+                throw new python.Error(`Assertion failed.${args.length > 0 ? ` ${args.join('')}` : ''}`);
             }
         });
-        this.registerFunction('torch._C.TORCH_CHECK', (cond) => {
+        this.registerFunction('torch._C.TORCH_CHECK', (cond, ...args) => {
             if (!cond) {
-                throw new python.Error('Assertion failed.');
+                throw new python.Error(`Assertion failed.${args.length > 0 ? ` ${args.join('')}` : ''}`);
             }
         });
-        this.registerFunction('torch._C.AT_ASSERT', (cond) => {
+        this.registerFunction('torch._C.AT_ASSERT', (cond, ...args) => {
             if (!cond) {
-                throw new python.Error('Assertion failed.');
+                throw new python.Error(`Assertion failed.${args.length > 0 ? ` ${args.join('')}` : ''}`);
             }
         });
         this.registerFunction('torch._C.eraseListLiterals', (graph) => {
@@ -7630,11 +7630,11 @@ python.Execution = class {
                             const name = node.s('name');
                             const fn = class_type.getMethod(name);
                             if (!fn.isGraphFunction()) {
-                                torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || incompatible_amp.value());
+                                torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || incompatible_amp.value(), 'Calls are not expected with AMP & JIT');
                                 incompatible_amp = true;
                             }
                         } else {
-                            torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || incompatible_amp.value());
+                            torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || incompatible_amp.value(), 'Unexpected prim::CallMethod form with AMP & JIT');
                             incompatible_amp = true;
                         }
                         break;
@@ -7644,7 +7644,7 @@ python.Execution = class {
                             if (node.hasUses()) {
                                 torch._C.TORCH_CHECK(false, "`with autocast() as ...` is not supported");
                             }
-                            torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || !incompatible_amp.value());
+                            torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || !incompatible_amp.value(), 'Unsupported case by AMP & JIT');
                             incompatible_amp = false;
                             autocast_stack.push(autocast_scope);
                         }
@@ -7654,7 +7654,7 @@ python.Execution = class {
                         if (torch._C.isAutocastNode(node.input(0))) {
                             torch._C.TORCH_INTERNAL_ASSERT(!autocast_stack.empty());
                             torch._C.TORCH_INTERNAL_ASSERT(autocast_stack.top().instance === node.input());
-                            torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || !incompatible_amp.value());
+                            torch._C.TORCH_INTERNAL_ASSERT(!incompatible_amp.has_value() || !incompatible_amp.value(), 'Unsupported case by AMP & JIT');
                             incompatible_amp = false;
                             autocast_stack.pop();
                         }
@@ -10713,7 +10713,7 @@ python.Execution = class {
         this.registerFunction('torch._C.standardizeVectorForUnion', (...args) => {
             if (args.length === 1) {
                 const [to_flatten] = args;
-                torch._C.TORCH_INTERNAL_ASSERT(to_flatten !== null);
+                torch._C.TORCH_INTERNAL_ASSERT(to_flatten !== null, `'standardizeVectorForUnion' was passed a 'nullptr'.`);
                 const to_fill = [];
                 torch._C.standardizeVectorForUnion(to_flatten, to_fill);
                 to_flatten.splice(0, to_flatten.length);
@@ -10794,7 +10794,7 @@ python.Execution = class {
         this.registerType('torch.UnionType', class extends torch.Type {
             constructor(reference, kind) {
                 super(kind || 'UnionType');
-                torch._C.TORCH_INTERNAL_ASSERT(reference.length > 0);
+                torch._C.TORCH_INTERNAL_ASSERT(reference.length > 0, 'Cannot create an empty union.');
                 this._types = [];
                 torch._C.standardizeVectorForUnion(reference, this._types);
                 if (this._types.length === 1) {
@@ -12778,14 +12778,11 @@ python.Execution = class {
                 }
                 const op = this.maybeOperator();
                 if (!op) {
-                    torch._C.TORCH_INTERNAL_ASSERT(this._kind.startsWith('prim::'));
+                    torch._C.TORCH_INTERNAL_ASSERT(this._kind.startsWith('prim::'), `Only prim ops are allowed to not have a registered operator but '${this._kind}' doesn't have one either. We don't know if this op has side effects.`);
                     return false;
                 }
                 if (this._kind.startsWith('prim::') || this._kind.startsWith('aten::') || this._kind.startsWith('cuda::')) {
-                    torch._C.TORCH_INTERNAL_ASSERT(
-                        op.aliasAnalysisKind() === 'INTERNAL_SPECIAL_CASE' ||
-                        op.aliasAnalysisKind() === 'FROM_SCHEMA' ||
-                        op.aliasAnalysisKind() === 'CONSERVATIVE');
+                    torch._C.TORCH_INTERNAL_ASSERT(op.aliasAnalysisKind() === 'INTERNAL_SPECIAL_CASE' || op.aliasAnalysisKind() === 'FROM_SCHEMA' || op.aliasAnalysisKind() === 'CONSERVATIVE', `aten:: and prim:: ops should have AliasAnalysisKind::INTERNAL_SPECIAL_CASE, AliasAnalysisKind::FROM_SCHEMA or AliasAnalysisKind::CONSERVATIVE but '${this._kind}' has '${op.aliasAnalysisKind()}.`);
                 }
                 switch (op.aliasAnalysisKind()) {
                     case 'PURE_FUNCTION':
@@ -12797,7 +12794,7 @@ python.Execution = class {
                     default:
                         break;
                 }
-                torch._C.TORCH_INTERNAL_ASSERT(false);
+                torch._C.TORCH_INTERNAL_ASSERT(false, 'Unhandled AliasAnalysisKind case.');
                 return false;
             }
             inputs() {
@@ -12882,7 +12879,7 @@ python.Execution = class {
             insertAfter(n) {
                 torch._C.AT_ASSERT(!this.inBlockList() || n.inBlockList());
                 torch._C.AT_ASSERT(n.owningBlock());
-                torch._C.TORCH_INTERNAL_ASSERT(n.kind() !== 'prim::Return');
+                torch._C.TORCH_INTERNAL_ASSERT(n.kind() !== 'prim::Return', 'Attempting to insert a Node after the Return node or before the Param node.');
                 this._owning_block = n.owningBlock();
                 const next = n.next;
                 n.next = this;
