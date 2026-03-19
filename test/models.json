@@ -4569,6 +4569,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "fusion.onnx",
+    "source":   "https://github.com/user-attachments/files/26104670/fusion.onnx.zip[fusion.onnx]",
+    "format":   "ONNX v11",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "gather.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306625/gather.json.zip[gather.json]",
     "format":   "ONNX v6",
