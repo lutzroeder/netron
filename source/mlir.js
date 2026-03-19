@@ -720,7 +720,7 @@ mlir.TensorShape = class {
         if (!this.dimensions || this.dimensions.length === 0) {
             return '';
         }
-        return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
+        return `[${this.dimensions.map((dimension) => dimension.toString()).join(', ')}]`;
     }
 };
 
@@ -1938,6 +1938,15 @@ _.util.ListType = class extends _.Type {
     constructor(elementType) {
         super();
         this.elementType = elementType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const elementType = parser.parseOptionalQuestion()
+            ? new _.util.VariantType()
+            : parser.parseType();
+        parser.parseGreater();
+        return new _.util.ListType(elementType);
     }
 
     toString() {
@@ -8441,7 +8450,7 @@ _.DialectContext = class {
         this._dialects.set('builtin', new _.BuiltinDialect(operations));
         this._dialects.set('std', new _.Dialect(operations, 'std'));
         this._dialects.set('bufferization', new _.BufferizationDialect(operations));
-        this._dialects.set('stablehlo', new _.StableHLODialect(operations));
+        this._dialects.set('stablehlo', new _.stablehlo.StableHLODialect(operations));
         this._dialects.set('vhlo', new _.VhloDialect(operations));
         this._dialects.set('interpreter', new _.InterpreterDialect(operations));
         this._dialects.set('affine', new _.AffineDialect(operations));
@@ -8459,10 +8468,10 @@ _.DialectContext = class {
         this._dialects.set('nvgpu', new _.NVGPUDialect(operations));
         this._dialects.set('nvvm', new _.NVVMDialect(operations));
         this._dialects.set('rocdl', new _.ROCDLDialect(operations));
-        this._dialects.set('nvws', new _.NVWSDialect(operations));
+        this._dialects.set('nvws', new _.triton.nvws.NVWSDialect(operations));
         this._dialects.set('tti', new _.Dialect(operations, 'tti'));
         this._dialects.set('omp', new _.OpenMPDialect(operations));
-        this._dialects.set('proton', new _.ProtonDialect(operations));
+        this._dialects.set('proton', new _.triton.proton.ProtonDialect(operations));
         this._dialects.set('proton_gpu', new _.Dialect(operations, 'proton_gpu'));
         this._dialects.set('arm_sme', new _.ArmSMEDialect(operations));
         this._dialects.set('arm_neon', new _.ArmNeonDialect(operations));
@@ -8472,7 +8481,7 @@ _.DialectContext = class {
         this._dialects.set('lagrad', new _.Dialect(operations, 'lagrad'));
         this._dialects.set('iree_codegen', new _.IREECodegenDialect(operations));
         this._dialects.set('iree_encoding', new _.Dialect(operations, 'iree_encoding'));
-        this._dialects.set('test', new _.TestDialect(operations));
+        this._dialects.set('test', new _.test.TestDialect(operations));
         this._dialects.set('scf', new _.SCFDialect(operations));
         this._dialects.set('shape', new _.ShapeDialect(operations));
         this._dialects.set('sparse_tensor', new _.SparseTensorDialect(operations));
@@ -8486,14 +8495,14 @@ _.DialectContext = class {
         this._dialects.set('x86vector', new _.Dialect(operations, 'x86vector'));
         this._dialects.set('onnx', new _.ONNXDialect(operations));
         this._dialects.set('krnl', new _.KrnlDialect(operations));
-        this._dialects.set('torch', new _.TorchDialect(operations));
+        this._dialects.set('torch', new _.torch.TorchDialect(operations));
         this._dialects.set('torch_c', new _.Dialect(operations, 'torch_c'));
         this._dialects.set('hal', new _.HALDialect(operations));
         this._dialects.set('hal_loader', new _.HALLoaderDialect(operations));
         this._dialects.set('hal_inline', new _.Dialect(operations, 'hal_inline'));
         this._dialects.set('util', new _.UtilDialect(operations));
-        this._dialects.set('mhlo', new _.MhloDialect(operations));
-        this._dialects.set('chlo', new _.ChloDialect(operations));
+        this._dialects.set('mhlo', new _.hlo.MhloDialect(operations));
+        this._dialects.set('chlo', new _.hlo.ChloDialect(operations));
         this._dialects.set('thlo', new _.THLODialect(operations));
         this._dialects.set('flow', new _.FlowDialect(operations));
         this._dialects.set('stream', new _.StreamDialect(operations));
@@ -8502,7 +8511,7 @@ _.DialectContext = class {
         this._dialects.set('linalg', new _.LinalgDialect(operations));
         this._dialects.set('iree_linalg_ext', new _.Dialect(operations, 'iree_linalg_ext'));
         this._dialects.set('linalg_ext', this._dialects.get('iree_linalg_ext'));
-        this._dialects.set('quant', new _.QuantDialect(operations));
+        this._dialects.set('quant', new _.quant.QuantDialect(operations));
         this._dialects.set('tensor', new _.TensorDialect(operations));
         this._dialects.set('tosa', new _.TosaDialect(operations));
         this._dialects.set('tf', new _.TFDialect(operations));
@@ -8518,9 +8527,9 @@ _.DialectContext = class {
         this._dialects.set('tfrt_fallback_async', new _.TFRTFallbackAsyncDialect(operations));
         this._dialects.set('tfl', new _.TFLDialect(operations));
         this._dialects.set('stdx', new _.StdxDialect(operations));
-        this._dialects.set('vm', new _.VMDialect(operations));
+        this._dialects.set('vm', new _.vm.VMDialect(operations));
         this._dialects.set('math', new _.MathDialect(operations));
-        this._dialects.set('tm_tensor', new _.TMTensorDialect(operations));
+        this._dialects.set('tm_tensor', new _.torch.TMTensorDialect(operations));
         this._dialects.set('ml_program', new _.MLProgramDialect(operations));
         this._dialects.set('iree_gpu', new _.IREEGPUDialect(operations));
         this._dialects.set('tile', new _.TileDialect(operations));
@@ -8530,7 +8539,7 @@ _.DialectContext = class {
         this._dialects.set('wasmssa', new _.WasmSSADialect(operations));
         this._dialects.set('spirv', new _.spirv.SPIRVDialect(operations));
         this._dialects.set('spv', this._dialects.get('spirv'));
-        this._dialects.set('toy', new _.ToyDialect(operations));
+        this._dialects.set('toy', new _.hlo.ToyDialect(operations));
         this._dialects.set('top', new _.Dialect(operations, 'top'));
         this._dialects.set('tpu', new _.Dialect(operations, 'tpu'));
         this._dialects.set('sdfg', new _.SdfgDialect(operations));
@@ -8539,13 +8548,13 @@ _.DialectContext = class {
         this._dialects.set('tt', new _.triton.TritonDialect(operations));
         this._dialects.set('ttg', new _.triton.gpu.TritonGPUDialect(operations));
         this._dialects.set('triton_gpu', this._dialects.get('ttg'));
-        this._dialects.set('gluon', new _.GluonDialect(operations));
-        this._dialects.set('ttng', new _.TritonNvidiaGPUDialect(operations));
+        this._dialects.set('gluon', new _.triton.gluon.GluonDialect(operations));
+        this._dialects.set('ttng', new _.triton.nvidia_gpu.TritonNvidiaGPUDialect(operations));
         this._dialects.set('nvidia_gpu', this._dialects.get('ttng'));
-        this._dialects.set('amdg', new _.TritonAMDGPUDialect(operations));
+        this._dialects.set('amdg', new _.triton.amdgpu.TritonAMDGPUDialect(operations));
         this._dialects.set('amd_gpu', this._dialects.get('amdg'));
         this._dialects.set('michelson', new _.MichelsonDialect(operations));
-        this._dialects.set('tensorrt', new _.TensorRTDialect(operations));
+        this._dialects.set('tensorrt', new _.tensorrt.TensorRTDialect(operations));
         this._dialects.set('executor', new _.executor.ExecutorDialect(operations));
         this._dialects.set('exec', this._dialects.get('executor'));
         this._dialects.set('tfrt_test', new _.TFRTTestDialect(operations));
@@ -8592,7 +8601,7 @@ _.DialectContext = class {
         this._dialects.set('xla_framework', new _.Dialect(operations, 'xla_framework'));
         this._dialects.set('ifrt', new _.Dialect(operations, 'ifrt'));
         this._dialects.set('vifrt', new _.Dialect(operations, 'vifrt'));
-        this._dialects.set('triton_xla', new _.TritonXlaDialect(operations));
+        this._dialects.set('triton_xla', new _.triton.xla.TritonXlaDialect(operations));
         this._dialects.set('xtile', new _.XTileDialect(operations));
         this._dialects.set('xten_nn', new _.XtenNNDialect(operations));
         this._dialects.set('ensemble', new _.EnsembleDialect(operations));
@@ -9023,8 +9032,8 @@ _.Dialect = class {
                 customDirectiveOffset += varTypes.length;
                 continue;
             }
-            const typeName = typeof resultInfo.type === 'string' ? resultInfo.type : resultInfo.type?.name;
-            const isVariadicOrOptional = typeName === 'Variadic' || typeName === 'Optional';
+            const mnemonic = typeof resultInfo.type === 'string' ? resultInfo.type : resultInfo.type?.name;
+            const isVariadicOrOptional = mnemonic === 'Variadic' || mnemonic === 'Optional';
             // For Variadic/Optional not in vars, check if custom directive added types to op.types
             if (isVariadicOrOptional && op.types.length > customDirectiveOffset) {
                 // Count how many types belong to this variadic result
@@ -9990,15 +9999,15 @@ _.Dialect = class {
                         if (typeContains(elementType, 'ConfinedAttr')) {
                             elementType = typeof elementType === 'string' ? elementType.replace(/ConfinedAttr<(.+?)(?:,.*?)?>/, '$1') : elementType.args?.[0];
                         }
-                        const typeName = getTypeName(elementType);
+                        const mnemonic = getTypeName(elementType);
                         let shouldTryParse = false;
                         if (typeContains(elementType, 'TypedArrayAttrBase') || typeContains(elementType, 'ArrayAttr')) {
                             shouldTryParse = peek(_.Token.l_square);
-                        } else if (typeName && /^[SU]?I\d+Attr$|^IntegerAttr$|^IndexAttr$/.test(typeName)) {
+                        } else if (mnemonic && /^[SU]?I\d+Attr$|^IntegerAttr$|^IndexAttr$/.test(mnemonic)) {
                             shouldTryParse = peek(_.Token.integer, _.Token.minus);
                         } else if (typeContains(elementType, 'ElementsAttr')) {
                             shouldTryParse = peek(_.Token.kw_dense, _.Token.kw_sparse, _.Token.kw_array, _.Token.kw_dense_resource);
-                        } else if (typeName === 'StrAttr' || typeName === 'StringAttr') {
+                        } else if (mnemonic === 'StrAttr' || mnemonic === 'StringAttr') {
                             shouldTryParse = peek(_.Token.string);
                         } else {
                             shouldTryParse = peek(_.Token.bare_identifier, 'keyword', _.Token.hash_identifier, _.Token.at_identifier, _.Token.string, _.Token.l_square, _.Token.integer);
@@ -10727,7 +10736,9 @@ _.Dialect = class {
     }
 };
 
-_.HLODialect = class extends _.Dialect {
+_.hlo = {};
+
+_.hlo.HLODialect = class extends _.Dialect {
 
     constructor(operations, name) {
         super(operations, name);
@@ -11271,7 +11282,9 @@ _.HLODialect = class extends _.Dialect {
     }
 };
 
-_.StableHLODialect = class extends _.HLODialect {
+_.stablehlo = {};
+
+_.stablehlo.StableHLODialect = class extends _.hlo.HLODialect {
 
     constructor(operations) {
         super(operations, 'stablehlo');
@@ -12182,29 +12195,63 @@ _.TensorDialect = class extends _.Dialect {
 
 };
 
-_.TorchDialect = class extends _.Dialect {
+_.torch = {};
+
+_.torch.simpleTypes = new Set([
+    'int', 'float', 'bool', 'str', 'none', 'Device', 'Generator',
+    'qint8', 'quint8', 'qint16', 'qint32', 'quint4x2', 'quint2x4',
+    'LinearParams', 'number', 'any'
+]);
+
+_.torch.ListType = class extends _.Type {
+
+    constructor(containedType) {
+        super(null);
+        this.containedType = containedType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const keyword = parser.parseOptionalKeyword();
+        let containedType = null;
+        if (keyword && _.torch.simpleTypes.has(keyword)) {
+            containedType = new _.Type(`!torch.${keyword}`);
+        } else if (keyword) {
+            let inner = `!torch.${keyword}`;
+            inner += parser.parseTypeParameters();
+            containedType = new _.Type(inner);
+        } else {
+            containedType = parser.parseType();
+        }
+        parser.parseGreater();
+        return new _.torch.ListType(containedType);
+    }
+
+    toString() {
+        return `!torch.list<${this.containedType}>`;
+    }
+};
+
+_.torch.TorchDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'torch');
-        this.simpleTypes = new Set([
-            'int', 'float', 'bool', 'str', 'none', 'Device', 'Generator',
-            'qint8', 'quint8', 'qint16', 'qint32', 'quint4x2', 'quint2x4',
-            'LinearParams', 'number', 'any'
-        ]);
     }
 
     parseType(parser, dialect) {
         const mnemonic = parser.parseOptionalKeyword();
-        if (!mnemonic) {
-            return null;
-        }
-        let type = `!${dialect}.${mnemonic}`;
-        if (this.simpleTypes.has(mnemonic)) {
-            return new _.Type(type);
-        }
-        if (mnemonic === 'vtensor' || mnemonic === 'tensor' || mnemonic === 'list' || mnemonic === 'tuple' || mnemonic === 'union' || mnemonic === 'optional' || mnemonic === 'dict' || mnemonic.startsWith('nn.')) {
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+        if (mnemonic) {
+            if (_.torch.simpleTypes.has(mnemonic)) {
+                return new _.Type(`!${dialect}.${mnemonic}`);
+            }
+            if (mnemonic === 'list') {
+                return _.torch.ListType.parse(parser);
+            }
+            if (mnemonic === 'vtensor' || mnemonic === 'tensor' || mnemonic === 'tuple' || mnemonic === 'union' || mnemonic === 'optional' || mnemonic === 'dict' || mnemonic.startsWith('nn.')) {
+                let type = `!${dialect}.${mnemonic}`;
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -12524,14 +12571,13 @@ _.HALDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        if (this.simpleTypes.has(typeName)) {
-            // Note: !hal.buffer{%size} syntax is handled by custom<SizeAwareType> directive,
-            // not by the type parser. The type parser just returns the base type.
-            return new _.Type(`!${dialect}.${typeName}`);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            if (this.simpleTypes.has(mnemonic)) {
+                // Note: !hal.buffer{%size} syntax is handled by custom<SizeAwareType> directive,
+                // not by the type parser. The type parser just returns the base type.
+                return new _.Type(`!${dialect}.${mnemonic}`);
+            }
         }
         return null;
     }
@@ -13325,24 +13371,16 @@ _.UtilDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        if (this.simpleTypes.has(typeName)) {
-            if (typeName === 'list' && parser.parseOptionalLess()) {
-                let elementType = null;
-                if (parser.parseOptionalQuestion()) {
-                    elementType = new _.util.VariantType();
-                } else {
-                    elementType = parser.parseType();
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            if (this.simpleTypes.has(mnemonic)) {
+                if (mnemonic === 'list') {
+                    return _.util.ListType.parse(parser);
                 }
-                parser.parseGreater();
-                return new _.util.ListType(elementType);
+                let type = `!${dialect}.${mnemonic}`;
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
             }
-            let type = `!${dialect}.${typeName}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
         }
         return null;
     }
@@ -13675,17 +13713,16 @@ _.FlowDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        if (typeName === 'channel') {
-            return new _.Type(type);
-        }
-        if (typeName === 'dispatch.tensor') {
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            if (mnemonic === 'channel') {
+                return new _.Type(type);
+            }
+            if (mnemonic === 'dispatch.tensor') {
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -14667,26 +14704,26 @@ _.StreamDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        const simpleTypes = ['binding', 'channel', 'timepoint', 'file'];
-        if (simpleTypes.includes(typeName)) {
-            return new _.Type(type);
-        }
-        if (typeName === 'resource') {
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            const simpleTypes = ['binding', 'channel', 'timepoint', 'file'];
+            if (simpleTypes.includes(mnemonic)) {
+                return new _.Type(type);
+            }
+            if (mnemonic === 'resource') {
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
+            // Handle test.fence type (Stream_TestFence in StreamTypes.td)
+            if (mnemonic === 'test' || mnemonic === 'test.fence') {
+                return new _.Type(`!${dialect}.${mnemonic}`);
+            }
+            // Fallback for unknown stream types - parse generically like base Dialect
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
-        // Handle test.fence type (Stream_TestFence in StreamTypes.td)
-        if (typeName === 'test' || typeName === 'test.fence') {
-            return new _.Type(`!${dialect}.${typeName}`);
-        }
-        // Fallback for unknown stream types - parse generically like base Dialect
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseDispatchOperands(parser, op, resourceOperands /* offsets, ends, lengths */) {
@@ -14851,9 +14888,9 @@ _.IREETensorExtDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (typeName === 'dispatch.tensor') {
-            let type = `!${dialect}.${typeName}`;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic === 'dispatch.tensor') {
+            let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
@@ -15553,7 +15590,7 @@ _.KrnlDialect = class extends _.Dialect {
     }
 };
 
-_.MhloDialect = class extends _.HLODialect {
+_.hlo.MhloDialect = class extends _.hlo.HLODialect {
 
     constructor(operations) {
         super(operations, 'mhlo');
@@ -15620,7 +15657,7 @@ _.MhloDialect = class extends _.HLODialect {
     }
 };
 
-_.ChloDialect = class extends _.HLODialect {
+_.hlo.ChloDialect = class extends _.hlo.HLODialect {
 
     constructor(operations) {
         super(operations, 'chlo');
@@ -15702,16 +15739,18 @@ _.THLODialect = class extends _.Dialect {
     }
 };
 
-_.QuantDialect = class extends _.Dialect {
+_.quant = {};
+
+_.quant.QuantDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'quant');
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (typeName === 'uniform' || typeName === 'calibrated' || typeName === 'any') {
-            let type = `!${dialect}.${typeName}`;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic === 'uniform' || mnemonic === 'calibrated' || mnemonic === 'any') {
+            let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
@@ -15743,13 +15782,13 @@ _.TosaDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (typeName === 'shape') {
-            let type = `!${dialect}.${typeName}`;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic === 'shape') {
+            let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
-        if (typeName === 'mxint8') {
+        if (mnemonic === 'mxint8') {
             return new _.Type(`!${dialect}.mxint8`);
         }
         return null;
@@ -16012,6 +16051,55 @@ _.ShardDialect = class extends _.Dialect {
 
 _.spirv = {};
 
+_.spirv.RuntimeArrayType = class extends _.Type {
+
+    constructor(elementType, stride) {
+        super(null);
+        this.elementType = elementType;
+        this.stride = stride || 0;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const elementType = parser.parseType();
+        let stride = 0;
+        if (parser.parseOptionalComma()) {
+            parser.parseKeyword('stride');
+            parser.parseEqual();
+            stride = parser.parseInteger();
+        }
+        parser.parseGreater();
+        return new _.spirv.RuntimeArrayType(elementType, stride);
+    }
+
+    toString() {
+        const elemStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
+        if (this.stride) {
+            return `!spirv.rtarray<${elemStr}, stride=${this.stride}>`;
+        }
+        return `!spirv.rtarray<${elemStr}>`;
+    }
+};
+
+_.spirv.StructType = class extends _.Type {
+
+    constructor(memberTypes, offsetInfo, memberDecorations) {
+        super(null);
+        this.memberTypes = memberTypes;
+        this.offsetInfo = offsetInfo;
+        this.memberDecorations = memberDecorations;
+    }
+
+    toString() {
+        const members = this.memberTypes.map((t) => t?.toString ? t.toString() : t).join(', ');
+        if (this.offsetInfo && this.offsetInfo.length > 0) {
+            const offsets = this.offsetInfo.join(', ');
+            return `!spirv.struct<(${members}), offset: [${offsets}]>`;
+        }
+        return `!spirv.struct<(${members})>`;
+    }
+};
+
 _.spirv.PointerType = class extends _.Type {
 
     constructor(pointeeType, storageClass) {
@@ -16122,12 +16210,11 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     parseType(parser, dialect) {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
-            if (mnemonic === 'ptr' && parser.parseOptionalLess()) {
-                const pointeeType = parser.parseType();
-                parser.parseComma();
-                const storageClass = parser.parseKeyword();
-                parser.parseGreater();
-                return new _.spirv.PointerType(pointeeType, storageClass);
+            if (mnemonic === 'ptr') {
+                return _.spirv.PointerType.parse(parser);
+            }
+            if (mnemonic === 'rtarray') {
+                return _.spirv.RuntimeArrayType.parse(parser);
             }
             let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
@@ -17548,7 +17635,7 @@ _.async.ValueType = class extends _.Type {
             parser.parseGreater();
             return new _.async.ValueType(innerType);
         }
-        return parser.parseType();
+        return new _.async.ValueType(null);
     }
 };
 
@@ -17572,12 +17659,7 @@ _.async.AsyncDialect = class extends _.Dialect {
             return new _.async.GroupType();
         }
         if (mnemonic === 'value') {
-            if (parser.parseOptionalLess()) {
-                const innerType = parser.parseType();
-                parser.parseGreater();
-                return new _.async.ValueType(innerType);
-            }
-            return new _.async.ValueType(null);
+            return _.async.ValueType.parse(parser);
         }
         throw new mlir.Error(`Unknown '${dialect}' type '${mnemonic}' ${parser.getNameLoc()}`);
     }
@@ -18502,14 +18584,13 @@ _.ShapeDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        const type = `!${dialect}.${typeName}`;
-        const simpleTypes = ['shape', 'witness', 'size', 'value_shape'];
-        if (simpleTypes.includes(type.substring(7))) { // Remove "!shape." prefix
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            const type = `!${dialect}.${mnemonic}`;
+            const simpleTypes = ['shape', 'witness', 'size', 'value_shape'];
+            if (simpleTypes.includes(type.substring(7))) { // Remove "!shape." prefix
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -19240,43 +19321,6 @@ _.NVVMDialect = class extends _.Dialect {
                     result.addTypes(funcType.results);
                 }
             }
-            return true;
-        }
-        return super.parseOperation(parser, result);
-    }
-};
-
-_.NVWSDialect = class extends _.Dialect {
-
-    constructor(operations) {
-        super(operations, 'nvws');
-        this.registerCustomType('NVWS_ArefType', this.parseArefTypeShorthand.bind(this));
-    }
-
-    parseArefTypeShorthand(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            return new _.Type(`!nvws.aref${content}`);
-        }
-        return parser.parseType();
-    }
-
-    parseOperation(parser, result) {
-        if (result.op === 'nvws.warp_group') {
-            parser.parseOptionalAttrDictWithKeyword(result.attributes);
-            const numWarps = [];
-            let partitionIndex = 0;
-            while (parser.parseOptionalKeyword(`partition${partitionIndex}`)) {
-                parser.parseKeyword('num_warps');
-                parser.parseLParen();
-                const n = parser.parseInteger();
-                numWarps.push(n);
-                parser.parseRParen();
-                const region = result.addRegion();
-                parser.parseRegion(region);
-                partitionIndex++;
-            }
-            result.addAttribute('numWarps', numWarps);
             return true;
         }
         return super.parseOperation(parser, result);
@@ -20445,13 +20489,13 @@ _.LLVM.LLVMDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseOperation(parser, result) {
@@ -21235,7 +21279,30 @@ _.StdxDialect = class extends _.Dialect {
     }
 };
 
-_.VMDialect = class extends _.Dialect {
+_.vm = {};
+
+_.vm.RefType = class extends _.Type {
+
+    constructor(objectType) {
+        super(null);
+        this.objectType = objectType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const objectType = parser.parseOptionalQuestion()
+            ? new _.OpaqueType('?')
+            : parser.parseType();
+        parser.parseGreater();
+        return new _.vm.RefType(objectType);
+    }
+
+    toString() {
+        return `!vm.ref<${this.objectType}>`;
+    }
+};
+
+_.vm.VMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vm');
@@ -21489,6 +21556,19 @@ _.VMDialect = class extends _.Dialect {
             op.addAttribute('case_values', caseValues);
         }
     }
+
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            if (mnemonic === 'ref') {
+                return _.vm.RefType.parse(parser);
+            }
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
+        }
+        return null;
+    }
 };
 
 _.MathDialect = class extends _.Dialect {
@@ -21499,7 +21579,7 @@ _.MathDialect = class extends _.Dialect {
     }
 };
 
-_.TMTensorDialect = class extends _.Dialect {
+_.torch.TMTensorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tm_tensor');
@@ -21773,13 +21853,12 @@ _.TFExecutorDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        const type = `!${dialect}.${typeName}`;
-        if (typeName === 'control' || typeName === 'token') {
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            const type = `!${dialect}.${mnemonic}`;
+            if (mnemonic === 'control' || mnemonic === 'token') {
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -22013,22 +22092,22 @@ _.TFRTDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        const simpleTypes = ['chain', 'string', 'dist_context', 'device', 'tensor_type'];
-        if (simpleTypes.includes(typeName)) {
-            return new _.Type(type);
-        }
-        if (typeName === 'tensor') {
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            const simpleTypes = ['chain', 'string', 'dist_context', 'device', 'tensor_type'];
+            if (simpleTypes.includes(mnemonic)) {
+                return new _.Type(type);
+            }
+            if (mnemonic === 'tensor') {
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
+            // Fallback for unknown tfrt types
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
-        // Fallback for unknown tfrt types
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseOperation(parser, result) {
@@ -22447,7 +22526,7 @@ _.PXADialect = class extends _.Dialect {
     }
 };
 
-_.ToyDialect = class extends _.HLODialect {
+_.hlo.ToyDialect = class extends _.hlo.HLODialect {
 
     constructor(operations) {
         super(operations, 'toy');
@@ -22517,14 +22596,13 @@ _.SdfgDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        if (typeName === 'array' || typeName === 'stream' || typeName === 'memlet' || type.endsWith('stream_array')) {
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            if (mnemonic === 'array' || mnemonic === 'stream' || mnemonic === 'memlet' || type.endsWith('stream_array')) {
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -23101,17 +23179,16 @@ _.TFDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        if (typeName === 'resource' || typeName === 'variant') {
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
-        }
-        if (typeName === 'string' || typeName === 'control') {
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            if (mnemonic === 'resource' || mnemonic === 'variant') {
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
+            if (mnemonic === 'string' || mnemonic === 'control') {
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -23134,29 +23211,29 @@ _.TFTypeDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        // Handle parametrized types like resource<>, variant<>, resource_handle<>
-        if (typeName === 'resource' || typeName === 'variant' || typeName === 'resource_handle') {
-            if (parser.parseOptionalLess()) {
-                const subtypes = [];
-                do {
-                    subtypes.push(parser.parseType());
-                } while (parser.parseOptionalComma());
-                parser.parseGreater();
-                return new _.Type(`${type}<${subtypes.join(', ')}>`);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            // Handle parametrized types like resource<>, variant<>, resource_handle<>
+            if (mnemonic === 'resource' || mnemonic === 'variant' || mnemonic === 'resource_handle') {
+                if (parser.parseOptionalLess()) {
+                    const subtypes = [];
+                    do {
+                        subtypes.push(parser.parseType());
+                    } while (parser.parseOptionalComma());
+                    parser.parseGreater();
+                    return new _.Type(`${type}<${subtypes.join(', ')}>`);
+                }
+                return new _.Type(type);
             }
+            if (this.simpleTypes.has(mnemonic)) {
+                return new _.Type(type);
+            }
+            // Fallback for unknown tf_type types
+            type += parser.parseTypeParameters();
             return new _.Type(type);
         }
-        if (this.simpleTypes.has(typeName)) {
-            return new _.Type(type);
-        }
-        // Fallback for unknown tf_type types
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 };
 
@@ -23277,13 +23354,13 @@ _.TransformDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseNamedSequenceOp(parser, result) {
@@ -23458,7 +23535,9 @@ _.TransformDialect = class extends _.Dialect {
     }
 };
 
-_.TestDialect = class extends _.Dialect {
+_.test = {};
+
+_.test.TestDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'test');
@@ -24092,6 +24171,31 @@ _.TestDialect = class extends _.Dialect {
 };
 
 _.triton = {};
+_.triton.nvws = {};
+_.triton.gluon = {};
+_.triton.nvidia_gpu = {};
+_.triton.amdgpu = {};
+_.triton.proton = {};
+_.triton.xla = {};
+
+_.triton.TensorDescType = class extends _.Type {
+
+    constructor(blockType) {
+        super(null);
+        this.blockType = blockType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const blockType = parser.parseType();
+        parser.parseGreater();
+        return new _.triton.TensorDescType(blockType);
+    }
+
+    toString() {
+        return `!tt.tensordesc<${this.blockType}>`;
+    }
+};
 
 _.triton.PointerType = class extends _.Type {
 
@@ -24132,23 +24236,20 @@ _.triton.TritonDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        // Handle ptr type specifically to properly parse pointee type
-        if (typeName === 'ptr' && parser.parseOptionalLess()) {
-            const pointeeType = parser.parseType();
-            let addressSpace = 1;
-            if (parser.parseOptionalComma()) {
-                addressSpace = parser.parseInteger();
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            // Handle ptr type specifically to properly parse pointee type
+            if (mnemonic === 'ptr') {
+                return _.triton.PointerType.parse(parser);
             }
-            parser.parseGreater();
-            return new _.triton.PointerType(pointeeType, addressSpace);
+            if (mnemonic === 'tensordesc') {
+                return _.triton.TensorDescType.parse(parser);
+            }
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseOperation(parser, result) {
@@ -24160,9 +24261,10 @@ _.triton.TritonDialect = class extends _.Dialect {
     }
 
     parseTensorDescType(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            return new _.Type(`!tt.tensor_desc${content}`);
+        if (parser.parseOptionalLess()) {
+            const blockType = parser.parseType();
+            parser.parseGreater();
+            return new _.triton.TensorDescType(blockType);
         }
         return null;
     }
@@ -24262,13 +24364,13 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseMemDescType(parser) {
@@ -24282,14 +24384,14 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
     }
 };
 
-_.GluonDialect = class extends _.Dialect {
+_.triton.gluon.GluonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'gluon');
     }
 };
 
-_.TritonNvidiaGPUDialect = class extends _.Dialect {
+_.triton.nvidia_gpu.TritonNvidiaGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ttng');
@@ -24355,7 +24457,7 @@ _.TritonNvidiaGPUDialect = class extends _.Dialect {
     }
 };
 
-_.TritonAMDGPUDialect = class extends _.Dialect {
+_.triton.amdgpu.TritonAMDGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'amdg');
@@ -24365,20 +24467,57 @@ _.TritonAMDGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 };
 
-_.ProtonDialect = class extends _.Dialect {
+_.triton.proton.ProtonDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'proton');
+    }
+};
+
+_.triton.nvws.NVWSDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'nvws');
+        this.registerCustomType('NVWS_ArefType', this.parseArefTypeShorthand.bind(this));
+    }
+
+    parseArefTypeShorthand(parser) {
+        const content = parser.parseTypeParameters();
+        if (content) {
+            return new _.Type(`!nvws.aref${content}`);
+        }
+        return parser.parseType();
+    }
+
+    parseOperation(parser, result) {
+        if (result.op === 'nvws.warp_group') {
+            parser.parseOptionalAttrDictWithKeyword(result.attributes);
+            const numWarps = [];
+            let partitionIndex = 0;
+            while (parser.parseOptionalKeyword(`partition${partitionIndex}`)) {
+                parser.parseKeyword('num_warps');
+                parser.parseLParen();
+                const n = parser.parseInteger();
+                numWarps.push(n);
+                parser.parseRParen();
+                const region = result.addRegion();
+                parser.parseRegion(region);
+                partitionIndex++;
+            }
+            result.addAttribute('numWarps', numWarps);
+            return true;
+        }
+        return super.parseOperation(parser, result);
     }
 };
 
@@ -24389,19 +24528,18 @@ _.MichelsonDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        let type = `!${dialect}.${typeName}`;
-        const simpleTypes = ['int', 'bytes', 'operation', 'nat', 'string', 'unit', 'bool', 'mutez', 'timestamp', 'address', 'key', 'signature', 'chain_id', 'key_hash'];
-        if (simpleTypes.includes(type.substring(11))) { // Remove "!michelson." prefix
-            return new _.Type(type);
-        }
-        const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
-        if (typesWithParams.includes(type.substring(11))) {
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            const simpleTypes = ['int', 'bytes', 'operation', 'nat', 'string', 'unit', 'bool', 'mutez', 'timestamp', 'address', 'key', 'signature', 'chain_id', 'key_hash'];
+            if (simpleTypes.includes(type.substring(11))) { // Remove "!michelson." prefix
+                return new _.Type(type);
+            }
+            const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
+            if (typesWithParams.includes(type.substring(11))) {
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -24480,7 +24618,9 @@ _.KernelDialect = class extends _.Dialect {
     }
 };
 
-_.TensorRTDialect = class extends _.Dialect {
+_.tensorrt = {};
+
+_.tensorrt.TensorRTDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tensorrt');
@@ -24632,27 +24772,27 @@ _.executor.ExecutorDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        if (typeName === 'table') {
-            if (parser.parseOptionalLess()) {
-                const body = [];
-                if (!parser.parseOptionalGreater()) {
-                    do {
-                        const elementType = parser.parseType();
-                        body.push(elementType);
-                    } while (parser.parseOptionalComma());
-                    parser.parseGreater();
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            if (mnemonic === 'table') {
+                if (parser.parseOptionalLess()) {
+                    const body = [];
+                    if (!parser.parseOptionalGreater()) {
+                        do {
+                            const elementType = parser.parseType();
+                            body.push(elementType);
+                        } while (parser.parseOptionalComma());
+                        parser.parseGreater();
+                    }
+                    return new _.executor.TableType(body);
                 }
-                return new _.executor.TableType(body);
+                return new _.executor.TableType([]);
             }
-            return new _.executor.TableType([]);
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        type += parser.parseTypeParameters();
-        return new _.Type(type);
+        return null;
     }
 
     parseTable(parser) {
@@ -25347,15 +25487,15 @@ _.smt.SMTDialect = class extends _.Dialect {
     }
 
     parseType(parser) {
-        const typeName = parser.parseOptionalKeyword();
-        if (typeName === 'bv' && parser.parseOptionalLess()) {
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic === 'bv' && parser.parseOptionalLess()) {
             const width = parser.parseInteger();
 
             parser.parseGreater();
             return new _.smt.BitVectorType(width);
         }
-        if (typeName) {
-            let type = `!smt.${typeName}`;
+        if (mnemonic) {
+            let type = `!smt.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
@@ -26050,7 +26190,7 @@ _.XTileDialect = class extends _.Dialect {
     }
 };
 
-_.TritonXlaDialect = class extends _.Dialect {
+_.triton.xla.TritonXlaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'triton_xla');
@@ -26140,14 +26280,13 @@ _.EnsembleDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
-        }
-        const type = `!${dialect}.${typeName}`;
-        const simpleTypes = ['physical_qubit', 'virtual_qubit', 'cbit', 'gate', 'gate_distribution', 'connectivity_graph'];
-        if (simpleTypes.includes(typeName)) {
-            return new _.Type(type);
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            const type = `!${dialect}.${mnemonic}`;
+            const simpleTypes = ['physical_qubit', 'virtual_qubit', 'cbit', 'gate', 'gate_distribution', 'connectivity_graph'];
+            if (simpleTypes.includes(mnemonic)) {
+                return new _.Type(type);
+            }
         }
         return null;
     }
@@ -26160,16 +26299,16 @@ _.PolyDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (!typeName) {
-            return null;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
+            // poly.poly<N> type has a degree bound parameter
+            if (mnemonic === 'poly') {
+                type += parser.parseTypeParameters();
+            }
+            return new _.Type(type);
         }
-        let type = `!${dialect}.${typeName}`;
-        // poly.poly<N> type has a degree bound parameter
-        if (typeName === 'poly') {
-            type += parser.parseTypeParameters();
-        }
-        return new _.Type(type);
+        return null;
     }
 };
 
@@ -26180,9 +26319,9 @@ _.NoisyDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const typeName = parser.parseOptionalKeyword();
-        if (typeName) {
-            let type = `!${dialect}.${typeName}`;
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
