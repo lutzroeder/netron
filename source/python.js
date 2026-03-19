@@ -5694,7 +5694,7 @@ python.Execution = class {
                         case 'Add': return new sympy.core.add.Add(...node.args.map((arg) => sympify(arg)));
                         case 'Pow': return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
                         case 'Max': return new sympy.functions.elementary.miscellaneous.Max(...node.args.map((arg) => sympify(arg)));
-                        case 'Integer': return new sympy.core.numbers.Integer(node.args[0].value);
+                        case 'Integer': return sympify(node.args[0]);
                         case 'GreaterThan': return new sympy.core.relational.GreaterThan(sympify(node.args[0]), sympify(node.args[1]));
                         case 'StrictGreaterThan': return new sympy.core.relational.StrictGreaterThan(sympify(node.args[0]), sympify(node.args[1]));
                         case 'LessThan': return new sympy.core.relational.LessThan(sympify(node.args[0]), sympify(node.args[1]));
@@ -5711,6 +5711,10 @@ python.Execution = class {
                     if (node.type === 'int') {
                         return new sympy.core.numbers.Integer(node.value);
                     }
+                }
+                if (node instanceof ast.UnaryOp && node.op instanceof ast.USub) {
+                    const operand = sympify(node.operand);
+                    return new sympy.core.numbers.Integer(-operand.value);
                 }
                 if (node instanceof ast.BinOp) {
                     if (node.op instanceof ast.Mult) {
@@ -20261,6 +20265,9 @@ python.Execution = class {
                     } else if (typ_ === 'as_tensors') {
                         const result = [];
                         for (const arg of value) {
+                            if (!this.serialized_name_to_node.has(arg.name)) {
+                                throw new python.Error(`Unknown tensor '${arg.name}'.`);
+                            }
                             result.push(this.serialized_name_to_node.get(arg.name));
                         }
                         return result;
@@ -20273,6 +20280,9 @@ python.Execution = class {
                             if (a.type === 'as_none') {
                                 return null;
                             } else if (a.type === 'as_tensor') {
+                                if (!this.serialized_name_to_node.has(a.value.name)) {
+                                    throw new python.Error(`Unknown tensor '${a.value.name}'.`);
+                                }
                                 return this.serialized_name_to_node.get(a.value.name);
                             }
                             throw new python.Error(`Unsupported argument '${typ_}'.`);
