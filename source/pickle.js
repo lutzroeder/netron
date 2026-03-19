@@ -15,7 +15,9 @@ pickle.ModelFactory = class {
         const obj = await context.peek('pkl');
         if (obj !== undefined) {
             const name = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? `${obj.__class__.__module__}.${obj.__class__.__name__}` : '';
-            if (!name.startsWith('__torch__.')) {
+            if (!name.startsWith('__torch__.') &&
+                !name.startsWith('catboost.') &&
+                !name.startsWith('autogluon.tabular.models.catboost.')) {
                 return context.set('pickle', obj);
             }
         }

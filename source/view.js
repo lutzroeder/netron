@@ -7183,7 +7183,7 @@ view.ModelFactoryService = class {
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./tvm', ['.json', '.params']);
         this.register('./dot', ['.dot'], [], [/^\s*(\/\*[\s\S]*?\*\/|\/\/.*|#.*)?\s*digraph\s*([A-Za-z][A-Za-z0-9-_]*|".*?")?\s*{/m]);
-        this.register('./catboost', ['.cbm']);
+        this.register('./catboost', ['.cbm', '.pkl'], [], [/^CBM1/]);
         this.register('./weka', ['.model']);
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
         this.register('./espdl', ['.espdl'], [], [/^EDL2/]);

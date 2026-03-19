@@ -2489,7 +2489,92 @@ python.Execution = class {
             }
         });
         this.registerType('catboost._catboost._CatBoost', class {
-            _deserialize_model(/* serialized_model_str */) {
+            _deserialize_model(serialized_model_str) {
+                const src = serialized_model_str;
+                const data = new Uint8Array(src.buffer.slice(src.byteOffset + 8, src.byteOffset + src.byteLength));
+                const reader = this.flatbuffers.BinaryReader.open(data);
+                this._core = this.schema.NCatBoostFbs.TModelCore.create(reader);
+            }
+            _get_format_version() {
+                return this._core.FormatVersion;
+            }
+            _get_info_map() {
+                const map = new Map();
+                if (this._core.InfoMap) {
+                    for (const entry of this._core.InfoMap) {
+                        if (entry.Key && entry.Value) {
+                            map.set(entry.Key, entry.Value);
+                        }
+                    }
+                }
+                return map;
+            }
+            _get_tree_count() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.TreeSizes ? trees.TreeSizes.length : 0;
+            }
+            _get_feature_names() {
+                const trees = this._core.ModelTrees;
+                if (!trees) {
+                    return [];
+                }
+                const names = [];
+                for (const list of [trees.FloatFeatures, trees.CatFeatures, trees.TextFeatures, trees.EmbeddingFeatures]) {
+                    if (list) {
+                        for (const feature of list) {
+                            names.push(feature.FeatureId || `feature_${feature.FlatIndex}`);
+                        }
+                    }
+                }
+                return names;
+            }
+            _get_float_features() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.FloatFeatures ? trees.FloatFeatures : [];
+            }
+            _get_cat_features() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.CatFeatures ? trees.CatFeatures : [];
+            }
+            _get_text_features() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.TextFeatures ? trees.TextFeatures : [];
+            }
+            _get_embedding_features() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.EmbeddingFeatures ? trees.EmbeddingFeatures : [];
+            }
+            _get_leaf_values() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.LeafValues ? trees.LeafValues : [];
+            }
+            _get_leaf_weights() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.LeafWeights ? trees.LeafWeights : [];
+            }
+            _get_scale_and_bias() {
+                const trees = this._core.ModelTrees;
+                return trees ? [trees.Scale, trees.Bias] : [1, 0];
+            }
+            _get_tree_splits() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.TreeSplits ? trees.TreeSplits : [];
+            }
+            _get_tree_sizes() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.TreeSizes ? trees.TreeSizes : [];
+            }
+            _get_tree_start_offsets() {
+                const trees = this._core.ModelTrees;
+                return trees && trees.TreeStartOffsets ? trees.TreeStartOffsets : [];
+            }
+            _get_borders() {
+                const features = this._get_float_features();
+                const borders = [];
+                for (const feature of features) {
+                    borders.push(feature.Borders ? Array.from(feature.Borders) : []);
+                }
+                return borders;
             }
         });
         this.registerType('catboost.core._CatBoostBase', class {
@@ -2498,10 +2583,6 @@ python.Execution = class {
             }
             __setstate__(state) {
                 for (const [key, value] of state) {
-                    if (key === '__model') {
-                        this._load_from_string(value);
-                        continue;
-                    }
                     this[key] = value;
                 }
             }
@@ -2513,9 +2594,8 @@ python.Execution = class {
             }
         });
         this.registerType('catboost.core.CatBoost', class extends catboost.core._CatBoostBase {
-            load_model(/* blob */) {
-                throw new python.Error("'catboost.core.CatBoostClassifier.load_model' not implemented.");
-                // this._load_from_string(blob);
+            load_model(blob) {
+                this._load_from_string(blob || this.__model);
             }
         });
         this.registerType('catboost.core.CatBoostClassifier', class extends catboost.core.CatBoost {});
@@ -2523,6 +2603,9 @@ python.Execution = class {
         catboost.CatBoostClassifier = catboost.core.CatBoostClassifier;
         catboost.CatBoostRegressor = catboost.core.CatBoostRegressor;
         catboost.CatBoost = catboost.core.CatBoost;
+        this.registerType('autogluon.tabular.models.catboost.catboost_model.CatBoostModel', class {});
+        this.registerType('autogluon.core.metrics._PredictScorer', class {});
+        this.registerType('autogluon.common.features.feature_metadata.FeatureMetadata', class {});
         this.registerType('collections.deque', class extends Array {
             constructor(iterable) {
                 super();
