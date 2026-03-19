@@ -1034,7 +1034,7 @@ flatc.Generator = class {
                             this._builder.add(`$.${field.name} = reader.unions(position, ${field.offset}, ${unionType});`);
                         } else if (fieldType instanceof flatc.Struct) {
                             const fieldType = `${field.type.parent.name}.${field.type.name}`;
-                            this._builder.add(`$.${field.name} = reader.structs(position, ${field.offset}, ${fieldType});`);
+                            this._builder.add(`$.${field.name} = reader.structs(position, ${field.offset}, ${fieldType}, ${field.type.size});`);
                         } else {
                             const fieldType = `${field.type.parent.name}.${field.type.name}`;
                             this._builder.add(`$.${field.name} = reader.tables(position, ${field.offset}, ${fieldType});`);

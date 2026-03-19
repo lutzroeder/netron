@@ -2095,7 +2095,7 @@ mgb.serialization.fbs.param.AxisAddRemove = class AxisAddRemove {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.AxisAddRemove();
-        $.desc = reader.structs(position, 4, mgb.serialization.fbs.param.AxisDesc);
+        $.desc = reader.structs(position, 4, mgb.serialization.fbs.param.AxisDesc, 8);
         return $;
     }
 };
@@ -2128,7 +2128,7 @@ mgb.serialization.fbs.param.IndexDescMaskDump = class IndexDescMaskDump {
 
     static decode(reader, position) {
         const $ = new mgb.serialization.fbs.param.IndexDescMaskDump();
-        $.items = reader.structs(position, 4, mgb.serialization.fbs.param.IndexDescMaskItem);
+        $.items = reader.structs(position, 4, mgb.serialization.fbs.param.IndexDescMaskItem, 5);
         return $;
     }
 };

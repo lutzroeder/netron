@@ -129,8 +129,8 @@ onnxruntime.fbs.NodeEdge = class NodeEdge {
     static decode(reader, position) {
         const $ = new onnxruntime.fbs.NodeEdge();
         $.node_index = reader.uint32_(position, 4, 0);
-        $.input_edges = reader.structs(position, 6, onnxruntime.fbs.EdgeEnd);
-        $.output_edges = reader.structs(position, 8, onnxruntime.fbs.EdgeEnd);
+        $.input_edges = reader.structs(position, 6, onnxruntime.fbs.EdgeEnd, 12);
+        $.output_edges = reader.structs(position, 8, onnxruntime.fbs.EdgeEnd, 12);
         return $;
     }
 };
