@@ -8592,7 +8592,6 @@ _.DialectContext = class {
         this._dialects.set('xla_framework', new _.Dialect(operations, 'xla_framework'));
         this._dialects.set('ifrt', new _.Dialect(operations, 'ifrt'));
         this._dialects.set('vifrt', new _.Dialect(operations, 'vifrt'));
-        this._dialects.set('nir', new _.Dialect(operations, 'nir'));
         this._dialects.set('triton_xla', new _.TritonXlaDialect(operations));
         this._dialects.set('xtile', new _.XTileDialect(operations));
         this._dialects.set('xten_nn', new _.XtenNNDialect(operations));
@@ -24789,6 +24788,22 @@ _.XeVMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xevm');
+        this.registerCustomAttribute('XeVM_TruncfSrcElemTypeAttr', this.parseTruncfSrcElemTypeAttr.bind(this));
+        this.registerCustomAttribute('XeVM_TruncfDstElemTypeAttr', this.parseTruncfDstElemTypeAttr.bind(this));
+    }
+
+    parseTruncfSrcElemTypeAttr(parser) {
+        parser.parseKeyword('src_etype');
+        parser.parseEqual();
+        const value = parser.parseKeyword();
+        return new _.TypedAttr(value, null);
+    }
+
+    parseTruncfDstElemTypeAttr(parser) {
+        parser.parseKeyword('dst_etype');
+        parser.parseEqual();
+        const value = parser.parseKeyword();
+        return new _.TypedAttr(value, null);
     }
 };
 
