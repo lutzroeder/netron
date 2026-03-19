@@ -2560,16 +2560,12 @@ view.Graph = class extends grapher.Graph {
         if (e.pointerType === 'touch' || e.buttons !== 1) {
             return;
         }
-        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed
-        if (e.originalTarget) {
-            try {
-                /* eslint-disable no-unused-expressions */
-                e.originalTarget.id;
-                /* eslint-enable no-unused-expressions */
-            } catch {
-                return;
-            }
+
+        // Workaround for Firefox emitting 'pointerdown' event when scrollbar is pressed and interfering with dragging
+        if (e.rangeParent === null) {
+            return;
         }
+
         const document = this.host.document;
         const container = document.getElementById('target');
         e.target.setPointerCapture(e.pointerId);
