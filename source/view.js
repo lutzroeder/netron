@@ -2880,7 +2880,6 @@ view.Node = class extends grapher.Node {
             this.definition = header.add(null, styles);
             this.definition.content = icon;
             this.definition.tooltip = tooltip;
-            this.definition.padding = 4;
             this.definition.on('click', async () => await this.context.view.pushTarget(node.type, this.value));
         }
         let current = null;

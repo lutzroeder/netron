@@ -76,7 +76,7 @@
 
 .edge-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
-.edge-path-tunnel { stroke-dasharray: 5, 3; marker-end: url("#arrowhead-tunnel"); opacity: 0.4; }
+.edge-path-tunnel { stroke-dasharray: 5, 3; marker-end: url("#arrowhead-tunnel"); opacity: 0.5; }
 #arrowhead-tunnel { fill: #000; }
 
 .cluster rect { stroke: #000; fill: #000; fill-opacity: 0.02; stroke-opacity: 0.06; stroke-width: 1px; }
@@ -153,6 +153,6 @@
     .node-block .edge-path { stroke: #888; }
     .node-block .select.edge-path { stroke: rgba(192, 0, 0, 0.8); marker-end: url("#arrowhead-select"); }
 
-    .edge-path-tunnel { stroke: #888; opacity: 0.4; }
+    .edge-path-tunnel { stroke: #888; opacity: 0.5; }
     #arrowhead-tunnel { fill: #888; }
 }
