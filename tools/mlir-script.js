@@ -406,7 +406,7 @@ const schema = async () => {
                 }
             }
         }
-        const name = operation.name.replace(/^(asuka|stablehlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch\.aten|gpu)\./, '');
+        const name = operation.name.replace(/^(asuka|stablehlo|vhlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch\.aten|gpu)\./, '').replace(/_v\d+$/, '');
         if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].includes(name)) {
             operation.category = 'Shape';
         } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].includes(name)) {

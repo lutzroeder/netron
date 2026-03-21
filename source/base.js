@@ -848,7 +848,7 @@ base.Tensor = class {
                             const itemsize = base.Tensor._dataTypes.get(dataType);
                             const length = context.data.length;
                             const stride = context.stride;
-                            if (length < (itemsize * shape.reduce((a, v) => a * v, 1))) {
+                            if (length < (itemsize * shape.reduce((a, v) => a * v, 1)) && !stride.every((v) => v === 0)) {
                                 const max = stride.reduce((a, v, i) => v > stride[i] ? i : a, 0);
                                 if (length !== (itemsize * stride[max] * shape[max])) {
                                     throw new Error('Invalid tensor data size.');
@@ -932,157 +932,156 @@ base.Tensor = class {
         if (dimension === shape.length - 1) {
             const ellipsis = (context.count + size) > context.limit;
             const length = ellipsis ? context.limit - context.count : size;
-            const max = offset + (length * stride);
             switch (dataType) {
                 case 'boolean':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getUint8(offset) !== 0);
                     }
                     break;
                 case 'qint8':
                 case 'xint8':
                 case 'int8':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getInt8(offset));
                     }
                     break;
                 case 'qint16':
                 case 'int16':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getInt16(offset, this._littleEndian));
                     }
                     break;
                 case 'qint32':
                 case 'int32':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getInt32(offset, this._littleEndian));
                     }
                     break;
                 case 'int48':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getInt48(offset, this._littleEndian));
                     }
                     break;
                 case 'int64':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getBigInt64(offset, this._littleEndian));
                     }
                     break;
                 case 'int':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getIntBits(offset, context.bits, this._littleEndian));
                     }
                     break;
                 case 'quint8':
                 case 'uint8':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getUint8(offset));
                     }
                     break;
                 case 'quint16':
                 case 'uint16':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getUint16(offset, this._littleEndian));
                     }
                     break;
                 case 'quint32':
                 case 'uint32':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getUint32(offset, this._littleEndian));
                     }
                     break;
                 case 'uint64':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getBigUint64(offset, this._littleEndian));
                     }
                     break;
                 case 'uint':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getUintBits(offset, context.bits, this._littleEndian));
                     }
                     break;
                 case 'float16':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat16(offset, this._littleEndian));
                     }
                     break;
                 case 'float32':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat32(offset, this._littleEndian));
                     }
                     break;
                 case 'float64':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat64(offset, this._littleEndian));
                     }
                     break;
                 case 'bfloat16':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getBfloat16(offset, this._littleEndian));
                     }
                     break;
                 case 'complex<int32>':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getComplexInt32(offset, this._littleEndian));
                     }
                     break;
                 case 'complex<float16>':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getComplexFloat16(offset, this._littleEndian));
                     }
                     break;
                 case 'complex<float32>':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getComplexFloat32(offset, this._littleEndian));
                     }
                     break;
                 case 'complex<float64>':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getComplexFloat64(offset, this._littleEndian));
                     }
                     break;
                 case 'float4e2m1':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat4e2m1(offset));
                     }
                     break;
                 case 'float8e3m4':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e3m4(offset));
                     }
                     break;
                 case 'float8e4m3':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e4m3(offset, false, false));
                     }
                     break;
                 case 'float8e4m3fn':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, false));
                     }
                     break;
                 case 'float8e4m3fnuz':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, true));
                     }
                     break;
                 case 'float8e4m3b11fnuz':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e4m3(offset, true, true, 11));
                     }
                     break;
                 case 'float8e5m2':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e5m2(offset, false, false));
                     }
                     break;
                 case 'float8e5m2fnuz':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e5m2(offset, true, true));
                     }
                     break;
                 case 'float8e8m0fnu':
-                    for (; offset < max; offset += stride) {
+                    for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e8m0fnu(offset));
                     }
                     break;

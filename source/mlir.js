@@ -165,7 +165,7 @@ mlir.Model = class {
         for (const [name, attribute] of attributeAliasDefinitions) {
             let value = attribute.type;
             if (!value) {
-                value = typeof attribute.value === 'string' ? attribute.value : attribute.toString();
+                value = attribute.toString();
             }
             const metadata = new mlir.Argument(name, value, 'attribute');
             this.metadata.push(metadata);
@@ -321,7 +321,8 @@ mlir.Graph = class {
         const constantMap = new Map();
         const constantTypes = new Set([
             'tosa.const', 'stablehlo.constant', 'arith.constant',
-            'mhlo.constant', 'torch.constant.tensor', 'onnx.Constant'
+            'mhlo.constant', 'torch.constant.tensor', 'onnx.Constant',
+            'vhlo.constant_v1'
         ]);
         for (const op of operations) {
             if (constantTypes.has(op.name.getStringRef()) &&
@@ -330,14 +331,15 @@ mlir.Graph = class {
                 op.results.length === 1) {
                 const result = op.results[0];
                 if (result.to && result.to.length === 1) {
-                    if (result.to[0].name.getStringRef().endsWith('.return')) {
+                    if (result.to[0].name.getStringRef().endsWith('.return') || result.to[0].name.getStringRef() === 'vhlo.return_v1') {
                         continue;
                     }
                     const valueAttr = op.attributes.get('value') || op.attributes.get('values');
                     if ((valueAttr instanceof _.DenseElementsAttr || valueAttr instanceof _.DenseResourceElementsAttr) && valueAttr.value !== null && valueAttr.type && valueAttr.type instanceof _.RankedTensorType) {
                         const type = mlir.Utility.valueType(valueAttr.type);
                         if (type instanceof mlir.TensorType && !type.dataType.startsWith('!')) {
-                            constantMap.set(result.name, new mlir.Tensor(type, valueAttr.value));
+                            const data = valueAttr.value;
+                            constantMap.set(result.name, new mlir.Tensor(type, data));
                             op.delete = true;
                         }
                     }
@@ -424,7 +426,7 @@ mlir.Graph = class {
                 }
             }
         }
-        const returnOp = operations.find((op) => op.name.getStringRef().endsWith('.return'));
+        const returnOp = operations.find((op) => op.name.getStringRef().endsWith('.return') || op.name.getStringRef() === 'vhlo.return_v1');
         if (returnOp) {
             for (let i = 0; i < this.outputs.length && i < returnOp.operands.length; i++) {
                 const returnValue = returnOp.operands[i];
@@ -455,7 +457,8 @@ mlir.Graph = class {
             if (name === 'sym_name' || name === 'function_type') {
                 continue;
             }
-            const metadata = new mlir.Argument(name, value, 'attribute');
+            const v = value.value === undefined ? value.toString() : value.value;
+            const metadata = new mlir.Argument(name, v, value.type || 'attribute');
             this.metadata.push(metadata);
         }
     }
@@ -504,7 +507,8 @@ mlir.Argument = class {
                         /^f\d+E\d+M\d+/.test(typeStr) ||
                         typeStr === 'bf16' || typeStr === 'tf32' || typeStr === 'index' || typeStr === 'none' ||
                         typeStr === 'unit' || typeStr.startsWith('!') || typeStr.startsWith('tensor<') ||
-                        typeStr.startsWith('memref<') || typeStr.startsWith('vector<')) {
+                        typeStr.startsWith('memref<') || typeStr.startsWith('vector<') ||
+                        typeStr.startsWith('complex<') || typeStr.startsWith('(')) {
                         this.type = typeStr;
                         break;
                     }
@@ -647,6 +651,12 @@ mlir.Node = class {
                         value = graph;
                         type = 'function';
                     }
+                } else if (name === 'callee' && attr instanceof _.StringAttr && context) {
+                    const graph = context.function(`@${attr.value}`) || context.function(attr.value);
+                    if (graph) {
+                        value = graph;
+                        type = 'function';
+                    }
                 } else if (attr instanceof _.DenseElementsAttr) {
                     const tensorType = mlir.Utility.valueType(attr.type);
                     if (tensorType instanceof mlir.TensorType && tensorType.dataType.startsWith('!')) {
@@ -695,6 +705,13 @@ mlir.Tensor = class {
         this.type = type;
         this.values = data;
         this.encoding = data instanceof Uint8Array ? '<' : '|';
+        if (this.encoding === '<' && type.shape && type.shape.dimensions.length > 0) {
+            const dims = type.shape.dimensions;
+            const numElements = dims.reduce((a, b) => a * (typeof b === 'bigint' ? Number(b) : b), 1);
+            if (numElements > 1 && data.length < numElements) {
+                this.stride = new Array(dims.length).fill(0);
+            }
+        }
     }
 };
 
@@ -2146,44 +2163,23 @@ _.TupleType = class extends _.Type {
 
 _.SMLoc = class {
 
-    constructor(decoder, position) {
-        this.decoder = decoder;
+    constructor(position) {
         this.position = position || 0;
     }
 
-    copy() {
-        return new _.SMLoc(this.decoder, this.position);
+    static getFromPointer(position) {
+        return new _.SMLoc(position);
     }
 
-    toString() {
-        let line = 1;
-        let column = 1;
-        const position = this.decoder.position;
-        this.decoder.position = 0;
-        let c = '';
-        do {
-            if (this.decoder.position === this.position) {
-                this.decoder.position = position;
-                return `at ${line}:${column}.`;
-            }
-            c = this.decoder.decode();
-            if (c === '\n') {
-                line++;
-                column = 1;
-            } else {
-                column++;
-            }
-        }
-        while (c !== undefined);
-        this.decoder.position = position;
-        return `at ${line}:${column}.`;
+    copy() {
+        return new _.SMLoc(this.position);
     }
 };
 
 _.Token = class {
 
     constructor(decoder) {
-        this.loc = new _.SMLoc(decoder);
+        this.loc = new _.SMLoc();
         this.kind = null;
         this.spelling = new _.StringRef('', decoder.position);
     }
@@ -2382,7 +2378,8 @@ _.Token.kw_unit = 'kw_unit';
 
 _.Lexer = class {
 
-    constructor(decoder) {
+    constructor(decoder, context) {
+        this._context = context;
         this._decoder = decoder;
         this._currentPosition = this._decoder.position;
         this._current = this._decoder.decode();
@@ -2390,12 +2387,31 @@ _.Lexer = class {
         this._next = this._decoder.decode();
         this._tokens = [new _.Token(decoder), new _.Token(decoder), new _.Token(decoder), new _.Token(decoder)];
         this._index = 0;
-        this._errorLoc = new _.SMLoc(decoder);
+        this._errorLoc = new _.SMLoc();
     }
 
-    location() {
-        const loc = new _.SMLoc(this._decoder, this._position);
-        return loc.toString();
+    getEncodedSourceLocation(loc) {
+        let line = 1;
+        let column = 1;
+        const decoder = this._decoder;
+        const savedPosition = decoder.position;
+        decoder.position = 0;
+        while (decoder.position < loc.position) {
+            const c = decoder.decode();
+            if (c === '\n') {
+                line++;
+                column = 1;
+            } else {
+                column++;
+            }
+        }
+        decoder.position = savedPosition;
+        return new _.Location(new _.FileLineColLoc(this._context, '', line, column));
+    }
+
+    emitError(loc, message) {
+        const location = this.getEncodedSourceLocation(_.SMLoc.getFromPointer(loc));
+        throw new mlir.Error(`${message} at ${location.impl.printLocationInternal()}.`);
     }
 
     lexToken() {
@@ -2424,7 +2440,8 @@ _.Lexer = class {
                         this._read();
                         return this.formToken('ellipsis', '...');
                     }
-                    throw new mlir.Error(`Expected three consecutive dots for an ellipsis ${this.location()}`);
+                    this.emitError(this._position, 'Expected three consecutive dots for an ellipsis');
+                    continue;
                 case '-':
                     if (this._peek() === '>') {
                         this._read();
@@ -2500,7 +2517,7 @@ _.Lexer = class {
                     if (/[0-9]/.test(this._current)) {
                         return this.lexNumber();
                     }
-                    throw new mlir.Error(`Unexpected character '${this._current}' ${this.location()}`);
+                    this.emitError(this._currentPosition, 'Unexpected character');
             }
         }
         return this.formToken('eof', null);
@@ -2602,7 +2619,7 @@ _.Lexer = class {
         while (this._current && this._current !== '"') {
             if (this._current === '\n' || this._current === '\v' ||
                 this._current === '\f' || this._current === '\r') {
-                throw new mlir.Error(`Expected '"' in string literal ${this.location()}`);
+                this.emitError(this._position, 'Expected \'"\' in string literal');
             }
             if (this._current === '\\') {
                 if (chunk) {
@@ -2620,7 +2637,7 @@ _.Lexer = class {
                     parts.push(this._current);
                     this._read();
                 } else {
-                    throw new mlir.Error(`Unknown escape in string literal ${this.location()}`);
+                    this.emitError(this._position, 'Unknown escape in string literal');
                 }
             } else {
                 chunk += this._current;
@@ -2692,7 +2709,7 @@ _.Lexer = class {
                     result += this._read();
                 }
             } else if (result.length === 1) {
-                throw new mlir.Error(`@ identifier expected to start with letter or '_' ${this.location()}`);
+                this.emitError(this._position, '@ identifier expected to start with letter or \'_\'');
             }
         } else if (this._current && /[0-9]/.test(this._current)) {
             // suffix-id ::= digit+ | ...
@@ -2709,7 +2726,7 @@ _.Lexer = class {
             }
         } else if (result.length === 1) {
             const errorKinds = { '#': 'Invalid attribute name', '%': 'Invalid SSA name', '^': 'Invalid block name', '!': 'Invalid type identifier' };
-            throw new mlir.Error(`${errorKinds[prefix] || 'Invalid identifier'} ${this.location()}`);
+            this.emitError(this._position, errorKinds[prefix] || 'Invalid identifier');
         }
         if (prefix === '@' && this._current === ':' && this._peek() === ':') {
             result += this._read();
@@ -2807,7 +2824,7 @@ _.ParserState = class {
         this.typeAliasDefinitions = new Map();
         this.dialectResources = new Map();
         this.deferredLocsReferences = [];
-        this.lex = new _.Lexer(decoder);
+        this.lex = new _.Lexer(decoder, config.context);
         this.curToken = this.lex.lexToken();
     }
 };
@@ -2847,7 +2864,7 @@ _.Parser = class {
     parseCommaSeparatedListUntil(rightToken, parseElement, allowEmptyList = true) {
         if (this.getToken().is(rightToken)) {
             if (!allowEmptyList) {
-                throw new mlir.Error(`Expected list element ${this.location()}`);
+                this.emitError('Expected list element');
             }
             this.consumeToken(rightToken);
             return;
@@ -2859,10 +2876,10 @@ _.Parser = class {
     parseResourceFileMetadata(parseBody) {
         this.parseToken(_.Token.l_brace, "Expected '{'");
         this.parseCommaSeparatedListUntil(_.Token.r_brace, () => {
-            const nameLoc = this.getToken().loc;
+            const nameLoc = this.getToken().loc.copy();
             const name = this.parseOptionalKeyword();
             if (!name) {
-                throw new mlir.Error(`Expected identifier key for 'resource' entry ${this.location()}`);
+                this.emitError("Expected identifier key for 'resource' entry");
             }
             this.parseToken(_.Token.colon);
             this.parseToken(_.Token.l_brace);
@@ -2871,10 +2888,10 @@ _.Parser = class {
     }
 
     parseDialectResourceFileMetadata() {
-        this.parseResourceFileMetadata((name /*, nameLoc */) => {
+        this.parseResourceFileMetadata((name, nameLoc) => {
             const dialect = this.context.getOrLoadDialect(name);
             if (!dialect) {
-                throw new mlir.Error(`Dialect '${name}' is unknown ${this.location()}`);
+                this.emitError(nameLoc, `Dialect '${name}' is unknown`);
             }
             this.parseCommaSeparatedListUntil(_.Token.r_brace, () => {
                 const keyLoc = this.getToken().loc.copy();
@@ -2890,13 +2907,16 @@ _.Parser = class {
     }
 
     parseExternalResourceFileMetadata() {
-        this.parseResourceFileMetadata((name /*, nameLoc */) => {
+        this.parseResourceFileMetadata((name, nameLoc) => {
             const handler = this.state.config.getResourceParser(name);
+            if (!handler) {
+                this.emitWarning(this.getEncodedSourceLocation(nameLoc), `Ignoring unknown external resources for '${name}'`);
+            }
             this.parseCommaSeparatedListUntil(_.Token.r_brace, () => {
                 const keyLoc = this.getToken().loc;
                 const key = this.parseOptionalKeywordOrString();
                 if (!key) {
-                    throw new mlir.Error(`Expected identifier key for 'external_resources' entry ${this.location()}`);
+                    this.emitError("Expected identifier key for 'external_resources' entry");
                 }
                 this.parseToken(_.Token.colon, "Expected ':'");
                 const valueTok = this.getToken();
@@ -2954,7 +2974,7 @@ _.Parser = class {
             return { label };
         });
         if (parsed.length === 0) {
-            throw new mlir.Error(`Expected at least one successor ${this.location()}`);
+            this.emitError('Expected at least one successor');
         }
         for (const s of parsed) {
             successors.push(s);
@@ -2971,14 +2991,14 @@ _.Parser = class {
             } else if (this.getToken().isAny(_.Token.bare_identifier, _.Token.inttype) || this.getToken().isKeyword()) {
                 name = this.getTokenSpelling().str();
             } else {
-                throw new mlir.Error(`Expected attribute name ${this.location()}`);
+                this.emitError('Expected attribute name');
             }
             if (!name) {
-                throw new mlir.Error(`Expected attribute name ${this.location()}`);
+                this.emitError('Expected attribute name');
             }
             this.consumeToken();
             if (seenKeys.has(name)) {
-                throw new mlir.Error(`Duplicate key '${name}' in dictionary attribute ${this.location()}`);
+                this.emitError(`Duplicate key '${name}' in dictionary attribute`);
             }
             seenKeys.add(name);
             if (!this.consumeIf(_.Token.equal)) {
@@ -2994,7 +3014,7 @@ _.Parser = class {
         if (this.getToken().is(_.Token.hash_identifier)) {
             const locAttr = this.parseExtendedAttr();
             if (locAttr instanceof _.LocationAttr === false && locAttr instanceof _.OpaqueAttr === false) {
-                throw new mlir.Error(`Expected location attribute, but got '${locAttr}' ${this.location()}`);
+                this.emitError(`Expected location attribute, but got '${locAttr}'`);
             }
             return locAttr;
         }
@@ -3002,7 +3022,7 @@ _.Parser = class {
             return this.parseNameOrFileLineColRange();
         }
         if (!this.getToken().is(_.Token.bare_identifier)) {
-            throw new mlir.Error(`Expected location instance, got '${this.getTokenSpelling().str()}' ${this.location()}`);
+            this.emitError(`Expected location instance, got '${this.getTokenSpelling().str()}'`);
         }
         if (this.getToken().spelling.str() === 'callsite') {
             return this.parseCallSiteLocation();
@@ -3014,7 +3034,8 @@ _.Parser = class {
             this.consumeToken(_.Token.bare_identifier);
             return new _.UnknownLoc();
         }
-        throw new mlir.Error(`Expected location instance, got '${this.getTokenSpelling().str()}' ${this.location()}`);
+        this.emitError(`Expected location instance, got '${this.getTokenSpelling().str()}'`);
+        return null;
     }
 
     parseCallSiteLocation() {
@@ -3022,7 +3043,7 @@ _.Parser = class {
         this.parseToken(_.Token.l_paren, "Expected '(' in callsite location");
         const callee = this.parseLocationInstance();
         if (this.getToken().isNot(_.Token.bare_identifier) || this.getToken().getSpelling().str() !== 'at') {
-            throw new mlir.Error(`Expected 'at' in callsite location ${this.location()}`);
+            this.emitError("Expected 'at' in callsite location");
         }
         this.consumeToken(_.Token.bare_identifier);
         const caller = this.parseLocationInstance();
@@ -3036,7 +3057,7 @@ _.Parser = class {
         if (this.consumeIf(_.Token.less)) {
             metadata = this.parseAttribute();
             if (!metadata) {
-                throw new mlir.Error(`Expected attribute in fused location metadata ${this.location()}`);
+                this.emitError('Expected attribute in fused location metadata');
             }
             this.parseToken(_.Token.greater, "Expected '>' after fused location metadata");
         }
@@ -3049,11 +3070,11 @@ _.Parser = class {
         this.consumeToken(_.Token.string);
         if (this.consumeIf(_.Token.colon)) {
             if (this.getToken().isNot(_.Token.integer)) {
-                throw new mlir.Error(`Expected integer line number in FileLineColRange ${this.location()}`);
+                this.emitError('Expected integer line number in FileLineColRange');
             }
             const startLine = this.getToken().getUnsignedIntegerValue();
             if (startLine === null) {
-                throw new mlir.Error(`Expected integer line number in FileLineColRange ${this.location()}`);
+                this.emitError('Expected integer line number in FileLineColRange');
             }
             this.consumeToken(_.Token.integer);
             if (this.getToken().isNot(_.Token.colon)) {
@@ -3061,11 +3082,11 @@ _.Parser = class {
             }
             this.consumeToken(_.Token.colon);
             if (this.getToken().isNot(_.Token.integer)) {
-                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
+                this.emitError('Expected integer column number in FileLineColRange');
             }
             const startCol = this.getToken().getUnsignedIntegerValue();
             if (startCol === null) {
-                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
+                this.emitError('Expected integer column number in FileLineColRange');
             }
             this.consumeToken(_.Token.integer);
             if (!this.isCurrentTokenAKeyword() || this.getTokenSpelling().str() !== 'to') {
@@ -3076,20 +3097,20 @@ _.Parser = class {
             if (this.getToken().is(_.Token.integer)) {
                 endLine = this.getToken().getUnsignedIntegerValue();
                 if (endLine === null) {
-                    throw new mlir.Error(`Expected integer line number in FileLineColRange ${this.location()}`);
+                    this.emitError('Expected integer line number in FileLineColRange');
                 }
                 this.consumeToken(_.Token.integer);
             }
             if (this.getToken().isNot(_.Token.colon)) {
-                throw new mlir.Error(`Expected either integer or ':' post 'to' in FileLineColRange ${this.location()}`);
+                this.emitError("Expected either integer or ':' post 'to' in FileLineColRange");
             }
             this.consumeToken(_.Token.colon);
             if (this.getToken().isNot(_.Token.integer)) {
-                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
+                this.emitError('Expected integer column number in FileLineColRange');
             }
             const endCol = this.getToken().getUnsignedIntegerValue();
             if (endCol === null) {
-                throw new mlir.Error(`Expected integer column number in FileLineColRange ${this.location()}`);
+                this.emitError('Expected integer column number in FileLineColRange');
             }
             this.consumeToken(_.Token.integer);
             if (endLine !== null) {
@@ -3163,7 +3184,7 @@ _.Parser = class {
         }
         const dimension = this.getToken().getUInt64IntegerValue();
         if (dimension === null) {
-            throw new mlir.Error(`Invalid dimension ${this.location()}`);
+            this.emitError('Invalid dimension');
         }
         this.consumeToken(_.Token.integer);
         return dimension;
@@ -3177,7 +3198,7 @@ _.Parser = class {
             dimensions.push(this.parseIntegerInDimensionList());
             if (scalable) {
                 if (!this.consumeIf(_.Token.r_square)) {
-                    throw new mlir.Error(`Missing ']' closing scalable dimension ${this.location()}`);
+                    this.emitError("Missing ']' closing scalable dimension");
                 }
             }
             scalableDims.push(scalable);
@@ -3229,6 +3250,7 @@ _.Parser = class {
             const dimInfo = this.parseDimensionListRanked();
             dimensions = dimInfo.dimensions;
         }
+        const elementTypeLoc = this.getToken().loc.copy();
         const elementType = this.parseType();
         let encoding = null;
         if (this.consumeIf(_.Token.comma)) {
@@ -3239,11 +3261,11 @@ _.Parser = class {
             elementType instanceof _.TupleType || elementType instanceof _.RankedTensorType ||
             elementType instanceof _.UnrankedTensorType || elementType instanceof _.MemRefType ||
             elementType instanceof _.UnrankedMemRefType) {
-            throw new mlir.Error(`Invalid tensor element type ${this.location()}`);
+            this.emitError(elementTypeLoc, 'Invalid tensor element type');
         }
         if (isUnranked) {
             if (encoding) {
-                throw new mlir.Error(`Cannot apply encoding to unranked tensor ${this.location()}`);
+                this.emitError('Cannot apply encoding to unranked tensor');
             }
             return new _.UnrankedTensorType(elementType);
         }
@@ -3261,11 +3283,12 @@ _.Parser = class {
             const dimInfo = this.parseDimensionListRanked();
             dimensions = dimInfo.dimensions;
         }
+        const typeLoc = this.getToken().loc.copy();
         const elementType = this.parseType();
         if (elementType instanceof _.NoneType || elementType instanceof _.FunctionType ||
             elementType instanceof _.TupleType || elementType instanceof _.RankedTensorType ||
             elementType instanceof _.UnrankedTensorType) {
-            throw new mlir.Error(`Invalid memref element type ${this.location()}`);
+            this.emitError(typeLoc, 'Invalid memref element type');
         }
         let layout = null;
         let memorySpace = null;
@@ -3274,14 +3297,14 @@ _.Parser = class {
             if (attr instanceof _.MemRefLayoutAttr) {
                 layout = attr;
                 if (isUnranked) {
-                    throw new mlir.Error(`Cannot have affine map for unranked memref type ${this.location()}`);
+                    this.emitError('Cannot have affine map for unranked memref type');
                 }
                 if (memorySpace) {
-                    throw new mlir.Error(`Expected memory space to be last in memref type ${this.location()}`);
+                    this.emitError('Expected memory space to be last in memref type');
                 }
             } else {
                 if (memorySpace) {
-                    throw new mlir.Error(`Multiple memory spaces specified in memref type ${this.location()}`);
+                    this.emitError('Multiple memory spaces specified in memref type');
                 }
                 memorySpace = attr;
             }
@@ -3303,9 +3326,10 @@ _.Parser = class {
 
     parseComplexType() {
         this.parseToken(_.Token.less, "Expected '<' in complex type");
+        const elementTypeLoc = this.getToken().loc.copy();
         const elementType = this.parseType();
         if (!(elementType instanceof _.FloatType) && !(elementType instanceof _.IntegerType)) {
-            throw new mlir.Error(`Invalid element type for complex ${this.location()}`);
+            this.emitError(elementTypeLoc, 'Invalid element type for complex');
         }
         this.parseToken(_.Token.greater, "Expected '>' in complex type");
         return new _.ComplexType(elementType);
@@ -3379,10 +3403,10 @@ _.Parser = class {
             case _.Token.inttype: {
                 const width = this.getToken().getIntTypeBitwidth();
                 if (width === null) {
-                    throw new mlir.Error(`Invalid integer width ${this.location()}`);
+                    this.emitError('Invalid integer width');
                 }
                 if (width > _.IntegerType.kMaxWidth) {
-                    throw new mlir.Error(`Integer bitwidth is limited to ${_.IntegerType.kMaxWidth} bits ${this.location()}`);
+                    this.emitError(`Integer bitwidth is limited to ${_.IntegerType.kMaxWidth} bits`);
                 }
                 const signedness = this.getToken().getIntTypeSignedness();
                 this.consumeToken(_.Token.inttype);
@@ -3435,14 +3459,16 @@ _.Parser = class {
                     case 'f6E3M2FN':
                         return new _.FloatType(value);
                     default:
-                        throw new mlir.Error(`Invalid type '${value}' ${this.location()}`);
+                        this.emitError(`Invalid type '${value}'`);
                 }
+                break;
             }
             default: {
                 break;
             }
         }
-        throw new mlir.Error(`Invalid type '${this.getTokenSpelling().str()}' ${this.location()}`);
+        this.emitError(`Invalid type '${this.getTokenSpelling().str()}'`);
+        return null;
     }
 
     parseExtendedType() {
@@ -3478,7 +3504,7 @@ _.Parser = class {
         const hasTrailingData = this.getToken().is(_.Token.less) && (startPos + tokSpelling.length) === this.getToken().loc.position;
         if (!hasTrailingData && !isPrettyName) {
             if (!aliases.has(tokSpelling)) {
-                throw new mlir.Error(`Undefined symbol alias '${identifier}' ${this.location()}`);
+                this.emitError(`Undefined symbol alias '${identifier}'`);
             }
             if (asmState) {
                 if (isType) {
@@ -3566,7 +3592,7 @@ _.Parser = class {
     parseFloatAttr(type = null, isNegative = false) {
         const val = this.getToken().getFloatingPointValue();
         if (val === null) {
-            throw new mlir.Error(`Floating point value too large for attribute ${this.location()}`);
+            this.emitError('Floating point value too large for attribute');
         }
         this.consumeToken(_.Token.floatliteral);
         if (!type) {
@@ -3577,12 +3603,13 @@ _.Parser = class {
             }
         }
         if (type instanceof _.FloatType === false) {
-            throw new mlir.Error(`Floating point value not valid for specified type ${this.location()}`);
+            this.emitError('Floating point value not valid for specified type');
         }
         return new _.FloatAttr(type, isNegative ? -val : val);
     }
 
     parseDecOrHexAttr(type = null, isNegative = false) {
+        const loc = this.getToken().loc.copy();
         const tok = this.getToken();
         const spelling = tok.getSpelling().str();
         this.consumeToken(_.Token.integer);
@@ -3597,14 +3624,14 @@ _.Parser = class {
             return new _.FloatAttr(type, isNegative ? -spelling : spelling);
         }
         if (!(type instanceof _.IntegerType) && !(type instanceof _.IndexType)) {
-            throw new mlir.Error(`Integer literal not valid for specified type ${this.location()}`);
+            this.emitError(loc, 'Integer literal not valid for specified type');
         }
         if (isNegative && type instanceof _.IntegerType && type.name.startsWith('ui')) {
-            throw new mlir.Error(`Negative integer literal not valid for unsigned integer type ${this.location()}`);
+            this.emitError(loc, 'Negative integer literal not valid for unsigned integer type');
         }
         const val = tok.spelling.getAsInteger(spelling.length > 1 && spelling[1] === 'x' ? 0 : 10);
         if (val === null) {
-            throw new mlir.Error(`Integer constant out of range for attribute ${this.location()}`);
+            this.emitError(loc, 'Integer constant out of range for attribute');
         }
         return new _.IntegerAttr(type, isNegative ? -val : val);
     }
@@ -3664,7 +3691,8 @@ _.Parser = class {
                 if (this.getToken().is(_.Token.floatliteral)) {
                     return this.parseFloatAttr(type, true);
                 }
-                throw new mlir.Error(`Expected constant integer or floating point value ${this.location()}`);
+                this.emitError('Expected constant integer or floating point value');
+                break;
             }
             case _.Token.kw_loc:
                 return this.parseOptionalLocationSpecifier();
@@ -3694,7 +3722,7 @@ _.Parser = class {
                         break;
                     }
                     if (this.getToken().isNot(_.Token.at_identifier)) {
-                        throw new mlir.Error(`Expected nested symbol reference identifier ${this.location()}`);
+                        this.emitError('Expected nested symbol reference identifier');
                     }
                     nestedRefs.push(this.getToken().getSymbolReference());
                     this.consumeToken(_.Token.at_identifier);
@@ -3738,9 +3766,11 @@ _.Parser = class {
                 if (parsedType) {
                     return new _.TypeAttrOf(parsedType);
                 }
-                throw new mlir.Error(`Unexpected attribute token '${this.getTokenSpelling().str()}' ${this.location()}`);
+                this.emitError(`Unexpected attribute token '${this.getTokenSpelling().str()}'`);
+                break;
             }
         }
+        return null;
     }
 
     parseExtendedAttr(type = null) {
@@ -3771,7 +3801,7 @@ _.Parser = class {
     parseResourceHandle(dialect) {
         const name = this.parseOptionalKeywordOrString();
         if (!name) {
-            throw new mlir.Error(`Expected identifier key for 'resource' entry ${this.location()}`);
+            this.emitError("Expected identifier key for 'resource' entry");
         }
         const resources = this.state.dialectResources;
         if (!resources.has(dialect)) {
@@ -3811,15 +3841,16 @@ _.Parser = class {
     }
 
     parseDenseElementsAttrTyped() {
+        const typeLoc = this.getToken().loc.copy();
         const type = this.parseOptionalType();
         if (!type) {
             return null;
         }
         if (!this.consumeIf(_.Token.colon)) {
-            throw new mlir.Error(`Expected ':' after type in dense attribute ${this.location()}`);
+            this.emitError("Expected ':' after type in dense attribute");
         }
         if (!(type instanceof _.RankedTensorType) && !(type instanceof _.VectorType)) {
-            throw new mlir.Error(`Expected a shaped type for dense elements ${this.location()}`);
+            this.emitError(typeLoc, 'Expected a shaped type for dense elements');
         }
         const values = [];
         const parseElement = () => {
@@ -3866,9 +3897,10 @@ _.Parser = class {
     parseDenseArrayAttr(/* attrType */) {
         this.consumeToken(_.Token.kw_array);
         this.parseToken(_.Token.less, "Expected '<' after 'array'");
+        const typeLoc = this.getToken().loc.copy();
         const arrayType = this.parseType();
         if (!(arrayType instanceof _.IntegerType) && !(arrayType instanceof _.FloatType)) {
-            throw new mlir.Error(`Expected integer or float type, got '${arrayType}' ${this.location()}`);
+            this.emitError(typeLoc, `Expected integer or float type, got '${arrayType}'`);
         }
         if (this.consumeIf(_.Token.greater)) {
             return new _.DenseArrayAttr(arrayType, 0, []);
@@ -3924,13 +3956,14 @@ _.Parser = class {
         // Parse dimension list: integer or '?' separated by commas
         const strides = [];
         while (this.getToken().isNot(_.Token.r_square)) {
+            const loc = this.getToken().loc.copy();
             const value = this.parseOptionalInteger();
             if (value !== null) {
                 strides.push(value);
             } else if (this.consumeIf(_.Token.question)) {
                 strides.push('?');
             } else {
-                throw new mlir.Error(`Expected a 64-bit signed integer or '?' in strided layout ${this.location()}`);
+                this.emitError(loc, "Expected a 64-bit signed integer or '?'");
             }
             if (this.getToken().isNot(_.Token.r_square)) {
                 this.consumeIf(_.Token.comma);
@@ -3941,12 +3974,13 @@ _.Parser = class {
         if (this.consumeIf(_.Token.comma)) {
             this.parseToken(_.Token.kw_offset, "Expected 'offset' after comma");
             this.parseToken(_.Token.colon, "Expected ':' after 'offset'");
+            const offsetLoc = this.getToken().loc.copy();
             offset = this.parseOptionalInteger();
             if (offset === null) {
                 if (this.consumeIf(_.Token.question)) {
                     offset = '?';
                 } else {
-                    throw new mlir.Error(`Expected a 64-bit signed integer or '?' for offset in strided layout ${this.location()}`);
+                    this.emitError(offsetLoc, "Expected a 64-bit signed integer or '?' for offset in strided layout");
                 }
             }
         }
@@ -3957,10 +3991,11 @@ _.Parser = class {
     // Parse an affine map reference using AffineParser
     // Following reference: Parser::parseAffineMapReference
     parseAffineMapReference() {
+        const curLoc = this.getToken().loc.copy();
         const affineParser = new _.AffineParser(this.state);
         const result = affineParser.parseAffineMapOrIntegerSetInline();
         if (result.set) {
-            throw new mlir.Error(`Expected AffineMap, but got IntegerSet ${this.location()}`);
+            this.emitError(curLoc, 'Expected AffineMap, but got IntegerSet');
         }
         return result.map;
     }
@@ -3968,10 +4003,11 @@ _.Parser = class {
     // Parse an integer set reference using AffineParser
     // Following reference: Parser::parseIntegerSetReference
     parseIntegerSetReference() {
+        const curLoc = this.getToken().loc.copy();
         const affineParser = new _.AffineParser(this.state);
         const result = affineParser.parseAffineMapOrIntegerSetInline();
         if (result.map) {
-            throw new mlir.Error(`Expected IntegerSet, but got AffineMap ${this.location()}`);
+            this.emitError(curLoc, 'Expected IntegerSet, but got AffineMap');
         }
         return result.set;
     }
@@ -3994,12 +4030,12 @@ _.Parser = class {
         this.consumeToken(_.Token.kw_distinct);
         this.parseToken(_.Token.l_square, "Expected '[' after 'distinct'");
         if (this.getToken().isNot(_.Token.integer)) {
-            throw new mlir.Error(`Expected distinct ID ${this.location()}`);
+            this.emitError('Expected distinct ID');
         }
         const token = this.getToken();
         const id = token.getUInt64IntegerValue();
         if (id === null) {
-            throw new mlir.Error(`Expected an unsigned 64-bit integer ${this.location()}`);
+            this.emitError('Expected an unsigned 64-bit integer');
         }
         this.consumeToken(_.Token.integer);
         this.parseToken(_.Token.r_square, "Expected ']' to close distinct ID");
@@ -4066,6 +4102,7 @@ _.Parser = class {
             return null;
         }
         const negative = this.consumeIf(_.Token.minus);
+        const curTokLoc = this.getToken().loc.copy();
         const curTok = this.getToken();
         this.parseToken(_.Token.integer, 'Expected integer value');
         if (type === 'int64') {
@@ -4077,7 +4114,7 @@ _.Parser = class {
         const isHex = spelling.length > 1 && spelling[1] === 'x';
         const result = spelling.getAsInteger(isHex ? 0 : 10);
         if (result === null) {
-            throw new mlir.Error(`Integer value too large ${this.location()}`);
+            this.emitError(curTokLoc, 'Integer value too large');
         }
         return negative ? -result : result;
     }
@@ -4085,7 +4122,7 @@ _.Parser = class {
     parseInteger(type) {
         const result = this.parseOptionalInteger(type);
         if (result === null) {
-            throw new mlir.Error(`Expected integer value ${this.location()}`);
+            this.emitError('Expected integer value');
         }
         return result;
     }
@@ -4095,6 +4132,7 @@ _.Parser = class {
             return null;
         }
         const negative = this.consumeIf(_.Token.minus);
+        const curTokLoc = this.getToken().loc.copy();
         const curTok = this.getToken();
         this.parseToken(_.Token.integer, 'Expected integer value');
         const spelling = curTok.spelling.str();
@@ -4105,7 +4143,7 @@ _.Parser = class {
         }
         const result = curTok.spelling.getAsInteger(10);
         if (result === null) {
-            throw new mlir.Error(`Integer value too large ${this.location()}`);
+            this.emitError(curTokLoc, 'Integer value too large');
         }
         return negative ? -result : result;
     }
@@ -4113,7 +4151,7 @@ _.Parser = class {
     parseDecimalInteger() {
         const result = this.parseOptionalDecimalInteger();
         if (result === null) {
-            throw new mlir.Error(`Expected decimal integer value ${this.location()}`);
+            this.emitError('Expected decimal integer value');
         }
         return result;
     }
@@ -4141,7 +4179,7 @@ _.Parser = class {
         let prevToken = '<';
         while (stack.length > 0) {
             if (this.getToken().is(_.Token.eof)) {
-                throw new mlir.Error(`Unbalanced '<' ${this.location()}`);
+                this.emitError("Unbalanced '<'");
             }
             const token = this.getToken().getSpelling().str();
             if (closingFor[token]) {
@@ -4150,7 +4188,7 @@ _.Parser = class {
                 if (stack[stack.length - 1] === openingFor[token]) {
                     stack.pop();
                 } else if (token !== '>') {
-                    throw new mlir.Error(`Unbalanced '${stack[stack.length - 1]}' ${this.location()}`);
+                    this.emitError(`Unbalanced '${stack[stack.length - 1]}'`);
                 }
             }
             const curToken = this.getToken().getSpelling().str();
@@ -4162,6 +4200,10 @@ _.Parser = class {
             prevToken = curToken;
         }
         return value;
+    }
+
+    getEncodedSourceLocation(loc) {
+        return this.state.lex.getEncodedSourceLocation(loc);
     }
 
     getToken() {
@@ -4179,7 +4221,7 @@ _.Parser = class {
 
     consumeToken(kind) {
         if (kind !== undefined && this.state.curToken.kind !== kind) {
-            throw new mlir.Error(`consumeToken: Expected '${kind}' ${this.location()}`);
+            this.emitError(`consumeToken: Expected '${kind}'`);
         }
         this.state.curToken = this.state.lex.lexToken();
     }
@@ -4188,7 +4230,7 @@ _.Parser = class {
         if (this.consumeIf(kind)) {
             return;
         }
-        throw new mlir.Error(`${message || `Expected '${kind}'`} ${this.location()}`);
+        this.emitError(message || `Expected '${kind}'`);
     }
 
     consumeIf(kind) {
@@ -4199,8 +4241,14 @@ _.Parser = class {
         return true;
     }
 
-    location() {
-        return this.getToken().loc.toString();
+    emitError(...args) {
+        const loc = args.length === 2 ? args[0] : this.getToken().loc;
+        const message = args.length === 2 ? args[1] : args[0];
+        const location = this.getEncodedSourceLocation(loc);
+        throw new mlir.Error(`${message} at ${location.impl.printLocationInternal()}.`);
+    }
+
+    emitWarning() {
     }
 
     static parseSymbol(inputStr, context, parserFn) {
@@ -4301,7 +4349,7 @@ _.TopLevelOperationParser = class extends _.Parser {
             const keyLoc = this.getToken().loc;
             const key = this.parseOptionalKeyword();
             if (!key) {
-                throw new mlir.Error(`Expected identifier key in file metadata dictionary ${this.location()}`);
+                this.emitError('Expected identifier key in file metadata dictionary');
             }
             this.parseToken(_.Token.colon, "Expected ':'");
             if (key === 'dialect_resources') {
@@ -4336,7 +4384,7 @@ _.AffineParser = class extends _.Parser {
             return { map: this.parseAffineMapRange(numDims, numSymbols), set: null };
         }
         if (!this.consumeIf(_.Token.colon)) {
-            throw new mlir.Error(`Expected '->' or ':' ${this.location()}`);
+            this.emitError("Expected '->' or ':'");
         }
         return { map: null, set: this.parseIntegerSetConstraints(numDims, numSymbols) };
     }
@@ -4393,11 +4441,11 @@ _.AffineParser = class extends _.Parser {
             name = this.getToken().getSpelling().str();
             this.consumeToken();
         } else {
-            throw new mlir.Error(`Expected bare identifier ${this.location()}`);
+            this.emitError('Expected bare identifier');
         }
         for (const entry of this.dimsAndSymbols) {
             if (entry.name === name) {
-                throw new mlir.Error(`Redefinition of identifier '${name}' ${this.location()}`);
+                this.emitError(`Redefinition of identifier '${name}'`);
             }
         }
         this.dimsAndSymbols.push({ name, expr: idExpr });
@@ -4410,7 +4458,7 @@ _.AffineParser = class extends _.Parser {
             do {
                 const expr = this.parseAffineExpr();
                 if (!expr) {
-                    throw new mlir.Error(`Failed to parse affine expression ${this.location()}`);
+                    this.emitError('Failed to parse affine expression');
                 }
                 exprs.push(expr);
             } while (this.consumeIf(_.Token.comma));
@@ -4442,7 +4490,7 @@ _.AffineParser = class extends _.Parser {
     parseAffineConstraint() {
         const lhsExpr = this.parseAffineExpr();
         if (!lhsExpr) {
-            throw new mlir.Error(`Expected affine expression ${this.location()}`);
+            this.emitError('Expected affine expression');
         }
         if (this.consumeIf(_.Token.greater) && this.consumeIf(_.Token.equal)) {
             const rhsExpr = this.parseAffineExpr();
@@ -4456,7 +4504,8 @@ _.AffineParser = class extends _.Parser {
             const rhsExpr = this.parseAffineExpr();
             return { expr: this.makeSubExpr(lhsExpr, rhsExpr), isEq: true };
         }
-        throw new mlir.Error(`Expected '>=', '<=', or '==' after affine expression ${this.location()}`);
+        this.emitError("Expected '>=', '<=', or '==' after affine expression");
+        return null;
     }
 
     makeSubExpr(lhs, rhs) {
@@ -4587,14 +4636,15 @@ _.AffineParser = class extends _.Parser {
         }
         if (this.getToken().isAny(_.Token.plus, _.Token.star)) {
             if (lhs) {
-                throw new mlir.Error(`Missing right operand of binary operator ${this.location()}`);
+                this.emitError('Missing right operand of binary operator');
             }
-            throw new mlir.Error(`Missing left operand of binary operator ${this.location()}`);
+            this.emitError('Missing left operand of binary operator');
         }
         if (lhs) {
-            throw new mlir.Error(`Missing right operand of binary operator ${this.location()}`);
+            this.emitError('Missing right operand of binary operator');
         }
-        throw new mlir.Error(`Expected affine expression ${this.location()}`);
+        this.emitError('Expected affine expression');
+        return null;
     }
 
     parseSymbolSSAIdExpr() {
@@ -4607,10 +4657,10 @@ _.AffineParser = class extends _.Parser {
 
     parseSSAIdExpr(isSymbol) {
         if (!this.allowParsingSSAIds) {
-            throw new mlir.Error(`Unexpected SSA identifier ${this.location()}`);
+            this.emitError('Unexpected SSA identifier');
         }
         if (this.getToken().isNot(_.Token.percent_identifier)) {
-            throw new mlir.Error(`Expected SSA identifier ${this.location()}`);
+            this.emitError('Expected SSA identifier');
         }
         const name = this.getTokenSpelling().str();
         for (const entry of this.dimsAndSymbols) {
@@ -4640,7 +4690,7 @@ _.AffineParser = class extends _.Parser {
     parseParentheticalExpr() {
         this.parseToken(_.Token.l_paren, "Expected '('");
         if (this.getToken().is(_.Token.r_paren)) {
-            throw new mlir.Error(`No expression inside parentheses ${this.location()}`);
+            this.emitError('No expression inside parentheses');
         }
         const expr = this.parseAffineExpr();
         this.parseToken(_.Token.r_paren, "Expected ')'");
@@ -4651,7 +4701,7 @@ _.AffineParser = class extends _.Parser {
         this.parseToken(_.Token.minus, "Expected '-'");
         const operand = this.parseAffineOperandExpr(lhs);
         if (!operand) {
-            throw new mlir.Error(`Missing operand of negation ${this.location()}`);
+            this.emitError('Missing operand of negation');
         }
         const negOne = this.getAffineConstantExpr(-1);
         return this.getAffineBinaryOpExpr(_.AffineExprKind.Mul, negOne, operand);
@@ -4659,7 +4709,7 @@ _.AffineParser = class extends _.Parser {
 
     parseBareIdExpr() {
         if (!this.isCurrentTokenAKeyword()) {
-            throw new mlir.Error(`Expected bare identifier ${this.location()}`);
+            this.emitError('Expected bare identifier');
         }
         const name = this.getTokenSpelling().str();
         this.consumeToken();
@@ -4668,7 +4718,8 @@ _.AffineParser = class extends _.Parser {
                 return entry.expr;
             }
         }
-        throw new mlir.Error(`Use of undeclared identifier '${name}' ${this.location()}`);
+        this.emitError(`Use of undeclared identifier '${name}'`);
+        return null;
     }
 
     parseAffineMapOfSSAIds(delimiter = 'Paren') {
@@ -4830,11 +4881,11 @@ _.OperationParser = class extends _.Parser {
                 let expectedSubResults = 1;
                 if (this.consumeIf(_.Token.colon)) {
                     if (this.getToken().isNot(_.Token.integer)) {
-                        throw new mlir.Error(`Expected integer number of results ${this.location()}`);
+                        this.emitError('Expected integer number of results');
                     }
                     const val = parseInt(this.getToken().getSpelling().str(), 10);
                     if (!Number.isInteger(val) || val < 1) {
-                        throw new mlir.Error(`Expected named operation to have at least 1 result ${this.location()}`);
+                        this.emitError('Expected named operation to have at least 1 result');
                     }
                     this.consumeToken(_.Token.integer);
                     expectedSubResults *= val;
@@ -4854,23 +4905,23 @@ _.OperationParser = class extends _.Parser {
         } else if (nameTok.is(_.Token.string)) {
             op = this.parseGenericOperation();
         } else {
-            throw new mlir.Error(`${this.getToken().is(_.Token.eof) ? 'Unexpected end of input' : `Unexpected operation name '${this.getTokenSpelling().str()}'`} ${this.location()}`);
+            this.emitError(this.getToken().is(_.Token.eof) ? 'Unexpected end of input' : `Unexpected operation name '${this.getTokenSpelling().str()}'`);
         }
         if (!op) {
-            throw new mlir.Error(`Failed to parse operation ${this.location()}`);
+            this.emitError('Failed to parse operation');
         }
         if (resultIDs.length > 0 && op.results.length === 0) {
-            throw new mlir.Error(`Cannot name an operation with no results ${loc.toString()}`);
+            this.emitError(loc, 'Cannot name an operation with no results');
         }
         if (resultIDs.length > 0 && op.results.length !== numExpectedResults) {
-            throw new mlir.Error(`Operation '${op.name.getStringRef()}' defines '${op.results.length}' results but was provided '${numExpectedResults}' to bind ${loc.toString()}`);
+            this.emitError(loc, `Operation '${op.name.getStringRef()}' defines '${op.results.length}' results but was provided '${numExpectedResults}' to bind`);
         }
         let index = 0;
         for (const resIt of resultIDs) {
             for (let subRes = 0; subRes < resIt[1]; subRes++) {
                 const result = op.results[index++];
                 if (result.name) {
-                    throw new mlir.Error(`Result '${result.name}' already has name ${this.location()}`);
+                    this.emitError(`Result '${result.name}' already has name`);
                 }
                 // Workaround: Visualization-specific addition is to store name on result for display
                 result.name = subRes === 0 ? resIt[0] : `${resIt[0]}.${subRes}`;
@@ -4890,10 +4941,10 @@ _.OperationParser = class extends _.Parser {
         const customParser = new _.CustomOpAsmParser(resultIDs, this);
         if (!opNameInfo.dialect.parseOperation(customParser, opState)) {
             this.state.defaultDialectStack.pop();
-            throw new mlir.Error(`Unsupported custom operation '${opState.identifier}' ${this.location()}`);
+            this.emitError(opLoc, `Unsupported custom operation '${opState.identifier}'`);
         }
         if (!opNameInfo.metadata.hasParser && !opNameInfo.metadata.hasCustomAssemblyFormat && opNameInfo.metadata.assemblyFormat && opState.compatibility !== true) {
-            throw new mlir.Error(`Operation '${opState.identifier}' has assembly format but was handled by custom dialect code.`);
+            this.emitError(`Operation '${opState.identifier}' has assembly format but was handled by custom dialect code.`);
         }
         opState.loc = this.parseTrailingLocationSpecifier() || {};
         this.state.defaultDialectStack.pop();
@@ -4902,8 +4953,9 @@ _.OperationParser = class extends _.Parser {
 
     parseCustomOperationName() {
         const nameTok = this.getToken();
+        const nameLoc = nameTok.loc.copy();
         if (nameTok.kind !== _.Token.bare_identifier && !nameTok.isKeyword()) {
-            throw new mlir.Error(`Expected bare identifier or keyword ${this.location()}`);
+            this.emitError('Expected bare identifier or keyword');
         }
         const identifier = nameTok.getSpelling().str(); // Workaround: keep the original source file identifier
         this.consumeToken();
@@ -4920,7 +4972,7 @@ _.OperationParser = class extends _.Parser {
         }
         index = opName.indexOf('.');
         if (index === -1) {
-            throw new mlir.Error(`No dialect found '${opName}' ${this.location()}`);
+            this.emitError(nameLoc, `No dialect found '${opName}'`);
         }
         const dialectName = opName.substring(0, index);
         const dialect = this.context.getOrLoadDialect(dialectName);
@@ -4942,10 +4994,10 @@ _.OperationParser = class extends _.Parser {
         const srcLocation = this.getToken().loc.copy();
         const identifier = this.getToken().getStringValue();
         if (identifier.length === 0) {
-            throw new mlir.Error(`Empty operation name is invalid ${this.location()}`);
+            this.emitError('Empty operation name is invalid');
         }
         if (identifier.indexOf('\0') !== -1) {
-            throw new mlir.Error(`Null character not allowed in operation name ${this.location()}`);
+            this.emitError('Null character not allowed in operation name');
         }
         this.consumeToken(_.Token.string);
         const name = this.redirect(identifier);
@@ -4973,7 +5025,7 @@ _.OperationParser = class extends _.Parser {
         if (this.consumeIf(_.Token.less)) {
             result.propertiesAttr = this.parseAttribute();
             if (!result.propertiesAttr) {
-                throw new mlir.Error(`Expected attribute as properties ${this.location()}`);
+                this.emitError('Expected attribute as properties');
             }
             this.parseToken(_.Token.greater, "Expected '>' to close properties");
         }
@@ -4988,13 +5040,14 @@ _.OperationParser = class extends _.Parser {
             this.parseAttributeDict(result.attributes);
         }
         this.parseToken(_.Token.colon, "Expected ':' followed by operation type");
+        const typeLoc = this.getToken().loc.copy();
         const fnType = this.parseType();
         if (fnType instanceof _.FunctionType === false) {
-            throw new mlir.Error(`Expected function type ${this.location()}`);
+            this.emitError(typeLoc, 'Expected function type');
         }
         const operandTypes = fnType.inputs;
         if (operandTypes.length !== unresolvedOperands.length) {
-            throw new mlir.Error(`Expected ${unresolvedOperands.length} operand type${unresolvedOperands.length === 1 ? '' : 's'} but had ${operandTypes.length} ${this.location()}`);
+            this.emitError(typeLoc, `Expected ${unresolvedOperands.length} operand type${unresolvedOperands.length === 1 ? '' : 's'} but had ${operandTypes.length}`);
         }
         for (let i = 0; i < unresolvedOperands.length; i++) {
             const unresolvedOperand = unresolvedOperands[i];
@@ -5051,13 +5104,13 @@ _.OperationParser = class extends _.Parser {
         let number = 0;
         if (this.getToken().is(_.Token.hash_identifier)) {
             if (!allowResultNumber) {
-                throw new mlir.Error(`Result number not allowed in argument list ${this.location()}`);
+                this.emitError('Result number not allowed in argument list');
             }
             const value = this.getTokenSpelling().str().substring(1);
             this.consumeToken(_.Token.hash_identifier);
             number = parseInt(value, 10);
             if (isNaN(number)) {
-                throw new mlir.Error(`Invalid SSA value result number '${value}' ${this.location()}`);
+                this.emitError(`Invalid SSA value result number '${value}'`);
             }
         }
         return new _.UnresolvedOperand(null, name, number);
@@ -5087,7 +5140,8 @@ _.OperationParser = class extends _.Parser {
         if (unresolvedOperand && unresolvedOperand.literal) {
             return new _.Value(unresolvedOperand.name, type);
         }
-        throw new mlir.Error(`UnresolvedOperand expected, got '${JSON.stringify(unresolvedOperand)}' ${this.location()}`);
+        this.emitError(`UnresolvedOperand expected, got '${JSON.stringify(unresolvedOperand)}'`);
+        return null;
     }
 
     getSSAValueEntry(name) {
@@ -5167,7 +5221,7 @@ _.OperationParser = class extends _.Parser {
             if (block.arguments.length === 0) {
                 block.arguments = resolvedEntryArgs;
             } else if (block.arguments.length !== resolvedEntryArgs.length) {
-                throw new mlir.Error(`Entry block has ${block.arguments.length} arguments, but function signature has ${resolvedEntryArgs.length} ${this.location()}`);
+                this.emitError(`Entry block has ${block.arguments.length} arguments, but function signature has ${resolvedEntryArgs.length}`);
             }
         }
         region.blocks.push(block);
@@ -5256,10 +5310,10 @@ _.AsmParser = class {
 
     parseKeyword(keyword) {
         if (!this.parser.isCurrentTokenAKeyword()) {
-            throw new mlir.Error(`expected '${keyword || 'keyword'}' ${this.parser.location()}`);
+            this.emitError(`Expected '${keyword || 'keyword'}'`);
         }
         if (keyword && this.parser.getTokenSpelling().str() !== keyword) {
-            throw new mlir.Error(`expected '${keyword}' ${this.parser.location()}`);
+            this.emitError(`Expected '${keyword}'`);
         }
         const spelling = this.parser.getTokenSpelling().str();
         this.parser.consumeToken();
@@ -5289,7 +5343,8 @@ _.AsmParser = class {
         if (arg === undefined) {
             return this.parser.parseOptionalKeyword();
         }
-        throw new mlir.Error(`Invalid optional keyword ${this.parser.location()}`);
+        this.emitError('Invalid optional keyword');
+        return null;
     }
 
     parseKeywordType(keyword) {
@@ -5397,7 +5452,7 @@ _.AsmParser = class {
     parseString() {
         const value = this.parser.parseOptionalString();
         if (value === null) {
-            throw new mlir.Error(`Expected string ${this.parser.location()}`);
+            this.emitError('Expected string');
         }
         return value;
     }
@@ -5566,14 +5621,18 @@ _.AsmParser = class {
         this.parser.parseToken(_.Token.minus, "expected '-'");
     }
 
+    emitError(...args) {
+        return this.parser.emitError(...args);
+    }
+
     getCurrentLocation() {
-        return this.parser.location();
+        return this.parser.getToken().loc;
     }
 
     parseSymbolName(attrName, attrs) {
         const result = this.parseOptionalSymbolName();
         if (result === null) {
-            throw new mlir.Error(`Expected valid '@'-identifier for symbol name ${this.parser.location()}`);
+            this.emitError(`Expected valid '@'-identifier for symbol name`);
         }
         attrs.set(attrName, result);
     }
@@ -5938,7 +5997,7 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
     parseAssignmentList(lhs, rhs) {
         const result = this.parseOptionalAssignmentList(lhs, rhs);
         if (!result) {
-            throw new mlir.Error(`expected '(' ${this.parser.location()}`);
+            this.emitError(`Expected '('`);
         }
     }
 
@@ -5971,7 +6030,7 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
 
     parseSuccessor() {
         if (this.parser.getToken().isNot(_.Token.caret_identifier)) {
-            throw new mlir.Error(`expected block name ${this.parser.location()}`);
+            this.emitError('Expected block name');
         }
         const label = this.parser.getTokenSpelling().str();
         this.parser.consumeToken(_.Token.caret_identifier);
@@ -6188,7 +6247,7 @@ _.TensorLiteralParser = class {
                 // Verify consistent dimensions (reference checks prevDims == newDims)
                 const dimsMatch = compareDims(thisDims, newDims);
                 if (!dimsMatch) {
-                    throw new mlir.Error(`Tensor literal is invalid; ranks are not consistent between elements ${this._parser.location()}`);
+                    this._parser.emitError('Tensor literal is invalid; ranks are not consistent between elements');
                 }
             }
             newDims = thisDims;
@@ -6221,7 +6280,7 @@ _.TensorLiteralParser = class {
             case _.Token.minus: {
                 this._parser.consumeToken(_.Token.minus);
                 if (!this._parser.getToken().isAny(_.Token.floatliteral, _.Token.integer)) {
-                    throw new mlir.Error(`Expected integer or floating point literal ${this._parser.location()}`);
+                    this._parser.emitError(`Expected integer or floating point literal`);
                 }
                 const value = this._parser.getTokenSpelling().str();
                 const kind = this._parser.getToken().kind === _.Token.floatliteral ? 'float' : 'int';
@@ -6243,7 +6302,7 @@ _.TensorLiteralParser = class {
                 this._parser.parseToken(_.Token.r_paren, "expected ')' after complex elements");
                 break;
             default:
-                throw new mlir.Error(`Expected element literal of primitive type ${this._parser.location()}`);
+                this._parser.emitError('Expected element literal of primitive type');
         }
     }
 
@@ -6252,7 +6311,6 @@ _.TensorLiteralParser = class {
     }
 
     getAttr(type) {
-        // Handle hex storage directly
         if (this._hexStorage instanceof Uint8Array) {
             return this._hexStorage;
         }
@@ -6260,8 +6318,6 @@ _.TensorLiteralParser = class {
         const numElements = type && type.getNumElements ? type.getNumElements().toNumber() : 0;
         const isComplex = elementType instanceof _.ComplexType;
         const baseElemType = isComplex && elementType.elementType ? elementType.elementType : elementType;
-
-        // Determine element type properties for validation
         let isUnsigned = false;
         let isInteger = false;
         let isI1 = false;
@@ -6279,15 +6335,11 @@ _.TensorLiteralParser = class {
                 bitWidth = 64;
             }
         }
-
-        // Validate and convert storage elements
         const convertElement = (elem) => {
             const { isNegative, value, kind } = elem;
-
             if (isNegative && isUnsigned) {
                 throw new mlir.Error(`Expected unsigned integer elements, but parsed negative value`);
             }
-
             if (kind === 'boolean') {
                 if (isInteger && !isI1) {
                     throw new mlir.Error(`Expected i1 type for 'true' or 'false' values`);
@@ -6299,13 +6351,33 @@ _.TensorLiteralParser = class {
             }
             let result = null;
             if (kind === 'int') {
-                if (bitWidth >= 64) {
-                    result = BigInt(value);
-                    if (isNegative) {
-                        result = -result;
+                if (!isInteger && baseElemType) {
+                    // Integer literal for a float type → hex bit pattern (e.g., 0xFF800000 for -Infinity)
+                    const bits = typeof value === 'string' && value.startsWith('0x') ? BigInt(value) : BigInt(isNegative ? `-${value}` : value);
+                    const typeStr = baseElemType.toString();
+                    if (typeStr === 'f32') {
+                        const buf = new ArrayBuffer(4);
+                        new DataView(buf).setUint32(0, Number(bits & 0xFFFFFFFFn));
+                        result = new DataView(buf).getFloat32(0);
+                    } else if (typeStr === 'f64') {
+                        const buf = new ArrayBuffer(8);
+                        new DataView(buf).setBigUint64(0, bits & 0xFFFFFFFFFFFFFFFFn);
+                        result = new DataView(buf).getFloat64(0);
+                    } else if (typeStr === 'f16') {
+                        const buf = new ArrayBuffer(2);
+                        new DataView(buf).setUint16(0, Number(bits & 0xFFFFn));
+                        result = new DataView(buf).getFloat16(0);
+                    } else if (typeStr === 'bf16') {
+                        const buf = new ArrayBuffer(4);
+                        new DataView(buf).setUint32(0, Number(bits & 0xFFFFn) << 16);
+                        result = new DataView(buf).getFloat32(0);
+                    } else {
+                        result = Number(bits);
                     }
+                } else if (bitWidth >= 64) {
+                    result = BigInt(isNegative ? `-${value}` : value);
                 } else {
-                    result = parseInt(value, 10);
+                    result = Number(value);
                     if (isNegative) {
                         result = -result;
                     }
@@ -6320,24 +6392,16 @@ _.TensorLiteralParser = class {
             }
             return result;
         };
-
-        // Handle zero-element tensors (e.g., tensor<2x0x3xi4>)
         if (numElements === 0) {
             return [];
         }
-
-        // Limit splat expansion to avoid memory issues with huge tensors
         const maxSplatExpansion = 10000000;
-
-        // Handle splats - Reference: if shape.empty() and storage has elements, it's a splat
         const isSplat = this._shape.length === 0 && this._storage.length > 0;
         if (isSplat && numElements > 1) {
             if (numElements > maxSplatExpansion) {
-                // Too large to expand - return null to indicate we can't provide the data
                 return null;
             }
             if (isComplex && this._storage.length === 2) {
-                // Complex splat: storage has 2 elements (real, imag)
                 const result = [];
                 const real = convertElement(this._storage[0]);
                 const imag = convertElement(this._storage[1]);
@@ -6346,12 +6410,9 @@ _.TensorLiteralParser = class {
                 }
                 return result;
             }
-            // Regular splat: replicate single value
             const converted = convertElement(this._storage[0]);
             return new Array(numElements).fill(converted);
         }
-
-        // Non-splat complex: convert pairs to base.Complex objects
         if (isComplex && Array.isArray(this._storage)) {
             const result = [];
             for (let i = 0; i < this._storage.length; i += 2) {
@@ -6359,7 +6420,6 @@ _.TensorLiteralParser = class {
             }
             return result;
         }
-
         return this._storage.map(convertElement);
     }
 };
@@ -6590,6 +6650,10 @@ _.DialectReader = class extends _.DialectBytecodeReader {
         return this.attrTypeReader.readAttribute(index, this.depth + 1);
     }
 
+    readOptionalAttribute() {
+        return this.attrTypeReader.parseOptionalAttribute(this.reader);
+    }
+
     readString() {
         return this.stringReader.parseString(this.reader);
     }
@@ -6758,6 +6822,14 @@ _.AttrTypeReader = class {
         return this.resolveAttribute(index);
     }
 
+    parseOptionalAttribute(reader) {
+        const [attrIdx, flag] = reader.parseVarIntWithFlag();
+        if (!flag) {
+            return null;
+        }
+        return this.resolveAttribute(attrIdx.toNumber());
+    }
+
     parseType(reader) {
         // Parse a type reference from the reader (varint index)
         const index = reader.parseVarInt().toNumber();
@@ -6901,50 +6973,35 @@ _.PropertiesSectionReader = class {
 
     read(fileLoc, dialectReader, opName, opState) {
         const propIdx = dialectReader.readVarInt();
-        if (propIdx < this._properties.length) {
-            const propData = this._properties[propIdx];
-            if (propData.length > 0) {
-                const propReader = dialectReader.withEncodingReader(new _.EncodingReader(propData));
-                // Reference: https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
-                // Function operations: sym_name (required), function_type (required), arg_attrs (optional), res_attrs (optional)
-                if (opName.getStringRef().endsWith('.func') || /\.func_v\d+$/.test(opName.getStringRef())) {
-                    if (propReader.reader.position < propData.length) {
-                        const symNameAttr = propReader.readAttribute();
-                        if (symNameAttr && symNameAttr.value !== undefined) {
-                            const name = typeof symNameAttr.value === 'string' ? symNameAttr.value : String(symNameAttr.value);
-                            opState.addAttribute('sym_name', new _.StringAttr(name));
-                        }
-                    }
-                    if (propReader.reader.position < propData.length) {
-                        const funcTypeAttr = propReader.readAttribute();
-                        if (funcTypeAttr instanceof _.TypeAttrOf && funcTypeAttr.type instanceof _.FunctionType) {
-                            opState.addAttribute('function_type', funcTypeAttr);
-                        }
-                    }
-                    if (propReader.reader.position < propData.length) {
-                        const argAttrs = propReader.readAttribute();
-                        if (argAttrs) {
-                            opState.addAttribute('arg_attrs', argAttrs);
-                        }
-                    }
-                    if (propReader.reader.position < propData.length) {
-                        const resAttrs = propReader.readAttribute();
-                        if (resAttrs) {
-                            opState.addAttribute('res_attrs', resAttrs);
-                        }
-                    }
-                    return;
+        if (propIdx >= this._properties.length) {
+            return;
+        }
+        const propData = this._properties[propIdx];
+        if (propData.length === 0) {
+            return;
+        }
+        const propReader = dialectReader.withEncodingReader(new _.EncodingReader(propData));
+        // Reference: https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
+        // Generated readProperties reads attributes in alphabetical order by name.
+        // Optional attributes (OptionalAttr, UnitAttr) use readOptionalAttribute (varint with flag).
+        const metadata = opName.metadata;
+        if (metadata && Array.isArray(metadata.attributes)) {
+            const sorted = metadata.attributes.slice().sort((a, b) => a.name.localeCompare(b.name));
+            for (const entry of sorted) {
+                if (propReader.reader.position >= propData.length) {
+                    break;
                 }
-                if (opName.getStringRef().includes('.constant') || opName.getStringRef().endsWith('.const')) {
-                    if (propReader.reader.position < propData.length) {
-                        const attr = propReader.readAttribute();
-                        if (attr !== null && attr !== undefined) {
-                            opState.addAttribute('value', attr);
-                        }
-                    }
+                const typeName = entry.type && entry.type.name ? entry.type.name : String(entry.type);
+                const isOptional = typeName === 'OptionalAttr' || typeName === 'UnitAttr' || typeName === 'UnitProp' || typeName === 'DefaultValuedOptionalAttr';
+                const attr = isOptional ? propReader.readOptionalAttribute() : propReader.readAttribute();
+                if (attr !== null && attr !== undefined) {
+                    opState.addAttribute(entry.name, attr);
                 }
             }
+            return;
         }
+        // Fallback: read a single attribute as propertiesAttr
+        opState.propertiesAttr = propReader.readAttribute();
     }
 };
 
@@ -7055,8 +7112,16 @@ _.ResourceSectionReader = class {
 
 _.Location = class {
 
-    constructor(context) {
-        this.context = context;
+    constructor(loc) {
+        this.impl = loc;
+    }
+
+    get context() {
+        return this.impl.context;
+    }
+
+    toString() {
+        return this.impl.toString();
     }
 };
 
@@ -7066,29 +7131,42 @@ _.LocationAttr = class {
         this.name = 'loc';
     }
 
-    get value() {
-        return 'unknown';
+    printLocationInternal() {
+        throw new mlir.Error(`Unsupported location type '${this.constructor.name}'.`);
+    }
+
+    toString() {
+        return `loc(${this.printLocationInternal()})`;
     }
 };
 
 _.UnknownLoc = class extends _.LocationAttr {
 
-    get value() {
+    constructor(context) {
+        super();
+        this.context = context;
+    }
+
+    printLocationInternal() {
         return 'unknown';
     }
 };
 
 _.FileLineColLoc = class extends _.LocationAttr {
 
-    constructor(filename, line, col) {
+    constructor(context, filename, line, col) {
         super();
+        this.context = context;
         this.filename = filename;
         this.line = line;
         this.col = col;
     }
 
-    get value() {
-        return `${this.filename}:${this.line}:${this.col}`;
+    printLocationInternal() {
+        if (this.filename) {
+            return `${this.filename}:${this.line}:${this.col}`;
+        }
+        return `${this.line}:${this.col}`;
     }
 };
 
@@ -7103,17 +7181,8 @@ _.FileLineColRange = class extends _.LocationAttr {
         this.endCol = endCol;
     }
 
-    get value() {
-        if (this.endLine !== undefined && this.endCol !== undefined) {
-            return `${this.filename}:${this.startLine}:${this.startCol} to ${this.endLine}:${this.endCol}`;
-        }
-        if (this.endCol !== undefined) {
-            return `${this.filename}:${this.startLine}:${this.startCol} to :${this.endCol}`;
-        }
-        if (this.startCol !== undefined) {
-            return `${this.filename}:${this.startLine}:${this.startCol}`;
-        }
-        return `${this.filename}:${this.startLine}`;
+    printLocationInternal() {
+        return `${this.filename}:${this.startLine}:${this.startCol} to ${this.endLine}:${this.endCol}`;
     }
 };
 
@@ -7125,10 +7194,9 @@ _.NameLoc = class extends _.LocationAttr {
         this.childLoc = childLoc;
     }
 
-    get value() {
+    printLocationInternal() {
         if (this.childLoc) {
-            const childStr = this.childLoc.value || this.childLoc;
-            return `"${this._name}"(${childStr})`;
+            return `"${this._name}"(${this.childLoc.printLocationInternal()})`;
         }
         return `"${this._name}"`;
     }
@@ -7142,10 +7210,8 @@ _.CallSiteLoc = class extends _.LocationAttr {
         this.caller = caller;
     }
 
-    get value() {
-        const calleeStr = this.callee && this.callee.value ? this.callee.value : this.callee;
-        const callerStr = this.caller && this.caller.value ? this.caller.value : this.caller;
-        return `callsite(${calleeStr} at ${callerStr})`;
+    printLocationInternal() {
+        return `callsite(${this.callee.printLocationInternal()} at ${this.caller.printLocationInternal()})`;
     }
 };
 
@@ -7157,11 +7223,10 @@ _.FusedLoc = class extends _.LocationAttr {
         this.metadata = metadata;
     }
 
-    get value() {
-        const locStrs = this.locations.map((loc) => loc && loc.value ? loc.value : loc);
+    printLocationInternal() {
+        const locStrs = this.locations.map((loc) => loc.printLocationInternal());
         if (this.metadata) {
-            const metaStr = this.metadata.value === undefined ? this.metadata : this.metadata.value;
-            return `fused<${metaStr}>[${locStrs.join(', ')}]`;
+            return `fused<${this.metadata}>[${locStrs.join(', ')}]`;
         }
         return `fused[${locStrs.join(', ')}]`;
     }
@@ -7174,8 +7239,8 @@ _.XtenNNDictLoc = class extends _.LocationAttr {
         this.dictContent = dictContent;
     }
 
-    get value() {
-        return `#xten_nn<dict_loc(${this.dictContent}`;
+    printLocationInternal() {
+        return `#xten_nn<dict_loc(${this.dictContent})`;
     }
 };
 
@@ -7188,8 +7253,8 @@ _.OpaqueLoc = class extends _.LocationAttr {
         this.fallbackLoc = fallbackLoc || new _.UnknownLoc();
     }
 
-    get value() {
-        return this.fallbackLoc.value;
+    printLocationInternal() {
+        return this.fallbackLoc.printLocationInternal();
     }
 };
 
@@ -7198,7 +7263,7 @@ _.BytecodeReader = class {
     constructor(reader, config) {
         this.reader = new _.EncodingReader(reader);
         this.config = config;
-        this.fileLoc = new _.Location(config.context);
+        this.fileLoc = new _.FileLineColLoc(config.context, '', 0, 0);
         this.valueScopes = [];
         this.opNames = [];
         this.dialects = [];
@@ -8451,7 +8516,7 @@ _.DialectContext = class {
         this._dialects.set('std', new _.Dialect(operations, 'std'));
         this._dialects.set('bufferization', new _.BufferizationDialect(operations));
         this._dialects.set('stablehlo', new _.stablehlo.StableHLODialect(operations));
-        this._dialects.set('vhlo', new _.VhloDialect(operations));
+        this._dialects.set('vhlo', new _.vhlo.VhloDialect(operations));
         this._dialects.set('interpreter', new _.InterpreterDialect(operations));
         this._dialects.set('affine', new _.AffineDialect(operations));
         this._dialects.set('asuka', new _.AsukaDialect(operations));
@@ -10034,9 +10099,7 @@ _.Dialect = class {
                             const inputInfo = opInfo.metadata.operands.find((inp) => inp.name === firstElem.name);
                             if (inputInfo) {
                                 const inputType = inputInfo.type;
-                                if (typeof inputType === 'string' &&
-                                    (inputType.includes('Prop') || inputType.endsWith('Predicate') ||
-                                        inputType.includes('Flags') || inputType.includes('Enum'))) {
+                                if (typeof inputType === 'string' && (inputType.includes('Prop') || inputType.endsWith('Predicate') || inputType.includes('Flags') || inputType.includes('Enum'))) {
                                     isKeywordInput = true;
                                 }
                             }
@@ -10166,9 +10229,20 @@ _.Dialect = class {
                 break;
             }
             default: {
-                throw new mlir.Error(`Unsupported directive type '${directive.type}' ${parser.getCurrentLocation()}.`);
+                parser.emitError(`Unsupported directive type '${directive.type}'`);
             }
         }
+    }
+
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
+    }
+
+    parseAttribute(/* parser, type */) {
+        return null;
     }
 
     parseOperation(parser, result) {
@@ -10219,20 +10293,6 @@ _.Dialect = class {
         }
         this.inferResultTypes(result, vars);
         return true;
-    }
-
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
-        }
-        return null;
-    }
-
-    parseAttribute(/* parser, type */) {
-        return null;
     }
 
     parseCustomTypeWithFallback(parser, type) {
@@ -10379,7 +10439,7 @@ _.Dialect = class {
                     scalableFlags.push(isScalable);
                     if (isScalable) {
                         if (!parser.parseOptionalRSquare()) {
-                            throw new mlir.Error(`Expected ']' for scalable index ${parser.getCurrentLocation()}`);
+                            parser.emitError(`Expected ']' for scalable index`);
                         }
                     }
                 } while (parser.parseOptionalComma());
@@ -10397,7 +10457,7 @@ _.Dialect = class {
         }
         if (scalableFlags.length > 0 && scalableFlags.some((f) => f)) {
             if (!scalableAttrName) {
-                throw new mlir.Error(`Scalable indices found but no scalable attribute name provided ${parser.getCurrentLocation()}`);
+                parser.emitError(`Scalable indices found but no scalable attribute name provided`);
             }
             op.addAttribute(scalableAttrName, scalableFlags);
         }
@@ -10484,7 +10544,7 @@ _.Dialect = class {
             }
             return;
         }
-        throw new mlir.Error(`Expected ':' or '=' in TypeOrAttr ${parser.getCurrentLocation()}`);
+        parser.emitError("Expected ':' or '=' in TypeOrAttr");
     }
 
     parseSizeAwareType(parser, op, typeArg) {
@@ -10705,7 +10765,7 @@ _.Dialect = class {
             } else {
                 const value = parser.parseKeyword();
                 if (!type.values.includes(value)) {
-                    throw new mlir.Error(`Invalid enum value '${value}' ${parser.getCurrentLocation()}`);
+                    parser.emitError(`Invalid enum value '${value}'`);
                 }
                 flags.push(value);
             }
@@ -11064,7 +11124,7 @@ _.hlo.HLODialect = class extends _.Dialect {
         } else {
             const str = parser.parseOptionalString();
             if (str === null) {
-                throw new mlir.Error(`Expected '@' or string for CustomCallTarget at ${parser.getCurrentLocation()}`);
+                parser.emitError("Expected '@' or string for CustomCallTarget");
             }
             target = str;
         }
@@ -11115,7 +11175,7 @@ _.hlo.HLODialect = class extends _.Dialect {
             const dimensions = parser.parseCommaSeparatedList('square', () => {
                 const intVal = parser.parseOptionalInteger();
                 if (intVal === null) {
-                    throw new mlir.Error(`Expected integer dimension in reduce operation ${parser.getCurrentLocation()}`);
+                    parser.emitError('Expected integer dimension in reduce operation');
                 }
                 return intVal;
             });
@@ -11291,6 +11351,15 @@ _.stablehlo.StableHLODialect = class extends _.hlo.HLODialect {
         this.registerCustomDirective('ExponentMantissa', this.parseExponentMantissa.bind(this));
     }
 
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'token') {
+            return new _.Type(`!${dialect}.token`);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
+        return null;
+    }
+
     parseOperation(parser, result) {
         if (result.op === 'stablehlo.constant') {
             if (parser.parseOptionalLParen() && parser.parseOptionalRParen()) {
@@ -11333,14 +11402,6 @@ _.stablehlo.StableHLODialect = class extends _.hlo.HLODialect {
         return super.parseOperation(parser, result);
     }
 
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic === 'token') {
-            return new _.Type(`!${dialect}.token`);
-        }
-        throw new mlir.Error(`Unknown '${dialect}' type '${mnemonic}' ${parser.getNameLoc()}`);
-    }
-
     parseExponentMantissa(parser, op, exponentAttr, mantissaAttr) {
         const keyword = parser.parseKeyword();
         const match = /^e(\d+)m(\d+)$/.exec(keyword);
@@ -11354,7 +11415,20 @@ _.stablehlo.StableHLODialect = class extends _.hlo.HLODialect {
     }
 };
 
-_.VhloDialect = class extends _.Dialect {
+_.vhlo = {};
+
+_.vhlo.TypeV1Attr = class extends _.Attribute {
+    constructor(type) {
+        super();
+        this.type = type;
+    }
+
+    toString() {
+        return this.type.toString();
+    }
+};
+
+_.vhlo.VhloDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vhlo');
@@ -11383,6 +11457,237 @@ _.VhloDialect = class extends _.Dialect {
 
     parseFunctionBody(parser, result) {
         parser.parseFunctionOp(result, false);
+    }
+
+    readType(reader) {
+        const code = reader.readVarInt();
+        switch (code) {
+            case 0: return new _.IntegerType('i1'); // BooleanV1Type
+            case 1: return new _.ComplexType(reader.readType()); // ComplexV1Type
+            case 2: return new _.FloatType('bf16'); // FloatBF16V1Type
+            case 3: return new _.FloatType('f16'); // FloatF16V1Type
+            case 4: return new _.FloatType('f32'); // FloatF32V1Type
+            case 5: return new _.FloatType('f64'); // FloatF64V1Type
+            case 36: return new _.FloatType('f8E3M4'); // FloatF8E3M4V1Type
+            case 35: return new _.FloatType('f8E4M3'); // FloatF8E4M3V1Type
+            case 6: return new _.FloatType('f8E4M3FN'); // FloatF8E4M3FNV1Type
+            case 7: return new _.FloatType('f8E5M2'); // FloatF8E5M2V1Type
+            case 34: return new _.FloatType('tf32'); // FloatTF32V1Type
+            case 8: { // FunctionV1Type
+                const numInputs = reader.readVarInt();
+                const inputs = [];
+                for (let i = 0; i < numInputs; i++) {
+                    inputs.push(reader.readType());
+                }
+                const numOutputs = reader.readVarInt();
+                const outputs = [];
+                for (let i = 0; i < numOutputs; i++) {
+                    outputs.push(reader.readType());
+                }
+                return new _.FunctionType(inputs, outputs);
+            }
+            case 9: return new _.IndexType(); // IndexV1Type
+            case 31: return new _.IntegerType('si2'); // IntegerSI2V1Type
+            case 10: return new _.IntegerType('si4'); // IntegerSI4V1Type
+            case 11: return new _.IntegerType('si8'); // IntegerSI8V1Type
+            case 12: return new _.IntegerType('si16'); // IntegerSI16V1Type
+            case 13: return new _.IntegerType('si32'); // IntegerSI32V1Type
+            case 14: return new _.IntegerType('si64'); // IntegerSI64V1Type
+            case 32: return new _.IntegerType('ui2'); // IntegerUI2V1Type
+            case 15: return new _.IntegerType('ui4'); // IntegerUI4V1Type
+            case 16: return new _.IntegerType('ui8'); // IntegerUI8V1Type
+            case 17: return new _.IntegerType('ui16'); // IntegerUI16V1Type
+            case 18: return new _.IntegerType('ui32'); // IntegerUI32V1Type
+            case 19: return new _.IntegerType('ui64'); // IntegerUI64V1Type
+            case 20: { // RankedTensorV1Type
+                const shape = reader.readSignedVarInts().map(BigInt);
+                const elementType = reader.readType();
+                return new _.RankedTensorType(shape, elementType);
+            }
+            case 21: { // RankedTensorV1TypeWithEncoding
+                const encoding = reader.readAttribute();
+                const shape = reader.readSignedVarInts().map(BigInt);
+                const elementType = reader.readType();
+                return new _.RankedTensorType(shape, elementType, encoding);
+            }
+            case 22: return new _.Type('!vhlo.token'); // TokenV1Type
+            case 23: { // TupleV1Type
+                const numTypes = reader.readVarInt();
+                const types = [];
+                for (let i = 0; i < numTypes; i++) {
+                    types.push(reader.readType());
+                }
+                return new _.TupleType(types);
+            }
+            case 24: { // UniformQuantizedV1Type
+                reader.readVarInt(); // flags
+                const storageType = reader.readType();
+                const expressedType = reader.readType();
+                const scale = reader.readAPFloatWithKnownSemantics(new _.FloatType('f64'));
+                const zeroPoint = reader.readSignedVarInt();
+                const storageTypeMin = reader.readSignedVarInt();
+                const storageTypeMax = reader.readSignedVarInt();
+                return new _.quant.UniformQuantizedType(storageType, [storageTypeMin, storageTypeMax], expressedType, scale, zeroPoint);
+            }
+            case 25: return new _.UnrankedTensorType(reader.readType()); // UnrankedTensorV1Type
+            case 26: return new _.Type('!vhlo.witness'); // WitnessV1Type
+            case 37: return new _.FloatType('f4E2M1FN'); // FloatF4E2M1FNV1Type
+            case 38: return new _.FloatType('f6E2M3FN'); // FloatF6E2M3FNV1Type
+            case 39: return new _.FloatType('f6E3M2FN'); // FloatF6E3M2FNV1Type
+            case 27: return new _.FloatType('f8E4M3FNUZ'); // FloatF8E4M3FNUZV1Type
+            case 28: return new _.FloatType('f8E5M2FNUZ'); // FloatF8E5M2FNUZV1Type
+            case 29: return new _.FloatType('f8E4M3B11FNUZ'); // FloatF8E4M3B11FNUZV1Type
+            case 40: return new _.FloatType('f8E8M0FNU'); // FloatF8E8M0FNUV1Type
+            case 30: { // UniformQuantizedPerAxisV1Type
+                reader.readVarInt(); // flags
+                const storageType = reader.readType();
+                const expressedType = reader.readType();
+                const quantizedDimension = reader.readVarInt();
+                const storageTypeMin = reader.readSignedVarInt();
+                const storageTypeMax = reader.readSignedVarInt();
+                const numScales = reader.readVarInt();
+                const scales = [];
+                for (let i = 0; i < numScales; i++) {
+                    scales.push(reader.readAPFloatWithKnownSemantics(new _.FloatType('f64')));
+                }
+                const numZeroPoints = reader.readVarInt();
+                const zeroPoints = [];
+                for (let i = 0; i < numZeroPoints; i++) {
+                    zeroPoints.push(reader.readSignedVarInt());
+                }
+                return new _.quant.UniformQuantizedPerAxisType(storageType, [storageTypeMin, storageTypeMax], expressedType, quantizedDimension, scales, zeroPoints);
+            }
+            case 33: return new _.NoneType(); // NoneV1Type
+            case 41: { // RankedBufferV1Type
+                const shape = reader.readSignedVarInts().map(BigInt);
+                const elementType = reader.readType();
+                return new _.RankedTensorType(shape, elementType);
+            }
+            default:
+                throw new mlir.Error(`Unknown vhlo type code '${code}'.`);
+        }
+    }
+
+    readAttribute(reader) {
+        const code = reader.readVarInt();
+        switch (code) {
+            case 1: { // ArrayV1Attr
+                const count = reader.readVarInt();
+                const elements = [];
+                for (let i = 0; i < count; i++) {
+                    elements.push(reader.readAttribute());
+                }
+                return new _.ArrayAttr(elements);
+            }
+            case 2: { // BooleanV1Attr
+                const value = reader.readVarInt();
+                return new _.BoolAttr(value === 1);
+            }
+            case 3: { // ComparisonDirectionV1Attr
+                const value = reader.readVarInt();
+                const directions = ['EQ', 'NE', 'GE', 'GT', 'LE', 'LT'];
+                return new _.StringAttr(directions[value] || `comparison_direction_${value}`);
+            }
+            case 4: { // ComparisonTypeV1Attr
+                const value = reader.readVarInt();
+                const types = ['NOTYPE', 'FLOAT', 'TOTALORDER', 'SIGNED', 'UNSIGNED'];
+                return new _.StringAttr(types[value] || `comparison_type_${value}`);
+            }
+            case 5: { // CustomCallApiVersionV1Attr
+                const value = reader.readVarInt();
+                return new _.StringAttr(`API_VERSION_${value}`);
+            }
+            case 6: { // DictionaryV1Attr
+                const count = reader.readVarInt();
+                const attrs = new Map();
+                for (let i = 0; i < count; i++) {
+                    const name = reader.readAttribute();
+                    const value = reader.readAttribute();
+                    const key = name && name.value !== undefined ? name.value : `attr_${i}`;
+                    attrs.set(key, value);
+                }
+                return { name: 'dictionary', value: attrs };
+            }
+            case 7: { // FftTypeV1Attr
+                const value = reader.readVarInt();
+                const types = ['FFT', 'IFFT', 'RFFT', 'IRFFT'];
+                return new _.StringAttr(types[value] || `fft_type_${value}`);
+            }
+            case 8: { // FloatV1Attr
+                const type = reader.readType();
+                const value = reader.readAPFloatWithKnownSemantics(type);
+                return new _.FloatAttr(type, value);
+            }
+            case 9: { // IntegerV1Attr
+                const type = reader.readType();
+                let bitWidth = 0;
+                if (type instanceof _.IndexType) {
+                    bitWidth = 64;
+                } else {
+                    const match = /(\d+)/.exec(type.name);
+                    bitWidth = match ? parseInt(match[1], 10) : 64;
+                }
+                const value = reader.readAPIntWithKnownWidth(bitWidth);
+                return new _.IntegerAttr(type, value);
+            }
+            case 10: { // OutputOperandAliasV1Attr
+                const outputTupleIndices = reader.readSignedVarInts();
+                const operandIndex = reader.readSignedVarInt();
+                const operandTupleIndices = reader.readSignedVarInts();
+                return new _.StringAttr(`output_operand_alias<output_tuple_indices = [${outputTupleIndices}], operand_index = ${operandIndex}, operand_tuple_indices = [${operandTupleIndices}]>`);
+            }
+            case 11: { // PrecisionV1Attr
+                const value = reader.readVarInt();
+                const precisions = ['DEFAULT', 'HIGH', 'HIGHEST', 'PACKED_NIBBLE'];
+                return new _.StringAttr(precisions[value] || `precision_${value}`);
+            }
+            case 12: { // RngAlgorithmV1Attr
+                const value = reader.readVarInt();
+                const algs = ['DEFAULT', 'THREE_FRY', 'PHILOX'];
+                return new _.StringAttr(algs[value] || `rng_algorithm_${value}`);
+            }
+            case 13: { // RngDistributionV1Attr
+                const value = reader.readVarInt();
+                const dists = ['UNIFORM', 'NORMAL'];
+                return new _.StringAttr(dists[value] || `rng_distribution_${value}`);
+            }
+            case 14: { // StringV1Attr
+                const value = reader.readString();
+                return new _.StringAttr(value);
+            }
+            case 15: { // TensorV1Attr
+                const type = reader.readType();
+                const blob = reader.readBlob();
+                return new _.DenseElementsAttr(blob, type);
+            }
+            case 16: { // TransposeV1Attr
+                const value = reader.readVarInt();
+                const transposes = ['TRANSPOSE', 'NO_TRANSPOSE', 'ADJOINT'];
+                return new _.StringAttr(transposes[value] || `transpose_${value}`);
+            }
+            case 17: { // TypeV1Attr
+                const type = reader.readType();
+                return new _.vhlo.TypeV1Attr(type);
+            }
+            case 18: { // TypeExtensionsV1Attr
+                const bounds = reader.readSignedVarInts();
+                return new _.StringAttr(`type_extensions<bounds = [${bounds}]>`);
+            }
+            case 19: { // ResultAccuracyModeV1Attr
+                const value = reader.readVarInt();
+                const modes = ['DEFAULT', 'HIGH', 'HIGHEST', 'TOLERANCE'];
+                return new _.StringAttr(modes[value] || `result_accuracy_mode_${value}`);
+            }
+            case 20: { // ResultAccuracyV1Attr
+                const atol = reader.readAPFloatWithKnownSemantics(new _.FloatType('f64'));
+                const rtol = reader.readAPFloatWithKnownSemantics(new _.FloatType('f64'));
+                const ulps = reader.readSignedVarInt();
+                const mode = reader.readAttribute();
+                return new _.StringAttr(`result_accuracy<atol = ${atol}, rtol = ${rtol}, ulps = ${ulps}, mode = ${mode}>`);
+            }
+            default:
+                throw new mlir.Error(`Unknown vhlo attribute code '${code}'.`);
+        }
     }
 };
 
@@ -12318,8 +12623,35 @@ _.torch.TorchDialect = class extends _.Dialect {
         return parser.parseType();
     }
 
-    parseType(parser /*, dialect */) {
-        return _.torch.TorchDialect.dispatchParse(parser);
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        switch (mnemonic) {
+            case 'int':
+            case 'float':
+            case 'bool':
+            case 'str':
+            case 'none':
+            case 'Device':
+            case 'Generator':
+            case 'qint8':
+            case 'quint8':
+            case 'qint16':
+            case 'qint32':
+            case 'quint4x2':
+            case 'quint2x4':
+            case 'LinearParams':
+            case 'number':
+            case 'any':
+                return new _.Type(`!${dialect}.${mnemonic}`);
+            case 'list': return _.torch.ListType.parse(parser);
+            case 'vtensor': return _.torch.ValueTensorType.parse(parser);
+            case 'tensor': return _.torch.ValueTensorType.parse(parser);
+            default: {
+                let type = `!${dialect}.${mnemonic}`;
+                type += parser.parseTypeParameters();
+                return new _.Type(type);
+            }
+        }
     }
 
     parseOperation(parser, result) {
@@ -12667,14 +12999,13 @@ _.HALDialect = class extends _.IREEDialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (this.simpleTypes.has(mnemonic)) {
-                // Note: !hal.buffer{%size} syntax is handled by custom<SizeAwareType> directive,
-                // not by the type parser. The type parser just returns the base type.
-                return new _.Type(`!${dialect}.${mnemonic}`);
-            }
+        const mnemonic = parser.parseKeyword();
+        if (this.simpleTypes.has(mnemonic)) {
+            // Note: !hal.buffer{%size} syntax is handled by custom<SizeAwareType> directive,
+            // not by the type parser. The type parser just returns the base type.
+            return new _.Type(`!${dialect}.${mnemonic}`);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 
@@ -13445,6 +13776,20 @@ _.UtilDialect = class extends _.IREEDialect {
         this.simpleTypes = new Set(['buffer', 'list', 'object', 'ptr']);
     }
 
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'list') {
+            return _.util.ListType.parse(parser);
+        }
+        if (this.simpleTypes.has(mnemonic)) {
+            let type = `!${dialect}.${mnemonic}`;
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
+        return null;
+    }
+
     parseTypeAlias(parser /*, op, args */) {
         parser.parseType();
         if (parser.parseOptionalKeyword('as')) {
@@ -13464,21 +13809,6 @@ _.UtilDialect = class extends _.IREEDialect {
             }
             parser.parseRSquare();
         }
-    }
-
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (this.simpleTypes.has(mnemonic)) {
-                if (mnemonic === 'list') {
-                    return _.util.ListType.parse(parser);
-                }
-                let type = `!${dialect}.${mnemonic}`;
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
-            }
-        }
-        return null;
     }
 
     parseOperandTypeList(parser, op /*, args */) {
@@ -13703,7 +14033,7 @@ _.UtilDialect = class extends _.IREEDialect {
             do {
                 const key = parser.parseKeyword();
                 if (!parser.parseOptionalEqual()) {
-                    throw new mlir.Error(`Expected '=' after ${key} ${parser.getCurrentLocation()}`);
+                    parser.emitError(`Expected '=' after ${key}`);
                 }
                 assumption[key] = parser.parseInteger();
             } while (parser.parseOptionalComma());
@@ -13796,6 +14126,18 @@ _.FlowDialect = class extends _.IREEDialect {
         this.registerCustomDirective('ParameterReference', this.parseParameterReference.bind(this));
     }
 
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'channel') {
+            return new _.Type(`!${dialect}.${mnemonic}`);
+        }
+        if (mnemonic === 'dispatch.tensor') {
+            return _.iree.DispatchTensorType.parse(parser);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
+        return null;
+    }
+
     parseParameterReference(parser, op, scopeOperands, keyOperands) {
         const firstOperand = parser.parseOperand();
         if (parser.parseOptionalColon()) {
@@ -13806,19 +14148,6 @@ _.FlowDialect = class extends _.IREEDialect {
         } else {
             keyOperands.push(firstOperand);
         }
-    }
-
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (mnemonic === 'channel') {
-                return new _.Type(`!${dialect}.${mnemonic}`);
-            }
-            if (mnemonic === 'dispatch.tensor') {
-                return _.iree.DispatchTensorType.parse(parser);
-            }
-        }
-        return null;
     }
 
     parseOperation(parser, result) {
@@ -14222,6 +14551,24 @@ _.StreamDialect = class extends _.IREEDialect {
         this.registerCustomDirective('ParameterGatherOperations', this.parseParameterGatherOperations.bind(this));
         this.registerCustomDirective('ParameterScatterOperations', this.parseParameterScatterOperations.bind(this));
         this.registerCustomDirective('SymbolAlias', this.parseSymbolAlias.bind(this));
+    }
+
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        const type = `!${dialect}.${mnemonic}`;
+        const simpleTypes = ['binding', 'channel', 'timepoint', 'file'];
+        if (simpleTypes.includes(mnemonic)) {
+            return new _.Type(type);
+        }
+        if (mnemonic === 'resource') {
+            return new _.Type(type + parser.parseTypeParameters());
+        }
+        // Handle test.fence type (Stream_TestFence in StreamTypes.td)
+        if (mnemonic === 'test' || mnemonic === 'test.fence') {
+            return new _.Type(type);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
+        return null;
     }
 
     parseDispatchResources(parser, op /*, args */) {
@@ -14797,27 +15144,6 @@ _.StreamDialect = class extends _.IREEDialect {
         }
     }
 
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            const simpleTypes = ['binding', 'channel', 'timepoint', 'file'];
-            if (simpleTypes.includes(mnemonic)) {
-                return new _.Type(type);
-            }
-            if (mnemonic === 'resource') {
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
-            }
-            // Handle test.fence type (Stream_TestFence in StreamTypes.td)
-            if (mnemonic === 'test' || mnemonic === 'test.fence') {
-                return new _.Type(`!${dialect}.${mnemonic}`);
-            }
-            throw new mlir.Error(`Unsupported type '!${dialect}.${mnemonic}'.`);
-        }
-        return null;
-    }
-
     parseDispatchOperands(parser, op, resourceOperands /* offsets, ends, lengths */) {
         // args are: [$resource_operands, $resource_operand_offsets, $resource_operand_ends, $resource_operand_lengths]
         // resourceOperands is passed by ref so ShapedFunctionType can use it for tied operand lookup
@@ -14979,11 +15305,12 @@ _.IREETensorExtDialect = class extends _.Dialect {
         super(operations, 'iree_tensor_ext');
     }
 
-    parseType(parser /*, dialect */) {
-        const mnemonic = parser.parseOptionalKeyword();
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
         if (mnemonic === 'dispatch.tensor') {
             return _.iree.DispatchTensorType.parse(parser);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 };
@@ -15136,7 +15463,7 @@ _.LinalgDialect = class extends _.Dialect {
         if (result.op === 'linalg.contract') {
             const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
             if (!indexingMapsAttr) {
-                throw new mlir.Error(`Expected 'indexing_maps' attribute ${parser.getCurrentLocation()}`);
+                parser.emitError("Expected 'indexing_maps' attribute");
             }
             result.addAttribute('indexing_maps', indexingMapsAttr);
             return this.parseNamedStructuredOp(parser, result);
@@ -15831,20 +16158,209 @@ _.THLODialect = class extends _.Dialect {
 
 _.quant = {};
 
+_.quant.UniformQuantizedType = class extends _.Type {
+
+    constructor(storageType, storageRange, expressedType, scale, zeroPoint) {
+        super(null);
+        this.storageType = storageType;
+        this.storageRange = storageRange;
+        this.expressedType = expressedType;
+        this.scale = scale;
+        this.zeroPoint = zeroPoint;
+    }
+
+    toString() {
+        const range = this.storageRange ? `<${this.storageRange[0]}:${this.storageRange[1]}>` : '';
+        const zp = this.zeroPoint === 0 ? '' : `:${this.zeroPoint}`;
+        return `!quant.uniform<${this.storageType}${range}:${this.expressedType}, ${this.scale}${zp}>`;
+    }
+};
+
+_.quant.UniformQuantizedPerAxisType = class extends _.Type {
+
+    constructor(storageType, storageRange, expressedType, quantizedDimension, scales, zeroPoints) {
+        super(null);
+        this.storageType = storageType;
+        this.storageRange = storageRange;
+        this.expressedType = expressedType;
+        this.quantizedDimension = quantizedDimension;
+        this.scales = scales;
+        this.zeroPoints = zeroPoints;
+    }
+
+    toString() {
+        const range = this.storageRange ? `<${this.storageRange[0]}:${this.storageRange[1]}>` : '';
+        const params = this.scales.map((s, i) => {
+            const zp = this.zeroPoints[i] === 0 ? '' : `:${this.zeroPoints[i]}`;
+            return `${s}${zp}`;
+        }).join(', ');
+        return `!quant.uniform<${this.storageType}${range}:${this.expressedType}:${this.quantizedDimension}, {${params}}>`;
+    }
+};
+
+_.quant.AnyQuantizedType = class extends _.Type {
+
+    constructor(storageType, storageRange, expressedType) {
+        super(null);
+        this.storageType = storageType;
+        this.storageRange = storageRange;
+        this.expressedType = expressedType;
+    }
+
+    toString() {
+        const range = this.storageRange ? `<${this.storageRange[0]}:${this.storageRange[1]}>` : '';
+        const expressed = this.expressedType ? `:${this.expressedType}` : '';
+        return `!quant.any<${this.storageType}${range}${expressed}>`;
+    }
+};
+
+_.quant.CalibratedQuantizedType = class extends _.Type {
+
+    constructor(expressedType, min, max) {
+        super(null);
+        this.expressedType = expressedType;
+        this.min = min;
+        this.max = max;
+    }
+
+    toString() {
+        return `!quant.calibrated<${this.expressedType}<${this.min}:${this.max}>>`;
+    }
+};
+
 _.quant.QuantDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'quant');
     }
 
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic === 'uniform' || mnemonic === 'calibrated' || mnemonic === 'any') {
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+    parseType(parser) {
+        const typeNameSpelling = parser.parseKeyword();
+        if (typeNameSpelling === 'uniform') {
+            return this.parseUniformType(parser);
         }
+        if (typeNameSpelling === 'any') {
+            return this.parseAnyType(parser);
+        }
+        if (typeNameSpelling === 'calibrated') {
+            return this.parseCalibratedType(parser);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown quantized type '${typeNameSpelling}'`);
         return null;
+    }
+
+    parseUniformType(parser) {
+        parser.parseLess();
+        let storageType = parser.parseOptionalType();
+        if (!storageType) {
+            const keyword = parser.parseKeyword();
+            storageType = new _.Type(keyword);
+        }
+        let storageRange = null;
+        if (parser.parseOptionalLess()) {
+            const min = parser.parseInteger();
+            parser.parseColon();
+            const max = parser.parseInteger();
+            parser.parseGreater();
+            storageRange = [min, max];
+        }
+        parser.parseColon();
+        const expressedType = parser.parseType();
+        let quantizedDimension = null;
+        let isSubChannel = false;
+        if (parser.parseOptionalColon()) {
+            const dim = parser.parseOptionalInteger();
+            if (dim === null) {
+                isSubChannel = true;
+                parser.parseLBrace();
+                if (!parser.parseOptionalRBrace()) {
+                    do {
+                        parser.parseInteger();
+                        parser.parseColon();
+                        parser.parseInteger();
+                    } while (parser.parseOptionalComma());
+                    parser.parseRBrace();
+                }
+            } else {
+                quantizedDimension = dim;
+            }
+        }
+        parser.parseComma();
+        const parseQuantParams = () => {
+            const attr = parser.parseAttribute(new _.FloatType('f64'));
+            let zeroPoint = 0;
+            if (parser.parseOptionalColon()) {
+                zeroPoint = parser.parseInteger();
+            }
+            return { scale: attr.value, zeroPoint };
+        };
+        const isPerTensor = quantizedDimension === null && !isSubChannel;
+        if (isPerTensor) {
+            const { scale, zeroPoint } = parseQuantParams();
+            parser.parseGreater();
+            return new _.quant.UniformQuantizedType(storageType, storageRange, expressedType, scale, zeroPoint);
+        }
+        const scales = [];
+        const zeroPoints = [];
+        const parseQuantParamList = () => {
+            do {
+                if (parser.parseOptionalLBrace()) {
+                    parseQuantParamList();
+                } else {
+                    const { scale, zeroPoint } = parseQuantParams();
+                    scales.push(scale);
+                    zeroPoints.push(zeroPoint);
+                }
+            } while (parser.parseOptionalComma());
+            parser.parseRBrace();
+        };
+        parser.parseLBrace();
+        parseQuantParamList();
+        parser.parseGreater();
+        if (isSubChannel) {
+            const range = storageRange ? `<${storageRange[0]}:${storageRange[1]}>` : '';
+            const params = scales.map((s, i) => {
+                const zp = zeroPoints[i] === 0 ? '' : `:${zeroPoints[i]}`;
+                return `${s}${zp}`;
+            }).join(', ');
+            return new _.Type(`!quant.uniform<${storageType}${range}:${expressedType}:{}, {${params}}>`);
+        }
+        return new _.quant.UniformQuantizedPerAxisType(storageType, storageRange, expressedType, quantizedDimension, scales, zeroPoints);
+    }
+
+    parseAnyType(parser) {
+        parser.parseLess();
+        let storageType = parser.parseOptionalType();
+        if (!storageType) {
+            const keyword = parser.parseKeyword();
+            storageType = new _.Type(keyword);
+        }
+        let storageRange = null;
+        if (parser.parseOptionalLess()) {
+            const min = parser.parseInteger();
+            parser.parseColon();
+            const max = parser.parseInteger();
+            parser.parseGreater();
+            storageRange = [min, max];
+        }
+        let expressedType = null;
+        if (parser.parseOptionalColon()) {
+            expressedType = parser.parseType();
+        }
+        parser.parseGreater();
+        return new _.quant.AnyQuantizedType(storageType, storageRange, expressedType);
+    }
+
+    parseCalibratedType(parser) {
+        parser.parseLess();
+        const expressedType = parser.parseType();
+        parser.parseLess();
+        const min = parser.parseAttribute(new _.FloatType('f64')).value;
+        parser.parseColon();
+        const max = parser.parseAttribute(new _.FloatType('f64')).value;
+        parser.parseGreater();
+        parser.parseGreater();
+        return new _.quant.CalibratedQuantizedType(expressedType, min, max);
     }
 };
 
@@ -15872,7 +16388,7 @@ _.TosaDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
+        const mnemonic = parser.parseKeyword();
         if (mnemonic === 'shape') {
             let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
@@ -15881,6 +16397,7 @@ _.TosaDialect = class extends _.Dialect {
         if (mnemonic === 'mxint8') {
             return new _.Type(`!${dialect}.mxint8`);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 
@@ -16297,6 +16814,22 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         this.registerCustomAttribute('SPIRV_TosaExtNaNPropagationModeAttr', this.parseEnumFlagsAngleBracketPipe.bind(this));
     }
 
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'ptr') {
+            return _.spirv.PointerType.parse(parser, dialect);
+        }
+        if (mnemonic === 'rtarray') {
+            return _.spirv.RuntimeArrayType.parse(parser, dialect);
+        }
+        if (mnemonic === 'struct') {
+            return _.spirv.StructType.parse(parser, dialect);
+        }
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
+    }
+
     parseSwitchOpCases(parser, result) {
         if (!parser.parseOptionalKeyword('default')) {
             return;
@@ -16361,25 +16894,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             op.addAttribute('image_operands', value);
             parser.parseRSquare();
         }
-    }
-
-    parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (mnemonic === 'ptr') {
-                return _.spirv.PointerType.parse(parser, dialect);
-            }
-            if (mnemonic === 'rtarray') {
-                return _.spirv.RuntimeArrayType.parse(parser, dialect);
-            }
-            if (mnemonic === 'struct') {
-                return _.spirv.StructType.parse(parser, dialect);
-            }
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
-        }
-        return null;
     }
 
     parseOperation(parser, result) {
@@ -17114,6 +17628,35 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
     }
 };
 
+_.wasmssa = {};
+
+_.wasmssa.LimitType = class extends _.Type {
+
+    constructor(min, max) {
+        super(null);
+        this.min = min;
+        this.max = max;
+    }
+
+    toString() {
+        const max = this.max === null ? '' : ` ${this.max}`;
+        return `!wasmssa.limit[${this.min}:${max}]`;
+    }
+};
+
+_.wasmssa.TableType = class extends _.Type {
+
+    constructor(reference, limit) {
+        super(null);
+        this.reference = reference;
+        this.limit = limit;
+    }
+
+    toString() {
+        return `!wasmssa.tabletype ${this.reference} ${this.limit}`;
+    }
+};
+
 _.WasmSSADialect = class extends _.Dialect {
 
     constructor(operations) {
@@ -17121,6 +17664,39 @@ _.WasmSSADialect = class extends _.Dialect {
         this.registerCustomType('WasmSSA_LocalRef', this.parseLocalRefType.bind(this));
         this.registerCustomDirective('ElseRegion', this.parseElseRegion.bind(this));
         this.registerCustomAttribute('WasmSSA_ValTypeAttr', this.parseValTypeAttr.bind(this));
+    }
+
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'local') {
+            parser.parseKeyword('ref');
+            parser.parseKeyword('to');
+            const elementType = parser.parseType();
+            return new _.Type(`!${dialect}.local ref to ${elementType}`);
+        }
+        if (mnemonic === 'funcref' || mnemonic === 'externref') {
+            return new _.Type(`!${dialect}.${mnemonic}`);
+        }
+        if (mnemonic === 'limit') {
+            return this.parseLimit(parser);
+        }
+        if (mnemonic === 'tabletype') {
+            const reference = parser.parseType();
+            const limit = this.parseLimit(parser);
+            return new _.wasmssa.TableType(reference, limit);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
+        return null;
+    }
+
+    parseLimit(parser) {
+        // assemblyFormat: `[` $min `:` $max? `]`
+        parser.parseLSquare();
+        const min = parser.parseInteger();
+        parser.parseColon();
+        const max = parser.parseOptionalInteger();
+        parser.parseRSquare();
+        return new _.wasmssa.LimitType(min, max);
     }
 
     parseOperation(parser, result) {
@@ -17163,16 +17739,6 @@ _.WasmSSADialect = class extends _.Dialect {
             return true;
         }
         return super.parseOperation(parser, result);
-    }
-
-    parseType(parser) {
-        if (parser.parseOptionalKeyword('local')) {
-            parser.parseKeyword('ref');
-            parser.parseKeyword('to');
-            const elementType = parser.parseType();
-            return new _.Type(`!wasmssa<local ref to ${elementType}>`);
-        }
-        return null;
     }
 
     parseLocalRefType(parser) {
@@ -17807,7 +18373,7 @@ _.async.AsyncDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
+        const mnemonic = parser.parseKeyword();
         if (mnemonic === 'coro.handle' || mnemonic === 'coro.id' || mnemonic === 'coro.state') {
             return new _.Type(`!${dialect}.${mnemonic}`);
         }
@@ -17820,7 +18386,8 @@ _.async.AsyncDialect = class extends _.Dialect {
         if (mnemonic === 'value') {
             return _.async.ValueType.parse(parser);
         }
-        throw new mlir.Error(`Unknown '${dialect}' type '${mnemonic}' ${parser.getNameLoc()}`);
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
+        return null;
     }
 
     parseOperation(parser, result) {
@@ -18743,14 +19310,12 @@ _.ShapeDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            const type = `!${dialect}.${mnemonic}`;
-            const simpleTypes = ['shape', 'witness', 'size', 'value_shape'];
-            if (simpleTypes.includes(type.substring(7))) { // Remove "!shape." prefix
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        const simpleTypes = ['shape', 'witness', 'size', 'value_shape'];
+        if (simpleTypes.includes(mnemonic)) {
+            return new _.Type(`!${dialect}.${mnemonic}`);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 
@@ -19116,7 +19681,7 @@ _.GpuDialect = class extends _.Dialect {
             const indexType = new _.IndexType();
             if (parser.parseOptionalKeyword('async')) {
                 if (parser.getNumResults() === 0) {
-                    throw new mlir.Error(`Operation '${result.op}' needs to be named when marked 'async' ${parser.getCurrentLocation()}`);
+                    parser.emitError(`Operation '${result.op}' needs to be named when marked 'async'`);
                 }
                 result.addTypes([new _.Type('!gpu.async.token')]);
             }
@@ -20562,11 +21127,11 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             case 'token': return new _.Type('!llvm.token');
             case 'label': return new _.Type('!llvm.label');
             case 'metadata': return new _.Type('!llvm.metadata');
-            case 'x86_amx': return new _.Type('!llvm.x86_amx');
             case 'func': return _.llvm.LLVMFunctionType.parse(parser);
             case 'ptr': return _.llvm.LLVMPointerType.parse(parser);
             case 'array': return _.llvm.LLVMArrayType.parse(parser);
             case 'struct': return _.llvm.LLVMStructType.parse(parser);
+            case 'x86_amx': return new _.Type('!llvm.x86_amx');
             default: throw new mlir.Error(`Unknown LLVM type '${key}'.`);
         }
     }
@@ -20801,25 +21366,22 @@ _.llvm.LLVMDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (mnemonic === 'struct') {
-                return _.llvm.LLVMStructType.parse(parser);
-            }
-            if (mnemonic === 'func') {
-                return _.llvm.LLVMFunctionType.parse(parser);
-            }
-            if (mnemonic === 'ptr') {
-                return _.llvm.LLVMPointerType.parse(parser);
-            }
-            if (mnemonic === 'array') {
-                return _.llvm.LLVMArrayType.parse(parser);
-            }
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'struct') {
+            return _.llvm.LLVMStructType.parse(parser);
         }
-        return null;
+        if (mnemonic === 'func') {
+            return _.llvm.LLVMFunctionType.parse(parser);
+        }
+        if (mnemonic === 'ptr') {
+            return _.llvm.LLVMPointerType.parse(parser);
+        }
+        if (mnemonic === 'array') {
+            return _.llvm.LLVMArrayType.parse(parser);
+        }
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 
     parseOperation(parser, result) {
@@ -21882,14 +22444,11 @@ _.vm.VMDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (mnemonic === 'ref') {
-                return _.vm.RefType.parse(parser);
-            }
-            return new _.Type(`!${dialect}.${mnemonic}`);
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'ref') {
+            return _.vm.RefType.parse(parser);
         }
-        return null;
+        return new _.Type(`!${dialect}.${mnemonic}`);
     }
 };
 
@@ -22175,13 +22734,11 @@ _.TFExecutorDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            const type = `!${dialect}.${mnemonic}`;
-            if (mnemonic === 'control' || mnemonic === 'token') {
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'control' || mnemonic === 'token') {
+            return new _.Type(`!${dialect}.${mnemonic}`);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 
@@ -22414,20 +22971,17 @@ _.TFRTDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            const simpleTypes = ['chain', 'string', 'dist_context', 'device', 'tensor_type'];
-            if (simpleTypes.includes(mnemonic)) {
-                return new _.Type(type);
-            }
-            if (mnemonic === 'tensor') {
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        const simpleTypes = ['chain', 'string', 'dist_context', 'device', 'tensor_type'];
+        if (simpleTypes.includes(mnemonic)) {
             return new _.Type(type);
         }
-        return null;
+        if (mnemonic === 'tensor') {
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
+        }
+        return new _.Type(type);
     }
 
     parseOperation(parser, result) {
@@ -22916,14 +23470,11 @@ _.SdfgDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            if (mnemonic === 'array' || mnemonic === 'stream' || mnemonic === 'memlet' || type.endsWith('stream_array')) {
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'array' || mnemonic === 'stream' || mnemonic === 'memlet' || mnemonic === 'stream_array') {
+            return new _.Type(`!${dialect}.${mnemonic}${parser.parseTypeParameters()}`);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 
@@ -23499,17 +24050,16 @@ _.TFDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            if (mnemonic === 'resource' || mnemonic === 'variant') {
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
-            }
-            if (mnemonic === 'string' || mnemonic === 'control') {
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        if (mnemonic === 'resource' || mnemonic === 'variant') {
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
         }
+        if (mnemonic === 'string' || mnemonic === 'control') {
+            return new _.Type(type);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 };
@@ -23531,27 +24081,21 @@ _.TFTypeDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            const type = `!${dialect}.${mnemonic}`;
-            // Handle parametrized types like resource<>, variant<>, resource_handle<>
-            if (mnemonic === 'resource' || mnemonic === 'variant' || mnemonic === 'resource_handle') {
-                if (parser.parseOptionalLess()) {
-                    const subtypes = [];
-                    do {
-                        subtypes.push(parser.parseType());
-                    } while (parser.parseOptionalComma());
-                    parser.parseGreater();
-                    return new _.Type(`${type}<${subtypes.join(', ')}>`);
-                }
-                return new _.Type(type);
-            }
-            if (this.simpleTypes.has(mnemonic)) {
-                return new _.Type(type);
+        const mnemonic = parser.parseKeyword();
+        const type = `!${dialect}.${mnemonic}`;
+        // Handle parametrized types like resource<>, variant<>, resource_handle<>
+        if (mnemonic === 'resource' || mnemonic === 'variant' || mnemonic === 'resource_handle') {
+            if (parser.parseOptionalLess()) {
+                const subtypes = [];
+                do {
+                    subtypes.push(parser.parseType());
+                } while (parser.parseOptionalComma());
+                parser.parseGreater();
+                return new _.Type(`${type}<${subtypes.join(', ')}>`);
             }
             return new _.Type(type);
         }
-        return null;
+        return new _.Type(type);
     }
 };
 
@@ -23672,13 +24216,10 @@ _.TransformDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
-        }
-        return null;
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 
     parseNamedSequenceOp(parser, result) {
@@ -24554,17 +25095,14 @@ _.triton.TritonDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            // Handle ptr type specifically to properly parse pointee type
-            if (mnemonic === 'ptr') {
-                return _.triton.PointerType.parse(parser);
-            }
-            if (mnemonic === 'tensordesc') {
-                return _.triton.TensorDescType.parse(parser);
-            }
-            throw new mlir.Error(`Unsupported type '!${dialect}.${mnemonic}'.`);
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'ptr') {
+            return _.triton.PointerType.parse(parser);
         }
+        if (mnemonic === 'tensordesc') {
+            return _.triton.TensorDescType.parse(parser);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 
@@ -24739,16 +25277,13 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (mnemonic === 'memdesc') {
-                return _.triton.gpu.MemDescType.parse(parser);
-            }
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'memdesc') {
+            return _.triton.gpu.MemDescType.parse(parser);
         }
-        return null;
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 };
 
@@ -24784,7 +25319,7 @@ _.triton.nvidia_gpu.TritonNvidiaGPUDialect = class extends _.Dialect {
             const __depOp = parser.parseOptionalOperand();
             if (__depOp) {
                 if (!Array.isArray(depOperands)) {
-                    throw new mlir.Error(`Expected depOperands to be an array ${parser.getCurrentLocation()}`);
+                    parser.emitError('Expected depOperands to be an array');
                 }
                 depOperands.push(__depOp);
             }
@@ -24797,14 +25332,14 @@ _.triton.nvidia_gpu.TritonNvidiaGPUDialect = class extends _.Dialect {
             const __barrier = parser.parseOptionalOperand();
             if (__barrier) {
                 if (!Array.isArray(barrierOperands)) {
-                    throw new mlir.Error(`Expected barrierOperands to be an array ${parser.getCurrentLocation()}`);
+                    parser.emitError('Expected barrierOperands to be an array');
                 }
                 barrierOperands.push(__barrier);
                 if (parser.parseOptionalLSquare()) {
                     const __pred = parser.parseOptionalOperand();
                     if (__pred) {
                         if (!Array.isArray(predOperands)) {
-                            throw new mlir.Error(`Expected predOperands to be an array ${parser.getCurrentLocation()}`);
+                            parser.emitError('Expected predOperands to be an array');
                         }
                         predOperands.push(__pred);
                     }
@@ -24815,13 +25350,10 @@ _.triton.nvidia_gpu.TritonNvidiaGPUDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
-        }
-        return null;
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 };
 
@@ -24887,19 +25419,18 @@ _.MichelsonDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            const simpleTypes = ['int', 'bytes', 'operation', 'nat', 'string', 'unit', 'bool', 'mutez', 'timestamp', 'address', 'key', 'signature', 'chain_id', 'key_hash'];
-            if (simpleTypes.includes(type.substring(11))) { // Remove "!michelson." prefix
-                return new _.Type(type);
-            }
-            const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
-            if (typesWithParams.includes(type.substring(11))) {
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        const simpleTypes = ['int', 'bytes', 'operation', 'nat', 'string', 'unit', 'bool', 'mutez', 'timestamp', 'address', 'key', 'signature', 'chain_id', 'key_hash'];
+        if (simpleTypes.includes(mnemonic)) {
+            return new _.Type(type);
         }
+        const typesWithParams = ['pair', 'list', 'option', 'or', 'map', 'big_map', 'set', 'contract', 'lambda'];
+        if (typesWithParams.includes(mnemonic)) {
+            type += parser.parseTypeParameters();
+            return new _.Type(type);
+        }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 };
@@ -25131,27 +25662,24 @@ _.executor.ExecutorDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            if (mnemonic === 'table') {
-                if (parser.parseOptionalLess()) {
-                    const body = [];
-                    if (!parser.parseOptionalGreater()) {
-                        do {
-                            const elementType = parser.parseType();
-                            body.push(elementType);
-                        } while (parser.parseOptionalComma());
-                        parser.parseGreater();
-                    }
-                    return new _.executor.TableType(body);
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'table') {
+            if (parser.parseOptionalLess()) {
+                const body = [];
+                if (!parser.parseOptionalGreater()) {
+                    do {
+                        const elementType = parser.parseType();
+                        body.push(elementType);
+                    } while (parser.parseOptionalComma());
+                    parser.parseGreater();
                 }
-                return new _.executor.TableType([]);
+                return new _.executor.TableType(body);
             }
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+            return new _.executor.TableType([]);
         }
-        return null;
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 
     parseTable(parser) {
@@ -25845,20 +26373,17 @@ _.smt.SMTDialect = class extends _.Dialect {
         return super.parseOperation(parser, result);
     }
 
-    parseType(parser) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic === 'bv' && parser.parseOptionalLess()) {
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseKeyword();
+        if (mnemonic === 'bv') {
+            parser.parseLess();
             const width = parser.parseInteger();
-
             parser.parseGreater();
             return new _.smt.BitVectorType(width);
         }
-        if (mnemonic) {
-            let type = `!smt.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
-        }
-        return null;
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 
     inferResultTypes(op, vars) {
@@ -26098,7 +26623,7 @@ _.SdyDialect = class extends _.Dialect {
         } else if (parser.parseOptionalKeyword('mesh')) {
             meshOrRef = this.parseMeshAttr(parser);
         } else {
-            throw new mlir.Error(`Expected '@' or 'mesh' ${parser.getCurrentLocation()}`);
+            parser.emitError("Expected '@' or 'mesh'");
         }
         parser.parseComma();
         const dimShardings = this.parseDimensionShardings(parser);
@@ -26639,14 +27164,12 @@ _.EnsembleDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            const type = `!${dialect}.${mnemonic}`;
-            const simpleTypes = ['physical_qubit', 'virtual_qubit', 'cbit', 'gate', 'gate_distribution', 'connectivity_graph'];
-            if (simpleTypes.includes(mnemonic)) {
-                return new _.Type(type);
-            }
+        const mnemonic = parser.parseKeyword();
+        const simpleTypes = ['physical_qubit', 'virtual_qubit', 'cbit', 'gate', 'gate_distribution', 'connectivity_graph'];
+        if (simpleTypes.includes(mnemonic)) {
+            return new _.Type(`!${dialect}.${mnemonic}`);
         }
+        parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
 };
@@ -26658,16 +27181,12 @@ _.PolyDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            let type = `!${dialect}.${mnemonic}`;
-            // poly.poly<N> type has a degree bound parameter
-            if (mnemonic === 'poly') {
-                type += parser.parseTypeParameters();
-            }
-            return new _.Type(type);
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        if (mnemonic === 'poly') {
+            type += parser.parseTypeParameters();
         }
-        return null;
+        return new _.Type(type);
     }
 };
 
@@ -26678,11 +27197,10 @@ _.NoisyDialect = class extends _.Dialect {
     }
 
     parseType(parser, dialect) {
-        const mnemonic = parser.parseOptionalKeyword();
-        if (mnemonic) {
-            return new _.Type(`!${dialect}.${mnemonic}`);
-        }
-        return null;
+        const mnemonic = parser.parseKeyword();
+        let type = `!${dialect}.${mnemonic}`;
+        type += parser.parseTypeParameters();
+        return new _.Type(type);
     }
 };
 
