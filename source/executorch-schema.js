@@ -71,6 +71,11 @@ executorch_flatbuffer.TensorDataLocation = {
     EXTERNAL: 1, '1': 'EXTERNAL'
 };
 
+executorch_flatbuffer.DeviceType = {
+    CPU: 0, '0': 'CPU',
+    CUDA: 1, '1': 'CUDA'
+};
+
 executorch_flatbuffer.ExtraTensorInfo = class ExtraTensorInfo {
 
     static decode(reader, position) {
@@ -78,6 +83,8 @@ executorch_flatbuffer.ExtraTensorInfo = class ExtraTensorInfo {
         $.mutable_data_segments_idx = reader.uint64_(position, 4, 0n);
         $.fully_qualified_name = reader.string_(position, 6, null);
         $.location = reader.int8_(position, 8, 0);
+        $.device_type = reader.int8_(position, 10, 0);
+        $.device_index = reader.int8_(position, 12, 0);
         return $;
     }
 };
