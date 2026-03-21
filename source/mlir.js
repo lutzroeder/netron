@@ -12197,12 +12197,6 @@ _.TensorDialect = class extends _.Dialect {
 
 _.torch = {};
 
-_.torch.simpleTypes = new Set([
-    'int', 'float', 'bool', 'str', 'none', 'Device', 'Generator',
-    'qint8', 'quint8', 'qint16', 'qint32', 'quint4x2', 'quint2x4',
-    'LinearParams', 'number', 'any'
-]);
-
 _.torch.ListType = class extends _.Type {
 
     constructor(containedType) {
@@ -12212,17 +12206,7 @@ _.torch.ListType = class extends _.Type {
 
     static parse(parser) {
         parser.parseLess();
-        const keyword = parser.parseOptionalKeyword();
-        let containedType = null;
-        if (keyword && _.torch.simpleTypes.has(keyword)) {
-            containedType = new _.Type(`!torch.${keyword}`);
-        } else if (keyword) {
-            let inner = `!torch.${keyword}`;
-            inner += parser.parseTypeParameters();
-            containedType = new _.Type(inner);
-        } else {
-            containedType = parser.parseType();
-        }
+        const containedType = _.torch.TorchDialect.dispatchParse(parser);
         parser.parseGreater();
         return new _.torch.ListType(containedType);
     }
@@ -12300,25 +12284,42 @@ _.torch.TorchDialect = class extends _.Dialect {
         super(operations, 'torch');
     }
 
-    parseType(parser, dialect) {
+    static dispatchParse(parser) {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
-            if (_.torch.simpleTypes.has(mnemonic)) {
-                return new _.Type(`!${dialect}.${mnemonic}`);
-            }
-            if (mnemonic === 'list') {
-                return _.torch.ListType.parse(parser);
-            }
-            if (mnemonic === 'vtensor') {
-                return _.torch.ValueTensorType.parse(parser);
-            }
-            if (mnemonic === 'tensor' || mnemonic === 'tuple' || mnemonic === 'union' || mnemonic === 'optional' || mnemonic === 'dict' || mnemonic.startsWith('nn.')) {
-                let type = `!${dialect}.${mnemonic}`;
-                type += parser.parseTypeParameters();
-                return new _.Type(type);
+            switch (mnemonic) {
+                case 'int':
+                case 'float':
+                case 'bool':
+                case 'str':
+                case 'none':
+                case 'Device':
+                case 'Generator':
+                case 'qint8':
+                case 'quint8':
+                case 'qint16':
+                case 'qint32':
+                case 'quint4x2':
+                case 'quint2x4':
+                case 'LinearParams':
+                case 'number':
+                case 'any':
+                    return new _.Type(`!torch.${mnemonic}`);
+                case 'list': return _.torch.ListType.parse(parser);
+                case 'vtensor': return _.torch.ValueTensorType.parse(parser);
+                case 'tensor': return _.torch.ValueTensorType.parse(parser);
+                default: {
+                    let inner = `!torch.${mnemonic}`;
+                    inner += parser.parseTypeParameters();
+                    return new _.Type(inner);
+                }
             }
         }
-        return null;
+        return parser.parseType();
+    }
+
+    parseType(parser /*, dialect */) {
+        return _.torch.TorchDialect.dispatchParse(parser);
     }
 
     parseOperation(parser, result) {
@@ -16142,13 +16143,14 @@ _.spirv = {};
 
 _.spirv.RuntimeArrayType = class extends _.Type {
 
-    constructor(elementType, stride) {
+    constructor(elementType, stride, dialect = 'spirv') {
         super(null);
+        this.dialect = dialect;
         this.elementType = elementType;
         this.stride = stride || 0;
     }
 
-    static parse(parser) {
+    static parse(parser, dialect) {
         parser.parseLess();
         const elementType = parser.parseType();
         let stride = 0;
@@ -16158,57 +16160,122 @@ _.spirv.RuntimeArrayType = class extends _.Type {
             stride = parser.parseInteger();
         }
         parser.parseGreater();
-        return new _.spirv.RuntimeArrayType(elementType, stride);
+        return new _.spirv.RuntimeArrayType(elementType, stride, dialect);
     }
 
     toString() {
-        const elemStr = this.elementType?.toString ? this.elementType.toString() : this.elementType;
         if (this.stride) {
-            return `!spirv.rtarray<${elemStr}, stride=${this.stride}>`;
+            return `!${this.dialect}.rtarray<${this.elementType}, stride=${this.stride}>`;
         }
-        return `!spirv.rtarray<${elemStr}>`;
+        return `!${this.dialect}.rtarray<${this.elementType}>`;
     }
 };
 
 _.spirv.StructType = class extends _.Type {
 
-    constructor(memberTypes, offsetInfo, memberDecorations) {
+    constructor(memberTypes, memberDecorations, identifier, structDecorations, dialect = 'spirv') {
         super(null);
+        this.dialect = dialect;
         this.memberTypes = memberTypes;
-        this.offsetInfo = offsetInfo;
         this.memberDecorations = memberDecorations;
+        this.identifier = identifier || null;
+        this.structDecorations = structDecorations || [];
+    }
+
+    static parse(parser, dialect) {
+        parser.parseLess();
+        let identifier = null;
+        const name = parser.parseOptionalKeyword();
+        if (name) {
+            identifier = name;
+            if (parser.parseOptionalGreater()) {
+                return new _.spirv.StructType([], [], identifier, undefined, dialect);
+            }
+            parser.parseComma();
+        }
+        parser.parseLParen();
+        const memberTypes = [];
+        const memberDecorations = [];
+        if (!parser.parseOptionalRParen()) {
+            for (;;) {
+                memberTypes.push(parser.parseType());
+                if (parser.parseOptionalLSquare()) {
+                    const dec = [];
+                    for (;;) {
+                        const intVal = parser.parseOptionalInteger();
+                        if (intVal === null) {
+                            const kw = parser.parseOptionalKeyword();
+                            if (kw) {
+                                if (parser.parseOptionalEqual()) {
+                                    const val = parser.parseInteger();
+                                    dec.push(`${kw}=${val}`);
+                                } else {
+                                    dec.push(kw);
+                                }
+                            }
+                        } else {
+                            dec.push(intVal);
+                        }
+                        if (!parser.parseOptionalComma()) {
+                            break;
+                        }
+                    }
+                    parser.parseRSquare();
+                    memberDecorations.push(dec);
+                } else {
+                    memberDecorations.push(null);
+                }
+                if (!parser.parseOptionalComma()) {
+                    break;
+                }
+            }
+            parser.parseRParen();
+        }
+        const structDecorations = [];
+        while (parser.parseOptionalComma()) {
+            structDecorations.push(parser.parseKeyword());
+        }
+        parser.parseGreater();
+        const result = new _.spirv.StructType(memberTypes, memberDecorations, identifier, structDecorations, dialect);
+        return result;
     }
 
     toString() {
-        const members = this.memberTypes.map((t) => t?.toString ? t.toString() : t).join(', ');
-        if (this.offsetInfo && this.offsetInfo.length > 0) {
-            const offsets = this.offsetInfo.join(', ');
-            return `!spirv.struct<(${members}), offset: [${offsets}]>`;
+        const members = this.memberTypes.map((t, i) => {
+            const dec = this.memberDecorations?.[i];
+            return dec ? `${t} [${dec.join(', ')}]` : `${t}`;
+        }).join(', ');
+        const decs = this.structDecorations.length > 0 ? `, ${this.structDecorations.join(', ')}` : '';
+        if (this.identifier && this.memberTypes.length === 0) {
+            return `!${this.dialect}.struct<${this.identifier}>`;
         }
-        return `!spirv.struct<(${members})>`;
+        if (this.identifier) {
+            return `!${this.dialect}.struct<${this.identifier}, (${members})${decs}>`;
+        }
+        return `!${this.dialect}.struct<(${members})${decs}>`;
     }
 };
 
 _.spirv.PointerType = class extends _.Type {
 
-    constructor(pointeeType, storageClass) {
+    constructor(pointeeType, storageClass, dialect = 'spirv') {
         super(null);
+        this.dialect = dialect;
         this.pointeeType = pointeeType;
         this.storageClass = storageClass;
     }
 
-    static parse(parser) {
+    static parse(parser, dialect) {
         parser.parseLess();
         const pointeeType = parser.parseType();
         parser.parseComma();
         const storageClass = parser.parseKeyword();
         parser.parseGreater();
-        return new _.spirv.PointerType(pointeeType, storageClass);
+        return new _.spirv.PointerType(pointeeType, storageClass, dialect);
     }
 
     toString() {
-        const pointeeStr = this.pointeeType?.toString ? this.pointeeType.toString() : this.pointeeType;
-        return `!spirv.ptr<${pointeeStr}, ${this.storageClass}>`;
+        return `!${this.dialect}.ptr<${this.pointeeType}, ${this.storageClass}>`;
     }
 };
 
@@ -16300,10 +16367,13 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             if (mnemonic === 'ptr') {
-                return _.spirv.PointerType.parse(parser);
+                return _.spirv.PointerType.parse(parser, dialect);
             }
             if (mnemonic === 'rtarray') {
-                return _.spirv.RuntimeArrayType.parse(parser);
+                return _.spirv.RuntimeArrayType.parse(parser, dialect);
+            }
+            if (mnemonic === 'struct') {
+                return _.spirv.StructType.parse(parser, dialect);
             }
             let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
@@ -20739,6 +20809,12 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             if (mnemonic === 'func') {
                 return _.llvm.LLVMFunctionType.parse(parser);
             }
+            if (mnemonic === 'ptr') {
+                return _.llvm.LLVMPointerType.parse(parser);
+            }
+            if (mnemonic === 'array') {
+                return _.llvm.LLVMArrayType.parse(parser);
+            }
             let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
@@ -21811,9 +21887,7 @@ _.vm.VMDialect = class extends _.Dialect {
             if (mnemonic === 'ref') {
                 return _.vm.RefType.parse(parser);
             }
-            let type = `!${dialect}.${mnemonic}`;
-            type += parser.parseTypeParameters();
-            return new _.Type(type);
+            return new _.Type(`!${dialect}.${mnemonic}`);
         }
         return null;
     }
@@ -24538,11 +24612,70 @@ _.triton.TritonDialect = class extends _.Dialect {
 
 _.triton.gpu = {};
 
+_.triton.gpu.MemDescType = class extends _.Type {
+
+    constructor(shape, elementType, encoding, memorySpace, mutableMemory, allocShape) {
+        super(null);
+        this.shape = shape;
+        this.elementType = elementType;
+        this.encoding = encoding;
+        this.memorySpace = memorySpace;
+        this.mutableMemory = mutableMemory || false;
+        this.allocShape = allocShape || null;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const dimInfo = parser.parseDimensionList();
+        const elementType = parser.parseType();
+        let encoding = null;
+        let memorySpace = null;
+        let mutableMemory = false;
+        let allocShape = null;
+        if (parser.parseOptionalComma()) {
+            encoding = parser.parseAttribute();
+            if (parser.parseOptionalComma()) {
+                memorySpace = parser.parseAttribute();
+                if (parser.parseOptionalComma()) {
+                    if (parser.parseOptionalKeyword('mutable')) {
+                        mutableMemory = true;
+                        if (parser.parseOptionalComma()) {
+                            allocShape = parser.parseDimensionList(false, false).dimensions;
+                        }
+                    } else {
+                        allocShape = parser.parseDimensionList(false, false).dimensions;
+                    }
+                }
+            }
+        }
+        parser.parseGreater();
+        return new _.triton.gpu.MemDescType(dimInfo.dimensions, elementType, encoding, memorySpace, mutableMemory, allocShape);
+    }
+
+    toString() {
+        const shapeStr = this.shape.map((d) => `${d}x`).join('');
+        const parts = [`${shapeStr}${this.elementType}`];
+        if (this.encoding) {
+            parts.push(`${this.encoding}`);
+        }
+        if (this.memorySpace) {
+            parts.push(`${this.memorySpace}`);
+        }
+        if (this.mutableMemory) {
+            parts.push('mutable');
+        }
+        if (this.allocShape && this.allocShape.join('x') !== this.shape.join('x')) {
+            parts.push(this.allocShape.join('x'));
+        }
+        return `!ttg.memdesc<${parts.join(', ')}>`;
+    }
+};
+
 _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ttg');
-        this.registerCustomType('TTG_MemDescType', this.parseMemDescType.bind(this));
+        this.registerCustomType('TTG_MemDescType', (parser) => _.triton.gpu.MemDescType.parse(parser));
     }
 
     parseOperation(parser, result) {
@@ -24608,21 +24741,14 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
     parseType(parser, dialect) {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
+            if (mnemonic === 'memdesc') {
+                return _.triton.gpu.MemDescType.parse(parser);
+            }
             let type = `!${dialect}.${mnemonic}`;
             type += parser.parseTypeParameters();
             return new _.Type(type);
         }
         return null;
-    }
-
-    parseMemDescType(parser) {
-        // Handle shorthand MemDescType notation: <dims x elementType, attributes...>
-        // Full notation would be: !ttg.memdesc<dims x elementType, attributes...>
-        const content = parser.parseTypeParameters();
-        if (!content) {
-            return null;
-        }
-        return new _.Type(`!ttg.memdesc<${content}>`);
     }
 };
 
