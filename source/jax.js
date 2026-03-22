@@ -26,7 +26,7 @@ jax.ModelFactory = class {
         if (mlir_module && mlir_module.length > 0) {
             const buffer = new Uint8Array(mlir_module.buffer, mlir_module.byteOffset, mlir_module.byteLength);
             const stream = new base.BinaryStream(buffer);
-            const content = new jax.Context(context, stream);
+            const content = context.context('module.mlirbc', stream);
             const mlir = await import('./mlir.js');
             const factory = new mlir.ModelFactory();
             const type = await factory.match(content);
@@ -132,43 +132,6 @@ jax.TensorType = class {
 
     toString() {
         return this.dataType + (this.shape ? `[${this.shape.dimensions.join(',')}]` : '');
-    }
-};
-
-jax.Context = class {
-
-    constructor(context, stream) {
-        this._context = context;
-        this._stream = stream;
-    }
-
-    get identifier() {
-        return 'module.mlirbc';
-    }
-
-    get stream() {
-        return this._stream;
-    }
-
-    set(type, value) {
-        this.type = type;
-        this.value = value;
-        return type;
-    }
-
-    async read(type) {
-        if (type === 'binary') {
-            return base.BinaryReader.open(this._stream);
-        }
-        return null;
-    }
-
-    async request(file) {
-        return this._context.request(file);
-    }
-
-    async require(id) {
-        return this._context.require(id);
     }
 };
 

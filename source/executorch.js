@@ -973,19 +973,19 @@ coreml.Reader = class {
     async read() {
         const entries = this.entries(this.reader);
         const factory = await this.factory();
-        const protobuf = await import('./protobuf.js');
-        for (const [key, value] of entries) {
-            const path = key.split('/');
-            const identifier = path.pop();
-            const folder = path.length === 0 ? '' : `${path.join('/')}/`;
-            const locals = new Map(Array.from(entries).filter(([key]) => key.startsWith(folder)).map(([key, value]) => [key.substring(folder.length), value]));
-            const context = new coreml.Context(this, identifier, value, locals, protobuf);
+        const streams = new Map();
+        for (const [path, location] of entries) {
+            streams.set(path, this.stream(location.offset, location.size));
+        }
+        const context = this.target.context;
+        for (const [key] of streams) {
+            const content = context.context(key, streams.get(key), streams);
             /* eslint-disable no-await-in-loop */
-            const type = await factory.match(context);
+            const type = await factory.match(content);
             /* eslint-enable no-await-in-loop */
             if (type === 'coreml.manifest') {
                 /* eslint-disable no-await-in-loop */
-                const model = await factory.open(context);
+                const model = await factory.open(content);
                 /* eslint-enable no-await-in-loop */
                 [this.type] = model.modules;
                 this.type.name = 'CoreMLBackend';
@@ -1042,75 +1042,6 @@ coreml.Reader = class {
             process('', root);
         }
         return files;
-    }
-};
-
-coreml.Context = class {
-
-    constructor(reader, identifier, location, entries, protobuf) {
-        this._reader = reader;
-        this._location = location;
-        this._identifier = identifier;
-        this._entries = entries;
-        this._protobuf = protobuf;
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get stream() {
-        if (!this._stream) {
-            this._stream = this._reader.stream(this._location.offset, this._location.size);
-        }
-        return this._stream;
-    }
-
-    async tags(type) {
-        if (type === 'pb' && this.identifier.endsWith('.mlmodel')) {
-            return new Map([[1,0],[2,2]]);
-        }
-        return new Map();
-    }
-
-    async peek(type) {
-        if (type === 'json') {
-            const data = this.stream.peek();
-            const decoder = new TextDecoder('utf-8');
-            const text = decoder.decode(data);
-            return JSON.parse(text);
-        }
-        return null;
-    }
-
-    async read(type) {
-        if (type === 'protobuf.binary') {
-            return this._protobuf.BinaryReader.open(this.stream);
-        }
-        return null;
-    }
-
-    async fetch(file) {
-        if (this._entries.has(file)) {
-            const location = this._entries.get(file);
-            const identifier = file.split('/').pop();
-            return new coreml.Context(this._reader, identifier, location, this._entries, this._protobuf);
-        }
-        return null;
-    }
-
-    async require(id) {
-        return this._reader.target.context.require(id);
-    }
-
-    async metadata(name) {
-        return this._reader.target.context.metadata(name);
-    }
-
-    set(type, value) {
-        this.type = type;
-        this.value = value;
-        return type;
     }
 };
 

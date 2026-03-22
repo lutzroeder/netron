@@ -6641,6 +6641,14 @@ view.Context = class {
         return new view.Context(this._context, file, stream);
     }
 
+    context(identifier, stream, entries) {
+        if (stream instanceof Uint8Array) {
+            stream = new base.BinaryStream(stream);
+        }
+        const context = entries instanceof Map ? new view.EntryContext(this._context, entries) : this._context;
+        return new view.Context(context, identifier, stream);
+    }
+
     async require(id) {
         return this._context.require(id);
     }

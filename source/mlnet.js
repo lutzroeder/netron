@@ -344,13 +344,11 @@ mlnet.ModelReader = class {
             let module = null;
             let content = '';
             if (entry.format === 'tf') {
-                const protobuf = await import('./protobuf.js');
                 module = await context.require('./tf');
-                content = new mlnet.Context(context, 'model.pb', entry.bytes, protobuf);
+                content = context.context('model.pb', entry.bytes);
             } else if (entry.format === 'onnx') {
-                const protobuf = await import('./protobuf.js');
                 module = await context.require('./onnx');
-                content = new mlnet.Context(context, 'model.onnx', entry.bytes, protobuf);
+                content = context.context('model.onnx', entry.bytes);
             } else {
                 throw new mlnet.Error(`Unsupported ML.NET model format '${entry.format}'.`);
             }
@@ -368,73 +366,6 @@ mlnet.ModelReader = class {
                 this._resolve[i].target.Model = results[i];
             }
         }
-    }
-};
-
-mlnet.Context = class {
-
-    constructor(context, identifier, bytes, protobuf) {
-        this._context = context;
-        this._protobuf = protobuf;
-        this._identifier = identifier;
-        this._stream = new base.BinaryStream(bytes);
-        this._tags = new Map();
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get stream() {
-        return this._stream;
-    }
-
-    set(type, value) {
-        this.type = type;
-        this.value = value;
-        return type;
-    }
-
-    async require(id) {
-        return this._context.require(id);
-    }
-
-    async metadata(id) {
-        return this._context.metadata(id);
-    }
-
-    async request(file, encoding) {
-        return this._context.request(file, encoding);
-    }
-
-    async read(type) {
-        if (type === 'protobuf.binary') {
-            return this._protobuf.BinaryReader.open(this.stream);
-        }
-        throw new mlnet.Error(`Unsupported read type '${type}'.`);
-    }
-
-    async tags(type) {
-        if (!this._tags.has(type)) {
-            let tags = new Map();
-            try {
-                const reader = this._protobuf.BinaryReader.open(this.stream);
-                tags = type === 'pb+' ? reader.decode() : reader.signature();
-            } catch {
-                // continue regardless of error
-            }
-            this.stream.seek(0);
-            this._tags.set(type, tags);
-        }
-        return this._tags.get(type);
-    }
-
-    async peek() {
-        return undefined;
-    }
-
-    error(err) {
-        this._context.error(err, false);
     }
 };
 
