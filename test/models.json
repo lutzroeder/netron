@@ -2329,6 +2329,21 @@
     "link":     "https://github.com/lutzroeder/netron/issues/998"
   },
   {
+    "type":     "jax",
+    "target":   "gemma3.jax_export",
+    "source":   "https://github.com/user-attachments/files/26162938/gemma3.jax_export.zip[gemma3.jax_export]",
+    "format":   "JAX Export v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/1555"
+  },
+  {
+    "type":     "jax",
+    "target":   "mlp.jax_exported",
+    "source":   "https://github.com/user-attachments/files/26166093/mlp.jax_exported.zip[mlp.jax_exported]",
+    "format":   "JAX Export v3",
+    "assert":   "model.functions[0].nodes.length == 30",
+    "link":     "https://github.com/lutzroeder/netron/issues/1555"
+  },
+  {
     "type":     "kann",
     "target":   "googlenet-fp16.kgraph",
     "source":   "https://github.com/kalray/kann-models-zoo/raw/refs/heads/main/utils/kann-graph/googlenet-fp16.kgraph",

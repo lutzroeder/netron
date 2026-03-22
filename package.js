@@ -602,6 +602,7 @@ const update = async () => {
         'dlc', 'dnn',
         'espdl', 'executorch',
         'gguf',
+        'jax',
         'kann', 'keras',
         'mlir', 'mnn', 'mslite', 'megengine',
         'nnabla',
