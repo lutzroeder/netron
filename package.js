@@ -629,7 +629,11 @@ const update = async () => {
     commands = commands.join(' ');
     for (const target of targets) {
         /* eslint-disable no-await-in-loop */
-        await exec(`tools/${target} ${commands}`);
+        if (process.platform === 'win32') {
+            await exec(`bash tools/${target} ${commands}`);
+        } else {
+            await exec(`tools/${target} ${commands}`);
+        }
         /* eslint-enable no-await-in-loop */
     }
 };
