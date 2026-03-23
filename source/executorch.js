@@ -70,6 +70,10 @@ executorch.Graph = class {
             return list;
         };
         values.map = (index, output) => {
+            if (output && values.has(index) && !Array.isArray(values.get(index).value)) {
+                const value = [new executorch.Value(index.toString(), null, null)];
+                values.set(index, { type: null, value });
+            }
             if (!values.has(index)) {
                 const executorch_flatbuffer = executorch.schema.executorch_flatbuffer;
                 const val = plan.values[index].val;
@@ -123,7 +127,14 @@ executorch.Graph = class {
             const argument = new executorch.Argument(name, value.value, value.type);
             this.outputs.push(argument);
         }
+        const executorch_flatbuffer = executorch.schema.executorch_flatbuffer;
         for (const instruction of chain.instructions) {
+            const instr_args = instruction.instr_args;
+            if (instr_args instanceof executorch_flatbuffer.JumpFalseCall ||
+                instr_args instanceof executorch_flatbuffer.MoveCall ||
+                instr_args instanceof executorch_flatbuffer.FreeCall) {
+                continue;
+            }
             const node = new executorch.Node(target, plan, chain, instruction, values);
             this.nodes.push(node);
         }

@@ -2144,7 +2144,6 @@
     "target":   "map.pte",
     "source":   "https://github.com/user-attachments/files/26153622/map.pte.zip[map.pte]",
     "format":   "ExecuTorch v0",
-    "error":    "Instruction type 'JumpFalseCall' not implemented.",
     "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   {
