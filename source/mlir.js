@@ -293,7 +293,7 @@ mlir.Graph = class {
                             continue;
                         }
                         const value = values.map(output.name);
-                        value.type = mlir.Utility.valueType(output.type);
+                        value.type = output.type;
                         value.from.push(operation);
                         let outputName = null;
                         const isVariadicOverflow = lastVariadicResultIndex >= 0 && i >= lastVariadicResultIndex;
@@ -385,8 +385,8 @@ mlir.Graph = class {
             }
         }
         for (const op of operations) {
-            if (op.name === 'torch.prim.ListConstruct' &&
-                op.results.length === 1) {
+            const opName = op.name.getStringRef();
+            if (opName === 'torch.prim.ListConstruct' && op.results.length === 1) {
                 const result = op.results[0];
                 if (result.to && result.to.length === 1) {
                     const inputValues = [];
@@ -409,12 +409,7 @@ mlir.Graph = class {
         const tensor = (arg) => {
             if (!tensors.has(arg.name)) {
                 const initializer = constantMap.get(arg.name) || null;
-                let type = null;
-                if (arg.type instanceof mlir.TensorType) {
-                    type = arg.type;
-                } else if (arg.type) {
-                    type = mlir.Utility.valueType(arg.type);
-                }
+                const type = arg.type ? mlir.Utility.valueType(arg.type) : null;
                 tensors.set(arg.name, new mlir.Value(arg.name, type, null, initializer));
             }
             return tensors.get(arg.name);
@@ -458,7 +453,7 @@ mlir.Graph = class {
                 continue;
             }
             const v = value.value === undefined ? value.toString() : value.value;
-            const metadata = new mlir.Argument(name, v, value.type || 'attribute');
+            const metadata = new mlir.Argument(name, v, value.type ? mlir.Utility.argumentType(value.type) : 'attribute');
             this.metadata.push(metadata);
         }
     }
@@ -470,51 +465,6 @@ mlir.Argument = class {
         this.name = name;
         this.value = value;
         this.type = type;
-        if (this.type) {
-            const typeStr = this.type instanceof _.Type ? this.type.toString() : this.type;
-            switch (typeStr) {
-                case 'i64': case 'si64': this.type = 'int64'; break;
-                case 'i48': case 'si48': this.type = 'int48'; break;
-                case 'i32': case 'si32': this.type = 'int32'; break;
-                case 'i16': case 'si16': this.type = 'int16'; break;
-                case 'i8': case 'si8': this.type = 'int8'; break;
-                case 'i1': this.type = 'int1'; break;
-                case 'f32': case 'float32': this.type = 'float32'; break;
-                case 'f64': case 'float64': this.type = 'float64'; break;
-                case 'f16': this.type = 'float16'; break;
-                case 'f80': this.type = 'float80'; break;
-                case 'f128': this.type = 'float128'; break;
-                case null:
-                case 'attribute':
-                case 'boolean':
-                case 'string':
-                case 'int64':
-                case 'int32':
-                case 'int16':
-                case 'int8':
-                case 'float16':
-                case 'tensor':
-                case 'type':
-                case 'dense':
-                case 'function':
-                case 'symbol':
-                case 'graph':
-                case 'list':
-                case 'none':
-                    break;
-                default:
-                    if (/^[usi]i?[0-9]+$/.test(typeStr) || /^f[0-9]+$/.test(typeStr) ||
-                        /^f\d+E\d+M\d+/.test(typeStr) ||
-                        typeStr === 'bf16' || typeStr === 'tf32' || typeStr === 'index' || typeStr === 'none' ||
-                        typeStr === 'unit' || typeStr.startsWith('!') || typeStr.startsWith('tensor<') ||
-                        typeStr.startsWith('memref<') || typeStr.startsWith('vector<') ||
-                        typeStr.startsWith('complex<') || typeStr.startsWith('(')) {
-                        this.type = typeStr;
-                        break;
-                    }
-                    throw new mlir.Error(`Unsupported argument type '${typeStr}'.`);
-            }
-        }
     }
 };
 
@@ -586,20 +536,20 @@ mlir.Node = class {
                     }
                 }
                 if (input.type) {
-                    const typeStr = input.type instanceof _.Type ? input.type.toString() : input.type;
-                    if (typeStr.startsWith('tensor<')) {
-                        const type = mlir.Utility.valueType(typeStr);
-                        const value = new mlir.Tensor(type, input.value);
+                    const argumentType = mlir.Utility.argumentType(input.type);
+                    if (argumentType === 'tensor') {
+                        const tensorType = mlir.Utility.valueType(input.type);
+                        const value = new mlir.Tensor(tensorType, input.value);
                         argument = new mlir.Argument(input.name, value, 'tensor');
                     } else {
-                        argument = new mlir.Argument(input.name, input.value, input.type);
+                        argument = new mlir.Argument(input.name, input.value, argumentType);
                     }
                 } else if (Array.isArray(input.value) && !input.value.every((value) => typeof value.name === 'string' && value.name.startsWith('%'))) {
-                    argument = new mlir.Argument(input.name, input.value, input.type || 'attribute');
+                    argument = new mlir.Argument(input.name, input.value, input.type ? mlir.Utility.argumentType(input.type) : 'attribute');
                 } else if (Array.isArray(input.value)) {
                     argument = new mlir.Argument(input.name, input.value.map((arg) => tensor(arg)));
                 } else {
-                    argument = new mlir.Argument(input.name, input.value, input.type || 'attribute');
+                    argument = new mlir.Argument(input.name, input.value, input.type ? mlir.Utility.argumentType(input.type) : 'attribute');
                 }
             } else {
                 let allConstants = true;
@@ -718,8 +668,8 @@ mlir.Tensor = class {
 mlir.TensorType = class {
 
     constructor(dataType, shape) {
-        this.dataType = mlir.Utility.dataType(dataType); // string
-        this.shape = shape || new mlir.TensorShape([]);  // mlir.TensorShape
+        this.dataType = dataType ? mlir.Utility.dataType(dataType) : null;
+        this.shape = shape || new mlir.TensorShape([]);
     }
 
     toString() {
@@ -787,183 +737,122 @@ mlir.Context = class {
 
 mlir.Utility = class {
 
+    static argumentType(type) {
+        if (type instanceof _.RankedTensorType || type instanceof _.UnrankedTensorType || type instanceof _.torch.ValueTensorType) {
+            return 'tensor';
+        }
+        if (type instanceof _.FunctionType) {
+            return 'function';
+        }
+        if (type instanceof _.NoneType) {
+            return 'none';
+        }
+        if (type instanceof _.IntegerType || type instanceof _.FloatType || type instanceof _.IndexType || type instanceof _.ComplexType) {
+            return mlir.Utility.dataType(type);
+        }
+        if (type instanceof _.VectorType || type instanceof _.MemRefType || type instanceof _.UnrankedMemRefType) {
+            return type.toString();
+        }
+        if (type instanceof _.TupleType) {
+            return type.toString();
+        }
+        if (type instanceof _.Type) {
+            return type.toString();
+        }
+        throw new mlir.Error(`Unexpected argument type '${type}'.`);
+    }
+
     static dataType(value) {
+        if (value instanceof _.IntegerType) {
+            const name = value.toString();
+            const match = name.match(/^(s|u)?i([0-9]+)$/);
+            if (match) {
+                const width = parseInt(match[2], 10);
+                if (match[1] === 'u') {
+                    return `uint${width}`;
+                }
+                return `int${width}`;
+            }
+            throw new mlir.Error(`Unexpected integer type '${name}'.`);
+        }
+        if (value instanceof _.FloatType) {
+            const name = value.toString();
+            switch (name) {
+                case 'f16': return 'float16';
+                case 'f32': return 'float32';
+                case 'f64': return 'float64';
+                case 'f80': return 'float80';
+                case 'f128': return 'float128';
+                case 'bf16': return 'bfloat16';
+                case 'tf32': return 'tf32';
+                case 'float8': return 'float8';
+                case 'fp8': return 'float8';
+                case 'fp8e4m3': return 'float8e4m3';
+                case 'fp8_e4m3': return 'float8e4m3';
+                case 'fp8e4m3fn': return 'float8e4m3fn';
+                case 'fp8e5m2': return 'float8e5m2';
+                case 'fp8_e5m2': return 'float8e5m2';
+                case 'f4E2M1FN': return 'float4e2m1fn';
+                case 'f6E2M3FN': return 'float6e2m3fn';
+                case 'f6E3M2FN': return 'float6e3m2fn';
+                case 'f8E3M4': return 'float8e3m4';
+                case 'f8E4M3': return 'float8e4m3';
+                case 'f8E4M3B11FNUZ': return 'float8e4m3b11fnuz';
+                case 'f8E4M3FN': return 'float8e4m3fn';
+                case 'f8E4M3FNUZ': return 'float8e4m3fnuz';
+                case 'f8E5M2': return 'float8e5m2';
+                case 'f8E5M2FNUZ': return 'float8e5m2fnuz';
+                case 'f8E8M0FNU': return 'float8e8m0fnu';
+                default: throw new mlir.Error(`Unexpected float type '${name}'.`);
+            }
+        }
+        if (value instanceof _.IndexType) {
+            return 'int64';
+        }
         if (value instanceof _.ComplexType) {
-            const elementType = mlir.Utility.dataType(value.elementType);
-            return `complex<${elementType}>`;
+            return `complex<${mlir.Utility.dataType(value.elementType)}>`;
+        }
+        if (value instanceof _.NoneType) {
+            return 'none';
+        }
+        if (value instanceof _.VectorType || value instanceof _.MemRefType || value instanceof _.UnrankedMemRefType) {
+            return value.toString();
+        }
+        if (value instanceof _.TupleType) {
+            return value.toString();
         }
         if (value instanceof _.Type) {
-            value = value.toString();
+            return value.toString();
         }
-        switch (value) {
-            case 'index': return 'int64';
-            case 'f16': return 'float16';
-            case 'f32': return 'float32';
-            case 'f64': return 'float64';
-            case 'f80': return 'float80';
-            case 'f128': return 'float128';
-            case 'bf16': return 'bfloat16';
-            case 'fp8': return 'float8';
-            case 'fp8e4m3': return 'float8e4m3';
-            case 'fp8_e4m3': return 'float8e4m3';
-            case 'fp8e4m3fn': return 'float8e4m3fn';
-            case 'fp8e5m2': return 'float8e5m2';
-            case 'fp8_e5m2': return 'float8e5m2';
-            case 'f4E2M1FN': return 'float4e2m1fn';
-            case 'f6E2M3FN': return 'float6e2m3fn';
-            case 'f6E3M2FN': return 'float6e3m2fn';
-            case 'f8E3M4': return 'float8e3m4';
-            case 'f8E4M3': return 'float8e4m3';
-            case 'f8E4M3B11FNUZ': return 'float8e4m3b11fnuz';
-            case 'f8E4M3FN': return 'float8e4m3fn';
-            case 'f8E4M3FNUZ': return 'float8e4m3fnuz';
-            case 'f8E5M2': return 'float8e5m2';
-            case 'f8E5M2FNUZ': return 'float8e5m2fnuz';
-            case 'f8E8M0FNU': return 'float8e8m0fnu';
-            case 'float8': return 'float8';
-            case 'tf32': return 'tf32';
-            case 'i1': return 'int1';
-            case 'i2': return 'int2';
-            case 'i4': return 'int4';
-            case 'i8': return 'int8';
-            case 'i16': return 'int16';
-            case 'i32': return 'int32';
-            case 'i48': return 'int48';
-            case 'i64': return 'int64';
-            case 'si8': return 'int8';
-            case 'si16': return 'int16';
-            case 'si32': return 'int32';
-            case 'si64': return 'int64';
-            case 'ui1': return 'uint1';
-            case 'ui2': return 'uint2';
-            case 'ui4': return 'uint4';
-            case 'ui8': return 'uint8';
-            case 'ui16': return 'uint16';
-            case 'ui32': return 'uint32';
-            case 'ui64': return 'uint64';
-            case 'b8': return 'int8';
-            case 'unk': return 'unk'; // torch dialect unknown dtype
-            case '!tf_type.string': return 'string';
-            case '!tosa.mxint8': return 'int8';
-            case '!onnx.String': return 'string';
-            default:
-                if (value && value.startsWith('!')) {
-                    return value;
-                }
-                if (value && value.startsWith('vector<') && value.endsWith('>')) {
-                    return value;
-                }
-                if (value && value.startsWith('memref<') && value.endsWith('>')) {
-                    return value;
-                }
-                if (value && value.startsWith('tuple<') && value.endsWith('>')) {
-                    return value;
-                }
-                if (value && value.startsWith('complex<') && value.endsWith('>')) {
-                    const elementTypeStr = value.substring(8, value.length - 1);
-                    const convertedElementType = mlir.Utility.dataType(elementTypeStr);
-                    return `complex<${convertedElementType}>`;
-                }
-                if (value && /^[su]?i[0-9]+$/.test(value)) {
-                    const match = value.match(/^(s|u)?i([0-9]+)$/);
-                    if (match) {
-                        const [, signed, widthStr] = match;
-                        const width = parseInt(widthStr, 10);
-                        if (signed === 'u') {
-                            return `uint${width}`;
-                        } else if (signed === 's') {
-                            return `int${width}`;
-                        }
-                        return `int${width}`;
-                    }
-                }
-                throw new mlir.Error(`Unknown data type '${value}'.`);
-        }
+        throw new mlir.Error(`Unexpected data type '${value}'.`);
     }
 
     static valueType(type) {
         if (type === undefined) {
             return null;
         }
-        const typeStr = type instanceof _.Type ? type.toString() : type;
-        if (typeStr.startsWith('!') && !typeStr.startsWith('!torch.vtensor<')) {
-            return typeStr;
+        if (type instanceof _.RankedTensorType) {
+            const shape = type.shape.map((d) => d < 0n ? '?' : d);
+            return new mlir.TensorType(type.elementType, new mlir.TensorShape(shape));
         }
-        if (typeStr.startsWith('tensor<') && typeStr.endsWith('>')) {
-            const spec = typeStr.substring(7, typeStr.length - 1).trim();
-            if (spec.startsWith('!')) {
-                return mlir.Utility.valueType(spec);
-            }
-            let i = 0;
-            const shape = [];
-            while (i < spec.length) {
-                if (spec[i] === '?' || spec[i] === '*') {
-                    shape.push('?');
-                    i++;
-                } else if (/[0-9]/.test(spec[i])) {
-                    let numStr = '';
-                    while (i < spec.length && /[0-9]/.test(spec[i])) {
-                        numStr += spec[i];
-                        i++;
-                    }
-                    shape.push(BigInt(numStr));
-                } else {
-                    break;
-                }
-                if (i < spec.length && spec[i] === 'x') {
-                    i++;
-                } else {
-                    break;
-                }
-            }
-            let dataType = spec.substring(i);
-            // Find encoding comma, but skip commas inside angle brackets
-            let depth = 0;
-            let encodingIndex = -1;
-            for (let j = 0; j < dataType.length; j++) {
-                if (dataType[j] === '<') {
-                    depth++;
-                } else if (dataType[j] === '>') {
-                    depth--;
-                } else if (dataType[j] === ',' && depth === 0) {
-                    encodingIndex = j;
-                    break;
-                }
-            }
-            if (encodingIndex !== -1) {
-                dataType = dataType.substring(0, encodingIndex).trim();
-            }
-            return new mlir.TensorType(dataType, new mlir.TensorShape(shape));
+        if (type instanceof _.VectorType) {
+            const shape = type.shape.map((d) => d < 0n ? '?' : d);
+            return new mlir.TensorType(type.elementType, new mlir.TensorShape(shape));
         }
-        if (typeStr.startsWith('!torch.vtensor<') && typeStr.endsWith('>')) {
-            const spec = typeStr.substring(15, typeStr.length - 1);
-            let shape = null;
-            let dataType = null;
-            if (spec.startsWith('[')) {
-                const bracketEnd = spec.indexOf(']');
-                const shapeStr = spec.substring(0, bracketEnd + 1);
-                const jsonStr = shapeStr.replace(/\?/g, '"?"');
-                shape = JSON.parse(jsonStr);
-                const rest = spec.substring(bracketEnd + 1);
-                if (rest.startsWith(',')) {
-                    const parts = rest.substring(1).split(',');
-                    dataType = parts[0].trim();
-                }
-            } else if (spec.startsWith('*')) {
-                if (spec.includes(',')) {
-                    const parts = spec.split(',');
-                    dataType = parts[1].trim();
-                }
-            } else {
-                const parts = spec.split(',');
-                dataType = parts[0].trim();
-            }
-            return new mlir.TensorType(dataType, shape ? new mlir.TensorShape(shape) : null);
+        if (type instanceof _.UnrankedTensorType) {
+            return new mlir.TensorType(type.elementType, null);
         }
-        if (typeStr.startsWith('tuple<') && typeStr.endsWith('>')) {
-            return typeStr;
+        if (type instanceof _.torch.ValueTensorType) {
+            const shape = type.optionalSizes ? type.optionalSizes.map((s) => s === -1 ? '?' : BigInt(s)) : null;
+            return new mlir.TensorType(type.optionalDtype, shape ? new mlir.TensorShape(shape) : null);
         }
-        return typeStr;
+        if (type instanceof _.TupleType) {
+            return type.toString();
+        }
+        if (type instanceof _.Type) {
+            return type.toString();
+        }
+        throw new mlir.Error(`Unexpected value type '${type}'.`);
     }
 };
 
@@ -1836,8 +1725,7 @@ _.DenseArrayAttr = class extends _.Attribute {
     }
 
     toString() {
-        const typeStr = this.type ? this.type.toString() : '';
-        return `array<${typeStr}: ${this.value.join(', ')}>`;
+        return `array<${this.type.toString()}: ${this.value.join(', ')}>`;
     }
 };
 
@@ -1912,10 +1800,6 @@ _.StringRef = class {
 _.Type = class {
 
     constructor(value) {
-        if (value && value instanceof _.RankedTensorType === false && value.startsWith('tensor<')) {
-            // Do not remove. Investigate why RankedTensorType is not getting parsed.
-            throw new mlir.Error(`Invalid type '${value}'.`);
-        }
         this._value = value;
     }
 
@@ -6126,6 +6010,9 @@ _.CustomOpAsmParser = class extends _.OpAsmParser {
                 const operand = operands[i];
                 const type = types[i];
                 if (operand && type) {
+                    if (type instanceof _.Type === false) {
+                        throw new mlir.Error(`Type expected instead of '${type}'.`);
+                    }
                     if (operand instanceof _.Value) {
                         operand.type = type;
                     } else if (typeof operand === 'object') {
@@ -8997,7 +8884,7 @@ _.Dialect = class {
             case 'SI64': return new _.IntegerType('si64');
             case 'SI8': return new _.IntegerType('si8');
             case 'SMTFuncType': return new _.Type('!smt.func<() -> ()>');
-            case 'SPIRV_AnyPtr': return new _.Type('!spirv.ptr<i32, StorageBuffer>');
+            case 'SPIRV_AnyPtr': return new _.spirv.PointerType(new _.IntegerType('i32'), 'StorageBuffer');
             case 'SPIRV_BFloat16KHR': return new _.FloatType('bf16');
             case 'SPIRV_Bool': return new _.IntegerType('i1');
             case 'SPIRV_Float16': return new _.FloatType('f16');
@@ -9238,8 +9125,8 @@ _.Dialect = class {
                                     if (transformer === '::getI1SameShape($_self)') {
                                         if (sourceType instanceof _.VectorType) {
                                             resultType = new _.VectorType(sourceType.dimensions, new _.IntegerType('i1'), sourceType.scalableDims);
-                                        } else if (sourceType instanceof mlir.TensorType) {
-                                            resultType = new mlir.TensorType(sourceType.dimensions, new _.IntegerType('i1'));
+                                        } else if (sourceType instanceof _.RankedTensorType) {
+                                            resultType = new _.RankedTensorType(sourceType.shape, new _.IntegerType('i1'));
                                         } else {
                                             resultType = new _.IntegerType('i1');
                                         }
@@ -10572,7 +10459,7 @@ _.Dialect = class {
     parseResultTypeList(parser, op) {
         const types = parser.parseCommaSeparatedList('paren', () => parser.parseType());
         if (types.length > 0) {
-            op.addAttribute('result_types', types.map((t) => t.toString()));
+            op.addAttribute('result_types', types);
         }
     }
 
@@ -13044,7 +12931,7 @@ _.HALDialect = class extends _.IREEDialect {
             }
             if (parser.parseOptionalArrow() || parser.parseOptionalColon()) {
                 const resultType = parser.parseType();
-                result.types = [resultType];
+                result.addTypes([resultType]);
             }
             for (;;) {
                 const caseAttr = parser.parseOptionalAttribute();
@@ -14240,7 +14127,7 @@ _.FlowDialect = class extends _.IREEDialect {
                             parser.parseOptionalComma();
                         }
                     }
-                    result.types.push(type);
+                    result.addTypes([type]);
                     parser.parseOptionalComma();
                 }
             }
@@ -16974,7 +16861,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 for (const unresolvedOp of unresolvedOperands) {
                     parser.resolveOperand(unresolvedOp, type, result.operands);
                 }
-                result.types.push(type);
+                result.addTypes([type]);
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
                     parser.resolveOperand(unresolvedOp, null, result.operands);
@@ -16998,7 +16885,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             result.addAttribute('constituents', constituents);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                result.addAttribute('type', type.toString());
+                result.addAttribute('type', type);
             }
             return true;
         }
@@ -17012,7 +16899,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.parseRParen();
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                result.addAttribute('type', type.toString());
+                result.addAttribute('type', type);
             }
             return true;
         }
@@ -17071,7 +16958,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 parser.resolveOperand(ptrOperand, null, result.operands);
-                result.types.push(type);
+                result.addTypes([type]);
             } else {
                 parser.resolveOperand(ptrOperand, null, result.operands);
             }
@@ -17098,7 +16985,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 parser.resolveOperand(compositeOperand, null, result.operands);
-                result.types.push(type);
+                result.addTypes([type]);
             } else {
                 parser.resolveOperand(compositeOperand, null, result.operands);
             }
@@ -17228,7 +17115,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 if (parser.parseOptionalKeyword('into')) {
                     const compositeType = parser.parseType();
                     parser.resolveOperand(unresolvedOperands[1], compositeType, result.operands);
-                    result.types.push(compositeType);
+                    result.addTypes([compositeType]);
                 } else {
                     parser.resolveOperand(unresolvedOperands[1], null, result.operands);
                 }
@@ -17304,7 +17191,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                     }
                 }
                 const type = parser.parseType();
-                result.types.push(type);
+                result.addTypes([type]);
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
                     parser.resolveOperand(unresolvedOp, null, result.operands);
@@ -17418,7 +17305,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                result.types = [type];
+                result.addTypes([type]);
             }
             return true;
         }
@@ -17513,7 +17400,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
             if (parser.parseOptionalKeyword('into')) {
                 const resultType = parser.parseType();
-                result.types = [resultType];
+                result.addTypes([resultType]);
             }
             return true;
         }
@@ -17547,7 +17434,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             let valueType = null;
             if (parser.parseOptionalColon()) {
                 valueType = parser.parseType();
-                ptrType = new _.Type(`!spirv.ptr<${valueType}, ${storageClass}>`);
+                ptrType = new _.spirv.PointerType(valueType, storageClass);
             }
             parser.resolveOperand(ptrUnresolved, ptrType, result.operands);
             parser.resolveOperand(valueUnresolved, valueType, result.operands);
@@ -18232,7 +18119,7 @@ _.EmitCDialect = class extends _.Dialect {
             parser.resolveOperand(step, null, result.operands);
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                result.addAttribute('type', type.toString());
+                result.addAttribute('type', type);
             }
             result.addAttribute('iterVar', { value: iterVar, hidden: true });
             const region = result.addRegion();
@@ -18573,20 +18460,20 @@ _.BuiltinDialect = class extends _.Dialect {
             case 8: return new _.FloatType('f128');  // Float128Type
             case 9: { // ComplexType
                 const elementType = reader.readType();
-                return new _.Type(`complex<${elementType.toString()}>`);
+                return new _.ComplexType(elementType);
             }
             case 10: { // MemRefType
                 const shape = reader.readSignedVarInts();
                 const elementType = reader.readType();
-                reader.readAttribute(); // layout
-                return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
+                const layout = reader.readAttribute();
+                return new _.MemRefType(shape, elementType, layout, null);
             }
             case 11: { // MemRefTypeWithMemSpace
-                reader.readAttribute(); // memorySpace
+                const memorySpace = reader.readAttribute();
                 const shape = reader.readSignedVarInts();
                 const elementType = reader.readType();
-                reader.readAttribute(); // layout
-                return new _.Type(`memref<${shape.join('x')}x${elementType.toString()}>`);
+                const layout = reader.readAttribute();
+                return new _.MemRefType(shape, elementType, layout, memorySpace);
             }
             case 12: // NoneType
                 return new _.NoneType();
@@ -18607,16 +18494,16 @@ _.BuiltinDialect = class extends _.Dialect {
                 for (let i = 0; i < numTypes; i++) {
                     types.push(reader.readType());
                 }
-                return new _.Type(`tuple<${types.map((t) => t.toString()).join(', ')}>`);
+                return new _.TupleType(types);
             }
             case 16: { // UnrankedMemRefType
                 const elementType = reader.readType();
-                return new _.Type(`memref<*x${elementType.toString()}>`);
+                return new _.UnrankedMemRefType(elementType);
             }
             case 17: { // UnrankedMemRefTypeWithMemSpace
-                reader.readAttribute(); // memorySpace
+                const memorySpace = reader.readAttribute();
                 const elementType = reader.readType();
-                return new _.Type(`memref<*x${elementType.toString()}>`);
+                return new _.UnrankedMemRefType(elementType, memorySpace);
             }
             case 18: { // UnrankedTensorType
                 const elementType = reader.readType();
@@ -18882,7 +18769,7 @@ _.BufferizationDialect = class extends _.Dialect {
                     parser.resolveOperand(unresolvedSizeHint, indexType, result.operands);
                 }
                 if (result.types.length === 0) {
-                    result.types.push(resultType);
+                    result.addTypes([resultType]);
                 } else {
                     result.types[0] = resultType;
                 }
@@ -20935,9 +20822,10 @@ _.llvm = {};
 
 _.llvm.LLVMPointerType = class extends _.Type {
 
-    constructor(addressSpace) {
+    constructor(addressSpace, pointeeType) {
         super(null);
         this.addressSpace = addressSpace || 0;
+        this.pointeeType = pointeeType || null;
     }
 
     static parse(parser) {
@@ -20949,12 +20837,15 @@ _.llvm.LLVMPointerType = class extends _.Type {
             }
             const pointee = _.llvm.LLVMDialect.dispatchParse(parser);
             parser.parseGreater();
-            return new _.Type(`!llvm.ptr<${pointee}>`);
+            return new _.llvm.LLVMPointerType(0, pointee);
         }
         return new _.llvm.LLVMPointerType(0);
     }
 
     toString() {
+        if (this.pointeeType) {
+            return `!llvm.ptr<${this.pointeeType}>`;
+        }
         if (this.addressSpace) {
             return `!llvm.ptr<${this.addressSpace}>`;
         }
@@ -21466,7 +21357,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const type = parser.parseType();
-            result.types = [type];
+            result.addTypes([type]);
         }
         parser.parseOptionalRegion(result.addRegion());
         return true;
@@ -21505,10 +21396,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         return true;
     }
 
-    // custom<GEPIndices>($dynamicIndices, $rawConstantIndices)
     parseGEPIndices(parser, op, operands, attrName) {
-        // Note: the reference uses 'none' delimiter with TableGen handling brackets,
-        // but mlir.js expects '[' already consumed and needs to handle ']' terminator
         const rawConstantIndices = [];
         do {
             const constIndex = parser.parseOptionalInteger();
@@ -21658,9 +21546,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             parser.resolveOperand(calleePtr, calleePtrType, result.operands);
         }
         parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
-        if (sig.resultTypes.length > 0) {
-            result.types = sig.resultTypes.map((t) => t.toString());
-        }
+        result.addTypes(sig.resultTypes);
         return true;
     }
 
@@ -21677,8 +21563,6 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             } while (parser.parseOptionalComma());
             parser.parseRParen();
         }
-
-        // Parse operation bundles: [] or ["tag"()] or ["tag"(%0, %1 : i32, i32), ...]
         if (parser.parseOptionalLSquare()) {
             if (!parser.parseOptionalRSquare()) {
                 const opBundles = [];
@@ -21704,15 +21588,11 @@ _.llvm.LLVMDialect = class extends _.Dialect {
                 }
             }
         }
-
         parser.parseOptionalAttrDict(result.attributes);
-
         parser.parseColon();
         const sig = parser.parseFunctionSignature();
         parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
-        if (sig.resultTypes.length > 0) {
-            result.types = sig.resultTypes.map((t) => t.toString());
-        }
+        result.addTypes(sig.resultTypes);
         return true;
     }
 
@@ -21753,7 +21633,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         parser.resolveOperands(unresolvedOperands, types, result.operands);
         if (parser.parseOptionalArrow()) {
             const resultType = parser.parseType();
-            result.types = [resultType];
+            result.addTypes([resultType]);
         }
         return true;
     }
@@ -21860,9 +21740,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             parser.resolveOperand(funcPtr, calleePtrType, result.operands);
         }
         parser.resolveOperands(unresolvedOperands, sig.argTypes, result.operands);
-        if (sig.resultTypes.length > 0) {
-            result.types = sig.resultTypes.map((t) => t.toString());
-        }
+        result.addTypes(sig.resultTypes);
         return true;
     }
 
@@ -21880,7 +21758,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         }
         parser.parseColon();
         const resultType = parser.parseType();
-        result.types = [resultType];
+        result.addTypes([resultType]);
         return true;
     }
 
@@ -26296,9 +26174,7 @@ _.ACCDialect = class extends _.Dialect {
                 }
             }
             const resultTypes = parser.parseOptionalArrowTypeList();
-            for (const type of resultTypes) {
-                result.types.push(type);
-            }
+            result.addTypes(resultTypes);
             for (const op of launchOperands) {
                 parser.resolveOperand(op, null, result.operands);
             }
