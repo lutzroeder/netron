@@ -8410,14 +8410,14 @@ _.DialectContext = class {
         this._dialects.set('arith', new _.ArithDialect(operations));
         this._dialects.set('async', new _.async.AsyncDialect(operations));
         this._dialects.set('cf', new _.CFDialect(operations));
-        this._dialects.set('emitc', new _.EmitCDialect(operations));
+        this._dialects.set('emitc', new _.emitc.EmitCDialect(operations));
         this._dialects.set('complex', new _.Dialect(operations, 'complex'));
         this._dialects.set('index', new _.Dialect(operations, 'index'));
         this._dialects.set('pdl', new _.pdl.PDLDialect(operations));
         this._dialects.set('ptr', new _.ptr.PtrDialect(operations));
         this._dialects.set('ub', new _.Dialect(operations, 'ub'));
         this._dialects.set('amdgpu', new _.AMDGPUDialect(operations));
-        this._dialects.set('nvgpu', new _.NVGPUDialect(operations));
+        this._dialects.set('nvgpu', new _.nvgpu.NVGPUDialect(operations));
         this._dialects.set('nvvm', new _.NVVMDialect(operations));
         this._dialects.set('rocdl', new _.ROCDLDialect(operations));
         this._dialects.set('nvws', new _.triton.nvws.NVWSDialect(operations));
@@ -8767,8 +8767,8 @@ _.Dialect = class {
             case 'Async_CoroStateType': return new _.Type('!async.coro.state');
             case 'Async_GroupType': return new _.async.GroupType();
             case 'Async_TokenType': return new _.async.TokenType();
-            case 'Async_ValueType': return new _.async.ValueType(new _.MemRefType([-1n], new _.Type('f32')));
-            case 'BF16': return new _.Type('bf16');
+            case 'Async_ValueType': return new _.async.ValueType(new _.MemRefType([-1n], new _.FloatType('f32')));
+            case 'BF16': return new _.FloatType('bf16');
             case 'BoolType': return new _.Type('!smt.bool');
             case 'CanonicalLoopInfoType': return new _.Type('!omp.canonical_loop_info');
             case 'ControlType': return new _.Type('!tf_type.control');
@@ -8786,22 +8786,22 @@ _.Dialect = class {
             case 'Executor_HostPtr': return new _.Type('!executor.ptr<host>');
             case 'Executor_StrLiteral': return new _.Type('!executor.str_literal');
             case 'Executor_Table': return new _.Type('!executor.table<>');
-            case 'F128': return new _.Type('f128');
-            case 'F16': return new _.Type('f16');
-            case 'F32': return new _.Type('f32');
-            case 'F4E2M1FN': return new _.Type('f4E2M1FN');
-            case 'F64': return new _.Type('f64');
-            case 'F6E2M3FN': return new _.Type('f6E2M3FN');
-            case 'F6E3M2FN': return new _.Type('f6E3M2FN');
-            case 'F80': return new _.Type('f80');
-            case 'F8E3M4': return new _.Type('f8E3M4');
-            case 'F8E4M3': return new _.Type('f8E4M3');
-            case 'F8E4M3B11FNUZ': return new _.Type('f8E4M3B11FNUZ');
-            case 'F8E4M3FN': return new _.Type('f8E4M3FN');
-            case 'F8E4M3FNUZ': return new _.Type('f8E4M3FNUZ');
-            case 'F8E5M2': return new _.Type('f8E5M2');
-            case 'F8E5M2FNUZ': return new _.Type('f8E5M2FNUZ');
-            case 'F8E8M0FNU': return new _.Type('f8E8M0FNU');
+            case 'F128': return new _.FloatType('f128');
+            case 'F16': return new _.FloatType('f16');
+            case 'F32': return new _.FloatType('f32');
+            case 'F4E2M1FN': return new _.FloatType('f4E2M1FN');
+            case 'F64': return new _.FloatType('f64');
+            case 'F6E2M3FN': return new _.FloatType('f6E2M3FN');
+            case 'F6E3M2FN': return new _.FloatType('f6E3M2FN');
+            case 'F80': return new _.FloatType('f80');
+            case 'F8E3M4': return new _.FloatType('f8E3M4');
+            case 'F8E4M3': return new _.FloatType('f8E4M3');
+            case 'F8E4M3B11FNUZ': return new _.FloatType('f8E4M3B11FNUZ');
+            case 'F8E4M3FN': return new _.FloatType('f8E4M3FN');
+            case 'F8E4M3FNUZ': return new _.FloatType('f8E4M3FNUZ');
+            case 'F8E5M2': return new _.FloatType('f8E5M2');
+            case 'F8E5M2FNUZ': return new _.FloatType('f8E5M2FNUZ');
+            case 'F8E8M0FNU': return new _.FloatType('f8E8M0FNU');
             case 'FLOW_Channel': return new _.Type('!flow.channel');
             case 'GPU_AsyncToken': return new _.Type('!gpu.async.token');
             case 'GPU_SparseDnTensorHandle': return new _.Type('!gpu.sparse.dntensor_handle');
@@ -8837,7 +8837,7 @@ _.Dialect = class {
             case 'MPI_Request': return new _.Type('!mpi.request');
             case 'MPI_Retval': return new _.Type('!mpi.retval');
             case 'Noisy_I32': return new _.Type('!noisy.i32');
-            case 'NoneType': return new _.Type('none');
+            case 'NoneType': return new _.NoneType();
             case 'NullPointer': return new _.Type('!iree_codegen.null_pointer');
             case 'NVGPU_DeviceAsyncToken': return new _.Type('!nvgpu.device.async.token');
             case 'NVGPU_MmaSparseSyncMetadataType': return new _.VectorType([2n], new _.IntegerType('i16'));
@@ -8856,23 +8856,23 @@ _.Dialect = class {
             case 'PDL_TypeType': return new _.pdl.TypeType();
             case 'PDL_Value': return new _.pdl.ValueType();
             case 'PDL_ValueType': return new _.pdl.ValueType();
-            case 'Ptr_PtrType': return new _.Type('!ptr.ptr');
-            case 'ROCDL_V16BF16Type': return new _.VectorType([16n], new _.Type('bf16'));
-            case 'ROCDL_V16F16Type': return new _.VectorType([16n], new _.Type('f16'));
-            case 'ROCDL_V16F32Type': return new _.VectorType([16n], new _.Type('f32'));
-            case 'ROCDL_V2BF16Type': return new _.VectorType([2n], new _.Type('bf16'));
-            case 'ROCDL_V2F16Type': return new _.VectorType([2n], new _.Type('f16'));
-            case 'ROCDL_V2F32Type': return new _.VectorType([2n], new _.Type('f32'));
+            case 'Ptr_PtrType': return new _.ptr.PtrType(null);
+            case 'ROCDL_V16BF16Type': return new _.VectorType([16n], new _.FloatType('bf16'));
+            case 'ROCDL_V16F16Type': return new _.VectorType([16n], new _.FloatType('f16'));
+            case 'ROCDL_V16F32Type': return new _.VectorType([16n], new _.FloatType('f32'));
+            case 'ROCDL_V2BF16Type': return new _.VectorType([2n], new _.FloatType('bf16'));
+            case 'ROCDL_V2F16Type': return new _.VectorType([2n], new _.FloatType('f16'));
+            case 'ROCDL_V2F32Type': return new _.VectorType([2n], new _.FloatType('f32'));
             case 'ROCDL_V2I16Type': return new _.VectorType([2n], new _.IntegerType('i16'));
             case 'ROCDL_V2I32Type': return new _.VectorType([2n], new _.IntegerType('i32'));
-            case 'ROCDL_V32BF16Type': return new _.VectorType([32n], new _.Type('bf16'));
-            case 'ROCDL_V32F16Type': return new _.VectorType([32n], new _.Type('f16'));
-            case 'ROCDL_V32F32Type': return new _.VectorType([32n], new _.Type('f32'));
+            case 'ROCDL_V32BF16Type': return new _.VectorType([32n], new _.FloatType('bf16'));
+            case 'ROCDL_V32F16Type': return new _.VectorType([32n], new _.FloatType('f16'));
+            case 'ROCDL_V32F32Type': return new _.VectorType([32n], new _.FloatType('f32'));
             case 'ROCDL_V3I32Type': return new _.VectorType([3n], new _.IntegerType('i32'));
             case 'ROCDL_V6I32Type': return new _.VectorType([6n], new _.IntegerType('i32'));
-            case 'ROCDL_V8BF16Type': return new _.VectorType([8n], new _.Type('bf16'));
-            case 'ROCDL_V8F16Type': return new _.VectorType([8n], new _.Type('f16'));
-            case 'ROCDL_V8F32Type': return new _.VectorType([8n], new _.Type('f32'));
+            case 'ROCDL_V8BF16Type': return new _.VectorType([8n], new _.FloatType('bf16'));
+            case 'ROCDL_V8F16Type': return new _.VectorType([8n], new _.FloatType('f16'));
+            case 'ROCDL_V8F32Type': return new _.VectorType([8n], new _.FloatType('f32'));
             case 'Shape_ExtentTensorType': return new _.RankedTensorType([_.ShapedType.kDynamic], new _.IndexType());
             case 'Shape_ShapeType': return new _.Type('!shape.shape');
             case 'Shape_SizeType': return new _.Type('!shape.size');
@@ -8901,7 +8901,7 @@ _.Dialect = class {
             case 'TensorRTRuntime_Engine': return new _.Type('!trtrt.engine');
             case 'TensorType': return new _.Type('!tfrt_tensor.tensor');
             case 'TF_MLRT_FutureType': return new _.Type('!tf_mlrt.tensor');
-            case 'TF32': return new _.Type('tf32');
+            case 'TF32': return new _.FloatType('tf32');
             case 'TFAllocatorType': return new _.Type('!tfrt_fallback.tf_allocator');
             case 'TFDeviceType': return new _.Type('!tf_mlrt.device');
             case 'TfeControlType': return new _.Type('!tfe.control');
@@ -12470,6 +12470,95 @@ _.torch.ValueTensorType = class extends _.Type {
     }
 };
 
+_.torch.OptionalType = class extends _.Type {
+
+    constructor(containedType) {
+        super(null);
+        this.containedType = containedType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const containedType = _.torch.TorchDialect.dispatchParse(parser);
+        parser.parseGreater();
+        return new _.torch.OptionalType(containedType);
+    }
+
+    toString() {
+        return `!torch.optional<${this.containedType}>`;
+    }
+};
+
+_.torch.TupleType = class extends _.Type {
+
+    constructor(containedTypes) {
+        super(null);
+        this.containedTypes = containedTypes;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const containedTypes = [];
+        if (!parser.parseOptionalGreater()) {
+            do {
+                containedTypes.push(_.torch.TorchDialect.dispatchParse(parser));
+            } while (parser.parseOptionalComma());
+            parser.parseGreater();
+        }
+        return new _.torch.TupleType(containedTypes);
+    }
+
+    toString() {
+        return `!torch.tuple<${this.containedTypes.join(', ')}>`;
+    }
+};
+
+_.torch.UnionType = class extends _.Type {
+
+    constructor(containedTypes) {
+        super(null);
+        this.containedTypes = containedTypes;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const containedTypes = [];
+        if (!parser.parseOptionalGreater()) {
+            do {
+                containedTypes.push(_.torch.TorchDialect.dispatchParse(parser));
+            } while (parser.parseOptionalComma());
+            parser.parseGreater();
+        }
+        return new _.torch.UnionType(containedTypes);
+    }
+
+    toString() {
+        return `!torch.union<${this.containedTypes.join(', ')}>`;
+    }
+};
+
+_.torch.DictType = class extends _.Type {
+
+    constructor(keyType, valueType) {
+        super(null);
+        this.keyType = keyType;
+        this.valueType = valueType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const keyType = _.torch.TorchDialect.dispatchParse(parser);
+        parser.parseComma();
+        const valueType = _.torch.TorchDialect.dispatchParse(parser);
+        parser.parseGreater();
+        return new _.torch.DictType(keyType, valueType);
+    }
+
+    toString() {
+        return `!torch.dict<${this.keyType}, ${this.valueType}>`;
+    }
+};
+
 _.torch.TorchDialect = class extends _.Dialect {
 
     constructor(operations) {
@@ -12498,6 +12587,10 @@ _.torch.TorchDialect = class extends _.Dialect {
                 case 'any':
                     return new _.Type(`!torch.${mnemonic}`);
                 case 'list': return _.torch.ListType.parse(parser);
+                case 'optional': return _.torch.OptionalType.parse(parser);
+                case 'tuple': return _.torch.TupleType.parse(parser);
+                case 'union': return _.torch.UnionType.parse(parser);
+                case 'dict': return _.torch.DictType.parse(parser);
                 case 'vtensor': return _.torch.ValueTensorType.parse(parser);
                 case 'tensor': return _.torch.ValueTensorType.parse(parser);
                 default: {
@@ -12531,6 +12624,10 @@ _.torch.TorchDialect = class extends _.Dialect {
             case 'any':
                 return new _.Type(`!${dialect}.${mnemonic}`);
             case 'list': return _.torch.ListType.parse(parser);
+            case 'optional': return _.torch.OptionalType.parse(parser);
+            case 'tuple': return _.torch.TupleType.parse(parser);
+            case 'union': return _.torch.UnionType.parse(parser);
+            case 'dict': return _.torch.DictType.parse(parser);
             case 'vtensor': return _.torch.ValueTensorType.parse(parser);
             case 'tensor': return _.torch.ValueTensorType.parse(parser);
             default: {
@@ -17975,6 +18072,9 @@ _.ptr.PtrType = class extends _.Type {
     }
 
     toString() {
+        if (this.memorySpace === null) {
+            return '!ptr.ptr';
+        }
         return `!ptr.ptr<${this.memorySpace}>`;
     }
 };
@@ -17994,12 +18094,12 @@ _.ptr.PtrDialect = class extends _.Dialect {
     }
 
     parsePtrType(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            const memorySpace = content.slice(1, -1);
+        if (parser.parseOptionalLess()) {
+            const memorySpace = parser.parseAttribute();
+            parser.parseGreater();
             return new _.ptr.PtrType(memorySpace);
         }
-        return parser.parseType();
+        return new _.ptr.PtrType(null);
     }
 
     inferResultTypes(op, vars) {
@@ -18031,7 +18131,28 @@ _.ptr.PtrDialect = class extends _.Dialect {
     }
 };
 
-_.EmitCDialect = class extends _.Dialect {
+_.emitc = {};
+
+_.emitc.LValueType = class extends _.Type {
+
+    constructor(valueType) {
+        super(null);
+        this.valueType = valueType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const valueType = parser.parseType();
+        parser.parseGreater();
+        return new _.emitc.LValueType(valueType);
+    }
+
+    toString() {
+        return `!emitc.lvalue<${this.valueType}>`;
+    }
+};
+
+_.emitc.EmitCDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'emitc');
@@ -18130,11 +18251,7 @@ _.EmitCDialect = class extends _.Dialect {
     }
 
     parseLValueType(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            return new _.Type(`!emitc.lvalue${content}`);
-        }
-        return null;
+        return _.emitc.LValueType.parse(parser);
     }
 
     parseSwitchCases(parser, op /*, args */) {
@@ -19793,7 +19910,88 @@ _.AMDGPUDialect = class extends _.Dialect {
     }
 };
 
-_.NVGPUDialect = class extends _.Dialect {
+_.nvgpu = {};
+
+_.nvgpu.WarpgroupAccumulatorType = class extends _.Type {
+
+    constructor(fragmented) {
+        super(null);
+        this.fragmented = fragmented;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        parser.parseKeyword('fragmented');
+        parser.parseEqual();
+        const fragmented = parser.parseType();
+        parser.parseGreater();
+        return new _.nvgpu.WarpgroupAccumulatorType(fragmented);
+    }
+
+    toString() {
+        return `!nvgpu.warpgroup.accumulator<fragmented = ${this.fragmented}>`;
+    }
+};
+
+_.nvgpu.WarpgroupMatrixDescriptorType = class extends _.Type {
+
+    constructor(tensor) {
+        super(null);
+        this.tensor = tensor;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        parser.parseKeyword('tensor');
+        parser.parseEqual();
+        const tensor = parser.parseType();
+        parser.parseGreater();
+        return new _.nvgpu.WarpgroupMatrixDescriptorType(tensor);
+    }
+
+    toString() {
+        return `!nvgpu.warpgroup.descriptor<tensor = ${this.tensor}>`;
+    }
+};
+
+_.nvgpu.MBarrierGroupType = class extends _.Type {
+
+    constructor(memorySpace, numBarriers) {
+        super(null);
+        this.memorySpace = memorySpace;
+        this.numBarriers = numBarriers;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        let memorySpace = null;
+        let numBarriers = 1;
+        do {
+            const key = parser.parseKeyword();
+            parser.parseEqual();
+            if (key === 'memorySpace') {
+                memorySpace = parser.parseAttribute();
+            } else if (key === 'num_barriers') {
+                numBarriers = parser.parseInteger();
+            }
+        } while (parser.parseOptionalComma());
+        parser.parseGreater();
+        return new _.nvgpu.MBarrierGroupType(memorySpace, numBarriers);
+    }
+
+    toString() {
+        const parts = [];
+        if (this.memorySpace !== null) {
+            parts.push(`memorySpace = ${this.memorySpace}`);
+        }
+        if (this.numBarriers !== 1) {
+            parts.push(`num_barriers = ${this.numBarriers}`);
+        }
+        return `!nvgpu.mbarrier.group<${parts.join(', ')}>`;
+    }
+};
+
+_.nvgpu.NVGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'nvgpu');
@@ -19812,27 +20010,15 @@ _.NVGPUDialect = class extends _.Dialect {
     }
 
     parseWarpgroupAccumulator(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            return new _.Type(`!nvgpu.warpgroup.accumulator${content}`);
-        }
-        return null;
+        return _.nvgpu.WarpgroupAccumulatorType.parse(parser);
     }
 
     parseWarpgroupMatrixDescriptor(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            return new _.Type(`!nvgpu.warpgroup.descriptor${content}`);
-        }
-        return null;
+        return _.nvgpu.WarpgroupMatrixDescriptorType.parse(parser);
     }
 
     parseMBarrierGroup(parser) {
-        const content = parser.parseTypeParameters();
-        if (content) {
-            return new _.Type(`!nvgpu.mbarrier.barrier${content}`);
-        }
-        return null;
+        return _.nvgpu.MBarrierGroupType.parse(parser);
     }
 };
 
@@ -20171,23 +20357,30 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
-    parseLinearClause(parser, result) {
-        // C++ format: %var : type = %step : type, ...
-        const unresolvedLinearVars = [];
-        const linearVarTypes = [];
-        const unresolvedStepVars = [];
-        const stepVarTypes = [];
+    parseLinearClause(parser, op, linearVars, linearTypes, linearStepVars, linearStepTypes, linearModifiersAttr) {
+        const modifiers = [];
         parser.parseCommaSeparatedList('none', () => {
-            unresolvedLinearVars.push(parser.parseOperand());
+            const modifier = parser.parseOptionalKeyword(['val', 'ref', 'uval']);
+            if (modifier) {
+                parser.parseLParen();
+            }
+            linearVars.push(parser.parseOperand());
             parser.parseColon();
-            linearVarTypes.push(parser.parseType());
+            linearTypes.push(parser.parseType());
             parser.parseEqual();
-            unresolvedStepVars.push(parser.parseOperand());
+            linearStepVars.push(parser.parseOperand());
             parser.parseColon();
-            stepVarTypes.push(parser.parseType());
+            linearStepTypes.push(parser.parseType());
+            if (modifier) {
+                parser.parseRParen();
+            }
+            modifiers.push(modifier || null);
         });
-        parser.resolveOperands(unresolvedLinearVars, linearVarTypes, result.operands);
-        parser.resolveOperands(unresolvedStepVars, stepVarTypes, result.operands);
+        if (modifiers.some((m) => m !== null)) {
+            op.addAttribute(linearModifiersAttr, modifiers);
+        }
+        parser.resolveOperands(linearVars, linearTypes, op.operands);
+        parser.resolveOperands(linearStepVars, linearStepTypes, op.operands);
     }
 
     parseUniformClause(parser, result, uniformVars, uniformTypes) {
@@ -23702,7 +23895,7 @@ _.SdfgDialect = class extends _.Dialect {
                     result.addTypes([result.operands[0].type]);
                 } else {
                     // Fallback: use a generic memref type
-                    result.addTypes([new _.UnrankedMemRefType(new _.Type('f32'))]);
+                    result.addTypes([new _.UnrankedMemRefType(new _.FloatType('f32'))]);
                 }
             }
             return true;
