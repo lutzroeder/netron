@@ -1058,6 +1058,38 @@ tablegen.Record = class {
                             return null;
                         }
                     }
+                    // Handle DAG values representing class instantiations with template args
+                    // e.g., OpenMP_MapClauseSkip<assemblyFormat = true> is stored as a DAG
+                    if (baseValue && typeof baseValue === 'object' && baseValue.operator) {
+                        const className = baseValue.operator;
+                        const baseClass = this.parser.getClass(className);
+                        if (baseClass) {
+                            const templateArgs = baseValue.operands ? baseValue.operands.map((op) => {
+                                if (op.name && op.value) {
+                                    return op;
+                                }
+                                return op.value || op;
+                            }) : [];
+                            const instantiated = new tablegen.Record(`<anonymous ${className}>`, this.parser);
+                            instantiated.parents = [{ name: className, args: templateArgs }];
+                            this.parser.addSubClass(instantiated);
+                            instantiated.resolveReferences();
+                            let current = instantiated;
+                            for (const fieldName of fieldPath) {
+                                const field = current.getValue(fieldName);
+                                if (!field || !field.value) {
+                                    return null;
+                                }
+                                const evaluated = current.evaluateValue(field.value, visited);
+                                if (typeof evaluated === 'string' && (this.parser.getDef(evaluated) || this.parser.getClass(evaluated))) {
+                                    current = this.parser.getDef(evaluated) || this.parser.getClass(evaluated);
+                                } else {
+                                    return evaluated;
+                                }
+                            }
+                            return null;
+                        }
+                    }
                     return null;
                 }
                 if (this.templateBindings.has(defName)) {
