@@ -409,11 +409,11 @@ const schema = async () => {
         const name = operation.name.replace(/^(asuka|stablehlo|vhlo|chlo|affine|linalg|memref|quant|vector|tosa|tfl|tf|onnx|torch\.aten|gpu)\./, '').replace(/_v\d+$/, '');
         if (['reshape', 'broadcast_in_dim', 'dynamic_reshape', 'Reshape', 'Shape', 'Size', 'ConstantOfShape'].includes(name)) {
             operation.category = 'Shape';
-        } else if (['transpose', 'reverse', 'pad', 'Transpose', 'Pad'].includes(name)) {
+        } else if (['transpose', 'transpose.int', 'reverse', 'pad', 'Transpose', 'Pad', 'embedding'].includes(name)) {
             operation.category = 'Transform';
         } else if (['slice', 'split', 'dynamic_slice', 'gather', 'scatter', 'Slice', 'Gather', 'Scatter', 'concat', 'concatenate'].includes(name)) {
             operation.category = 'Tensor';
-        } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', 'sigmoid', 'relu', 'clamp'].includes(name)) {
+        } else if (['tanh', 'Sigmoid', 'Tanh', 'Relu', 'Softmax', 'softmax', '_softmax', 'sigmoid', 'relu', 'clamp'].includes(name)) {
             operation.category = 'Activation';
         } else if (['convolution', 'Conv', 'conv2d', 'conv3d', 'fully_connected', 'conv_2d'].includes(name)) {
             operation.category = 'Layer';

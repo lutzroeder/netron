@@ -11228,6 +11228,28 @@ _.hlo.HLODialect = class extends _.Dialect {
 
 _.stablehlo = {};
 
+_.stablehlo.FutureType = class extends _.Type {
+
+    constructor(types) {
+        super(null);
+        this.types = types;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const types = [];
+        do {
+            types.push(parser.parseType());
+        } while (parser.parseOptionalComma());
+        parser.parseGreater();
+        return new _.stablehlo.FutureType(types);
+    }
+
+    toString() {
+        return `!stablehlo.future<${this.types.map((t) => t.toString()).join(', ')}>`;
+    }
+};
+
 _.stablehlo.StableHLODialect = class extends _.hlo.HLODialect {
 
     constructor(operations) {
@@ -11239,6 +11261,9 @@ _.stablehlo.StableHLODialect = class extends _.hlo.HLODialect {
         const mnemonic = parser.parseKeyword();
         if (mnemonic === 'token') {
             return new _.Type(`!${dialect}.token`);
+        }
+        if (mnemonic === 'future') {
+            return _.stablehlo.FutureType.parse(parser);
         }
         parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
@@ -11448,6 +11473,14 @@ _.vhlo.VhloDialect = class extends _.Dialect {
                 const shape = reader.readSignedVarInts().map(BigInt);
                 const elementType = reader.readType();
                 return new _.RankedTensorType(shape, elementType);
+            }
+            case 42: { // FutureV1Type
+                const numTypes = reader.readVarInt();
+                const types = [];
+                for (let i = 0; i < numTypes; i++) {
+                    types.push(reader.readType());
+                }
+                return new _.stablehlo.FutureType(types);
             }
             default:
                 throw new mlir.Error(`Unknown vhlo type code '${code}'.`);
@@ -27458,7 +27491,7 @@ mlir.Metadata = class {
 
     static async open(context) {
         if (!mlir.Metadata._metadata) {
-            const data = await context.request('mlir-metadata.json');
+            const data = await context.asset('mlir-metadata.json');
             mlir.Metadata._metadata = new mlir.Metadata(data);
         }
         return mlir.Metadata._metadata;
