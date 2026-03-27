@@ -390,7 +390,8 @@ ncnn.Node = class {
             case 'Embed': {
                 const num_output = parseInt(params.get('0') || 0, 10);
                 const weight_data_size = parseInt(params.get('3') || 0, 10);
-                blobs.weight('weight', [weight_data_size / num_output, num_output]);
+                const num_input = num_output > 0 ? Math.floor(weight_data_size / num_output) : 0;
+                blobs.weight('weight', [num_input, num_output]);
                 if (parseInt(params.get('2') || 0, 10) === 1) {
                     blobs.weight('bias', [num_output], 1);
                 }
@@ -405,7 +406,8 @@ ncnn.Node = class {
                 const kernel_w = parseInt(params.get('1') || 0, 10);
                 const kernel_h = parseInt(params.get('11') || kernel_w, 10);
                 const weight_data_size = parseInt(params.get('6') || 0, 10);
-                blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_h, kernel_w]);
+                const num_input = num_output * kernel_w * kernel_h > 0 ? Math.floor(weight_data_size / (num_output * kernel_w * kernel_h)) : 0;
+                blobs.weight('weight', [num_output, num_input, kernel_h, kernel_w]);
                 if (parseInt(params.get('5') || 0, 10) === 1) {
                     blobs.weight('bias', [num_output], 1);
                 }
@@ -447,7 +449,8 @@ ncnn.Node = class {
                 const dynamic_weight = parseInt(params.get('19') || 0, 10);
                 if (!dynamic_weight) {
                     const weight_data_size = parseInt(params.get('6') || 0, 10);
-                    blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w), kernel_w]);
+                    const num_input = num_output * kernel_w > 0 ? Math.floor(weight_data_size / (num_output * kernel_w)) : 0;
+                    blobs.weight('weight', [num_output, num_input, kernel_w]);
                     if (parseInt(params.get('5') || 0, 10) === 1) {
                         blobs.weight('bias', [num_output], 1);
                     }
@@ -476,7 +479,8 @@ ncnn.Node = class {
                 const dynamic_weight = parseInt(params.get('28') || 0, 10);
                 if (!dynamic_weight) {
                     const weight_data_size = parseInt(params.get('6') || 0, 10);
-                    blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w), kernel_w]);
+                    const num_input = num_output * kernel_w > 0 ? Math.floor(weight_data_size / (num_output * kernel_w)) : 0;
+                    blobs.weight('weight', [num_output, num_input, kernel_w]);
                     if (parseInt(params.get('5') || 0, 10) === 1) {
                         blobs.weight('bias', [num_output], 1);
                     }
@@ -492,7 +496,8 @@ ncnn.Node = class {
                 const kernel_h = parseInt(params.get('11') || kernel_w, 10);
                 const kernel_d = parseInt(params.get('21') || kernel_w, 10);
                 const weight_data_size = parseInt(params.get('6') || 0, 10);
-                blobs.weight('weight', [num_output, weight_data_size / (num_output * kernel_w * kernel_h * kernel_d), kernel_d, kernel_h, kernel_w]);
+                const num_input = num_output * kernel_w * kernel_h * kernel_d > 0 ? Math.floor(weight_data_size / (num_output * kernel_w * kernel_h * kernel_d)) : 0;
+                blobs.weight('weight', [num_output, num_input, kernel_d, kernel_h, kernel_w]);
                 if (parseInt(params.get('5') || 0, 10) === 1) {
                     blobs.weight('bias', [num_output], 1);
                 }
@@ -601,7 +606,8 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('1') || 0, 10);
                 const direction = parseInt(params.get('2') || 0, 10);
                 const num_directions = direction === 2 ? 2 : 1;
-                blobs.weight('weight_xc', [num_directions, num_output, weight_data_size / num_directions / num_output]);
+                const num_input = num_directions * num_output > 0 ? Math.floor(weight_data_size / num_directions / num_output) : 0;
+                blobs.weight('weight_xc', [num_directions, num_output, num_input]);
                 blobs.weight('bias_c', [num_directions, num_output]);
                 blobs.weight('weight_hc', [num_directions, num_output, num_output]);
                 params.delete('1');
@@ -612,7 +618,8 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('1') || 0, 10);
                 const direction = parseInt(params.get('2') || 0, 10);
                 const num_directions = direction === 2 ? 2 : 1;
-                blobs.weight('weight_xc', [num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4]);
+                const num_input = num_directions * num_output > 0 ? Math.floor(weight_data_size / num_directions / num_output / 4) : 0;
+                blobs.weight('weight_xc', [num_directions, 4, num_output, num_input]);
                 blobs.weight('bias_c', [num_directions, 4, num_output]);
                 blobs.weight('weight_hc', [num_directions, 4, num_output, num_output]);
                 params.delete('1');
@@ -623,7 +630,8 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(params.get('1') || 0, 10);
                 const direction = parseInt(params.get('2') || 0, 10);
                 const num_directions = direction === 2 ? 2 : 1;
-                blobs.weight('weight_xc', [num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3]);
+                const num_input = num_directions * num_output > 0 ? Math.floor(weight_data_size / num_directions / num_output / 3) : 0;
+                blobs.weight('weight_xc', [num_directions, 3, num_output, num_input]);
                 blobs.weight('bias_c', [num_directions, 4, num_output]);
                 blobs.weight('weight_hc', [num_directions, 3, num_output, num_output]);
                 params.delete('1');
