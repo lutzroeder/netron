@@ -101,7 +101,7 @@ tosa.ModelFactory = class {
             const message = error && error.message ? error.message : error.toString();
             throw new tosa.Error(`File format is not tosa.TosaGraph (${message.replace(/\.$/, '')}).`);
         }
-        const data = await context.request('tosa-metadata.json', 'utf-8', null);
+        const data = await context.asset('tosa-metadata.json');
         const metadata = new tosa.Metadata(data, schema_version);
         return new tosa.Model(new tosa.Context(schema, metadata), model, file_version);
     }

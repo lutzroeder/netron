@@ -76,7 +76,7 @@ browser.Host = class {
             }
             let consent = true;
             try {
-                const text = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000);
+                const text = await this._fetch('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000);
                 const json = JSON.parse(text);
                 const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
                 if (json && json.country && countries.indexOf(json.country) === -1) {
@@ -275,18 +275,22 @@ browser.Host = class {
         }
     }
 
-    async request(file, encoding, base) {
+    async fetch(file, encoding, base) {
         const url = base ? `${base}/${file}` : this._url(file);
-        if (base === null) {
-            this._requests = this._requests || new Map();
-            const key = `${url}:${encoding}`;
-            if (!this._requests.has(key)) {
-                const promise = this._request(url, null, encoding);
-                this._requests.set(key, promise);
-            }
-            return this._requests.get(key);
+        return this._fetch(url, null, encoding);
+    }
+
+    async asset(file) {
+        this._assets = this._assets || new Map();
+        if (!this._assets.has(file)) {
+            const url = this._url(file);
+            const separator = (/\?/).test(url) ? '&' : '?';
+            const tag = this.version && this.version !== '0.0.0' ? `version=${this.version}` : `cb=${new Date().getTime()}`;
+            const request = this._request(`${url}${separator}${tag}`, null, 'utf-8');
+            request.catch(() => this._assets.delete(file));
+            this._assets.set(file, request);
         }
-        return this._request(url, null, encoding);
+        return this._assets.get(file);
     }
 
     openURL(url) {
@@ -352,13 +356,16 @@ browser.Host = class {
         }
     }
 
+    async _fetch(url, headers, encoding, callback, timeout) {
+        if (!url.startsWith('data:')) {
+            const separator = (/\?/).test(url) ? '&' : '?';
+            url = `${url}${separator}cb=${new Date().getTime()}`;
+        }
+        return this._request(url, headers, encoding, callback, timeout);
+    }
+
     async _request(url, headers, encoding, callback, timeout) {
         const window = this.window;
-        if (!url.startsWith('data:')) {
-            const date = new Date().getTime();
-            const separator = (/\?/).test(url) ? '&' : '?';
-            url = `${url}${separator}cb=${date}`;
-        }
         return new Promise((resolve, reject) => {
             const request = new window.XMLHttpRequest();
             if (!encoding) {
@@ -436,13 +443,13 @@ browser.Host = class {
             const progress = (value) => {
                 this._view.progress(value);
             };
-            let stream = await this._request(url, null, null, progress);
+            let stream = await this._fetch(url, null, null, progress);
             if (url.startsWith('https://raw.githubusercontent.com/') && stream.length < 150) {
                 const buffer = stream.peek();
                 const content = Array.from(buffer).map((c) => String.fromCodePoint(c)).join('');
                 if (content.split('\n')[0] === 'version https://git-lfs.github.com/spec/v1') {
                     url = url.replace('https://raw.githubusercontent.com/', 'https://media.githubusercontent.com/media/');
-                    stream = await this._request(url, null, null, progress);
+                    stream = await this._fetch(url, null, null, progress);
                 }
             }
             context = new browser.Context(this, url, identifier, name, stream);
@@ -470,7 +477,7 @@ browser.Host = class {
         this._view.show('welcome spinner');
         const url = `https://api.github.com/gists/${gist}`;
         try {
-            const text = await this._request(url, { 'Content-Type': 'application/json' }, 'utf-8');
+            const text = await this._fetch(url, { 'Content-Type': 'application/json' }, 'utf-8');
             const json = JSON.parse(text);
             let message = json.message;
             let file = null;
@@ -635,9 +642,13 @@ browser.BrowserFileContext = class {
         return this._stream;
     }
 
-    async request(file, encoding, basename) {
+    async asset(file) {
+        return this._host.asset(file);
+    }
+
+    async fetch(file, encoding, basename) {
         if (basename !== undefined) {
-            return this._host.request(file, encoding, basename);
+            return this._host.fetch(file, encoding, basename);
         }
         const blob = this._blobs[file];
         if (!blob) {
@@ -708,7 +719,7 @@ browser.BrowserFileContext = class {
     }
 
     async open() {
-        this._stream = await this.request(this._file.name, null);
+        this._stream = await this.fetch(this._file.name, null);
     }
 };
 
@@ -845,9 +856,13 @@ browser.Context = class {
         return this._stream;
     }
 
-    async request(file, encoding, base) {
+    async asset(file) {
+        return this._host.asset(file);
+    }
+
+    async fetch(file, encoding, base) {
         base = base === undefined ? this._base : base;
-        return this._host.request(file, encoding, base);
+        return this._host.fetch(file, encoding, base);
     }
 
     async require(id) {

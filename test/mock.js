@@ -29,8 +29,12 @@ mock.Context = class {
         return this._entries;
     }
 
-    async request(file, encoding, base) {
-        return this._host.request(file, encoding, base === undefined ? this._folder : base);
+    async asset(file) {
+        return this._host.asset(file);
+    }
+
+    async fetch(file, encoding, base) {
+        return this._host.fetch(file, encoding, base === undefined ? this._folder : base);
     }
 
     async require(id) {
@@ -352,7 +356,11 @@ mock.Host = class {
         return worker;
     }
 
-    async request(file, encoding, basename) {
+    async asset(file) {
+        return this.fetch(file, 'utf-8', null);
+    }
+
+    async fetch(file, encoding, basename) {
         const pathname = path.join(basename || mock.Host.source, file);
         const exists = await this._access(pathname);
         if (!exists) {

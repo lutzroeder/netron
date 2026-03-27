@@ -293,7 +293,7 @@ espdl.Metadata = class {
         if (!espdl.Metadata._metadata) {
             let data = null;
             try {
-                data = await context.request('espdl-metadata.json');
+                data = await context.asset('espdl-metadata.json');
             } catch {
                 // continue regardless of error
             }

@@ -190,7 +190,7 @@ tengine.Metadata = class {
         if (!tengine.Metadata._metadata) {
             let data = null;
             try {
-                data = await context.request('tengine-metadata.json');
+                data = await context.asset('tengine-metadata.json');
             } catch {
                 // continue regardless of error
             }

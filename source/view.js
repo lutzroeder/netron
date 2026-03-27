@@ -6626,18 +6626,18 @@ view.Context = class {
     }
 
     get container() {
-        if (this._context instanceof view.EntryContext) {
+        if (this._context instanceof view.Container) {
             return this._context;
         }
         return null;
     }
 
-    async request(file) {
-        return this._context.request(file, 'utf-8', null);
+    async asset(file) {
+        return this._context.asset(file);
     }
 
     async fetch(file) {
-        const stream = await this._context.request(file, null, this._base);
+        const stream = await this._context.fetch(file, null, this._base);
         return new view.Context(this._context, file, stream);
     }
 
@@ -6645,7 +6645,7 @@ view.Context = class {
         if (stream instanceof Uint8Array) {
             stream = new base.BinaryStream(stream);
         }
-        const context = entries instanceof Map ? new view.EntryContext(this._context, entries) : this._context;
+        const context = entries instanceof Map ? new view.Container(this._context, entries) : this._context;
         return new view.Context(context, identifier, stream);
     }
 
@@ -7070,17 +7070,18 @@ view.Context = class {
     }
 };
 
-view.EntryContext = class {
+view.Container = class {
 
     constructor(host, entries) {
         this._host = host;
         this._entries = entries;
     }
 
-    async request(file, encoding, base) {
-        if (base === null) {
-            return this._host.request(file, encoding, base);
-        }
+    async asset(file) {
+        return this._host.asset(file);
+    }
+
+    async fetch(file, encoding, base) {
         let stream = null;
         if (typeof base === 'string') {
             stream = this._entries.get(`${base}/${file}`) || this._entries.get(`${base}\\${file}`);
@@ -7235,11 +7236,11 @@ view.ModelFactoryService = class {
                 if (!check(entries)) {
                     await this._unsupported(content);
                 }
-                const entryContext = await this._openEntries(entries);
-                if (!entryContext) {
+                const container = await this._openEntries(entries);
+                if (!container) {
                     await this._unsupported(content);
                 }
-                model = await this._openContext(entryContext);
+                model = await this._openContext(container);
             }
             if (!model.format || typeof model.format !== 'string' || model.format.length === 0) {
                 throw new view.Error('Invalid model format name.');
@@ -7647,11 +7648,11 @@ view.ModelFactoryService = class {
                 entries = new Map(Array.from(entries)
                     .filter(([path]) => path.startsWith(folder))
                     .map(([path, stream]) => [path.substring(folder.length), stream]));
-                const entryContext = new view.EntryContext(this._host, entries);
+                const container = new view.Container(this._host, entries);
                 let matches = [];
                 for (const [name, stream] of queue) {
                     const identifier = name.substring(folder.length);
-                    const context = new view.Context(entryContext, identifier, stream);
+                    const context = new view.Context(container, identifier, stream);
                     const modules = this._filter(context);
                     for (const module of modules) {
                         /* eslint-disable no-await-in-loop */
@@ -7811,24 +7812,12 @@ view.ModelFactoryService = class {
 
     async import() {
         if (this._host.type === 'Browser' || this._host.type === 'Python') {
-            const files = [
-                './message', './onnx', './pytorch', './tflite', './mlnet',
-                './onnx-proto', './onnx-schema', './tflite-schema',
-                'onnx-metadata.json', 'pytorch-metadata.json', 'tflite-metadata.json'
-            ];
-            for (const file of files) {
-                /* eslint-disable no-await-in-loop */
-                try {
-                    if (file.startsWith('./')) {
-                        await this._host.require(file);
-                    } else if (file.endsWith('.json')) {
-                        await this._host.request(file, 'utf-8', null);
-                    }
-                } catch {
-                    // continue regardless of error
-                }
-                /* eslint-enable no-await-in-loop */
-            }
+            const modules = ['./message', './onnx', './pytorch', './tflite', './mlnet', './onnx-proto', './onnx-schema', './tflite-schema'];
+            const assets = ['onnx-metadata.json', 'pytorch-metadata.json', 'tflite-metadata.json'];
+            await Promise.all([
+                ...modules.map((module) => this._host.require(module).catch(() => {})),
+                ...assets.map((asset) => this._host.asset(asset).catch(() => {})),
+            ]);
         }
     }
 };
@@ -7841,7 +7830,7 @@ view.Metadata = class {
         if (!metadata.has(name)) {
             let data = null;
             try {
-                data = await context.request(name);
+                data = await context.asset(name);
             } catch {
                 // continue regardless of error
             }

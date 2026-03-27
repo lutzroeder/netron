@@ -1333,7 +1333,7 @@ onnx.Metadata = class {
         if (!onnx.Metadata._metadata) {
             let data = null;
             try {
-                data = await context.request('onnx-metadata.json');
+                data = await context.asset('onnx-metadata.json');
             } catch {
                 // continue regardless of error
             }

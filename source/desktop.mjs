@@ -342,7 +342,11 @@ desktop.Host = class {
         });
     }
 
-    async request(file, encoding, basename) {
+    async asset(file) {
+        return this.fetch(file, 'utf-8', null);
+    }
+
+    async fetch(file, encoding, basename) {
         return new Promise((resolve, reject) => {
             const dirname = path.dirname(url.fileURLToPath(import.meta.url));
             const pathname = path.join(basename || dirname, file);
@@ -434,7 +438,7 @@ desktop.Host = class {
         const stat = fs.statSync(location);
         if (stat.isFile()) {
             const dirname = path.dirname(location);
-            const stream = await this.request(basename, null, dirname);
+            const stream = await this.fetch(basename, null, dirname);
             return new desktop.Context(this, dirname, basename, stream);
         } else if (stat.isDirectory()) {
             const entries = new Map();
@@ -645,8 +649,12 @@ desktop.Context = class {
         return this._entries;
     }
 
-    async request(file, encoding, base) {
-        return this._host.request(file, encoding, base === undefined ? this._folder : base);
+    async asset(file) {
+        return this._host.asset(file);
+    }
+
+    async fetch(file, encoding, base) {
+        return this._host.fetch(file, encoding, base === undefined ? this._folder : base);
     }
 
     async require(id) {
