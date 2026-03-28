@@ -181,6 +181,7 @@ python.Execution = class {
         this.register('__torch__');
         const sys = this.register('sys');
         sys.modules = this._modules;
+        this.register('ubjson');
         this.register('xgboost');
         this.registerType('ast.AST', class {});
         this.registerType('ast.mod', class extends ast.AST {});
@@ -4527,20 +4528,256 @@ python.Execution = class {
         types.FunctionType = builtins.function;
         types.TypeType = builtins.type;
         types.CodeType = builtins.code;
+        this.registerFunction('ubjson.loadb', (data) => {
+            const buffer = data instanceof Uint8Array ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength) : new Uint8Array(data);
+            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+            const utf8 = new TextDecoder('utf-8');
+            let p = 0;
+            const integer = () => {
+                const m = buffer[p++];
+                switch (m) {
+                    case 0x69: return view.getInt8(p++);
+                    case 0x55: return view.getUint8(p++);
+                    case 0x49: {
+                        const v = view.getInt16(p);
+                        p += 2;
+                        return v;
+                    }
+                    case 0x6C: {
+                        const v = view.getInt32(p);
+                        p += 4;
+                        return v;
+                    }
+                    case 0x4C: {
+                        const v = view.getBigInt64(p);
+                        p += 8;
+                        return Number(v);
+                    }
+                    default: throw new python.Error(`UBJSON integer '0x${m.toString(16)}'.`);
+                }
+            };
+            const str = () => {
+                const n = integer();
+                const s = utf8.decode(buffer.subarray(p, p + n));
+                p += n;
+                return s;
+            };
+            const typed = (t, n) => {
+                const a = new Array(n);
+                switch (t) {
+                    case 0x69:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = view.getInt8(p);
+                            p += 1;
+                        }
+                        return a;
+                    case 0x55:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = view.getUint8(p);
+                            p += 1;
+                        }
+                        return a;
+                    case 0x49:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = view.getInt16(p);
+                            p += 2;
+                        }
+                        return a;
+                    case 0x6C:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = view.getInt32(p);
+                            p += 4;
+                        }
+                        return a;
+                    case 0x4C:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = Number(view.getBigInt64(p));
+                            p += 8;
+                        }
+                        return a;
+                    case 0x64:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = view.getFloat32(p);
+                            p += 4;
+                        }
+                        return a;
+                    case 0x44:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = view.getFloat64(p);
+                            p += 8;
+                        }
+                        return a;
+                    case 0x54: return new Array(n).fill(true);
+                    case 0x46: return new Array(n).fill(false);
+                    case 0x5A: return new Array(n).fill(null);
+                    case 0x53:
+                        for (let i = 0; i < n; i++) {
+                            a[i] = str();
+                        }
+                        return a;
+                    default: throw new python.Error(`UBJSON typed array '0x${t.toString(16)}'.`);
+                }
+            };
+            const value = () => {
+                const m = buffer[p++];
+                switch (m) {
+                    case 0x5A: return null;
+                    case 0x54: return true;
+                    case 0x46: return false;
+                    case 0x69: return view.getInt8(p++);
+                    case 0x55: return view.getUint8(p++);
+                    case 0x49: {
+                        const v = view.getInt16(p);
+                        p += 2;
+                        return v;
+                    }
+                    case 0x6C: {
+                        const v = view.getInt32(p);
+                        p += 4;
+                        return v;
+                    }
+                    case 0x4C: {
+                        const v = view.getBigInt64(p);
+                        p += 8;
+                        return Number(v);
+                    }
+                    case 0x64: {
+                        const v = view.getFloat32(p);
+                        p += 4;
+                        return v;
+                    }
+                    case 0x44: {
+                        const v = view.getFloat64(p);
+                        p += 8;
+                        return v;
+                    }
+                    case 0x53: return str();
+                    case 0x7B: {
+                        const o = {};
+                        if (buffer[p] === 0x7D) {
+                            p++;
+                            return o;
+                        }
+                        let n = -1;
+                        if (buffer[p] === 0x23) {
+                            p++;
+                            n = integer();
+                        }
+                        if (n >= 0) {
+                            for (let i = 0; i < n; i++) {
+                                const k = str();
+                                o[k] = value();
+                            }
+                        } else {
+                            while (buffer[p] !== 0x7D) {
+                                const k = str();
+                                o[k] = value();
+                            }
+                            p++;
+                        }
+                        return o;
+                    }
+                    case 0x5B: {
+                        if (buffer[p] === 0x5D) {
+                            p++;
+                            return [];
+                        }
+                        if (buffer[p] === 0x24) {
+                            p++;
+                            const t = buffer[p++];
+                            if (buffer[p++] !== 0x23) {
+                                throw new python.Error('UBJSON typed array missing count.');
+                            }
+                            return typed(t, integer());
+                        }
+                        let n = -1;
+                        if (buffer[p] === 0x23) {
+                            p++;
+                            n = integer();
+                        }
+                        if (n >= 0) {
+                            const a = new Array(n);
+                            for (let i = 0; i < n; i++) {
+                                a[i] = value();
+                            }
+                            return a;
+                        }
+                        const a = [];
+                        while (buffer[p] !== 0x5D) {
+                            a.push(value());
+                        }
+                        p++;
+                        return a;
+                    }
+                    default: throw new python.Error(`UBJSON marker '0x${m.toString(16)}'.`);
+                }
+            };
+            return value();
+        });
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {
-            load_model(fname) {
-                if (fname instanceof Uint8Array) {
-                    // XGBoosterLoadModel()
+            load_model(obj) {
+                if (obj instanceof Uint8Array) {
+                    this.XGBoosterLoadModelFromBuffer(obj);
                 } else {
-                    // XGBoosterUnserializeFromBuffer(handle) {
+                    this.XGBoosterLoadModel(obj);
                 }
+            }
+            XGBoosterLoadModel(obj) {
+                this.version = obj.version;
+                const learner = obj.learner;
+                const mparam = learner.learner_model_param || {};
+                this.base_score = mparam.base_score;
+                this.num_feature = parseInt(mparam.num_feature || '0', 10);
+                this.num_class = parseInt(mparam.num_class || '0', 10);
+                this.num_target = parseInt(mparam.num_target || '1', 10);
+                this.objective = learner.objective ? learner.objective.name : '';
+                this.feature_names = learner.feature_names || [];
+                this.feature_types = learner.feature_types || [];
+                this.attributes = learner.attributes || {};
+                const gb = learner.gradient_booster;
+                if (gb) {
+                    this.booster_type = gb.name;
+                    if (gb.name === 'gbtree' || gb.name === 'dart') {
+                        const gbtree = gb.name === 'dart' && gb.gbtree ? gb.gbtree : gb;
+                        const model = gbtree.model;
+                        const param = model.gbtree_model_param || {};
+                        this.num_trees = parseInt(param.num_trees || '0', 10);
+                        this.num_parallel_tree = parseInt(param.num_parallel_tree || '1', 10);
+                        this.trees = model.trees || [];
+                        this.tree_info = model.tree_info || [];
+                        if (gb.weight_drop) {
+                            this.weight_drop = gb.weight_drop;
+                        }
+                    } else if (gb.name === 'gblinear') {
+                        const model = gb.model;
+                        this.weights = model.weights || [];
+                        this.boosted_rounds = model.boosted_rounds || 0;
+                    }
+                }
+            }
+            XGBoosterLoadModelFromBuffer(buffer) {
+                if (buffer.length > 2 && buffer[0] === 0x7B && buffer[1] !== 0x22) {
+                    const obj = execution.invoke('ubjson.loadb', [buffer]);
+                    this.XGBoosterLoadModel(obj);
+                    return;
+                }
+                throw new python.Error('Unsupported XGBoost binary format.');
+            }
+            XGBoosterUnserializeFromBuffer(buffer) {
+                if (buffer.length > 2 && buffer[0] === 0x7B && buffer[1] !== 0x22) {
+                    const obj = execution.invoke('ubjson.loadb', [buffer]);
+                    this.XGBoosterLoadModel(obj.Model);
+                    return;
+                }
+                throw new python.Error('Unsupported XGBoost binary format.');
             }
             __setstate__(state) {
                 const handle = state.get('handle');
                 if (handle) {
-                    this.handle = handle;
-                    // XGBoosterLoadModelFromBuffer()
+                    if (handle.length > 2 && handle[0] === 0x7B && handle[1] !== 0x22) {
+                        this.XGBoosterUnserializeFromBuffer(handle);
+                    }
                 }
             }
         });

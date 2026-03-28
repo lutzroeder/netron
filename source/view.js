@@ -2922,9 +2922,11 @@ view.Node = class extends grapher.Node {
             for (const argument of inputs) {
                 const type = argument.type;
                 if (argument.visible !== false &&
-                    ((type === 'graph') ||
+                    (type === 'graph' ||
                     (type === 'object' && isObject(argument.value)) ||
-                    (type === 'object[]' || type === 'function' || type === 'function[]'))) {
+                    (type === 'object[]' && Array.isArray(argument.value) && argument.value.length > 0) ||
+                    type === 'function' ||
+                    (type === 'function[]' && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
                 } else if (options.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
                     const item = this.context.createArgument(argument);
@@ -2945,7 +2947,7 @@ view.Node = class extends grapher.Node {
                 if (argument.visible !== false &&
                     ((type === 'graph') ||
                     (type === 'object') ||
-                    type === 'object[]' || type === 'function' || type === 'function[]')) {
+                    ((type === 'object[]' || type === 'function' || type === 'function[]') && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
                 } else if (options.attributes && argument.visible !== false) {
                     const item = attribute(argument);
@@ -2959,7 +2961,7 @@ view.Node = class extends grapher.Node {
                 if (argument.visible !== false &&
                     ((type === 'graph') ||
                     (type === 'object' && isObject(argument.value)) ||
-                    (type === 'object[]' || type === 'function' || type === 'function[]'))) {
+                    ((type === 'object[]' || type === 'function' || type === 'function[]') && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
                 }
             }
@@ -7191,7 +7193,7 @@ view.ModelFactoryService = class {
         this.register('./qnn', ['.json', '.bin', '.serialized', '.dlc']);
         this.register('./espdl', ['.espdl'], [], [/^EDL2/]);
         this.register('./kann', ['.kann', '.bin', '.kgraph'], [], [/^....KaNN/]);
-        this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
+        this.register('./xgboost', ['.xgb', '.xgboost', '.json', '.model', '.bin', '.txt', '.ubj'], [], [/^{L\x00\x00/, /^binf/, /^bs64/, /^\s*booster\[0\]:/]);
         this.register('./tosa', ['.tosa', '.json'], [], [/^....TOSA/]);
         this.register('./transformers', ['.json']);
         this.register('', ['.cambricon', '.vnnmodel', '.nnc']);

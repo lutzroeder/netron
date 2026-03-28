@@ -9035,16 +9035,51 @@
   },
   {
     "type":     "xgboost",
+    "target":   "xgb_booster.json",
+    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.json]",
+    "format":   "XGBoost JSON v3.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_booster.model",
+    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.model]",
+    "error":   "File contains unsupported XGBoost data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_booster.ubj",
+    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.ubj]",
+    "format":   "XGBoost UBJSON v3.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
     "target":   "xgb_classifier.json",
     "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.json]",
-    "format":   "XGBoost JSON v2.1.1",
+    "format":   "XGBoost JSON v2.1.4",
     "link":     "https://github.com/lutzroeder/netron/issues/1452"
   },
   {
     "type":     "xgboost",
     "target":   "xgb_classifier.model",
     "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.model]",
-    "error":    "File contains unsupported XGBoost data.",
+    "format":   "XGBoost UBJSON v2.1.4",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_booster.json",
+    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.json]",
+    "format":   "XGBoost JSON v3.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1452"
+  },
+  {
+    "type":     "xgboost",
+    "target":   "xgb_booster.ubj",
+    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.ubj]",
+    "format":   "XGBoost UBJSON v3.2.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1452"
   },
   {
