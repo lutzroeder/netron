@@ -115,7 +115,7 @@ dnn.Value = class {
         if (quantization) {
             this.quantization = {
                 type: 'lookup',
-                value: new Map(quantization.map((value, index) => [index, value]))
+                value: quantization
             };
         }
     }
