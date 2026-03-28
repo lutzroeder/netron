@@ -1078,7 +1078,7 @@ qnn.Reader = class {
 
     async read() {
         // https://github.com/pytorch/executorch/blob/main/backends/qualcomm/runtime/backends/QnnCustomProtocol.h
-        throw new executorch.Error('QNN backend not implemented.');
+        throw new executorch.Error('Undocumented QNN backend not implemented.');
     }
 };
 
