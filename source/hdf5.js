@@ -890,8 +890,8 @@ hdf5.Dataspace = class {
                     this._maxSizes = [];
                     for (let j = 0; j < this._dimensions; j++) {
                         this._maxSizes.push(reader.length());
-                        if (this._maxSizes[j] !== this._sizes[j]) {
-                            throw new hdf5.Error('Max size is not supported.');
+                        if (this._maxSizes[j] >= 0 && this._sizes[j] > this._maxSizes[j]) {
+                            throw new hdf5.Error('Dimension size exceeds max size.');
                         }
                     }
                 }
