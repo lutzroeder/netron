@@ -996,6 +996,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/func.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/global.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/invalid.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/LLVMIR/types-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/MLProgram/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/MemRef/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/OpenACC/invalid.mlir',
