@@ -46,7 +46,7 @@ const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
     const versions = [
         { version: '0.80', dir: 'v0.80' },
-        { version: '1.x', dir: 'main' }
+        { version: '1.0', dir: 'v1.0' }
     ];
     const files = await Promise.all(versions.map(({ dir }) => {
         const xmlPath = path.join(dirname, '..', 'third_party', 'source', 'tosa', dir, 'tosa.xml');

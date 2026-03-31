@@ -740,13 +740,7 @@ tosa.v1.DType = {
     BF16: 9, '9': 'BF16',
     SHAPE: 10, '10': 'SHAPE',
     FP8E4M3: 11, '11': 'FP8E4M3',
-    FP8E5M2: 12, '12': 'FP8E5M2',
-    FP6E2M3: 13, '13': 'FP6E2M3',
-    FP6E3M2: 14, '14': 'FP6E3M2',
-    FP4E2M1: 15, '15': 'FP4E2M1',
-    FP8UE8M0: 16, '16': 'FP8UE8M0',
-    INT64: 17, '17': 'INT64',
-    MXINT8: 18, '18': 'MXINT8'
+    FP8E5M2: 12, '12': 'FP8E5M2'
 };
 
 tosa.v1.ResizeMode = {
@@ -766,11 +760,6 @@ tosa.v1.RoundingMode = {
     SINGLE_ROUND: 1, '1': 'SINGLE_ROUND',
     INEXACT_ROUND: 2, '2': 'INEXACT_ROUND',
     DOUBLE_ROUND: 3, '3': 'DOUBLE_ROUND'
-};
-
-tosa.v1.BlockSize = {
-    UNKNOWN: 0, '0': 'UNKNOWN',
-    BLOCK_SIZE_32: 32, '32': 'BLOCK_SIZE_32'
 };
 
 tosa.v1.Op = {
@@ -849,26 +838,7 @@ tosa.v1.Op = {
     VARIABLE: 72, '72': 'VARIABLE',
     VARIABLE_WRITE: 73, '73': 'VARIABLE_WRITE',
     VARIABLE_READ: 74, '74': 'VARIABLE_READ',
-    CONST_SHAPE: 75, '75': 'CONST_SHAPE',
-    MATMUL_T_BLOCK_SCALED: 76, '76': 'MATMUL_T_BLOCK_SCALED',
-    CAST_FROM_BLOCK_SCALED: 77, '77': 'CAST_FROM_BLOCK_SCALED',
-    CAST_TO_BLOCK_SCALED: 78, '78': 'CAST_TO_BLOCK_SCALED',
-    DIM: 79, '79': 'DIM',
-    CONCAT_SHAPE: 80, '80': 'CONCAT_SHAPE',
-    ADD_SHAPE: 81, '81': 'ADD_SHAPE',
-    SUB_SHAPE: 82, '82': 'SUB_SHAPE',
-    MUL_SHAPE: 83, '83': 'MUL_SHAPE',
-    SLICE_SHAPE: 84, '84': 'SLICE_SHAPE',
-    EXP2_SHAPE: 85, '85': 'EXP2_SHAPE',
-    LOG2_CEIL_SHAPE: 86, '86': 'LOG2_CEIL_SHAPE',
-    LOG2_FLOOR_SHAPE: 87, '87': 'LOG2_FLOOR_SHAPE',
-    MAX_SHAPE: 88, '88': 'MAX_SHAPE',
-    MIN_SHAPE: 89, '89': 'MIN_SHAPE',
-    MOD_SHAPE: 90, '90': 'MOD_SHAPE',
-    DIV_CEIL_SHAPE: 91, '91': 'DIV_CEIL_SHAPE',
-    DIV_FLOOR_SHAPE: 92, '92': 'DIV_FLOOR_SHAPE',
-    ASSERT_EQUAL_SHAPE: 93, '93': 'ASSERT_EQUAL_SHAPE',
-    CONV2D_BLOCK_SCALED: 94, '94': 'CONV2D_BLOCK_SCALED'
+    CONST_SHAPE: 75, '75': 'CONST_SHAPE'
 };
 
 tosa.v1.Attribute = class {
@@ -950,25 +920,6 @@ tosa.v1.Attribute = class {
             case 73: return tosa.v1.VariableWriteAttribute.decode(reader, position);
             case 74: return tosa.v1.VariableReadAttribute.decode(reader, position);
             case 75: return tosa.v1.ConstShapeAttribute.decode(reader, position);
-            case 76: return tosa.v1.MatMulTBlockScaledAttribute.decode(reader, position);
-            case 77: return tosa.v1.CastFromBlockScaledAttribute.decode(reader, position);
-            case 78: return tosa.v1.CastToBlockScaledAttribute.decode(reader, position);
-            case 79: return tosa.v1.DimAttribute.decode(reader, position);
-            case 80: return tosa.v1.ConcatShapeAttribute.decode(reader, position);
-            case 81: return tosa.v1.AddShapeAttribute.decode(reader, position);
-            case 82: return tosa.v1.SubShapeAttribute.decode(reader, position);
-            case 83: return tosa.v1.MulShapeAttribute.decode(reader, position);
-            case 84: return tosa.v1.SliceShapeAttribute.decode(reader, position);
-            case 85: return tosa.v1.Exp2ShapeAttribute.decode(reader, position);
-            case 86: return tosa.v1.Log2CeilShapeAttribute.decode(reader, position);
-            case 87: return tosa.v1.Log2FloorShapeAttribute.decode(reader, position);
-            case 88: return tosa.v1.MaxShapeAttribute.decode(reader, position);
-            case 89: return tosa.v1.MinShapeAttribute.decode(reader, position);
-            case 90: return tosa.v1.ModShapeAttribute.decode(reader, position);
-            case 91: return tosa.v1.DivCeilShapeAttribute.decode(reader, position);
-            case 92: return tosa.v1.DivFloorShapeAttribute.decode(reader, position);
-            case 93: return tosa.v1.AssertEqualShapeAttribute.decode(reader, position);
-            case 94: return tosa.v1.Conv2dBlockScaledAttribute.decode(reader, position);
             default: return undefined;
         }
     }
@@ -1050,25 +1001,6 @@ tosa.v1.Attribute = class {
             case 'VariableWriteAttribute': return tosa.v1.VariableWriteAttribute.decodeText(reader, json);
             case 'VariableReadAttribute': return tosa.v1.VariableReadAttribute.decodeText(reader, json);
             case 'ConstShapeAttribute': return tosa.v1.ConstShapeAttribute.decodeText(reader, json);
-            case 'MatMulTBlockScaledAttribute': return tosa.v1.MatMulTBlockScaledAttribute.decodeText(reader, json);
-            case 'CastFromBlockScaledAttribute': return tosa.v1.CastFromBlockScaledAttribute.decodeText(reader, json);
-            case 'CastToBlockScaledAttribute': return tosa.v1.CastToBlockScaledAttribute.decodeText(reader, json);
-            case 'DimAttribute': return tosa.v1.DimAttribute.decodeText(reader, json);
-            case 'ConcatShapeAttribute': return tosa.v1.ConcatShapeAttribute.decodeText(reader, json);
-            case 'AddShapeAttribute': return tosa.v1.AddShapeAttribute.decodeText(reader, json);
-            case 'SubShapeAttribute': return tosa.v1.SubShapeAttribute.decodeText(reader, json);
-            case 'MulShapeAttribute': return tosa.v1.MulShapeAttribute.decodeText(reader, json);
-            case 'SliceShapeAttribute': return tosa.v1.SliceShapeAttribute.decodeText(reader, json);
-            case 'Exp2ShapeAttribute': return tosa.v1.Exp2ShapeAttribute.decodeText(reader, json);
-            case 'Log2CeilShapeAttribute': return tosa.v1.Log2CeilShapeAttribute.decodeText(reader, json);
-            case 'Log2FloorShapeAttribute': return tosa.v1.Log2FloorShapeAttribute.decodeText(reader, json);
-            case 'MaxShapeAttribute': return tosa.v1.MaxShapeAttribute.decodeText(reader, json);
-            case 'MinShapeAttribute': return tosa.v1.MinShapeAttribute.decodeText(reader, json);
-            case 'ModShapeAttribute': return tosa.v1.ModShapeAttribute.decodeText(reader, json);
-            case 'DivCeilShapeAttribute': return tosa.v1.DivCeilShapeAttribute.decodeText(reader, json);
-            case 'DivFloorShapeAttribute': return tosa.v1.DivFloorShapeAttribute.decodeText(reader, json);
-            case 'AssertEqualShapeAttribute': return tosa.v1.AssertEqualShapeAttribute.decodeText(reader, json);
-            case 'Conv2dBlockScaledAttribute': return tosa.v1.Conv2dBlockScaledAttribute.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2173,286 +2105,6 @@ tosa.v1.ConstShapeAttribute = class ConstShapeAttribute {
     }
 };
 
-tosa.v1.MatMulTBlockScaledAttribute = class MatMulTBlockScaledAttribute {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.MatMulTBlockScaledAttribute();
-        $.block_size = reader.uint32_(position, 4, 0);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.MatMulTBlockScaledAttribute();
-        $.block_size = tosa.v1.BlockSize[json.block_size];
-        return $;
-    }
-};
-
-tosa.v1.CastFromBlockScaledAttribute = class CastFromBlockScaledAttribute {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.CastFromBlockScaledAttribute();
-        $.block_size = reader.uint32_(position, 4, 0);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.CastFromBlockScaledAttribute();
-        $.block_size = tosa.v1.BlockSize[json.block_size];
-        return $;
-    }
-};
-
-tosa.v1.CastToBlockScaledAttribute = class CastToBlockScaledAttribute {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.CastToBlockScaledAttribute();
-        $.block_size = reader.uint32_(position, 4, 0);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.CastToBlockScaledAttribute();
-        $.block_size = tosa.v1.BlockSize[json.block_size];
-        return $;
-    }
-};
-
-tosa.v1.Conv2dBlockScaledAttribute = class Conv2dBlockScaledAttribute {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.Conv2dBlockScaledAttribute();
-        $.block_size = reader.uint32_(position, 4, 0);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.Conv2dBlockScaledAttribute();
-        $.block_size = tosa.v1.BlockSize[json.block_size];
-        return $;
-    }
-};
-
-tosa.v1.SoftwareVersion = class SoftwareVersion {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.SoftwareVersion();
-        $._major = reader.int32_(position, 4, -1);
-        $._minor = reader.int32_(position, 6, -1);
-        $._micro = reader.int32_(position, 8, -1);
-        $._modifier = reader.string_(position, 10, null);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.SoftwareVersion();
-        $._major = reader.value(json._major, -1);
-        $._minor = reader.value(json._minor, -1);
-        $._micro = reader.value(json._micro, -1);
-        $._modifier = reader.value(json._modifier, null);
-        return $;
-    }
-};
-
-tosa.v1.DimAttribute = class DimAttribute {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.DimAttribute();
-        $.axis = reader.int32_(position, 4, 0);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.DimAttribute();
-        $.axis = reader.value(json.axis, 0);
-        return $;
-    }
-};
-
-tosa.v1.ConcatShapeAttribute = class ConcatShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.ConcatShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.ConcatShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.AddShapeAttribute = class AddShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.AddShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.AddShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.SubShapeAttribute = class SubShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.SubShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.SubShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.MulShapeAttribute = class MulShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.MulShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.MulShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.SliceShapeAttribute = class SliceShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.SliceShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.SliceShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.Exp2ShapeAttribute = class Exp2ShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.Exp2ShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.Exp2ShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.Log2CeilShapeAttribute = class Log2CeilShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.Log2CeilShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.Log2CeilShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.Log2FloorShapeAttribute = class Log2FloorShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.Log2FloorShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.Log2FloorShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.MaxShapeAttribute = class MaxShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.MaxShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.MaxShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.MinShapeAttribute = class MinShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.MinShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.MinShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.ModShapeAttribute = class ModShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.ModShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.ModShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.DivCeilShapeAttribute = class DivCeilShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.DivCeilShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.DivCeilShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.DivFloorShapeAttribute = class DivFloorShapeAttribute {
-
-    static decode(/* reader, position */) {
-        const $ = new tosa.v1.DivFloorShapeAttribute();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new tosa.v1.DivFloorShapeAttribute();
-        return $;
-    }
-};
-
-tosa.v1.AssertEqualShapeAttribute = class AssertEqualShapeAttribute {
-
-    static decode(reader, position) {
-        const $ = new tosa.v1.AssertEqualShapeAttribute();
-        $.allow_broadcast = reader.bool_(position, 4, false);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new tosa.v1.AssertEqualShapeAttribute();
-        $.allow_broadcast = reader.value(json.allow_broadcast, false);
-        return $;
-    }
-};
-
 tosa.v1.Version = class Version {
 
     static decode(reader, position) {
@@ -2485,8 +2137,6 @@ tosa.v1.TosaTensor = class TosaTensor {
         $.variable = reader.bool_(position, 12, false);
         $.is_unranked = reader.bool_(position, 14, false);
         $.variable_name = reader.string_(position, 16, null);
-        $.offset = reader.uint64_(position, 18, 0n);
-        $.size = reader.uint64_(position, 20, 0n);
         return $;
     }
 
@@ -2499,8 +2149,6 @@ tosa.v1.TosaTensor = class TosaTensor {
         $.variable = reader.value(json.variable, false);
         $.is_unranked = reader.value(json.is_unranked, false);
         $.variable_name = reader.value(json.variable_name, null);
-        $.offset = reader.uint64(json.offset, 0n);
-        $.size = reader.uint64(json.size, 0n);
         return $;
     }
 };
@@ -2622,7 +2270,6 @@ tosa.v1.TosaGraph = class TosaGraph {
         const $ = new tosa.v1.TosaGraph();
         $.version = reader.table(position, 4, tosa.v1.Version);
         $.regions = reader.tables(position, 6, tosa.v1.TosaRegion);
-        $.software_version = reader.table(position, 8, tosa.v1.SoftwareVersion);
         return $;
     }
 
@@ -2630,7 +2277,6 @@ tosa.v1.TosaGraph = class TosaGraph {
         const $ = new tosa.v1.TosaGraph();
         $.version = reader.object(json.version, tosa.v1.Version);
         $.regions = reader.objects(json.regions, tosa.v1.TosaRegion);
-        $.software_version = reader.object(json.software_version, tosa.v1.SoftwareVersion);
         return $;
     }
 };

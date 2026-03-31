@@ -17,7 +17,7 @@
   },
   {
     "name": "ABS",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -26,7 +26,6 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
@@ -51,7 +50,7 @@
   },
   {
     "name": "ADD",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -61,25 +60,9 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "ADD_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -104,7 +87,7 @@
   },
   {
     "name": "ARGMAX",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" }
     ],
@@ -118,20 +101,11 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(i32_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_t(i16_t)",   "out_t(i32_t)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(i64_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i16_t)",   "out_t(i64_t)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(i64_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "out_t(i32_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "out_t(i32_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(i32_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(i32_t)" ] },
-      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(i32_t)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "out_t(i64_t)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "out_t(i64_t)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(i64_t)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(i64_t)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(i64_t)" ] }
+      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(i32_t)" ] }
     ]
   },
   {
@@ -155,7 +129,7 @@
   },
   {
     "name": "ARITHMETIC_RIGHT_SHIFT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -169,23 +143,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
-    ]
-  },
-  {
-    "name": "ASSERT_EQUAL_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "attributes": [
-      { "name": "allow_broadcast", "type": "boolean", "description": "Allow equality based on broadcast rules" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -217,7 +175,7 @@
   },
   {
     "name": "AVG_POOL2D",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" },
@@ -245,35 +203,6 @@
     ]
   },
   {
-    "name": "AVG_POOL2D_ADAPTIVE",
-    "version": "1.x",
-    "category": "Pool",
-    "inputs": [
-      { "name": "input", "type": "in_out_t", "description": "Input tensor" },
-      { "name": "input_zp", "type": "in_out_t", "description": "Input tensor zero point. Must be zero for non-int8 types." },
-      { "name": "output_zp", "type": "in_out_t", "description": "Output tensor zero point. Must be zero for non-int8 types." },
-      { "name": "kernel", "type": "shape", "description": "[kernel_y, kernel_x]" },
-      { "name": "stride", "type": "shape", "description": "[stride_y, stride_x]" },
-      { "name": "pad", "type": "shape", "description": "[pad_top, pad_bottom, pad_left, pad_right]" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "in_out_t", "description": "Output tensor 4D" }
-    ],
-    "attributes": [
-      { "name": "acc_type", "type": "acc_type_t", "description": "Enumerated type, must be one of INT32, FP16, FP32 matching the type of acc_t in the Supported Data Types table for this operation" }
-    ],
-    "type_constraints": [
-      { "description": "signed 8 with int32 accumulate [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)",   "acc_t(i32_t)" ] },
-      { "description": "signed 16 with int32 accumulate [v1.1]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_out_t(i16_t)",   "acc_t(i32_t)" ] },
-      { "description": "fp8e4m3 with fp16 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp8e5m2 with fp16 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp16 with fp16 accumulate [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp16 with fp32 accumulate [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)",   "acc_t(fp32_t)" ] },
-      { "description": "bf16 with fp32 accumulate [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)",   "acc_t(fp32_t)" ] },
-      { "description": "fp32 with fp32 accumulate [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)",   "acc_t(fp32_t)" ] }
-    ]
-  },
-  {
     "name": "BITWISE_AND",
     "version": "0.80",
     "inputs": [
@@ -291,7 +220,7 @@
   },
   {
     "name": "BITWISE_AND",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -302,8 +231,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -323,7 +251,7 @@
   },
   {
     "name": "BITWISE_NOT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -333,8 +261,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -355,7 +282,7 @@
   },
   {
     "name": "BITWISE_OR",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -366,8 +293,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -388,7 +314,7 @@
   },
   {
     "name": "BITWISE_XOR",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -399,8 +325,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -451,7 +376,7 @@
   },
   {
     "name": "CAST",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" }
     ],
@@ -462,8 +387,6 @@
       { "description": "bool to signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(bool_t)",   "out_t(i8_t)" ] },
       { "description": "bool to signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(bool_t)",   "out_t(i16_t)" ] },
       { "description": "bool to signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(bool_t)",   "out_t(i32_t)" ] },
-      { "description": "bool to signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(bool_t)",   "out_t(i64_t)" ] },
-      { "description": "bool to fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(bool_t)",   "out_t(fp32_t)" ] },
       { "description": "signed 8 to bool [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(bool_t)" ] },
       { "description": "signed 8 to signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(i16_t)" ] },
       { "description": "signed 8 to signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(i32_t)" ] },
@@ -477,11 +400,8 @@
       { "description": "signed 16 to bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(i16_t)",   "out_t(bf16_t)" ] },
       { "description": "signed 16 to fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(i16_t)",   "out_t(fp32_t)" ] },
       { "description": "signed 32 to bool [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(bool_t)" ] },
-      { "description": "signed 64 to bool [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(bool_t)" ] },
       { "description": "signed 32 to signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(i8_t)" ] },
       { "description": "signed 32 to signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(i16_t)" ] },
-      { "description": "signed 32 to signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(i64_t)" ] },
-      { "description": "signed 64 to signed 32 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(i32_t)" ] },
       { "description": "signed 32 to fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(fp16_t)" ] },
       { "description": "signed 32 to bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(bf16_t)" ] },
       { "description": "signed 32 to fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(fp32_t)" ] },
@@ -509,64 +429,7 @@
       { "description": "fp32 to fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(fp8e4m3_t)" ] },
       { "description": "fp32 to fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(fp8e5m2_t)" ] },
       { "description": "fp32 to bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(bf16_t)" ] },
-      { "description": "fp32 to fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(fp16_t)" ] },
-      { "description": "fp32 to bool [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(bool_t)" ] }
-    ]
-  },
-  {
-    "name": "CAST_FROM_BLOCK_SCALED",
-    "version": "1.x",
-    "inputs": [
-      { "name": "input_data", "type": "in_t", "description": "Input data values tensor" },
-      { "name": "input_scale", "type": "scale_t", "description": "Input scale values tensor with the same rank as input_data" }
-    ],
-    "outputs": [
-      { "name": "output_data", "type": "out_t", "description": "Output data values tensor" }
-    ],
-    "attributes": [
-      { "name": "block_size", "type": "block_size_t", "description": "Block size for input_data tensor" }
-    ],
-    "type_constraints": [
-      { "description": "fp4e2m1 with fp8ue8m0 scale to bf16 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp4e2m1_t)",   "scale_t(fp8ue8m0_t)",   "out_t(bf16_t)" ] },
-      { "description": "fp6e2m3 with fp8ue8m0 scale to bf16 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp6e2m3_t)",   "scale_t(fp8ue8m0_t)",   "out_t(bf16_t)" ] },
-      { "description": "fp6e3m2 with fp8ue8m0 scale to bf16 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp6e3m2_t)",   "scale_t(fp8ue8m0_t)",   "out_t(bf16_t)" ] },
-      { "description": "fp8e4m3 with fp8ue8m0 scale to bf16 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "scale_t(fp8ue8m0_t)",   "out_t(bf16_t)" ] },
-      { "description": "fp8e5m2 with fp8ue8m0 scale to bf16 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "scale_t(fp8ue8m0_t)",   "out_t(bf16_t)" ] },
-      { "description": "mxint8 with fp8ue8m0 scale to bf16 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(mxint8_t)",   "scale_t(fp8ue8m0_t)",   "out_t(bf16_t)" ] },
-      { "description": "fp4e2m1 with fp8ue8m0 scale to fp32 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp4e2m1_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp6e2m3 with fp8ue8m0 scale to fp32 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp6e2m3_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp6e3m2 with fp8ue8m0 scale to fp32 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp6e3m2_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e4m3 with fp8ue8m0 scale to fp32 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e5m2 with fp8ue8m0 scale to fp32 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "mxint8 with fp8ue8m0 scale to fp32 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(mxint8_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "CAST_TO_BLOCK_SCALED",
-    "version": "1.x",
-    "inputs": [
-      { "name": "input_data", "type": "in_t", "description": "Input data values tensor" }
-    ],
-    "outputs": [
-      { "name": "output_data", "type": "out_t", "description": "Output data values tensor" },
-      { "name": "output_scale", "type": "scale_t", "description": "Output scale values tensor" }
-    ],
-    "attributes": [
-      { "name": "block_size", "type": "block_size_t", "description": "Block size for output_data tensor" }
-    ],
-    "type_constraints": [
-      { "description": "bf16 to fp4e2m1 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(bf16_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp4e2m1_t)" ] },
-      { "description": "bf16 to fp6e2m3 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(bf16_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp6e2m3_t)" ] },
-      { "description": "bf16 to fp6e3m2 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(bf16_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp6e3m2_t)" ] },
-      { "description": "bf16 to fp8e4m3 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(bf16_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp8e4m3_t)" ] },
-      { "description": "bf16 to fp8e5m2 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(bf16_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp8e5m2_t)" ] },
-      { "description": "bf16 to mxint8 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(bf16_t)",   "scale_t(fp8ue8m0_t)",   "out_t(mxint8_t)" ] },
-      { "description": "fp32 to fp4e2m1 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp32_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp4e2m1_t)" ] },
-      { "description": "fp32 to fp6e2m3 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp32_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp6e2m3_t)" ] },
-      { "description": "fp32 to fp6e3m2 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp32_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp6e3m2_t)" ] },
-      { "description": "fp32 to fp8e4m3 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp32_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp8e4m3_t)" ] },
-      { "description": "fp32 to fp8e5m2 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp32_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp8e5m2_t)" ] },
-      { "description": "fp32 to mxint8 with fp8ue8m0 scale [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp32_t)",   "scale_t(fp8ue8m0_t)",   "out_t(mxint8_t)" ] }
+      { "description": "fp32 to fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(fp16_t)" ] }
     ]
   },
   {
@@ -586,7 +449,7 @@
   },
   {
     "name": "CEIL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -623,7 +486,7 @@
   },
   {
     "name": "CLAMP",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
@@ -659,7 +522,7 @@
   },
   {
     "name": "CLZ",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -667,8 +530,7 @@
       { "name": "output", "type": "in_out_t", "description": "Output tensor of same type, size as the input tensor" }
     ],
     "type_constraints": [
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -696,7 +558,7 @@
   },
   {
     "name": "CONCAT",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Tensor",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "List of input tensors. All inputs must have the same rank and data type" }
@@ -712,26 +574,11 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "CONCAT_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input", "type": "shape_list_t", "description": "List of input shape values" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -751,7 +598,7 @@
   },
   {
     "name": "COND_IF",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "condition", "type": "boolean", "description": "Input condition as a size 1 tensor" },
       { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
@@ -787,7 +634,7 @@
   },
   {
     "name": "CONST",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Constant",
     "outputs": [
       { "name": "output", "type": "out_t", "description": "Output tensor" }
@@ -802,22 +649,16 @@
       { "description": "16-bit [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "out_t(i16_t)" ] },
       { "description": "32-bit [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "out_t(i32_t)" ] },
       { "description": "48-bit [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "out_t(i48_t)" ] },
-      { "description": "64-bit [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "out_t(bf16_t)" ] },
-      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "out_t(fp32_t)" ] },
-      { "description": "fp8ue8m0 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "out_t(fp8ue8m0_t)" ] },
-      { "description": "fp6e3m2 [v1.1]", "type_param_str": "EXT-MX-FP6E3M2", "allowed_type_strs": [   "out_t(fp6e3m2_t)" ] },
-      { "description": "fp6e2m3 [v1.1]", "type_param_str": "EXT-MX-FP6E2M3", "allowed_type_strs": [   "out_t(fp6e2m3_t)" ] },
-      { "description": "fp4e2m1 [v1.1]", "type_param_str": "EXT-MX-FP4E2M1", "allowed_type_strs": [   "out_t(fp4e2m1_t)" ] },
-      { "description": "mxint8 [v1.1]", "type_param_str": "EXT-MX-INT8", "allowed_type_strs": [   "out_t(mxint8_t)" ] }
+      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "out_t(fp32_t)" ] }
     ]
   },
   {
     "name": "CONST_SHAPE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Constant",
     "outputs": [
       { "name": "output", "type": "shape", "description": "Output shape" }
@@ -857,7 +698,7 @@
   },
   {
     "name": "CONV2D",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" },
@@ -882,40 +723,10 @@
       { "description": "signed 16x8 with int48 accumulate [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_t(i16_t)",   "weight_t(i8_t)",   "out_t(i48_t)",   "acc_t(i48_t)" ] },
       { "description": "fp8e4m3 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp8e5m2 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp8e4m3 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
-      { "description": "fp8e5m2 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp16 with fp16 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp16 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp32_t)" ] },
       { "description": "bf16 with fp32 accumulate [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "weight_t(bf16_t)",   "out_t(bf16_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp32 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "weight_t(fp32_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "CONV2D_BLOCK_SCALED",
-    "version": "1.x",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input_data", "type": "in_t", "description": "Input data tensor" },
-      { "name": "input_scale", "type": "scale_t", "description": "Input scale tensor" },
-      { "name": "weight_data", "type": "weight_t", "description": "Weight data tensor for kernel size KH x KW" },
-      { "name": "weight_scale", "type": "scale_t", "description": "Weight scale tensor for kernel size KH x KW" },
-      { "name": "bias", "type": "out_t", "description": "Per output channel bias data. + Bias data will be broadcast if BC == 1." },
-      { "name": "pad", "type": "shape", "description": "[pad_top, pad_bottom, pad_left, pad_right]" },
-      { "name": "stride", "type": "shape", "description": "[stride_y, stride_x]" },
-      { "name": "dilation", "type": "shape", "description": "[dilation_y, dilation_x]" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "out_t", "description": "Output tensor" }
-    ],
-    "attributes": [
-      { "name": "block_size", "type": "block_size_t", "description": "Block size for value tensors" }
-    ],
-    "type_constraints": [
-      { "description": "fp4e2m1 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MXFP-CONV", "allowed_type_strs": [   "in_t(fp4e2m1_t)",   "scale_t(fp8ue8m0_t)",   "weight_t(fp4e2m1_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp6e2m3 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MXFP-CONV", "allowed_type_strs": [   "in_t(fp6e2m3_t)",   "scale_t(fp8ue8m0_t)",   "weight_t(fp6e2m3_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp6e3m2 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MXFP-CONV", "allowed_type_strs": [   "in_t(fp6e3m2_t)",   "scale_t(fp8ue8m0_t)",   "weight_t(fp6e3m2_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e4m3 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MXFP-CONV", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "scale_t(fp8ue8m0_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e5m2 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MXFP-CONV", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "scale_t(fp8ue8m0_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp32_t)" ] }
     ]
   },
   {
@@ -949,7 +760,7 @@
   },
   {
     "name": "CONV3D",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" },
@@ -974,8 +785,6 @@
       { "description": "signed 16x8 with int48 accumulate [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_t(i16_t)",   "weight_t(i8_t)",   "out_t(i48_t)",   "acc_t(i48_t)" ] },
       { "description": "fp8e4m3 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp8e5m2 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp8e4m3 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
-      { "description": "fp8e5m2 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp16 with fp16 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp16 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp32_t)" ] },
       { "description": "bf16 with fp32 accumulate [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "weight_t(bf16_t)",   "out_t(bf16_t)",   "acc_t(fp32_t)" ] },
@@ -984,7 +793,7 @@
   },
   {
     "name": "COS",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -999,7 +808,7 @@
   },
   {
     "name": "CUSTOM",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Custom",
     "inputs": [
       { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
@@ -1044,7 +853,7 @@
   },
   {
     "name": "DEPTHWISE_CONV2D",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" },
@@ -1069,73 +878,10 @@
       { "description": "signed 16x8 with int48 accumulate [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_t(i16_t)",   "weight_t(i8_t)",   "out_t(i48_t)",   "acc_t(i48_t)" ] },
       { "description": "fp8e4m3 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp8e5m2 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp8e4m3 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
-      { "description": "fp8e5m2 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp16 with fp16 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp16 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp32_t)" ] },
       { "description": "bf16 with fp32 accumulate [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "weight_t(bf16_t)",   "out_t(bf16_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp32 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "weight_t(fp32_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "DIM",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "in_t", "description": "Input tensor" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape type of size 1 giving the size of the shape for the given axis" }
-    ],
-    "attributes": [
-      { "name": "axis", "type": "int32", "description": "Axis in range from 0 to rank(shape) - 1" }
-    ],
-    "type_constraints": [
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_t(bool_t)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i16_t)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)" ] },
-      { "description": "fp6e3m2 [v1.1]", "type_param_str": "EXT-MX-FP6E3M2", "allowed_type_strs": [   "in_t(fp6e3m2_t)" ] },
-      { "description": "fp6e2m3 [v1.1]", "type_param_str": "EXT-MX-FP6E2M3", "allowed_type_strs": [   "in_t(fp6e2m3_t)" ] },
-      { "description": "fp4e2m1 [v1.1]", "type_param_str": "EXT-MX-FP4E2M1", "allowed_type_strs": [   "in_t(fp4e2m1_t)" ] },
-      { "description": "mxint8 [v1.1]", "type_param_str": "EXT-MX-INT8", "allowed_type_strs": [   "in_t(mxint8_t)" ] },
-      { "description": "fp8ue8m0 [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "in_t(fp8ue8m0_t)" ] },
-      { "description": "i64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)" ] }
-    ]
-  },
-  {
-    "name": "DIV_CEIL_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input shape" },
-      { "name": "input2", "type": "shape", "description": "Input shape" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
-    ]
-  },
-  {
-    "name": "DIV_FLOOR_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input shape" },
-      { "name": "input2", "type": "shape", "description": "Input shape" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -1157,7 +903,7 @@
   },
   {
     "name": "EQUAL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_t", "description": "Input tensor with the same rank as input1" }
@@ -1167,7 +913,6 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(bool_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(bool_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(bool_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(bool_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(bool_t)" ] }
@@ -1175,7 +920,7 @@
   },
   {
     "name": "ERF",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
@@ -1206,7 +951,7 @@
   },
   {
     "name": "EXP",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -1217,20 +962,6 @@
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "EXP2_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input", "type": "shape", "description": "Input shape" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -1253,7 +984,7 @@
   },
   {
     "name": "FFT2D",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input_real", "type": "in_out_t", "description": "Real part of the complex input. H,W must be powers of two." },
       { "name": "input_imag", "type": "in_out_t", "description": "Imaginary part of the complex input. H,W must be powers of two." }
@@ -1287,7 +1018,7 @@
   },
   {
     "name": "FLOOR",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -1348,7 +1079,7 @@
   },
   {
     "name": "GATHER",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Transform",
     "inputs": [
       { "name": "values", "type": "in_out_t", "description": "3D value tensor" },
@@ -1361,25 +1092,11 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i32_t)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i8_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i32_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(bf16_t)" ] },
-      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp32_t)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i8_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i64_t)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e4m3_t)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e5m2_t)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp16_t)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(bf16_t)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp32_t)" ] },
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(bool_t)" ] },
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(bool_t)" ] }
+      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp32_t)" ] }
     ]
   },
   {
@@ -1401,7 +1118,7 @@
   },
   {
     "name": "GREATER",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_t", "description": "Input tensor with the same rank as input1" }
@@ -1411,7 +1128,6 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(bool_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(bool_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(bool_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(bool_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(bool_t)" ] }
@@ -1436,7 +1152,7 @@
   },
   {
     "name": "GREATER_EQUAL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_t", "description": "Input tensor with the same rank as input1" }
@@ -1446,7 +1162,6 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(bool_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(bool_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(bool_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(bool_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(bool_t)" ] }
@@ -1474,7 +1189,7 @@
   },
   {
     "name": "IDENTITY",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Tensor",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
@@ -1489,7 +1204,6 @@
       { "description": "16-bit [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "32-bit [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
       { "description": "48-bit [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_out_t(i48_t)" ] },
-      { "description": "64-bit [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
@@ -1513,7 +1227,7 @@
   },
   {
     "name": "INTDIV",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1522,8 +1236,7 @@
       { "name": "output", "type": "in_out_t", "description": "Output tensor" }
     ],
     "type_constraints": [
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -1543,7 +1256,7 @@
   },
   {
     "name": "LOG",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -1554,34 +1267,6 @@
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "LOG2_CEIL_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input", "type": "shape", "description": "Input shape" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
-    ]
-  },
-  {
-    "name": "LOG2_FLOOR_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input", "type": "shape", "description": "Input shape" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -1600,7 +1285,7 @@
   },
   {
     "name": "LOGICAL_AND",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1630,7 +1315,7 @@
   },
   {
     "name": "LOGICAL_LEFT_SHIFT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1641,8 +1326,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -1660,7 +1344,7 @@
   },
   {
     "name": "LOGICAL_NOT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -1687,7 +1371,7 @@
   },
   {
     "name": "LOGICAL_OR",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1717,7 +1401,7 @@
   },
   {
     "name": "LOGICAL_RIGHT_SHIFT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1728,8 +1412,7 @@
     "type_constraints": [
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] }
+      { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] }
     ]
   },
   {
@@ -1748,7 +1431,7 @@
   },
   {
     "name": "LOGICAL_XOR",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1785,55 +1468,25 @@
   },
   {
     "name": "MATMUL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
-      { "name": "A", "type": "A_t", "description": "Input tensor A, N matrices of size HxC" },
-      { "name": "B", "type": "B_t", "description": "Input tensor B, N matrices of size CxW" },
-      { "name": "A_zp", "type": "A_t", "description": "Input tensor A zero point. Must be zero for non-int8 types." },
-      { "name": "B_zp", "type": "B_t", "description": "Input tensor B zero point. Must be zero for non-int8 types." }
+      { "name": "A", "type": "in_t", "description": "Input tensor A, N matrices of size HxC" },
+      { "name": "B", "type": "in_t", "description": "Input tensor B, N matrices of size CxW" },
+      { "name": "A_zp", "type": "in_t", "description": "Input tensor A zero point. Must be zero for non-int8 types." },
+      { "name": "B_zp", "type": "in_t", "description": "Input tensor B zero point. Must be zero for non-int8 types." }
     ],
     "outputs": [
       { "name": "output", "type": "out_t", "description": "Output tensor, N matrices of size HxW" }
     ],
     "type_constraints": [
-      { "description": "signed 8x8 with int32 accumulate [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "A_t(i8_t)",   "B_t(i8_t)",   "out_t(i32_t)" ] },
-      { "description": "signed 16x16 with int48 accumulate [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "A_t(i16_t)",   "B_t(i16_t)",   "out_t(i48_t)" ] },
-      { "description": "fp8e4m3xfp8e4m3 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "A_t(fp8e4m3_t)",   "B_t(fp8e4m3_t)",   "out_t(fp16_t)" ] },
-      { "description": "fp8e4m3xfp8e4m3 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "A_t(fp8e4m3_t)",   "B_t(fp8e4m3_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e5m2xfp8e5m2 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "A_t(fp8e5m2_t)",   "B_t(fp8e5m2_t)",   "out_t(fp16_t)" ] },
-      { "description": "fp8e5m2xfp8e5m2 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "A_t(fp8e5m2_t)",   "B_t(fp8e5m2_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e4m3xfp8e5m2 with fp16 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "A_t(fp8e4m3_t)",   "B_t(fp8e5m2_t)",   "out_t(fp16_t)" ] },
-      { "description": "fp8e4m3xfp8e5m2 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "A_t(fp8e4m3_t)",   "B_t(fp8e5m2_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp8e5m2xfp8e4m3 with fp16 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "A_t(fp8e5m2_t)",   "B_t(fp8e4m3_t)",   "out_t(fp16_t)" ] },
-      { "description": "fp8e5m2xfp8e4m3 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "A_t(fp8e5m2_t)",   "B_t(fp8e4m3_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp16xfp16 with fp16 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "A_t(fp16_t)",   "B_t(fp16_t)",   "out_t(fp16_t)" ] },
-      { "description": "fp16xfp16 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "A_t(fp16_t)",   "B_t(fp16_t)",   "out_t(fp32_t)" ] },
-      { "description": "bf16xbf16 with fp32 accumulate [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "A_t(bf16_t)",   "B_t(bf16_t)",   "out_t(fp32_t)" ] },
-      { "description": "fp32xfp32 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "A_t(fp32_t)",   "B_t(fp32_t)",   "out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "MATMUL_T_BLOCK_SCALED",
-    "version": "1.x",
-    "inputs": [
-      { "name": "A_data", "type": "A_t", "description": "Input tensor A, N matrices of size HxC" },
-      { "name": "A_scale", "type": "scale_t", "description": "Input tensor A, N matrices of size Hx(C/block_size)" },
-      { "name": "B_data", "type": "B_t", "description": "Input data tensor B, D matrices of size WxC" },
-      { "name": "B_scale", "type": "scale_t", "description": "Input scale tensor B, D matrices of size Wx(C/block_size)" }
-    ],
-    "outputs": [
-      { "name": "output_data", "type": "out_t", "description": "Output tensor, N matrices of size HxW" }
-    ],
-    "attributes": [
-      { "name": "block_size", "type": "block_size_t", "description": "Block size for value tensors" }
-    ],
-    "type_constraints": [
-      { "description": "Scaled fp4e2m1 with fp8ue8m0 scale and fp32 accumulate [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "A_t(fp4e2m1_t)",   "B_t(fp4e2m1_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "Scaled fp6e2m3 with fp8ue8m0 scale and fp32 accumulate [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "A_t(fp6e2m3_t)",   "B_t(fp6e2m3_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "Scaled fp6e3m2 with fp8ue8m0 scale and fp32 accumulate [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "A_t(fp6e3m2_t)",   "B_t(fp6e3m2_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "Scaled fp8e4m3 with fp8ue8m0 scale and fp32 accumulate [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "A_t(fp8e4m3_t)",   "B_t(fp8e4m3_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "Scaled fp8e5m2 with fp8ue8m0 scale and fp32 accumulate [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "A_t(fp8e5m2_t)",   "B_t(fp8e5m2_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] },
-      { "description": "Scaled mxint8 with fp8ue8m0 scale and fp32 accumulate [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "A_t(mxint8_t)",   "B_t(mxint8_t)",   "scale_t(fp8ue8m0_t)",   "out_t(fp32_t)" ] }
+      { "description": "signed 8x8 with int32 accumulate [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(i32_t)" ] },
+      { "description": "signed 16x16 with int48 accumulate [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_t(i16_t)",   "out_t(i48_t)" ] },
+      { "description": "fp8e4m3 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "out_t(fp16_t)" ] },
+      { "description": "fp8e5m2 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "out_t(fp16_t)" ] },
+      { "description": "fp16 with fp16 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(fp16_t)" ] },
+      { "description": "fp16 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(fp32_t)" ] },
+      { "description": "bf16 with fp32 accumulate [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(fp32_t)" ] },
+      { "description": "fp32 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(fp32_t)" ] }
     ]
   },
   {
@@ -1861,7 +1514,7 @@
   },
   {
     "name": "MAX_POOL2D",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor 4D" }
@@ -1886,47 +1539,6 @@
     ]
   },
   {
-    "name": "MAX_POOL2D_ADAPTIVE",
-    "version": "1.x",
-    "category": "Pool",
-    "inputs": [
-      { "name": "input", "type": "in_out_t", "description": "Input tensor 4D" },
-      { "name": "kernel", "type": "shape", "description": "[kernel_y, kernel_x]" },
-      { "name": "stride", "type": "shape", "description": "[stride_y, stride_x]" },
-      { "name": "pad", "type": "shape", "description": "[pad_top, pad_bottom, pad_left, pad_right]" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "in_out_t", "description": "Output tensor 4D" }
-    ],
-    "attributes": [
-      { "name": "nan_mode", "type": "NanPropagationMode", "description": "PROPAGATE or IGNORE. Set to PROPAGATE by default. This attribute affects the floating-point NaN propagation approach. This attribute is ignored by non floating-point types." }
-    ],
-    "type_constraints": [
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "MAX_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
-    ]
-  },
-  {
     "name": "MAXIMUM",
     "version": "0.80",
     "inputs": [
@@ -1945,7 +1557,7 @@
   },
   {
     "name": "MAXIMUM",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -1958,25 +1570,9 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "MIN_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -1998,7 +1594,7 @@
   },
   {
     "name": "MINIMUM",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -2011,25 +1607,9 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "MOD_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -2053,7 +1633,7 @@
   },
   {
     "name": "MUL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_t", "description": "Input tensor with the same rank as input1" },
@@ -2066,25 +1646,9 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i8_t)",   "out_t(i32_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_t(i16_t)",   "out_t(i32_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_t(i32_t)",   "out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_t(i64_t)",   "out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp32_t)",   "out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "MUL_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -2111,7 +1675,7 @@
   },
   {
     "name": "NEGATE",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input1_zp", "type": "in_out_t", "description": "Input 1 zero point. Must be zero for non-int8 types." },
@@ -2124,7 +1688,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)",   "acc_t(i32_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)",   "acc_t(i32_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)",   "acc_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)",   "acc_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)",   "acc_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)",   "acc_t(fp32_t)" ] }
@@ -2156,7 +1719,7 @@
   },
   {
     "name": "PAD",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Tensor",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
@@ -2171,7 +1734,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
@@ -2197,7 +1759,7 @@
   },
   {
     "name": "POW",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -2228,7 +1790,7 @@
   },
   {
     "name": "RECIPROCAL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2259,7 +1821,7 @@
   },
   {
     "name": "REDUCE_ALL",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2291,7 +1853,7 @@
   },
   {
     "name": "REDUCE_ANY",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2328,7 +1890,7 @@
   },
   {
     "name": "REDUCE_MAX",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2343,7 +1905,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
@@ -2372,7 +1933,7 @@
   },
   {
     "name": "REDUCE_MIN",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2387,7 +1948,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
@@ -2413,7 +1973,7 @@
   },
   {
     "name": "REDUCE_PRODUCT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2450,7 +2010,7 @@
   },
   {
     "name": "REDUCE_SUM",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2462,7 +2022,6 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)",   "acc_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)",   "acc_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)",   "acc_t(fp32_t)" ] }
@@ -2508,7 +2067,7 @@
   },
   {
     "name": "RESCALE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Quantization",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" },
@@ -2567,7 +2126,7 @@
   },
   {
     "name": "RESHAPE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Shape",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
@@ -2581,7 +2140,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
@@ -2616,7 +2174,7 @@
   },
   {
     "name": "RESIZE",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" },
       { "name": "scale", "type": "shape", "description": "[scale_y_n, scale_y_d, scale_x_n, scale_x_d]" },
@@ -2627,13 +2185,13 @@
       { "name": "output", "type": "out_t", "description": "Output tensor" }
     ],
     "attributes": [
-      { "name": "mode", "type": "ResizeMode", "description": "BILINEAR or NEAREST_NEIGHBOR" }
+      { "name": "mode", "type": "ResizeMode", "description": "BILINEAR or NEAREST" }
     ],
     "type_constraints": [
       { "description": "signed 8, bilinear [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "resize_t(i16_t)",   "in_t(i8_t)",   "out_t(i32_t)" ] },
-      { "description": "signed 8, nearest neighbor [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "resize_t(i16_t)",   "in_t(i8_t)",   "out_t(i8_t)" ] },
+      { "description": "signed 8, nearest [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "resize_t(i16_t)",   "in_t(i8_t)",   "out_t(i8_t)" ] },
       { "description": "signed 16, bilinear [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "resize_t(i16_t)",   "in_t(i16_t)",   "out_t(i48_t)" ] },
-      { "description": "signed 16, nearest neighbor [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "resize_t(i16_t)",   "in_t(i16_t)",   "out_t(i16_t)" ] },
+      { "description": "signed 16, nearest [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "resize_t(i16_t)",   "in_t(i16_t)",   "out_t(i16_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "resize_t(fp16_t)",   "in_t(fp16_t)",   "out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "resize_t(bf16_t)",   "in_t(bf16_t)",   "out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "resize_t(fp32_t)",   "in_t(fp32_t)",   "out_t(fp32_t)" ] }
@@ -2664,7 +2222,7 @@
   },
   {
     "name": "REVERSE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Tensor",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
@@ -2680,7 +2238,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
@@ -2704,7 +2261,7 @@
   },
   {
     "name": "RFFT2D",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input_real", "type": "in_out_t", "description": "Real input. H,W must be powers of two." }
     ],
@@ -2717,57 +2274,6 @@
     ],
     "type_constraints": [
       { "description": "fp32 [v1.0]", "type_param_str": "EXT-FFT", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "ROW_GATHER",
-    "version": "1.x",
-    "inputs": [
-      { "name": "values", "type": "in_out_t", "description": "A tensor_list_t with a mandatory first element of shape [N,K,C] and an optional second element of shape [N,K,C/block_size]" },
-      { "name": "indices", "type": "index_t", "description": "2D index tensor" },
-      { "name": "row_count", "type": "int32", "description": "Number of consecutive rows to gather for each index" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "in_out_t", "description": "A tensor_list_t with a first element of shape [N,W*row_count,C] and an optional second element of shape [N,W*row_count,C/block_size]" }
-    ],
-    "attributes": [
-      { "name": "block_size", "type": "block_size_t", "description": "Block size for values[0] tensor" }
-    ],
-    "type_constraints": [
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i8_t)",   "scale_t(-)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i16_t)",   "scale_t(-)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i32_t)",   "scale_t(-)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i8_t)",   "scale_t(-)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i16_t)",   "scale_t(-)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i32_t)",   "scale_t(-)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e4m3_t)",   "scale_t(-)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e5m2_t)",   "scale_t(-)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp16_t)",   "scale_t(-)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(bf16_t)",   "scale_t(-)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp32_t)",   "scale_t(-)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i8_t)",   "scale_t(-)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i16_t)",   "scale_t(-)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i32_t)",   "scale_t(-)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i64_t)",   "scale_t(-)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e4m3_t)",   "scale_t(-)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e5m2_t)",   "scale_t(-)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp16_t)",   "scale_t(-)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(bf16_t)",   "scale_t(-)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp32_t)",   "scale_t(-)" ] },
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(bool_t)",   "scale_t(-)" ] },
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(bool_t)",   "scale_t(-)" ] },
-      { "description": "fp4e2m1 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp4e2m1_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp6e2m3 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp6e2m3_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp6e3m2 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp6e3m2_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp8e4m3 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e4m3_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp8e5m2 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e5m2_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "mxint8 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(mxint8_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp4e2m1 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp4e2m1_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp6e2m3 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp6e2m3_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp6e3m2 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp6e3m2_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp8e4m3 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e4m3_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "fp8e5m2 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e5m2_t)",   "scale_t(fp8ue8m0_t)" ] },
-      { "description": "mxint8 with fp8ue8m0 scale factor [v1.1]", "type_param_str": "EXT-MX-COMMON", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(mxint8_t)",   "scale_t(fp8ue8m0_t)" ] }
     ]
   },
   {
@@ -2787,7 +2293,7 @@
   },
   {
     "name": "RSQRT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2823,7 +2329,7 @@
   },
   {
     "name": "SCATTER",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Transform",
     "inputs": [
       { "name": "values_in", "type": "in_out_t", "description": "3D values in tensor" },
@@ -2837,25 +2343,11 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i32_t)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i8_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(i32_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(bf16_t)" ] },
-      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp32_t)" ] },
-      { "description": "signed 8 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i8_t)" ] },
-      { "description": "signed 16 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i16_t)" ] },
-      { "description": "signed 32 [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(i64_t)" ] },
-      { "description": "fp8e4m3 [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e4m3_t)" ] },
-      { "description": "fp8e5m2 [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp8e5m2_t)" ] },
-      { "description": "fp16 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp16_t)" ] },
-      { "description": "bf16 [v1.1]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(bf16_t)" ] },
-      { "description": "fp32 [v1.1]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(fp32_t)" ] },
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(bool_t)" ] },
-      { "description": "Boolean [v1.1]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "index_t(i64_t)",   "in_out_t(bool_t)" ] }
+      { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "index_t(i32_t)",   "in_out_t(fp32_t)" ] }
     ]
   },
   {
@@ -2881,7 +2373,7 @@
   },
   {
     "name": "SELECT",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "boolean", "description": "Input selector tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input value tensor if input1 is True" },
@@ -2895,7 +2387,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
@@ -2919,7 +2410,7 @@
   },
   {
     "name": "SIGMOID",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
@@ -2935,7 +2426,7 @@
   },
   {
     "name": "SIN",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
     ],
@@ -2974,7 +2465,7 @@
   },
   {
     "name": "SLICE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Tensor",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
@@ -2989,28 +2480,11 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "SLICE_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input", "type": "shape", "description": "Input shape" },
-      { "name": "start", "type": "int32", "description": "First location within input to include" },
-      { "name": "size", "type": "int32", "description": "Number of dimensions from input to include in the output" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -3032,7 +2506,7 @@
   },
   {
     "name": "SUB",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
       { "name": "input2", "type": "in_out_t", "description": "Input tensor with the same rank as input1" }
@@ -3042,25 +2516,9 @@
     ],
     "type_constraints": [
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT, PRO-FP", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
       { "description": "bf16 [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_out_t(bf16_t)" ] },
       { "description": "fp32 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp32_t)" ] }
-    ]
-  },
-  {
-    "name": "SUB_SHAPE",
-    "version": "1.x",
-    "category": "Shape",
-    "inputs": [
-      { "name": "input1", "type": "shape", "description": "Input 1" },
-      { "name": "input2", "type": "shape", "description": "Input 2" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "shape", "description": "Output shape" }
-    ],
-    "type_constraints": [
-      { "description": "shape [v1.1]", "type_param_str": "EXT-SHAPE", "allowed_type_strs": [   "shape_t(tensor_size_t)" ] }
     ]
   },
   {
@@ -3079,7 +2537,7 @@
   },
   {
     "name": "TABLE",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_t", "description": "Input tensor" },
       { "name": "table", "type": "table_t", "description": "Lookup table tensor" }
@@ -3110,7 +2568,7 @@
   },
   {
     "name": "TANH",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "in_out_t", "description": "Input tensor" }
@@ -3149,7 +2607,7 @@
   },
   {
     "name": "TILE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Tensor",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" },
@@ -3163,7 +2621,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
@@ -3196,7 +2653,7 @@
   },
   {
     "name": "TRANSPOSE",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Transform",
     "inputs": [
       { "name": "input1", "type": "in_out_t", "description": "Input tensor" }
@@ -3212,7 +2669,6 @@
       { "description": "signed 8 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i8_t)" ] },
       { "description": "signed 16 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i16_t)" ] },
       { "description": "signed 32 [v1.0]", "type_param_str": "PRO-INT", "allowed_type_strs": [   "in_out_t(i32_t)" ] },
-      { "description": "signed 64 [v1.1]", "type_param_str": "EXT-INT64", "allowed_type_strs": [   "in_out_t(i64_t)" ] },
       { "description": "fp8e4m3 [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_out_t(fp8e4m3_t)" ] },
       { "description": "fp8e5m2 [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_out_t(fp8e5m2_t)" ] },
       { "description": "fp16 [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_out_t(fp16_t)" ] },
@@ -3251,7 +2707,7 @@
   },
   {
     "name": "TRANSPOSE_CONV2D",
-    "version": "1.x",
+    "version": "1.0",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "in_t", "description": "Input tensor" },
@@ -3275,8 +2731,6 @@
       { "description": "signed 16x8 with int48 accumulate [v1.0]", "type_param_str": "EXT-INT16", "allowed_type_strs": [   "in_t(i16_t)",   "weight_t(i8_t)",   "out_t(i48_t)",   "acc_t(i48_t)" ] },
       { "description": "fp8e4m3 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp8e5m2 with fp16 accumulate [v1.0]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
-      { "description": "fp8e4m3 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E4M3", "allowed_type_strs": [   "in_t(fp8e4m3_t)",   "weight_t(fp8e4m3_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
-      { "description": "fp8e5m2 with fp32 accumulate [v1.1]", "type_param_str": "EXT-FP8E5M2", "allowed_type_strs": [   "in_t(fp8e5m2_t)",   "weight_t(fp8e5m2_t)",   "out_t(fp32_t)",   "acc_t(fp32_t)" ] },
       { "description": "fp16 with fp16 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp16_t)" ] },
       { "description": "fp16 with fp32 accumulate [v1.0]", "type_param_str": "PRO-FP", "allowed_type_strs": [   "in_t(fp16_t)",   "weight_t(fp16_t)",   "out_t(fp16_t)",   "acc_t(fp32_t)" ] },
       { "description": "bf16 with fp32 accumulate [v1.0]", "type_param_str": "EXT-BF16", "allowed_type_strs": [   "in_t(bf16_t)",   "weight_t(bf16_t)",   "out_t(bf16_t)",   "acc_t(fp32_t)" ] },
@@ -3285,7 +2739,7 @@
   },
   {
     "name": "VARIABLE",
-    "version": "1.x",
+    "version": "1.0",
     "attributes": [
       { "name": "name", "type": "string", "description": "Globally unique identifier for the declared variable tensor." },
       { "name": "var_shape", "type": "int32[]", "description": "The variable tensor shape" },
@@ -3300,7 +2754,7 @@
   },
   {
     "name": "VARIABLE_READ",
-    "version": "1.x",
+    "version": "1.0",
     "outputs": [
       { "name": "output1", "type": "out_t", "description": "Output tensor" }
     ],
@@ -3315,7 +2769,7 @@
   },
   {
     "name": "VARIABLE_WRITE",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input1", "type": "in_t", "description": "Input tensor" }
     ],
@@ -3344,7 +2798,7 @@
   },
   {
     "name": "WHILE_LOOP",
-    "version": "1.x",
+    "version": "1.0",
     "inputs": [
       { "name": "input_list", "type": "tensor[]", "description": "List of input tensors" }
     ],

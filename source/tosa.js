@@ -75,9 +75,9 @@ tosa.ModelFactory = class {
         if (major === 0 && minor >= 80) {
             schema_version = '0.80';
         } else if (major === 1) {
-            schema_version = '1.x';
+            schema_version = '1.0';
         }
-        const schema = { '0.80': tosa.schema.v0, '1.x': tosa.schema.v1 }[schema_version];
+        const schema = { '0.80': tosa.schema.v0, '1.0': tosa.schema.v1 }[schema_version];
         if (!schema) {
             throw new tosa.Error(`Unsupported TOSA version '${file_version}'.`);
         }
@@ -310,12 +310,9 @@ tosa.Context = class {
         const mapping = {
             BOOL: 'boolean',
             UINT8: 'uint8', UINT16: 'uint16',
-            INT4: 'int4', INT8: 'int8', INT16: 'int16', INT32: 'int32', INT48: 'int48', INT64: 'int64',
-            MXINT8: 'int8',
+            INT4: 'int4', INT8: 'int8', INT16: 'int16', INT32: 'int32', INT48: 'int48',
             FP16: 'float16', BF16: 'bfloat16', FP32: 'float32',
-            FP8E4M3: 'float8e4m3', FP8E5M2: 'float8e5m2', FP8UE8M0: 'float8e8m0fnu',
-            FP6E2M3: 'float6e2m3fn', FP6E3M2: 'float6e3m2fn',
-            FP4E2M1: 'float4e2m1fn',
+            FP8E4M3: 'float8e4m3', FP8E5M2: 'float8e5m2',
             SHAPE: 'int64'
         };
         this._dataTypes = new Map();
