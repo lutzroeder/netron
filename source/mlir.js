@@ -9891,7 +9891,7 @@ _.Dialect = class {
                         if (matches) {
                             const firstElemIdx = clause.elements.indexOf(firstElem) + 1;
                             for (let elemIdx = firstElemIdx; elemIdx < clause.elements.length; elemIdx++) {
-                                this.parseDirective(clause.elements[elemIdx], parser, op, opInfo, directives, i, vars);
+                                this.parseDirective(clause.elements[elemIdx], parser, op, opInfo, clause.elements, elemIdx, vars);
                             }
                             clause.parsed = true;
                             progress = true;
@@ -12429,7 +12429,7 @@ _.torch.ListType = class extends _.Type {
 
     static parse(parser) {
         parser.parseLess();
-        const containedType = _.torch.TorchDialect.dispatchParse(parser);
+        const containedType = _.torch.TorchDialect.parseTorchDialectType(parser);
         parser.parseGreater();
         return new _.torch.ListType(containedType);
     }
@@ -12501,6 +12501,61 @@ _.torch.ValueTensorType = class extends _.Type {
     }
 };
 
+_.torch.NonValueTensorType = class extends _.torch.ValueTensorType {
+
+    static parse(parser) {
+        if (!parser.parseOptionalLess()) {
+            return new _.torch.NonValueTensorType(null, null);
+        }
+        let optionalSizes = null;
+        if (parser.parseOptionalStar()) {
+            // Unranked
+        } else {
+            parser.parseLSquare();
+            optionalSizes = [];
+            for (;;) {
+                if (parser.parseOptionalQuestion()) {
+                    optionalSizes.push(-1);
+                } else {
+                    const size = parser.parseOptionalInteger();
+                    if (size === null) {
+                        break;
+                    }
+                    optionalSizes.push(size);
+                }
+                if (!parser.parseOptionalComma()) {
+                    break;
+                }
+            }
+            parser.parseRSquare();
+        }
+        parser.parseComma();
+        let optionalDtype = null;
+        if (!parser.parseOptionalKeyword('unk')) {
+            optionalDtype = parser.parseType();
+        }
+        let optionalSparsity = null;
+        if (parser.parseOptionalComma()) {
+            optionalSparsity = parser.parseAttribute();
+        }
+        parser.parseGreater();
+        return new _.torch.NonValueTensorType(optionalSizes, optionalDtype, optionalSparsity);
+    }
+
+    toString() {
+        if (this.optionalSizes === null && this.optionalDtype === null) {
+            return '!torch.tensor';
+        }
+        const sizeStr = this.optionalSizes === null ? '*' :
+            `[${this.optionalSizes.map((s) => s === -1 ? '?' : s.toString()).join(', ')}]`;
+        const dtypeStr = this.optionalDtype ? this.optionalDtype.toString() : 'unk';
+        if (this.optionalSparsity) {
+            return `!torch.tensor<${sizeStr}, ${dtypeStr}, ${this.optionalSparsity}>`;
+        }
+        return `!torch.tensor<${sizeStr}, ${dtypeStr}>`;
+    }
+};
+
 _.torch.OptionalType = class extends _.Type {
 
     constructor(containedType) {
@@ -12510,7 +12565,7 @@ _.torch.OptionalType = class extends _.Type {
 
     static parse(parser) {
         parser.parseLess();
-        const containedType = _.torch.TorchDialect.dispatchParse(parser);
+        const containedType = _.torch.TorchDialect.parseTorchDialectType(parser);
         parser.parseGreater();
         return new _.torch.OptionalType(containedType);
     }
@@ -12532,7 +12587,7 @@ _.torch.TupleType = class extends _.Type {
         const containedTypes = [];
         if (!parser.parseOptionalGreater()) {
             do {
-                containedTypes.push(_.torch.TorchDialect.dispatchParse(parser));
+                containedTypes.push(_.torch.TorchDialect.parseTorchDialectType(parser));
             } while (parser.parseOptionalComma());
             parser.parseGreater();
         }
@@ -12556,7 +12611,7 @@ _.torch.UnionType = class extends _.Type {
         const containedTypes = [];
         if (!parser.parseOptionalGreater()) {
             do {
-                containedTypes.push(_.torch.TorchDialect.dispatchParse(parser));
+                containedTypes.push(_.torch.TorchDialect.parseTorchDialectType(parser));
             } while (parser.parseOptionalComma());
             parser.parseGreater();
         }
@@ -12578,9 +12633,9 @@ _.torch.DictType = class extends _.Type {
 
     static parse(parser) {
         parser.parseLess();
-        const keyType = _.torch.TorchDialect.dispatchParse(parser);
+        const keyType = _.torch.TorchDialect.parseTorchDialectType(parser);
         parser.parseComma();
-        const valueType = _.torch.TorchDialect.dispatchParse(parser);
+        const valueType = _.torch.TorchDialect.parseTorchDialectType(parser);
         parser.parseGreater();
         return new _.torch.DictType(keyType, valueType);
     }
@@ -12615,7 +12670,7 @@ _.torch.TorchDialect = class extends _.Dialect {
         super(operations, 'torch');
     }
 
-    static dispatchParse(parser) {
+    static parseTorchDialectType(parser) {
         const mnemonic = parser.parseOptionalKeyword();
         if (mnemonic) {
             switch (mnemonic) {
@@ -12642,7 +12697,7 @@ _.torch.TorchDialect = class extends _.Dialect {
                 case 'union': return _.torch.UnionType.parse(parser);
                 case 'dict': return _.torch.DictType.parse(parser);
                 case 'vtensor': return _.torch.ValueTensorType.parse(parser);
-                case 'tensor': return _.torch.ValueTensorType.parse(parser);
+                case 'tensor': return _.torch.NonValueTensorType.parse(parser);
                 case 'nn.Module': return _.torch.NnModuleType.parse(parser);
                 default:
                     return new _.Type(`!torch.${mnemonic}`);
@@ -12652,7 +12707,7 @@ _.torch.TorchDialect = class extends _.Dialect {
     }
 
     parseType(parser) {
-        return _.torch.TorchDialect.dispatchParse(parser);
+        return _.torch.TorchDialect.parseTorchDialectType(parser);
     }
 
     parseOperation(parser, result) {
@@ -18681,31 +18736,17 @@ _.ArithDialect = class extends _.Dialect {
     parseSelectOp(parser, result) {
         const unresolvedOperands = parser.parseOperandList();
         parser.parseOptionalAttrDict(result.attributes);
-        if (parser.parseOptionalColon()) {
-            const condType = parser.parseType();
-            if (parser.parseOptionalComma()) {
-                const resultType = parser.parseType();
-                const types = [condType, resultType, resultType];
-                parser.resolveOperands(unresolvedOperands, types, result.operands);
-                if (result.types.length > 0) {
-                    result.types[0] = resultType;
-                } else {
-                    result.addTypes([resultType]);
-                }
-            } else {
-                const types = unresolvedOperands.map(() => condType);
-                parser.resolveOperands(unresolvedOperands, types, result.operands);
-                if (result.types.length > 0) {
-                    result.types[0] = condType;
-                } else {
-                    result.addTypes([condType]);
-                }
-            }
+        parser.parseColon();
+        let resultType = parser.parseType();
+        let conditionType = null;
+        if (parser.parseOptionalComma()) {
+            conditionType = resultType;
+            resultType = parser.parseType();
         } else {
-            for (const operand of unresolvedOperands) {
-                parser.resolveOperand(operand, null, result.operands);
-            }
+            conditionType = new _.IntegerType('i1');
         }
+        result.addTypes([resultType]);
+        parser.resolveOperands(unresolvedOperands, [conditionType, resultType, resultType], result.operands);
         return true;
     }
 };
@@ -20826,19 +20867,28 @@ _.OpenMPDialect = class extends _.Dialect {
         return null;
     }
 
-    parseDependVarList(parser, op, operandAttr, typesAttr, kindAttr) {
+    parseDependVarList(parser, op, operandAttr, typesAttr, kindAttr, iteratedOperandAttr, iteratedTypesAttr, iteratedKindAttr) {
         const dependVars = [];
         const dependTypes = [];
         const dependKinds = [];
+        const iteratedVars = [];
+        const iteratedTypes = [];
+        const iteratedKinds = [];
         do {
             const keyword = parser.parseKeyword();
-            dependKinds.push(keyword);
             parser.parseArrow();
             const operand = parser.parseOperand();
-            dependVars.push(operand);
             parser.parseColon();
             const type = parser.parseType();
-            dependTypes.push(type);
+            if (iteratedOperandAttr && type.toString().includes('omp.iterated')) {
+                iteratedKinds.push(keyword);
+                iteratedVars.push(operand);
+                iteratedTypes.push(type);
+            } else {
+                dependKinds.push(keyword);
+                dependVars.push(operand);
+                dependTypes.push(type);
+            }
         } while (parser.parseOptionalComma());
         if (operandAttr) {
             for (let i = 0; i < dependVars.length; i++) {
@@ -20848,6 +20898,15 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         if (kindAttr) {
             op.addAttribute(kindAttr, dependKinds);
+        }
+        if (iteratedOperandAttr) {
+            for (let i = 0; i < iteratedVars.length; i++) {
+                const type = i < iteratedTypes.length ? iteratedTypes[i] : null;
+                parser.resolveOperand(iteratedVars[i], type, op.operands);
+            }
+        }
+        if (iteratedKindAttr) {
+            op.addAttribute(iteratedKindAttr, iteratedKinds);
         }
     }
 
@@ -21107,6 +21166,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             case 'ptr': return _.llvm.LLVMPointerType.parse(parser);
             case 'array': return _.llvm.LLVMArrayType.parse(parser);
             case 'struct': return _.llvm.LLVMStructType.parse(parser);
+            case 'target': return _.llvm.LLVMTargetExtType.parse(parser);
             case 'x86_amx': return new _.Type('!llvm.x86_amx');
             default: throw new mlir.Error(`Unknown LLVM type '${key}'.`);
         }
