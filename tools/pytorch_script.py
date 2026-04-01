@@ -375,15 +375,17 @@ def _identifier(schema):
     return schema.split("(", 1)[0].strip()
 
 def _all_schemas():
+    logging.getLogger("torch.utils._pytree").setLevel(logging.ERROR)
+    logging.getLogger("torch.distributed.elastic.multiprocessing").setLevel(logging.ERROR)
+    logging.getLogger("torchao").setLevel(logging.ERROR)
     torch = __import__("torch")
     __import__("torchvision")
     __import__("torchaudio")
-    logging.getLogger("torchao").setLevel(logging.ERROR)
-    logging.getLogger("torch.distributed.elastic.multiprocessing").setLevel(logging.ERROR)
     with warnings.catch_warnings(action="ignore"):
         __import__("torchao")
     logging.getLogger("torchao").setLevel(logging.NOTSET)
     logging.getLogger("torch.distributed.elastic.multiprocessing").setLevel(logging.NOTSET)
+    logging.getLogger("torch.utils._pytree").setLevel(logging.NOTSET)
     return list(torch._C._jit_get_all_schemas())
 
 def _parse_schemas():
