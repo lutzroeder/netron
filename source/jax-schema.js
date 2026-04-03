@@ -126,6 +126,7 @@ jax_export.serialization.NamedSharding = class NamedSharding {
         $.mesh = reader.table(position, 4, jax_export.serialization.AbstractMesh);
         $.spec = reader.table(position, 6, jax_export.serialization.PartitionSpec);
         $.memory_kind = reader.string_(position, 8, null);
+        $.abstract_mesh_idx = reader.uint32_(position, 10, 0);
         return $;
     }
 };
@@ -211,6 +212,13 @@ jax_export.serialization.Exported = class Exported {
         $.uses_global_constants = reader.bool_(position, 36, false);
         $.vjp = reader.table(position, 38, jax_export.serialization.Exported);
         $.nr_devices = reader.uint32_(position, 40, 0);
+        $.unique_avals = reader.tables(position, 42, jax_export.serialization.AbstractValue);
+        $.unique_abstract_meshes = reader.tables(position, 44, jax_export.serialization.AbstractMesh);
+        $.unique_named_shardings = reader.tables(position, 46, jax_export.serialization.NamedSharding);
+        $.in_avals_idxs = reader.array(position, 48, Uint32Array);
+        $.out_avals_idxs = reader.array(position, 50, Uint32Array);
+        $.in_shardings_idxs = reader.array(position, 52, Uint32Array);
+        $.out_shardings_idxs = reader.array(position, 54, Uint32Array);
         return $;
     }
 };
