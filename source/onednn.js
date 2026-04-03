@@ -229,6 +229,7 @@ onednn.TensorType = class {
             case 's4': this.dataType = 'int4'; break;
             case 's8': this.dataType = 'int8'; break;
             case 's32': this.dataType = 'int32'; break;
+            case 's64': this.dataType = 'int64'; break;
             case 'u4': this.dataType = 'uint4'; break;
             case 'u8': this.dataType = 'uint8'; break;
             case 'bf16': this.dataType = 'bfloat16'; break;
