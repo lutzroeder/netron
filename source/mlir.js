@@ -20253,6 +20253,79 @@ _.NVVMDialect = class extends _.Dialect {
     }
 };
 
+_.omp = {};
+
+_.omp.MapBoundsType = class extends _.Type {
+
+    constructor() {
+        super(null);
+    }
+
+    static parse(/* parser */) {
+        return new _.omp.MapBoundsType();
+    }
+
+    toString() {
+        return '!omp.map_bounds_ty';
+    }
+};
+
+_.omp.AffinityEntryType = class extends _.Type {
+
+    constructor(addrType, lenType) {
+        super(null);
+        this.addrType = addrType;
+        this.lenType = lenType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const addrType = parser.parseType();
+        parser.parseComma();
+        const lenType = parser.parseType();
+        parser.parseGreater();
+        return new _.omp.AffinityEntryType(addrType, lenType);
+    }
+
+    toString() {
+        return `!omp.affinity_entry_ty<${this.addrType}, ${this.lenType}>`;
+    }
+};
+
+_.omp.IteratedType = class extends _.Type {
+
+    constructor(elementType) {
+        super(null);
+        this.elementType = elementType;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const elementType = parser.parseType();
+        parser.parseGreater();
+        return new _.omp.IteratedType(elementType);
+    }
+
+    toString() {
+        return `!omp.iterated<${this.elementType}>`;
+    }
+};
+
+_.omp.CanonicalLoopInfoType = class extends _.Type {
+
+    constructor() {
+        super(null);
+    }
+
+    static parse(/* parser */) {
+        return new _.omp.CanonicalLoopInfoType();
+    }
+
+    toString() {
+        return '!omp.cli';
+    }
+};
+
 _.OpenMPDialect = class extends _.Dialect {
 
     constructor(operations) {
@@ -20289,6 +20362,25 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomAttribute('ClauseTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('ClauseDistScheduleTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('OrderModifierAttr', this.parseParenthesizedEnumAttr.bind(this));
+    }
+
+    parseType(parser) {
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            if (mnemonic === 'map_bounds_ty') {
+                return _.omp.MapBoundsType.parse(parser);
+            }
+            if (mnemonic === 'affinity_entry_ty') {
+                return _.omp.AffinityEntryType.parse(parser);
+            }
+            if (mnemonic === 'iterated') {
+                return _.omp.IteratedType.parse(parser);
+            }
+            if (mnemonic === 'cli') {
+                return _.omp.CanonicalLoopInfoType.parse(parser);
+            }
+        }
+        return null;
     }
 
     parseOperation(parser, result) {
@@ -20563,8 +20655,7 @@ _.OpenMPDialect = class extends _.Dialect {
         parser.parseCommaSeparatedList('none', () => {
             const operand = parser.parseOperand();
             const type = parser.parseColonType();
-            // Split into iterated vs plain based on type name
-            if (type && type.name && type.name.includes('iterated')) {
+            if (type instanceof _.omp.IteratedType) {
                 iterated.push(operand);
                 iteratedTypes.push(type);
             } else {
@@ -20903,7 +20994,7 @@ _.OpenMPDialect = class extends _.Dialect {
             const operand = parser.parseOperand();
             parser.parseColon();
             const type = parser.parseType();
-            if (iteratedOperandAttr && type.toString().includes('omp.iterated')) {
+            if (iteratedOperandAttr && type instanceof _.omp.IteratedType) {
                 iteratedKinds.push(keyword);
                 iteratedVars.push(operand);
                 iteratedTypes.push(type);
