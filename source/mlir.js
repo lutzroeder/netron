@@ -11742,9 +11742,9 @@ _.AffineDialect = class extends _.Dialect {
         const numUbOperands = result.operands.length - numOperandsBeforeUb;
         if (parser.parseOptionalKeyword('step')) {
             const step = parser.parseInteger();
-            result.addAttribute('step', String(step));
+            result.addAttribute('step', step);
         } else {
-            result.addAttribute('step', '1');
+            result.addAttribute('step', 1);
         }
         const regionArgs = [inductionVariable];
         const operands = [];
@@ -13930,6 +13930,9 @@ _.UtilDialect = class extends _.IREEDialect {
             this.parseUtilFuncOp(parser, result);
             return true;
         }
+        if (op === 'util.hoistable_conversion') {
+            return this.parseHoistableConversionOp(parser, result);
+        }
         if (op === 'util.unfoldable_constant') {
             parser.parseOptionalAttrDict(result.attributes);
             const value = parser.parseAttribute();
@@ -13944,6 +13947,29 @@ _.UtilDialect = class extends _.IREEDialect {
             return true;
         }
         return super.parseOperation(parser, result);
+    }
+
+    parseHoistableConversionOp(parser, result) {
+        const tag = parser.parseString();
+        result.addAttribute('tag', tag);
+        parser.parseKeyword('inverts');
+        parser.parseLParen();
+        const inverseTag = parser.parseString();
+        result.addAttribute('inverseTag', inverseTag);
+        parser.parseRParen();
+        const regionArgs = [];
+        const inputOperands = [];
+        parser.parseAssignmentList(regionArgs, inputOperands);
+        const fnType = parser.parseColonType();
+        for (let i = 0; i < regionArgs.length; i++) {
+            regionArgs[i].type = fnType.inputs[i];
+        }
+        parser.resolveOperands(inputOperands, fnType.inputs, result.operands);
+        result.addTypes(fnType.results);
+        const region = result.addRegion();
+        parser.parseRegion(region, regionArgs);
+        parser.parseOptionalAttrDict(result.attributes);
+        return true;
     }
 
     parseUtilFuncOp(parser, result) {
@@ -14262,18 +14288,16 @@ _.FlowDialect = class extends _.IREEDialect {
     }
 
     parseDispatchRegionOp(parser, result) {
+        const indexType = new _.IndexType();
         const workloadOperands = parser.parseOperandList('optionalSquare');
-        for (const workload of workloadOperands) {
-            parser.resolveOperand(workload, null, result.operands);
-        }
+        const dynamicDimOperands = [];
         if (parser.parseOptionalArrow()) {
             if (parser.parseOptionalLParen()) {
                 while (!parser.parseOptionalRParen()) {
                     const type = parser.parseType();
                     if (parser.parseOptionalLBrace()) {
                         while (!parser.parseOptionalRBrace()) {
-                            const tied = parser.parseOperand();
-                            parser.resolveOperand(tied, null, result.operands);
+                            dynamicDimOperands.push(parser.parseOperand());
                             parser.parseOptionalComma();
                         }
                     }
@@ -14282,6 +14306,8 @@ _.FlowDialect = class extends _.IREEDialect {
                 }
             }
         }
+        parser.resolveOperands(dynamicDimOperands, dynamicDimOperands.map(() => indexType), result.operands);
+        parser.resolveOperands(workloadOperands, workloadOperands.map(() => indexType), result.operands);
         parser.parseOptionalAttrDictWithKeyword(result.attributes);
         const region = result.addRegion();
         parser.parseRegion(region);
@@ -14423,8 +14449,8 @@ _.FlowDialect = class extends _.IREEDialect {
     }
 
     parseTensorLoadStoreOp(parser, result) {
-        //    or: store %26, %arg4, offsets = [...] : type -> type
         const op = result.name.getStringRef();
+        const isLoad = op.endsWith('.load');
         const unresolvedOperands = [];
         let nextOp = parser.parseOptionalOperand();
         while (nextOp) {
@@ -14437,43 +14463,49 @@ _.FlowDialect = class extends _.IREEDialect {
                 break;
             }
         }
-        // Note: first parameter might not need comma-eating if we just broke from operand loop
-        let paramName = parser.parseOptionalKeyword();
-        while (true) {
-            if (!paramName) {
-                if (!parser.parseOptionalComma()) {
-                    break;
-                }
-                paramName = parser.parseOptionalKeyword();
-            }
-            if (paramName) {
-                if (parser.parseOptionalEqual()) {
-                    if (parser.parseOptionalLSquare()) {
-                        while (!parser.parseOptionalRSquare()) {
-                            const operand = parser.parseOptionalOperand();
-                            if (!operand) {
-                                // Handle integer literals (e.g., 0, 1, 3)
-                                parser.parseInteger();
-                            }
-                            parser.parseOptionalComma();
-                        }
+        const parseDynamicIndexList = (name) => {
+            parser.parseKeyword(name);
+            parser.parseEqual();
+            parser.parseLSquare();
+            const staticValues = [];
+            if (!parser.parseOptionalRSquare()) {
+                do {
+                    const dynOp = parser.parseOptionalOperand();
+                    if (dynOp) {
+                        parser.resolveOperand(dynOp, null, result.operands);
+                        staticValues.push(-9223372036854775808n);
                     } else {
-                        parser.parseKeyword();
+                        const intVal = parser.parseOptionalInteger('int64');
+                        if (intVal !== null) {
+                            staticValues.push(intVal);
+                        }
                     }
-                    result.addAttribute(paramName, paramName);
-                }
-                paramName = null;
-            } else {
-                break;
+                } while (parser.parseOptionalComma());
+                parser.parseRSquare();
+            }
+            result.addAttribute(`static_${name}`, staticValues);
+        };
+        parseDynamicIndexList('offsets');
+        parser.parseComma();
+        parseDynamicIndexList('sizes');
+        parser.parseComma();
+        parseDynamicIndexList('strides');
+        parser.parseOptionalAttrDict(result.attributes);
+        parser.parseColon();
+        const sourceType = parser.parseType();
+        parser.resolveOperands(unresolvedOperands, unresolvedOperands.map(() => sourceType), result.operands);
+        if (parser.parseOptionalLBrace()) {
+            if (!parser.parseOptionalRBrace()) {
+                do {
+                    const dim = parser.parseOperand();
+                    parser.resolveOperand(dim, null, result.operands);
+                } while (parser.parseOptionalComma());
+                parser.parseRBrace();
             }
         }
-        const types = parser.parseOptionalColonTypeList();
-        parser.resolveOperands(unresolvedOperands, types, result.operands);
-        // For tensor.load, there's a -> result type
-        // For tensor.store, the -> is followed by the output tensor type (not a result)
         if (parser.parseOptionalArrow() || parser.parseOptionalKeyword('to')) {
             const resultType = parser.parseType();
-            if (op === 'flow.dispatch.tensor.load' && resultType) {
+            if (isLoad && resultType) {
                 result.addTypes([resultType]);
             }
         }
@@ -15631,7 +15663,7 @@ _.LinalgDialect = class extends _.Dialect {
             const lastOperand = op.operands[op.operands.length - 1];
             if (lastOperand && lastOperand.type) {
                 const elemType = lastOperand.type.elementType || lastOperand.type;
-                payloadState.types = [elemType];
+                payloadState.addTypes([elemType]);
             }
         }
         for (const [name, value] of payloadOpAttrs) {
