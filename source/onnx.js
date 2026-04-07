@@ -673,7 +673,7 @@ onnx.TensorType = class {
 onnx.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions.map((dim) => typeof dim === 'bigint' ? dim.toNumber() : dim);
+        this._dimensions = dimensions;
     }
 
     get dimensions() {
@@ -843,7 +843,7 @@ onnx.Context = class {
                     type = 'tensor';
                     break;
                 case onnx.AttributeType.GRAPH:
-                    value = this.graph(attribute.g);
+                    value = attribute.g ? this.graph(attribute.g) : null;
                     type = 'graph';
                     break;
                 case onnx.AttributeType.FLOATS:
@@ -1828,10 +1828,12 @@ onnx.OrtReader = class {
             value.attribute = value.attributes.map((attribute) => {
                 const type = attribute.type;
                 if (type === onnx.AttributeType.GRAPH) {
-                    graph(attribute.g);
+                    if (attribute.g) {
+                        graph(attribute.g);
+                    }
                 } else if (type === onnx.AttributeType.GRAPHS) {
-                    for (const graph of attribute.graphs) {
-                        graph(graph);
+                    for (const value of attribute.graphs) {
+                        graph(value);
                     }
                 } else if (type === onnx.AttributeType.TYPE_PROTO) {
                     attribute.tp = type(attribute.tp);

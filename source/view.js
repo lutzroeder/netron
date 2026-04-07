@@ -2922,7 +2922,7 @@ view.Node = class extends grapher.Node {
             for (const argument of inputs) {
                 const type = argument.type;
                 if (argument.visible !== false &&
-                    (type === 'graph' ||
+                    ((type === 'graph' && argument.value) ||
                     (type === 'object' && isObject(argument.value)) ||
                     (type === 'object[]' && Array.isArray(argument.value) && argument.value.length > 0) ||
                     type === 'function' ||
@@ -2945,8 +2945,8 @@ view.Node = class extends grapher.Node {
             for (const argument of attributes) {
                 const type = argument.type;
                 if (argument.visible !== false &&
-                    ((type === 'graph') ||
-                    (type === 'object') ||
+                    ((type === 'graph' && argument.value) ||
+                    (type === 'object' && argument.value) ||
                     ((type === 'object[]' || type === 'function' || type === 'function[]') && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
                 } else if (options.attributes && argument.visible !== false) {
@@ -2959,7 +2959,7 @@ view.Node = class extends grapher.Node {
             for (const argument of node.blocks) {
                 const type = argument.type;
                 if (argument.visible !== false &&
-                    ((type === 'graph') ||
+                    ((type === 'graph' && argument.value) ||
                     (type === 'object' && isObject(argument.value)) ||
                     ((type === 'object[]' || type === 'function' || type === 'function[]') && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
@@ -3949,8 +3949,10 @@ view.PrimitiveView = class extends view.Expander {
             switch (type) {
                 case 'graph': {
                     const line = this.createElement('div', 'sidebar-item-value-line-link');
-                    line.textContent = value.name || '\u00A0';
-                    line.addEventListener('click', () => this.emit('activate', value));
+                    line.textContent = value ? value.name || '\u00A0' : '(null)';
+                    if (value) {
+                        line.addEventListener('click', () => this.emit('activate', value));
+                    }
                     this.add(line);
                     break;
                 }
