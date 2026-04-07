@@ -5903,11 +5903,21 @@ python.Execution = class {
                 super(lhs, rhs, '==');
             }
         });
+        this.registerType('sympy.core.relational.Unequality', class extends sympy.core.relational.Relational {
+            constructor(lhs, rhs) {
+                super(lhs, rhs, '!=');
+            }
+        });
         this.registerType('sympy.functions.elementary.miscellaneous.MinMaxBase', class extends sympy.core.expr.Expr {
         });
         this.registerType('sympy.functions.elementary.miscellaneous.Max', class extends sympy.functions.elementary.miscellaneous.MinMaxBase {
             __str__() {
                 return `Max(${this._args.map((a) => a.__str__()).join(', ')})`;
+            }
+        });
+        this.registerType('sympy.functions.elementary.miscellaneous.Min', class extends sympy.functions.elementary.miscellaneous.MinMaxBase {
+            __str__() {
+                return `Min(${this._args.map((a) => a.__str__()).join(', ')})`;
             }
         });
         this.registerType('sympy.functions.elementary.exponential.exp', class extends sympy.core.expr.Expr {});
@@ -5931,12 +5941,14 @@ python.Execution = class {
                         case 'Add': return new sympy.core.add.Add(...node.args.map((arg) => sympify(arg)));
                         case 'Pow': return new sympy.core.power.Pow(...node.args.map((arg) => sympify(arg)));
                         case 'Max': return new sympy.functions.elementary.miscellaneous.Max(...node.args.map((arg) => sympify(arg)));
+                        case 'Min': return new sympy.functions.elementary.miscellaneous.Min(...node.args.map((arg) => sympify(arg)));
                         case 'Integer': return sympify(node.args[0]);
                         case 'GreaterThan': return new sympy.core.relational.GreaterThan(sympify(node.args[0]), sympify(node.args[1]));
                         case 'StrictGreaterThan': return new sympy.core.relational.StrictGreaterThan(sympify(node.args[0]), sympify(node.args[1]));
                         case 'LessThan': return new sympy.core.relational.LessThan(sympify(node.args[0]), sympify(node.args[1]));
                         case 'StrictLessThan': return new sympy.core.relational.StrictLessThan(sympify(node.args[0]), sympify(node.args[1]));
                         case 'Equality': return new sympy.core.relational.Equality(sympify(node.args[0]), sympify(node.args[1]));
+                        case 'Unequality': return new sympy.core.relational.Unequality(sympify(node.args[0]), sympify(node.args[1]));
                         case 'FloorDiv': return new torch.utils._sympy.functions.FloorDiv(sympify(node.args[0]), sympify(node.args[1]));
                         default: throw new python.Error(`Unsupported SymPy function '${node.func.id}'.`);
                     }
@@ -5960,6 +5972,9 @@ python.Execution = class {
                     if (node.op instanceof ast.Pow) {
                         return new sympy.core.power.Pow(sympify(node.left), sympify(node.right));
                     }
+                    if (node.op instanceof ast.Add) {
+                        return new sympy.core.add.Add(sympify(node.left), sympify(node.right));
+                    }
                     throw new python.Error(`Unsupported SymPy BinOp op '${node.op.__class__.__name__}'.`);
                 }
                 if (node instanceof ast.Compare) {
@@ -5980,6 +5995,9 @@ python.Execution = class {
                     }
                     if (op instanceof ast.Eq) {
                         return new sympy.core.relational.Equality(left, right);
+                    }
+                    if (op instanceof ast.NotEq) {
+                        return new sympy.core.relational.Unequality(left, right);
                     }
                     throw new python.Error(`Unsupported comparison operator '${op.__class__.__name__}'.`);
                 }
