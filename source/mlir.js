@@ -17280,20 +17280,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (op === 'spirv.Constant' || op === 'spv.Constant') {
-            const value = parser.parseAttribute();
-            if (parser.parseOptionalColon()) {
-                const valueType = parser.parseType();
-                result.addAttribute('value', { ...value, valueType });
-            } else {
-                result.addAttribute('value', value);
-            }
-            if (parser.parseOptionalColon()) {
-                const type = parser.parseType();
-                result.addTypes([type]);
-            }
-            return true;
-        }
         if (op === 'spirv.Load' || op === 'spv.Load') {
             const storageClass = parser.parseString();
             result.addAttribute('storage_class', storageClass);
@@ -17321,7 +17307,8 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperand(ptrOperand, null, result.operands);
+                const ptrType = new _.spirv.PointerType(type, storageClass);
+                parser.resolveOperand(ptrOperand, ptrType, result.operands);
                 result.addTypes([type]);
             } else {
                 parser.resolveOperand(ptrOperand, null, result.operands);
@@ -17348,7 +17335,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperand(compositeOperand, null, result.operands);
+                parser.resolveOperand(compositeOperand, type, result.operands);
                 result.addTypes([type]);
             } else {
                 parser.resolveOperand(compositeOperand, null, result.operands);
@@ -17441,7 +17428,8 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             }
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
-                parser.resolveOperands(unresolvedOperands, [type, type], result.operands);
+                const ptrType = new _.spirv.PointerType(type, storageClass);
+                parser.resolveOperands(unresolvedOperands, [ptrType, type], result.operands);
             } else {
                 for (const unresolvedOp of unresolvedOperands) {
                     parser.resolveOperand(unresolvedOp, null, result.operands);
@@ -17741,28 +17729,6 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             result.addTypes(parser.parseOptionalArrowTypeList());
             const region = result.addRegion();
             parser.parseRegion(region);
-            return true;
-        }
-        // spirv.CompositeInsert with 'into' keyword
-        if (op === 'spirv.CompositeInsert' || op === 'spv.CompositeInsert') {
-            const unresolvedOperands = parser.parseOperandList();
-            if (parser.parseOptionalLSquare()) {
-                const indices = [];
-                while (!parser.parseOptionalRSquare()) {
-                    const index = parser.parseInteger();
-                    if (parser.parseOptionalColon()) {
-                        parser.parseType();
-                    }
-                    indices.push(index);
-                    parser.parseOptionalComma();
-                }
-                result.addAttribute('indices', indices);
-            }
-            parser.resolveOperands(unresolvedOperands, parser.parseOptionalColonTypeList(), result.operands);
-            if (parser.parseOptionalKeyword('into')) {
-                const resultType = parser.parseType();
-                result.addTypes([resultType]);
-            }
             return true;
         }
         const arithmeticExtendedOps = new Set([
