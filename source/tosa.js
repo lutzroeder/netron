@@ -9,7 +9,7 @@ tosa.ModelFactory = class {
             return context.set('tosa.flatbuffers', reader);
         }
         const obj = await context.peek('json');
-        if (obj && obj.regions && obj.version && obj.version._major) {
+        if (obj && obj.regions && obj.version && obj.version._major !== undefined) {
             return context.set('tosa.flatbuffers.json', obj);
         }
         return null;
