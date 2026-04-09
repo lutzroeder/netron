@@ -619,7 +619,7 @@ mlir.Node = class {
                     value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.value);
                     type = 'tensor';
                 } else if (attr instanceof _.SparseElementsAttr) {
-                    value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.values);
+                    value = new mlir.Tensor(mlir.Utility.valueType(attr.type), attr.values, attr.indices);
                     type = 'tensor';
                 } else if (attr instanceof _.DenseArrayAttr) {
                     value = attr.value;
@@ -651,15 +651,49 @@ mlir.Node = class {
 
 mlir.Tensor = class {
 
-    constructor(type, data) {
-        this.type = type;
-        this.values = data;
-        this.encoding = data instanceof Uint8Array ? '<' : '|';
-        if (this.encoding === '<' && type.shape && type.shape.dimensions.length > 0) {
-            const dims = type.shape.dimensions;
-            const numElements = dims.reduce((a, b) => a * (typeof b === 'bigint' ? Number(b) : b), 1);
-            if (numElements > 1 && data.length < numElements) {
-                this.stride = new Array(dims.length).fill(0);
+    constructor(type, values, indices) {
+        if (indices !== undefined && type instanceof mlir.TensorType && type.shape && Array.isArray(type.shape.dimensions) && type.shape.dimensions.every((d) => (typeof d === 'bigint' && d >= 0n) || (typeof d === 'number' && d >= 0))) {
+            const dims = type.shape.dimensions.map((d) => typeof d === 'bigint' ? Number(d) : d);
+            const rank = dims.length;
+            const numPoints = values ? values.length : 0;
+            const strides = new Array(rank);
+            let stride = 1;
+            for (let i = rank - 1; i >= 0; i--) {
+                strides[i] = stride;
+                stride *= dims[i];
+            }
+            const indicesPerPoint = rank === 0 || numPoints === 0 ? 0 : indices.length / numPoints;
+            const flatIndices = new Array(numPoints);
+            for (let i = 0; i < numPoints; i++) {
+                let offset = 0;
+                for (let j = 0; j < rank; j++) {
+                    offset += Number(indices[i * indicesPerPoint + j]) * strides[j];
+                }
+                flatIndices[i] = offset;
+            }
+            const pointShape = new mlir.TensorShape([numPoints]);
+            this.type = new mlir.TensorType(type.elementType, type.shape, 'sparse');
+            this.values = new mlir.Tensor(new mlir.TensorType(type.elementType, pointShape), values || []);
+            this.indices = new mlir.Tensor(new mlir.TensorType(new _.IntegerType('i64'), pointShape), flatIndices);
+            this.encoding = '|';
+        } else {
+            this.type = type;
+            this.values = values;
+            this.encoding = values instanceof Uint8Array ? '<' : '|';
+            if (this.encoding === '<' && type.shape && type.shape.dimensions.length > 0) {
+                const dims = type.shape.dimensions;
+                const numElements = dims.reduce((a, b) => a * (typeof b === 'bigint' ? Number(b) : b), 1);
+                const elementType = type.elementType;
+                let bitWidth = 8;
+                if (elementType instanceof _.ComplexType && typeof elementType.elementType.getIntOrFloatBitWidth === 'function') {
+                    bitWidth = elementType.elementType.getIntOrFloatBitWidth() * 2;
+                } else if (elementType && typeof elementType.getIntOrFloatBitWidth === 'function') {
+                    bitWidth = elementType.getIntOrFloatBitWidth();
+                }
+                const itemsize = Math.ceil(bitWidth / 8);
+                if (numElements > 1 && values.length < numElements * itemsize) {
+                    this.stride = new Array(dims.length).fill(0);
+                }
             }
         }
     }
@@ -667,9 +701,11 @@ mlir.Tensor = class {
 
 mlir.TensorType = class {
 
-    constructor(dataType, shape) {
-        this.dataType = dataType ? mlir.Utility.dataType(dataType) : null;
+    constructor(elementType, shape, layout) {
+        this.elementType = elementType || null;
+        this.dataType = elementType ? mlir.Utility.dataType(elementType) : null;
         this.shape = shape || new mlir.TensorShape([]);
+        this.layout = layout || null;
     }
 
     toString() {
@@ -839,7 +875,11 @@ mlir.Utility = class {
             const shape = type.shape.map((d) => d < 0n ? '?' : d);
             return new mlir.TensorType(type.elementType, new mlir.TensorShape(shape));
         }
-        if (type instanceof _.UnrankedTensorType) {
+        if (type instanceof _.MemRefType) {
+            const shape = type.shape.map((d) => d < 0n ? '?' : d);
+            return new mlir.TensorType(type.elementType, new mlir.TensorShape(shape));
+        }
+        if (type instanceof _.UnrankedTensorType || type instanceof _.UnrankedMemRefType) {
             return new mlir.TensorType(type.elementType, null);
         }
         if (type instanceof _.torch.ValueTensorType) {
@@ -1855,11 +1895,53 @@ _.PrimitiveType = class extends _.Type {
 };
 
 _.IntegerType = class extends _.Type {
+
+    getWidth() {
+        const match = this._value.match(/^[su]?i(\d+)$/);
+        if (match) {
+            return parseInt(match[1], 10);
+        }
+        throw new mlir.Error(`Unexpected integer type '${this._value}'.`);
+    }
+
+    getIntOrFloatBitWidth() {
+        return this.getWidth();
+    }
 };
 
 _.IntegerType.kMaxWidth = (1 << 24) - 1;
 
 _.FloatType = class extends _.Type {
+
+    getWidth() {
+        const name = this._value;
+        switch (name) {
+            case 'f16': return 16;
+            case 'f32': return 32;
+            case 'f64': return 64;
+            case 'f80': return 80;
+            case 'f128': return 128;
+            case 'bf16': return 16;
+            case 'tf32': return 32;
+            case 'f4E2M1FN': return 4;
+            case 'f6E2M3FN': return 6;
+            case 'f6E3M2FN': return 6;
+            case 'f8E3M4': return 8;
+            case 'f8E4M3': return 8;
+            case 'f8E4M3B11FNUZ': return 8;
+            case 'f8E4M3FN': return 8;
+            case 'f8E4M3FNUZ': return 8;
+            case 'f8E5M2': return 8;
+            case 'f8E5M2FNUZ': return 8;
+            case 'f8E8M0': return 8;
+            case 'f8E8M0FNU': return 8;
+            default: throw new mlir.Error(`Unexpected float type '${name}'.`);
+        }
+    }
+
+    getIntOrFloatBitWidth() {
+        return this.getWidth();
+    }
 };
 
 _.NoneType = class extends _.Type {
@@ -25205,20 +25287,37 @@ _.triton.xla = {};
 
 _.triton.TensorDescType = class extends _.Type {
 
-    constructor(blockType) {
+    constructor(shape, elementType, sharedLayout) {
         super(null);
-        this.blockType = blockType;
+        this.shape = shape;
+        this.elementType = elementType;
+        this.sharedLayout = sharedLayout || null;
     }
 
     static parse(parser) {
         parser.parseLess();
-        const blockType = parser.parseType();
+        const blockType = parser.parseOptionalType();
+        if (blockType instanceof _.RankedTensorType) {
+            parser.parseGreater();
+            return new _.triton.TensorDescType(blockType.shape, blockType.elementType, blockType.encoding);
+        }
+        const dimInfo = parser.parseDimensionList(false, true);
+        const elementType = parser.parseType();
+        let sharedLayout = null;
+        if (parser.parseOptionalComma()) {
+            sharedLayout = parser.parseAttribute();
+        }
         parser.parseGreater();
-        return new _.triton.TensorDescType(blockType);
+        return new _.triton.TensorDescType(dimInfo.dimensions, elementType, sharedLayout);
     }
 
     toString() {
-        return `!tt.tensordesc<${this.blockType}>`;
+        const shapeStr = this.shape.map((d) => `${d}x`).join('');
+        const parts = [`${shapeStr}${this.elementType}`];
+        if (this.sharedLayout) {
+            parts.push(`${this.sharedLayout}`);
+        }
+        return `!tt.tensordesc<${parts.join(', ')}>`;
     }
 };
 
@@ -25283,9 +25382,19 @@ _.triton.TritonDialect = class extends _.Dialect {
 
     parseTensorDescType(parser) {
         if (parser.parseOptionalLess()) {
-            const blockType = parser.parseType();
+            const blockType = parser.parseOptionalType();
+            if (blockType instanceof _.RankedTensorType) {
+                parser.parseGreater();
+                return new _.triton.TensorDescType(blockType.shape, blockType.elementType, blockType.encoding);
+            }
+            const dimInfo = parser.parseDimensionList(false, true);
+            const elementType = parser.parseType();
+            let sharedLayout = null;
+            if (parser.parseOptionalComma()) {
+                sharedLayout = parser.parseAttribute();
+            }
             parser.parseGreater();
-            return new _.triton.TensorDescType(blockType);
+            return new _.triton.TensorDescType(dimInfo.dimensions, elementType, sharedLayout);
         }
         return null;
     }
@@ -25462,20 +25571,37 @@ _.triton.gluon.GluonDialect = class extends _.Dialect {
 
 _.triton.nvidia_gpu.TensorDescIm2ColType = class extends _.Type {
 
-    constructor(blockType) {
+    constructor(shape, elementType, sharedLayout) {
         super(null);
-        this.blockType = blockType;
+        this.shape = shape;
+        this.elementType = elementType;
+        this.sharedLayout = sharedLayout || null;
     }
 
     static parse(parser) {
         parser.parseLess();
-        const blockType = parser.parseType();
+        const blockType = parser.parseOptionalType();
+        if (blockType instanceof _.RankedTensorType) {
+            parser.parseGreater();
+            return new _.triton.nvidia_gpu.TensorDescIm2ColType(blockType.shape, blockType.elementType, blockType.encoding);
+        }
+        const dimInfo = parser.parseDimensionList(false, true);
+        const elementType = parser.parseType();
+        let sharedLayout = null;
+        if (parser.parseOptionalComma()) {
+            sharedLayout = parser.parseAttribute();
+        }
         parser.parseGreater();
-        return new _.triton.nvidia_gpu.TensorDescIm2ColType(blockType);
+        return new _.triton.nvidia_gpu.TensorDescIm2ColType(dimInfo.dimensions, elementType, sharedLayout);
     }
 
     toString() {
-        return `!ttng.tensordesc_im2col<${this.blockType}>`;
+        const shapeStr = this.shape.map((d) => `${d}x`).join('');
+        const parts = [`${shapeStr}${this.elementType}`];
+        if (this.sharedLayout) {
+            parts.push(`${this.sharedLayout}`);
+        }
+        return `!ttng.tensordesc_im2col<${parts.join(', ')}>`;
     }
 };
 
