@@ -2694,12 +2694,18 @@ MNN.AttentionParam = class AttentionParam {
     static decode(reader, position) {
         const $ = new MNN.AttentionParam();
         $.kv_cache = reader.bool_(position, 4, true);
+        $.kv_shared_layer = reader.string_(position, 6, null);
+        $.layer_index = reader.int32_(position, 8, -1);
+        $.kv_shared_layer_index = reader.int32_(position, 10, -1);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new MNN.AttentionParam();
         $.kv_cache = reader.value(json.kv_cache, true);
+        $.kv_shared_layer = reader.value(json.kv_shared_layer, null);
+        $.layer_index = reader.value(json.layer_index, -1);
+        $.kv_shared_layer_index = reader.value(json.kv_shared_layer_index, -1);
         return $;
     }
 };
