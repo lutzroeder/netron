@@ -906,11 +906,21 @@ pytorch.Tensor = class {
                 } else if (size.every((v) => v !== 0)) {
                     length = size.reduce((a, v, i) => a + stride[i] * (v - 1), 1);
                 }
-                if (storage && typeof storage.size === 'function') {
-                    if (offset !== 0 || length !== storage.size()) {
-                        const itemsize = storage.dtype.itemsize();
-                        this._offset = itemsize * offset;
-                        this._length = itemsize * length;
+                if (typeof storage.size === 'function' && storage.dtype) {
+                    const itemsize = storage.dtype.itemsize();
+                    const dtype = storage.dtype.toString();
+                    let packing = 1;
+                    switch (dtype) {
+                        case 'torch.quint4x2': packing = 2; break;
+                        case 'torch.quint2x4': packing = 4; break;
+                        default: break;
+                    }
+                    const byteLength = Array.isArray(stride) ? Math.ceil(length * itemsize / packing) : length * itemsize;
+                    const byteOffset = Math.floor(offset * itemsize / packing);
+                    const storageBytes = storage.size() * itemsize;
+                    if (byteOffset !== 0 || byteLength !== storageBytes) {
+                        this._offset = byteOffset;
+                        this._length = byteLength;
                     }
                 }
             }

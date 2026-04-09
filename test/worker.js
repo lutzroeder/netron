@@ -321,6 +321,92 @@ export class Target {
         const validateGraph = async (graph) => {
             /* eslint-disable no-unused-expressions */
             const values = new Map();
+            const validateTensor = async (value) => {
+                value.type.toString();
+                if (value && value.peek && !value.peek()) {
+                    await value.read();
+                }
+                const tensor = new base.Tensor(value);
+                if (!this.tags.has('skip-tensor-value')) {
+                    if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
+                        throw new Error(`Tensor encoding '${tensor.encoding}' is not implemented.`);
+                    }
+                    if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
+                        throw new Error(`Tensor layout '${tensor.layout}' is not implemented.`);
+                    }
+                    if (!tensor.empty) {
+                        if (tensor.type && tensor.type.dataType === '?') {
+                            throw new Error('Tensor data type is not defined.');
+                        } else if (tensor.type && !tensor.type.shape) {
+                            throw new Error('Tensor shape is not defined.');
+                        } else {
+                            tensor.toString();
+                            if (this.tags.has('validation')) {
+                                const size = tensor.type.shape.dimensions.reduce((a, b) => BigInt(a) * BigInt(b), 1n).toNumber();
+                                if (size < 8192 && tensor.type &&
+                                    tensor.type.dataType !== '?' &&
+                                    tensor.type.dataType !== 'string' &&
+                                    tensor.type.dataType !== 'int128' &&
+                                    tensor.type.dataType !== 'complex<int32>') {
+                                    let data_type = '?';
+                                    switch (tensor.type.dataType) {
+                                        case 'boolean': data_type = 'bool'; break;
+                                        case 'bfloat16': data_type = 'float32'; break;
+                                        case 'float4e2m1fn': data_type = 'float16'; break;
+                                        case 'float6e2m3fn': data_type = 'float16'; break;
+                                        case 'float6e3m2fn': data_type = 'float16'; break;
+                                        case 'float8e5m2': data_type = 'float16'; break;
+                                        case 'float8e5m2fnuz': data_type = 'float16'; break;
+                                        case 'float8e3m4': data_type = 'float16'; break;
+                                        case 'float8e4m3': data_type = 'float16'; break;
+                                        case 'float8e4m3fn': data_type = 'float16'; break;
+                                        case 'float8e4m3fnuz': data_type = 'float16'; break;
+                                        case 'float8e4m3b11fnuz': data_type = 'float16'; break;
+                                        case 'float8e8m0fnu': data_type = 'float16'; break;
+                                        case 'float8e8m0': data_type = 'float16'; break;
+                                        case 'float80': data_type = 'float64'; break;
+                                        case 'float128': data_type = 'float64'; break;
+                                        case 'complex<float32>': data_type = 'complex64'; break;
+                                        case 'complex<float64>': data_type = 'complex128'; break;
+                                        case 'int48': data_type = 'int64'; break;
+                                        case 'quint4x2': data_type = 'uint8'; break;
+                                        case 'quint2x4': data_type = 'uint8'; break;
+                                        default: {
+                                            const intMatch = tensor.type.dataType.match(/^(u?)int(\d+)$/);
+                                            if (intMatch) {
+                                                const bits = parseInt(intMatch[2], 10);
+                                                const prefix = intMatch[1] ? 'uint' : 'int';
+                                                if (bits <= 8) {
+                                                    data_type = `${prefix}8`;
+                                                } else if (bits <= 16) {
+                                                    data_type = `${prefix}16`;
+                                                } else if (bits <= 32) {
+                                                    data_type = `${prefix}32`;
+                                                } else if (bits <= 64) {
+                                                    data_type = `${prefix}64`;
+                                                } else {
+                                                    data_type = tensor.type.dataType;
+                                                }
+                                            } else {
+                                                data_type = tensor.type.dataType;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    Target.execution = Target.execution || new python.Execution();
+                                    const execution = Target.execution;
+                                    const io = execution.__import__('io');
+                                    const numpy = execution.__import__('numpy');
+                                    const bytes = new io.BytesIO();
+                                    const dtype = new numpy.dtype(data_type);
+                                    const array = numpy.asarray(tensor.value, dtype);
+                                    numpy.save(bytes, array);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
             const validateValue = async (value) => {
                 if (value === null) {
                     return;
@@ -339,70 +425,7 @@ export class Target {
                     value.type.toString();
                 }
                 if (value.initializer) {
-                    value.initializer.type.toString();
-                    if (value.initializer && value.initializer.peek && !value.initializer.peek()) {
-                        await value.initializer.read();
-                    }
-                    const tensor = new base.Tensor(value.initializer);
-                    if (!this.tags.has('skip-tensor-value')) {
-                        if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-                            throw new Error(`Tensor encoding '${tensor.encoding}' is not implemented.`);
-                        }
-                        if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-                            throw new Error(`Tensor layout '${tensor.layout}' is not implemented.`);
-                        }
-                        if (!tensor.empty) {
-                            if (tensor.type && tensor.type.dataType === '?') {
-                                throw new Error('Tensor data type is not defined.');
-                            } else if (tensor.type && !tensor.type.shape) {
-                                throw new Error('Tensor shape is not defined.');
-                            } else {
-                                tensor.toString();
-                                if (this.tags.has('validation')) {
-                                    const size = tensor.type.shape.dimensions.reduce((a, b) => BigInt(a) * BigInt(b), 1n).toNumber();
-                                    if (size < 8192 && tensor.type &&
-                                        tensor.type.dataType !== '?' &&
-                                        tensor.type.dataType !== 'string' &&
-                                        tensor.type.dataType !== 'int128' &&
-                                        tensor.type.dataType !== 'complex<int32>') {
-                                        let data_type = '?';
-                                        switch (tensor.type.dataType) {
-                                            case 'boolean': data_type = 'bool'; break;
-                                            case 'bfloat16': data_type = 'float32'; break;
-                                            case 'float4e2m1fn': data_type = 'float16'; break;
-                                            case 'float6e2m3fn': data_type = 'float16'; break;
-                                            case 'float6e3m2fn': data_type = 'float16'; break;
-                                            case 'float8e5m2': data_type = 'float16'; break;
-                                            case 'float8e5m2fnuz': data_type = 'float16'; break;
-                                            case 'float8e3m4': data_type = 'float16'; break;
-                                            case 'float8e4m3': data_type = 'float16'; break;
-                                            case 'float8e4m3fn': data_type = 'float16'; break;
-                                            case 'float8e4m3fnuz': data_type = 'float16'; break;
-                                            case 'float8e4m3b11fnuz': data_type = 'float16'; break;
-                                            case 'float8e8m0fnu': data_type = 'float16'; break;
-                                            case 'complex<float32>': data_type = 'complex64'; break;
-                                            case 'complex<float64>': data_type = 'complex128'; break;
-                                            case 'int1': data_type = 'int8'; break;
-                                            case 'int2': data_type = 'int8'; break;
-                                            case 'int4': data_type = 'int8'; break;
-                                            case 'int48': data_type = 'int64'; break;
-                                            case 'uint2': data_type = 'uint8'; break;
-                                            case 'uint4': data_type = 'uint8'; break;
-                                            default: data_type = tensor.type.dataType; break;
-                                        }
-                                        Target.execution = Target.execution || new python.Execution();
-                                        const execution = Target.execution;
-                                        const io = execution.__import__('io');
-                                        const numpy = execution.__import__('numpy');
-                                        const bytes = new io.BytesIO();
-                                        const dtype = new numpy.dtype(data_type);
-                                        const array = numpy.asarray(tensor.value, dtype);
-                                        numpy.save(bytes, array);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    await validateTensor(value.initializer);
                 } else if (value.name.length === 0) {
                     throw new Error('Empty value name.');
                 }
@@ -463,6 +486,9 @@ export class Target {
                         if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
                             // eslint-disable-next-line no-await-in-loop
                             await validateGraph(value);
+                        } else if (type === 'tensor') {
+                            // eslint-disable-next-line no-await-in-loop
+                            await validateTensor(value);
                         } else {
                             let text = new view.Formatter(attribute.value, attribute.type).toString();
                             if (text && text.length > 1000) {

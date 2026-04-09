@@ -36,7 +36,10 @@ python.Execution = class {
                 this.set(key, value);
             }
             __getitem__(key) {
-                return this.get(key);
+                if (!super.has(key)) {
+                    throw new python.Error(`KeyError: ${key}`);
+                }
+                return super.get(key);
             }
             __delitem__(key) {
                 this.delete(key);
@@ -19811,13 +19814,13 @@ python.Execution = class {
             }
             deserialize_graph_output(output) {
                 if (output.type === 'as_tensor') {
-                    return this.serialized_name_to_node.get(output.as_tensor.name);
+                    return this.serialized_name_to_node.__getitem__(output.as_tensor.name);
                 } else if (output.type === 'as_sym_int') {
-                    return this.serialized_name_to_node.get(output.as_sym_int.as_name);
+                    return this.serialized_name_to_node.__getitem__(output.as_sym_int.as_name);
                 } else if (output.type === 'as_sym_bool') {
-                    return this.serialized_name_to_node.get(output.as_sym_bool.as_name);
+                    return this.serialized_name_to_node.__getitem__(output.as_sym_bool.as_name);
                 } else if (output.type === 'as_sym_float') {
-                    return this.serialized_name_to_node.get(output.as_sym_float.as_name);
+                    return this.serialized_name_to_node.__getitem__(output.as_sym_float.as_name);
                 } else if (output.type === 'as_int') {
                     return output.as_int;
                 } else if (output.type === 'as_float') {
@@ -20201,7 +20204,13 @@ python.Execution = class {
                         return result;
                     } else if (typ_ === 'as_ints' || typ_ === 'as_floats' || typ_ === 'as_bools' || typ_ ===  'as_strings') {
                         return Array.from(value);
-                    } else if (typ_ === 'as_sym_ints' || typ_ === 'as_sym_bools') {
+                    } else if (typ_ === 'as_int_lists') {
+                        return value.map((dims) => Array.from(dims));
+                    } else if (typ_ === 'as_float_lists') {
+                        return value.map((floats) => Array.from(floats));
+                    } else if (typ_ === 'as_nested_tensors') {
+                        return value.map((inner_list) => inner_list.map((arg) => this.serialized_name_to_node.get(arg.name)));
+                    } else if (typ_ === 'as_sym_ints' || typ_ === 'as_sym_bools' || typ_ === 'as_sym_floats') {
                         return value.map((arg) => this.deserialize_sym_argument(arg));
                     } else if (typ_ === 'as_optional_tensors') {
                         const deserialize_optional_tensor_args = (a) => {
