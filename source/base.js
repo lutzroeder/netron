@@ -699,9 +699,9 @@ base.Tensor = class {
             ['xint8', 1],
             ['int8', 1], ['int16', 2], ['int32', 4], ['int48', 6], ['int64', 8], ['int128', 16],
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
-            ['float16', 2], ['float32', 4], ['float64', 8], ['bfloat16', 2],
+            ['float16', 2], ['float32', 4], ['float64', 8], ['float80', 10], ['float128', 16], ['bfloat16', 2],
             ['complex<float32>', 8], ['complex<float64>', 16], ['complex<int32>', 8],
-            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e4m3b11fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1], ['float4e2m1fn', 1], ['float6e2m3fn', 1], ['float6e3m2fn', 1], ['float8e8m0fnu', 1]
+            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e4m3b11fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1], ['float4e2m1fn', 1], ['float6e2m3fn', 1], ['float6e3m2fn', 1], ['float8e8m0fnu', 1], ['float8e8m0', 1]
         ]);
     }
 
@@ -867,6 +867,14 @@ base.Tensor = class {
                         } else if (dataType === 'float4e2m1') {
                             context.dataType = 'float4e2m1';
                             context.bits = 4;
+                            context.itemsize = 1;
+                        } else if (dataType === 'quint4x2') {
+                            context.dataType = 'uint';
+                            context.bits = 4;
+                            context.itemsize = 1;
+                        } else if (dataType === 'quint2x4') {
+                            context.dataType = 'uint';
+                            context.bits = 2;
                             context.itemsize = 1;
                         } else {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
@@ -1081,6 +1089,7 @@ base.Tensor = class {
                     }
                     break;
                 case 'float8e8m0fnu':
+                case 'float8e8m0':
                     for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat8e8m0fnu(offset));
                     }
