@@ -3718,7 +3718,6 @@
     "target":   "blazeface.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/blazeface/tensorflow/jni/blazeface.mnn",
     "format":   "MNN v2",
-    "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
@@ -3733,7 +3732,6 @@
     "target":   "face_det.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tflite/jni/face_det.mnn",
     "format":   "MNN v2",
-    "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
@@ -3797,7 +3795,6 @@
     "target":   "tf_body_det.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tensorflow/jni/tf_body_det.mnn",
     "format":   "MNN v2",
-    "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
