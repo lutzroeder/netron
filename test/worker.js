@@ -211,9 +211,8 @@ export class Target {
                 if (name === '.') {
                     const target = targets.shift();
                     const dir = path.join(this.folder, target);
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     await fs.mkdir(dir, { recursive: true });
-                    /* eslint-enable no-await-in-loop */
                 } else {
                     const stream = archive.entries.get(name);
                     if (!stream) {
@@ -222,9 +221,8 @@ export class Target {
                     const target = targets.shift();
                     const buffer = stream.peek();
                     const file = path.join(this.folder, target);
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     await fs.writeFile(file, buffer, null);
-                    /* eslint-enable no-await-in-loop */
                 }
             }
         } else {
@@ -422,9 +420,8 @@ export class Target {
                     input.name.toString();
                     input.name.length;
                     for (const value of input.value) {
-                        /* eslint-disable no-await-in-loop */
+                        // eslint-disable-next-line no-await-in-loop
                         await validateValue(value);
-                        /* eslint-enable no-await-in-loop */
                     }
                 }
                 for (const output of signature.outputs) {
@@ -432,9 +429,8 @@ export class Target {
                     output.name.length;
                     if (Array.isArray(output.value)) {
                         for (const value of output.value) {
-                            /* eslint-disable no-await-in-loop */
+                            // eslint-disable-next-line no-await-in-loop
                             await validateValue(value);
-                            /* eslint-enable no-await-in-loop */
                         }
                     }
                 }
@@ -448,9 +444,8 @@ export class Target {
                     throw new Error(`Invalid node type '${JSON.stringify(node.type)}'.`);
                 }
                 if (Array.isArray(type.nodes)) {
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     await validateGraph(type);
-                    /* eslint-enable no-await-in-loop */
                 }
                 view.Documentation.open(type);
                 node.name.toString();
@@ -466,9 +461,8 @@ export class Target {
                         const type = attribute.type;
                         const value = attribute.value;
                         if ((type === 'graph' || type === 'function') && value && Array.isArray(value.nodes)) {
-                            /* eslint-disable no-await-in-loop */
+                            // eslint-disable-next-line no-await-in-loop
                             await validateGraph(value);
-                            /* eslint-enable no-await-in-loop */
                         } else {
                             let text = new view.Formatter(attribute.value, attribute.type).toString();
                             if (text && text.length > 1000) {
@@ -485,9 +479,8 @@ export class Target {
                         input.name.length;
                         if (!input.type || input.type.endsWith('*')) {
                             for (const value of input.value) {
-                                /* eslint-disable no-await-in-loop */
+                                // eslint-disable-next-line no-await-in-loop
                                 await validateValue(value);
-                                /* eslint-enable no-await-in-loop */
                             }
                             if (this.tags.has('validation')) {
                                 if (input.value.length === 1 && input.value[0].initializer) {
@@ -505,9 +498,8 @@ export class Target {
                         output.name.length;
                         if (!output.type || output.type.endsWith('*')) {
                             for (const value of output.value) {
-                                /* eslint-disable no-await-in-loop */
+                                // eslint-disable-next-line no-await-in-loop
                                 await validateValue(value);
-                                /* eslint-enable no-await-in-loop */
                             }
                         }
                     }
@@ -533,15 +525,13 @@ export class Target {
             }
         };
         for (const module of model.modules) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await validateTarget(module);
-            /* eslint-enable no-await-in-loop */
         }
         const functions = model.functions || [];
         for (const func of functions) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await validateTarget(func);
-            /* eslint-enable no-await-in-loop */
         }
     }
 
@@ -549,9 +539,8 @@ export class Target {
         for (const graph of this.model.modules) {
             const signatures = Array.isArray(graph.signatures) && graph.signatures.length > 0 ? graph.signatures : [graph];
             for (const signature of signatures) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await this.view.render(graph, signature);
-                /* eslint-enable no-await-in-loop */
             }
         }
     }

@@ -215,13 +215,12 @@ class Worker {
         for (let task = this._queue.pop(); task; task = this._queue.pop()) {
             task.measures = this._measures ? new Map() : null;
             this._logger.update(this._identifier, null);
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await new Promise((resolve) => {
                 this._resolve = resolve;
                 this._attach();
                 this._worker.postMessage(task);
             });
-            /* eslint-enable no-await-in-loop */
         }
         this._logger.delete(this._identifier);
         await this._worker.terminate();
@@ -330,8 +329,8 @@ const main = async () => {
                 target.measures = measures ? new Map() : null;
                 target.serial = args.serial;
                 target.on('status', (sender, message) => logger.update('', message));
-                /* eslint-disable no-await-in-loop */
                 try {
+                    // eslint-disable-next-line no-await-in-loop
                     await target.execute();
                     success += 1;
                 } catch (e) {
@@ -342,9 +341,9 @@ const main = async () => {
                     }
                 }
                 if (target.measures) {
+                    // eslint-disable-next-line no-await-in-loop
                     await measures.add(target.measures);
                 }
-                /* eslint-enable no-await-in-loop */
             }
             if (args.continue) {
                 write(`  ${success} / ${total} =  ${success * 100 / total}%\n`);

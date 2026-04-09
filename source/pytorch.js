@@ -1576,43 +1576,49 @@ pytorch.Reader.ExportedProgram = class extends pytorch.Reader {
                 const match = name.match(/^models\/([^/]+)\.json$/);
                 if (match) {
                     const [, model_name] = match;
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     const model = await this.context.fetch(`models/${model_name}.json`);
+                    // eslint-disable-next-line no-await-in-loop
                     const exported_program = await model.read('json');
                     exported_programs.set(model_name, exported_program);
                     f.set(`models/${model_name}.json`, exported_program);
+                    // eslint-disable-next-line no-await-in-loop
                     const sample_inputs = await this._fetch(`data/sample_inputs/${model_name}.pt`, 'zip');
                     f.set(`data/sample_inputs/${model_name}.pt`, sample_inputs);
+                    // eslint-disable-next-line no-await-in-loop
                     const weights_config = await this._fetch(`data/weights/${model_name}_weights_config.json`, 'json');
                     if (weights_config) {
                         f.set(`data/weights/${model_name}_weights_config.json`, weights_config);
                         for (const payload_meta of Object.values(weights_config.config)) {
                             const type = payload_meta.use_pickle ? 'zip' : 'binary';
+                            // eslint-disable-next-line no-await-in-loop
                             const weight_data = await this._fetch(`data/weights/${payload_meta.path_name}`, type);
                             if (weight_data) {
                                 f.set(`data/weights/${payload_meta.path_name}`, weight_data);
                             }
                         }
                     } else {
+                        // eslint-disable-next-line no-await-in-loop
                         const weights = await this._fetch(`data/weights/${model_name}.pt`, 'zip');
                         f.set(`data/weights/${model_name}.pt`, weights);
                     }
+                    // eslint-disable-next-line no-await-in-loop
                     const constants_config = await this._fetch(`data/constants/${model_name}_constants_config.json`, 'json');
                     if (constants_config) {
                         f.set(`data/constants/${model_name}_constants_config.json`, constants_config);
                         for (const payload_meta of Object.values(constants_config.config)) {
-                            // eslint-enable no-await-in-loop
                             const type = payload_meta.use_pickle ? 'zip' : 'binary';
+                            // eslint-disable-next-line no-await-in-loop
                             const constant_data = await this._fetch(`data/constants/${payload_meta.path_name}`, type);
                             if (constant_data) {
                                 f.set(`data/constants/${payload_meta.path_name}`, constant_data);
                             }
                         }
                     } else {
+                        // eslint-disable-next-line no-await-in-loop
                         const constants = await this._fetch(`data/constants/${model_name}.pt`);
                         f.set(`data/constants/${model_name}.pt`, constants);
                     }
-                    /* eslint-enable no-await-in-loop */
                 }
             }
             const byteorder = await this._fetch('byteorder', 'text') || 'little';

@@ -159,13 +159,11 @@ protoc.Root = class extends protoc.Namespace {
 
     async load(paths, files) {
         for (const file of files) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const resolved = await this._resolve(file, '', paths);
-            /* eslint-enable no-await-in-loop */
             if (resolved) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await this._loadFile(paths, resolved);
-                /* eslint-enable no-await-in-loop */
             } else {
                 throw new protoc.Error(`File '${file}' not found.`);
             }
@@ -196,24 +194,20 @@ protoc.Root = class extends protoc.Namespace {
         const parser = new protoc.Parser(source, file, this);
         const parsed = parser.parse();
         for (const item of parsed.imports) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const resolved = await this._resolve(item, file, paths);
-            /* eslint-enable no-await-in-loop */
             if (!resolved) {
                 throw new protoc.Error(`File '${item}' not found.`);
             }
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await this._loadFile(paths, resolved);
-            /* eslint-enable no-await-in-loop */
         }
         for (const item of parsed.weakImports) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const resolved = await this._resolve(item, file, paths);
-            /* eslint-enable no-await-in-loop */
             if (resolved) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await this._loadFile(paths, resolved);
-                /* eslint-enable no-await-in-loop */
             }
         }
     }
@@ -242,12 +236,11 @@ protoc.Root = class extends protoc.Namespace {
         }
         for (const dir of paths) {
             const file = path.resolve(dir, target);
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const exists = await access(file);
             if (exists) {
                 return file;
             }
-            /* eslint-enable no-await-in-loop */
         }
         return null;
     }

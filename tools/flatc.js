@@ -799,9 +799,8 @@ flatc.Root = class extends flatc.Object {
 
     async load(paths, files) {
         for (const file of files) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await this._parseFile(paths, file);
-            /* eslint-enable no-await-in-loop */
         }
         this.resolve();
     }
@@ -863,13 +862,11 @@ flatc.Root = class extends flatc.Object {
             const parser = new flatc.Parser(content, file, this);
             const includes = parser.include();
             for (const include of includes) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 const includeFile = await this._resolve(paths, file, include);
-                /* eslint-enable no-await-in-loop */
                 if (includeFile) {
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     await this._parseFile(paths, includeFile);
-                    /* eslint-enable no-await-in-loop */
                     continue;
                 }
                 throw new flatc.Error(`Include '${include}' not found.`);
@@ -894,9 +891,8 @@ flatc.Root = class extends flatc.Object {
         }
         for (const current of paths) {
             const file = path.join(current, target);
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const exists = await access(file);
-            /* eslint-enable no-await-in-loop */
             if (exists) {
                 return file;
             }

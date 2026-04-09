@@ -22,9 +22,8 @@ onnx.ModelFactory = class {
                 onnx.MetaReader
             ];
             for (const entry of entries) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 const reader = await entry.open(context);
-                /* eslint-enable no-await-in-loop */
                 if (reader) {
                     return context.set(reader.name, reader);
                 }

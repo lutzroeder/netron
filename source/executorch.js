@@ -429,9 +429,8 @@ executorch.Reader = class {
                             default:
                                 throw new executorch.Error(`ExecuTorch delegate '${delegate.id}' not implemented.`);
                         }
-                        /* eslint-disable no-await-in-loop */
+                        // eslint-disable-next-line no-await-in-loop
                         await delegate.backend.read();
-                        /* eslint-enable no-await-in-loop */
                     }
                 }
             }
@@ -991,13 +990,11 @@ coreml.Reader = class {
         const context = this.target.context;
         for (const [key] of streams) {
             const content = context.context(key, streams.get(key), streams);
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const type = await factory.match(content);
-            /* eslint-enable no-await-in-loop */
             if (type === 'coreml.manifest') {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 const model = await factory.open(content);
-                /* eslint-enable no-await-in-loop */
                 [this.type] = model.modules;
                 this.type.name = 'CoreMLBackend';
                 return;

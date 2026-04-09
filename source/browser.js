@@ -62,9 +62,8 @@ browser.Host = class {
                 const link = this._element('logo-github').href;
                 document.body.classList.remove('spinner');
                 for (;;) {
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     await this.message('Please update to the newest version.', null, 'Update');
-                    /* eslint-enable no-await-in-loop */
                     this.openURL(link);
                 }
             }

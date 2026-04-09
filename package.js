@@ -278,9 +278,8 @@ const build = async (target) => {
             ]);
             const targets = table.has(key) ? [table.get(key)] : Array.from(table.values());
             for (const target of targets) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await exec(target);
-                /* eslint-enable no-await-in-loop */
             }
             break;
         }
@@ -339,9 +338,8 @@ const publish = async (target) => {
             ]);
             const targets = table.has(key) ? [table.get(key)] : Array.from(table.values());
             for (const target of targets) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await exec(target);
-                /* eslint-enable no-await-in-loop */
             }
             break;
         }
@@ -519,12 +517,13 @@ const lint = async () => {
 const test = async (target) => {
     let models = true;
     while (true) {
-        /* eslint-disable no-await-in-loop */
         if (target === 'desktop' || read('desktop')) {
             target = null;
             models = false;
+            // eslint-disable-next-line no-await-in-loop
             await exec('npx playwright install --with-deps');
             const host = process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI) ? 'xvfb-run -a ' : '';
+            // eslint-disable-next-line no-await-in-loop
             await exec(`${host}npx playwright test --config=test/playwright.config.js --project=desktop`);
             continue;
         }
@@ -532,14 +531,15 @@ const test = async (target) => {
             target = null;
             models = false;
             if (process.platform !== 'win32') {
+                // eslint-disable-next-line no-await-in-loop
                 await exec('npx playwright install --with-deps');
                 const headed = process.env.GITHUB_ACTIONS || process.env.CI ? '' :  ' --headed';
+                // eslint-disable-next-line no-await-in-loop
                 await exec(`npx playwright test --config=test/playwright.config.js --project=browser${headed}`);
             }
             continue;
         }
         break;
-        /* eslint-enable no-await-in-loop */
     }
     if (models) {
         target = target || args.join(' ');
@@ -589,9 +589,8 @@ const update = async () => {
         for (const [name, entry] of Object.entries(entries)) {
             if (compare(entry.wanted, entry.latest) < 0) {
                 writeLine(name);
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
-                /* eslint-enable no-await-in-loop */
             }
         }
     }
@@ -628,13 +627,13 @@ const update = async () => {
     }
     commands = commands.join(' ');
     for (const target of targets) {
-        /* eslint-disable no-await-in-loop */
         if (process.platform === 'win32') {
+            // eslint-disable-next-line no-await-in-loop
             await exec(`bash tools/${target} ${commands}`);
         } else {
+            // eslint-disable-next-line no-await-in-loop
             await exec(`tools/${target} ${commands}`);
         }
-        /* eslint-enable no-await-in-loop */
     }
 };
 

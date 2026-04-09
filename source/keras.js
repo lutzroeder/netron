@@ -199,16 +199,14 @@ keras.ModelFactory = class {
             for (const [name, type, callback] of formats) {
                 let content = null;
                 try {
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     content = await context.fetch(name);
-                    /* eslint-enable no-await-in-loop */
                 } catch {
                     // continue regardless of error
                 }
                 if (content) {
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     const obj = await content.peek(type);
-                    /* eslint-enable no-await-in-loop */
                     if (obj) {
                         return callback(obj);
                     }

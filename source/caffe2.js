@@ -108,9 +108,8 @@ caffe2.ModelFactory = class {
                     for (const extension of extensions) {
                         try {
                             const name = `${base.replace(/init_net$/, '')}predict_net.${extension}`;
-                            /* eslint-disable no-await-in-loop */
+                            // eslint-disable-next-line no-await-in-loop
                             predict = await context.fetch(name);
-                            /* eslint-enable no-await-in-loop */
                             predict.set(`caffe2.${extension}`);
                             break;
                         } catch {

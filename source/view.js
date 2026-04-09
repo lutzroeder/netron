@@ -7596,18 +7596,17 @@ view.ModelFactoryService = class {
         const modules = this._filter(context).filter((module) => module && module.length > 0);
         const errors = [];
         for (const module of modules) {
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             const factory = await this._require(module);
+            // eslint-disable-next-line no-await-in-loop
             const type = await factory.match(context);
-            /* eslint-enable no-await-in-loop */
             if (context.stream && context.stream.position !== 0) {
                 throw new view.Error('Invalid stream position.');
             }
             if (type) {
                 try {
-                    /* eslint-disable no-await-in-loop */
+                    // eslint-disable-next-line no-await-in-loop
                     const model = await factory.open(context);
-                    /* eslint-enable no-await-in-loop */
                     if (!model.identifier) {
                         model.identifier = context.identifier;
                     }
@@ -7659,10 +7658,10 @@ view.ModelFactoryService = class {
                     const context = new view.Context(container, identifier, stream);
                     const modules = this._filter(context);
                     for (const module of modules) {
-                        /* eslint-disable no-await-in-loop */
+                        // eslint-disable-next-line no-await-in-loop
                         const factory = await this._require(module);
+                        // eslint-disable-next-line no-await-in-loop
                         const type = await factory.match(context);
-                        /* eslint-enable no-await-in-loop */
                         if (context.stream && context.stream.position !== 0) {
                             throw new view.Error('Invalid stream position.');
                         }

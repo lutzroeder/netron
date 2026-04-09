@@ -185,9 +185,8 @@ tf.ModelFactory = class {
         }
         if (extension === 'json') {
             for (const type of ['json', 'json.gz']) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 const obj = await context.peek(type);
-                /* eslint-enable no-await-in-loop */
                 if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
                     return context.set(`tf.${type}`);
                 }

@@ -215,9 +215,8 @@ grapher.Graph = class {
             const entry = this.node(key);
             if (this.children(key).length === 0) {
                 const node = entry.label;
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await node.measure();
-                /* eslint-enable no-await-in-loop */
             }
         }
     }
@@ -656,9 +655,8 @@ grapher.ArgumentList = class {
         this.height = 3;
         for (let i = 0; i < this._items.length; i++) {
             const item = this._items[i];
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await item.measure();
-            /* eslint-enable no-await-in-loop */
             this.height += item.height;
             this.width = Math.max(this.width, item.width);
             if (item.type === 'node' || item.type === 'node[]') {
@@ -679,9 +677,8 @@ grapher.ArgumentList = class {
             item.x = this.x;
             item.y = y;
             item.width = this.width;
-            /* eslint-disable no-await-in-loop */
+            // eslint-disable-next-line no-await-in-loop
             await item.layout();
-            /* eslint-enable no-await-in-loop */
             y += item.height;
         }
     }
@@ -793,9 +790,8 @@ grapher.Argument = class {
             this.height += node.height + yPadding + yPadding + yPadding + yPadding;
         } else if (this.type === 'node[]') {
             for (const node of this.content) {
-                /* eslint-disable no-await-in-loop */
+                // eslint-disable-next-line no-await-in-loop
                 await node.measure();
-                /* eslint-enable no-await-in-loop */
                 this.width = Math.max(150, this.width, node.width + (2 * xPadding));
                 this.height += node.height + yPadding + yPadding + yPadding + yPadding;
             }
