@@ -16516,6 +16516,7 @@ _.TosaDialect = class extends _.Dialect {
             ['tosa.resize', 'mode'],
             ['tosa.argmax', 'nan_mode'],
             ['tosa.max_pool2d', 'nan_mode'],
+            ['tosa.max_pool2d_adaptive', 'nan_mode'],
             ['tosa.clamp', 'nan_mode'],
             ['tosa.maximum', 'nan_mode'],
             ['tosa.minimum', 'nan_mode'],
