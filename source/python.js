@@ -168,6 +168,8 @@ python.Execution = class {
         this.register('sklearn.externals.joblib.numpy_pickle');
         const torch = this.register('torch');
         this.torch = torch;
+        const executorch = this.register('executorch');
+        this.executorch = executorch;
         const torchvision = this.register('torchvision');
         const torchao = this.register('torchao');
         const sympy = this.register('sympy');
@@ -19714,7 +19716,7 @@ python.Execution = class {
                     const serialized_constants = torch.export.pt2_archive._package._load_constants(f, model_name);
                     const serialized_example_inputs = f.get(`data/sample_inputs/${model_name}.pt`, 'zip');
                     const artifact = new torch._export.serde.serialize.SerializedArtifact(serialized_exported_program, serialized_state_dict, serialized_constants, serialized_example_inputs);
-                    const exported_program = torch._export.serde.serialize.deserialize(artifact, expected_opset_version);
+                    const exported_program = executorch.exir.serde.serialize.deserialize(artifact, expected_opset_version);
                     exported_programs.set(model_name, exported_program);
                 }
             }
@@ -20525,6 +20527,153 @@ python.Execution = class {
                 const returns = schema.returns;
                 return returns.length === 1 && returns[0].real_type instanceof torch.TensorType;
             }
+        });
+        this.registerType('executorch.exir.dialects.edge._ops.EdgeOpOverload', class {
+            constructor(op, schema) {
+                this._op = op;
+                this._schema = schema || op._schema;
+                this.__name__ = `${op._schema.name.split('::')[1]}.${op._overloadname}`;
+            }
+            name() {
+                return `executorch.exir.dialects.edge.ops.${this._op.name()}`;
+            }
+        });
+        this.registerType('executorch.exir.dialects.backend._ops.BackendOpOverload', class {
+            constructor(op, schema) {
+                this._op = op;
+                this._schema = schema || op._schema;
+                this.__name__ = `${op._schema.name.split('::')[1]}.${op._overloadname}`;
+            }
+            name() {
+                return `executorch.exir.dialects.backend.ops.${this._op.name()}`;
+            }
+        });
+        this.registerType('executorch.exir.dialects.edge._ops.EdgeOpOverloadPacket', class {
+            constructor(qualified_op_name, op_name, parent_overload_packet) {
+                this._parent_overload_packet = parent_overload_packet;
+                this._qualified_op_name = qualified_op_name;
+                this.__name__ = qualified_op_name.replace('::', '.');
+            }
+            __getattr__(key) {
+                const parent_overload = builtins.getattr(this._parent_overload_packet, key);
+                if (!parent_overload) {
+                    throw new python.Error(`The underlying op of '${this}' has no overload name '${key}'.`);
+                }
+                const overload = new executorch.exir.dialects.edge._ops.EdgeOpOverload(parent_overload);
+                this[key] = overload;
+                return overload;
+            }
+        });
+        this.registerType('executorch.exir.dialects.backend._ops.BackendOpOverloadPacket', class {
+            constructor(qualified_op_name, op_name, parent_overload_packet) {
+                this._parent_overload_packet = parent_overload_packet;
+                this._qualified_op_name = qualified_op_name;
+                this.__name__ = qualified_op_name.replace('::', '.');
+            }
+            __getattr__(key) {
+                const parent_overload = builtins.getattr(this._parent_overload_packet, key);
+                if (!parent_overload) {
+                    throw new python.Error(`The underlying op of '${this}' has no overload name '${key}'.`);
+                }
+                const overload = new executorch.exir.dialects.backend._ops.BackendOpOverload(parent_overload);
+                this[key] = overload;
+                return overload;
+            }
+        });
+        this.registerType('executorch.exir.dialects._ops._OpNamespace', class {
+            constructor(dialect, name) {
+                this._dialect = dialect;
+                this._name = name;
+                this._op_namespace = torch.ops[name];
+            }
+            __getattr__(op_name) {
+                const parent_packet = builtins.getattr(this._op_namespace, op_name);
+                const qualified_op_name = `${this._name}::${op_name}`;
+                const PacketCls = this._dialect === 'edge' ?
+                    executorch.exir.dialects.edge._ops.EdgeOpOverloadPacket :
+                    executorch.exir.dialects.backend._ops.BackendOpOverloadPacket;
+                const opoverloadpacket = new PacketCls(qualified_op_name, op_name, parent_packet);
+                this[op_name] = opoverloadpacket;
+                return opoverloadpacket;
+            }
+        });
+        this.registerType('executorch.exir.dialects._ops._DialectNamespace', class {
+            constructor(dialect_name) {
+                this._dialect_name = dialect_name;
+            }
+            __getattr__(name) {
+                const namespace = new executorch.exir.dialects._ops._OpNamespace(this._dialect_name, name);
+                this[name] = namespace;
+                return namespace;
+            }
+        });
+        this.registerType('executorch.exir.dialects._ops._Ops', class {
+            __getattr__(name) {
+                const dialect = new executorch.exir.dialects._ops._DialectNamespace(name);
+                this[name] = dialect;
+                return dialect;
+            }
+        });
+        executorch.exir.dialects._ops.ops = new executorch.exir.dialects._ops._Ops();
+        this.registerType('executorch.exir.serde.serialize.GraphModuleDeserializer', class extends torch._export.serde.serialize.GraphModuleDeserializer {
+            deserialize_operator(serialized_target) {
+                const find_operator = (module, target) => {
+                    const names = target.split('.').slice(5);
+                    let node = module;
+                    for (const name of names) {
+                        node = builtins.getattr(node, name);
+                        if (!node) {
+                            return target;
+                        }
+                    }
+                    return node;
+                };
+                const ops = executorch.exir.dialects._ops.ops;
+                if (serialized_target.startsWith('executorch.exir.dialects.edge.ops')) {
+                    return find_operator(builtins.getattr(ops, 'edge'), serialized_target);
+                }
+                if (serialized_target.startsWith('executorch.exir.dialects.backend.ops')) {
+                    return find_operator(builtins.getattr(ops, 'backend'), serialized_target);
+                }
+                return super.deserialize_operator(serialized_target);
+            }
+            deserialize_node(serialized_node, target) {
+                if (builtins.isinstance(target, executorch.exir.dialects.edge._ops.EdgeOpOverload)) {
+                    const name = this._is_single_tensor_return(target._op) ? serialized_node.outputs[0].as_tensor.name : null;
+                    const [args, kwargs] = this.deserialize_inputs(target._op, serialized_node);
+                    const fx_node = this.graph.create_node('call_function', target, args, kwargs, name);
+                    this.deserialize_outputs(serialized_node, fx_node);
+                    fx_node.meta.update(this.deserialize_metadata(serialized_node.metadata));
+                    return;
+                }
+                super.deserialize_node(serialized_node, target);
+            }
+            deserialize_outputs(serialized_node, fx_node) {
+                if (builtins.isinstance(fx_node.target, executorch.exir.dialects.edge._ops.EdgeOpOverload)) {
+                    const edge_op = fx_node.target;
+                    fx_node.target = edge_op._op;
+                    super.deserialize_outputs(serialized_node, fx_node);
+                    fx_node.target = edge_op;
+                    return;
+                }
+                super.deserialize_outputs(serialized_node, fx_node);
+            }
+        });
+        this.registerType('executorch.exir.serde.serialize.ExportedProgramDeserializer', class extends torch._export.serde.serialize.ExportedProgramDeserializer {
+            deserialize(exported_program, state_dict, constants, example_inputs) {
+                const symbol_name_to_range = new Map(Object.entries(exported_program.range_constraints));
+                const deserializer = new executorch.exir.serde.serialize.GraphModuleDeserializer();
+                const res = deserializer.deserialize(
+                    exported_program.graph_module, state_dict, constants, example_inputs, symbol_name_to_range);
+                return new torch.export.exported_program.ExportedProgram(
+                    res.graph_module, res.graph_module.graph, res.signature,
+                    res.state_dict, null, res.module_call_graph, res.example_inputs,
+                    null, res.constants);
+            }
+        });
+        this.registerFunction('executorch.exir.serde.serialize.deserialize', (artifact, expected_opset_version) => {
+            const serialized_exported_program = torch._export.serde.serialize._dict_to_dataclass(torch._export.serde.schema.ExportedProgram, artifact.exported_program);
+            return new executorch.exir.serde.serialize.ExportedProgramDeserializer(expected_opset_version).deserialize(serialized_exported_program, artifact.state_dict, artifact.constants, artifact.example_inputs);
         });
         this.registerType('torch._export.verifier.Verifier', class {});
         this.registerType('torch._dynamo.convert_frame.CatchErrorsWrapper', class {});

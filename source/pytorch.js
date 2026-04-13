@@ -314,6 +314,7 @@ pytorch.Node = class {
     constructor(execution, metadata, name, type, obj, initializers, context, stack) {
         const torch = execution ? execution.torch : null;
         const builtins = execution ? execution.builtins : null;
+        const executorch = execution ? execution.executorch : null;
         this.name = name || '';
         this.nodes = [];
         this.attributes = [];
@@ -555,7 +556,7 @@ pytorch.Node = class {
             if (obj.op === 'call_function') {
                 let name = null;
                 const target = obj.target;
-                if (target instanceof torch._ops.OpOverload) {
+                if (target instanceof torch._ops.OpOverload || (executorch && (target instanceof executorch.exir.dialects.edge._ops.EdgeOpOverload || target instanceof executorch.exir.dialects.backend._ops.BackendOpOverload))) {
                     name = target.name();
                 } else if (target instanceof torch._ops.HigherOrderOperator) {
                     name = `${target.namespace}::${target.name}`;
