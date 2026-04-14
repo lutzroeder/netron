@@ -210,7 +210,7 @@ hdf5.Variable = class {
         if (data) {
             const reader = hdf5.Reader.open(data);
             const array = this._dataspace.read(this._datatype, reader);
-            return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
+            return this._dataspace.decode(this._datatype, array, this._globalHeap);
         }
         return null;
     }
@@ -547,7 +547,7 @@ hdf5.BinaryReader = class extends hdf5.Reader {
     stream(length) {
         const position = this.take(length);
         const buffer = this._buffer.subarray(position, position + length);
-        return new hdf5.BinaryReader(buffer);
+        return new hdf5.BinaryReader(buffer, undefined, undefined, undefined, this._offsetSize, this._lengthSize);
     }
 
     size(terminator) {
@@ -1081,7 +1081,7 @@ hdf5.Datatype = class {
                 break;
             case 9: // variable-length
                 if ((this._flags & 0x0f) === 1) { // type
-                    return 'char[]';
+                    return 'string';
                 }
                 break;
             default:
