@@ -5937,6 +5937,21 @@ python.Execution = class {
             if (a instanceof sympy.core.expr.Expr) {
                 return a;
             }
+            if (typeof a === 'bigint') {
+                return new sympy.core.numbers.Integer(Number(a));
+            }
+            if (typeof a === 'number') {
+                if (Number.isInteger(a)) {
+                    return new sympy.core.numbers.Integer(a);
+                }
+                return new sympy.core.numbers.Float(a);
+            }
+            if (typeof a === 'boolean') {
+                return a ? new sympy.logic.boolalg.BooleanTrue() : new sympy.logic.boolalg.BooleanFalse();
+            }
+            if (typeof a !== 'string') {
+                throw new python.Error(`Cannot sympify object of type '${typeof a}'.`);
+            }
             const p = ast.parse(a);
             const sympify = (node) => {
                 if (node instanceof ast.Call) {
