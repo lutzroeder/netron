@@ -234,6 +234,7 @@ mlir.Graph = class {
                         inputs: [],
                         outputs: [],
                         regions: op.regions,
+                        loc: op.loc,
                         delete: false,
                     };
                     const opMetadata = op.name.metadata;
@@ -495,6 +496,10 @@ mlir.Node = class {
         this.outputs = [];
         this.attributes = [];
         this.blocks = [];
+        this.metadata = [];
+        if (op.loc instanceof _.LocationAttr && op.loc instanceof _.UnknownLoc === false) {
+            this.metadata.push(new mlir.Argument('location', op.loc.printLocationInternal(), 'attribute'));
+        }
         torchConstantMap = torchConstantMap || new Map();
         const segmentSizes = op.attributes.get('operandSegmentSizes');
         const operandMeta = this.type && this.type.operands;
@@ -1033,7 +1038,7 @@ _.Operation = class {
         this.operands = state.operands;
         this.regions = state.regions;
         this.propertiesAttr = state.propertiesAttr;
-        this.loc = state.loc;
+        this.loc = state.location;
         this.results = [];
         if (Array.isArray(state.types)) {
             for (let i = 0; i < state.types.length; i++) {
@@ -4813,17 +4818,22 @@ _.OperationParser = class extends _.Parser {
                 if (op.loc) {
                     resolveLocation(op);
                 }
-                if (op.body && op.body.blocks) {
-                    for (const blk of op.body.blocks) {
-                        if (blk.arguments) {
-                            for (const arg of blk.arguments) {
-                                if (arg.loc) {
-                                    resolveLocation(arg);
+                if (op.regions) {
+                    for (const region of op.regions) {
+                        if (!region.blocks) {
+                            continue;
+                        }
+                        for (const blk of region.blocks) {
+                            if (blk.arguments) {
+                                for (const arg of blk.arguments) {
+                                    if (arg.loc) {
+                                        resolveLocation(arg);
+                                    }
                                 }
                             }
-                        }
-                        if (blk.operations) {
-                            walk(blk.operations);
+                            if (blk.operations) {
+                                walk(blk.operations);
+                            }
                         }
                     }
                 }
@@ -4896,7 +4906,8 @@ _.OperationParser = class extends _.Parser {
     parseCustomOperation(resultIDs) {
         const opLoc = this.getToken().loc.copy();
         const opNameInfo = this.parseCustomOperationName();
-        const opState = new _.OperationState(opLoc, opNameInfo);
+        const srcLocation = this.getEncodedSourceLocation(opLoc).impl;
+        const opState = new _.OperationState(srcLocation, opNameInfo);
         delete opNameInfo.identifier; // Visualization-specific addition to keep the original name
         const defaultDialect = (opNameInfo && opNameInfo.metadata && opNameInfo.metadata.defaultDialect) || this.state.defaultDialectStack[this.state.defaultDialectStack.length - 1];
         this.state.defaultDialectStack.push(defaultDialect);
@@ -4908,7 +4919,10 @@ _.OperationParser = class extends _.Parser {
         if (!opNameInfo.metadata.hasParser && !opNameInfo.metadata.hasCustomAssemblyFormat && opNameInfo.metadata.assemblyFormat && opState.compatibility !== true) {
             this.emitError(`Operation '${opState.identifier}' has assembly format but was handled by custom dialect code.`);
         }
-        opState.loc = this.parseTrailingLocationSpecifier() || {};
+        const trailingLoc = this.parseTrailingLocationSpecifier();
+        if (trailingLoc) {
+            opState.location = trailingLoc;
+        }
         this.state.defaultDialectStack.pop();
         return _.Operation.create(opState);
     }
@@ -4953,7 +4967,7 @@ _.OperationParser = class extends _.Parser {
     }
 
     parseGenericOperation() {
-        const srcLocation = this.getToken().loc.copy();
+        const opLoc = this.getToken().loc.copy();
         const identifier = this.getToken().getStringValue();
         if (identifier.length === 0) {
             this.emitError('Empty operation name is invalid');
@@ -4970,6 +4984,7 @@ _.OperationParser = class extends _.Parser {
             opName = new _.OperationName(dialect || null, name);
         }
         opName.identifier = identifier; // Visualization-specific addition to keep the original name
+        const srcLocation = this.getEncodedSourceLocation(opLoc).impl;
         const result = new _.OperationState(srcLocation, opName);
         this.parseGenericOperationAfterOpName(result);
         return _.Operation.create(result);
@@ -5018,7 +5033,10 @@ _.OperationParser = class extends _.Parser {
             result.operands.push(value);
         }
         result.addTypes(fnType.results);
-        result.loc = this.parseTrailingLocationSpecifier();
+        const trailingLoc = this.parseTrailingLocationSpecifier();
+        if (trailingLoc) {
+            result.location = trailingLoc;
+        }
     }
 
     pushSSANameScope(isIsolated) {
@@ -19037,45 +19055,39 @@ _.BuiltinDialect = class extends _.Dialect {
             case 10: { // CallSiteLoc
                 const caller = reader.readAttribute();
                 const callee = reader.readAttribute();
-                const callerStr = caller && caller.value ? caller.value : '<caller>';
-                const calleeStr = callee && callee.value ? callee.value : '<callee>';
-                return { name: 'loc', value: `callsite(${callerStr} at ${calleeStr})` };
+                return new _.CallSiteLoc(callee, caller);
             }
             case 11: { // FileLineColLoc
                 const filename = reader.readString();
                 const line = reader.readVarInt();
                 const col = reader.readVarInt();
-                return { name: 'loc', value: `${filename}:${line}:${col}` };
+                return new _.FileLineColLoc(null, filename, line, col);
             }
             case 12: { // FusedLoc
                 const count = reader.readVarInt();
                 const locations = [];
                 for (let i = 0; i < count; i++) {
-                    const loc = reader.readAttribute();
-                    locations.push(loc && loc.value ? loc.value : '<loc>');
+                    locations.push(reader.readAttribute());
                 }
-                return { name: 'loc', value: `fused[${locations.join(', ')}]` };
+                return new _.FusedLoc(locations, null);
             }
             case 13: { // FusedLocWithMetadata
                 const metadata = reader.readAttribute();
                 const count = reader.readVarInt();
                 const locations = [];
                 for (let i = 0; i < count; i++) {
-                    const loc = reader.readAttribute();
-                    locations.push(loc && loc.value ? loc.value : '<loc>');
+                    locations.push(reader.readAttribute());
                 }
-                const metaStr = metadata && metadata.value !== undefined ? metadata.value : '<meta>';
-                return { name: 'loc', value: `fused<${metaStr}>[${locations.join(', ')}]` };
+                return new _.FusedLoc(locations, metadata);
             }
             case 14: { // NameLoc
                 const nameAttr = reader.readAttribute();
                 const childLoc = reader.readAttribute();
-                const nameStr = nameAttr && nameAttr.value !== undefined ? nameAttr.value : '<name>';
-                const childStr = childLoc && childLoc.value ? childLoc.value : '<loc>';
-                return { name: 'loc', value: `#loc(${nameStr}(${childStr}))` };
+                const nameStr = nameAttr && nameAttr.value !== undefined ? nameAttr.value : '';
+                return new _.NameLoc(nameStr, childLoc);
             }
             case 15: // UnknownLoc
-                return { name: 'loc', value: 'unknown' };
+                return new _.UnknownLoc();
             case 16: { // DenseResourceElementsAttr
                 const type = reader.readType();
                 const resource = reader.readResourceHandle();
@@ -19121,7 +19133,13 @@ _.BuiltinDialect = class extends _.Dialect {
                 for (let i = 0; i < numLocs; i++) {
                     locs.push(reader.readVarInt());
                 }
-                return { name: 'loc', value: `${filename}:${locs.join(':')}` };
+                if (locs.length >= 4) {
+                    return new _.FileLineColRange(filename, locs[0], locs[1], locs[2], locs[3]);
+                }
+                if (locs.length === 2) {
+                    return new _.FileLineColLoc(null, filename, locs[0], locs[1]);
+                }
+                return new _.FileLineColLoc(null, filename, locs[0] || 0, 0);
             }
             default:
                 return { name: 'builtin', value: `<builtin code ${typeCode}>` };
