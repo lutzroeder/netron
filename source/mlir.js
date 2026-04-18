@@ -5272,7 +5272,7 @@ _.OperationParser = class extends _.Parser {
             // Redirect for old std.constant should be arith.constant
             name = 'arith.constant';
         } else if (name.startsWith('check.')) {
-            // Redirect to handle conflicting dialects from stablehlo and iree
+            // Redirect for stablehlo and iree both registering incompatible `check.` ops. Peek the next token to disambiguate.
             const dialect = this.getToken().is(_.Token.l_paren) || this.getToken().is(_.Token.less) ? 'iree' : 'stablehlo';
             name = name.replace('check.', `check.<${dialect}>.`);
         } else if (this._redirect.has(name)) {
@@ -12805,11 +12805,12 @@ _.torch.TorchDialect = class extends _.Dialect {
 
     parseOperation(parser, result) {
         const op = result.name.getStringRef();
-        if (op === 'torch.constant.bool' || op === 'torch.constant.device' || op === 'torch.constant.float' ||
-            op === 'torch.constant.int' || op === 'torch.constant.none' || op === 'torch.constant.number' || op === 'torch.constant.str') {
+        if (op === 'torch.constant.bool' || op === 'torch.constant.device' || op === 'torch.constant.float' || op === 'torch.constant.int' || op === 'torch.constant.none' || op === 'torch.constant.number' || op === 'torch.constant.str') {
             result.label = 'torch.constant';
         } else if (op.startsWith('torch.aten.') || op.startsWith('torch.prim.') || op.startsWith('torch.prims.') || op.startsWith('torch.torchvision.')) {
-            result.label = `${op.split('.')[1]}.${op.split('.')[2]}`;
+            // Collapse torch sub-dialect ops to `<subdialect>.<name>` for user display only. Parse dispatch uses the full name.
+            const parts = op.split('.');
+            result.label = `${parts[1]}.${parts[2]}`;
         }
         if (op === 'torch.constant.int') {
             const value = parser.parseOptionalInteger();
