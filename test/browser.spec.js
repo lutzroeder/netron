@@ -67,3 +67,54 @@ playwright.test('browser', async ({ page }) => {
     const first = parseFloat(match[0]);
     playwright.expect(first).toBe(0.1353299617767334);
 });
+
+playwright.test('error handling - corrupted file shows error and returns to welcome', async ({ page }) => {
+    const self = url.fileURLToPath(import.meta.url);
+    const dir = path.dirname(self);
+    const corruptedFile = path.resolve(dir, 'corrupted.onnx');
+
+    playwright.expect(fs.existsSync(corruptedFile)).toBeTruthy();
+
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForSelector('body.welcome', { timeout: 25000 });
+    await page.waitForTimeout(1000);
+
+    const consent = await page.locator('#message-button');
+    if (await consent.isVisible({ timeout: 25000 })) {
+        await consent.click();
+    }
+
+    const openButton = await page.locator('.open-file-button, button:has-text("Open Model")');
+    playwright.expect(await openButton.isVisible()).toBeTruthy();
+
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await openButton.click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(corruptedFile);
+
+    await page.waitForSelector('body.welcome.spinner', { timeout: 5000 });
+
+    await page.waitForSelector('body.notification, body.alert', { timeout: 15000 });
+
+    const messageText = await page.locator('#message-text');
+    const errorContent = await messageText.textContent();
+    playwright.expect(errorContent).not.toBe('');
+    playwright.expect(errorContent.length).toBeGreaterThan(0);
+
+    const messageButton = await page.locator('#message-button');
+    playwright.expect(await messageButton.isVisible()).toBeTruthy();
+    await messageButton.click();
+
+    await page.waitForSelector('body.welcome', { timeout: 5000 });
+
+    const bodyClass = await page.getAttribute('body', 'class');
+    playwright.expect(bodyClass).toContain('welcome');
+    playwright.expect(bodyClass).not.toContain('spinner');
+    playwright.expect(bodyClass).not.toContain('notification');
+    playwright.expect(bodyClass).not.toContain('alert');
+
+    const openButtonAfterError = await page.locator('.open-file-button, button:has-text("Open Model")');
+    playwright.expect(await openButtonAfterError.isVisible()).toBeTruthy();
+    playwright.expect(await openButtonAfterError.isEnabled()).toBeTruthy();
+});
