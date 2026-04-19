@@ -2497,12 +2497,16 @@ view.Graph = class extends grapher.Graph {
             this._events.gesturestart = (e) => this._gestureStartHandler(e);
             this._events.pointerdown = (e) => this._pointerDownHandler(e);
             this._events.touchstart = (e) => this._touchStartHandler(e);
+            this._events.keydown = (e) => this._keydownHandler(e);
+            this._events.click = (e) => this._clickHandler(e);
             const document = this.host.document;
             const element = document.getElementById('target');
             element.focus();
             element.addEventListener('scroll', this._events.scroll);
             element.addEventListener('wheel', this._events.wheel, { passive: false });
             element.addEventListener('pointerdown', this._events.pointerdown);
+            element.addEventListener('keydown', this._events.keydown);
+            element.addEventListener('click', this._events.click);
             if (this.host.environment('agent') === 'safari') {
                 element.addEventListener('gesturestart', this._events.gesturestart, false);
             } else {
@@ -2518,6 +2522,8 @@ view.Graph = class extends grapher.Graph {
             element.removeEventListener('scroll', this._events.scroll);
             element.removeEventListener('wheel', this._events.wheel);
             element.removeEventListener('pointerdown', this._events.pointerdown);
+            element.removeEventListener('keydown', this._events.keydown);
+            element.removeEventListener('click', this._events.click);
             element.removeEventListener('gesturestart', this._events.gesturestart);
             element.removeEventListener('touchstart', this._events.touchstart);
             delete this._events;
@@ -2695,6 +2701,52 @@ view.Graph = class extends grapher.Graph {
             this._updateZoom(this._zoom * Math.pow(2, delta), e);
             e.preventDefault();
         }
+    }
+
+    _keydownHandler(e) {
+        const document = this.host.document;
+        const container = document.getElementById('target');
+        const panAmount = 50;
+        let handled = false;
+        switch (e.key) {
+            case 'ArrowUp':
+                container.scrollTop -= panAmount;
+                handled = true;
+                break;
+            case 'ArrowDown':
+                container.scrollTop += panAmount;
+                handled = true;
+                break;
+            case 'ArrowLeft':
+                container.scrollLeft -= panAmount;
+                handled = true;
+                break;
+            case 'ArrowRight':
+                container.scrollLeft += panAmount;
+                handled = true;
+                break;
+            case 'w':
+            case 'W':
+                this.zoom *= 1.1;
+                handled = true;
+                break;
+            case 's':
+            case 'S':
+                this.zoom *= 0.9;
+                handled = true;
+                break;
+            default:
+                break;
+        }
+        if (handled) {
+            e.preventDefault();
+        }
+    }
+
+    _clickHandler(/* e */) {
+        const document = this.host.document;
+        const element = document.getElementById('target');
+        element.focus();
     }
 
     scrollTo(selection, behavior) {
