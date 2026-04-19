@@ -717,7 +717,7 @@ view.View = class {
         if (report) {
             this._host.openURL(url);
         }
-        this.show(screen === undefined || screen === null ? 'welcome' : screen);
+        this.show(screen);
     }
 
     accept(file, size) {

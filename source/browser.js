@@ -469,6 +469,7 @@ browser.Host = class {
             await this._openContext(context);
         } catch (error) {
             await this._view.error(error);
+            this._view.show('welcome');
         }
     }
 
@@ -522,6 +523,7 @@ browser.Host = class {
             return 'context-open-failed';
         } catch (error) {
             await this._view.error(error, error.name);
+            this._view.show('welcome');
             return 'context-open-error';
         }
     }

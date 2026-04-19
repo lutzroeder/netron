@@ -68,12 +68,14 @@ playwright.test('browser', async ({ page }) => {
     playwright.expect(first).toBe(0.1353299617767334);
 });
 
-playwright.test('error handling - corrupted file shows error and returns to welcome', async ({ page }) => {
+playwright.test('error handling - corrupted file shows error and can reopen normal file', async ({ page }) => {
     const self = url.fileURLToPath(import.meta.url);
     const dir = path.dirname(self);
     const corruptedFile = path.resolve(dir, 'corrupted.onnx');
+    const normalFile = path.resolve(dir, '../third_party/test/onnx/candy.onnx');
 
     playwright.expect(fs.existsSync(corruptedFile)).toBeTruthy();
+    playwright.expect(fs.existsSync(normalFile)).toBeTruthy();
 
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
@@ -88,10 +90,10 @@ playwright.test('error handling - corrupted file shows error and returns to welc
     const openButton = await page.locator('.open-file-button, button:has-text("Open Model")');
     playwright.expect(await openButton.isVisible()).toBeTruthy();
 
-    const fileChooserPromise = page.waitForEvent('filechooser');
+    const fileChooserPromise1 = page.waitForEvent('filechooser');
     await openButton.click();
-    const fileChooser = await fileChooserPromise;
-    await fileChooser.setFiles(corruptedFile);
+    const fileChooser1 = await fileChooserPromise1;
+    await fileChooser1.setFiles(corruptedFile);
 
     await page.waitForSelector('body.welcome.spinner', { timeout: 5000 });
 
@@ -108,13 +110,26 @@ playwright.test('error handling - corrupted file shows error and returns to welc
 
     await page.waitForSelector('body.welcome', { timeout: 5000 });
 
-    const bodyClass = await page.getAttribute('body', 'class');
-    playwright.expect(bodyClass).toContain('welcome');
-    playwright.expect(bodyClass).not.toContain('spinner');
-    playwright.expect(bodyClass).not.toContain('notification');
-    playwright.expect(bodyClass).not.toContain('alert');
+    const bodyClassAfterError = await page.getAttribute('body', 'class');
+    playwright.expect(bodyClassAfterError).toContain('welcome');
+    playwright.expect(bodyClassAfterError).not.toContain('spinner');
+    playwright.expect(bodyClassAfterError).not.toContain('notification');
+    playwright.expect(bodyClassAfterError).not.toContain('alert');
 
     const openButtonAfterError = await page.locator('.open-file-button, button:has-text("Open Model")');
     playwright.expect(await openButtonAfterError.isVisible()).toBeTruthy();
     playwright.expect(await openButtonAfterError.isEnabled()).toBeTruthy();
+
+    const fileChooserPromise2 = page.waitForEvent('filechooser');
+    await openButtonAfterError.click();
+    const fileChooser2 = await fileChooserPromise2;
+    await fileChooser2.setFiles(normalFile);
+
+    await page.waitForSelector('#canvas', { state: 'attached', timeout: 10000 });
+    await page.waitForSelector('body.default', { timeout: 10000 });
+
+    const bodyClassAfterSuccess = await page.getAttribute('body', 'class');
+    playwright.expect(bodyClassAfterSuccess).toContain('default');
+    playwright.expect(bodyClassAfterSuccess).not.toContain('welcome');
+    playwright.expect(bodyClassAfterSuccess).not.toContain('spinner');
 });
