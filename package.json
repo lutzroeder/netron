@@ -21,7 +21,7 @@
         "lint": "node package.js lint",
         "build": "node package.js build",
         "publish": "node package.js publish",
-        "version": "node package.js version",
+        "release": "node package.js release",
         "test": "node package.js test",
         "validate": "node package.js validate",
         "coverage": "node package.js coverage",

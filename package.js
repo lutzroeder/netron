@@ -705,7 +705,7 @@ const analyze = async () => {
     await exec('cat dist/codeql/results.csv');
 };
 
-const version = async () => {
+const release = async () => {
     await pull();
     const file = dirname('package.json');
     let content = await fs.readFile(file, 'utf-8');
@@ -738,7 +738,7 @@ const main = async () => {
             case 'install': await install(); break;
             case 'build': await build(); break;
             case 'publish': await publish(); break;
-            case 'version': await version(); break;
+            case 'release': await release(); break;
             case 'lint': await lint(); break;
             case 'test': await test(); break;
             case 'validate': await validate(); break;
