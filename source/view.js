@@ -314,7 +314,10 @@ view.View = class {
     }
 
     set model(value) {
-        this._model = value;
+        if (this._model !== value) {
+            this._model = value;
+            this._find = null;
+        }
     }
 
     get options() {
