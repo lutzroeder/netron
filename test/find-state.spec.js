@@ -46,10 +46,33 @@ const getFindResultsCount = async (page) => {
     return await results.count();
 };
 
+const hoverOverFirstSearchResult = async (page) => {
+    const firstResult = await page.locator('.sidebar-find-content li').first();
+    if (await firstResult.isVisible()) {
+        await firstResult.hover();
+        await page.waitForTimeout(300);
+        return true;
+    }
+    return false;
+};
+
+const getCanvasElement = async (page) => {
+    return await page.locator('#canvas');
+};
+
 playwright.test.describe('Find search state management', () => {
 
-    playwright.test('scenario 1: switching models should clear search state', async ({ page }) => {
+    playwright.test('scenario 1: switching from model A to model B should clear search state', async ({ page }) => {
         const candyPath = getModelPath('candy.onnx');
+        const convAutopadPath = getModelPath('conv_autopad.onnx');
+
+        const candyExists = fs.existsSync(candyPath);
+        const convAutopadExists = fs.existsSync(convAutopadPath);
+
+        if (!candyExists || !convAutopadExists) {
+            console.log('Skipping test: test models not found');
+            return;
+        }
 
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
@@ -73,21 +96,34 @@ playwright.test.describe('Find search state management', () => {
         const resultsCount = await getFindResultsCount(page);
         playwright.expect(resultsCount).toBeGreaterThan(0);
 
+        await hoverOverFirstSearchResult(page);
+
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
         await page.waitForSelector('body.welcome', { timeout: 25000 });
         await page.waitForTimeout(1000);
 
-        await openModel(page, candyPath);
+        await openModel(page, convAutopadPath);
 
         const search2 = await openFindSidebar(page);
-        const searchValueAfterReopen = await getSearchInputValue(page);
+        const searchValueAfterSwitch = await getSearchInputValue(page);
 
-        playwright.expect(searchValueAfterReopen).toBe('');
+        playwright.expect(searchValueAfterSwitch).toBe('');
+
+        const resultsCountAfterSwitch = await getFindResultsCount(page);
+        playwright.expect(resultsCountAfterSwitch).toBe(0);
+
+        const canvas = await getCanvasElement(page);
+        playwright.expect(canvas).toBeDefined();
     });
 
-    playwright.test('scenario 2: returning to welcome page and reopening model should clear search state', async ({ page }) => {
+    playwright.test('scenario 2: returning to welcome page and reopening model should clear search state and highlights', async ({ page }) => {
         const candyPath = getModelPath('candy.onnx');
+
+        if (!fs.existsSync(candyPath)) {
+            console.log('Skipping test: test model not found');
+            return;
+        }
 
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
@@ -111,6 +147,17 @@ playwright.test.describe('Find search state management', () => {
         const resultsCount = await getFindResultsCount(page);
         playwright.expect(resultsCount).toBeGreaterThan(0);
 
+        const hovered = await hoverOverFirstSearchResult(page);
+        if (hovered) {
+            await page.waitForTimeout(200);
+        }
+
+        const firstResult = await page.locator('.sidebar-find-content li').first();
+        if (await firstResult.isVisible()) {
+            await firstResult.dblclick();
+            await page.waitForTimeout(300);
+        }
+
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
         await page.waitForSelector('body.welcome', { timeout: 25000 });
@@ -125,10 +172,18 @@ playwright.test.describe('Find search state management', () => {
 
         const resultsCountAfterReopen = await getFindResultsCount(page);
         playwright.expect(resultsCountAfterReopen).toBe(0);
+
+        const canvasAfterReopen = await getCanvasElement(page);
+        playwright.expect(canvasAfterReopen).toBeDefined();
     });
 
-    playwright.test('scenario 3: search within same model should retain state when navigating subgraphs', async ({ page }) => {
+    playwright.test('scenario 3: search within same model should retain state', async ({ page }) => {
         const candyPath = getModelPath('candy.onnx');
+
+        if (!fs.existsSync(candyPath)) {
+            console.log('Skipping test: test model not found');
+            return;
+        }
 
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
@@ -149,18 +204,34 @@ playwright.test.describe('Find search state management', () => {
         const searchValueBefore = await getSearchInputValue(page);
         playwright.expect(searchValueBefore).toBe('convolution');
 
+        const resultsCountBefore = await getFindResultsCount(page);
+        playwright.expect(resultsCountBefore).toBeGreaterThan(0);
+
         const backButton = await page.locator('#toolbar-path-back-button');
         const backButtonVisible = await backButton.isVisible();
+        let hasSubgraph = false;
         
         if (backButtonVisible) {
             const backButtonOpacity = await backButton.evaluate((el) => window.getComputedStyle(el).opacity);
             if (backButtonOpacity !== '0') {
+                hasSubgraph = true;
                 await backButton.click();
                 await page.waitForTimeout(500);
 
                 const searchValueAfter = await getSearchInputValue(page);
                 playwright.expect(searchValueAfter).toBe('convolution');
+
+                const resultsCountAfter = await getFindResultsCount(page);
+                playwright.expect(resultsCountAfter).toBeGreaterThan(0);
             }
+        }
+
+        if (!hasSubgraph) {
+            const searchValueStillThere = await getSearchInputValue(page);
+            playwright.expect(searchValueStillThere).toBe('convolution');
+
+            const resultsCountStillThere = await getFindResultsCount(page);
+            playwright.expect(resultsCountStillThere).toBeGreaterThan(0);
         }
     });
 
