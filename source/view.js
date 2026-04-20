@@ -943,6 +943,19 @@ view.View = class {
                 viewGraph.updateTunnels();
                 viewGraph.restore(state);
                 this.target = viewGraph;
+                // Auto-select first root node (input or first available node)
+                let firstNode = null;
+                for (const entry of viewGraph._table.values()) {
+                    if (entry instanceof grapher.Node) {
+                        firstNode = entry;
+                        break;
+                    }
+                }
+                if (firstNode) {
+                    this._target.select([firstNode.value]);
+                    this._sidebar.close();
+                    this.showNodeProperties(firstNode.value);
+                }
             }
         }
         return status;
@@ -2710,19 +2723,35 @@ view.Graph = class extends grapher.Graph {
         let handled = false;
         switch (e.key) {
             case 'ArrowUp':
-                container.scrollTop -= panAmount;
+                if (e.ctrlKey) {
+                    this._navigateNodes('up');
+                } else {
+                    container.scrollTop -= panAmount;
+                }
                 handled = true;
                 break;
             case 'ArrowDown':
-                container.scrollTop += panAmount;
+                if (e.ctrlKey) {
+                    this._navigateNodes('down');
+                } else {
+                    container.scrollTop += panAmount;
+                }
                 handled = true;
                 break;
             case 'ArrowLeft':
-                container.scrollLeft -= panAmount;
+                if (e.ctrlKey) {
+                    this._navigateNodes('left');
+                } else {
+                    container.scrollLeft -= panAmount;
+                }
                 handled = true;
                 break;
             case 'ArrowRight':
-                container.scrollLeft += panAmount;
+                if (e.ctrlKey) {
+                    this._navigateNodes('right');
+                } else {
+                    container.scrollLeft += panAmount;
+                }
                 handled = true;
                 break;
             case 'w':
@@ -2740,6 +2769,69 @@ view.Graph = class extends grapher.Graph {
         }
         if (handled) {
             e.preventDefault();
+        }
+    }
+
+    _navigateNodes(direction) {
+        let currentNode = null;
+        for (const element of this._selection) {
+            if (element instanceof grapher.Node) {
+                currentNode = element;
+                break;
+            }
+        }
+        const nodes = [];
+        for (const entry of this._table.values()) {
+            if (entry instanceof grapher.Node && entry.x !== undefined && entry.y !== undefined) {
+                nodes.push(entry);
+            }
+        }
+        if (nodes.length === 0) {
+            return;
+        }
+        if (!currentNode) {
+            this.select([nodes[0].value]);
+            this.scrollTo(this.select([nodes[0].value]), 'smooth');
+            return;
+        }
+        let bestNode = null;
+        let bestDistance = Infinity;
+        for (const node of nodes) {
+            if (node === currentNode) {
+                continue;
+            }
+            const dx = node.x - currentNode.x;
+            const dy = node.y - currentNode.y;
+            let valid = false;
+            switch (direction) {
+                case 'up':
+                    valid = dy < 0;
+                    break;
+                case 'down':
+                    valid = dy > 0;
+                    break;
+                case 'left':
+                    valid = dx < 0;
+                    break;
+                case 'right':
+                    valid = dx > 0;
+                    break;
+                default:
+                    break;
+            }
+            if (valid) {
+                const distance = dx * dx + dy * dy;
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestNode = node;
+                }
+            }
+        }
+        if (bestNode) {
+            this.select(null);
+            const selection = this.select([bestNode.value]);
+            this.scrollTo(selection, 'smooth');
+            this.view.showNodeProperties(bestNode.value);
         }
     }
 
