@@ -83,6 +83,7 @@ gguf.Graph = class {
         this.attributes = graph.attributes || [];
         let valueIndex = 0;
         let prevValue = null;
+        let ropeFreqsValue = null;
         const newValue = () => new gguf.Value(`v${valueIndex++}`);
         const addNode = (entry, inputValues, outputValue) => {
             const node = new gguf.Node(entry);
@@ -111,28 +112,60 @@ gguf.Graph = class {
                     return get(name);
                 };
                 const hasMoe = has('ffn_gate_inp');
+                const hasFusedExps = has('ffn_gate_up_exps') && has('ffn_down_exps');
                 const hasFfn = has('ffn_up') || hasMoe;
                 const buildLinearFfn = (input, gateKey, upKey, downKey) => {
+                    if (!has(downKey)) {
+                        return input;
+                    }
                     const inputs = [input];
                     if (has(gateKey)) {
                         const g = newValue();
                         addNode(use(gateKey), [input], g);
                         inputs.push(g);
                     }
-                    const u = newValue();
-                    addNode(use(upKey), [input], u);
-                    inputs.push(u);
+                    if (has(upKey)) {
+                        const u = newValue();
+                        addNode(use(upKey), [input], u);
+                        inputs.push(u);
+                    }
                     const d = newValue();
                     addNode(use(downKey), inputs, d);
                     return d;
                 };
+                const buildFusedExpsFfn = (input) => {
+                    const gu = newValue();
+                    addNode(use('ffn_gate_up_exps'), [input], gu);
+                    const d = newValue();
+                    addNode(use('ffn_down_exps'), [gu], d);
+                    return d;
+                };
+                const applyNorm = (groupName, value) => {
+                    if (!has(groupName)) {
+                        return value;
+                    }
+                    const out = newValue();
+                    addNode(use(groupName), [value], out);
+                    return out;
+                };
                 const buildFfn = (input) => {
                     if (hasMoe) {
+                        const moeInput = applyNorm('ffn_pre_norm_2', input);
                         const g1 = newValue();
-                        addNode(use('ffn_gate_inp'), [input], g1);
-                        const moeOut = buildLinearFfn(g1, 'ffn_gate_exps', 'ffn_up_exps', 'ffn_down_exps');
+                        addNode(use('ffn_gate_inp'), [moeInput], g1);
+                        let moeOut = hasFusedExps ?
+                            buildFusedExpsFfn(g1) :
+                            buildLinearFfn(g1, 'ffn_gate_exps', 'ffn_up_exps', 'ffn_down_exps');
+                        moeOut = applyNorm('ffn_post_norm_2', moeOut);
                         if (has('ffn_up_shexp')) {
                             const sharedOut = buildLinearFfn(input, 'ffn_gate_shexp', 'ffn_up_shexp', 'ffn_down_shexp');
+                            const sum = newValue();
+                            addOp('ADD', [moeOut, sharedOut], sum);
+                            return sum;
+                        }
+                        if (hasFusedExps && has('ffn_up')) {
+                            let sharedOut = buildLinearFfn(input, 'ffn_gate', 'ffn_up', 'ffn_down');
+                            sharedOut = applyNorm('ffn_post_norm_1', sharedOut);
                             const sum = newValue();
                             addOp('ADD', [moeOut, sharedOut], sum);
                             return sum;
@@ -141,6 +174,19 @@ gguf.Graph = class {
                     }
                     return buildLinearFfn(input, 'ffn_gate', 'ffn_up', 'ffn_down');
                 };
+                const applyLayerOutScale = (value) => {
+                    if (!has('layer_out_scale')) {
+                        return value;
+                    }
+                    const out = newValue();
+                    addNode(use('layer_out_scale'), [value], out);
+                    return out;
+                };
+                const ropeFreqs = ropeFreqsValue;
+                const buildAttention = (input, output) => {
+                    const inputs = ropeFreqs ? [input, ropeFreqs] : [input];
+                    addNode(use('attention'), inputs, output);
+                };
                 if (has('attn_norm') && has('attention') && !has('ffn_norm') && !has('attn_post_norm') && hasFfn) {
                     // Parallel attention + FFN (phi-2, falcon)
                     const inp = prevValue || newValue();
@@ -148,7 +194,7 @@ gguf.Graph = class {
                     const attnOut = newValue();
                     const out = newValue();
                     addNode(use('attn_norm'), [inp], normOut);
-                    addNode(use('attention'), [normOut], attnOut);
+                    buildAttention(normOut, attnOut);
                     const ffnOut = buildFfn(normOut);
                     addOp('ADD', [attnOut, ffnOut, inp], out);
                     prevValue = out;
@@ -159,7 +205,7 @@ gguf.Graph = class {
                     const n1 = newValue();
                     addNode(use('attn_norm'), [cur], n1);
                     const a1 = newValue();
-                    addNode(use('attention'), [n1], a1);
+                    buildAttention(n1, a1);
                     const r1 = newValue();
                     addOp('ADD', [a1, cur], r1);
                     cur = r1;
@@ -183,7 +229,7 @@ gguf.Graph = class {
                     const n1 = newValue();
                     addNode(use('attn_norm'), [cur], n1);
                     const a1 = newValue();
-                    addNode(use('attention'), [n1], a1);
+                    buildAttention(n1, a1);
                     let preAdd1 = a1;
                     if (has('ssm')) {
                         const s1 = newValue();
@@ -211,12 +257,12 @@ gguf.Graph = class {
                     }
                     const r2 = newValue();
                     addOp('ADD', [preAdd2, cur], r2);
-                    prevValue = r2;
+                    prevValue = applyLayerOutScale(r2);
                 } else if (has('attention') && (has('attn_output_norm') || has('layer_output_norm'))) {
                     // Post-norm (BERT)
                     const inp = prevValue || newValue();
                     const a1 = newValue();
-                    addNode(use('attention'), [inp], a1);
+                    buildAttention(inp, a1);
                     const r1 = newValue();
                     addOp('ADD', [a1, inp], r1);
                     let cur = r1;
@@ -307,7 +353,7 @@ gguf.Graph = class {
                     const n1 = newValue();
                     addNode(use('attn_norm'), [inp], n1);
                     const a1 = newValue();
-                    addNode(use('attention'), [n1], a1);
+                    buildAttention(n1, a1);
                     let preAdd1 = a1;
                     if (has('attn_post_norm')) {
                         const pn = newValue();
@@ -339,6 +385,11 @@ gguf.Graph = class {
                         this.nodes.push(new gguf.Node(item));
                     }
                 }
+            } else if (layer.type === 'ROPE_FREQS') {
+                const node = new gguf.Node(layer);
+                ropeFreqsValue = newValue();
+                node.outputs.push(new gguf.Argument('output', [ropeFreqsValue]));
+                this.nodes.push(node);
             } else {
                 const node = new gguf.Node(layer);
                 if (prevValue && layer.type !== 'weights') {
@@ -1098,6 +1149,7 @@ gguf.Context = class {
                 { match: /^ffn_exp_probs/, group: 'ffn_gate_inp' },
                 { match: /^ffn_gate_exps/, group: 'ffn_gate_exps' },
                 { match: /^ffn_gate\.\d+/, group: 'ffn_gate_exps' },
+                { match: /^ffn_gate_up_exps/, group: 'ffn_gate_up_exps' },
                 { match: /^ffn_up_exps/, group: 'ffn_up_exps' },
                 { match: /^ffn_up\.\d+/, group: 'ffn_up_exps' },
                 { match: /^ffn_down_exps/, group: 'ffn_down_exps' },
@@ -1111,10 +1163,15 @@ gguf.Context = class {
                 { match: /^ffn_act/, group: 'ffn_act' },
                 { match: /^ffn_sub_norm/, group: 'ffn_sub_norm' },
                 { match: /^ffn_post_norm/, group: 'ffn_post_norm' },
+                { match: /^pre_ffw_norm_2/, group: 'ffn_pre_norm_2' },
+                { match: /^post_ffw_norm_1/, group: 'ffn_post_norm_1' },
+                { match: /^post_ffw_norm_2/, group: 'ffn_post_norm_2' },
+                { match: /^post_ffw_norm/, group: 'ffn_post_norm' },
                 { match: /^ssm_/, group: 'ssm' },
                 { match: /^time_mix_/, group: 'time_mix' },
                 { match: /^channel_mix_/, group: 'channel_mix' },
                 { match: /^layer_output_norm/, group: 'layer_output_norm' },
+                { match: /^layer_output_scale/, group: 'layer_out_scale' },
                 { match: /^attn_output_norm/, group: 'attn_output_norm' },
                 { match: /^post_attention_norm/, group: 'attn_post_norm' }
             ];

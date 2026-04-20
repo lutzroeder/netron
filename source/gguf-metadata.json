@@ -282,6 +282,37 @@
     }
   },
   {
+    "name": "gemma4",
+    "family": "decoder-moe",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "rope_freqs", "type": "ROPE_FREQS", "category": "Attention" }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"], "position_encoding": "rope", "has_qk_norm": true },
+        { "name": "attn_post_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_gate", "type": "MUL_MAT" },
+        { "name": "ffn_up", "type": "MUL_MAT" },
+        { "name": "ffn_down", "type": "MUL_MAT" },
+        { "name": "ffn_post_norm_1", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_pre_norm_2", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT" },
+        { "name": "ffn_gate_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_down_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_post_norm_2", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_post_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "layer_out_scale", "type": "MUL", "tensors": ["layer_output_scale"] }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
     "name": "gemma-embedding",
     "family": "encoder",
     "graph": {
