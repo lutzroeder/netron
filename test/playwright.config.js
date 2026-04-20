@@ -21,5 +21,12 @@ export default playwright.defineConfig({
                 baseURL: 'http://localhost:8080'
             },
         },
+        {
+            name: 'find-state',
+            testMatch: '**/find-state.spec.js',
+            use: {
+                baseURL: 'http://localhost:8080'
+            },
+        },
     ],
 });
