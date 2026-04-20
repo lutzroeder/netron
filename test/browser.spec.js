@@ -67,3 +67,96 @@ playwright.test('browser', async ({ page }) => {
     const first = parseFloat(match[0]);
     playwright.expect(first).toBe(0.1353299617767334);
 });
+
+playwright.test('find-state-cleared-on-model-switch', async ({ page }) => {
+
+    const self = url.fileURLToPath(import.meta.url);
+    const dir = path.dirname(self);
+    const file = path.resolve(dir, '../third_party/test/onnx/candy.onnx');
+    playwright.expect(fs.existsSync(file)).toBeTruthy();
+
+    // Navigate to the application
+    await page.goto('/');
+
+    playwright.expect(page).toBeDefined();
+    await page.waitForLoadState('domcontentloaded');
+
+    // Wait for the welcome screen to be ready
+    await page.waitForSelector('body.welcome', { timeout: 25000 });
+    await page.waitForTimeout(1000);
+
+    const consent = await page.locator('#message-button');
+    if (await consent.isVisible({ timeout: 25000 })) {
+        await consent.click();
+    }
+
+    // Set up file chooser promise before clicking
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    const openButton = await page.locator('.open-file-button, button:has-text("Open Model")');
+    await openButton.click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(file);
+
+    // Wait for the graph to render
+    await page.waitForSelector('#canvas', { state: 'attached', timeout: 10000 });
+    await page.waitForSelector('body.default', { timeout: 10000 });
+
+    // Open find sidebar
+    const menuButton = await page.locator('#menu-button');
+    await menuButton.click();
+    await page.waitForTimeout(200);
+    const findMenuItem = await page.locator('button:has-text("Find...")');
+    await findMenuItem.click();
+    await page.waitForTimeout(500);
+    const search = await page.waitForSelector('#search', { state: 'visible', timeout: 5000 });
+    playwright.expect(search).toBeDefined();
+
+    // Perform a search
+    await search.fill('convolution1_W');
+    await page.waitForSelector('.sidebar-find-content li', { state: 'attached' });
+
+    // Verify search results are shown
+    const searchResults = await page.locator('.sidebar-find-content li');
+    playwright.expect(await searchResults.count()).toBeGreaterThan(0);
+
+    // Navigate back to welcome page
+    const welcomeButton = await page.locator('#menu-button');
+    await welcomeButton.click();
+    await page.waitForTimeout(200);
+    const welcomeMenuItem = await page.locator('button:has-text("Welcome")');
+    await welcomeMenuItem.click();
+    await page.waitForSelector('body.welcome', { timeout: 10000 });
+
+    // Verify we're on welcome page
+    const bodyClass = await page.getAttribute('body', 'class');
+    playwright.expect(bodyClass).toContain('welcome');
+
+    // Open the same model again
+    const fileChooserPromise2 = page.waitForEvent('filechooser');
+    const openButton2 = await page.locator('.open-file-button, button:has-text("Open Model")');
+    await openButton2.click();
+    const fileChooser2 = await fileChooserPromise2;
+    await fileChooser2.setFiles(file);
+
+    // Wait for the graph to render again
+    await page.waitForSelector('#canvas', { state: 'attached', timeout: 10000 });
+    await page.waitForSelector('body.default', { timeout: 10000 });
+
+    // Open find sidebar again
+    const menuButton2 = await page.locator('#menu-button');
+    await menuButton2.click();
+    await page.waitForTimeout(200);
+    const findMenuItem2 = await page.locator('button:has-text("Find...")');
+    await findMenuItem2.click();
+    await page.waitForTimeout(500);
+    const search2 = await page.waitForSelector('#search', { state: 'visible', timeout: 5000 });
+    playwright.expect(search2).toBeDefined();
+
+    // Verify search input is empty (state was cleared)
+    const searchValue = await search2.inputValue();
+    playwright.expect(searchValue).toBe('');
+
+    // Verify no search results are shown initially
+    const searchResults2 = await page.locator('.sidebar-find-content li');
+    playwright.expect(await searchResults2.count()).toBe(0);
+});

@@ -262,6 +262,9 @@ view.View = class {
         if (this._menu) {
             this._menu.close();
         }
+        if (page !== 'default') {
+            this._find = null;
+        }
         this._host.document.body.classList.remove(...Array.from(this._host.document.body.classList).filter((_) => _ !== 'active'));
         this._host.document.body.classList.add(...page.split(' '));
         if (this._target && page === 'default') {
@@ -331,6 +334,7 @@ view.View = class {
                 this._target.off('selectionchange', this._events.selectionchange);
                 this._target.unregister();
             }
+            this._find = null;
             const enabled = value ? true : false;
             this._host.update({
                 'zoom-reset.enabled': enabled,
