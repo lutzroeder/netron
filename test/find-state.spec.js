@@ -56,13 +56,71 @@ const hoverOverFirstSearchResult = async (page) => {
     return false;
 };
 
-const getCanvasElement = async (page) => {
-    return await page.locator('#canvas');
+const clickFirstSearchResult = async (page) => {
+    const firstResult = await page.locator('.sidebar-find-content li').first();
+    if (await firstResult.isVisible()) {
+        await firstResult.click();
+        await page.waitForTimeout(300);
+        return true;
+    }
+    return false;
+};
+
+const dblClickFirstSearchResult = async (page) => {
+    const firstResult = await page.locator('.sidebar-find-content li').first();
+    if (await firstResult.isVisible()) {
+        await firstResult.dblclick();
+        await page.waitForTimeout(300);
+        return true;
+    }
+    return false;
+};
+
+const getFirstSearchResultText = async (page) => {
+    const firstResult = await page.locator('.sidebar-find-content li').first();
+    if (await firstResult.isVisible()) {
+        return await firstResult.textContent();
+    }
+    return null;
+};
+
+const isBackButtonEnabled = async (page) => {
+    const backButton = await page.locator('#toolbar-path-back-button');
+    const isVisible = await backButton.isVisible();
+    if (!isVisible) {
+        return false;
+    }
+    const opacity = await backButton.evaluate((el) => window.getComputedStyle(el).opacity);
+    return opacity !== '0';
+};
+
+const clickBackButton = async (page) => {
+    const backButton = await page.locator('#toolbar-path-back-button');
+    await backButton.click();
+    await page.waitForTimeout(500);
+};
+
+const searchAndVerify = async (page, searchTerm, expectedResults, expectedValue) => {
+    const search = await openFindSidebar(page);
+    await search.fill(searchTerm);
+    await page.waitForTimeout(500);
+
+    const searchValue = await getSearchInputValue(page);
+    playwright.expect(searchValue).toBe(expectedValue || searchTerm);
+
+    const resultsCount = await getFindResultsCount(page);
+    if (expectedResults > 0) {
+        playwright.expect(resultsCount).toBeGreaterThan(0);
+    } else {
+        playwright.expect(resultsCount).toBe(0);
+    }
+
+    return resultsCount;
 };
 
 playwright.test.describe('Find search state management', () => {
 
-    playwright.test('scenario 1: switching from model A to model B should clear search state', async ({ page }) => {
+    playwright.test('scenario 1: switching from model A to model B should clear search state and highlights', async ({ page }) => {
         const candyPath = getModelPath('candy.onnx');
         const convAutopadPath = getModelPath('conv_autopad.onnx');
 
@@ -96,7 +154,12 @@ playwright.test.describe('Find search state management', () => {
         const resultsCount = await getFindResultsCount(page);
         playwright.expect(resultsCount).toBeGreaterThan(0);
 
+        const firstResultText = await getFirstSearchResultText(page);
+        playwright.expect(firstResultText).not.toBeNull();
+
         await hoverOverFirstSearchResult(page);
+        await clickFirstSearchResult(page);
+        await page.waitForTimeout(200);
 
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
@@ -113,8 +176,20 @@ playwright.test.describe('Find search state management', () => {
         const resultsCountAfterSwitch = await getFindResultsCount(page);
         playwright.expect(resultsCountAfterSwitch).toBe(0);
 
-        const canvas = await getCanvasElement(page);
-        playwright.expect(canvas).toBeDefined();
+        await search2.fill('convolution');
+        await page.waitForTimeout(500);
+
+        const newResultsCount = await getFindResultsCount(page);
+        const newFirstResultText = await getFirstSearchResultText(page);
+
+        if (newResultsCount > 0) {
+            playwright.expect(newFirstResultText).not.toBe(firstResultText);
+        }
+
+        await search2.fill('');
+        await page.waitForTimeout(200);
+        const searchValueAfterClear = await getSearchInputValue(page);
+        playwright.expect(searchValueAfterClear).toBe('');
     });
 
     playwright.test('scenario 2: returning to welcome page and reopening model should clear search state and highlights', async ({ page }) => {
@@ -147,16 +222,12 @@ playwright.test.describe('Find search state management', () => {
         const resultsCount = await getFindResultsCount(page);
         playwright.expect(resultsCount).toBeGreaterThan(0);
 
-        const hovered = await hoverOverFirstSearchResult(page);
-        if (hovered) {
-            await page.waitForTimeout(200);
-        }
+        const firstResultText = await getFirstSearchResultText(page);
+        playwright.expect(firstResultText).not.toBeNull();
 
-        const firstResult = await page.locator('.sidebar-find-content li').first();
-        if (await firstResult.isVisible()) {
-            await firstResult.dblclick();
-            await page.waitForTimeout(300);
-        }
+        await hoverOverFirstSearchResult(page);
+        await dblClickFirstSearchResult(page);
+        await page.waitForTimeout(300);
 
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
@@ -173,14 +244,20 @@ playwright.test.describe('Find search state management', () => {
         const resultsCountAfterReopen = await getFindResultsCount(page);
         playwright.expect(resultsCountAfterReopen).toBe(0);
 
-        const canvasAfterReopen = await getCanvasElement(page);
-        playwright.expect(canvasAfterReopen).toBeDefined();
+        await search2.fill('convolution1_W');
+        await page.waitForTimeout(500);
+
+        const newResultsCount = await getFindResultsCount(page);
+        playwright.expect(newResultsCount).toBeGreaterThan(0);
+
+        const newFirstResultText = await getFirstSearchResultText(page);
+        playwright.expect(newFirstResultText).toBe(firstResultText);
     });
 
-    playwright.test('scenario 3: search within same model should retain state', async ({ page }) => {
-        const candyPath = getModelPath('candy.onnx');
+    playwright.test('scenario 3: search within same model with subgraph navigation should retain state', async ({ page }) => {
+        const ifK1Path = getModelPath('if_k1.onnx');
 
-        if (!fs.existsSync(candyPath)) {
+        if (!fs.existsSync(ifK1Path)) {
             console.log('Skipping test: test model not found');
             return;
         }
@@ -195,44 +272,47 @@ playwright.test.describe('Find search state management', () => {
             await consent.click();
         }
 
-        await openModel(page, candyPath);
+        await openModel(page, ifK1Path);
 
         const search = await openFindSidebar(page);
-        await search.fill('convolution');
+        await search.fill('If');
         await page.waitForTimeout(500);
 
         const searchValueBefore = await getSearchInputValue(page);
-        playwright.expect(searchValueBefore).toBe('convolution');
+        playwright.expect(searchValueBefore).toBe('If');
 
         const resultsCountBefore = await getFindResultsCount(page);
         playwright.expect(resultsCountBefore).toBeGreaterThan(0);
 
-        const backButton = await page.locator('#toolbar-path-back-button');
-        const backButtonVisible = await backButton.isVisible();
-        let hasSubgraph = false;
-        
-        if (backButtonVisible) {
-            const backButtonOpacity = await backButton.evaluate((el) => window.getComputedStyle(el).opacity);
-            if (backButtonOpacity !== '0') {
-                hasSubgraph = true;
-                await backButton.click();
-                await page.waitForTimeout(500);
+        const firstResultText = await getFirstSearchResultText(page);
+        playwright.expect(firstResultText).not.toBeNull();
 
-                const searchValueAfter = await getSearchInputValue(page);
-                playwright.expect(searchValueAfter).toBe('convolution');
+        const hasSubgraph = await isBackButtonEnabled(page);
+        playwright.expect(hasSubgraph).toBe(true);
 
-                const resultsCountAfter = await getFindResultsCount(page);
-                playwright.expect(resultsCountAfter).toBeGreaterThan(0);
-            }
-        }
+        await hoverOverFirstSearchResult(page);
+        await dblClickFirstSearchResult(page);
+        await page.waitForTimeout(300);
 
-        if (!hasSubgraph) {
-            const searchValueStillThere = await getSearchInputValue(page);
-            playwright.expect(searchValueStillThere).toBe('convolution');
+        const searchValueAfterNav = await getSearchInputValue(page);
+        playwright.expect(searchValueAfterNav).toBe('If');
 
-            const resultsCountStillThere = await getFindResultsCount(page);
-            playwright.expect(resultsCountStillThere).toBeGreaterThan(0);
-        }
+        const resultsCountAfterNav = await getFindResultsCount(page);
+        playwright.expect(resultsCountAfterNav).toBeGreaterThan(0);
+
+        const backButtonEnabled = await isBackButtonEnabled(page);
+        playwright.expect(backButtonEnabled).toBe(true);
+
+        await clickBackButton(page);
+
+        const searchValueAfterBack = await getSearchInputValue(page);
+        playwright.expect(searchValueAfterBack).toBe('If');
+
+        const resultsCountAfterBack = await getFindResultsCount(page);
+        playwright.expect(resultsCountAfterBack).toBeGreaterThan(0);
+
+        const finalFirstResultText = await getFirstSearchResultText(page);
+        playwright.expect(finalFirstResultText).toBe(firstResultText);
     });
 
 });
