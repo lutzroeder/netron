@@ -226,6 +226,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .sidebar-item-value-line-link:hover { text-decoration: underline; }
 .sidebar-item-value-line-border { padding: 4px 6px 4px 6px; border-top: 1px solid rgba(27, 31, 35, 0.05); }
 .sidebar-item-value-line-content { white-space: pre; word-wrap: normal; overflow: auto; display: block; }
+.sidebar-editable-input { width: 100%; border: 0; outline: none; background: transparent; color: inherit; font: inherit; padding: 0; }
 .sidebar-item-value-expander { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 4px 6px 4px 4px; }
 .sidebar-item-value-expander:hover { color: #333; }
 .sidebar-item-value-button { display: flex; justify-content: center; align-items: center; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; width: 22px; height: 22px; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #aaa; }
@@ -233,6 +234,14 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .sidebar-item-value-button:hover svg use { fill: #333; stroke: #333; }
 .sidebar-item-value-button-tool { float: right; padding-left: 3px; }
 .sidebar-item-value-button-context { float: right; }
+.sidebar-visibility-value { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; }
+.sidebar-visibility-button { border: 1px solid #d0d0d0; background: #ffffff; color: inherit; border-radius: 999px; padding: 4px 10px; font: inherit; cursor: pointer; }
+.sidebar-visibility-button.is-active { background: #2e6bd2; border-color: #2e6bd2; color: #ffffff; }
+.sidebar-visibility-button:hover { border-color: #2e6bd2; }
+.sidebar-attribute-visibility { display: flex; flex-direction: column; gap: 6px; }
+.sidebar-attribute-visibility-content { min-width: 0; }
+.sidebar-attribute-checkbox { display: inline-flex; align-items: center; gap: 6px; align-self: flex-end; font-size: 11px; color: #555; cursor: pointer; padding: 0 4px 4px 4px; }
+.sidebar-attribute-checkbox input[type="checkbox"] { margin: 0; }
 .sidebar-item-selector {
     font-family: inherit; font-size: 12px;
     background-color: #fcfcfc; border: #fcfcfc; color: #333;
@@ -301,6 +310,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     .sidebar-item-value-button { color: #888; }
     .sidebar-item-value-button svg use { fill: #888; stroke: #888; }
     .sidebar-item-value-button:hover svg use { fill: #e5e5e5; stroke: #e5e5e5; }
+    .sidebar-visibility-button { background: #1e1e1e; border-color: #4a4a4a; color: #dfdfdf; }
+    .sidebar-visibility-button.is-active { background: #2e6bd2; border-color: #2e6bd2; color: #ffffff; }
+    .sidebar-visibility-button:hover { border-color: #6696e8; }
+    .sidebar-attribute-checkbox { color: #aaa; }
 }
 @media screen and (prefers-reduced-motion: reduce) {
 .menu { transition: none; }
