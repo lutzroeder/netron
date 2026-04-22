@@ -1464,6 +1464,10 @@ _.AffineMap = class {
         return this._results.length;
     }
 
+    getResults() {
+        return this._results;
+    }
+
     toString() {
         const dims = [];
         for (let i = 0; i < this._numDims; i++) {
@@ -11741,7 +11745,22 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (op === 'affine.apply' || op === 'affine.min' || op === 'affine.max') {
+        if (op === 'affine.apply') {
+            const indexType = new _.IndexType();
+            const mapAttr = parser.parseAttribute();
+            result.addAttribute('map', mapAttr);
+            parser.parseDimAndSymbolList(result.operands);
+            parser.parseOptionalAttrDict(result.attributes);
+            const map = mapAttr instanceof _.AffineMapAttr ? mapAttr.value : null;
+            const numResults = map ? map.getNumResults() : 1;
+            const resultTypes = [];
+            for (let i = 0; i < numResults; i++) {
+                resultTypes.push(indexType);
+            }
+            result.addTypes(resultTypes);
+            return true;
+        }
+        if (op === 'affine.min' || op === 'affine.max') {
             const indexType = new _.IndexType();
             const mapAttr = parser.parseAttribute();
             result.addAttribute('map', mapAttr);
@@ -11764,20 +11783,21 @@ _.AffineDialect = class extends _.Dialect {
         }
         if (op === 'affine.prefetch') {
             const indexType = new _.IndexType();
+            const i32Type = new _.IntegerType('i32');
             const memref = parser.parseOperand();
             const mapOperands = [];
             parser.parseAffineMapOfSSAIds(mapOperands, null, 'map', result.attributes);
             parser.parseComma();
             const rwSpecifier = parser.parseOptionalKeyword();
-            result.addAttribute('isWrite', rwSpecifier === 'write');
+            result.addAttribute('isWrite', new _.BoolAttr(rwSpecifier === 'write'));
             parser.parseComma();
             parser.parseKeyword('locality');
             parser.parseLess();
-            result.addAttribute('localityHint', parser.parseInteger());
+            result.addAttribute('localityHint', new _.IntegerAttr(i32Type, parser.parseInteger()));
             parser.parseGreater();
             parser.parseComma();
             const cacheType = parser.parseOptionalKeyword();
-            result.addAttribute('isDataCache', cacheType === 'data');
+            result.addAttribute('isDataCache', new _.BoolAttr(cacheType === 'data'));
             parser.parseOptionalAttrDict(result.attributes);
             const type = parser.parseColonType();
             parser.resolveOperand(memref, type, result.operands);
@@ -11842,9 +11862,9 @@ _.AffineDialect = class extends _.Dialect {
         const numUbOperands = result.operands.length - numOperandsBeforeUb;
         if (parser.parseOptionalKeyword('step')) {
             const step = parser.parseInteger();
-            result.addAttribute('step', step);
+            result.addAttribute('step', new _.IntegerAttr(indexType, step));
         } else {
-            result.addAttribute('step', 1);
+            result.addAttribute('step', new _.IntegerAttr(indexType, 1));
         }
         const regionArgs = [inductionVariable];
         const operands = [];
@@ -11873,21 +11893,28 @@ _.AffineDialect = class extends _.Dialect {
         }
         const boundOpInfos = parser.parseOperandList();
         if (boundOpInfos.length > 0) {
+            if (boundOpInfos.length > 1) {
+                parser.emitError('expected only one loop bound operand');
+                return;
+            }
             parser.resolveOperand(boundOpInfos[0], indexType, result.operands);
-            result.addAttribute(boundAttrName, 'symbol_identity');
+            const map = new _.AffineMap(0, 1, [new _.AffineSymbolExpr(0)]);
+            result.addAttribute(boundAttrName, new _.AffineMapAttr(map));
             return;
         }
-        const boundAttr = parser.parseAttribute();
+        const boundAttr = parser.parseAttribute(indexType);
         if (boundAttr instanceof _.AffineMapAttr) {
             result.addAttribute(boundAttrName, boundAttr);
             parser.parseDimAndSymbolList(result.operands);
             return;
         }
         if (boundAttr instanceof _.IntegerAttr || typeof boundAttr === 'number' || typeof boundAttr === 'bigint') {
-            result.addAttribute(boundAttrName, boundAttr);
+            const value = boundAttr instanceof _.IntegerAttr ? boundAttr.value : boundAttr;
+            const map = new _.AffineMap(0, 0, [new _.AffineConstantExpr(Number(value))]);
+            result.addAttribute(boundAttrName, new _.AffineMapAttr(map));
             return;
         }
-        result.addAttribute(boundAttrName, boundAttr);
+        parser.emitError('expected valid affine map representation for loop bounds');
     }
 
     parseStoreOp(parser, result) {
@@ -11951,18 +11978,38 @@ _.AffineDialect = class extends _.Dialect {
         return true;
     }
 
-    parseAffineMapWithMinMax(parser, mapOperands, minMaxKeyword) {
+    parseAffineMapWithMinMax(parser, result, mapOperands, mapName, groupsName, minMaxKeyword) {
         parser.parseLParen();
-        if (!parser.parseOptionalRParen()) {
-            do {
-                if (parser.parseOptionalKeyword(minMaxKeyword)) {
-                    parser.parseAffineMapOfSSAIds(mapOperands, null, '__bound', new Map(), 'Paren');
-                } else {
-                    parser.parseAffineExprOfSSAIds(mapOperands);
-                }
-            } while (parser.parseOptionalComma());
-            parser.parseRParen();
+        if (parser.parseOptionalRParen()) {
+            result.addAttribute(mapName, new _.AffineMapAttr(new _.AffineMap(0, 0, [])));
+            result.addAttribute(groupsName, new _.DenseI32ArrayAttr([]));
+            return;
         }
+        const flatExprs = [];
+        const numMapsPerGroup = [];
+        do {
+            if (parser.parseOptionalKeyword(minMaxKeyword)) {
+                const tmpAttrs = new Map();
+                parser.parseAffineMapOfSSAIds(mapOperands, null, '__map', tmpAttrs, 'Paren');
+                const map = tmpAttrs.get('__map');
+                if (!(map instanceof _.AffineMap)) {
+                    parser.emitError(`expected affine map after '${minMaxKeyword}'`);
+                    return;
+                }
+                for (const expr of map.getResults()) {
+                    flatExprs.push(expr);
+                }
+                numMapsPerGroup.push(map.getNumResults());
+            } else {
+                const expr = parser.parseAffineExprOfSSAIds(mapOperands);
+                flatExprs.push(expr);
+                numMapsPerGroup.push(1);
+            }
+        } while (parser.parseOptionalComma());
+        parser.parseRParen();
+        const flatMap = new _.AffineMap(mapOperands.length, 0, flatExprs);
+        result.addAttribute(mapName, new _.AffineMapAttr(flatMap));
+        result.addAttribute(groupsName, new _.DenseI32ArrayAttr(numMapsPerGroup));
     }
 
     parseParallelOp(parser, result) {
@@ -11975,15 +12022,36 @@ _.AffineDialect = class extends _.Dialect {
             return false;
         }
         const lowerMapOperands = [];
-        this.parseAffineMapWithMinMax(parser, lowerMapOperands, 'max');
+        this.parseAffineMapWithMinMax(parser, result, lowerMapOperands, 'lowerBoundsMap', 'lowerBoundsGroups', 'max');
         if (!parser.parseOptionalKeyword('to')) {
             return false;
         }
         const upperMapOperands = [];
-        this.parseAffineMapWithMinMax(parser, upperMapOperands, 'min');
+        this.parseAffineMapWithMinMax(parser, result, upperMapOperands, 'upperBoundsMap', 'upperBoundsGroups', 'min');
+        const i64Type = new _.IntegerType('i64');
         if (parser.parseOptionalKeyword('step')) {
             const stepMapOperands = [];
-            parser.parseAffineMapOfSSAIds(stepMapOperands, null, 'step', result.attributes, 'Paren');
+            const stepAttrs = new Map();
+            parser.parseAffineMapOfSSAIds(stepMapOperands, null, '__steps', stepAttrs, 'Paren');
+            const stepsMap = stepAttrs.get('__steps');
+            const steps = [];
+            if (stepsMap instanceof _.AffineMap) {
+                for (const expr of stepsMap.getResults()) {
+                    if (expr instanceof _.AffineConstantExpr) {
+                        steps.push(expr.value);
+                    } else {
+                        parser.emitError('steps must be constant integers');
+                        return false;
+                    }
+                }
+            }
+            result.addAttribute('steps', new _.ArrayAttr(steps.map((s) => new _.IntegerAttr(i64Type, s))));
+        } else {
+            const defaultSteps = [];
+            for (let i = 0; i < ivArgs.length; i++) {
+                defaultSteps.push(new _.IntegerAttr(i64Type, 1));
+            }
+            result.addAttribute('steps', new _.ArrayAttr(defaultSteps));
         }
         parser.resolveOperands(lowerMapOperands, lowerMapOperands.map(() => indexType), result.operands);
         parser.resolveOperands(upperMapOperands, upperMapOperands.map(() => indexType), result.operands);
@@ -11992,22 +12060,32 @@ _.AffineDialect = class extends _.Dialect {
             parser.parseLParen();
             if (!parser.parseOptionalRParen()) {
                 do {
-                    reductions.push(parser.parseString());
+                    const kind = parser.parseString();
+                    const enumValue = _.AffineDialect.symbolizeAtomicRMWKind(kind);
+                    if (enumValue === null) {
+                        parser.emitError(`invalid reduction value: "${kind}"`);
+                        return false;
+                    }
+                    reductions.push(new _.IntegerAttr(i64Type, enumValue));
                 } while (parser.parseOptionalComma());
                 parser.parseRParen();
             }
         }
-        result.addAttribute('reductions', reductions);
-        if (parser.parseOptionalArrow()) {
-            const resultTypes = [];
-            const resultAttrs = [];
-            parser.parseFunctionResultList(resultTypes, resultAttrs);
-            result.addTypes(resultTypes);
-        }
+        result.addAttribute('reductions', new _.ArrayAttr(reductions));
+        result.addTypes(parser.parseOptionalArrowTypeList());
         const region = result.addRegion();
-        parser.parseOptionalRegion(region, ivArgs);
+        parser.parseRegion(region, ivArgs);
         parser.parseOptionalAttrDict(result.attributes);
         return true;
+    }
+
+    static symbolizeAtomicRMWKind(kind) {
+        const kinds = {
+            addf: 0, addi: 1, andi: 2, assign: 3, maximumf: 4, maxnumf: 5,
+            maxs: 6, maxu: 7, minimumf: 8, minnumf: 9, mins: 10, minu: 11,
+            mulf: 12, muli: 13, ori: 14, xori: 15
+        };
+        return Object.prototype.hasOwnProperty.call(kinds, kind) ? kinds[kind] : null;
     }
 };
 
