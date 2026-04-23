@@ -19796,6 +19796,20 @@ python.Execution = class {
             const artifact = torch.load(serialized);
             return artifact;
         });
+        torch._export.serde.serialize._CURRENT_DESERIALIZER = null;
+        this.registerFunction('torch._export.serde.serialize._reconstruct_fake_tensor', (serialized_tensor_meta, is_parameter) => {
+            const decoder = new TextDecoder('utf-8');
+            const json_tensor_meta = JSON.parse(decoder.decode(serialized_tensor_meta));
+            const tensor_meta = torch._export.serde.serialize._dict_to_dataclass(torch._export.serde.schema.TensorMeta, json_tensor_meta);
+            if (!torch._export.serde.serialize._CURRENT_DESERIALIZER) {
+                throw new python.Error('Need access to current deserializer state.');
+            }
+            let fake_tensor = torch._export.serde.serialize._CURRENT_DESERIALIZER.deserialize_tensor_meta(tensor_meta);
+            if (is_parameter) {
+                fake_tensor = new torch.nn.parameter.Parameter(fake_tensor);
+            }
+            return fake_tensor;
+        });
         this.registerType('torch._export.serde.serialize.GraphModuleDeserializer', class {
             constructor() {
                 this.serialized_name_to_node = new builtins.dict();
@@ -20070,59 +20084,67 @@ python.Execution = class {
                     sig.output_specs.map((o) => this.deserialize_output_spec(o)));
             }
             deserialize(serialized_graph_module, serialized_state_dict, constants, example_inputs, symbol_name_to_range) {
-                this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);
-                this.fake_tensor_mode = new torch._subclasses.fake_tensor.FakeTensorMode(false, true, this.shape_env);
-                this.sympy_functions = new Map([
-                    ['FloorDiv', torch.utils._sympy.functions.FloorDiv],
-                    ['ModularIndexing', torch.utils._sympy.functions.ModularIndexing],
-                    ['Where', torch.utils._sympy.functions.Where],
-                    ['PythonMod', torch.utils._sympy.functions.PythonMod],
-                    ['Mod', torch.utils._sympy.functions.Mod],
-                    ['CleanDiv', torch.utils._sympy.functions.CleanDiv],
-                    ['CeilToInt', torch.utils._sympy.functions.CeilToInt],
-                    ['FloorToInt', torch.utils._sympy.functions.FloorToInt],
-                    ['CeilDiv', torch.utils._sympy.functions.CeilDiv],
-                    ['LShift', torch.utils._sympy.functions.LShift],
-                    ['RShift', torch.utils._sympy.functions.RShift],
-                    ['PowByNatural', torch.utils._sympy.functions.PowByNatural],
-                    ['FloatPow', torch.utils._sympy.functions.FloatPow],
-                    ['FloatTrueDiv', torch.utils._sympy.functions.FloatTrueDiv],
-                    ['IntTrueDiv', torch.utils._sympy.functions.IntTrueDiv],
-                    ['IsNonOverlappingAndDenseIndicator', torch.utils._sympy.functions.IsNonOverlappingAndDenseIndicator],
-                    ['TruncToFloat', torch.utils._sympy.functions.TruncToFloat],
-                    ['TruncToInt', torch.utils._sympy.functions.TruncToInt],
-                    ['RoundToInt', torch.utils._sympy.functions.RoundToInt],
-                    ['RoundDecimal', torch.utils._sympy.functions.RoundDecimal],
-                    ['ToFloat', torch.utils._sympy.functions.ToFloat],
-                    ['Identity', torch.utils._sympy.functions.Identity],
-                ]);
-                this.symbol_name_to_symbol = new Map();
-                this.constants = torch._export.serde.serialize.deserialize_torch_artifact(constants);
-                this.signature = this.deserialize_signature(serialized_graph_module.signature);
-                this.symbol_name_to_range = symbol_name_to_range || new Map();
-                /*
-                    if symbol_name_to_range:
-                    for k, vr in symbol_name_to_range.items():
-                        lower = int(vr.lower)
-                        if vr.upper >= 2:  # max is >= 2, not sym bool range
-                            lower = max(2, lower)
-                        this.symbol_name_to_range[k] = symbolic_shapes.ValueRanges(_int_to_sympy_int(lower), vr.upper)
-                    */
-                this.example_inputs = null;
-                if (example_inputs) {
-                    this.example_inputs = torch._export.serde.serialize.deserialize_torch_artifact(example_inputs);
+                if (torch._export.serde.serialize._CURRENT_DESERIALIZER) {
+                    throw new python.Error('_CURRENT_DESERIALIZER is already set.');
                 }
-                this.deserialize_graph(serialized_graph_module.graph);
-                const module_call_graph = null; // this.deserialize_module_call_graph(serialized_graph_module.module_call_graph)
-                return {
-                    graph_module: torch._export.exported_program._create_graph_module_for_export(this.module, this.graph),
-                    signature: this.signature,
-                    module_call_graph,
-                    names_to_symbols: this.symbol_name_to_symbol,
-                    state_dict: torch._export.serde.serialize.deserialize_torch_artifact(serialized_state_dict),
-                    constants: this.constants,
-                    example_inputs: this.example_inputs,
-                };
+                torch._export.serde.serialize._CURRENT_DESERIALIZER = this;
+                try {
+                    this.shape_env = new torch.fx.experimental.symbolic_shapes.ShapeEnv(/* assume_static_by_default = True */);
+                    this.fake_tensor_mode = new torch._subclasses.fake_tensor.FakeTensorMode(false, true, this.shape_env);
+                    this.sympy_functions = new Map([
+                        ['FloorDiv', torch.utils._sympy.functions.FloorDiv],
+                        ['ModularIndexing', torch.utils._sympy.functions.ModularIndexing],
+                        ['Where', torch.utils._sympy.functions.Where],
+                        ['PythonMod', torch.utils._sympy.functions.PythonMod],
+                        ['Mod', torch.utils._sympy.functions.Mod],
+                        ['CleanDiv', torch.utils._sympy.functions.CleanDiv],
+                        ['CeilToInt', torch.utils._sympy.functions.CeilToInt],
+                        ['FloorToInt', torch.utils._sympy.functions.FloorToInt],
+                        ['CeilDiv', torch.utils._sympy.functions.CeilDiv],
+                        ['LShift', torch.utils._sympy.functions.LShift],
+                        ['RShift', torch.utils._sympy.functions.RShift],
+                        ['PowByNatural', torch.utils._sympy.functions.PowByNatural],
+                        ['FloatPow', torch.utils._sympy.functions.FloatPow],
+                        ['FloatTrueDiv', torch.utils._sympy.functions.FloatTrueDiv],
+                        ['IntTrueDiv', torch.utils._sympy.functions.IntTrueDiv],
+                        ['IsNonOverlappingAndDenseIndicator', torch.utils._sympy.functions.IsNonOverlappingAndDenseIndicator],
+                        ['TruncToFloat', torch.utils._sympy.functions.TruncToFloat],
+                        ['TruncToInt', torch.utils._sympy.functions.TruncToInt],
+                        ['RoundToInt', torch.utils._sympy.functions.RoundToInt],
+                        ['RoundDecimal', torch.utils._sympy.functions.RoundDecimal],
+                        ['ToFloat', torch.utils._sympy.functions.ToFloat],
+                        ['Identity', torch.utils._sympy.functions.Identity],
+                    ]);
+                    this.symbol_name_to_symbol = new Map();
+                    this.constants = torch._export.serde.serialize.deserialize_torch_artifact(constants);
+                    this.signature = this.deserialize_signature(serialized_graph_module.signature);
+                    this.symbol_name_to_range = symbol_name_to_range || new Map();
+                    /*
+                        if symbol_name_to_range:
+                        for k, vr in symbol_name_to_range.items():
+                            lower = int(vr.lower)
+                            if vr.upper >= 2:  # max is >= 2, not sym bool range
+                                lower = max(2, lower)
+                            this.symbol_name_to_range[k] = symbolic_shapes.ValueRanges(_int_to_sympy_int(lower), vr.upper)
+                        */
+                    this.example_inputs = null;
+                    if (example_inputs) {
+                        this.example_inputs = torch._export.serde.serialize.deserialize_torch_artifact(example_inputs);
+                    }
+                    this.deserialize_graph(serialized_graph_module.graph);
+                    const module_call_graph = null; // this.deserialize_module_call_graph(serialized_graph_module.module_call_graph)
+                    return {
+                        graph_module: torch._export.exported_program._create_graph_module_for_export(this.module, this.graph),
+                        signature: this.signature,
+                        module_call_graph,
+                        names_to_symbols: this.symbol_name_to_symbol,
+                        state_dict: torch._export.serde.serialize.deserialize_torch_artifact(serialized_state_dict),
+                        constants: this.constants,
+                        example_inputs: this.example_inputs,
+                    };
+                } finally {
+                    torch._export.serde.serialize._CURRENT_DESERIALIZER = null;
+                }
             }
             sync_fx_node(name, fx_node) {
                 if (this.serialized_name_to_node.has(name)) {
