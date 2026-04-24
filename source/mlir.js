@@ -658,28 +658,13 @@ mlir.Tensor = class {
 
     constructor(type, values, indices) {
         if (indices !== undefined && type instanceof mlir.TensorType && type.shape && Array.isArray(type.shape.dimensions) && type.shape.dimensions.every((d) => (typeof d === 'bigint' && d >= 0n) || (typeof d === 'number' && d >= 0))) {
-            const dims = type.shape.dimensions.map((d) => typeof d === 'bigint' ? Number(d) : d);
-            const rank = dims.length;
+            const rank = type.shape.dimensions.length;
             const numPoints = values ? values.length : 0;
-            const strides = new Array(rank);
-            let stride = 1;
-            for (let i = rank - 1; i >= 0; i--) {
-                strides[i] = stride;
-                stride *= dims[i];
-            }
-            const indicesPerPoint = rank === 0 || numPoints === 0 ? 0 : indices.length / numPoints;
-            const flatIndices = new Array(numPoints);
-            for (let i = 0; i < numPoints; i++) {
-                let offset = 0;
-                for (let j = 0; j < rank; j++) {
-                    offset += Number(indices[i * indicesPerPoint + j]) * strides[j];
-                }
-                flatIndices[i] = offset;
-            }
-            const pointShape = new mlir.TensorShape([numPoints]);
+            const valuesShape = new mlir.TensorShape([numPoints]);
+            const indicesShape = rank > 0 && indices.length === numPoints * rank ? new mlir.TensorShape([numPoints, rank]) : new mlir.TensorShape([indices.length]);
             this.type = new mlir.TensorType(type.elementType, type.shape, 'sparse');
-            this.values = new mlir.Tensor(new mlir.TensorType(type.elementType, pointShape), values || []);
-            this.indices = new mlir.Tensor(new mlir.TensorType(new _.IntegerType('i64'), pointShape), flatIndices);
+            this.values = new mlir.Tensor(new mlir.TensorType(type.elementType, valuesShape), values || []);
+            this.indices = new mlir.Tensor(new mlir.TensorType(new _.IntegerType('i64'), indicesShape), indices);
             this.encoding = '|';
         } else {
             this.type = type;
@@ -3917,6 +3902,13 @@ _.Parser = class {
             this.parseToken(_.Token.greater, "Expected '>'");
         }
         const type = this.parseElementsLiteralType(attrType);
+        if (values && !(values instanceof Uint8Array) && type && type.elementType instanceof _.ComplexType) {
+            const packed = [];
+            for (let i = 0; i + 1 < values.length; i += 2) {
+                packed.push(new base.Complex(values[i], values[i + 1]));
+            }
+            values = packed;
+        }
         return new _.SparseElementsAttr(type, indices, values);
     }
 
