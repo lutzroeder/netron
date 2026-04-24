@@ -11269,6 +11269,8 @@ _.hlo.HLODialect = class extends _.Dialect {
             }
         }
 
+        parser.parseOptionalAttrDictWithKeyword(result.attributes);
+
         const region = result.addRegion();
         parser.parseRegion(region, undefined, true); // IsolatedFromAbove
 
