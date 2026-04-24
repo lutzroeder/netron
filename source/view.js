@@ -943,6 +943,19 @@ view.View = class {
                 viewGraph.updateTunnels();
                 viewGraph.restore(state);
                 this.target = viewGraph;
+                // Auto-select first root node (input or first available node)
+                let firstNode = null;
+                for (const entry of viewGraph._table.values()) {
+                    if (entry instanceof grapher.Node) {
+                        firstNode = entry;
+                        break;
+                    }
+                }
+                if (firstNode) {
+                    this._target.select([firstNode.value]);
+                    this._sidebar.close();
+                    this.showNodeProperties(firstNode.value);
+                }
             }
         }
         return status;
@@ -2497,12 +2510,16 @@ view.Graph = class extends grapher.Graph {
             this._events.gesturestart = (e) => this._gestureStartHandler(e);
             this._events.pointerdown = (e) => this._pointerDownHandler(e);
             this._events.touchstart = (e) => this._touchStartHandler(e);
+            this._events.keydown = (e) => this._keydownHandler(e);
+            this._events.click = (e) => this._clickHandler(e);
             const document = this.host.document;
             const element = document.getElementById('target');
             element.focus();
             element.addEventListener('scroll', this._events.scroll);
             element.addEventListener('wheel', this._events.wheel, { passive: false });
             element.addEventListener('pointerdown', this._events.pointerdown);
+            element.addEventListener('keydown', this._events.keydown);
+            element.addEventListener('click', this._events.click);
             if (this.host.environment('agent') === 'safari') {
                 element.addEventListener('gesturestart', this._events.gesturestart, false);
             } else {
@@ -2518,6 +2535,8 @@ view.Graph = class extends grapher.Graph {
             element.removeEventListener('scroll', this._events.scroll);
             element.removeEventListener('wheel', this._events.wheel);
             element.removeEventListener('pointerdown', this._events.pointerdown);
+            element.removeEventListener('keydown', this._events.keydown);
+            element.removeEventListener('click', this._events.click);
             element.removeEventListener('gesturestart', this._events.gesturestart);
             element.removeEventListener('touchstart', this._events.touchstart);
             delete this._events;
@@ -2695,6 +2714,131 @@ view.Graph = class extends grapher.Graph {
             this._updateZoom(this._zoom * Math.pow(2, delta), e);
             e.preventDefault();
         }
+    }
+
+    _keydownHandler(e) {
+        const document = this.host.document;
+        const container = document.getElementById('target');
+        const panAmount = 50;
+        let handled = false;
+        switch (e.key) {
+            case 'ArrowUp':
+                if (e.ctrlKey) {
+                    this._navigateNodes('up');
+                } else {
+                    container.scrollTop -= panAmount;
+                }
+                handled = true;
+                break;
+            case 'ArrowDown':
+                if (e.ctrlKey) {
+                    this._navigateNodes('down');
+                } else {
+                    container.scrollTop += panAmount;
+                }
+                handled = true;
+                break;
+            case 'ArrowLeft':
+                if (e.ctrlKey) {
+                    this._navigateNodes('left');
+                } else {
+                    container.scrollLeft -= panAmount;
+                }
+                handled = true;
+                break;
+            case 'ArrowRight':
+                if (e.ctrlKey) {
+                    this._navigateNodes('right');
+                } else {
+                    container.scrollLeft += panAmount;
+                }
+                handled = true;
+                break;
+            case 'w':
+            case 'W':
+                this.zoom *= 1.1;
+                handled = true;
+                break;
+            case 's':
+            case 'S':
+                this.zoom *= 0.9;
+                handled = true;
+                break;
+            default:
+                break;
+        }
+        if (handled) {
+            e.preventDefault();
+        }
+    }
+
+    _navigateNodes(direction) {
+        let currentNode = null;
+        for (const element of this._selection) {
+            if (element instanceof grapher.Node) {
+                currentNode = element;
+                break;
+            }
+        }
+        const nodes = [];
+        for (const entry of this._table.values()) {
+            if (entry instanceof grapher.Node && entry.x !== undefined && entry.y !== undefined) {
+                nodes.push(entry);
+            }
+        }
+        if (nodes.length === 0) {
+            return;
+        }
+        if (!currentNode) {
+            this.select([nodes[0].value]);
+            this.scrollTo(this.select([nodes[0].value]), 'smooth');
+            return;
+        }
+        let bestNode = null;
+        let bestDistance = Infinity;
+        for (const node of nodes) {
+            if (node === currentNode) {
+                continue;
+            }
+            const dx = node.x - currentNode.x;
+            const dy = node.y - currentNode.y;
+            let valid = false;
+            switch (direction) {
+                case 'up':
+                    valid = dy < 0;
+                    break;
+                case 'down':
+                    valid = dy > 0;
+                    break;
+                case 'left':
+                    valid = dx < 0;
+                    break;
+                case 'right':
+                    valid = dx > 0;
+                    break;
+                default:
+                    break;
+            }
+            if (valid) {
+                const distance = dx * dx + dy * dy;
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestNode = node;
+                }
+            }
+        }
+        if (bestNode) {
+            this.select(null);
+            const selection = this.select([bestNode.value]);
+            this.scrollTo(selection, 'smooth');
+            this.view.showNodeProperties(bestNode.value);
+        }
+    }
+
+    _clickHandler(/* e */) {
+        const document = this.host.document;
+        const element = document.getElementById('target');
+        element.focus();
     }
 
     scrollTo(selection, behavior) {
