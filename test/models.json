@@ -4454,13 +4454,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "coo_normal_sparse.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/6080534/coo_normal_sparse.onnx.zip[coo_normal_sparse.onnx]",
-    "format":   "ONNX v7",
-    "link":     "https://github.com/lutzroeder/netron/issues/693"
-  },
-  {
-    "type":     "onnx",
     "target":   "decoder_model_merged.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/10830273/decoder_model_merged.onnx.zip[decoder_model_merged.onnx]",
     "format":   "ONNX v8",
@@ -4935,6 +4928,20 @@
     "type":     "onnx",
     "target":   "sparse_const.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/5198627/sparse_const.zip[sparse_const.onnx]",
+    "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "sparse_coo.onnx",
+    "source":   "https://github.com/user-attachments/files/27032911/sparse_coo.onnx.zip[sparse_coo.onnx]",
+    "format":   "ONNX v10",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "sparse_normal.onnx",
+    "source":   "https://github.com/user-attachments/files/27032905/sparse_normal.onnx.zip[sparse_normal.onnx]",
     "format":   "ONNX v7",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },

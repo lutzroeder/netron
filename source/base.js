@@ -916,10 +916,20 @@ base.Tensor = class {
                 break;
         }
         if (indices.length > 0) {
-            if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
+            if (Array.isArray(indices[0])) {
+                const rank = indices[0].length;
+                const strides = new Array(rank);
+                let stride = 1;
+                for (let i = rank - 1; i >= 0; i--) {
+                    strides[i] = stride;
+                    stride *= dimensions[i];
+                }
                 for (let i = 0; i < indices.length; i++) {
-                    const index = indices[i].toNumber();
-                    array[index] = values[i];
+                    let offset = 0;
+                    for (let j = 0; j < rank; j++) {
+                        offset += Number(indices[i][j]) * strides[j];
+                    }
+                    array[offset] = values[i];
                 }
             } else {
                 for (let i = 0; i < indices.length; i++) {
