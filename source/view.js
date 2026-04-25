@@ -8,6 +8,90 @@ const png = {};
 const metadata = {};
 const metrics = {};
 
+view.FieldVisibility = class {
+
+    constructor() {
+        this.names = null;
+        this.attributes = null;
+        this.inputs = null;
+        this.outputs = null;
+        this.weights = null;
+        this.connections = null;
+    }
+};
+
+view.NodeVisibility = class {
+
+    constructor(key) {
+        this.key = key;
+        this.hidden = null;
+        this.fields = new view.FieldVisibility();
+    }
+};
+
+view.VisibilityState = class {
+
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this._counter = 0;
+        this._entries = new WeakMap();
+        this._keys = new WeakMap();
+        this._arguments = new WeakMap();
+    }
+
+    key(node) {
+        if (!this._keys.has(node)) {
+            this._counter++;
+            const label = node && (node.name || node.identifier) ? `${node.name || node.identifier}` : `node-${this._counter}`;
+            this._keys.set(node, `${label}:${this._counter}`);
+        }
+        return this._keys.get(node);
+    }
+
+    entry(node) {
+        if (!this._entries.has(node)) {
+            this._entries.set(node, new view.NodeVisibility(this.key(node)));
+        }
+        return this._entries.get(node);
+    }
+
+    hidden(node) {
+        return this.entry(node).hidden;
+    }
+
+    field(node, name) {
+        return this.entry(node).fields[name];
+    }
+
+    setHidden(node, value) {
+        this.entry(node).hidden = value;
+    }
+
+    setField(node, name, value) {
+        this.entry(node).fields[name] = value;
+    }
+
+    clearNode(node) {
+        const entry = this.entry(node);
+        entry.hidden = null;
+        entry.fields = new view.FieldVisibility();
+    }
+
+    argument(argument) {
+        if (!this._arguments.has(argument)) {
+            this._arguments.set(argument, null);
+        }
+        return this._arguments.get(argument);
+    }
+
+    setArgument(argument, value) {
+        this._arguments.set(argument, value);
+    }
+};
+
 view.View = class {
 
     constructor(host) {
@@ -27,6 +111,9 @@ view.View = class {
         this._selection = [];
         this._sidebar = new view.Sidebar(this._host);
         this._find = null;
+        this._visibility = new view.VisibilityState();
+        this._displayNames = new WeakMap();
+        this._sidebarRestore = null;
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         this._modelFactoryService.import();
         this._worker = this._host.environment('serial') ? null : new view.Worker(this._host);
@@ -321,6 +408,10 @@ view.View = class {
         return this._options;
     }
 
+    get visibility() {
+        return this._visibility;
+    }
+
     get target() {
         return this._target;
     }
@@ -390,7 +481,8 @@ view.View = class {
         }
     }
 
-    _reload() {
+    _reload(sidebarRestore) {
+        this._sidebarRestore = sidebarRestore || null;
         this.show('welcome spinner');
         if (this._model && this._path.length > 0) {
             this._updateTarget(this._model, this._path).catch((error) => {
@@ -728,6 +820,9 @@ view.View = class {
         this._sidebar.close();
         await this._timeout(2);
         try {
+            this._visibility.reset();
+            this._displayNames = new WeakMap();
+            this._sidebarRestore = null;
             const model = await this._modelFactoryService.open(context);
             const format = [];
             if (model.format) {
@@ -857,9 +952,9 @@ view.View = class {
                     });
                     let name = '';
                     if (target && target.identifier) {
-                        name = target.identifier;
+                        name = this.getDisplayName(target, target.identifier);
                     } else if (target && target.name) {
-                        name = target.name;
+                        name = this.getDisplayName(target, target.name);
                     }
                     if (name.length > 24) {
                         element.setAttribute('title', name);
@@ -877,18 +972,23 @@ view.View = class {
                     }
                     path.appendChild(element);
                 }
-            }
-            this._select.update(model, stack);
-            const button = this._element('sidebar-target-button');
-            if (stack.length > 0) {
+        }
+        this._select.update(model, stack);
+        const button = this._element('sidebar-target-button');
+        if (stack.length > 0) {
                 const type = stack[stack.length - 1].type || 'graph';
                 const name = type.charAt(0).toUpperCase() + type.slice(1);
                 button.setAttribute('title', `${name} Properties`);
                 button.style.display = 'block';
-            } else {
-                button.style.display = 'none';
-            }
+        } else {
+            button.style.display = 'none';
         }
+        if (status === '' && this._sidebarRestore) {
+            const restore = this._sidebarRestore;
+            this._sidebarRestore = null;
+            restore();
+        }
+    }
     }
 
     async pushTarget(graph, context) {
@@ -1083,6 +1183,12 @@ view.View = class {
         }
         try {
             const sidebar = new view.ModelSidebar(this, this.model);
+            sidebar.on('rename-target', (sender, data) => {
+                this.renameTarget(data.target, data.value, () => this.showModelProperties());
+            });
+            sidebar.on('visibility-reset-session', () => {
+                this.resetVisibilitySession(() => this.showModelProperties());
+            });
             this._sidebar.open(sidebar, 'Model Properties');
         } catch (error) {
             this.error(error, 'Error showing model properties.', null);
@@ -1102,6 +1208,12 @@ view.View = class {
             const sidebar = new view.TargetSidebar(this, target, this.activeSignature);
             sidebar.on('show-definition', async (/* sender, e */) => {
                 await this.showDefinition(target);
+            });
+            sidebar.on('rename-target', (sender, data) => {
+                this.renameTarget(data.target, data.value, () => this.showTargetProperties(target));
+            });
+            sidebar.on('visibility-reset-session', () => {
+                this.resetVisibilitySession(() => this.showTargetProperties(target));
             });
             sidebar.on('focus', (sender, value) => {
                 this._target.focus([value]);
@@ -1148,6 +1260,28 @@ view.View = class {
                 const sidebar = new view.NodeSidebar(this, node);
                 sidebar.on('show-definition', async (/* sender, e */) => {
                     await this.showDefinition(node.type);
+                });
+                sidebar.on('rename-target', (sender, data) => {
+                    this.renameTarget(data.target, data.value, () => this.showNodeProperties(node));
+                });
+                sidebar.on('visibility-toggle', (sender, data) => {
+                    this.toggleNodeVisibility(node, data.name, () => this.showNodeProperties(node));
+                });
+                sidebar.on('visibility-attribute-toggle', (sender, argument) => {
+                    this.toggleAttributeVisibility(argument, () => this.showNodeProperties(node));
+                });
+                sidebar.on('visibility-node', (sender, hidden) => {
+                    const restore = hidden ? () => this.showTargetProperties() : () => this.showNodeProperties(node);
+                    this.setNodeHidden(node, hidden, restore);
+                });
+                sidebar.on('visibility-show-all', () => {
+                    this.showAllNodeCriteria(node, () => this.showNodeProperties(node));
+                });
+                sidebar.on('visibility-hide-all', () => {
+                    this.hideAllNodeCriteria(node, () => this.showTargetProperties());
+                });
+                sidebar.on('visibility-reset', () => {
+                    this.resetNodeVisibility(node, () => this.showNodeProperties(node));
                 });
                 sidebar.on('focus', (sender, value) => {
                     this._target.focus([value]);
@@ -1221,6 +1355,104 @@ view.View = class {
             error.context = this._model.identifier;
         }
         this._host.exception(error, fatal);
+    }
+
+    isNodeHidden(node) {
+        return this._visibility.hidden(node) === true;
+    }
+
+    isNodeFieldVisible(node, name) {
+        const value = this._visibility.field(node, name);
+        if (value !== null && value !== undefined) {
+            return value;
+        }
+        switch (name) {
+            case 'names':
+            case 'attributes':
+            case 'weights':
+                return this.options[name];
+            case 'inputs':
+            case 'outputs':
+            case 'connections':
+                return true;
+            default:
+                return true;
+        }
+    }
+
+    getNodeVisibilityState(node) {
+        return {
+            hidden: this.isNodeHidden(node),
+            names: this.isNodeFieldVisible(node, 'names'),
+            attributes: this.isNodeFieldVisible(node, 'attributes'),
+            inputs: this.isNodeFieldVisible(node, 'inputs'),
+            outputs: this.isNodeFieldVisible(node, 'outputs'),
+            weights: this.isNodeFieldVisible(node, 'weights'),
+            connections: this.isNodeFieldVisible(node, 'connections')
+        };
+    }
+
+    getDisplayName(target, fallback) {
+        if (target && this._displayNames.has(target)) {
+            return this._displayNames.get(target);
+        }
+        return fallback;
+    }
+
+    renameTarget(target, name, sidebarRestore) {
+        if (target) {
+            this._displayNames.set(target, name);
+            this._reload(sidebarRestore);
+        }
+    }
+
+    isAttributeVisible(argument) {
+        const value = this._visibility.argument(argument);
+        if (value !== null && value !== undefined) {
+            return value;
+        }
+        return argument.visible !== false;
+    }
+
+    toggleAttributeVisibility(argument, sidebarRestore) {
+        this._visibility.setArgument(argument, !this.isAttributeVisible(argument));
+        this._reload(sidebarRestore);
+    }
+
+    toggleNodeVisibility(node, name, sidebarRestore) {
+        this._visibility.setField(node, name, !this.isNodeFieldVisible(node, name));
+        this._reload(sidebarRestore);
+    }
+
+    setNodeHidden(node, hidden, sidebarRestore) {
+        this._visibility.setHidden(node, hidden);
+        this._reload(sidebarRestore);
+    }
+
+    resetNodeVisibility(node, sidebarRestore) {
+        this._visibility.clearNode(node);
+        this._reload(sidebarRestore);
+    }
+
+    resetVisibilitySession(sidebarRestore) {
+        this._visibility.reset();
+        this._reload(sidebarRestore);
+    }
+
+    showAllNodeCriteria(node, sidebarRestore) {
+        this._visibility.setHidden(node, false);
+        for (const name of ['names', 'attributes', 'inputs', 'outputs', 'weights', 'connections']) {
+            this._visibility.setField(node, name, true);
+        }
+        this._reload(sidebarRestore);
+    }
+
+    hideAllNodeCriteria(node, sidebarRestore) {
+        this._visibility.setHidden(node, true);
+        for (const name of ['names', 'attributes', 'inputs', 'outputs', 'weights', 'connections']) {
+            this._visibility.setField(node, name, false);
+        }
+        this._reload(sidebarRestore);
     }
 
     async showDefinition(type) {
@@ -1997,6 +2229,9 @@ view.Graph = class extends grapher.Graph {
             }
         }
         for (const node of graph.nodes) {
+            if (this.view.isNodeHidden(node)) {
+                continue;
+            }
             const viewNode = this.createNode(node);
             this.setNode(viewNode);
             let outputs = node.outputs;
@@ -2824,6 +3059,7 @@ view.Node = class extends grapher.Node {
     _add(value, type) {
         const node = (type === 'graph' || type === 'function') ? { type: value } : value;
         const options = this.context.options;
+        const visibility = this.context.view.getNodeVisibilityState(value);
         const header =  this.header();
         const category = node.type && node.type.category ? node.type.category : '';
         if (node.type && typeof node.type.name !== 'string' || !node.type.name.split) { // #416
@@ -2833,10 +3069,11 @@ view.Node = class extends grapher.Node {
             }
             throw error;
         }
-        let content = options.names && (node.name || node.identifier) ? (node.name || node.identifier) : node.type.name.split('.').pop();
-        let tooltip = options.names && (node.name || node.identifier) ? `[${node.type.name}]` : (node.name || node.identifier);
+        const displayName = this.context.view.getDisplayName(node, node.name || node.identifier);
+        let content = visibility.names && displayName ? displayName : node.type.name.split('.').pop();
+        let tooltip = visibility.names && displayName ? `[${node.type.name}]` : displayName;
         if (content.length > 21) {
-            tooltip = options.names ? `${content}` : `[${content}]`;
+            tooltip = visibility.names ? `${content}` : `[${content}]`;
             const begin = content.substring(0, 10);
             const end = content.substring(content.length - 10, content.length);
             content = `${begin}\u2026${end}`;
@@ -2848,6 +3085,22 @@ view.Node = class extends grapher.Node {
         title.on('click', () => {
             this.context.activate(value);
         });
+        if (type !== 'graph' && type !== 'function') {
+            this.visibility = header.add(null, styles);
+            this.visibility.content = '\u25F4';
+            this.visibility.tooltip = 'Show Visibility Controls';
+            this.visibility.padding = 4;
+            this.visibility.on('click', () => {
+                this.context.view.showNodeProperties(this.value);
+            });
+            this.hide = header.add(null, styles);
+            this.hide.content = '\u00D7';
+            this.hide.tooltip = 'Hide Node';
+            this.hide.padding = 4;
+            this.hide.on('click', () => {
+                this.context.view.setNodeHidden(this.value, true, () => this.context.view.showTargetProperties());
+            });
+        }
         if (type === 'graph') {
             this.definition = header.add(null, styles);
             this.definition.content = '\u25CB';
@@ -2897,7 +3150,7 @@ view.Node = class extends grapher.Node {
             if (content && content.length > 12) {
                 content = `${content.substring(0, 12)}\u2026`;
             }
-            const item = list().argument(argument.name, content);
+            const item = list().argument(this.context.view.getDisplayName(argument, argument.name), content);
             item.tooltip = argument.type;
             if (!content.startsWith('\u3008')) {
                 item.separator = ' = ';
@@ -2918,7 +3171,7 @@ view.Node = class extends grapher.Node {
             return false;
         };
         const inputs = node.inputs;
-        if (Array.isArray(inputs)) {
+        if (visibility.inputs && Array.isArray(inputs)) {
             for (const argument of inputs) {
                 const type = argument.type;
                 if (argument.visible !== false &&
@@ -2928,28 +3181,28 @@ view.Node = class extends grapher.Node {
                     type === 'function' ||
                     (type === 'function[]' && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
-                } else if (options.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
+                } else if (visibility.weights && argument.visible !== false && argument.type !== 'attribute' && Array.isArray(argument.value) && argument.value.length === 1 && argument.value[0].initializer) {
                     const item = this.context.createArgument(argument);
                     list().add(item);
-                } else if (options.weights && (argument.visible === false || Array.isArray(argument.value) && argument.value.length > 1) && (!argument.type || argument.type.endsWith('*')) && argument.value.some((value) => value !== null && value.initializer)) {
+                } else if (visibility.weights && (argument.visible === false || Array.isArray(argument.value) && argument.value.length > 1) && (!argument.type || argument.type.endsWith('*')) && argument.value.some((value) => value !== null && value.initializer)) {
                     hiddenTensors = true;
-                } else if (options.attributes && argument.visible !== false && argument.type && !argument.type.endsWith('*')) {
+                } else if (visibility.attributes && argument.visible !== false && argument.type && !argument.type.endsWith('*')) {
                     const item = attribute(argument);
                     list().add(item);
                 }
             }
         }
-        if (Array.isArray(node.attributes)) {
+        if (visibility.attributes && Array.isArray(node.attributes)) {
             const attributes = node.attributes.slice();
             attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
             for (const argument of attributes) {
                 const type = argument.type;
-                if (argument.visible !== false &&
+                if (visibility.attributes && this.context.view.isAttributeVisible(argument) &&
                     ((type === 'graph' && argument.value) ||
                     (type === 'object' && argument.value) ||
                     ((type === 'object[]' || type === 'function' || type === 'function[]') && Array.isArray(argument.value) && argument.value.length > 0))) {
                     objects.push(argument);
-                } else if (options.attributes && argument.visible !== false) {
+                } else if (visibility.attributes && this.context.view.isAttributeVisible(argument)) {
                     const item = attribute(argument);
                     list().add(item);
                 }
@@ -2977,16 +3230,16 @@ view.Node = class extends grapher.Node {
                 content = this.context.createGraph(argument.value);
                 content.blocks.push(new view.Block(this.context.view, argument.value, this.context.blocks));
                 content.activate = () => this.context.view.showTargetProperties(argument.value);
-                const item = list().argument(argument.name, content);
+                const item = list().argument(this.context.view.getDisplayName(argument, argument.name), content);
                 list().add(item);
             } else if (type === 'graph' || type === 'function') {
                 content = this.context.createGraph(argument.value, type);
                 content.activate = () => this.context.view.showTargetProperties(argument.value);
-                const item = list().argument(argument.name, content);
+                const item = list().argument(this.context.view.getDisplayName(argument, argument.name), content);
                 list().add(item);
             } else if (type === 'graph[]') {
                 content = argument.value.map((value) => this.context.createGraph(value));
-                const item = list().argument(argument.name, content);
+                const item = list().argument(this.context.view.getDisplayName(argument, argument.name), content);
                 list().add(item);
             } else {
                 if (argument.type === 'object') {
@@ -3194,8 +3447,20 @@ view.Value = class {
     build() {
         this._edges = this._edges || [];
         if (this.from && Array.isArray(this.to)) {
+            if (this.from.value && this.context.view.isNodeFieldVisible(this.from.value, 'connections') === false) {
+                return;
+            }
+            if (this.from.value && this.context.view.isNodeFieldVisible(this.from.value, 'outputs') === false) {
+                return;
+            }
             for (let i = 0; i < this.to.length; i++) {
                 const to = this.to[i];
+                if (to.value && this.context.view.isNodeFieldVisible(to.value, 'connections') === false) {
+                    continue;
+                }
+                if (to.value && this.context.view.isNodeFieldVisible(to.value, 'inputs') === false) {
+                    continue;
+                }
                 let content = '';
                 const type = this.value.type;
                 if (type &&
@@ -3556,11 +3821,11 @@ view.TargetSelector = class extends view.Control {
                 for (let i = 0; i < targets.length; i++) {
                     const target = targets[i];
                     const option = this.createElement('option');
-                    option.innerText = target.name;
+                    option.innerText = this._view.getDisplayName(target.target, target.name);
                     group.appendChild(option);
                     if (current && current.target === target.target && current.signature === target.signature) {
                         option.setAttribute('selected', 'true');
-                        this._select.setAttribute('title', target.name);
+                        this._select.setAttribute('title', this._view.getDisplayName(target.target, target.name));
                     }
                     this._targets.push(target);
                 }
@@ -3611,19 +3876,25 @@ view.ObjectSidebar = class extends view.Control {
         this.element.appendChild(element);
     }
 
-    addEntry(name, item) {
-        const entry = new view.NameValueView(this._view, name, item);
+    addEntry(name, item, options) {
+        const entry = new view.NameValueView(this._view, name, item, options);
+        for (const event of ['rename-target', 'visibility-toggle', 'visibility-attribute-toggle', 'visibility-node', 'visibility-show-all', 'visibility-hide-all', 'visibility-reset', 'visibility-reset-session']) {
+            entry.on(event, (sender, data) => this.emit(event, data));
+        }
         const element = entry.render();
         this.element.appendChild(element);
     }
 
-    addProperty(name, value, style) {
+    addProperty(name, value, style, options) {
         const item = new view.TextView(this._view, value, style);
-        this.addEntry(name, item);
+        if (options && options.editableValueTarget) {
+            item.editable(options.editableValueTarget, value);
+        }
+        this.addEntry(name, item, options);
         return item;
     }
 
-    addArgument(name, argument, source) {
+    addArgument(name, argument, source, options) {
         const value = new view.ArgumentView(this._view, argument, source);
         value.on('focus', (sender, value) => {
             this.emit('focus', value);
@@ -3638,7 +3909,7 @@ view.ObjectSidebar = class extends view.Control {
         value.on('select', (sender, value) => this.emit('select', value));
         value.on('activate', (sender, value) => this.emit('activate', value));
         value.on('deactivate', (sender, value) => this.emit('deactivate', value));
-        this.addEntry(name, value);
+        this.addEntry(name, value, options);
         return value;
     }
 
@@ -3667,6 +3938,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
 
     render() {
         const node = this._node;
+        const visibility = this._view.getNodeVisibilityState(node);
         if (node.type) {
             const type = node.type;
             const item = this.addProperty('type', node.type.identifier || node.type.name);
@@ -3693,7 +3965,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             }
         }
         if (node.name) {
-            this.addProperty('name', node.name, 'nowrap');
+            this.addProperty('name', this._view.getDisplayName(node, node.name), 'nowrap', { editableValueTarget: node });
         }
         if (node.identifier) {
             this.addProperty('identifier', node.identifier, 'nowrap');
@@ -3704,12 +3976,39 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (node.device) {
             this.addProperty('device', node.device);
         }
+        this.addSection('Visibility');
+        this.addEntry('visible', new view.VisibilityToggleView(this._view, visibility.hidden ? 'Show Node' : 'Hide Node', !visibility.hidden, 'visibility-node', !visibility.hidden));
+        this.addEntry('names', new view.VisibilityToggleView(this._view, visibility.names ? 'Shown' : 'Hidden', visibility.names, 'visibility-toggle', { name: 'names' }));
+        this.addEntry('attributes', new view.VisibilityToggleView(this._view, visibility.attributes ? 'Shown' : 'Hidden', visibility.attributes, 'visibility-toggle', { name: 'attributes' }));
+        this.addEntry('inputs', new view.VisibilityToggleView(this._view, visibility.inputs ? 'Shown' : 'Hidden', visibility.inputs, 'visibility-toggle', { name: 'inputs' }));
+        this.addEntry('outputs', new view.VisibilityToggleView(this._view, visibility.outputs ? 'Shown' : 'Hidden', visibility.outputs, 'visibility-toggle', { name: 'outputs' }));
+        this.addEntry('weights', new view.VisibilityToggleView(this._view, visibility.weights ? 'Shown' : 'Hidden', visibility.weights, 'visibility-toggle', { name: 'weights' }));
+        this.addEntry('connections', new view.VisibilityToggleView(this._view, visibility.connections ? 'Shown' : 'Hidden', visibility.connections, 'visibility-toggle', { name: 'connections' }));
+        this.addEntry('actions', new view.VisibilityActionView(this._view, [
+            { label: 'Show All', event: 'visibility-show-all' },
+            { label: 'Hide All', event: 'visibility-hide-all' },
+            { label: 'Reset', event: 'visibility-reset' }
+        ]));
         const attributes = node.attributes;
         if (Array.isArray(attributes) && attributes.length > 0) {
             this.addSection('Attributes');
             attributes.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
             for (const attribute of attributes) {
-                this.addArgument(attribute.name, attribute, 'attribute');
+                const item = new view.ArgumentView(this._view, attribute, 'attribute');
+                item.on('focus', (sender, value) => {
+                    this.emit('focus', value);
+                    this._focused = this._focused || new Set();
+                    this._focused.add(value);
+                });
+                item.on('blur', (sender, value) => {
+                    this.emit('blur', value);
+                    this._focused = this._focused || new Set();
+                    this._focused.delete(value);
+                });
+                item.on('select', (sender, value) => this.emit('select', value));
+                item.on('activate', (sender, value) => this.emit('activate', value));
+                item.on('deactivate', (sender, value) => this.emit('deactivate', value));
+                this.addEntry(this._view.getDisplayName(attribute, attribute.name), new view.AttributeVisibilityView(this._view, item, attribute, this._view.isAttributeVisible(attribute)), { editableNameTarget: attribute });
             }
         }
         const inputs = node.inputs;
@@ -3717,7 +4016,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             this.addSection('Inputs');
             for (const input of inputs) {
                 const name = input.name;
-                this.addArgument(name, input);
+                this.addArgument(this._view.getDisplayName(input, name), input, undefined, { editableNameTarget: input });
             }
         }
         const outputs = node.outputs;
@@ -3725,7 +4024,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             this.addSection('Outputs');
             for (const output of outputs) {
                 const name = output.name;
-                this.addArgument(name, output);
+                this.addArgument(this._view.getDisplayName(output, name), output, undefined, { editableNameTarget: output });
             }
         }
         const blocks = node.blocks;
@@ -3733,7 +4032,7 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             this.addSection('Blocks');
             for (const block of blocks) {
                 const name = block.name;
-                this.addArgument(name, block);
+                this.addArgument(this._view.getDisplayName(block, name), block, undefined, { editableNameTarget: block });
             }
         }
         const metadata = this._view.model.attachment.metadata.node(node);
@@ -3769,16 +4068,33 @@ view.NodeSidebar = class extends view.ObjectSidebar {
 
 view.NameValueView = class extends view.Control {
 
-    constructor(context, name, value) {
+    constructor(context, name, value, options) {
         super(context);
         this._name = name;
         this._value = value;
+        this._options = options || {};
+        for (const event of ['rename-target', 'visibility-toggle', 'visibility-attribute-toggle', 'visibility-node', 'visibility-show-all', 'visibility-hide-all', 'visibility-reset', 'visibility-reset-session']) {
+            value.on(event, (sender, data) => this.emit(event, data));
+        }
         const nameElement = this.createElement('div', 'sidebar-item-name');
         const input = this.createElement('input');
         input.setAttribute('type', 'text');
         input.setAttribute('value', name);
         input.setAttribute('title', name);
-        input.setAttribute('readonly', 'true');
+        if (this._options.editableNameTarget) {
+            const commit = () => {
+                this.emit('rename-target', { target: this._options.editableNameTarget, value: input.value });
+            };
+            input.addEventListener('change', commit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commit();
+                }
+            });
+        } else {
+            input.setAttribute('readonly', 'true');
+        }
         nameElement.appendChild(input);
         const valueElement = this.createElement('div', 'sidebar-item-value-list');
         for (const element of value.render()) {
@@ -3854,11 +4170,110 @@ view.TextView = class extends view.Control {
         this.element.insertBefore(action, this.element.childNodes[0]);
     }
 
+    editable(target, value) {
+        this.element.replaceChildren();
+        const line = this.createElement('div', 'sidebar-item-value-line');
+        const input = this.createElement('input', 'sidebar-editable-input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('value', value || '');
+        input.setAttribute('title', value || '');
+        const commit = () => this.emit('rename-target', { target, value: input.value });
+        input.addEventListener('change', commit);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                commit();
+            }
+        });
+        line.appendChild(input);
+        this.element.appendChild(line);
+    }
+
     render() {
         return [this.element];
     }
 
     toggle() {
+    }
+};
+
+view.VisibilityToggleView = class extends view.Control {
+
+    constructor(context, label, value, eventName, payload) {
+        super(context);
+        this._eventName = eventName;
+        this._payload = payload;
+        this.element = this.createElement('div', 'sidebar-item-value sidebar-visibility-value');
+        const button = this.createElement('button', value ? 'sidebar-visibility-button is-active' : 'sidebar-visibility-button');
+        button.textContent = label;
+        button.addEventListener('click', () => this.emit(this._eventName, this._payload));
+        this.element.appendChild(button);
+    }
+
+    render() {
+        return [this.element];
+    }
+
+    toggle() {
+    }
+};
+
+view.VisibilityActionView = class extends view.Control {
+
+    constructor(context, actions) {
+        super(context);
+        this.element = this.createElement('div', 'sidebar-item-value sidebar-visibility-value');
+        for (const action of actions) {
+            const button = this.createElement('button', 'sidebar-visibility-button');
+            button.textContent = action.label;
+            button.addEventListener('click', () => this.emit(action.event, action.data));
+            this.element.appendChild(button);
+        }
+    }
+
+    render() {
+        return [this.element];
+    }
+
+    toggle() {
+    }
+};
+
+view.AttributeVisibilityView = class extends view.Control {
+
+    constructor(context, argumentView, argument, checked) {
+        super(context);
+        this._argumentView = argumentView;
+        this._argument = argument;
+        this._elements = [];
+        for (const event of ['focus', 'blur', 'select', 'activate', 'deactivate']) {
+            argumentView.on(event, (sender, data) => this.emit(event, data));
+        }
+        const container = this.createElement('div', 'sidebar-attribute-visibility');
+        const content = this.createElement('div', 'sidebar-attribute-visibility-content');
+        for (const element of argumentView.render()) {
+            content.appendChild(element);
+        }
+        const control = this.createElement('label', 'sidebar-attribute-checkbox');
+        const checkbox = this.createElement('input');
+        checkbox.setAttribute('type', 'checkbox');
+        checkbox.checked = checked;
+        checkbox.addEventListener('change', () => this.emit('visibility-attribute-toggle', this._argument));
+        const text = this.createElement('span');
+        text.textContent = 'Show';
+        control.appendChild(checkbox);
+        control.appendChild(text);
+        container.appendChild(content);
+        container.appendChild(control);
+        this._elements.push(container);
+    }
+
+    render() {
+        return this._elements;
+    }
+
+    toggle() {
+        this._argumentView.toggle();
     }
 };
 
@@ -4600,7 +5015,7 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             this.addProperty('producer', model.producer);
         }
         if (model.name) {
-            this.addProperty('name', model.name);
+            this.addProperty('name', this._view.getDisplayName(model, model.name), undefined, { editableValueTarget: model });
         }
         if (model.version) {
             this.addProperty('version', model.version);
@@ -4620,6 +5035,10 @@ view.ModelSidebar = class extends view.ObjectSidebar {
         if (model.source) {
             this.addProperty('source', model.source);
         }
+        this.addSection('Visibility');
+        this.addEntry('session', new view.VisibilityActionView(this._view, [
+            { label: 'Reset Session', event: 'visibility-reset-session' }
+        ]));
         const metadata = this._view.model.attachment.metadata.model(model);
         if (Array.isArray(metadata) && metadata.length > 0) {
             this.addSection('Metadata');
@@ -4654,7 +5073,7 @@ view.TargetSidebar = class extends view.ObjectSidebar {
         const target = this._target;
         const signature = this._signature;
         if (target.name) {
-            const item = this.addProperty('name', target.name);
+            const item = this.addProperty('name', this._view.getDisplayName(target, target.name), undefined, { editableValueTarget: target });
             if (target.type === 'function') {
                 item.action('\u0192', 'Show Function Documentation', () => {
                     this.emit('show-definition', null);
@@ -4670,6 +5089,10 @@ view.TargetSidebar = class extends view.ObjectSidebar {
         if (target.description) {
             this.addProperty('description', target.description);
         }
+        this.addSection('Visibility');
+        this.addEntry('session', new view.VisibilityActionView(this._view, [
+            { label: 'Reset Session', event: 'visibility-reset-session' }
+        ]));
         const attributes = signature ? signature.attributes : target.attributes;
         const inputs = signature ? signature.inputs : target.inputs;
         const outputs = signature ? signature.outputs : target.outputs;
