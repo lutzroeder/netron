@@ -361,7 +361,11 @@ mock.Host = class {
     }
 
     async fetch(file, encoding, basename) {
-        const pathname = path.join(basename || mock.Host.source, file);
+        const root = path.resolve(basename || mock.Host.source);
+        const pathname = path.resolve(root, file);
+        if (pathname !== root && !pathname.startsWith(`${root}${path.sep}`)) {
+            throw new Error(`The path '${file}' is invalid.`);
+        }
         const exists = await this._access(pathname);
         if (!exists) {
             throw new Error(`The file '${file}' does not exist.`);
