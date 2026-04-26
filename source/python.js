@@ -7169,7 +7169,7 @@ python.Execution = class {
         this.registerFunction('torch._C.tupleConstruct', (stack, num_inputs) => {
             torch._C.TORCH_CHECK(num_inputs <= stack.length);
             const elems = stack.splice(stack.length - num_inputs, num_inputs);
-            const tuple = torch._C.Tuple.create(elems.reverse());
+            const tuple = torch._C.Tuple.create(elems);
             stack.push(new torch._C.IValue(tuple));
         });
         this.registerFunction('torch._C.runNodeIfInputsAreConstant', (n, ignore_custom_classes, db) => {
@@ -12992,6 +12992,9 @@ python.Execution = class {
                 return this._values.get(name)[0];
             }
             ival_(name, value) {
+                if (!(value instanceof torch._C.IValue)) {
+                    throw new python.Error('ival_ expects IValue.');
+                }
                 this._values.set(name, [value, 'ival']);
                 return this;
             }
@@ -13240,6 +13243,9 @@ python.Execution = class {
                 if (value instanceof torch.Value) {
                     throw new python.Error('Value cannot be a value.');
                 }
+                if (value instanceof torch._C.IValue) {
+                    throw new python.Error('IValue must be unwrapped before assignment.');
+                }
                 this._value = value;
             }
             get value() { // remove
@@ -13385,11 +13391,20 @@ python.Execution = class {
             isGenerator() {
                 return this.tag === 'Generator';
             }
+            toGenerator() {
+                return this.value;
+            }
             isStream() {
                 return this.tag === 'Stream';
             }
+            toStream() {
+                return this.value;
+            }
             isGenericDict() {
                 return this.tag === 'GenericDict';
+            }
+            toGenericDict() {
+                return this.value;
             }
             isEnum() {
                 return this.tag === 'Enum';
@@ -15422,7 +15437,7 @@ python.Execution = class {
                     n.s_('value', val.toDevice().__str__());
                     n.output().setType(torch.DeviceObjType.get());
                 } else if (val.isGenerator()) {
-                    n.ival_('value', val.toGenerator());
+                    n.ival_('value', val);
                     n.output().setType(torch._C_._GeneratorType.get());
                 } else if (val.isStream()) {
                     n.ival_('value', val);
@@ -15466,7 +15481,6 @@ python.Execution = class {
             const n = g.create('prim::Constant');
             let type = null;
             if (val === null) {
-                n.ival_('value', val);
                 type = torch.NoneType.get();
             } else if (typeof val === 'string') {
                 n.s_('value', val);
@@ -15487,10 +15501,12 @@ python.Execution = class {
                 n.t_('value', val);
                 type = torch.TensorType.get();
             } else if (val instanceof torch.ScriptObject) {
-                n.ival_('value', val);
+                n.ival_('value', new torch._C.IValue(val));
                 type = val.type();
             } else if (Array.isArray(val) && val.every((item) => Number.isInteger(item))) {
-                n.ival_('value', val);
+                const items = val.map((item) => new torch._C.IValue(item, 'Int'));
+                const list = new torch._C.List(torch.IntType.get(), items);
+                n.ival_('value', new torch._C.IValue(list));
                 type = torch.ListType.create(torch.IntType.get());
             } else {
                 throw new python.Error(`Unsupported value type '${typeof val}'.`);
@@ -15515,18 +15531,21 @@ python.Execution = class {
             if (type.isSubtypeOf(torch.TensorType.get())) {
                 return new torch._C.IValue(node.t('value'), 'Tensor');
             } else if (type.isSubtypeOf(torch.BoolType.get())) {
-                return new torch._C.IValue(Boolean(node.i('value'), 'Bool'));
+                return new torch._C.IValue(Boolean(node.i('value')), 'Bool');
             } else if (type.isSubtypeOf(torch.NumberType.get()) && node.kindOf('value') === 'i') {
                 return new torch._C.IValue(node.i('value'), 'Int');
             } else if (type.isSubtypeOf(torch.NumberType.get()) && node.kindOf('value') === 'f') {
                 return new torch._C.IValue(node.f('value'), 'Double');
-            } else if (type.isSubtypeOf(torch.ComplexType.get()) && node.kindOf('value') === 'c') {
+            } else if (type.isSubtypeOf(torch.NumberType.get()) && node.kindOf('value') === 'c') {
                 return new torch._C.IValue(node.c('value'), 'Complex');
             } else if (type instanceof torch.ListType && node.kindOf('value') === 'ival') {
-                let list = node.ival('value');
-                list = list.isList ? list : new torch._C.IValue(list); // remove
+                const list = node.ival('value');
                 torch._C.TORCH_INTERNAL_ASSERT(list.isList());
                 return list;
+            } else if (type instanceof torch.ListType && node.kindOf('value') === 'ss') {
+                const items = node.ss('value').map((s) => new torch._C.IValue(s, 'String'));
+                const list = new torch._C.List(torch.StringType.get(), items);
+                return new torch._C.IValue(list);
             } else if (type instanceof torch.DictType && node.kindOf('value') === 'ival') {
                 const dict = node.ival('value');
                 torch._C.TORCH_INTERNAL_ASSERT(dict.isGenericDict());
@@ -15556,7 +15575,7 @@ python.Execution = class {
                 return enum_val;
             } else if (type instanceof torch.ClassType && !type.is_module()) {
                 const class_val = node.ival('value');
-                return  new torch._C.IValue(class_val, 'Object');
+                return class_val;
             }
             throw new python.Error('Unsupported constant literal.');
         });
