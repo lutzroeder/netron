@@ -4,7 +4,7 @@ set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 case "${OSTYPE}" in
-    msys*) python="winpty python";;
+    msys*|cygwin*|mingw*) python="winpty python";;
     *) python="python";;
 esac
 

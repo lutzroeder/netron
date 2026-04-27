@@ -7,14 +7,14 @@ env_dir=./third_party/env/tensorflow
 src_dir=./third_party/source/tensorflow
 
 case "${OSTYPE}" in
-    msys*) python="winpty python";;
+    msys*|cygwin*|mingw*) python="winpty python";;
     *) python="python";;
 esac
 
 venv() {
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
-        msys*) source ${env_dir}/Scripts/activate;;
+        msys*|cygwin*|mingw*) source ${env_dir}/Scripts/activate;;
         *) source ${env_dir}/bin/activate;;
     esac
     ${python} -m pip install --quiet --upgrade pip requests

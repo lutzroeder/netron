@@ -4,7 +4,7 @@ set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 case "${OSTYPE}" in
-    msys*) python="winpty python";;
+    msys*|cygwin*|mingw*) python="winpty python";;
     *) python="python";;
 esac
 
@@ -12,7 +12,7 @@ venv() {
     env_dir=./third_party/env/keras
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
-        msys*) source ${env_dir}/Scripts/activate;;
+        msys*|cygwin*|mingw*) source ${env_dir}/Scripts/activate;;
         *) source ${env_dir}/bin/activate;;
     esac
     ${python} -m pip install --quiet --upgrade pip
@@ -42,6 +42,9 @@ install() {
 
 metadata() {
     echo "keras metadata"
+    if [[ "$(uname -s)" == *ARM64* ]]; then
+        return
+    fi
     venv
     if [[ $(grep -U $'\x0D' ./source/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/keras_script.py
