@@ -9823,6 +9823,12 @@ tensorflow.BatchingOptions = class BatchingOptions {
                 case 5:
                     message.max_enqueued_batches = reader.int32();
                     break;
+                case 6:
+                    message.enable_large_batch_splitting = reader.bool();
+                    break;
+                case 7:
+                    message.mixed_priority_batching_policy = reader.string();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9852,6 +9858,12 @@ tensorflow.BatchingOptions = class BatchingOptions {
                 case "max_enqueued_batches":
                     message.max_enqueued_batches = reader.int32();
                     break;
+                case "enable_large_batch_splitting":
+                    message.enable_large_batch_splitting = reader.bool();
+                    break;
+                case "mixed_priority_batching_policy":
+                    message.mixed_priority_batching_policy = reader.string();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9877,6 +9889,12 @@ tensorflow.BatchingOptions = class BatchingOptions {
         if ('maxEnqueuedBatches' in obj) {
             message.max_enqueued_batches = Number(obj.maxEnqueuedBatches);
         }
+        if ('enableLargeBatchSplitting' in obj) {
+            message.enable_large_batch_splitting = obj.enableLargeBatchSplitting;
+        }
+        if ('mixedPriorityBatchingPolicy' in obj) {
+            message.mixed_priority_batching_policy = obj.mixedPriorityBatchingPolicy;
+        }
         return message;
     }
 };
@@ -9885,6 +9903,8 @@ tensorflow.BatchingOptions.prototype.num_batch_threads = 0;
 tensorflow.BatchingOptions.prototype.max_batch_size = 0;
 tensorflow.BatchingOptions.prototype.batch_timeout_micros = 0;
 tensorflow.BatchingOptions.prototype.max_enqueued_batches = 0;
+tensorflow.BatchingOptions.prototype.enable_large_batch_splitting = false;
+tensorflow.BatchingOptions.prototype.mixed_priority_batching_policy = "";
 
 tensorflow.CoordinatedJob = class CoordinatedJob {
 
