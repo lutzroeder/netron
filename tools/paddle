@@ -23,9 +23,13 @@ schema() {
     echo "paddle schema"
     [[ $(grep -U $'\x0D' ./source/paddle-proto.js) ]] && crlf=1
     node ./tools/protoc.js --binary --root paddle --text --out ./source/paddle-proto.js ${src_dir}/paddle/paddle/fluid/framework/framework.proto
-    node ./tools/flatc.js --text --root paddlelite --out ./source/paddle-schema.js ${src_dir}/paddle-lite/lite/model_parser/flatbuffers/param.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/paddle-proto.js ./source/paddle-proto.js
+    fi
+    [[ $(grep -U $'\x0D' ./source/paddle-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --text --root paddlelite --out ./source/paddle-schema.js ${src_dir}/paddle-lite/lite/model_parser/flatbuffers/param.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/paddle-schema.js ./source/paddle-schema.js
     fi
 }
 
