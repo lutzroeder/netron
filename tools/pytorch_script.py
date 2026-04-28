@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import platform
 import re
 import sys
 import warnings
@@ -15,6 +16,9 @@ source_dir = os.path.join(root_dir, "source")
 third_party_dir = os.path.join(root_dir, "third_party")
 metadata_file = os.path.join(source_dir, "pytorch-metadata.json")
 pytorch_source_dir = os.path.join(third_party_dir, "source", "pytorch")
+
+skip_torchvision = platform.system() == "Windows" and platform.machine() == "ARM64"
+skip_xnnpack = platform.system() == "Windows" and platform.machine() == "ARM64"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -363,6 +367,7 @@ known_legacy_schema_definitions = [
     "torch_sparse::saint_subgraph(Tensor _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2)", # noqa E501
     "torch_scatter::scatter_sum(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0", # noqa E501
     "torch_sparse::non_diag_mask(Tensor _0, Tensor _1, int _2, int _3, int _4) -> Tensor _0", # noqa E501
+    "torchaudio::forced_align(Tensor log_probs, Tensor targets, Tensor input_lengths, Tensor target_lengths, int blank) -> (Tensor, Tensor)", # noqa E501
     "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)", # noqa E501
     "torchvision::_interpolate_bilinear2d_aa(Tensor input, int[] size, bool align_corners) -> Tensor", # noqa E501
     "torchvision::deform_conv2d.out(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
@@ -379,8 +384,8 @@ def _all_schemas():
     logging.getLogger("torch.distributed.elastic.multiprocessing").setLevel(logging.ERROR)
     logging.getLogger("torchao").setLevel(logging.ERROR)
     torch = __import__("torch")
-    __import__("torchvision")
-    __import__("torchaudio")
+    if not skip_torchvision:
+        __import__("torchvision")
     with warnings.catch_warnings(action="ignore"):
         __import__("torchao")
     logging.getLogger("torchao").setLevel(logging.NOTSET)
@@ -421,31 +426,31 @@ def _check_types(types, schemas):
         key = _identifier(schema)
         if key in types:
             types.pop(key)
+    skip = ["torch.nn", "__torch__."]
+    if skip_torchvision:
+        skip.append("torchvision::")
+    if skip_xnnpack:
+        skip.append("prepacked::")
     for key in list(types.keys()):
-        if key.startswith("torch.nn") or key.startswith("__torch__."):
-            types.pop(key)
+        for prefix in skip:
+            if key.startswith(prefix):
+                types.pop(key)
+                break
     if len(types) > 0:
         raise Exception("\n".join(list(types.keys())))
 
 def _sort_types(types):
     keys = {}
-    index = 0
-    for schema in _all_schemas():
-        key = _identifier(str(schema))
-        if key not in keys:
-            keys[key] = index
-            index += 1
-    for item in types:
+    for index, item in enumerate(types):
         key = _identifier(item["name"])
         if key not in keys:
             keys[key] = index
-            index += 1
     def custom_key(x):
         name = x["name"]
         key = _identifier(name)
         has_namespace = 0 if "::" in name else 1
         base = key.split(".")[0] if has_namespace == 0 else key
-        return (has_namespace, base, keys.get(key, index))
+        return (has_namespace, base, keys.get(key, len(types)))
     return sorted(types, key=custom_key)
 
 

@@ -30,7 +30,7 @@ clean() {
 sync() {
     echo "pytorch sync"
     if [ ! -d "${src_dir}" ]; then
-        git clone --quiet --depth=1 --branch main --single-branch https://github.com/pytorch/pytorch.git "${src_dir}"
+        git clone --quiet --depth=1 --branch main --single-branch -c core.longpaths=true https://github.com/pytorch/pytorch.git "${src_dir}"
     else
         git -C "${src_dir}" fetch --quiet --depth=1 origin main
         git -C "${src_dir}" reset --quiet --hard FETCH_HEAD
@@ -45,7 +45,7 @@ install() {
     echo "pytorch install"
     venv
     ${python} -m pip install --quiet --upgrade wheel psutil
-    ${python} -m pip install --quiet --upgrade torch torchvision torchaudio torchao --pre --index-url https://download.pytorch.org/whl/nightly/cpu
+    ${python} -m pip install --quiet --upgrade torch torchvision torchao --pre --index-url https://download.pytorch.org/whl/nightly/cpu
     # ${python} -m pip install --quiet --upgrade torch-neuron --index-url https://pip.repos.neuron.amazonaws.com
     deactivate
 }
