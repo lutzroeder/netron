@@ -1,0 +1,320 @@
+[
+  {
+    "name": "Add"
+  },
+  {
+    "name": "AdaptiveAvgPool2D",
+    "category": "Pool"
+  },
+  {
+    "name": "AdaptiveMaxPool2D",
+    "category": "Pool"
+  },
+  {
+    "name": "AllGather"
+  },
+  {
+    "name": "AllReduce"
+  },
+  {
+    "name": "ApplyMomentum"
+  },
+  {
+    "name": "Assign"
+  },
+  {
+    "name": "AvgPool",
+    "category": "Pool"
+  },
+  {
+    "name": "AvgPool3D",
+    "category": "Pool"
+  },
+  {
+    "name": "BatchMatMul",
+    "category": "Layer"
+  },
+  {
+    "name": "BatchNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "BiasAdd",
+    "category": "Layer"
+  },
+  {
+    "name": "BroadcastTo",
+    "category": "Shape"
+  },
+  {
+    "name": "Cast",
+    "category": "Transform"
+  },
+  {
+    "name": "Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "Conv2D",
+    "category": "Layer"
+  },
+  {
+    "name": "Conv2DBackpropInput",
+    "category": "Layer"
+  },
+  {
+    "name": "Conv2DTranspose",
+    "category": "Layer"
+  },
+  {
+    "name": "Conv3D",
+    "category": "Layer"
+  },
+  {
+    "name": "Dense",
+    "category": "Layer"
+  },
+  {
+    "name": "Depend"
+  },
+  {
+    "name": "DepthToSpace",
+    "category": "Shape"
+  },
+  {
+    "name": "DepthwiseConv2dNative",
+    "category": "Layer"
+  },
+  {
+    "name": "Dropout",
+    "category": "Dropout"
+  },
+  {
+    "name": "ELU",
+    "category": "Activation"
+  },
+  {
+    "name": "Embedding"
+  },
+  {
+    "name": "Equal"
+  },
+  {
+    "name": "Exp"
+  },
+  {
+    "name": "ExpandDims",
+    "category": "Shape"
+  },
+  {
+    "name": "FastGeLU",
+    "category": "Activation"
+  },
+  {
+    "name": "Fill"
+  },
+  {
+    "name": "Flatten",
+    "category": "Shape"
+  },
+  {
+    "name": "Floor"
+  },
+  {
+    "name": "GELU",
+    "category": "Activation"
+  },
+  {
+    "name": "Gather",
+    "category": "Tensor"
+  },
+  {
+    "name": "GatherV2",
+    "category": "Tensor"
+  },
+  {
+    "name": "Greater"
+  },
+  {
+    "name": "GroupNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "HSigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "HSwish",
+    "category": "Activation"
+  },
+  {
+    "name": "InstanceNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "LayerNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "LeakyReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "Load"
+  },
+  {
+    "name": "Log"
+  },
+  {
+    "name": "LogSoftmax",
+    "category": "Activation"
+  },
+  {
+    "name": "MakeTuple"
+  },
+  {
+    "name": "MatMul",
+    "category": "Layer"
+  },
+  {
+    "name": "MatMulFusion",
+    "category": "Layer"
+  },
+  {
+    "name": "MaxPool",
+    "category": "Pool"
+  },
+  {
+    "name": "MaxPool3D",
+    "category": "Pool"
+  },
+  {
+    "name": "Maximum"
+  },
+  {
+    "name": "Minimum"
+  },
+  {
+    "name": "Mish",
+    "category": "Activation"
+  },
+  {
+    "name": "Mul"
+  },
+  {
+    "name": "Neg"
+  },
+  {
+    "name": "OneHot"
+  },
+  {
+    "name": "PReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "Pad",
+    "category": "Tensor"
+  },
+  {
+    "name": "Pow"
+  },
+  {
+    "name": "ReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "ReLU6",
+    "category": "Activation"
+  },
+  {
+    "name": "ReduceMax",
+    "category": "Data"
+  },
+  {
+    "name": "ReduceMean",
+    "category": "Data"
+  },
+  {
+    "name": "ReduceMin",
+    "category": "Data"
+  },
+  {
+    "name": "ReduceSum",
+    "category": "Data"
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape"
+  },
+  {
+    "name": "ResizeBilinear",
+    "category": "Data"
+  },
+  {
+    "name": "SeLU",
+    "category": "Activation"
+  },
+  {
+    "name": "Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "Slice",
+    "category": "Tensor"
+  },
+  {
+    "name": "Softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "SpaceToBatch"
+  },
+  {
+    "name": "SpaceToDepth",
+    "category": "Shape"
+  },
+  {
+    "name": "Split",
+    "category": "Tensor"
+  },
+  {
+    "name": "Sqrt"
+  },
+  {
+    "name": "Squeeze",
+    "category": "Shape"
+  },
+  {
+    "name": "Stack",
+    "category": "Tensor"
+  },
+  {
+    "name": "StridedSlice",
+    "category": "Tensor"
+  },
+  {
+    "name": "Sub"
+  },
+  {
+    "name": "Tanh",
+    "category": "Activation"
+  },
+  {
+    "name": "Tile",
+    "category": "Tensor"
+  },
+  {
+    "name": "TopK"
+  },
+  {
+    "name": "Transpose",
+    "category": "Shape"
+  },
+  {
+    "name": "Unsqueeze",
+    "category": "Shape"
+  },
+  {
+    "name": "UpdateState"
+  }
+]

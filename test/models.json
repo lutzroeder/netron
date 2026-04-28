@@ -3213,6 +3213,20 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1187"
   },
   {
+    "type":     "mindir",
+    "target":   "mnist.mindir",
+    "source":   "https://github.com/user-attachments/files/27209141/mnist.mindir.zip[mnist.mindir]",
+    "format":   "MindIR v2.2.10.20231214",
+    "link":     "https://github.com/lutzroeder/netron/issues/1572"
+  },
+  {
+    "type":     "mindir",
+    "target":   "mobilenetv2.mindir",
+    "source":   "https://github.com/user-attachments/files/27206595/mobilenetv2.mindir.zip[mobilenetv2.mindir]",
+    "format":   "MindIR v1.1.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1572"
+  },
+  {
     "type":     "mlnet",
     "target":   "BinaryClassification_AutoML_SentimentModel.zip",
     "source":   "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip",

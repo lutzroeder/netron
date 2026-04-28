@@ -4,29 +4,36 @@ set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 clean() {
-    echo "mslite clean"
+    echo "mindspore clean"
     rm -rf "./third_party/source/mindspore"
 }
 
 sync() {
-    echo "mslite sync"
+    echo "mindspore sync"
     mkdir -p "./third_party/source/mindspore/mindspore/lite/schema/"
     curl --silent --show-error --location --output "./third_party/source/mindspore/mindspore/lite/schema/model.fbs" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/lite/schema/model.fbs"
     curl --silent --show-error --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops.fbs" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/lite/schema/ops.fbs"
     curl --silent --show-error --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops_types.fbs" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/lite/schema/ops_types.fbs"
+    mkdir -p "./third_party/source/mindspore/mindspore/core/proto/"
+    curl --silent --show-error --location --output "./third_party/source/mindspore/mindspore/core/proto/mind_ir.proto" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/core/proto/mind_ir.proto"
 }
 
 schema() {
-    echo "mslite schema"
+    echo "mindspore schema"
     [[ $(grep -U $'\x0D' ./source/mslite-schema.js) ]] && crlf=1
     node ./tools/flatc.js --text --root mslite --out ./source/mslite-schema.js ./third_party/source/mindspore/mindspore/lite/schema/model.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/mslite-schema.js ./source/mslite-schema.js
     fi
+    [[ $(grep -U $'\x0D' ./source/mindir-proto.js) ]] && crlf2=1
+    node ./tools/protoc.js --binary --text --root mindir --out ./source/mindir-proto.js ./third_party/source/mindspore/mindspore/core/proto/mind_ir.proto
+    if [[ -n ${crlf2} ]]; then
+        unix2dos --quiet --newfile ./source/mindir-proto.js ./source/mindir-proto.js
+    fi
 }
 
 metadata() {
-    echo "mslite metadata"
+    echo "mindspore metadata"
     [[ $(grep -U $'\x0D' ./source/mslite-metadata.json) ]] && crlf=1
     node ./tools/mslite-script.js
     if [[ -n ${crlf} ]]; then

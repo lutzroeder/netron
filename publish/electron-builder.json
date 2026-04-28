@@ -28,6 +28,7 @@
         { "ext": "maxviz",       "name": "Modular Model"            },
         { "ext": "meta",         "name": "TensorFlow Meta Graph"    },
         { "ext": "mge",          "name": "MegEngine Mge Model"      },
+        { "ext": "mindir",       "name": "MindIR Model"             },
         { "ext": "mlmodel",      "name": "Core ML Model"            },
         { "ext": "mlir",         "name": "MLIR Model"               },
         { "ext": "mlirbc",       "name": "MLIR Bytecode Model"      },

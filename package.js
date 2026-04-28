@@ -603,7 +603,7 @@ const update = async () => {
         'gguf',
         'jax',
         'kann', 'keras',
-        'mlir', 'mnn', 'mslite', 'megengine',
+        'mlir', 'mnn', 'megengine', 'mindspore',
         'nnabla',
         'onnx', 'om',
         'paddle', 'pytorch',
