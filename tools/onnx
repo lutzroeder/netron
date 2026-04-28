@@ -25,6 +25,7 @@ clean() {
     echo "onnx clean"
     rm -rf "${env_dir}"
     rm -rf "${src_dir}"
+    rm -rf "./third_party/bin/protobuf"
 }
 
 sync() {
@@ -76,21 +77,28 @@ install() {
         #     export PATH="${protoc_dir}\bin":${PATH}
         #     ;;
         msys*|cygwin*|mingw*)
-            # winget install -e --id=Microsoft.VisualStudio.2019.BuildTools --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
-            programfiles_x86_dir=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
-            build_tools_dir="${programfiles_x86_dir}\Microsoft Visual Studio\2019\BuildTools"
+            # winget install -e --id=Microsoft.VisualStudio.2026.BuildTools --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
+            programfiles_x86=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
+            vswhere="${programfiles_x86}\Microsoft Visual Studio\Installer\vswhere.exe"
+            build_tools_dir=$("${vswhere}" -latest -products '*' -property installationPath)
+            case "$(uname -s)" in
+                *ARM64*) cmake_arch="ARM64" ;;
+                *) cmake_arch="x64" ;;
+            esac
             cmake_dir="${build_tools_dir}\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
             protobuf="protobuf==${protobuf_version}"
             ${python} -m pip install --quiet --upgrade ${protobuf}
             export PATH="$(cygpath -u "${cmake_dir}")":${PATH}
-            msbuild_dir="${build_tools_dir}\MSBuild\Current\Bin"
             if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
                 rm -rf ${protoc_dir}
-                git clone --quiet -c advice.detachedHead=false -b v${protobuf_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
-                pushd "${protoc_dir}/src/cmake" > /dev/null
-                "${cmake_dir}\cmake.exe" -G "Visual Studio 16 2019" -A x64 -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="..\..\.." . > /dev/null
-                "${msbuild_dir}\MSBuild.exe" protobuf.sln //m //p:Configuration=Release > /dev/null
-                "${msbuild_dir}\MSBuild.exe" INSTALL.vcxproj //p:Configuration=Release > /dev/null
+                git init --quiet ${protoc_dir}/src
+                git -C ${protoc_dir}/src fetch --quiet --depth=1 https://github.com/protocolbuffers/protobuf.git v${protobuf_version}
+                git -C ${protoc_dir}/src checkout --quiet FETCH_HEAD
+                git -C ${protoc_dir}/src submodule update --quiet --init --recursive --depth=1
+                pushd "${protoc_dir}/src" > /dev/null
+                "${cmake_dir}\cmake.exe" -Wno-deprecated -A ${cmake_arch} -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_SHARED_LIBS=OFF -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_EXAMPLES=OFF -DABSL_PROPAGATE_CXX_STD=ON -DCMAKE_INSTALL_PREFIX="$(cygpath -w "${protoc_dir}")" . > /dev/null
+                "${cmake_dir}\cmake.exe" --build . --config Release > /dev/null
+                "${cmake_dir}\cmake.exe" --install . --config Release > /dev/null
                 popd > /dev/null
             fi
             export PATH="${protoc_dir}\bin":${PATH}
