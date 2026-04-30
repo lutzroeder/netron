@@ -70,13 +70,17 @@ sync() {
                 echo "${stderr}" >&2
                 exit 1
             fi
-            if ! stderr=$(git -C "${dir}" reset --quiet --hard FETCH_HEAD 2>&1); then
-                echo "${stderr}" >&2
-                exit 1
-            fi
-            if ! stderr=$(git -C "${dir}" gc --quiet --prune=all 2>&1); then
-                echo "${stderr}" >&2
-                exit 1
+            head_before=$(git -C "${dir}" rev-parse HEAD)
+            head_after=$(git -C "${dir}" rev-parse FETCH_HEAD)
+            if [ "${head_before}" != "${head_after}" ]; then
+                if ! stderr=$(git -C "${dir}" reset --quiet --hard FETCH_HEAD 2>&1); then
+                    echo "${stderr}" >&2
+                    exit 1
+                fi
+                if ! stderr=$(git -C "${dir}" gc --quiet --prune=all 2>&1); then
+                    echo "${stderr}" >&2
+                    exit 1
+                fi
             fi
         fi
     done

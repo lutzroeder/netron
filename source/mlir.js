@@ -59,7 +59,8 @@ mlir.ModelFactory = class {
             case 'mlir.text': {
                 const decoder = await context.read('text.decoder');
                 const config = new _.ParserConfig(new _.DialectContext(metadata));
-                const state = new _.ParserState(decoder, config);
+                const sourceMgr = new _.SourceMgr(decoder);
+                const state = new _.ParserState(sourceMgr, config);
                 const parser = new _.TopLevelOperationParser(state);
                 const block = new _.Block();
                 parser.parse(block);
@@ -2332,36 +2333,70 @@ _.Token.kw_symbol = 'kw_symbol';
 _.Token.kw_true = 'kw_true';
 _.Token.kw_unit = 'kw_unit';
 
+_.SourceMgr = class {
+
+    constructor(decoder) {
+        this._decoder = decoder;
+        this._offsetCache = null;
+    }
+
+    get decoder() {
+        return this._decoder;
+    }
+
+    getLineAndColumn(position) {
+        const offsets = this._getOrCreateOffsetCache();
+        let low = 0;
+        let high = offsets.length - 1;
+        while (low < high) {
+            const mid = (low + high + 1) >> 1;
+            if (offsets[mid] <= position) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return [low + 1, position - offsets[low] + 1];
+    }
+
+    _getOrCreateOffsetCache() {
+        if (!this._offsetCache) {
+            const buffer = this._decoder.buffer;
+            const offsets = [0];
+            if (buffer) {
+                for (let i = 0; i < buffer.length; i++) {
+                    if (buffer[i] === 0x0A) {
+                        offsets.push(i + 1);
+                    }
+                }
+            }
+            this._offsetCache = offsets;
+        }
+        return this._offsetCache;
+    }
+};
+
 _.Lexer = class {
 
-    constructor(decoder, context) {
+    constructor(sourceMgr, context) {
+        this._sourceMgr = sourceMgr;
         this._context = context;
-        this._decoder = decoder;
+        this._decoder = sourceMgr.decoder;
         this._currentPosition = this._decoder.position;
         this._current = this._decoder.decode();
         this._nextPosition = this._decoder.position;
         this._next = this._decoder.decode();
-        this._tokens = [new _.Token(decoder), new _.Token(decoder), new _.Token(decoder), new _.Token(decoder)];
+        this._tokens = [new _.Token(this._decoder), new _.Token(this._decoder), new _.Token(this._decoder), new _.Token(this._decoder)];
         this._index = 0;
         this._errorLoc = new _.SMLoc();
     }
 
+    getSourceMgr() {
+        return this._sourceMgr;
+    }
+
     getEncodedSourceLocation(loc) {
-        let line = 1;
-        let column = 1;
-        const decoder = this._decoder;
-        const savedPosition = decoder.position;
-        decoder.position = 0;
-        while (decoder.position < loc.position) {
-            const c = decoder.decode();
-            if (c === '\n') {
-                line++;
-                column = 1;
-            } else {
-                column++;
-            }
-        }
-        decoder.position = savedPosition;
+        const [line, column] = this._sourceMgr.getLineAndColumn(loc.position);
         return new _.Location(new _.FileLineColLoc(this._context, '', line, column));
     }
 
@@ -2773,14 +2808,14 @@ _.ParserConfig = class {
 
 _.ParserState = class {
 
-    constructor(decoder, config) {
+    constructor(sourceMgr, config) {
         this.config = config;
         this.defaultDialectStack = ['builtin'];
         this.attributeAliasDefinitions = new Map();
         this.typeAliasDefinitions = new Map();
         this.dialectResources = new Map();
         this.deferredLocsReferences = [];
-        this.lex = new _.Lexer(decoder, config.context);
+        this.lex = new _.Lexer(sourceMgr, config.context);
         this.curToken = this.lex.lexToken();
     }
 };
@@ -4133,36 +4168,79 @@ _.Parser = class {
     }
 
     parseDialectSymbolBody() {
-        const closingFor = { '<': '>', '[': ']', '(': ')', '{': '}' };
-        const openingFor = { '>': '<', ']': '[', ')': '(', '}': '{' };
-        const delimiters = new Set(['<', '>', '[', ']', '(', ')', '{', '}', ',', ':', '=']);
-        this.parseToken(_.Token.less, "expected '<'");
-        const stack = ['<'];
-        let value = '<';
-        let prevToken = '<';
-        while (stack.length > 0) {
-            if (this.getToken().is(_.Token.eof)) {
-                this.emitError("Unbalanced '<'");
-            }
-            const token = this.getToken().getSpelling().str();
-            if (closingFor[token]) {
-                stack.push(token);
-            } else if (openingFor[token]) {
-                if (stack[stack.length - 1] === openingFor[token]) {
-                    stack.pop();
-                } else if (token !== '>') {
-                    this.emitError(`Unbalanced '${stack[stack.length - 1]}'`);
+        const decoder = this.state.lex.getSourceMgr().decoder;
+        const startPos = this.getToken().loc.position;
+        decoder.position = startPos;
+        const nestedPunctuation = [];
+        const chars = [];
+        do {
+            const c = decoder.decode();
+            if (c === undefined) {
+                if (nestedPunctuation.length > 0) {
+                    this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
                 }
+                this.emitError('unexpected nul or EOF in pretty dialect name');
             }
-            const curToken = this.getToken().getSpelling().str();
-            this.consumeToken();
-            if (!delimiters.has(prevToken) && !delimiters.has(curToken)) {
-                value += ' ';
+            chars.push(c);
+            switch (c) {
+                case '<':
+                case '[':
+                case '(':
+                case '{':
+                    nestedPunctuation.push(c);
+                    continue;
+                case '-': {
+                    const pos = decoder.position;
+                    const next = decoder.decode();
+                    if (next === '>') {
+                        chars.push(next);
+                    } else {
+                        decoder.position = pos;
+                    }
+                    continue;
+                }
+                case '>':
+                    if (nestedPunctuation[nestedPunctuation.length - 1] !== '<') {
+                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                    }
+                    nestedPunctuation.pop();
+                    break;
+                case ']':
+                    if (nestedPunctuation[nestedPunctuation.length - 1] !== '[') {
+                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                    }
+                    nestedPunctuation.pop();
+                    break;
+                case ')':
+                    if (nestedPunctuation[nestedPunctuation.length - 1] !== '(') {
+                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                    }
+                    nestedPunctuation.pop();
+                    break;
+                case '}':
+                    if (nestedPunctuation[nestedPunctuation.length - 1] !== '{') {
+                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                    }
+                    nestedPunctuation.pop();
+                    break;
+                case '"': {
+                    this.resetToken(decoder.position - 1);
+                    if (this.getToken().isNot(_.Token.string)) {
+                        this.emitError('expected string in dialect symbol body');
+                    }
+                    const spelling = this.getToken().getSpelling().str();
+                    for (let i = 1; i < spelling.length; i++) {
+                        chars.push(spelling[i]);
+                    }
+                    decoder.position = this.getToken().loc.position + spelling.length;
+                    continue;
+                }
+                default:
+                    continue;
             }
-            value += curToken;
-            prevToken = curToken;
-        }
-        return value;
+        } while (nestedPunctuation.length > 0);
+        this.resetToken(decoder.position);
+        return chars.join('');
     }
 
     getEncodedSourceLocation(loc) {
@@ -4217,7 +4295,8 @@ _.Parser = class {
     static parseSymbol(inputStr, context, parserFn) {
         const decoder = text.Decoder.open(inputStr);
         const config = new _.ParserConfig(context);
-        const state = new _.ParserState(decoder, config);
+        const sourceMgr = new _.SourceMgr(decoder);
+        const state = new _.ParserState(sourceMgr, config);
         const parser = new _.Parser(state, context);
         const startPos = state.curToken.position || 0;
         const symbol = parserFn(parser);
@@ -20011,6 +20090,9 @@ _.GpuDialect = class extends _.Dialect {
                 const privateArgs = parser.parseArgumentList('paren', true);
                 regionArgs.push(...privateArgs);
             }
+            if (parser.parseOptionalKeyword('cooperative')) {
+                result.addAttribute('cooperative', new _.UnitAttr());
+            }
             const region = result.addRegion();
             parser.parseRegion(region, regionArgs.length > 0 ? regionArgs : undefined, /* isIsolatedNameScope */ true);
             parser.parseOptionalAttrDict(result.attributes);
@@ -20527,6 +20609,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomDirective('GrainsizeClause', this.parseGranularityClause.bind(this));
         this.registerCustomDirective('NumTasksClause', this.parseGranularityClause.bind(this));
         this.registerCustomDirective('AffinityClause', this.parseAffinityClause.bind(this));
+        this.registerCustomDirective('HeapAllocClause', this.parseHeapAllocClause.bind(this));
         this.registerCustomAttribute('DataSharingClauseTypeAttr', this.parseDataSharingClauseTypeAttr.bind(this));
         this.registerCustomAttribute('ClauseCancelConstructTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('ClauseDependAttr', this.parseParenthesizedEnumAttr.bind(this));
@@ -20565,37 +20648,6 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         if (op === 'omp.unroll_heuristic') {
             return this.parseUnrollHeuristicOp(parser, result);
-        }
-        if (op === 'omp.target_allocmem') {
-            const unresolvedDevice = parser.parseOperand();
-            parser.parseColon();
-            const deviceType = parser.parseType();
-            parser.resolveOperand(unresolvedDevice, deviceType, result.operands);
-            parser.parseComma();
-            const inType = parser.parseType();
-            result.addAttribute('in_type', { value: inType, type: 'type' });
-            const unresolvedTypeparams = [];
-            if (parser.parseOptionalLParen()) {
-                do {
-                    unresolvedTypeparams.push(parser.parseOperand());
-                } while (parser.parseOptionalComma());
-                parser.parseColon();
-                const types = parser.parseTypeList();
-                parser.resolveOperands(unresolvedTypeparams, types, result.operands);
-                parser.parseRParen();
-            }
-            const unresolvedShape = [];
-            while (parser.parseOptionalComma()) {
-                unresolvedShape.push(parser.parseOperand());
-            }
-            const indexType = new _.IndexType();
-            for (const s of unresolvedShape) {
-                parser.resolveOperand(s, indexType, result.operands);
-            }
-            parser.parseOptionalAttrDict(result.attributes);
-            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([1, unresolvedTypeparams.length, unresolvedShape.length]));
-            result.addTypes([new _.IntegerType('i64')]);
-            return true;
         }
         return super.parseOperation(parser, result);
     }
@@ -20835,6 +20887,30 @@ _.OpenMPDialect = class extends _.Dialect {
                 affinityTypes.push(type);
             }
         });
+    }
+
+    parseHeapAllocClause(parser, op, inTypeAttrName, typeparamsOps, typeparamsTypes, shapeOps, shapeTypes) {
+        const inType = parser.parseType();
+        op.addAttribute(inTypeAttrName, { value: inType, type: 'type' });
+        if (parser.parseOptionalLParen()) {
+            do {
+                typeparamsOps.push(parser.parseOperand());
+            } while (parser.parseOptionalComma());
+            parser.parseColon();
+            for (const t of parser.parseTypeList()) {
+                typeparamsTypes.push(t);
+            }
+            parser.parseRParen();
+        }
+        if (parser.parseOptionalComma()) {
+            do {
+                shapeOps.push(parser.parseOperand());
+            } while (parser.parseOptionalComma());
+            const indexType = new _.IndexType();
+            for (let i = 0; i < shapeOps.length; i++) {
+                shapeTypes.push(indexType);
+            }
+        }
     }
 
     parseScheduleClause(parser, op, scheduleKindAttrName, scheduleModAttrName, scheduleSimdAttrName, chunkOperands, chunkTypes) {
@@ -22860,6 +22936,21 @@ _.IREEGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'iree_gpu');
+        this.registerCustomDirective('AsyncDMASourceIndexTypes', this.parseAsyncDMASourceIndexTypes.bind(this));
+    }
+
+    parseAsyncDMASourceIndexTypes(parser, op, sourceIndicesOps, sourceIndicesTypes) {
+        if (parser.parseOptionalLSquare()) {
+            for (const t of parser.parseTypeList()) {
+                sourceIndicesTypes.push(t);
+            }
+            parser.parseRSquare();
+        } else {
+            const indexType = new _.IndexType();
+            for (let i = 0; i < sourceIndicesOps.length; i++) {
+                sourceIndicesTypes.push(indexType);
+            }
+        }
     }
 };
 

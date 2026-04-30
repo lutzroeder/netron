@@ -1008,7 +1008,6 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Shape/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Shard/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SMT/bitvector-errors.mlir',
-        'third_party/source/mlir/llvm-project/mlir/test/Dialect/SparseTensor/invalid_encoding.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/barrier-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/composite-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/control-flow-ops.mlir',
