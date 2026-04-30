@@ -24,6 +24,7 @@
         { "ext": "keras",        "name": "Keras Model"              },
         { "ext": "kmodel",       "name": "Kendryte Model"           },
         { "ext": "lite",         "name": "TensorFlow Lite Model"    },
+        { "ext": "litertlm",     "name": "LiteRT-LM Model"           },
         { "ext": "mar",          "name": "MXNet Model"              },
         { "ext": "maxviz",       "name": "Modular Model"            },
         { "ext": "meta",         "name": "TensorFlow Meta Graph"    },

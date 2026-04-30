@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "litertlm clean"
+    rm -rf "./third_party/source/litertlm"
+}
+
+sync() {
+    echo "litertlm sync"
+    mkdir -p "./third_party/source/litertlm/schema/core"
+    mkdir -p "./third_party/source/litertlm/runtime/proto"
+    curl --silent --show-error --location --output "./third_party/source/litertlm/schema/core/litertlm_header_schema.fbs" "https://github.com/google-ai-edge/LiteRT-LM/raw/main/schema/core/litertlm_header_schema.fbs"
+    curl --silent --show-error --location --output "./third_party/source/litertlm/runtime/proto/llm_metadata.proto" "https://github.com/google-ai-edge/LiteRT-LM/raw/main/runtime/proto/llm_metadata.proto"
+    curl --silent --show-error --location --output "./third_party/source/litertlm/runtime/proto/llm_model_type.proto" "https://github.com/google-ai-edge/LiteRT-LM/raw/main/runtime/proto/llm_model_type.proto"
+    curl --silent --show-error --location --output "./third_party/source/litertlm/runtime/proto/sampler_params.proto" "https://github.com/google-ai-edge/LiteRT-LM/raw/main/runtime/proto/sampler_params.proto"
+    curl --silent --show-error --location --output "./third_party/source/litertlm/runtime/proto/token.proto" "https://github.com/google-ai-edge/LiteRT-LM/raw/main/runtime/proto/token.proto"
+}
+
+schema() {
+    echo "litertlm schema"
+    [[ $(grep -U $'\x0D' ./source/litertlm-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root litertlm --out ./source/litertlm-schema.js ./third_party/source/litertlm/schema/core/litertlm_header_schema.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/litertlm-schema.js ./source/litertlm-schema.js
+    fi
+    [[ $(grep -U $'\x0D' ./source/litertlm-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --binary --root litertlm --out ./source/litertlm-proto.js --path ./third_party/source/litertlm runtime/proto/llm_metadata.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/litertlm-proto.js ./source/litertlm-proto.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done

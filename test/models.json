@@ -3070,6 +3070,27 @@
     "link":     "https://github.com/lutzroeder/netron/issues/669"
   },
   {
+    "type":     "litertlm",
+    "target":   "test_hf_tokenizer.litertlm",
+    "source":   "https://github.com/user-attachments/files/27226581/test_hf_tokenizer.litertlm.zip[test_hf_tokenizer.litertlm]",
+    "format":   "LiteRT-LM v1.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1573"
+  },
+  {
+    "type":     "litertlm",
+    "target":   "test_tok_tfl_llm.litertlm",
+    "source":   "https://github.com/user-attachments/files/27226582/test_tok_tfl_llm.litertlm.zip[test_tok_tfl_llm.litertlm]",
+    "format":   "LiteRT-LM v1.5.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1573"
+  },
+  {
+    "type":     "litertlm",
+    "target":   "test_tokenizer_tflite.litertlm",
+    "source":   "https://github.com/user-attachments/files/27225308/test_tokenizer_tflite.litertlm.zip[test_tokenizer_tflite.litertlm]",
+    "format":   "LiteRT-LM v1.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1573"
+  },
+  {
     "type":     "mediapipe",
     "target":   "clipped_images_from_file_at_24fps.pbtxt",
     "source":   "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/media_sequence/clipped_images_from_file_at_24fps.pbtxt",
