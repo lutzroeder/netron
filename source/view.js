@@ -7790,6 +7790,7 @@ view.ModelFactoryService = class {
                 { name: 'Rich Text Format data', value: /^{\\rtf/ },
                 { name: 'SenseTime model', value: /^STEF/ },
                 { name: 'SQLite data', value: /^SQLite format/ },
+                { name: 'Terraform configuration', value: /^(\s*#[^\n]*\n)*(resource\s+"[a-z]|provider\s+"[a-z]|module\s+"[a-z]|variable\s+"[a-z]|data\s+"[a-z]|terraform\s*\{|locals\s*\{|output\s+"[a-z])/ },
                 { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: /^tfhub_module\.pb/ },
                 { name: 'Tokenizer data', value: /^IQ== 0\n/ },
                 { name: 'TSD header', value: /^%TSD-Header-###%/ },
