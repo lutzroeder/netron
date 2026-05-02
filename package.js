@@ -559,6 +559,14 @@ const validate = async () => {
 };
 
 const update = async () => {
+    const staged = await exec('git diff --cached --name-only', 'utf-8');
+    if (staged.stdout.trim()) {
+        throw new Error('Staged changes.');
+    }
+    const modified = await exec('git diff --name-only -- package.json package-lock.json', 'utf-8');
+    if (modified.stdout.trim()) {
+        throw new Error('Uncommitted changes.');
+    }
     const filter = new Set(process.argv.length > 3 ? process.argv.slice(3) : []);
     if (filter.size === 0) {
         const output = await exec('npm outdated --json', 'utf-8');
@@ -588,9 +596,13 @@ const update = async () => {
         };
         for (const [name, entry] of Object.entries(entries)) {
             if (compare(entry.wanted, entry.latest) < 0) {
-                writeLine(name);
+                writeLine(`${name} ${entry.latest}`);
                 // eslint-disable-next-line no-await-in-loop
                 await exec(`npm install --quiet --no-progress --silent --save-exact ${name}@latest`);
+                // eslint-disable-next-line no-await-in-loop
+                await exec('git add package.json package-lock.json');
+                // eslint-disable-next-line no-await-in-loop
+                await exec(`git commit --quiet -m "Update to ${name} ${entry.latest}"`);
             }
         }
     }
