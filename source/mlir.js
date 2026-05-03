@@ -2554,7 +2554,7 @@ _.Lexer = class {
     lexComment() {
         this._read('/');
         if (this._current !== '/') {
-            throw new mlir.Error(`Invalid comment.`);
+            this.emitError(this._position, 'Unexpected character');
         }
         while (this._current && this._current !== '\n' && this._current !== '\r') {
             this._read();
@@ -2646,7 +2646,8 @@ _.Lexer = class {
             parts.push('"');
             return this.formToken(_.Token.string, parts.join(''));
         }
-        throw new mlir.Error('Unterminated string literal');
+        this.emitError(this._position, "expected '\"' in string literal");
+        return null;
     }
 
     lexBareIdentifierOrKeyword() {
@@ -4399,7 +4400,7 @@ _.TopLevelOperationParser = class extends _.Parser {
             } else if (key === 'external_resources') {
                 this.parseExternalResourceFileMetadata();
             } else {
-                throw new mlir.Error(`Unknown key '${key}' in file metadata dictionary ${keyLoc.toString()}`);
+                this.emitError(keyLoc, `Unknown key '${key}' in file metadata dictionary`);
             }
         });
     }
@@ -5027,7 +5028,13 @@ _.OperationParser = class extends _.Parser {
         }
         const dialectName = opName.substring(0, index);
         const dialect = this.context.getOrLoadDialect(dialectName);
-        this.context.checkDialect(dialect, dialectName, 'operation');
+        if (!dialect) {
+            if (this.context.undocumented(dialectName)) {
+                this.emitError(nameLoc, `Private dialect '${dialectName}'`);
+            } else {
+                this.emitError(nameLoc, `Unsupported dialect '${dialectName}'`);
+            }
+        }
         // Normalize operation name to canonical dialect name for metadata lookup
         // (e.g., spv.Load -> spirv.Load when dialect.name is spirv)
         if (dialectName !== dialect.name) {
@@ -5035,7 +5042,7 @@ _.OperationParser = class extends _.Parser {
         }
         opInfo = _.RegisteredOperationName.lookup(opName, this.context);
         if (!opInfo) {
-            throw new mlir.Error(`Unsupported operation '${opName}'.`);
+            this.emitError(nameLoc, `Unsupported operation '${opName}'`);
         }
         opInfo.identifier = identifier; // Visualization-specific addition to keep the original name
         return opInfo;
@@ -5482,7 +5489,13 @@ _.AsmParser = class {
             }
             const dialectName = typeT.name.substring(0, index);
             const dialect = this.parser.context.getOrLoadDialect(dialectName);
-            this.parser.context.checkDialect(dialect, dialectName, 'custom type');
+            if (!dialect) {
+                if (this.parser.context.undocumented(dialectName)) {
+                    this.emitError(`Private dialect '${dialectName}'`);
+                } else {
+                    this.emitError(`Unsupported dialect '${dialectName}'`);
+                }
+            }
             return dialect.parseCustomTypeWithFallback(this, typeT.type);
         }
         return this.parser.parseType();
@@ -6939,7 +6952,13 @@ _.AttrTypeReader = class {
         if (entry.dialect.interface === undefined) {
             entry.dialect.interface = context.getOrLoadDialect(entry.dialect.name);
         }
-        context.checkDialect(entry.dialect.interface, entry.dialect.name, 'custom entry');
+        if (!entry.dialect.interface) {
+            if (context.undocumented(entry.dialect.name)) {
+                throw new mlir.Error(`Private dialect '${entry.dialect.name}'.`);
+            } else {
+                throw new mlir.Error(`Unsupported dialect '${entry.dialect.name}'.`);
+            }
+        }
         const dialect = entry.dialect.interface;
         const dialectReader = new _.DialectReader(this, this.stringReader, this.resourceReader, this.dialectsMap, reader, this.bytecodeVersion, depth);
         switch (entryType) {
@@ -8610,7 +8629,7 @@ _.DialectContext = class {
         this._dialects.set('func', new _.FuncDialect(operations));
         this._dialects.set('gpu', new _.GpuDialect(operations));
         this._dialects.set('llvm', new _.llvm.LLVMDialect(operations));
-        this._dialects.set('xegpu', new _.XeGPUDialect(operations));
+        this._dialects.set('xegpu', new _.xegpu.XeGPUDialect(operations));
         this._dialects.set('memref', new _.MemRefDialect(operations));
         this._dialects.set('vector', new _.VectorDialect(operations));
         this._dialects.set('x86', new _.Dialect(operations, 'x86'));
@@ -8745,23 +8764,21 @@ _.DialectContext = class {
         return this._dialects.has(name);
     }
 
-    checkDialect(dialect, dialectName, context) {
-        if (!dialect) {
-            switch (dialectName) {
-                case 'bstnnx':
-                case 'common':
-                case 'dxgml':
-                case 'dxgml_pattern':
-                case 'gim':
-                case 'nir':
-                case 'nn':
-                case 'torq_hl':
-                case 'xir':
-                case 'xth':
-                    throw new mlir.Error(`Undocumented ${context} dialect '${dialectName}'.`);
-                default:
-                    throw new mlir.Error(`Unsupported ${context} dialect '${dialectName}'.`);
-            }
+    undocumented(name) {
+        switch (name) {
+            case 'bstnnx':
+            case 'common':
+            case 'dxgml':
+            case 'dxgml_pattern':
+            case 'gim':
+            case 'nir':
+            case 'nn':
+            case 'torq_hl':
+            case 'xir':
+            case 'xth':
+                return true;
+            default:
+                return false;
         }
     }
 };
@@ -10306,7 +10323,7 @@ _.Dialect = class {
         }
         if ((opInfo.metadata.hasParser || opInfo.metadata.hasCustomAssemblyFormat) && !opInfo.metadata.assemblyFormat) {
             const op = result.name.getStringRef();
-            throw new mlir.Error(`Operation parser '${op}' not implemented.`);
+            parser.emitError(`Operation parser '${op}' not implemented`);
         }
         // Mark as using assembly format parsing (bypasses validation check)
         if (result.compatibility === undefined && opInfo.metadata.assemblyFormat) {
@@ -16910,11 +16927,106 @@ _.IRDLDialect = class extends _.Dialect {
     }
 };
 
-_.XeGPUDialect = class extends _.Dialect {
+_.xegpu = {};
+
+_.xegpu.TensorDescType = class extends _.Type {
+
+    constructor(shape, elementType, encoding, layout) {
+        super(null);
+        this.shape = shape;
+        this.elementType = elementType;
+        this.encoding = encoding || null;
+        this.layout = layout || null;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const shape = parser.parseDimensionList().dimensions;
+        const elementType = parser.parseType();
+        let encoding = null;
+        let layout = null;
+        while (parser.parseOptionalComma()) {
+            const attr = parser.parseAttribute();
+            if (attr) {
+                const attrStr = attr.toString ? attr.toString() : String(attr);
+                if (attrStr.includes('layout') || attrStr.includes('distribute')) {
+                    layout = attr;
+                } else {
+                    encoding = attr;
+                }
+            }
+        }
+        parser.parseGreater();
+        return new _.xegpu.TensorDescType(shape, elementType, encoding, layout);
+    }
+
+    toString() {
+        const dims = this.shape.map((d) => d === -1 ? '?' : String(d)).join('x');
+        let result = `!xegpu.tensor_desc<${dims}x${this.elementType}`;
+        if (this.encoding) {
+            result += `, ${this.encoding}`;
+        }
+        if (this.layout) {
+            result += `, ${this.layout}`;
+        }
+        result += '>';
+        return result;
+    }
+};
+
+_.xegpu.MemDescType = class extends _.Type {
+
+    constructor(shape, elementType, layout) {
+        super(null);
+        this.shape = shape;
+        this.elementType = elementType;
+        this.layout = layout || null;
+    }
+
+    static parse(parser) {
+        parser.parseLess();
+        const shape = parser.parseDimensionList(false, true).dimensions;
+        const elementType = parser.parseType();
+        let layout = null;
+        if (parser.parseOptionalComma()) {
+            layout = parser.parseAttribute();
+        }
+        parser.parseGreater();
+        return new _.xegpu.MemDescType(shape, elementType, layout);
+    }
+
+    toString() {
+        const dims = this.shape.map((d) => String(d)).join('x');
+        let result = `!xegpu.mem_desc<${dims}x${this.elementType}`;
+        if (this.layout) {
+            result += `, ${this.layout}`;
+        }
+        result += '>';
+        return result;
+    }
+};
+
+_.xegpu.XeGPUDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xegpu');
         this.registerCustomDirective('OptionalDynamicIndexList', this.parseOptionalDynamicIndexList.bind(this));
+    }
+
+    parseType(parser, dialect) {
+        const mnemonic = parser.parseOptionalKeyword();
+        if (mnemonic) {
+            if (mnemonic === 'tensor_desc') {
+                return _.xegpu.TensorDescType.parse(parser);
+            }
+            if (mnemonic === 'mem_desc') {
+                return _.xegpu.MemDescType.parse(parser);
+            }
+            if (mnemonic === 'nbarrier') {
+                return new _.Type(`!${dialect}.nbarrier`);
+            }
+        }
+        return null;
     }
 
     parseOptionalDynamicIndexList(parser, op, dynamicAttrName, staticAttrName) {
@@ -16940,11 +17052,9 @@ _.XeGPUDialect = class extends _.Dialect {
             }
 
             if (dynamicAttrName && staticAttrName) {
-                // Dynamic values are SSA operands (%0, %1, ...) - resolve and add as operands
                 for (const value of dynamicValues) {
                     parser.resolveOperand(value, null, op.operands);
                 }
-                // Static indices are compile-time constants - add as attribute
                 if (indices.length > 0) {
                     op.addAttribute(staticAttrName, indices);
                 }
