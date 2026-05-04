@@ -522,12 +522,6 @@ litert.lm.proto.FastVlm = class FastVlm {
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
-                case 1:
-                    message.start_of_image_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
-                    break;
-                case 2:
-                    message.end_of_image_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
-                    break;
                 case 3:
                     message.image_tensor_height = reader.int32();
                     break;
@@ -543,8 +537,6 @@ litert.lm.proto.FastVlm = class FastVlm {
     }
 };
 
-litert.lm.proto.FastVlm.prototype.start_of_image_token = null;
-litert.lm.proto.FastVlm.prototype.end_of_image_token = null;
 litert.lm.proto.FastVlm.prototype.image_tensor_height = 0;
 litert.lm.proto.FastVlm.prototype.image_tensor_width = 0;
 
