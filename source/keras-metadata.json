@@ -3443,6 +3443,10 @@
       {
         "name": "use_gate",
         "description": "Boolean, whether to apply a gated attention mechanism.\n        When True, an additional gating branch is added based on the\n        (Gated Attention for Large Language Models)[https://arxiv.org/abs/2505.06708].\n        It applies a sigmoid-activated linear projection to the query\n        which then gates the attention output. This helps improve training\n        stability and eliminates \"attention sinks\"."
+      },
+      {
+        "name": "sliding_window",
+        "description": "Optional positive integer. If set, restricts each\n        query position to attend only to key positions within\n        `sliding_window - 1` of itself (a symmetric band). Composes\n        naturally with `use_causal_mask=True` to give the causal\n        sliding window used by Mistral, Llama-3 long-context, and\n        Phi-3. Defaults to `None` (full attention)."
       }
     ],
     "examples": [
