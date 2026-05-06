@@ -50,7 +50,7 @@ def _write_metadata(metadata):
     _write(metadata_file, content)
 
 
-known_legacy_schema_definitions = [
+known_schema_definitions = [
     "_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)", # noqa E501
     "_caffe2::BatchPermutation(Tensor X, Tensor indices, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor", # noqa E501
     "_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)", # noqa E501
@@ -74,7 +74,12 @@ known_legacy_schema_definitions = [
     "aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::set_num_threads(int nthreads) -> ()",
     "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cadence::conv2d.out(Tensor input, Tensor weight, Tensor bias, int[2] stride, SymInt[2] padding, int[2] dilation, int groups, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cadence::quantized_conv2d_nchw.per_tensor_out(Tensor input, Tensor weight, Tensor bias, int[] stride, SymInt[] padding, int[] dilation, int groups, int input_zero_point, int weight_zero_point, float bias_scale, float out_scale, int out_zero_point, int out_multiplier, int out_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cadence::quantized_linear.out(Tensor src, Tensor weight, Tensor bias, int src_zero_point, Tensor weight_zero_point, Tensor out_multiplier, Tensor out_shift, int out_zero_point, Tensor? offset, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cadence::quantized_linear.per_tensor_out(Tensor src, Tensor weight, Tensor bias, SymInt src_zero_point, SymInt weight_zero_point, SymInt out_multiplier, SymInt out_shift, SymInt out_zero_point, Tensor? offset, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cadence::quantized_relu.out(Tensor X, Tensor X_zero_point, int out_zero_point, Tensor out_multiplier, Tensor out_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::dequantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_add.out(Tensor self, Scalar self_zero_point, Scalar self_multiplier, Scalar self_shift, Tensor other, Scalar other_zero_point, Scalar other_multiplier, Scalar other_shift, Scalar output_zero_point, Scalar output_multiplier, Scalar output_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
@@ -83,9 +88,15 @@ known_legacy_schema_definitions = [
     "cortex_m::maximum.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_linear.out(Tensor input, Tensor weights, Tensor? bias, Tensor? kernel_sum, Scalar input_offset, Scalar filter_offset, Scalar output_offset, int[] requantize_multipliers, int[] requantize_shifts, Scalar activation_max, Scalar activation_min, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::transpose.out(Tensor input, int[] perm, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_avg_pool2d.out(Tensor input, int[] kernel_size, int[] stride, int[] padding, int zero_point, int multiplier, int shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_conv2d.out(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int input_offset, int output_offset, Tensor requantize_multipliers, Tensor requantize_shifts, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_depthwise_conv2d.out(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int depth_multiplier, int input_offset, int output_offset, Tensor requantize_multipliers, Tensor requantize_shifts, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_max_pool2d.out(Tensor input, int[] kernel_size, int[] stride, int[] padding, int[] dilation, bool ceil_mode, int input_zero_point, int output_zero_point, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_transpose_conv2d.out(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int input_offset, int output_offset, Tensor requantize_multipliers, Tensor requantize_shifts, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor", # noqa E501
     "detectron2::roi_align_rotated_forward(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio) -> Tensor", # noqa E501
+    "et_vk::conv_with_clamp(Tensor input, Tensor weight, Tensor? bias, SymInt[] stride, SymInt[] padding, SymInt[] dilation, bool transposed, SymInt[] output_padding, SymInt groups, Scalar? output_min, Scalar? output_max) -> Tensor", # noqa E501
+    "et_vk::prepack(Tensor x) -> Tensor",
     "dim_order_ops::_clone_dim_order.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_empty_dim_order.out(int[] size, *, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_to_dim_order_copy.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
@@ -311,6 +322,8 @@ known_legacy_schema_definitions = [
     "llama::sdpa.out(Tensor query, Tensor key, Tensor value, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "llama::update_cache.out(Tensor value, Tensor(a!) cache, SymInt start_pos, *, Tensor(b!) out) -> Tensor(b!)", # noqa E501
     "llama::update_cache(Tensor value, Tensor(a!) cache, SymInt start_pos) -> Tensor",
+    "llama::update_cache_with_indices.out(Tensor value, Tensor(a!) cache, SymInt start_pos, Tensor indices, *, Tensor(b!) out) -> Tensor(b!)", # noqa E501
+    "llama::update_cache_with_indices(Tensor value, Tensor(a!) cache, SymInt start_pos, Tensor indices) -> Tensor", # noqa E501
     "quantized_decomposed::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::dequantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::dequantize_per_tensor.Tensor_out(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
@@ -400,7 +413,7 @@ def _parse_schemas():
         definition = definition.replace("(b|a)", "(a|b)")
         key = _identifier(definition)
         schemas[key] = definition
-    for schema in known_legacy_schema_definitions:
+    for schema in known_schema_definitions:
         key = _identifier(schema)
         if key not in schemas:
             schemas[key] = schema
@@ -410,7 +423,7 @@ def _parse_schemas():
 
 def _filter_schemas(schemas, types):
     names = set(map(lambda _: _.split(".")[0], types.keys()))
-    for key in known_legacy_schema_definitions:
+    for key in known_schema_definitions:
         names.add(re.sub(r"[\.(].*$", "", key))
     filtered_schemas = set()
     for schema in schemas.values():
