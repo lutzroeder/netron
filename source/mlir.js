@@ -20712,6 +20712,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomDirective('AlignedClause', this.parseAlignedClause.bind(this));
         this.registerCustomDirective('ScheduleClause', this.parseScheduleClause.bind(this));
         this.registerCustomDirective('AllocateAndAllocator', this.parseAllocateAndAllocator.bind(this));
+        this.registerCustomDirective('DynGroupprivateClause', this.parseDynGroupprivateClause.bind(this));
         this.registerCustomDirective('LinearClause', this.parseLinearClause.bind(this));
         this.registerCustomDirective('UniformClause', this.parseUniformClause.bind(this));
         this.registerCustomDirective('OrderClause', this.parseOrderClause.bind(this));
@@ -20727,6 +20728,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomAttribute('ClauseTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('ClauseDistScheduleTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('OrderModifierAttr', this.parseParenthesizedEnumAttr.bind(this));
+        this.registerCustomAttribute('DeclareTargetDeviceTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
     }
 
     parseType(parser) {
@@ -21054,6 +21056,25 @@ _.OpenMPDialect = class extends _.Dialect {
             allocateVars.push(parser.parseOperand());
             parser.parseColon();
             allocateTypes.push(parser.parseType());
+        });
+    }
+
+    parseDynGroupprivateClause(parser, op, accessGroupAttrName, fallbackAttrName, sizeOperands, sizeTypes) {
+        parser.parseCommaSeparatedList('none', () => {
+            if (parser.parseOptionalKeyword('cgroup')) {
+                op.addAttribute(accessGroupAttrName, 'cgroup');
+                return;
+            }
+            if (parser.parseOptionalKeyword('fallback')) {
+                parser.parseLParen();
+                const fbKind = parser.parseKeyword();
+                op.addAttribute(fallbackAttrName, fbKind);
+                parser.parseRParen();
+                return;
+            }
+            sizeOperands.push(parser.parseOperand());
+            parser.parseColon();
+            sizeTypes.push(parser.parseType());
         });
     }
 
