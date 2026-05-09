@@ -4061,7 +4061,7 @@
   {
     "type":     "ncnn",
     "target":   "googlenet.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/googlenet.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/googlenet.param",
     "format":   "ncnn",
     "link":     "https://github.com/Tencent/ncnn"
   },
@@ -4098,7 +4098,7 @@
   {
     "type":     "ncnn",
     "target":   "mobilenetv2_yolov3.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/mobilenetv2_yolov3.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/mobilenetv2_yolov3.param",
     "format":   "ncnn",
     "tags":     "validation",
     "link":     "https://github.com/Tencent/ncnn"
@@ -4121,14 +4121,14 @@
   {
     "type":     "ncnn",
     "target":   "proxylessnasnet.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/proxylessnasnet.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/proxylessnasnet.param",
     "format":   "ncnn",
     "link":     "https://github.com/Tencent/ncnn"
   },
   {
     "type":     "ncnn",
     "target":   "resnet18_int8.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/resnet18_int8.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/resnet18_int8.param",
     "format":   "ncnn",
     "link":     "https://github.com/Tencent/ncnn"
   },
@@ -4142,14 +4142,14 @@
   {
     "type":     "ncnn",
     "target":   "shufflenet.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/shufflenet.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/shufflenet.param",
     "format":   "ncnn",
     "link":     "https://github.com/Tencent/ncnn"
   },
   {
     "type":     "ncnn",
     "target":   "squeezenet.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/squeezenet.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/squeezenet.param",
     "format":   "ncnn",
     "link":     "https://github.com/Tencent/ncnn"
   },
@@ -4198,7 +4198,7 @@
   {
     "type":     "ncnn",
     "target":   "vgg16.param",
-    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/vgg16.param",
+    "source":   "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/models/vgg16.param",
     "format":   "ncnn",
     "link":     "https://github.com/Tencent/ncnn"
   },

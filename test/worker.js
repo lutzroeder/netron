@@ -119,8 +119,8 @@ export class Target {
         this.view.dispose();
     }
 
-    async request(url, init) {
-        const response = await global.fetch(url, init);
+    async request(url) {
+        const response = await global.fetch(url, { signal: global.AbortSignal.timeout(300000) });
         if (!response.ok) {
             throw new Error(response.status.toString());
         }
