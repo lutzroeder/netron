@@ -257,7 +257,25 @@ gguf.Graph = class {
                     }
                     const r2 = newValue();
                     addOp('ADD', [preAdd2, cur], r2);
-                    prevValue = applyLayerOutScale(r2);
+                    let final = r2;
+                    // Elides the gating mul by `inp_per_layer_slice` between
+                    // GELU and proj: that slice is a precomputation over the
+                    // per_layer_* globals we don't model.
+                    if (has('inp_gate') && has('proj') && has('post_norm')) {
+                        const peIn = final;
+                        const g = newValue();
+                        addNode(use('inp_gate'), [peIn], g);
+                        const gAct = newValue();
+                        addOp('GELU', [g], gAct);
+                        const p = newValue();
+                        addNode(use('proj'), [gAct], p);
+                        const pn = newValue();
+                        addNode(use('post_norm'), [p], pn);
+                        const r3 = newValue();
+                        addOp('ADD', [pn, peIn], r3);
+                        final = r3;
+                    }
+                    prevValue = applyLayerOutScale(final);
                 } else if (has('attention') && (has('attn_output_norm') || has('layer_output_norm'))) {
                     // Post-norm (BERT)
                     const inp = prevValue || newValue();
@@ -477,13 +495,10 @@ gguf.Tensor = class {
     constructor(tensor) {
         const shape = new gguf.TensorShape(tensor.ne);
         this.type = new gguf.TensorType(tensor.dtype, shape);
-        if (tensor.type !== gguf.QuantizationType.F32 && tensor.type !== gguf.QuantizationType.F16) {
-            this.quantization = {
-                type: gguf.Utility.enum(gguf.QuantizationType, tensor.type).toLowerCase()
-            };
-        }
-        if (tensor.dtype === 'float32' || tensor.dtype === 'float16' ||
-            tensor.dtype === 'int8' || tensor.dtype === 'int16' || tensor.dtype === 'int32') {
+        const type = gguf.QuantizationType[tensor.type];
+        if (type.block_size > 1) {
+            this.quantization = { type: type.name.toLowerCase() };
+        } else {
             this.encoding = '<';
             this._data = tensor.data;
         }
@@ -513,50 +528,6 @@ gguf.Reader = class {
 
     constructor(context) {
         this.context = context;
-        const QK_K = 256;
-        // https://github.com/ggml-org/llama.cpp/blob/master/gguf-py/gguf/constants.py
-        gguf.Reader.GGML_QUANT_SIZES = gguf.Reader.GGML_QUANT_SIZES || new Map([
-            [gguf.QuantizationType.F32,        [1, 4, 'float32']],
-            [gguf.QuantizationType.F16,        [1, 2, 'float16']],
-            [gguf.QuantizationType.Q4_0,       [32, 2 + 16, 'q4_0']],
-            [gguf.QuantizationType.Q4_1,       [32, 2 + 2 + 16, 'q4_1']],
-            [gguf.QuantizationType.Q4_2,       [16, 2 + 8, 'q4_2']],
-            [gguf.QuantizationType.Q4_3,       [16, 2 + 2 + 8, 'q4_3']],
-            [gguf.QuantizationType.Q5_0,       [32, 2 + 4 + 16, 'q5_0']],
-            [gguf.QuantizationType.Q5_1,       [32, 2 + 2 + 4 + 16, 'q5_1']],
-            [gguf.QuantizationType.Q8_0,       [32, 2 + 32, 'q8_0']],
-            [gguf.QuantizationType.Q8_1,       [32, 4 + 4 + 32, 'q8_1']],
-            [gguf.QuantizationType.Q2_K,       [256, 2 + 2 + Math.floor(QK_K / 16) + Math.floor(QK_K / 4), 'q2_K']],
-            [gguf.QuantizationType.Q3_K,       [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + 12, 'q3_K']],
-            [gguf.QuantizationType.Q4_K,       [256, 2 + 2 + Math.floor(QK_K / 2) + 12, 'q4_K']],
-            [gguf.QuantizationType.Q5_K,       [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 8) + 12, 'q5_K']],
-            [gguf.QuantizationType.Q6_K,       [256, 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), 'q6_K']],
-            [gguf.QuantizationType.Q8_K,       [256, 4 + QK_K + Math.floor(QK_K / 8), 'q8_K']],
-            [gguf.QuantizationType.IQ2_XXS,    [256, 2 + Math.floor(QK_K / 4), 'iq2_xxs']],
-            [gguf.QuantizationType.IQ2_XS,     [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 32), 'iq2_xs']],
-            [gguf.QuantizationType.IQ3_XXS,    [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8), 'iq3_xxs']],
-            [gguf.QuantizationType.IQ1_S,      [256, 2 + Math.floor(QK_K / 8) + Math.floor(QK_K / 16), 'iq1_s']],
-            [gguf.QuantizationType.IQ4_NL,     [32, 2 + 16, 'iq4_nl']],
-            [gguf.QuantizationType.IQ3_S,      [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 8) + Math.floor(QK_K / 32) + 4, 'iq3_s']],
-            [gguf.QuantizationType.IQ2_S,      [256, 2 + Math.floor(QK_K / 4) + Math.floor(QK_K / 16), 'iq2_s']],
-            [gguf.QuantizationType.IQ4_XS,     [256, 2 + 2 + Math.floor(QK_K / 2) + Math.floor(QK_K / 64), 'iq4_xs']],
-            [gguf.QuantizationType.I8,         [1, 1, 'int8']],
-            [gguf.QuantizationType.I16,        [1, 2, 'int16']],
-            [gguf.QuantizationType.I32,        [1, 4, 'int32']],
-            [gguf.QuantizationType.I64,        [1, 8, 'int64']],
-            [gguf.QuantizationType.F64,        [1, 8, 'float64']],
-            [gguf.QuantizationType.IQ1_M,      [256, Math.floor(QK_K / 8) + Math.floor(QK_K / 16)  + Math.floor(QK_K / 32), 'iq1_m']],
-            [gguf.QuantizationType.BF16,       [1, 2, 'bfloat16']],
-            [gguf.QuantizationType.Q4_0_4_4,   [32, 2 + 16, 'q4_0_4_4']],
-            [gguf.QuantizationType.Q4_0_4_8,   [32, 2 + 16, 'q4_0_4_8']],
-            [gguf.QuantizationType.Q4_0_8_8,   [32, 2 + 16, 'q4_0_8_8']],
-            [gguf.QuantizationType.TQ1_0,      [256, 2 + 4 * 13, 'tq1_0']],
-            [gguf.QuantizationType.TQ2_0,      [256, 2 + 64, 'tq2_0']],
-            [gguf.QuantizationType.IQ4_NL_4_4, [32, 2 + 16, 'iq4_nl_4_4']],
-            [gguf.QuantizationType.IQ4_NL_4_8, [32, 2 + 16, 'iq4_nl_4_8']],
-            [gguf.QuantizationType.IQ4_NL_8_8, [32, 2 + 16, 'iq4_nl_8_8']],
-            [gguf.QuantizationType.MXFP4,      [32, 1 + 16, 'mxfp4']]
-        ]);
     }
 
     async read() {
@@ -589,16 +560,14 @@ gguf.Reader = class {
                 }
                 const offset = reader.position;
                 for (const tensor of this.tensors.values()) {
-                    if (!gguf.Reader.GGML_QUANT_SIZES.has(tensor.type)) {
+                    const type = gguf.QuantizationType[tensor.type];
+                    if (!type) {
                         throw new gguf.Error(`Unsupported tensor quantization type '${tensor.type}'.`);
                     }
-                    const [block_size, type_size, dtype] = gguf.Reader.GGML_QUANT_SIZES.get(tensor.type);
-                    tensor.block_size = block_size;
-                    tensor.type_size = type_size;
-                    tensor.dtype = dtype || '?';
+                    tensor.dtype = type.name;
                     if (offset < reader.length) {
                         const n_elems = tensor.ne.reduce((a, b) => a * b, 1);
-                        const n_bytes = Math.floor((n_elems * type_size) / block_size);
+                        const n_bytes = Math.floor((n_elems * type.type_size) / type.block_size);
                         reader.seek(offset + tensor.offset);
                         tensor.data = reader.stream(n_bytes);
                     }
@@ -752,49 +721,51 @@ gguf.Type = {
     FLOAT64: 12,
 };
 
-// https://github.com/ggml-org/llama.cpp/blob/master/ggml/include/ggml.h
-gguf.QuantizationType = {
-    F32: 0,
-    F16: 1,
-    Q4_0: 2,
-    Q4_1: 3,
-    Q4_2: 4, // deprecated
-    Q4_3: 5, // deprecated
-    Q5_0: 6,
-    Q5_1: 7,
-    Q8_0: 8,
-    Q8_1: 9,
-    Q2_K: 10,
-    Q3_K: 11,
-    Q4_K: 12,
-    Q5_K: 13,
-    Q6_K: 14,
-    Q8_K: 15,
-    IQ2_XXS: 16,
-    IQ2_XS: 17,
-    IQ3_XXS: 18,
-    IQ1_S: 19,
-    IQ4_NL: 20,
-    IQ3_S: 21,
-    IQ2_S: 22,
-    IQ4_XS: 23,
-    I8: 24,
-    I16: 25,
-    I32: 26,
-    I64: 27,
-    F64: 28,
-    IQ1_M: 29,
-    BF16: 30,
-    Q4_0_4_4: 31, // deprecated
-    Q4_0_4_8: 32, // deprecated
-    Q4_0_8_8: 33, // deprecated
-    TQ1_0: 34,
-    TQ2_0: 35,
-    IQ4_NL_4_4: 36, // deprecated
-    IQ4_NL_4_8: 37, // deprecated
-    IQ4_NL_8_8: 38, // deprecated
-    MXFP4: 39
-};
+// https://github.com/ggml-org/llama.cpp/blob/master/ggml/include/ggml.h - ggml_type
+// https://github.com/ggml-org/llama.cpp/blob/master/ggml/src/ggml.c
+// https://github.com/ggml-org/llama.cpp/blob/master/gguf-py/gguf/constants.py - GGML_QUANT_SIZES
+gguf.QuantizationType = [
+    /*  0 */ { name: 'float32',    block_size: 1,   type_size: 4 },
+    /*  1 */ { name: 'float16',    block_size: 1,   type_size: 2 },
+    /*  2 */ { name: 'q4_0',       block_size: 32,  type_size: 2 + 16 },
+    /*  3 */ { name: 'q4_1',       block_size: 32,  type_size: 2 + 2 + 16 },
+    /*  4 */ { name: 'q4_2',       block_size: 16,  type_size: 2 + 8 }, // deprecated
+    /*  5 */ { name: 'q4_3',       block_size: 16,  type_size: 2 + 2 + 8 }, // deprecated
+    /*  6 */ { name: 'q5_0',       block_size: 32,  type_size: 2 + 4 + 16 },
+    /*  7 */ { name: 'q5_1',       block_size: 32,  type_size: 2 + 2 + 4 + 16 },
+    /*  8 */ { name: 'q8_0',       block_size: 32,  type_size: 2 + 32 },
+    /*  9 */ { name: 'q8_1',       block_size: 32,  type_size: 4 + 4 + 32 },
+    /* 10 */ { name: 'q2_K',       block_size: 256, type_size: 2 + 2 + 16 + 64 },
+    /* 11 */ { name: 'q3_K',       block_size: 256, type_size: 2 + 64 + 32 + 12 },
+    /* 12 */ { name: 'q4_K',       block_size: 256, type_size: 2 + 2 + 128 + 12 },
+    /* 13 */ { name: 'q5_K',       block_size: 256, type_size: 2 + 2 + 128 + 32 + 12 },
+    /* 14 */ { name: 'q6_K',       block_size: 256, type_size: 2 + 128 + 64 + 16 },
+    /* 15 */ { name: 'q8_K',       block_size: 256, type_size: 4 + 256 + 32 },
+    /* 16 */ { name: 'iq2_xxs',    block_size: 256, type_size: 2 + 64 },
+    /* 17 */ { name: 'iq2_xs',     block_size: 256, type_size: 2 + 64 + 8 },
+    /* 18 */ { name: 'iq3_xxs',    block_size: 256, type_size: 2 + 64 + 32 },
+    /* 19 */ { name: 'iq1_s',      block_size: 256, type_size: 2 + 32 + 16 },
+    /* 20 */ { name: 'iq4_nl',     block_size: 32,  type_size: 2 + 16 },
+    /* 21 */ { name: 'iq3_s',      block_size: 256, type_size: 2 + 64 + 32 + 8 + 4 },
+    /* 22 */ { name: 'iq2_s',      block_size: 256, type_size: 2 + 64 + 16 },
+    /* 23 */ { name: 'iq4_xs',     block_size: 256, type_size: 2 + 2 + 128 + 4 },
+    /* 24 */ { name: 'int8',       block_size: 1,   type_size: 1 },
+    /* 25 */ { name: 'int16',      block_size: 1,   type_size: 2 },
+    /* 26 */ { name: 'int32',      block_size: 1,   type_size: 4 },
+    /* 27 */ { name: 'int64',      block_size: 1,   type_size: 8 },
+    /* 28 */ { name: 'float64',    block_size: 1,   type_size: 8 },
+    /* 29 */ { name: 'iq1_m',      block_size: 256, type_size: 32 + 16 + 8 },
+    /* 30 */ { name: 'bfloat16',   block_size: 1,   type_size: 2 },
+    /* 31 */ { name: 'q4_0_4_4',   block_size: 32,  type_size: 2 + 16 }, // deprecated
+    /* 32 */ { name: 'q4_0_4_8',   block_size: 32,  type_size: 2 + 16 }, // deprecated
+    /* 33 */ { name: 'q4_0_8_8',   block_size: 32,  type_size: 2 + 16 }, // deprecated
+    /* 34 */ { name: 'tq1_0',      block_size: 256, type_size: 2 + 4 * 13 },
+    /* 35 */ { name: 'tq2_0',      block_size: 256, type_size: 2 + 64 },
+    /* 36 */ { name: 'iq4_nl_4_4', block_size: 32,  type_size: 2 + 16 }, // deprecated
+    /* 37 */ { name: 'iq4_nl_4_8', block_size: 32,  type_size: 2 + 16 }, // deprecated
+    /* 38 */ { name: 'iq4_nl_8_8', block_size: 32,  type_size: 2 + 16 }, // deprecated
+    /* 39 */ { name: 'mxfp4',      block_size: 32,  type_size: 1 + 16 }
+];
 
 gguf.Context = class {
 
@@ -837,13 +808,10 @@ gguf.Context = class {
     }
 
     build() {
-        if (!this._archDef || this._tensors.size === 0) {
-            return this._buildFlat();
-        }
         const tensors = this._tensors;
         const layers = [];
         const claimed = new Set();
-        // Collect tensors matching a prefix into a weights map
+        const archDef = this._archDef;
         const collectWeights = (prefix) => {
             const weights = new Map();
             for (const [name, tensor] of tensors) {
@@ -855,35 +823,26 @@ gguf.Context = class {
             }
             return weights;
         };
-        // Classify tensor prefix into a semantic component group
-        const classifyTensor = (name) => this._classifyTensor(name);
-        // Resolve display type and category for a component group using metadata
+        // Resolve display type/category for a component group from metadata
+        // (when an arch definition is loaded), otherwise default to 'weights'.
         const resolveBlock = (group) => {
             const block = this._blockTypes.get(group);
-            if (block) {
-                return { type: block.type, category: block.category };
-            }
-            return { type: 'weights' };
+            return block ? { type: block.type, category: block.category } : { type: 'weights' };
         };
-        // Build global (non-block) input tensors
-        const globalPrefixes = ['token_embd', 'token_types', 'token_embd_norm', 'position_embd', 'rope_freqs'];
-        for (const prefix of globalPrefixes) {
-            const weights = collectWeights(prefix);
-            if (weights.size > 0) {
-                const resolved = resolveBlock(prefix);
-                layers.push({ name: prefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
-            }
-        }
-        // Build block sub-graphs
-        for (let i = 0; i < this._blockCount; i++) {
-            const blockPrefix = `blk.${i}`;
-            // Collect all tensors in this block and group by component
+        const pushFlat = (prefix, weights) => {
+            const resolved = resolveBlock(prefix);
+            layers.push({ name: prefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
+        };
+        // Build a structured block at `blockPrefix`, returning sub-layers in
+        // discovery order. Tensors in the block are grouped by component
+        // (attn, ffn, ...) via _classifyTensor.
+        const buildBlockLayers = (blockPrefix) => {
             const groups = new Map();
             const order = [];
             for (const [name] of tensors) {
                 if (name.startsWith(`${blockPrefix}.`)) {
                     const rest = name.slice(blockPrefix.length + 1);
-                    const group = classifyTensor(rest);
+                    const group = this._classifyTensor(rest);
                     if (!groups.has(group)) {
                         groups.set(group, new Map());
                         order.push(group);
@@ -891,97 +850,104 @@ gguf.Context = class {
                     groups.get(group).set(rest, name);
                 }
             }
-            // Build sub-nodes for each component group in discovery order
             const blockLayers = [];
             for (const group of order) {
-                const tensorMap = groups.get(group);
                 const weights = new Map();
-                for (const [suffix, fullName] of tensorMap) {
-                    const tensor = tensors.get(fullName);
-                    if (tensor) {
-                        weights.set(suffix, tensor);
-                        claimed.add(fullName);
-                    }
+                for (const [suffix, fullName] of groups.get(group)) {
+                    weights.set(suffix, tensors.get(fullName));
+                    claimed.add(fullName);
                 }
                 if (weights.size > 0) {
                     const resolved = resolveBlock(group);
                     blockLayers.push({ name: group, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
                 }
             }
-            if (blockLayers.length > 0) {
-                layers.push({ name: `blk.${i}`, type: this._architecture, layers: blockLayers, metadata: new Map(), weights: new Map() });
+            return blockLayers;
+        };
+        // Discover block indices from tensor names.
+        const blockIndices = new Set();
+        const encDecIndices = new Map([['enc', new Set()], ['dec', new Set()]]);
+        const blockRe = /^(?:(enc|dec)\.)?blk\.(\d+)\./;
+        for (const [name] of tensors) {
+            const m = name.match(blockRe);
+            if (m) {
+                const idx = parseInt(m[2], 10);
+                if (m[1]) {
+                    encDecIndices.get(m[1]).add(idx);
+                } else {
+                    blockIndices.add(idx);
+                }
             }
         }
-        // Build global output tensors
-        const outputPrefixes = ['output_norm', 'output'];
-        for (const prefix of outputPrefixes) {
-            const weights = collectWeights(prefix);
-            if (weights.size > 0) {
-                const resolved = resolveBlock(prefix);
-                layers.push({ name: prefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
+        // When an arch definition is loaded, honor its declared block_count
+        // even if some indices have no tensors (those produce empty blocks
+        // and get skipped). Otherwise iterate only discovered indices.
+        const expandIndices = (discovered) => {
+            if (archDef && this._blockCount > 0) {
+                const out = [];
+                for (let i = 0; i < this._blockCount; i++) {
+                    out.push(i);
+                }
+                return out;
+            }
+            return Array.from(discovered).sort((a, b) => a - b);
+        };
+        // Common globals across architectures (also used as the fallback when
+        // no arch metadata is loaded). Arch-specific entries from
+        // gguf-metadata.json's `graph.input` / `graph.output` are unioned in.
+        const globalPrefixes = new Set(['token_embd', 'token_types', 'token_embd_norm', 'position_embd', 'rope_freqs']);
+        const outputPrefixes = new Set(['output_norm', 'output']);
+        const collectNames = (set, section) => {
+            if (section) {
+                for (const entry of section) {
+                    set.add(entry.name);
+                }
+            }
+        };
+        if (archDef && archDef.graph) {
+            collectNames(globalPrefixes, archDef.graph.input);
+            collectNames(outputPrefixes, archDef.graph.output);
+            for (const sub of [archDef.graph.encoder, archDef.graph.decoder]) {
+                if (sub) {
+                    collectNames(globalPrefixes, sub.input);
+                    collectNames(outputPrefixes, sub.output);
+                }
             }
         }
-        // Build encoder/decoder sub-graphs for T5-style models
-        for (const [encPrefix, label] of [['enc', 'Encoder'], ['dec', 'Decoder']]) {
-            const graph = this._archDef.graph;
-            const subgraph = graph ? graph[encPrefix === 'enc' ? 'encoder' : 'decoder'] : null;
-            if (subgraph) {
-                for (const prefix of globalPrefixes) {
-                    const fullPrefix = `${encPrefix}.${prefix}`;
-                    const weights = collectWeights(fullPrefix);
-                    if (weights.size > 0) {
-                        const resolved = resolveBlock(prefix);
-                        layers.push({ name: fullPrefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
-                    }
+        // Section builder: global inputs, structured blocks, global outputs,
+        // optionally prefixed (for T5 enc/dec subgraphs).
+        const buildSection = (prefix, blockType, indices) => {
+            const fullPrefix = (name) => prefix ? `${prefix}.${name}` : name;
+            for (const name of globalPrefixes) {
+                const weights = collectWeights(fullPrefix(name));
+                if (weights.size > 0) {
+                    pushFlat(fullPrefix(name), weights);
                 }
             }
-            for (let i = 0; i < this._blockCount; i++) {
-                const blockPrefix = `${encPrefix}.blk.${i}`;
-                const groups = new Map();
-                const order = [];
-                for (const [name] of tensors) {
-                    if (name.startsWith(`${blockPrefix}.`)) {
-                        const rest = name.slice(blockPrefix.length + 1);
-                        const group = classifyTensor(rest);
-                        if (!groups.has(group)) {
-                            groups.set(group, new Map());
-                            order.push(group);
-                        }
-                        groups.get(group).set(rest, name);
-                    }
-                }
-                const blockLayers = [];
-                for (const group of order) {
-                    const tensorMap = groups.get(group);
-                    const weights = new Map();
-                    for (const [suffix, fullName] of tensorMap) {
-                        const tensor = tensors.get(fullName);
-                        if (tensor) {
-                            weights.set(suffix, tensor);
-                            claimed.add(fullName);
-                        }
-                    }
-                    if (weights.size > 0) {
-                        const resolved = resolveBlock(group);
-                        blockLayers.push({ name: group, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
-                    }
-                }
+            for (const i of indices) {
+                const blockPrefix = fullPrefix(`blk.${i}`);
+                const blockLayers = buildBlockLayers(blockPrefix);
                 if (blockLayers.length > 0) {
-                    layers.push({ name: blockPrefix, type: `${this._architecture} ${label}`, layers: blockLayers, metadata: new Map(), weights: new Map() });
+                    layers.push({ name: blockPrefix, type: blockType, layers: blockLayers, metadata: new Map(), weights: new Map() });
                 }
             }
-            if (subgraph) {
-                for (const prefix of outputPrefixes) {
-                    const fullPrefix = `${encPrefix}.${prefix}`;
-                    const weights = collectWeights(fullPrefix);
-                    if (weights.size > 0) {
-                        const resolved = resolveBlock(prefix);
-                        layers.push({ name: fullPrefix, type: resolved.type, category: resolved.category, weights, metadata: new Map(), layers: [] });
-                    }
+            for (const name of outputPrefixes) {
+                const weights = collectWeights(fullPrefix(name));
+                if (weights.size > 0) {
+                    pushFlat(fullPrefix(name), weights);
                 }
+            }
+        };
+        const archName = this._architecture;
+        buildSection('', archName, expandIndices(blockIndices));
+        for (const [encPrefix, label] of [['enc', 'Encoder'], ['dec', 'Decoder']]) {
+            const subgraph = archDef && archDef.graph ? archDef.graph[encPrefix === 'enc' ? 'encoder' : 'decoder'] : null;
+            const indices = expandIndices(encDecIndices.get(encPrefix));
+            if (subgraph || indices.length > 0) {
+                buildSection(encPrefix, `${archName} ${label}`, indices);
             }
         }
-        // Collect any unclaimed tensors
+        // Flush unclaimed tensors as flat 'weights' nodes, grouping by tensor key.
         for (const [name, tensor] of tensors) {
             if (!claimed.has(name)) {
                 const parts = name.split('.');
@@ -996,127 +962,6 @@ gguf.Context = class {
             }
         }
         return layers;
-    }
-
-    _buildFlat() {
-        const tensors = this._tensors;
-        const layers = [];
-        const claimed = new Set();
-        const blockPattern = /^blk\.(\d+)\./;
-        const encDecPattern = /^(enc|dec)\.blk\.(\d+)\./;
-        const blockIndices = new Set();
-        const encDecIndices = new Map();
-        for (const [name] of tensors) {
-            const m = name.match(blockPattern);
-            if (m) {
-                blockIndices.add(parseInt(m[1], 10));
-            }
-            const m2 = name.match(encDecPattern);
-            if (m2) {
-                if (!encDecIndices.has(m2[1])) {
-                    encDecIndices.set(m2[1], new Set());
-                }
-                encDecIndices.get(m2[1]).add(parseInt(m2[2], 10));
-            }
-        }
-        if (blockIndices.size > 0 || encDecIndices.size > 0) {
-            const collectWeights = (prefix) => {
-                const weights = new Map();
-                for (const [name, tensor] of tensors) {
-                    if (name.startsWith(`${prefix}.`) || name === prefix) {
-                        const suffix = name.slice(prefix.length + 1) || 'data';
-                        weights.set(suffix, tensor);
-                        claimed.add(name);
-                    }
-                }
-                return weights;
-            };
-            const globalPrefixes = ['token_embd', 'token_types', 'token_embd_norm', 'position_embd', 'rope_freqs'];
-            for (const prefix of globalPrefixes) {
-                const weights = collectWeights(prefix);
-                if (weights.size > 0) {
-                    layers.push({ name: prefix, type: 'weights', metadata: new Map(), weights, layers: [] });
-                }
-            }
-            const buildStructuredBlocks = (blockPrefix) => {
-                const groups = new Map();
-                const order = [];
-                for (const [name] of tensors) {
-                    if (name.startsWith(`${blockPrefix}.`)) {
-                        const rest = name.slice(blockPrefix.length + 1);
-                        const group = this._classifyTensor(rest);
-                        if (!groups.has(group)) {
-                            groups.set(group, new Map());
-                            order.push(group);
-                        }
-                        groups.get(group).set(rest, name);
-                    }
-                }
-                const blockLayers = [];
-                for (const group of order) {
-                    const tensorMap = groups.get(group);
-                    const weights = new Map();
-                    for (const [suffix, fullName] of tensorMap) {
-                        const tensor = tensors.get(fullName);
-                        if (tensor) {
-                            weights.set(suffix, tensor);
-                            claimed.add(fullName);
-                        }
-                    }
-                    if (weights.size > 0) {
-                        blockLayers.push({ name: group, type: 'weights', metadata: new Map(), weights, layers: [] });
-                    }
-                }
-                return blockLayers;
-            };
-            for (const i of Array.from(blockIndices).sort((a, b) => a - b)) {
-                const blockLayers = buildStructuredBlocks(`blk.${i}`);
-                if (blockLayers.length > 0) {
-                    layers.push({ name: `blk.${i}`, type: this._architecture, layers: blockLayers, metadata: new Map(), weights: new Map() });
-                }
-            }
-            for (const [prefix, indices] of encDecIndices) {
-                for (const i of Array.from(indices).sort((a, b) => a - b)) {
-                    const blockLayers = buildStructuredBlocks(`${prefix}.blk.${i}`);
-                    if (blockLayers.length > 0) {
-                        const label = prefix === 'enc' ? 'Encoder' : 'Decoder';
-                        layers.push({ name: `${prefix}.blk.${i}`, type: `${this._architecture} ${label}`, layers: blockLayers, metadata: new Map(), weights: new Map() });
-                    }
-                }
-            }
-            const outputPrefixes = ['output_norm', 'output'];
-            for (const prefix of outputPrefixes) {
-                const weights = collectWeights(prefix);
-                if (weights.size > 0) {
-                    layers.push({ name: prefix, type: 'weights', metadata: new Map(), weights, layers: [] });
-                }
-            }
-            for (const [name, tensor] of tensors) {
-                if (!claimed.has(name)) {
-                    const parts = name.split('.');
-                    const param = parts.pop();
-                    const key = parts.join('.');
-                    const existing = layers.find((l) => l.name === key && l.type === 'weights');
-                    if (existing) {
-                        existing.weights.set(param, tensor);
-                    } else {
-                        layers.push({ name: key || name, type: 'weights', metadata: new Map(), weights: new Map([[param, tensor]]), layers: [] });
-                    }
-                }
-            }
-            return layers;
-        }
-        const flatLayers = new Map();
-        for (const [name, tensor] of tensors) {
-            const parts = name.split('.');
-            const param = parts.pop();
-            const key = parts.join('.');
-            if (!flatLayers.has(key)) {
-                flatLayers.set(key, { name: key, type: 'weights', metadata: new Map(), weights: new Map() });
-            }
-            flatLayers.get(key).weights.set(param, tensor);
-        }
-        return Array.from(flatLayers.values());
     }
 
     _classifyTensor(name) {
@@ -1173,7 +1018,10 @@ gguf.Context = class {
                 { match: /^layer_output_norm/, group: 'layer_output_norm' },
                 { match: /^layer_output_scale/, group: 'layer_out_scale' },
                 { match: /^attn_output_norm/, group: 'attn_output_norm' },
-                { match: /^post_attention_norm/, group: 'attn_post_norm' }
+                { match: /^post_attention_norm/, group: 'attn_post_norm' },
+                { match: /^inp_gate/, group: 'inp_gate' },
+                { match: /^proj\./, group: 'proj' },
+                { match: /^post_norm/, group: 'post_norm' }
             ];
         }
         for (const rule of gguf.Context._componentGroups) {
@@ -1182,22 +1030,6 @@ gguf.Context = class {
             }
         }
         return 'other';
-    }
-};
-
-gguf.Utility = class {
-
-    static enum(type, value) {
-        gguf.Utility._enums = gguf.Utility._enums || new Map();
-        if (!gguf.Utility._enums.has(type)) {
-            const entries = new Map(Object.entries(type).map(([key, value]) => [value, key]));
-            gguf.Utility._enums.set(type, entries);
-        }
-        const entries = gguf.Utility._enums.get(type);
-        if (entries.has(value)) {
-            return entries.get(value);
-        }
-        return value;
     }
 };
 
