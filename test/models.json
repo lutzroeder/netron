@@ -289,13 +289,6 @@
   },
   {
     "type":     "caffe",
-    "target":   "age_net.caffemodel",
-    "source":   "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/age_net.caffemodel",
-    "format":   "Caffe v1",
-    "link":     "https://github.com/eveningglow/age-and-gender-classification"
-  },
-  {
-    "type":     "caffe",
     "target":   "alexnet.prototxt",
     "source":   "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/alexnet.prototxt",
     "format":   "Caffe v2",
@@ -1391,11 +1384,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "Inceptionv3.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel"
-  },
-  {
-    "type":     "coreml",
     "target":   "LinkedUpdatableTinyDrawingClassifier.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/4500539/LinkedUpdatableTinyDrawingClassifier.zip[LinkedUpdatableTinyDrawingClassifier.mlmodel]",
     "format":   "Core ML v4",
@@ -2475,13 +2463,6 @@
   },
   {
     "type":     "keras",
-    "target":   "betago.hdf5",
-    "source":   "https://raw.githubusercontent.com/maxpumperla/deep_learning_and_the_game_of_go/master/code/agents/betago.hdf5",
-    "format":   "Keras v2.0.8",
-    "link":     "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "type":     "keras",
     "target":   "bidirectional_lstm.h5",
     "source":   "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[bidirectional_lstm.h5]",
     "format":   "Keras v2.1.2",
@@ -2601,13 +2582,6 @@
   },
   {
     "type":     "keras",
-    "target":   "MobileNetV2.h5.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/6098152/MobileNetV2.h5.zip",
-    "format":   "Keras v2.4.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "type":     "keras",
     "target":   "keras_metadata.pb",
     "source":   "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
     "format":   "Keras Saved Metadata",
@@ -2687,6 +2661,7 @@
     "type":     "keras",
     "target":   "MobileNetV2.h5.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6098152/MobileNetV2.h5.zip",
+    "format":   "Keras v2.4.0",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
   },
   {
@@ -2870,13 +2845,6 @@
     "format":   "Keras v2.4.0",
     "runtime":  "tensorflow",
     "link":     "https://github.com/lutzroeder/netron/issues/540"
-  },
-  {
-    "type":     "keras",
-    "target":   "tiny-yolo-voc.h5",
-    "source":   "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5",
-    "format":   "Keras v1.2.2",
-    "link":     "https://github.com/hollance/YOLO-CoreML-MPSNNGraph/tree/master/Convert/yad2k/model_data"
   },
   {
     "type":     "keras",
@@ -3783,13 +3751,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/5405963/Kmeans.mnn.zip[Kmeans.mnn]",
     "format":   "MNN v2",
     "link":     "https://github.com/lutzroeder/netron/issues/341"
-  },
-  {
-    "type":     "mnn",
-    "target":   "inception-v3.mnn",
-    "source":   "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/inception-v3.mnn",
-    "format":   "MNN v2",
-    "link":     "https://github.com/alibaba/MNN"
   },
   {
     "type":     "mnn",
@@ -5871,13 +5832,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "best.pt",
-    "source":   "https://github.com/user-attachments/files/16401547/best.pt.zip[best.pt]",
-    "format":   "PyTorch v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/543"
-  },
-  {
-    "type":     "pytorch",
     "target":   "binop.pt",
     "source":   "https://github.com/user-attachments/files/22703318/binop.pt.zip[binop.pt]",
     "format":   "TorchScript v1.6",
@@ -6033,13 +5987,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/6096621/densenet161.zip.pth.zip[densenet161.zip.pth]",
     "format":   "PyTorch v1.6",
     "link":     "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "densenet161.mar",
-    "source":   "https://torchserve.pytorch.org/mar_files/densenet161.mar",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/lutzroeder/netron/issues/286"
   },
   {
     "type":     "pytorch",
@@ -6881,32 +6828,11 @@
   },
   {
     "type":     "pytorch",
-    "target":   "resnet34-333f7ec4.pth",
-    "source":   "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
-    "format":   "PyTorch v0.1.1",
-    "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
-  },
-  {
-    "type":     "pytorch",
     "target":   "resnet50_pertensor.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5212006/resnet50_pertensor.zip[resnet50_pertensor.pt]",
     "format":   "TorchScript v1.5",
     "assert":   "model.modules[0].nodes[7].inputs[3].value[1] == 3",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet50_tucker.pth",
-    "source":   "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker.pth",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/larry0123du/Decompose-CNN"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet50_tucker_state.pth",
-    "source":   "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker_state.pth",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/larry0123du/Decompose-CNN"
   },
   {
     "type":     "pytorch",
@@ -9119,20 +9045,6 @@
     "target":   "xgb_classifier.model",
     "source":   "https://github.com/user-attachments/files/20028544/xgb_classifier.zip[xgb_classifier.model]",
     "format":   "XGBoost UBJSON v2.1.4",
-    "link":     "https://github.com/lutzroeder/netron/issues/1452"
-  },
-  {
-    "type":     "xgboost",
-    "target":   "xgb_booster.json",
-    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.json]",
-    "format":   "XGBoost JSON v3.2.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/1452"
-  },
-  {
-    "type":     "xgboost",
-    "target":   "xgb_booster.ubj",
-    "source":   "https://github.com/user-attachments/files/26325056/xgb_booster.zip[xgb_booster.ubj]",
-    "format":   "XGBoost UBJSON v3.2.0",
     "link":     "https://github.com/lutzroeder/netron/issues/1452"
   },
   {
