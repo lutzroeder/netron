@@ -521,7 +521,7 @@ const test = async (target) => {
             target = null;
             models = false;
             // eslint-disable-next-line no-await-in-loop
-            await exec('npx playwright install --with-deps');
+            await exec('npx playwright install --with-deps chromium');
             const host = process.platform === 'linux' && (process.env.GITHUB_ACTIONS || process.env.CI) ? 'xvfb-run -a ' : '';
             // eslint-disable-next-line no-await-in-loop
             await exec(`${host}npx playwright test --config=test/playwright.config.js --project=desktop`);
@@ -532,7 +532,7 @@ const test = async (target) => {
             models = false;
             if (process.platform !== 'win32') {
                 // eslint-disable-next-line no-await-in-loop
-                await exec('npx playwright install --with-deps');
+                await exec('npx playwright install --with-deps chromium');
                 const headed = process.env.GITHUB_ACTIONS || process.env.CI ? '' :  ' --headed';
                 // eslint-disable-next-line no-await-in-loop
                 await exec(`npx playwright test --config=test/playwright.config.js --project=browser${headed}`);
