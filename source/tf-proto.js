@@ -12796,6 +12796,443 @@ tensorflow.FingerprintDef.prototype.checkpoint_hash = 0n;
 tensorflow.FingerprintDef.prototype.uuid = "";
 tensorflow.FingerprintDef.prototype.version = null;
 
+tensorflow.ApiDef = class ApiDef {
+
+    constructor() {
+        this.endpoint = [];
+        this.in_arg = [];
+        this.out_arg = [];
+        this.arg_order = [];
+        this.attr = [];
+    }
+
+    static decode(reader, length) {
+        const message = new tensorflow.ApiDef();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.graph_op_name = reader.string();
+                    break;
+                case 12:
+                    message.deprecation_message = reader.string();
+                    break;
+                case 13:
+                    message.deprecation_version = reader.int32();
+                    break;
+                case 2:
+                    message.visibility = reader.int32();
+                    break;
+                case 3:
+                    message.endpoint.push(tensorflow.ApiDef.Endpoint.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    message.in_arg.push(tensorflow.ApiDef.Arg.decode(reader, reader.uint32()));
+                    break;
+                case 5:
+                    message.out_arg.push(tensorflow.ApiDef.Arg.decode(reader, reader.uint32()));
+                    break;
+                case 11:
+                    message.arg_order.push(reader.string());
+                    break;
+                case 6:
+                    message.attr.push(tensorflow.ApiDef.Attr.decode(reader, reader.uint32()));
+                    break;
+                case 7:
+                    message.summary = reader.string();
+                    break;
+                case 8:
+                    message.description = reader.string();
+                    break;
+                case 9:
+                    message.description_prefix = reader.string();
+                    break;
+                case 10:
+                    message.description_suffix = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.ApiDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "graph_op_name":
+                    message.graph_op_name = reader.string();
+                    break;
+                case "deprecation_message":
+                    message.deprecation_message = reader.string();
+                    break;
+                case "deprecation_version":
+                    message.deprecation_version = reader.int32();
+                    break;
+                case "visibility":
+                    message.visibility = reader.enum(tensorflow.ApiDef.Visibility);
+                    break;
+                case "endpoint":
+                    message.endpoint.push(tensorflow.ApiDef.Endpoint.decodeText(reader));
+                    break;
+                case "in_arg":
+                    message.in_arg.push(tensorflow.ApiDef.Arg.decodeText(reader));
+                    break;
+                case "out_arg":
+                    message.out_arg.push(tensorflow.ApiDef.Arg.decodeText(reader));
+                    break;
+                case "arg_order":
+                    reader.array(message.arg_order, () => reader.string());
+                    break;
+                case "attr":
+                    message.attr.push(tensorflow.ApiDef.Attr.decodeText(reader));
+                    break;
+                case "summary":
+                    message.summary = reader.string();
+                    break;
+                case "description":
+                    message.description = reader.string();
+                    break;
+                case "description_prefix":
+                    message.description_prefix = reader.string();
+                    break;
+                case "description_suffix":
+                    message.description_suffix = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ApiDef();
+        if ('graphOpName' in obj) {
+            message.graph_op_name = obj.graphOpName;
+        }
+        if ('deprecationMessage' in obj) {
+            message.deprecation_message = obj.deprecationMessage;
+        }
+        if ('deprecationVersion' in obj) {
+            message.deprecation_version = Number(obj.deprecationVersion);
+        }
+        if ('visibility' in obj) {
+            message.visibility = typeof obj.visibility === 'string' ? tensorflow.ApiDef.Visibility[obj.visibility] : obj.visibility;
+        }
+        if ('endpoint' in obj) {
+            message.endpoint = obj.endpoint.map((obj) => tensorflow.ApiDef.Endpoint.decodeJson(obj));
+        }
+        if ('inArg' in obj) {
+            message.in_arg = obj.inArg.map((obj) => tensorflow.ApiDef.Arg.decodeJson(obj));
+        }
+        if ('outArg' in obj) {
+            message.out_arg = obj.outArg.map((obj) => tensorflow.ApiDef.Arg.decodeJson(obj));
+        }
+        if ('argOrder' in obj) {
+            message.arg_order = obj.argOrder;
+        }
+        if ('attr' in obj) {
+            message.attr = obj.attr.map((obj) => tensorflow.ApiDef.Attr.decodeJson(obj));
+        }
+        if ('summary' in obj) {
+            message.summary = obj.summary;
+        }
+        if ('description' in obj) {
+            message.description = obj.description;
+        }
+        if ('descriptionPrefix' in obj) {
+            message.description_prefix = obj.descriptionPrefix;
+        }
+        if ('descriptionSuffix' in obj) {
+            message.description_suffix = obj.descriptionSuffix;
+        }
+        return message;
+    }
+};
+
+tensorflow.ApiDef.prototype.graph_op_name = "";
+tensorflow.ApiDef.prototype.deprecation_message = "";
+tensorflow.ApiDef.prototype.deprecation_version = 0;
+tensorflow.ApiDef.prototype.visibility = 0;
+tensorflow.ApiDef.prototype.summary = "";
+tensorflow.ApiDef.prototype.description = "";
+tensorflow.ApiDef.prototype.description_prefix = "";
+tensorflow.ApiDef.prototype.description_suffix = "";
+
+tensorflow.ApiDef.Visibility = {
+    "DEFAULT_VISIBILITY": 0,
+    "VISIBLE": 1,
+    "SKIP": 2,
+    "HIDDEN": 3
+};
+
+tensorflow.ApiDef.Endpoint = class Endpoint {
+
+    static decode(reader, length) {
+        const message = new tensorflow.ApiDef.Endpoint();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 3:
+                    message.deprecated = reader.bool();
+                    break;
+                case 4:
+                    message.deprecation_version = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.ApiDef.Endpoint();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "deprecated":
+                    message.deprecated = reader.bool();
+                    break;
+                case "deprecation_version":
+                    message.deprecation_version = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ApiDef.Endpoint();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('deprecated' in obj) {
+            message.deprecated = obj.deprecated;
+        }
+        if ('deprecationVersion' in obj) {
+            message.deprecation_version = Number(obj.deprecationVersion);
+        }
+        return message;
+    }
+};
+
+tensorflow.ApiDef.Endpoint.prototype.name = "";
+tensorflow.ApiDef.Endpoint.prototype.deprecated = false;
+tensorflow.ApiDef.Endpoint.prototype.deprecation_version = 0;
+
+tensorflow.ApiDef.Arg = class Arg {
+
+    static decode(reader, length) {
+        const message = new tensorflow.ApiDef.Arg();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.rename_to = reader.string();
+                    break;
+                case 3:
+                    message.description = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.ApiDef.Arg();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "rename_to":
+                    message.rename_to = reader.string();
+                    break;
+                case "description":
+                    message.description = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ApiDef.Arg();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('renameTo' in obj) {
+            message.rename_to = obj.renameTo;
+        }
+        if ('description' in obj) {
+            message.description = obj.description;
+        }
+        return message;
+    }
+};
+
+tensorflow.ApiDef.Arg.prototype.name = "";
+tensorflow.ApiDef.Arg.prototype.rename_to = "";
+tensorflow.ApiDef.Arg.prototype.description = "";
+
+tensorflow.ApiDef.Attr = class Attr {
+
+    static decode(reader, length) {
+        const message = new tensorflow.ApiDef.Attr();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.rename_to = reader.string();
+                    break;
+                case 3:
+                    message.default_value = tensorflow.AttrValue.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.description = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.ApiDef.Attr();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "rename_to":
+                    message.rename_to = reader.string();
+                    break;
+                case "default_value":
+                    message.default_value = tensorflow.AttrValue.decodeText(reader);
+                    break;
+                case "description":
+                    message.description = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ApiDef.Attr();
+        if ('name' in obj) {
+            message.name = obj.name;
+        }
+        if ('renameTo' in obj) {
+            message.rename_to = obj.renameTo;
+        }
+        if ('defaultValue' in obj) {
+            message.default_value = tensorflow.AttrValue.decodeJson(obj.defaultValue);
+        }
+        if ('description' in obj) {
+            message.description = obj.description;
+        }
+        return message;
+    }
+};
+
+tensorflow.ApiDef.Attr.prototype.name = "";
+tensorflow.ApiDef.Attr.prototype.rename_to = "";
+tensorflow.ApiDef.Attr.prototype.default_value = null;
+tensorflow.ApiDef.Attr.prototype.description = "";
+
+tensorflow.ApiDefs = class ApiDefs {
+
+    constructor() {
+        this.op = [];
+    }
+
+    static decode(reader, length) {
+        const message = new tensorflow.ApiDefs();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.op.push(tensorflow.ApiDef.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new tensorflow.ApiDefs();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "op":
+                    message.op.push(tensorflow.ApiDef.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeJson(obj) {
+        const message = new tensorflow.ApiDefs();
+        if ('op' in obj) {
+            message.op = obj.op.map((obj) => tensorflow.ApiDef.decodeJson(obj));
+        }
+        return message;
+    }
+};
+
 google.protobuf = {};
 
 google.protobuf.Any = class Any {

@@ -2247,7 +2247,7 @@
       {
         "name": "tolerance",
         "type": "float32",
-        "default": 9.999999747378752e-06
+        "default": 0.000009999999747378752
       }
     ],
     "inputs": [
@@ -5233,13 +5233,13 @@
         "name": "forget_bias",
         "type": "float32",
         "description": "The forget gate bias.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "cell_clip",
         "type": "float32",
         "description": "Value to clip the 'cs' value to.",
-        "default": 3.0
+        "default": 3
       },
       {
         "name": "use_peephole",
@@ -5649,7 +5649,7 @@
         "name": "cell_clip",
         "type": "float32",
         "description": "Value to clip the 'cs' value to.",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "use_peephole",
@@ -8168,7 +8168,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "is_stateless",
@@ -8224,7 +8224,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8309,7 +8309,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "outputs": [
@@ -8345,7 +8345,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8406,7 +8406,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8439,7 +8439,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8500,7 +8500,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8534,7 +8534,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "is_stateless",
@@ -8590,7 +8590,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8693,7 +8693,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -8737,7 +8737,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "is_stateless",
@@ -8814,7 +8814,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "is_stateless",
@@ -8880,7 +8880,7 @@
       {
         "name": "timeout_seconds",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -10996,7 +10996,7 @@
         "name": "extrapolation_value",
         "type": "float32",
         "description": "Value used for extrapolation, when applicable.",
-        "default": 0.0
+        "default": 0
       }
     ],
     "inputs": [
@@ -11214,7 +11214,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11300,7 +11300,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11409,7 +11409,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11522,7 +11522,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11654,7 +11654,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11739,7 +11739,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11824,7 +11824,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11899,7 +11899,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -11984,7 +11984,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -12064,7 +12064,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -12154,7 +12154,7 @@
       {
         "name": "dropout",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "seed",
@@ -13469,7 +13469,7 @@
         "name": "acceptable_fraction",
         "type": "float32",
         "description": "The minimum required fraction of lines before a truncated\ninput is accepted.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "dct_method",
@@ -13739,7 +13739,7 @@
         "name": "acceptable_fraction",
         "type": "float32",
         "description": "The minimum required fraction of lines before a truncated\ninput is accepted.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "dct_method",
@@ -16589,7 +16589,7 @@
   },
   {
     "name": "Erf",
-    "summary": "Computes the [Gauss error function](https://en.wikipedia.org/wiki/Error_function) of `x` element-wise. In statistics, for non-negative values of $x$, the error function has the following interpretation: for a random variable $Y$ that is normally distributed with mean 0 and variance $1/\\sqrt{2}$, $erf(x)$ is the probability that $Y$ falls in the range $[\u2212x, x]$.",
+    "summary": "Computes the [Gauss error function](https://en.wikipedia.org/wiki/Error_function) of `x` element-wise. In statistics, for non-negative values of $x$, the error function has the following interpretation: for a random variable $Y$ that is normally distributed with mean 0 and variance $1/\\sqrt{2}$, $erf(x)$ is the probability that $Y$ falls in the range $[−x, x]$.",
     "attributes": [
       {
         "name": "T",
@@ -18791,12 +18791,12 @@
       {
         "name": "min",
         "type": "float32",
-        "default": -6.0
+        "default": -6
       },
       {
         "name": "max",
         "type": "float32",
-        "default": 6.0
+        "default": 6
       },
       {
         "name": "num_bits",
@@ -18829,12 +18829,12 @@
       {
         "name": "min",
         "type": "float32",
-        "default": -6.0
+        "default": -6
       },
       {
         "name": "max",
         "type": "float32",
-        "default": 6.0
+        "default": 6
       },
       {
         "name": "num_bits",
@@ -19540,7 +19540,7 @@
         "name": "distortion",
         "type": "float32",
         "description": "The distortion is used to skew the unigram probability distribution.\nEach weight is first raised to the distortion's power before adding to the\ninternal unigram distribution. As a result, distortion = 1.0 gives regular\nunigram sampling (as defined by the vocab file), and distortion = 0.0 gives\na uniform distribution.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "num_reserved_ids",
@@ -20090,12 +20090,12 @@
         "name": "epsilon",
         "type": "float32",
         "description": "A small float number added to the variance of x.",
-        "default": 9.999999747378752e-05
+        "default": 0.00009999999747378752
       },
       {
         "name": "exponential_avg_factor",
         "type": "float32",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "data_format",
@@ -20179,7 +20179,7 @@
         "name": "epsilon",
         "type": "float32",
         "description": "A small float number added to the variance of x.",
-        "default": 9.999999747378752e-05
+        "default": 0.00009999999747378752
       },
       {
         "name": "data_format",
@@ -20268,7 +20268,7 @@
         "name": "epsilon",
         "type": "float32",
         "description": "A small float number added to the variance of x.",
-        "default": 9.999999747378752e-05
+        "default": 0.00009999999747378752
       },
       {
         "name": "data_format",
@@ -20357,7 +20357,7 @@
         "name": "epsilon",
         "type": "float32",
         "description": "A small float number added to the variance of x.",
-        "default": 9.999999747378752e-05
+        "default": 0.00009999999747378752
       },
       {
         "name": "data_format",
@@ -20452,12 +20452,12 @@
         "name": "epsilon",
         "type": "float32",
         "description": "A small float number added to the variance of x.",
-        "default": 9.999999747378752e-05
+        "default": 0.00009999999747378752
       },
       {
         "name": "exponential_avg_factor",
         "type": "float32",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "data_format",
@@ -20547,12 +20547,12 @@
         "name": "epsilon",
         "type": "float32",
         "description": "A small float number added to the variance of x.",
-        "default": 9.999999747378752e-05
+        "default": 0.00009999999747378752
       },
       {
         "name": "exponential_avg_factor",
         "type": "float32",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "data_format",
@@ -24250,13 +24250,13 @@
         "name": "bias",
         "type": "float32",
         "description": "An offset (usually positive to avoid dividing by 0).",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "alpha",
         "type": "float32",
         "description": "A scale factor, usually positive.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "beta",
@@ -24302,13 +24302,13 @@
         "name": "bias",
         "type": "float32",
         "description": "An offset (usually > 0 to avoid dividing by 0).",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "alpha",
         "type": "float32",
         "description": "A scale factor, usually positive.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "beta",
@@ -24361,13 +24361,13 @@
         "name": "forget_bias",
         "type": "float32",
         "description": "The forget gate bias.",
-        "default": 1.0
+        "default": 1
       },
       {
         "name": "cell_clip",
         "type": "float32",
         "description": "Value to clip the 'cs' value to.",
-        "default": 3.0
+        "default": 3
       },
       {
         "name": "use_peephole",
@@ -28782,13 +28782,13 @@
         "name": "upper_frequency_limit",
         "type": "float32",
         "description": "The highest frequency to use when calculating the\nceptstrum.",
-        "default": 4000.0
+        "default": 4000
       },
       {
         "name": "lower_frequency_limit",
         "type": "float32",
         "description": "The lowest frequency to use when calculating the\nceptstrum.",
-        "default": 20.0
+        "default": 20
       },
       {
         "name": "filterbank_channel_count",
@@ -34040,12 +34040,12 @@
       {
         "name": "input_min",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "input_max",
         "type": "float32",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "T",
@@ -36458,19 +36458,19 @@
         "name": "given_y_min",
         "type": "float32",
         "description": "Output in `y_min` if `output_range_given` is True.",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "given_y_max",
         "type": "float32",
         "description": "Output in `y_max` if `output_range_given` is True.",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "variance_epsilon",
         "type": "float32",
         "description": "A small float number to avoid dividing by 0.",
-        "default": 9.999999747378752e-06
+        "default": 0.000009999999747378752
       },
       {
         "name": "min_separation",
@@ -40234,7 +40234,7 @@
         "name": "file_shuffle_shift_ratio",
         "type": "float32",
         "description": "Shifts the list of files after the list is randomly\nshuffled.",
-        "default": 0.0
+        "default": 0
       },
       {
         "name": "file_buffer_size",
@@ -46819,7 +46819,7 @@
         "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
         "default": [
           0.05000000074505806,
-          1.0
+          1
         ]
       },
       {
@@ -46902,7 +46902,7 @@
         "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
         "default": [
           0.05000000074505806,
-          1.0
+          1
         ]
       },
       {
@@ -56714,7 +56714,7 @@
         "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
         "default": [
           0.05000000074505806,
-          1.0
+          1
         ]
       },
       {

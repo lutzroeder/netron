@@ -3,26 +3,10 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-env_dir=./third_party/env/tensorflow
 src_dir=./third_party/source/tensorflow
-
-case "${OSTYPE}" in
-    msys*|cygwin*|mingw*) python="winpty python";;
-    *) python="python";;
-esac
-
-venv() {
-    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
-    case "${OSTYPE}" in
-        msys*|cygwin*|mingw*) source ${env_dir}/Scripts/activate;;
-        *) source ${env_dir}/bin/activate;;
-    esac
-    ${python} -m pip install --quiet --upgrade pip requests
-}
 
 clean() {
     echo "tf clean"
-    rm -rf "${env_dir}"
     rm -rf "${src_dir}"
     rm -rf "./third_party/source/tflite-support"
 }
@@ -40,18 +24,10 @@ sync() {
     curl --silent --show-error --location --output "./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs" "https://github.com/tensorflow/tflite-support/raw/master/tensorflow_lite_support/metadata/metadata_schema.fbs"
 }
 
-install() {
-    echo "tf install"
-    venv
-    ${python} -m pip install --quiet --upgrade wheel
-    ${python} -m pip install --quiet --upgrade tf-nightly > /dev/null 2>&1 || true
-    deactivate
-}
-
 schema() {
     echo "tf schema"
     [[ $(grep -U $'\x0D' ./source/tf-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --binary --text --json --root tf --out ./source/tf-proto.js --path ${src_dir} --path ${src_dir}/third_party/xla tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto tensorflow/core/protobuf/config.proto tensorflow/core/util/memmapped_file_system.proto tensorflow/core/protobuf/fingerprint.proto
+    node ./tools/protoc.js --binary --text --json --root tf --out ./source/tf-proto.js --path ${src_dir} --path ${src_dir}/third_party/xla tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto tensorflow/core/protobuf/config.proto tensorflow/core/util/memmapped_file_system.proto tensorflow/core/protobuf/fingerprint.proto tensorflow/core/framework/api_def.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-proto.js ./source/tf-proto.js
     fi
@@ -80,16 +56,11 @@ metadata() {
         unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
     fi
     echo "tf metadata"
-    venv
     if [[ $(grep -U $'\x0D' ./source/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    if pip show "tf-nightly" > /dev/null 2>&1; then
-        ${python} ./tools/tf_script.py
-    fi
+    node ./tools/tf-script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-metadata.json ./source/tf-metadata.json
     fi
-    deactivate
 }
 
 while [ "$#" != 0 ]; do
@@ -97,7 +68,6 @@ while [ "$#" != 0 ]; do
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "install") install;;
         "schema") schema;;
         "metadata") metadata;;
     esac
