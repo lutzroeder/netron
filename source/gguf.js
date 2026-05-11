@@ -764,7 +764,9 @@ gguf.QuantizationType = [
     /* 36 */ { name: 'iq4_nl_4_4', block_size: 32,  type_size: 2 + 16 }, // deprecated
     /* 37 */ { name: 'iq4_nl_4_8', block_size: 32,  type_size: 2 + 16 }, // deprecated
     /* 38 */ { name: 'iq4_nl_8_8', block_size: 32,  type_size: 2 + 16 }, // deprecated
-    /* 39 */ { name: 'mxfp4',      block_size: 32,  type_size: 1 + 16 }
+    /* 39 */ { name: 'mxfp4',      block_size: 32,  type_size: 1 + 16 },
+    /* 40 */ { name: 'nvfp4',      block_size: 64,  type_size: 4 + 32 },
+    /* 41 */ { name: 'q1_0',       block_size: 128, type_size: 2 + 16 }
 ];
 
 gguf.Context = class {
@@ -777,8 +779,14 @@ gguf.Context = class {
         this._architecture = architecture;
         this._blockCount = kvMetadata.get(`${architecture}.block_count`) || 0;
         this._blockTypes = new Map();
+        // Classifier rules are derived from this arch's `blocks` entries:
+        // each entry's `name` and its `tensors` aliases are prefixes that route
+        // to the entry's `name` as the group label. Matching is strict
+        // prefix-with-dot-boundary so e.g. `attn_o` matches `attn_o.weight` but
+        // not `attn_output.weight`.
+        this._classifierRules = [];
         if (archDef && archDef.graph) {
-            const registerSection = (section) => {
+            const registerSection = (section, classify, sectionPrefix) => {
                 if (section) {
                     for (const block of section) {
                         this._blockTypes.set(block.name, block);
@@ -787,19 +795,35 @@ gguf.Context = class {
                                 this._blockTypes.set(tensor, block);
                             }
                         }
+                        if (classify) {
+                            // T5-style encoder/decoder blocks register the implicit
+                            // entry.name pattern under the section prefix (e.g.
+                            // `enc.attn_norm`); curator-supplied `tensors` aliases
+                            // already carry the prefix and pass through verbatim.
+                            this._classifierRules.push({ pattern: `${sectionPrefix}${block.name}`, group: block.name });
+                            for (const tensor of block.tensors || []) {
+                                this._classifierRules.push({ pattern: tensor, group: block.name });
+                            }
+                        }
                     }
                 }
             };
-            for (const section of [archDef.graph.input, archDef.graph.blocks, archDef.graph.output]) {
-                registerSection(section);
+            registerSection(archDef.graph.input, false, '');
+            registerSection(archDef.graph.blocks, true, '');
+            registerSection(archDef.graph.output, false, '');
+            if (archDef.graph.encoder) {
+                registerSection(archDef.graph.encoder.input, false, 'enc.');
+                registerSection(archDef.graph.encoder.blocks, true, 'enc.');
+                registerSection(archDef.graph.encoder.output, false, 'enc.');
             }
-            for (const subgraph of [archDef.graph.encoder, archDef.graph.decoder]) {
-                if (subgraph) {
-                    for (const section of [subgraph.input, subgraph.blocks, subgraph.output]) {
-                        registerSection(section);
-                    }
-                }
+            if (archDef.graph.decoder) {
+                registerSection(archDef.graph.decoder.input, false, 'dec.');
+                registerSection(archDef.graph.decoder.blocks, true, 'dec.');
+                registerSection(archDef.graph.decoder.output, false, 'dec.');
             }
+            // Longest-pattern-first ensures specific aliases (e.g. ffn_gate.{N},
+            // attn_q_norm) win over their shorter prefixes (ffn_gate, attn_q).
+            this._classifierRules.sort((a, b) => b.pattern.length - a.pattern.length);
         }
     }
 
@@ -837,12 +861,22 @@ gguf.Context = class {
         // discovery order. Tensors in the block are grouped by component
         // (attn, ffn, ...) via _classifyTensor.
         const buildBlockLayers = (blockPrefix) => {
+            // For T5-style encoder/decoder blocks (`enc.blk.N` / `dec.blk.N`),
+            // metadata aliases preserve the `enc.`/`dec.` segment (e.g.
+            // `enc.attn_q`) to disambiguate the two subgraphs. Prepend it back
+            // onto the bare tensor name before classifying.
+            let sectionPrefix = '';
+            if (blockPrefix.startsWith('enc.')) {
+                sectionPrefix = 'enc.';
+            } else if (blockPrefix.startsWith('dec.')) {
+                sectionPrefix = 'dec.';
+            }
             const groups = new Map();
             const order = [];
             for (const [name] of tensors) {
                 if (name.startsWith(`${blockPrefix}.`)) {
                     const rest = name.slice(blockPrefix.length + 1);
-                    const group = this._classifyTensor(rest);
+                    const group = this._classifyTensor(`${sectionPrefix}${rest}`);
                     if (!groups.has(group)) {
                         groups.set(group, new Map());
                         order.push(group);
@@ -965,67 +999,15 @@ gguf.Context = class {
     }
 
     _classifyTensor(name) {
-        if (!gguf.Context._componentGroups) {
-            gguf.Context._componentGroups = [
-                { match: /^attn_norm/, group: 'attn_norm' },
-                { match: /^attn_q_norm/, group: 'attn_norm' },
-                { match: /^attn_k_norm/, group: 'attn_norm' },
-                { match: /^attn_sub_norm/, group: 'attn_norm' },
-                { match: /^attn_q_a/, group: 'attention' },
-                { match: /^attn_q_b/, group: 'attention' },
-                { match: /^attn_kv_a/, group: 'attention' },
-                { match: /^attn_kv_b/, group: 'attention' },
-                { match: /^attn_k_b/, group: 'attention' },
-                { match: /^attn_qkv/, group: 'attention' },
-                { match: /^attn_q/, group: 'attention' },
-                { match: /^attn_k/, group: 'attention' },
-                { match: /^attn_v/, group: 'attention' },
-                { match: /^attn_output/, group: 'attention' },
-                { match: /^attn_out/, group: 'attention' },
-                { match: /^attn_o\./, group: 'attention' },
-                { match: /^attn_rel_b/, group: 'attention' },
-                { match: /^attn_sinks/, group: 'attention' },
-                { match: /^attn_rot_embd/, group: 'attention' },
-                { match: /^attn_post_norm/, group: 'attn_post_norm' },
-                { match: /^cross_attn_norm/, group: 'cross_attn_norm' },
-                { match: /^cross_attn_/, group: 'cross_attention' },
-                { match: /^ffn_norm/, group: 'ffn_norm' },
-                { match: /^ffn_gate_inp/, group: 'ffn_gate_inp' },
-                { match: /^ffn_exp_probs/, group: 'ffn_gate_inp' },
-                { match: /^ffn_gate_exps/, group: 'ffn_gate_exps' },
-                { match: /^ffn_gate\.\d+/, group: 'ffn_gate_exps' },
-                { match: /^ffn_gate_up_exps/, group: 'ffn_gate_up_exps' },
-                { match: /^ffn_up_exps/, group: 'ffn_up_exps' },
-                { match: /^ffn_up\.\d+/, group: 'ffn_up_exps' },
-                { match: /^ffn_down_exps/, group: 'ffn_down_exps' },
-                { match: /^ffn_down\.\d+/, group: 'ffn_down_exps' },
-                { match: /^ffn_gate_shexp/, group: 'ffn_gate_shexp' },
-                { match: /^ffn_up_shexp/, group: 'ffn_up_shexp' },
-                { match: /^ffn_down_shexp/, group: 'ffn_down_shexp' },
-                { match: /^ffn_gate/, group: 'ffn_gate' },
-                { match: /^ffn_up/, group: 'ffn_up' },
-                { match: /^ffn_down/, group: 'ffn_down' },
-                { match: /^ffn_act/, group: 'ffn_act' },
-                { match: /^ffn_sub_norm/, group: 'ffn_sub_norm' },
-                { match: /^ffn_post_norm/, group: 'ffn_post_norm' },
-                { match: /^pre_ffw_norm_2/, group: 'ffn_pre_norm_2' },
-                { match: /^post_ffw_norm_1/, group: 'ffn_post_norm_1' },
-                { match: /^post_ffw_norm_2/, group: 'ffn_post_norm_2' },
-                { match: /^post_ffw_norm/, group: 'ffn_post_norm' },
-                { match: /^ssm_/, group: 'ssm' },
-                { match: /^time_mix_/, group: 'time_mix' },
-                { match: /^channel_mix_/, group: 'channel_mix' },
-                { match: /^layer_output_norm/, group: 'layer_output_norm' },
-                { match: /^layer_output_scale/, group: 'layer_out_scale' },
-                { match: /^attn_output_norm/, group: 'attn_output_norm' },
-                { match: /^post_attention_norm/, group: 'attn_post_norm' },
-                { match: /^inp_gate/, group: 'inp_gate' },
-                { match: /^proj\./, group: 'proj' },
-                { match: /^post_norm/, group: 'post_norm' }
-            ];
-        }
-        for (const rule of gguf.Context._componentGroups) {
-            if (rule.match.test(name)) {
+        for (const rule of this._classifierRules) {
+            const pattern = rule.pattern;
+            if (pattern.includes('{N}')) {
+                let regex = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                regex = regex.replace(/\\\{N\\\}/g, '\\d+');
+                if (new RegExp(`^${regex}(\\.|$)`).test(name)) {
+                    return rule.group;
+                }
+            } else if (name === pattern || name.startsWith(`${pattern}.`)) {
                 return rule.group;
             }
         }

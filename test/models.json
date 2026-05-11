@@ -2214,6 +2214,7 @@
     "source":   "https://github.com/user-attachments/files/25527189/all-MiniLM-L6-v2.F16.gguf.zip[all-MiniLM-L6-v2.F16.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'LAYER_NORM'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2222,6 +2223,7 @@
     "source":   "https://github.com/user-attachments/files/25527191/Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf.zip[Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[4].type.name == 'MAMBA2'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2230,6 +2232,7 @@
     "source":   "https://github.com/user-attachments/files/25527190/flan-t5-small-q2_k.gguf.zip[flan-t5-small-q2_k.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[70].type.name == 'CROSS_ATTENTION'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2238,6 +2241,7 @@
     "source":   "https://github.com/user-attachments/files/27541805/gemma-4-E2B-it-Q8_0.gguf.zip[gemma-4-E2B-it-Q8_0.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[17].type.name == 'GELU'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2246,6 +2250,7 @@
     "source":   "https://github.com/user-attachments/files/21702620/gpt-oss-20b-MXFP4.gguf.zip[gpt-oss-20b-MXFP4.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[7].type.name == 'MUL_MAT_ID'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2254,6 +2259,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/13802180/mixtral-8x7b-v0.1.Q4_K_M.gguf.zip[mixtral-8x7b-v0.1.Q4_K_M.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[7].inputs.length == 9",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2262,6 +2268,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/13825087/phi-2.Q2_K.gguf.zip[phi-2.Q2_K.gguf]",
     "format":   "GGUF v3",
     "tags":     "validation,quantization",
+    "assert":   "model.modules[0].nodes[6].inputs.length == 3",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2270,6 +2277,7 @@
     "source":   "https://github.com/user-attachments/files/25527192/qwen2.5-coder-7b-instruct-q4_k_m.gguf.zip[qwen2.5-coder-7b-instruct-q4_k_m.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].inputs.length == 8",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2278,6 +2286,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/13825089/vicuna-33b.Q2_K.gguf.zip[vicuna-33b.Q2_K.gguf]",
     "format":   "GGUF v2",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].inputs.length == 5",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {

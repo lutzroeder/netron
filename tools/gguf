@@ -21,10 +21,16 @@ sync() {
     fi
 }
 
+metadata() {
+    echo "gguf metadata"
+    node ./tools/gguf-script.js
+}
+
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
+        "metadata") metadata;;
     esac
 done
