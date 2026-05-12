@@ -381,6 +381,18 @@ executorch_flatbuffer.ExecutionPlan = class ExecutionPlan {
         $.operators = reader.tables(position, 16, executorch_flatbuffer.Operator);
         $.delegates = reader.tables(position, 18, executorch_flatbuffer.BackendDelegate);
         $.non_const_buffer_sizes = reader.int64s_(position, 20);
+        $.non_const_buffer_device = reader.tables(position, 22, executorch_flatbuffer.NonConstBufferDevice);
+        return $;
+    }
+};
+
+executorch_flatbuffer.NonConstBufferDevice = class NonConstBufferDevice {
+
+    static decode(reader, position) {
+        const $ = new executorch_flatbuffer.NonConstBufferDevice();
+        $.buffer_idx = reader.int32_(position, 4, 0);
+        $.device_type = reader.int8_(position, 6, 0);
+        $.device_index = reader.int8_(position, 8, 0);
         return $;
     }
 };
