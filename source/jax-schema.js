@@ -83,6 +83,7 @@ jax_export.serialization.AbstractDevice = class AbstractDevice {
         const $ = new jax_export.serialization.AbstractDevice();
         $.device_kind = reader.string_(position, 4, null);
         $.num_cores = reader.uint32_(position, 6, null);
+        $.platform = reader.string_(position, 8, null);
         return $;
     }
 };
