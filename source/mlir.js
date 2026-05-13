@@ -59,7 +59,9 @@ mlir.ModelFactory = class {
             case 'mlir.text': {
                 const decoder = await context.read('text.decoder');
                 const config = new _.ParserConfig(new _.DialectContext(metadata));
-                const sourceMgr = new _.SourceMgr(decoder);
+                const sourceMgr = new _.SourceMgr();
+                const buffer = new _.MemoryBuffer(decoder, context.identifier);
+                sourceMgr.addNewSourceBuffer(buffer);
                 const state = new _.ParserState(sourceMgr, config);
                 const parser = new _.TopLevelOperationParser(state);
                 const block = new _.Block();
@@ -68,9 +70,9 @@ mlir.ModelFactory = class {
                 return model;
             }
             case 'mlir.binary': {
-                const binary = await context.read('binary');
+                const buffer = await context.read('binary');
                 const config = new _.ParserConfig(new _.DialectContext(metadata));
-                const reader = new _.BytecodeReader(binary, config);
+                const reader = new _.BytecodeReader(buffer, config);
                 const block = reader.read();
                 const format = `MLIR Bytecode v${reader.version.value}`;
                 const producer = reader.producer;
@@ -2333,35 +2335,61 @@ _.Token.kw_symbol = 'kw_symbol';
 _.Token.kw_true = 'kw_true';
 _.Token.kw_unit = 'kw_unit';
 
-_.SourceMgr = class {
+_.MemoryBuffer = class {
 
-    constructor(decoder) {
+    constructor(decoder, identifier) {
         this._decoder = decoder;
-        this._offsetCache = null;
+        this._identifier = identifier || '';
     }
 
     get decoder() {
         return this._decoder;
     }
 
-    getLineAndColumn(position) {
+    getBufferIdentifier() {
+        return this._identifier;
+    }
+};
+
+_.SrcBuffer = class {
+
+    constructor(buffer, includeLoc) {
+        this._buffer = buffer;
+        this._includeLoc = includeLoc || new _.SMLoc();
+        this._offsetCache = null;
+    }
+
+    get buffer() {
+        return this._buffer;
+    }
+
+    get includeLoc() {
+        return this._includeLoc;
+    }
+
+    getLineNumber(pointer) {
         const offsets = this._getOrCreateOffsetCache();
         let low = 0;
         let high = offsets.length - 1;
         while (low < high) {
             const mid = (low + high + 1) >> 1;
-            if (offsets[mid] <= position) {
+            if (offsets[mid] <= pointer) {
                 low = mid;
             } else {
                 high = mid - 1;
             }
         }
-        return [low + 1, position - offsets[low] + 1];
+        return low + 1;
+    }
+
+    getPointerForLineNumber(line) {
+        const offsets = this._getOrCreateOffsetCache();
+        return offsets[line - 1];
     }
 
     _getOrCreateOffsetCache() {
         if (!this._offsetCache) {
-            const buffer = this._decoder.buffer;
+            const buffer = this._buffer.decoder.buffer;
             const offsets = [0];
             if (buffer) {
                 for (let i = 0; i < buffer.length; i++) {
@@ -2376,12 +2404,49 @@ _.SourceMgr = class {
     }
 };
 
+_.SourceMgr = class {
+
+    constructor() {
+        this._buffers = [];
+    }
+
+    isValidBufferID(id) {
+        return id > 0 && id <= this._buffers.length;
+    }
+
+    addNewSourceBuffer(buffer, includeLoc) {
+        this._buffers.push(new _.SrcBuffer(buffer, includeLoc));
+        return this._buffers.length;
+    }
+
+    getNumBuffers() {
+        return this._buffers.length;
+    }
+
+    getMainFileID() {
+        return 1;
+    }
+
+    getBufferInfo(id) {
+        return this._buffers[id - 1];
+    }
+
+    getMemoryBuffer(id) {
+        return this._buffers[id - 1].buffer;
+    }
+
+    getParentIncludeLoc(id) {
+        return this._buffers[id - 1].includeLoc;
+    }
+};
+
 _.Lexer = class {
 
     constructor(sourceMgr, context) {
         this._sourceMgr = sourceMgr;
         this._context = context;
-        this._decoder = sourceMgr.decoder;
+        const bufferID = sourceMgr.getMainFileID();
+        this._decoder = sourceMgr.getMemoryBuffer(bufferID).decoder;
         this._currentPosition = this._decoder.position;
         this._current = this._decoder.decode();
         this._nextPosition = this._decoder.position;
@@ -2395,9 +2460,17 @@ _.Lexer = class {
         return this._sourceMgr;
     }
 
+    get decoder() {
+        return this._decoder;
+    }
+
     getEncodedSourceLocation(loc) {
-        const [line, column] = this._sourceMgr.getLineAndColumn(loc.position);
-        return new _.Location(new _.FileLineColLoc(this._context, '', line, column));
+        const mainFileID = this._sourceMgr.getMainFileID();
+        const bufferInfo = this._sourceMgr.getBufferInfo(mainFileID);
+        const lineNo = bufferInfo.getLineNumber(loc.position);
+        const column = (loc.position - bufferInfo.getPointerForLineNumber(lineNo)) + 1;
+        const identifier = this._sourceMgr.getMemoryBuffer(mainFileID).getBufferIdentifier();
+        return new _.Location(new _.FileLineColLoc(this._context, identifier, lineNo, column));
     }
 
     emitError(loc, message) {
@@ -4169,7 +4242,7 @@ _.Parser = class {
     }
 
     parseDialectSymbolBody() {
-        const decoder = this.state.lex.getSourceMgr().decoder;
+        const decoder = this.state.lex.decoder;
         const startPos = this.getToken().loc.position;
         decoder.position = startPos;
         const nestedPunctuation = [];
@@ -4296,7 +4369,8 @@ _.Parser = class {
     static parseSymbol(inputStr, context, parserFn) {
         const decoder = text.Decoder.open(inputStr);
         const config = new _.ParserConfig(context);
-        const sourceMgr = new _.SourceMgr(decoder);
+        const sourceMgr = new _.SourceMgr();
+        sourceMgr.addNewSourceBuffer(new _.MemoryBuffer(decoder, ''));
         const state = new _.ParserState(sourceMgr, config);
         const parser = new _.Parser(state, context);
         const startPos = state.curToken.position || 0;
@@ -7239,9 +7313,6 @@ _.FileLineColLoc = class extends _.LocationAttr {
     }
 
     printLocationInternal() {
-        if (this.filename) {
-            return `${this.filename}:${this.line}:${this.col}`;
-        }
         return `${this.line}:${this.col}`;
     }
 };
