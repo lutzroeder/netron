@@ -2219,6 +2219,15 @@
   },
   {
     "type":     "gguf",
+    "target":   "deepseek-ocr-Q4_K_M.gguf",
+    "source":   "https://github.com/user-attachments/files/27738911/deepseek-ocr-Q4_K_M.gguf.zip[deepseek-ocr-Q4_K_M.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[15].type.name == 'MUL_MAT_ID'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf",
     "source":   "https://github.com/user-attachments/files/25527191/Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf.zip[Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf]",
     "format":   "GGUF v3",
@@ -2237,11 +2246,20 @@
   },
   {
     "type":     "gguf",
+    "target":   "gemma-3-1b-it-Q4_K_M.gguf",
+    "source":   "https://github.com/user-attachments/files/27738910/gemma-3-1b-it-Q4_K_M.gguf.zip[gemma-3-1b-it-Q4_K_M.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[4].type.name == 'RMS_NORM'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "gemma-4-E2B-it-Q8_0.gguf",
     "source":   "https://github.com/user-attachments/files/27541805/gemma-4-E2B-it-Q8_0.gguf.zip[gemma-4-E2B-it-Q8_0.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
-    "assert":   "model.modules[0].nodes[17].type.name == 'GELU'",
+    "assert":   "model.modules[0].nodes[19].type.name == 'MUL'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
@@ -2251,6 +2269,33 @@
     "format":   "GGUF v3",
     "tags":     "quantization",
     "assert":   "model.modules[0].nodes[7].type.name == 'MUL_MAT_ID'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "HunyuanOCR-Q8_0.gguf",
+    "source":   "https://github.com/user-attachments/files/27738913/HunyuanOCR-Q8_0.gguf.zip[HunyuanOCR-Q8_0.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[2].inputs.length == 4",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "mamba-130m-hf.Q8_0.gguf",
+    "source":   "https://github.com/user-attachments/files/27738912/mamba-130m-hf.Q8_0.gguf.zip[mamba-130m-hf.Q8_0.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'MAMBA'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "Mistral-Small-4-119B-2603-IQ1_S.gguf",
+    "source":   "https://github.com/user-attachments/files/27738914/Mistral-Small-4-119B-2603-IQ1_S.gguf.zip[Mistral-Small-4-119B-2603-IQ1_S.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'MULTI_LATENT_ATTENTION'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {

@@ -84,6 +84,8 @@ gguf.Graph = class {
         let valueIndex = 0;
         let prevValue = null;
         let ropeFreqsValue = null;
+        let perLayerInputValue = null;
+        const perLayerOutputs = {};
         const newValue = () => new gguf.Value(`v${valueIndex++}`);
         const addNode = (entry, inputValues, outputValue) => {
             const node = new gguf.Node(entry);
@@ -258,17 +260,19 @@ gguf.Graph = class {
                     const r2 = newValue();
                     addOp('ADD', [preAdd2, cur], r2);
                     let final = r2;
-                    // Elides the gating mul by `inp_per_layer_slice` between
-                    // GELU and proj: that slice is a precomputation over the
-                    // per_layer_* globals we don't model.
                     if (has('inp_gate') && has('proj') && has('post_norm')) {
                         const peIn = final;
                         const g = newValue();
                         addNode(use('inp_gate'), [peIn], g);
                         const gAct = newValue();
                         addOp('GELU', [g], gAct);
+                        let gated = gAct;
+                        if (perLayerInputValue) {
+                            gated = newValue();
+                            addOp('MUL', [gAct, perLayerInputValue], gated);
+                        }
                         const p = newValue();
-                        addNode(use('proj'), [gAct], p);
+                        addNode(use('proj'), [gated], p);
                         const pn = newValue();
                         addNode(use('post_norm'), [p], pn);
                         const r3 = newValue();
@@ -408,6 +412,26 @@ gguf.Graph = class {
                 ropeFreqsValue = newValue();
                 node.outputs.push(new gguf.Argument('output', [ropeFreqsValue]));
                 this.nodes.push(node);
+            } else if (layer.name === 'per_layer_token_embd' || layer.name === 'per_layer_model_proj' || layer.name === 'per_layer_proj_norm') {
+                // Gemma 3n / 4 per-layer-embedding precomputation (gemma4.cpp:431-451):
+                //   per_layer_proj  = per_layer_model_proj * token_embd_output
+                //   per_layer_proj  = norm(per_layer_proj, per_layer_proj_norm)
+                //   inp_per_layer   = per_layer_proj + per_layer_token_embd
+                // The result fans out into each block's per-layer-embedding gating mul.
+                const node = new gguf.Node(layer);
+                const out = newValue();
+                if (layer.name === 'per_layer_model_proj' && prevValue) {
+                    node.inputs.unshift(new gguf.Argument('input', [prevValue]));
+                } else if (layer.name === 'per_layer_proj_norm' && perLayerOutputs.per_layer_model_proj) {
+                    node.inputs.unshift(new gguf.Argument('input', [perLayerOutputs.per_layer_model_proj]));
+                }
+                node.outputs.push(new gguf.Argument('output', [out]));
+                this.nodes.push(node);
+                perLayerOutputs[layer.name] = out;
+                if (perLayerOutputs.per_layer_token_embd && perLayerOutputs.per_layer_proj_norm && !perLayerInputValue) {
+                    perLayerInputValue = newValue();
+                    addOp('ADD', [perLayerOutputs.per_layer_proj_norm, perLayerOutputs.per_layer_token_embd], perLayerInputValue);
+                }
             } else {
                 const node = new gguf.Node(layer);
                 if (prevValue && layer.type !== 'weights') {
@@ -850,7 +874,13 @@ gguf.Context = class {
         // Resolve display type/category for a component group from metadata
         // (when an arch definition is loaded), otherwise default to 'weights'.
         const resolveBlock = (group) => {
-            const block = this._blockTypes.get(group);
+            let block = this._blockTypes.get(group);
+            if (!block && (group.startsWith('enc.') || group.startsWith('dec.'))) {
+                // T5 enc/dec output sections register block names bare
+                // (e.g. `output_norm`), but pushFlat passes the section-prefixed
+                // tensor key (`enc.output_norm`). Strip the prefix on lookup.
+                block = this._blockTypes.get(group.slice(4));
+            }
             return block ? { type: block.type, category: block.category } : { type: 'weights' };
         };
         const pushFlat = (prefix, weights) => {
