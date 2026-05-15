@@ -6653,7 +6653,7 @@ view.Context = class {
         if (stream instanceof Uint8Array) {
             stream = new base.BinaryStream(stream);
         }
-        const context = entries instanceof Map ? new view.Container(this._context, entries) : this._context;
+        const context = entries instanceof Map ? new view.Container(this._context, this._identifier, entries) : this._context;
         return new view.Context(context, identifier, stream);
     }
 
@@ -6663,7 +6663,7 @@ view.Context = class {
 
     error(error, fatal) {
         if (error && this.identifier) {
-            error.context = this.identifier;
+            error.context = this.container ? this.container.identifier : this.identifier;
         }
         this._context.error(error, fatal);
     }
@@ -7080,9 +7080,14 @@ view.Context = class {
 
 view.Container = class {
 
-    constructor(host, entries) {
+    constructor(host, identifier, entries) {
         this._host = host;
+        this._identifier = identifier;
         this._entries = entries;
+    }
+
+    get identifier() {
+        return this._identifier;
     }
 
     async asset(file) {
@@ -7246,7 +7251,7 @@ view.ModelFactoryService = class {
                 if (!check(entries)) {
                     await this._unsupported(content);
                 }
-                const container = await this._openEntries(entries);
+                const container = await this._openEntries(entries, context.identifier);
                 if (!container) {
                     await this._unsupported(content);
                 }
@@ -7640,7 +7645,7 @@ view.ModelFactoryService = class {
         return null;
     }
 
-    async _openEntries(entries) {
+    async _openEntries(entries, identifier) {
         try {
             const rootFolder = (files) => {
                 const map = files.map((file) => file.split('/').slice(0, -1));
@@ -7656,7 +7661,7 @@ view.ModelFactoryService = class {
                 entries = new Map(Array.from(entries)
                     .filter(([path]) => path.startsWith(folder))
                     .map(([path, stream]) => [path.substring(folder.length), stream]));
-                const container = new view.Container(this._host, entries);
+                const container = new view.Container(this._host, identifier, entries);
                 let matches = [];
                 for (const [name, stream] of queue) {
                     const identifier = name.substring(folder.length);
