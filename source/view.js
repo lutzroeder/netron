@@ -1765,7 +1765,9 @@ view.Worker = class {
     constructor(host) {
         this._host = host;
         this._timeout = -1;
-        this._create();
+        if (this._host.type !== 'Electron') {
+            this._create();
+        }
     }
 
     async request(message, delay, notification) {
