@@ -3570,7 +3570,7 @@
     "description": "Rectified Linear Unit activation function layer.\n\nFormula:\n``` python\nf(x) = max(x,0)\nf(x) = max_value if x >= max_value\nf(x) = x if threshold <= x < max_value\nf(x) = negative_slope * (x - threshold) otherwise\n```",
     "attributes": [
       {
-        "description": "Float >= 0. Maximum activation value. None means unlimited.\n        Defaults to `None`.",
+        "description": "Float >= 0. Maximum activation value. `None` means\n        unlimited. Defaults to `None`.",
         "name": "max_value"
       },
       {
