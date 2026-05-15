@@ -351,8 +351,9 @@ desktop.Host = class {
             const dirname = path.dirname(url.fileURLToPath(import.meta.url));
             const root = path.resolve(basename || dirname);
             const pathname = path.resolve(root, file);
-            if (pathname !== root && !pathname.startsWith(`${root}${path.sep}`)) {
-                reject(new Error(`The path '${file}' is invalid.`));
+            const relative = path.relative(root, pathname);
+            if (relative !== '' && (relative.startsWith('..') || path.isAbsolute(relative))) {
+                reject(new Error(`The path '${pathname}' is invalid.`));
                 return;
             }
             fs.stat(pathname, (err, stat) => {
