@@ -19986,8 +19986,47 @@ python.Execution = class {
                     this.deserialize_outputs(serialized_node, fx_node);
                 } else if (typeof target === 'string') {
                     // Handle unresolved operators
-                    execution.emit('resolve', target);
-                    if (target.match(/^torch\.ops\.(aten|prim|quantized)\./)) {
+                    const arg_type = (arg) => {
+                        switch (arg && arg.type) {
+                            case 'as_tensor': return 'Tensor';
+                            case 'as_tensors': return 'Tensor[]';
+                            case 'as_optional_tensors': return 'Tensor?[]';
+                            case 'as_nested_tensors': return 'Tensor[][]';
+                            case 'as_int': return 'int';
+                            case 'as_ints': return 'int[]';
+                            case 'as_int_lists': return 'int[][]';
+                            case 'as_float': return 'float';
+                            case 'as_floats': return 'float[]';
+                            case 'as_float_lists': return 'float[][]';
+                            case 'as_bool': return 'bool';
+                            case 'as_bools': return 'bool[]';
+                            case 'as_string': return 'str';
+                            case 'as_strings': return 'str[]';
+                            case 'as_sym_int': return 'SymInt';
+                            case 'as_sym_ints': return 'SymInt[]';
+                            case 'as_sym_float': return 'SymFloat';
+                            case 'as_sym_floats': return 'SymFloat[]';
+                            case 'as_sym_bool': return 'SymBool';
+                            case 'as_sym_bools': return 'SymBool[]';
+                            case 'as_scalar_type': return 'ScalarType';
+                            case 'as_memory_format': return 'MemoryFormat';
+                            case 'as_layout': return 'Layout';
+                            case 'as_device': return 'Device';
+                            case 'as_operator': return 'str';
+                            default: return '?';
+                        }
+                    };
+                    const schema = (serialized_node, op) => {
+                        const params = serialized_node.inputs.map((input) => `${arg_type(input.arg)} ${input.name}`).join(', ');
+                        const outputs = serialized_node.outputs.map(arg_type);
+                        const returns = outputs.length === 1 ? outputs[0] : `(${outputs.join(', ')})`;
+                        return `${op}(${params}) -> ${returns}`;
+                    };
+                    const match = target.match(/^torch\.ops\.([^.]+)\.(.+)$/);
+                    const namespace = match ? match[1] : null;
+                    const op = match ? `${match[1]}::${match[2]}` : target;
+                    execution.emit('resolve', schema(serialized_node, op));
+                    if (namespace === 'aten' || namespace === 'prim' || namespace === 'quantized') {
                         throw new python.Error(`Unsupported node target type '${target}'.`);
                     }
                     const [args, kwargs] = this.deserialize_hoo_inputs(serialized_node.inputs);

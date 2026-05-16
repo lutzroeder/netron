@@ -6571,7 +6571,7 @@
     "target":   "mylib_custom_relu.pt2",
     "source":   "https://github.com/user-attachments/files/23542222/mylib_custom_relu.pt2.zip[mylib_custom_relu.pt2]",
     "format":   "PyTorch Export v8.14",
-    "error":    "Unknown type name 'torch.ops.mylib.custom_relu.default'.",
+    "error":    "Unknown type name 'mylib::custom_relu.default(Tensor x) -> Tensor'.",
     "link":     "https://github.com/lutzroeder/netron/issues/1211"
   },
   {
