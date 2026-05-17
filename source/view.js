@@ -7804,7 +7804,7 @@ view.ModelFactoryService = class {
                 { name: 'TSD header', value: /^%TSD-Header-###%/ },
                 { name: 'undocumented HALCON model', value: /^HDLMODEL/ },
                 { name: 'undocumented license data', value: /^This model and the software may not be used or distributed in any manner except as authorized under a valid written agreemen/ },
-                { name: 'undocumented NNC data', value: /^(\xC0|\xBC)\x0F\x00\x00ENNC/ },
+                { name: 'undocumented NNC data', value: /^((\xC0|\xBC)\x0F\x00\x00ENNC|NNC3)/ },
                 { name: 'undocumented RKNX data', value: /^RKNX\x00\x00\x00\x00/ },
                 { name: 'V8 context snapshot', value: /^.\x00\x00\x00.\x00\x00\x00/, identifier: /^v8_context_snapshot\.bin/ },
                 { name: 'V8 natives blob', value: /^./, identifier: /^natives_blob\.bin/ },
