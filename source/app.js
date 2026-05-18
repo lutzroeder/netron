@@ -29,6 +29,13 @@ app.Application = class {
         electron.app.setAppUserModelId('com.lutzroeder.netron');
         electron.app.allowRendererProcessReuse = true;
 
+        // Workaround electron/electron#50419 only available in Electron 43
+        if (process.platform === 'darwin') {
+            electron.app.commandLine.appendSwitch('use-mock-keychain');
+        } else if (process.platform === 'linux') {
+            electron.app.commandLine.appendSwitch('password-store', 'basic');
+        }
+
         if (!electron.app.requestSingleInstanceLock()) {
             electron.app.quit();
             return;
