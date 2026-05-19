@@ -5104,7 +5104,7 @@ _.OperationParser = class extends _.Parser {
         const dialect = this.context.getOrLoadDialect(dialectName);
         if (!dialect) {
             if (this.context.undocumented(dialectName)) {
-                this.emitError(nameLoc, `Private dialect '${dialectName}'`);
+                this.emitError(nameLoc, `Undocumented dialect '${dialectName}'`);
             } else {
                 this.emitError(nameLoc, `Unsupported dialect '${dialectName}'`);
             }
@@ -5565,7 +5565,7 @@ _.AsmParser = class {
             const dialect = this.parser.context.getOrLoadDialect(dialectName);
             if (!dialect) {
                 if (this.parser.context.undocumented(dialectName)) {
-                    this.emitError(`Private dialect '${dialectName}'`);
+                    this.emitError(`Undocumented dialect '${dialectName}'`);
                 } else {
                     this.emitError(`Unsupported dialect '${dialectName}'`);
                 }
@@ -7028,7 +7028,7 @@ _.AttrTypeReader = class {
         }
         if (!entry.dialect.interface) {
             if (context.undocumented(entry.dialect.name)) {
-                throw new mlir.Error(`Private dialect '${entry.dialect.name}'.`);
+                throw new mlir.Error(`Undocumented dialect '${entry.dialect.name}'.`);
             } else {
                 throw new mlir.Error(`Unsupported dialect '${entry.dialect.name}'.`);
             }
