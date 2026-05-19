@@ -258,6 +258,11 @@ MNN.SparseCommon = class SparseCommon {
     }
 };
 
+MNN.ScaleStorageType = {
+    FP32: 0, '0': 'FP32',
+    FP16: 1, '1': 'FP16'
+};
+
 MNN.IDSTQuan = class IDSTQuan {
 
     static decode(reader, position) {
@@ -276,6 +281,8 @@ MNN.IDSTQuan = class IDSTQuan {
         $.shapeInt32 = reader.bool_(position, 26, false);
         $.weightSize = reader.uint32_(position, 28, 0);
         $.index = reader.array(position, 30, Uint32Array);
+        $.alphaFp16 = reader.array(position, 32, Uint16Array);
+        $.scaleStorage = reader.int8_(position, 34, 0);
         return $;
     }
 
@@ -295,6 +302,8 @@ MNN.IDSTQuan = class IDSTQuan {
         $.shapeInt32 = reader.value(json.shapeInt32, false);
         $.weightSize = reader.value(json.weightSize, 0);
         $.index = reader.array(json.index, Uint32Array);
+        $.alphaFp16 = reader.array(json.alphaFp16, Uint16Array);
+        $.scaleStorage = MNN.ScaleStorageType[json.scaleStorage];
         return $;
     }
 };
