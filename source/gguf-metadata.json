@@ -3224,7 +3224,13 @@
         { "name": "ffn_down", "type": "MUL_MAT" },
         { "name": "attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output", "attn_qkv"] },
         { "name": "attn_gate" },
-        { "name": "ssm", "tensors": ["ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] }
+        { "name": "ssm", "tensors": ["ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -3264,7 +3270,13 @@
         { "name": "ffn_down_shexp" },
         { "name": "ffn_gate_shexp" },
         { "name": "ffn_gate_up_exps" },
-        { "name": "ssm", "tensors": ["ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] }
+        { "name": "ssm", "tensors": ["ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },

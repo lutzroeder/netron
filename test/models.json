@@ -2241,7 +2241,7 @@
     "source":   "https://github.com/user-attachments/files/25527190/flan-t5-small-q2_k.gguf.zip[flan-t5-small-q2_k.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
-    "assert":   "model.modules[0].nodes[70].type.name == 'CROSS_ATTENTION'",
+    "assert":   "model.modules[0].nodes[69].type.name == 'CROSS_ATTENTION'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {

@@ -978,39 +978,44 @@ gguf.Context = class {
                 }
             }
         }
-        // Section builder: global inputs, structured blocks, global outputs,
-        // optionally prefixed (for T5 enc/dec subgraphs).
-        const buildSection = (prefix, blockType, indices) => {
-            const fullPrefix = (name) => prefix ? `${prefix}.${name}` : name;
-            for (const name of globalPrefixes) {
-                const weights = collectWeights(fullPrefix(name));
+        // Section builder phases — inputs/blocks/outputs are split so encoder-decoder
+        // archs can defer global outputs until after enc/dec sections.
+        const fullPrefix = (prefix, name) => prefix ? `${prefix}.${name}` : name;
+        const sectionFlat = (prefix, names) => {
+            for (const name of names) {
+                const key = fullPrefix(prefix, name);
+                const weights = collectWeights(key);
                 if (weights.size > 0) {
-                    pushFlat(fullPrefix(name), weights);
+                    pushFlat(key, weights);
                 }
             }
+        };
+        const sectionBlocks = (prefix, blockType, indices) => {
             for (const i of indices) {
-                const blockPrefix = fullPrefix(`blk.${i}`);
+                const blockPrefix = fullPrefix(prefix, `blk.${i}`);
                 const blockLayers = buildBlockLayers(blockPrefix);
                 if (blockLayers.length > 0) {
                     layers.push({ name: blockPrefix, type: blockType, layers: blockLayers, metadata: new Map(), weights: new Map() });
                 }
             }
-            for (const name of outputPrefixes) {
-                const weights = collectWeights(fullPrefix(name));
-                if (weights.size > 0) {
-                    pushFlat(fullPrefix(name), weights);
-                }
-            }
         };
         const archName = this._architecture;
-        buildSection('', archName, expandIndices(blockIndices));
+        const subgraphs = [];
         for (const [encPrefix, label] of [['enc', 'Encoder'], ['dec', 'Decoder']]) {
             const subgraph = archDef && archDef.graph ? archDef.graph[encPrefix === 'enc' ? 'encoder' : 'decoder'] : null;
             const indices = expandIndices(encDecIndices.get(encPrefix));
             if (subgraph || indices.length > 0) {
-                buildSection(encPrefix, `${archName} ${label}`, indices);
+                subgraphs.push({ prefix: encPrefix, label, indices });
             }
         }
+        sectionFlat('', globalPrefixes);
+        sectionBlocks('', archName, expandIndices(blockIndices));
+        for (const sg of subgraphs) {
+            sectionFlat(sg.prefix, globalPrefixes);
+            sectionBlocks(sg.prefix, `${archName} ${sg.label}`, sg.indices);
+            sectionFlat(sg.prefix, outputPrefixes);
+        }
+        sectionFlat('', outputPrefixes);
         // Flush unclaimed tensors as flat 'weights' nodes, grouping by tensor key.
         for (const [name, tensor] of tensors) {
             if (!claimed.has(name)) {
