@@ -293,7 +293,7 @@ view.View = class {
                 this._find = state;
             });
             sidebar.on('select', (sender, value) => {
-                this._target.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value], 'sidebar'));
             });
             sidebar.on('focus', (sender, value) => {
                 this._target.focus([value]);
@@ -302,8 +302,7 @@ view.View = class {
                 this._target.blur([value]);
             });
             sidebar.on('activate', (sender, value) => {
-                this._sidebar.close();
-                this._target.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value, 'sidebar'));
             });
             this._sidebar.open(sidebar, 'Find');
         }
@@ -1110,10 +1109,10 @@ view.View = class {
                 this._target.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this._target.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value], 'sidebar'));
             });
             sidebar.on('activate', (sender, value) => {
-                this._target.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value, 'sidebar'));
             });
             sidebar.on('deactivate', () => {
                 this._target.select(null);
@@ -1139,7 +1138,7 @@ view.View = class {
         }
     }
 
-    showNodeProperties(node) {
+    showNodeProperties(node, source) {
         if (node) {
             try {
                 if (this._menu) {
@@ -1156,19 +1155,19 @@ view.View = class {
                     this._target.blur([value]);
                 });
                 sidebar.on('select', (sender, value) => {
-                    this._target.scrollTo(this._target.select([value]));
+                    this._target.scrollTo(this._target.select([value], 'sidebar'));
                 });
                 sidebar.on('activate', (sender, value) => {
-                    this._target.scrollTo(this._target.activate(value));
+                    this._target.scrollTo(this._target.activate(value, 'sidebar'));
                 });
-                this._sidebar.open(sidebar, 'Node Properties');
+                this._sidebar.open(sidebar, 'Node Properties', source);
             } catch (error) {
                 this.error(error, 'Error showing node properties.', null);
             }
         }
     }
 
-    showConnectionProperties(value, from, to) {
+    showConnectionProperties(value, from, to, source) {
         try {
             if (this._menu) {
                 this._menu.close();
@@ -1181,18 +1180,18 @@ view.View = class {
                 this._target.blur([value]);
             });
             sidebar.on('select', (sender, value) => {
-                this._target.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value], 'sidebar'));
             });
             sidebar.on('activate', (sender, value) => {
-                this._target.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value, 'sidebar'));
             });
-            this._sidebar.push(sidebar, 'Connection Properties');
+            this._sidebar.open(sidebar, 'Connection Properties', source);
         } catch (error) {
             this.error(error, 'Error showing connection properties.', null);
         }
     }
 
-    showTensorProperties(value) {
+    showTensorProperties(value, source) {
         try {
             if (this._menu) {
                 this._menu.close();
@@ -1205,12 +1204,12 @@ view.View = class {
                 this._target.blur(null);
             });
             sidebar.on('select', (sender, value) => {
-                this._target.scrollTo(this._target.select([value]));
+                this._target.scrollTo(this._target.select([value], 'sidebar'));
             });
             sidebar.on('activate', (sender, value) => {
-                this._target.scrollTo(this._target.activate(value));
+                this._target.scrollTo(this._target.activate(value, 'sidebar'));
             });
-            this._sidebar.push(sidebar, 'Tensor Properties');
+            this._sidebar.open(sidebar, 'Tensor Properties', source);
         } catch (error) {
             this.error(error, 'Error showing tensor properties.', null);
         }
@@ -1234,7 +1233,7 @@ view.View = class {
                     this._host.openURL(e.link);
                 });
                 const title = type.type === 'function' ? 'Function Documentation' : 'Documentation';
-                this._sidebar.push(sidebar, title);
+                this._sidebar.open(sidebar, title, 'sidebar');
             }
         }
     }
@@ -2379,7 +2378,7 @@ view.Graph = class extends grapher.Graph {
         }
     }
 
-    select(selection) {
+    select(selection, source) {
         if (selection && this.view.target && this.view.target !== this) {
             this.view.target.clearSelection();
         } else {
@@ -2394,19 +2393,19 @@ view.Graph = class extends grapher.Graph {
                     this._selection.add(element);
                 }
             }
-            this.emit('selectionchange');
+            this.emit('selectionchange', source);
             return array;
         }
-        this.emit('selectionchange');
+        this.emit('selectionchange', source);
         return null;
     }
 
-    activate(value) {
+    activate(value, source) {
         if (this._table.has(value)) {
-            this.select(null);
+            this.select(null, source);
             const element = this._table.get(value);
-            element.activate();
-            return this.select([value]);
+            element.activate(source);
+            return this.select([value], source);
         }
         return [];
     }
@@ -2848,7 +2847,7 @@ view.Node = class extends grapher.Node {
         title.content = content;
         title.tooltip = tooltip;
         title.on('click', () => {
-            this.context.activate(value);
+            this.context.activate(value, 'target');
         });
         if (type === 'graph') {
             this.definition = header.add(null, styles);
@@ -2888,7 +2887,7 @@ view.Node = class extends grapher.Node {
         const list = () => {
             if (!current) {
                 current = this.list();
-                current.on('click', () => this.context.activate(node));
+                current.on('click', () => this.context.activate(node, 'target'));
             }
             return current;
         };
@@ -3012,8 +3011,8 @@ view.Node = class extends grapher.Node {
         }
     }
 
-    activate() {
-        this.context.view.showNodeProperties(this.value);
+    activate(source) {
+        this.context.view.showNodeProperties(this.value, source);
     }
 
     edge(to) {
@@ -3246,13 +3245,13 @@ view.Value = class {
         }
     }
 
-    activate() {
+    activate(source) {
         if (this.value && this.from && Array.isArray(this.to) && !this.value.initializer) {
             const from = this.from.value;
             const to = this.to.map((node) => node.value);
-            this.context.view.showConnectionProperties(this.value, from, to);
+            this.context.view.showConnectionProperties(this.value, from, to, source);
         } else if (this.value && this.value.initializer) {
-            this.context.view.showTensorProperties({ value: [this.value] });
+            this.context.view.showTensorProperties({ value: [this.value] }, source);
         }
     }
 };
@@ -3288,8 +3287,8 @@ view.Argument = class extends grapher.Argument {
         this.context.blur([this.value]);
     }
 
-    activate() {
-        this.context.view.showTensorProperties(this.value);
+    activate(source) {
+        this.context.view.showTensorProperties(this.value, source);
     }
 };
 
@@ -3317,7 +3316,7 @@ view.Edge = class extends grapher.Edge {
     }
 
     activate() {
-        this.value.context.activate(this.value.value);
+        this.value.context.activate(this.value.value, 'target');
     }
 };
 
@@ -3326,13 +3325,20 @@ view.Sidebar = class {
     constructor(host) {
         this._host = host;
         this._stack = [];
-        const pop = () => this._update(this._stack.slice(0, -1));
-        this._closeSidebarHandler = () => pop();
+        this._closeSidebarHandler = () => this.close();
         this._closeSidebarKeyDownHandler = (e) => {
-            if (e.keyCode === 27) {
+            if (e.keyCode === 27) { // Escape
                 e.stopPropagation();
                 e.preventDefault();
-                pop();
+                this.close();
+            } else if (e.keyCode === 8 && this._stack.length > 1) { // Backspace
+                const active = this._host.document.activeElement;
+                const tag = active ? active.tagName : '';
+                if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !(active && active.isContentEditable)) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this._update(this._stack.slice(0, -1));
+                }
             }
         };
         const sidebar = this._element('sidebar');
@@ -3348,20 +3354,19 @@ view.Sidebar = class {
         return this._host.document.getElementById(id);
     }
 
-    open(content, title) {
+    open(content, title, source) {
         const element = this._render(content);
         const entry = { title, element, content };
-        this._update([entry]);
+        if (source === 'sidebar') {
+            const depth = 10;
+            this._update(this._stack.concat(entry).slice(-depth));
+        } else {
+            this._update([entry]);
+        }
     }
 
     close() {
         this._update([]);
-    }
-
-    push(content, title) {
-        const element = this._render(content);
-        const entry = { title, content, element };
-        this._update(this._stack.concat(entry));
     }
 
     get identifier() {
@@ -4882,10 +4887,7 @@ view.FindSidebar = class extends view.Control {
     }
 
     _reset() {
-        for (const element of this._focused) {
-            this._blur(element);
-        }
-        this._focused.clear();
+        this._focus(null);
         this._table.clear();
         this._content.replaceChildren();
         this._edges.clear();
@@ -5023,18 +5025,51 @@ view.FindSidebar = class extends view.Control {
         this._content.appendChild(element);
     }
 
-    _focus(element) {
-        if (this._table.has(element)) {
-            this.emit('focus', this._table.get(element));
-            this._focused.add(element);
+    _focus(element, event) {
+        if (this._cursor === element) {
+            return;
+        }
+        if (this._cursor) {
+            this._cursor.classList.remove('focus');
+            this.emit('blur', this._table.get(this._cursor));
+        }
+        this._cursor = element;
+        if (element) {
+            element.classList.add('focus');
+            this.emit(event || 'focus', this._table.get(element));
+            element.scrollIntoView({ block: 'nearest' });
         }
     }
 
-    _blur(element) {
-        if (this._table.has(element)) {
-            this.emit('blur', this._table.get(element));
-            this._focused.delete(element);
+    _move(delta) {
+        const forward = delta > 0;
+        let count = Math.abs(delta);
+        let current = this._cursor;
+        let target = null;
+        while (count > 0) {
+            let sibling = null;
+            if (current) {
+                sibling = forward ? current.nextElementSibling : current.previousElementSibling;
+            } else {
+                sibling = forward ? this._content.firstElementChild : this._content.lastElementChild;
+            }
+            if (!sibling) {
+                break;
+            }
+            current = sibling;
+            target = sibling;
+            count--;
         }
+        if (target) {
+            this._keyboard = true;
+            this._focus(target, 'select');
+        }
+    }
+
+    _page() {
+        const child = this._content.firstElementChild;
+        const height = child ? child.offsetHeight : 0;
+        return height > 0 ? Math.max(1, Math.floor(this._content.clientHeight / height)) : 1;
     }
 
     _update() {
@@ -5068,12 +5103,15 @@ view.FindSidebar = class extends view.Control {
 
     render() {
         this._table = new Map();
-        this._focused = new Set();
+        this._cursor = null;
+        this._active = null;
         this._edges = new Set();
+        this._keyboard = false;
         this._search = this.createElement('div', 'sidebar-find-search');
         this._query = this.createElement('input', 'sidebar-find-query');
         this._search.appendChild(this._query);
         this._content = this.createElement('ol', 'sidebar-find-content');
+        this._content.setAttribute('tabindex', '-1');
         this._elements = [this._query, this._content];
         this._query.setAttribute('id', 'search');
         this._query.setAttribute('type', 'text');
@@ -5087,6 +5125,12 @@ view.FindSidebar = class extends view.Control {
         this._query.addEventListener('keydown', (e) => {
             if (e.keyCode === 0x08 && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
                 e.stopPropagation();
+            } else if (e.keyCode === 0x28 && this._content.children.length > 0) { // Down
+                e.preventDefault();
+                e.stopPropagation();
+                this._focus(null);
+                this._content.focus();
+                this._move(1);
             }
         });
         for (const [name, toggle] of Object.entries(this._toggles)) {
@@ -5107,21 +5151,64 @@ view.FindSidebar = class extends view.Control {
             toggle.element.insertBefore(toggle.checkbox, toggle.element.firstChild);
             this._search.appendChild(toggle.element);
         }
+        this._content.addEventListener('keydown', (e) => {
+            if (e.keyCode === 0x28) { // Down
+                e.preventDefault();
+                e.stopPropagation();
+                this._move(1);
+            } else if (e.keyCode === 0x26) { // Up
+                e.preventDefault();
+                e.stopPropagation();
+                if (!this._cursor || this._cursor === this._content.firstChild) {
+                    this._focus(null);
+                    this._query.focus();
+                } else {
+                    this._move(-1);
+                }
+            } else if (e.keyCode === 0x22) { // Page Down
+                e.preventDefault();
+                e.stopPropagation();
+                this._move(this._page());
+            } else if (e.keyCode === 0x21) { // Page Up
+                e.preventDefault();
+                e.stopPropagation();
+                this._move(-this._page());
+            } else if (e.keyCode === 0x0D && this._cursor) { // Enter
+                e.preventDefault();
+                e.stopPropagation();
+                this._active = this._table.get(this._cursor);
+                this.emit('activate', this._active);
+            }
+        });
         this._content.addEventListener('click', (e) => {
             if (this._table.has(e.target)) {
+                this._keyboard = false;
                 this.emit('select', this._table.get(e.target));
             }
         });
         this._content.addEventListener('dblclick', (e) => {
             if (this._table.has(e.target)) {
-                this.emit('activate', this._table.get(e.target));
+                this._keyboard = false;
+                this._active = this._table.get(e.target);
+                this.emit('activate', this._active);
+            }
+        });
+        this._content.addEventListener('pointermove', (e) => {
+            this._keyboard = false;
+            if (this._table.has(e.target)) {
+                this._focus(e.target);
             }
         });
         this._content.addEventListener('pointerover', (e) => {
-            for (const element of this._focused) {
-                this._blur(element);
+            if (!this._keyboard && this._table.has(e.target)) {
+                this._focus(e.target);
             }
-            this._focus(e.target);
+        });
+        this._content.addEventListener('pointerleave', () => {
+            this._keyboard = false;
+            if (this._host.document.activeElement !== this._content) {
+                this._focus(null);
+            }
         });
     }
 
@@ -5130,7 +5217,6 @@ view.FindSidebar = class extends view.Control {
     }
 
     activate() {
-        this._query.focus();
         this._query.value = '';
         this._query.value = this._state.query;
         for (const [name, toggle] of Object.entries(this._toggles)) {
@@ -5138,6 +5224,22 @@ view.FindSidebar = class extends view.Control {
             toggle.element.setAttribute('title', this._state[name] ? toggle.hide : toggle.show);
         }
         this._update();
+        let cursor = null;
+        if (this._active) {
+            for (const [element, value] of this._table) {
+                if (value === this._active) {
+                    cursor = element;
+                    break;
+                }
+            }
+        }
+        if (cursor) {
+            this._keyboard = true;
+            this._content.focus();
+            this._focus(cursor, 'select');
+        } else {
+            this._query.focus();
+        }
         this._host.event('open_sidebar', {
             sidebar_identifier: this.identifier,
             sidebar_size: this._table.size
