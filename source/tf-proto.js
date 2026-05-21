@@ -9800,6 +9800,7 @@ tensorflow.BatchingOptions = class BatchingOptions {
 
     constructor() {
         this.allowed_batch_sizes = [];
+        this.low_priority_allowed_batch_sizes = [];
     }
 
     static decode(reader, length) {
@@ -9828,6 +9829,18 @@ tensorflow.BatchingOptions = class BatchingOptions {
                     break;
                 case 7:
                     message.mixed_priority_batching_policy = reader.string();
+                    break;
+                case 8:
+                    message.low_priority_max_batch_size = reader.int32();
+                    break;
+                case 9:
+                    message.low_priority_batch_timeout_micros = reader.int32();
+                    break;
+                case 10:
+                    message.low_priority_allowed_batch_sizes = reader.array(message.low_priority_allowed_batch_sizes, () => reader.int32(), tag);
+                    break;
+                case 11:
+                    message.low_priority_max_enqueued_batches = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -9864,6 +9877,18 @@ tensorflow.BatchingOptions = class BatchingOptions {
                 case "mixed_priority_batching_policy":
                     message.mixed_priority_batching_policy = reader.string();
                     break;
+                case "low_priority_max_batch_size":
+                    message.low_priority_max_batch_size = reader.int32();
+                    break;
+                case "low_priority_batch_timeout_micros":
+                    message.low_priority_batch_timeout_micros = reader.int32();
+                    break;
+                case "low_priority_allowed_batch_sizes":
+                    reader.array(message.low_priority_allowed_batch_sizes, () => reader.int32());
+                    break;
+                case "low_priority_max_enqueued_batches":
+                    message.low_priority_max_enqueued_batches = reader.int32();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9895,6 +9920,18 @@ tensorflow.BatchingOptions = class BatchingOptions {
         if ('mixedPriorityBatchingPolicy' in obj) {
             message.mixed_priority_batching_policy = obj.mixedPriorityBatchingPolicy;
         }
+        if ('lowPriorityMaxBatchSize' in obj) {
+            message.low_priority_max_batch_size = Number(obj.lowPriorityMaxBatchSize);
+        }
+        if ('lowPriorityBatchTimeoutMicros' in obj) {
+            message.low_priority_batch_timeout_micros = Number(obj.lowPriorityBatchTimeoutMicros);
+        }
+        if ('lowPriorityAllowedBatchSizes' in obj) {
+            message.low_priority_allowed_batch_sizes = obj.lowPriorityAllowedBatchSizes.map((obj) => Number(obj));
+        }
+        if ('lowPriorityMaxEnqueuedBatches' in obj) {
+            message.low_priority_max_enqueued_batches = Number(obj.lowPriorityMaxEnqueuedBatches);
+        }
         return message;
     }
 };
@@ -9905,6 +9942,9 @@ tensorflow.BatchingOptions.prototype.batch_timeout_micros = 0;
 tensorflow.BatchingOptions.prototype.max_enqueued_batches = 0;
 tensorflow.BatchingOptions.prototype.enable_large_batch_splitting = false;
 tensorflow.BatchingOptions.prototype.mixed_priority_batching_policy = "";
+tensorflow.BatchingOptions.prototype.low_priority_max_batch_size = 0;
+tensorflow.BatchingOptions.prototype.low_priority_batch_timeout_micros = 0;
+tensorflow.BatchingOptions.prototype.low_priority_max_enqueued_batches = 0;
 
 tensorflow.CoordinatedJob = class CoordinatedJob {
 
