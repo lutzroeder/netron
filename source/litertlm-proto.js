@@ -456,6 +456,9 @@ litert.lm.proto.Gemma4 = class Gemma4 {
                 case 4:
                     message.end_of_audio_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
                     break;
+                case 19:
+                    message.skip_mel_spectrogram_extraction = reader.bool();
+                    break;
                 case 5:
                     message.code_fence_start = reader.string();
                     break;
@@ -503,6 +506,7 @@ litert.lm.proto.Gemma4.prototype.max_num_patches = 0;
 litert.lm.proto.Gemma4.prototype.pooling_kernel_size = 0;
 litert.lm.proto.Gemma4.prototype.start_of_audio_token = null;
 litert.lm.proto.Gemma4.prototype.end_of_audio_token = null;
+litert.lm.proto.Gemma4.prototype.skip_mel_spectrogram_extraction = false;
 litert.lm.proto.Gemma4.prototype.code_fence_start = "";
 litert.lm.proto.Gemma4.prototype.code_fence_end = "";
 litert.lm.proto.Gemma4.prototype.syntax_type = "";
