@@ -1056,10 +1056,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/mlir-dace/design/mlir/stream.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/symbol.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/transient_array.mlir',
-        'third_party/source/mlir/mlir-dace/test/SDFG/Converter/toSDFG/llvm/load.mlir',
-        'third_party/source/mlir/mlir-dace/test/SDFG/Converter/toSDFG/llvm/store.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/consume/too_many_params.mlir',
-        'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/memlet/explicit_tile.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/state/missing_identifier.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/state/missing_region.mlir',
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/tasklet/missing_return_type.mlir',
@@ -1098,18 +1095,19 @@ const test = async (pattern) => {
         'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
         'third_party/test/mlir/sample.mlir',
     ]);
-    const readRunHeader = async (filePath) => {
+    const readHeader = async (filePath) => {
         const handle = await fs.open(filePath, 'r');
-        const buffer = new Uint8Array(256);
-        await handle.read(buffer, 0, 256, 0);
+        const stat = await handle.stat();
+        const buffer = new Uint8Array(Math.min(stat.size, 65536));
+        await handle.read(buffer, 0, buffer.length, 0);
         await handle.close();
-        const content = new TextDecoder().decode(buffer).split('\n')[0];
-        return content.startsWith('// RUN:') ? content : null;
+        return new TextDecoder().decode(buffer);
     };
     for (const file of allFiles) {
         // eslint-disable-next-line no-await-in-loop
-        const run = await readRunHeader(file);
-        if (run?.includes('mlir-translate --import-wasm')) {
+        const header = await readHeader(file);
+        const run = header.split('\n')[0];
+        if (run.startsWith('// RUN:') && run.includes('mlir-translate --import-wasm') || /^\/\/\s*XFAIL:\s*\*/m.test(header)) {
             invalidFiles.add(file);
         } else {
             validFiles.add(file);
