@@ -960,7 +960,9 @@ gguf.Context = class {
         // no arch metadata is loaded). Arch-specific entries from
         // gguf-metadata.json's `graph.input` / `graph.output` are unioned in.
         const globalPrefixes = new Set(['token_embd', 'token_types', 'token_embd_norm', 'position_embd', 'rope_freqs']);
-        const outputPrefixes = new Set(['output_norm', 'output']);
+        // Output prefixes follow metadata declaration order; the hardcoded
+        // defaults are appended last as the no-metadata fallback.
+        const outputPrefixes = new Set();
         const collectNames = (set, section) => {
             if (section) {
                 for (const entry of section) {
@@ -976,6 +978,15 @@ gguf.Context = class {
                     collectNames(globalPrefixes, sub.input);
                     collectNames(outputPrefixes, sub.output);
                 }
+            }
+        }
+        outputPrefixes.add('output_norm');
+        outputPrefixes.add('output');
+        if (archDef && archDef.graph) {
+            // An explicit `output` placement wins over the hardcoded global
+            // defaults (e.g. LFM2 stores its final norm as `token_embd_norm`).
+            for (const name of outputPrefixes) {
+                globalPrefixes.delete(name);
             }
         }
         // Section builder phases — inputs/blocks/outputs are split so encoder-decoder

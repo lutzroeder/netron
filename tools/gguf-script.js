@@ -94,6 +94,10 @@ const generate = (archName, tensorList, tensorNames, existing) => {
     const groupOf = new Map();
     const overlays = new Map();
     const sectionOrder = new Map();
+    // Track where the curator placed each group so a deliberate section move
+    // survives regeneration (e.g. LFM2 stores its output norm under the tensor
+    // name `token_embd_norm`, but the curator places it in `output`).
+    const curatorSection = new Map();
     const ingest = (sectionName, list) => {
         if (!Array.isArray(list)) {
             return;
@@ -106,15 +110,23 @@ const generate = (archName, tensorList, tensorNames, existing) => {
                 groupOf.set(t, entry.name);
             }
             sectionOverlays.set(entry.name, entry);
+            curatorSection.set(entry.name, sectionName);
             order.push(entry.name);
         }
         overlays.set(sectionName, sectionOverlays);
         sectionOrder.set(sectionName, order);
     };
     if (existing && existing.graph) {
-        ingest('input', existing.graph.input);
-        ingest('blocks', existing.graph.blocks);
-        ingest('output', existing.graph.output);
+        for (const key of ['input', 'blocks', 'output']) {
+            ingest(key, existing.graph[key]);
+        }
+        for (const sub of ['encoder', 'decoder']) {
+            if (existing.graph[sub]) {
+                for (const key of ['input', 'blocks', 'output']) {
+                    ingest(`${sub}.${key}`, existing.graph[sub][key]);
+                }
+            }
+        }
     }
     const sectionGroups = new Map();
     const upstreamOrder = new Map();
@@ -123,8 +135,9 @@ const generate = (archName, tensorList, tensorNames, existing) => {
         if (!template) {
             continue;
         }
-        const { section, bare } = classify(template);
+        const { section: defaultSection, bare } = classify(template);
         const group = groupOf.get(bare) || bare;
+        const section = curatorSection.get(group) || defaultSection;
         if (!sectionGroups.has(section)) {
             sectionGroups.set(section, new Map());
             upstreamOrder.set(section, []);
