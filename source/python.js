@@ -19626,7 +19626,8 @@ python.Execution = class {
             constructor(obj) {
                 super(obj);
                 if (this.type === 'as_tensor') {
-                    this.as_tensor = new torch._export.serde.schema.TensorArgument({ name: this.as_tensor });
+                    const value = typeof this.as_tensor === 'string' ? { name: this.as_tensor } : this.as_tensor;
+                    this.as_tensor = new torch._export.serde.schema.TensorArgument(value);
                 } else if (this.type === 'as_none') {
                     this.as_none = null;
                 } else {
