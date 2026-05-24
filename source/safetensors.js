@@ -138,6 +138,7 @@ safetensors.TensorType = class {
             case 'BOOL':    this.dataType = 'boolean'; break;
             case 'F8_E4M3': this.dataType = 'float8e4m3fn'; break;
             case 'F8_E5M2': this.dataType = 'float8e5m2'; break;
+            case 'F8_E8M0': this.dataType = 'float8e8m0'; break;
             default: throw new safetensors.Error(`Unsupported data type '${dtype}'.`);
         }
         this.shape = shape;
