@@ -9986,9 +9986,10 @@ _.Dialect = class {
                 break;
             }
             case 'functional_type': {
+                const typeLoc = parser.getCurrentLocation().copy();
                 const type = parser.parseType();
-                if (!(type instanceof _.FunctionType)) {
-                    throw new mlir.Error('Invalid functional-type function type.');
+                if (type instanceof _.FunctionType === false) {
+                    parser.emitError(typeLoc, 'Expected function type');
                 }
                 // Distribute input types to operands in metadata order
                 let typeIndex = 0;
