@@ -760,6 +760,9 @@ vulkan.Reader = class {
 
     constant(id) {
         const constant = this.graph.constants[id];
+        if (constant.named_key && constant.offset === 0xffffffffffffffffn) {
+            return this.target.segment(constant.named_key);
+        }
         const offset = constant.offset;
         const length = constant.length;
         this.reader.seek(this.constants.offset + offset.toNumber());
