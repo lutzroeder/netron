@@ -3611,5 +3611,27 @@
         { "name": "output", "type": "MUL_MAT" }
       ]
     }
+  },
+  {
+    "name": "talkie",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_q" },
+        { "name": "attn_q_norm" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "layer_output_scale" }
+      ],
+      "output": [
+        { "name": "output" }
+      ]
+    }
   }
 ]

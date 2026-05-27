@@ -4690,13 +4690,15 @@ view.TargetSidebar = class extends view.ObjectSidebar {
         if (Array.isArray(inputs) && inputs.length > 0) {
             this.addSection('Inputs');
             for (const input of inputs) {
-                this.addArgument(input.name, input);
+                const value = this.addArgument(input.name, input);
+                value.toggle();
             }
         }
         if (Array.isArray(outputs) && outputs.length > 0) {
             this.addSection('Outputs');
             for (const output of outputs) {
-                this.addArgument(output.name, output);
+                const value = this.addArgument(output.name, output);
+                value.toggle();
             }
         }
         const metadata = this._view.model.attachment.metadata.graph(target);
@@ -4722,12 +4724,6 @@ view.TargetSidebar = class extends view.ObjectSidebar {
 
     get identifier() {
         return 'target';
-    }
-
-    addArgument(name, argument, source) {
-        const value = super.addArgument(name, argument, source);
-        value.toggle();
-        return value;
     }
 };
 

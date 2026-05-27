@@ -8,7 +8,7 @@ const rootDir = path.resolve(dirname, '..');
 const constantsPath = path.join(rootDir, 'third_party/source/llama.cpp/gguf-py/gguf/constants.py');
 const metadataPath = path.join(rootDir, 'source/gguf-metadata.json');
 
-const overlayKeys = ['type', 'category', 'tensors', 'position_encoding', 'has_bias', 'has_qk_norm'];
+const overlayKeys = ['type', 'category', 'tensors', 'attributes', 'position_encoding', 'has_bias', 'has_qk_norm'];
 
 const parseConstants = (text) => {
     const block = (name) => {
