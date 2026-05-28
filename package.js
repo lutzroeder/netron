@@ -227,6 +227,7 @@ const install = async () => {
     if (!exists) {
         await exec('npm install');
     }
+    await exec('npx install-electron');
     try {
         await exec('python --version', 'utf-8');
         await exec('python -m pip install --upgrade --quiet setuptools ruff');
@@ -605,6 +606,7 @@ const update = async () => {
                 await exec(`git commit --quiet -m "Update to ${name} ${entry.latest}"`);
             }
         }
+        await exec('npx install-electron');
     }
     let targets = [
         'armnn',
