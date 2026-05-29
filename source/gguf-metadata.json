@@ -3633,5 +3633,53 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "deepseek32",
+    "graph": {
+      "input": [
+        { "name": "token_embd" },
+        { "name": "rope_freqs" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_q" },
+        { "name": "attn_q_a" },
+        { "name": "attn_q_b" },
+        { "name": "attn_kv_a_mqa" },
+        { "name": "attn_k_b" },
+        { "name": "attn_v_b" },
+        { "name": "attn_q_a_norm" },
+        { "name": "attn_kv_a_norm" },
+        { "name": "attn_output" },
+        { "name": "attn_rot_embd" },
+        { "name": "ffn_gate_inp" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_gate_shexp" },
+        { "name": "ffn_down_shexp" },
+        { "name": "ffn_up_shexp" },
+        { "name": "exp_probs_b" },
+        { "name": "indexer.k_norm" },
+        { "name": "indexer.proj" },
+        { "name": "indexer.attn_k" },
+        { "name": "indexer.attn_q_b" },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" }
+      ]
+    }
   }
 ]
