@@ -9842,6 +9842,9 @@ tensorflow.BatchingOptions = class BatchingOptions {
                 case 11:
                     message.low_priority_max_enqueued_batches = reader.int32();
                     break;
+                case 12:
+                    message.num_warmup_batch_threads = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9889,6 +9892,9 @@ tensorflow.BatchingOptions = class BatchingOptions {
                 case "low_priority_max_enqueued_batches":
                     message.low_priority_max_enqueued_batches = reader.int32();
                     break;
+                case "num_warmup_batch_threads":
+                    message.num_warmup_batch_threads = reader.int32();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9932,6 +9938,9 @@ tensorflow.BatchingOptions = class BatchingOptions {
         if ('lowPriorityMaxEnqueuedBatches' in obj) {
             message.low_priority_max_enqueued_batches = Number(obj.lowPriorityMaxEnqueuedBatches);
         }
+        if ('numWarmupBatchThreads' in obj) {
+            message.num_warmup_batch_threads = Number(obj.numWarmupBatchThreads);
+        }
         return message;
     }
 };
@@ -9945,6 +9954,7 @@ tensorflow.BatchingOptions.prototype.mixed_priority_batching_policy = "";
 tensorflow.BatchingOptions.prototype.low_priority_max_batch_size = 0;
 tensorflow.BatchingOptions.prototype.low_priority_batch_timeout_micros = 0;
 tensorflow.BatchingOptions.prototype.low_priority_max_enqueued_batches = 0;
+tensorflow.BatchingOptions.prototype.num_warmup_batch_threads = 0;
 
 tensorflow.CoordinatedJob = class CoordinatedJob {
 
