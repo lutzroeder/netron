@@ -1201,6 +1201,10 @@ base.Tensor = class {
                     }
                     return `${indentation}"${content}"`;
                 }
+                if (value && value.constructor === Object) {
+                    const entries = Object.entries(value).map(([key, item]) => `${key}: ${base.Tensor._stringify(item, '', indent).trimStart()}`);
+                    return `${indentation}{ ${entries.join(', ')} }`;
+                }
                 if (value && value.toString) {
                     return `${indentation}${value.toString()}`;
                 }

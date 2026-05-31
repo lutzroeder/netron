@@ -998,13 +998,66 @@ hdf5.Datatype = class {
         this._class = format & 0xf;
         switch (version) {
             case 1:
-            case 2: {
+            case 2:
+            case 3: {
                 this._flags = reader.byte() | reader.byte() << 8 | reader.byte() << 16;
                 this._size = reader.uint32();
                 switch (this._class) {
-                    case 0: { // fixed-Point
+                    case 0: { // fixed-point
                         this._bitOffset = reader.uint16();
                         this._bitPrecision = reader.uint16();
+                        break;
+                    }
+                    case 1: { // floating-point
+                        this._bitOffset = reader.uint16();
+                        this._bitPrecision = reader.uint16();
+                        this._exponentLocation = reader.byte();
+                        this._exponentSize = reader.byte();
+                        this._mantissaLocation = reader.byte();
+                        this._mantissaSize = reader.byte();
+                        this._exponentBias = reader.uint32();
+                        break;
+                    }
+                    case 2: { // time
+                        this._bitPrecision = reader.uint16();
+                        break;
+                    }
+                    case 4: { // bit field
+                        this._bitOffset = reader.uint16();
+                        this._bitPrecision = reader.uint16();
+                        break;
+                    }
+                    case 6: { // compound
+                        const count = this._flags & 0xffff;
+                        // version 1 and 2 use a 4 byte member offset, version 3 uses the number of bytes needed to store the datatype size
+                        let offsetSize = 4;
+                        if (version >= 3) {
+                            offsetSize = 0;
+                            for (let size = this._size; size > 0; size >>= 8) {
+                                offsetSize++;
+                            }
+                        }
+                        this._members = new Array(count);
+                        for (let i = 0; i < count; i++) {
+                            let name = null;
+                            let offset = 0;
+                            if (version < 3) {
+                                reader.seek(reader.position);
+                                name = reader.string(-1, 'ascii');
+                                reader.align(8); // names are padded to a multiple of 8 bytes
+                                offset = reader.uint32();
+                                if (version === 1) {
+                                    reader.skip(28); // dimensionality, reserved, permutation, reserved and dimension sizes
+                                }
+                            } else {
+                                name = reader.string(-1, 'ascii');
+                                for (let j = 0; j < offsetSize; j++) {
+                                    offset |= reader.byte() << (8 * j);
+                                }
+                            }
+                            const datatype = new hdf5.Datatype(reader);
+                            this._members[i] = { name, offset, datatype };
+                        }
                         break;
                     }
                     case 8: { // enumerated
@@ -1014,12 +1067,18 @@ hdf5.Datatype = class {
                         this._names = new Array(size);
                         for (let i = 0; i < size; i++) {
                             this._names[i] = reader.string(-1, 'ascii');
-                            reader.align(8);
+                            if (version < 3) {
+                                reader.align(8);
+                            }
                         }
                         this._values = new Array(size);
                         for (let i = 0; i < size; i++) {
                             this._values[i] = this._base.read(reader);
                         }
+                        break;
+                    }
+                    case 9: { // variable-length
+                        this._base = new hdf5.Datatype(reader);
                         break;
                     }
                     default: {
@@ -1071,7 +1130,7 @@ hdf5.Datatype = class {
             case 5: // opaque
                 return 'uint8';
             case 6: // compound
-                return 'compound';
+                return 'object';
             case 8: // enumerated
                 if (this._base.type === 'int8' &&
                     this._names.length === 2 && this._names[0] === 'FALSE' && this._names[1] === 'TRUE' &&
@@ -1133,6 +1192,16 @@ hdf5.Datatype = class {
                 }
             case 5: // opaque
                 return reader.read(this._size);
+            case 6: { // compound
+                const position = reader.position;
+                const obj = {};
+                for (const member of this._members) {
+                    reader.seek(position + member.offset);
+                    obj[member.name] = member.datatype.read(reader);
+                }
+                reader.seek(position + this._size);
+                return obj;
+            }
             case 8: // enumerated
                 return reader.read(this._size);
             case 9: // variable-length
@@ -1155,6 +1224,13 @@ hdf5.Datatype = class {
                 return data;
             case 5: // opaque
                 return data;
+            case 6: { // compound
+                const obj = {};
+                for (const member of this._members) {
+                    obj[member.name] = member.datatype.decode(data[member.name], globalHeap);
+                }
+                return obj;
+            }
             case 8: // enumerated
                 return data;
             case 9: { // variable-length

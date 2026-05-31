@@ -1195,6 +1195,9 @@ keras.Tensor = class {
             if (variable.type === 'string' || variable.type === 'object') {
                 encoding = '|';
                 data = variable.value;
+                if (Array.isArray(data)) {
+                    data = data.flat(Infinity);
+                }
             } else {
                 encoding = variable.littleEndian ? '<' : '>';
             }
