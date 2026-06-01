@@ -6201,7 +6201,7 @@ markdown.Generator = class {
                 }
                 case 'heading': {
                     const level = token.depth;
-                    html += `<h${level}">${this._renderInline(token.tokens)}</h${level}>\n`;
+                    html += `<h${level}>${this._renderInline(token.tokens)}</h${level}>\n`;
                     continue;
                 }
                 case 'code': {
