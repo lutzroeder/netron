@@ -909,7 +909,13 @@
         { "name": "ffn_gate", "type": "MUL_MAT" },
         { "name": "ffn_up", "type": "MUL_MAT" },
         { "name": "ffn_down", "type": "MUL_MAT" },
-        { "name": "ffn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_ffw_norm"] }
+        { "name": "ffn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_ffw_norm"] },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
