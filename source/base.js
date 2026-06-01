@@ -849,7 +849,7 @@ base.Tensor = class {
                             const length = context.data.length;
                             const stride = context.stride;
                             if (length < (itemsize * shape.reduce((a, v) => a * v, 1)) && !stride.every((v) => v === 0)) {
-                                const max = stride.reduce((a, v, i) => v > stride[i] ? i : a, 0);
+                                const max = stride.reduce((a, v, i) => v > stride[a] ? i : a, 0);
                                 if (length !== (itemsize * stride[max] * shape[max])) {
                                     throw new Error('Invalid tensor data size.');
                                 }
