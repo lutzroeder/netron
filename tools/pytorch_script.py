@@ -51,8 +51,8 @@ def _write_metadata(metadata):
 
 
 known_schema_definitions = [
-    "_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)", # noqa E501
     "_caffe2::BatchPermutation(Tensor X, Tensor indices, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor", # noqa E501
+    "_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)", # noqa E501
     "_caffe2::BoxWithNMSLimit(Tensor scores, Tensor boxes, Tensor batch_splits, float score_thresh, float nms, int detections_per_im, bool soft_nms_enabled, str soft_nms_method, float soft_nms_sigma, float soft_nms_min_score_thres, bool rotated, bool cls_agnostic_bbox_reg, bool input_boxes_include_bg_cls, bool output_classes_include_bg_cls, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor scores, Tensor boxes, Tensor classes, Tensor batch_splits, Tensor keeps, Tensor keeps_size)", # noqa E501
     "_caffe2::CollectAndDistributeFpnRpnProposals(Tensor[] input_list, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor rois, Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)", # noqa E501
     "_caffe2::CollectRpnProposals(Tensor[] input_list, int rpn_max_level, int rpn_min_level, int rpn_post_nms_topN, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor rois)", # noqa E501
@@ -61,105 +61,218 @@ known_schema_definitions = [
     "_caffe2::DistributeFpnProposals(Tensor rois, int roi_canonical_scale, int roi_canonical_level, int roi_max_level, int roi_min_level, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor rois_fpn2, Tensor rois_fpn3, Tensor rois_fpn4, Tensor rois_fpn5, Tensor rois_idx_restore_int32)", # noqa E501
     "_caffe2::GenerateProposals(Tensor scores, Tensor bbox_deltas, Tensor im_info, Tensor anchors, float spatial_scale, int pre_nms_topN, int post_nms_topN, float nms_thresh, float min_size, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)", # noqa E501
     "_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor", # noqa E501
+    "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)",
     "aten::_cat(Tensor[] tensors, int dim=0) -> Tensor",
+    "aten::all.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::all.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor",
+    "aten::any.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::any.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor",
     "aten::arange.start_out_(Scalar start, Scalar end) -> Tensor",
+    "aten::argsort.dimname(Tensor self, str dim, bool descending=False) -> Tensor",
+    "aten::cat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)",
+    "aten::cat.names(Tensor[] tensors, str dim) -> Tensor",
+    "aten::concat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::concat.names(Tensor[] tensors, str dim) -> Tensor",
+    "aten::concatenate.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::concatenate.names(Tensor[] tensors, str dim) -> Tensor",
+    "aten::cummax.dimname_out(Tensor self, str dim, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::cummax.dimname(Tensor self, str dim) -> (Tensor values, Tensor indices)",
+    "aten::cumprod.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::cumprod.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",
+    "aten::cumsum_.dimname(Tensor(a!) self, str dim, *, ScalarType? dtype=None) -> Tensor(a!)", # noqa E501
+    "aten::cumsum.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::cumsum.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",
+    "aten::diagonal.Dimname(Tensor(a) self, *, str outdim, str dim1, str dim2, int offset=0) -> Tensor(a)", # noqa E501
+    "aten::empty.names_out(int[] size, *, str[]? names, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::empty.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
     "aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor",
-    "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor", # noqa E501
+    "aten::flatten.DimnameList(Tensor(a) self, str[] dims, str out_dim) -> Tensor(a)",
+    "aten::flatten.named_out_dim(Tensor(a) self, int start_dim, int end_dim, str out_dim) -> Tensor(a)", # noqa E501
+    "aten::flatten.using_names(Tensor(a) self, str start_dim, str end_dim, str out_dim) -> Tensor(a)", # noqa E501
+    "aten::full.names_out(int[] size, Scalar fill_value, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::full.names(int[] size, Scalar fill_value, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::gather.dimname_out(Tensor self, str dim, Tensor index, *, bool sparse_grad=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::gather.dimname(Tensor self, str dim, Tensor index, *, bool sparse_grad=False) -> Tensor", # noqa E501
     "aten::get_num_threads() -> int",
     "aten::greater(Tensor self, Tensor other) -> Tensor",
-    "cuda::_current_device() -> int",
+    "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor", # noqa E501
+    "aten::index_add.dimname(Tensor self, str dim, Tensor index, Tensor source, *, Scalar alpha=1) -> Tensor", # noqa E501
+    "aten::index_copy_.dimname(Tensor(a!) self, str dim, Tensor index, Tensor source) -> Tensor(a!)", # noqa E501
+    "aten::index_copy.dimname(Tensor self, str dim, Tensor index, Tensor source) -> Tensor", # noqa E501
+    "aten::index_fill_.Dimname_Scalar(Tensor(a!) self, str dim, Tensor index, Scalar value) -> Tensor(a!)", # noqa E501
+    "aten::index_fill_.Dimname_Tensor(Tensor(a!) self, str dim, Tensor index, Tensor value) -> Tensor(a!)", # noqa E501
+    "aten::index_fill.Dimname_Scalar(Tensor self, str dim, Tensor index, Scalar value) -> Tensor", # noqa E501
+    "aten::index_fill.Dimname_Tensor(Tensor self, str dim, Tensor index, Tensor value) -> Tensor", # noqa E501
+    "aten::index_select.dimname_out(Tensor self, str dim, Tensor index, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::index_select.dimname(Tensor self, str dim, Tensor index) -> Tensor",
+    "aten::kthvalue.dimname_out(Tensor self, SymInt k, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::kthvalue.dimname(Tensor self, SymInt k, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
     "aten::list_with_default(int[] list, int[] defaults) -> int[]",
-    "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
+    "aten::log_softmax.Dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::logcumsumexp.dimname_out(Tensor self, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::logcumsumexp.dimname(Tensor self, str dim) -> Tensor",
+    "aten::logsumexp.names_out(Tensor self, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::logsumexp.names(Tensor self, str[1] dim, bool keepdim=False) -> Tensor",
+    "aten::max.names_dim_max(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) max, Tensor(b!) max_values) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::max.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::mean.names_dim(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::mean.names_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::median.names_dim_values(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::median.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::min.names_dim_min(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) min, Tensor(b!) min_indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::min.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::mode.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::mode.dimname(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::norm.names_dtype_out(Tensor self, Scalar? p, str[1] dim, bool keepdim, *, ScalarType dtype, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::norm.names_out(Tensor self, Scalar? p, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::norm.names_ScalarOpt_dim_dtype(Tensor self, Scalar? p, str[1] dim, bool keepdim, *, ScalarType dtype) -> Tensor", # noqa E501
+    "aten::norm.names_ScalarOpt_dim(Tensor self, Scalar? p, str[1] dim, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::ones.names_out(int[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)",
+    "aten::ones.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::prod.dim_Dimname(Tensor self, str dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::prod.Dimname_out(Tensor self, str dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::rand.generator_with_names_out(SymInt[] size, *, Generator? generator, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::rand.generator_with_names(SymInt[] size, *, Generator? generator, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::rand.names_out(SymInt[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::rand.names(SymInt[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
     "aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
+    "aten::randn.generator_with_names_out(SymInt[] size, *, Generator? generator, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::randn.generator_with_names(SymInt[] size, *, Generator? generator, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::randn.names_out(SymInt[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::randn.names(SymInt[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::scatter_add.dimname(Tensor self, str dim, Tensor index, Tensor src) -> Tensor", # noqa E501
+    "aten::scatter.dimname_src(Tensor self, str dim, Tensor index, Tensor src) -> Tensor", # noqa E501
+    "aten::scatter.dimname_value(Tensor self, str dim, Tensor index, Scalar value) -> Tensor", # noqa E501
+    "aten::select.Dimname(Tensor(a) self, str dim, int index) -> Tensor(a)",
     "aten::set_num_threads(int nthreads) -> ()",
-    "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::size.Dimname(Tensor self, str dim) -> int",
+    "aten::softmax.Dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",
+    "aten::sort.dimname_stable(Tensor self, *, bool? stable, str dim, bool descending=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::sort.dimname_values_stable(Tensor self, *, bool? stable, str dim, bool descending=False, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::sort.dimname_values(Tensor self, str dim, bool descending=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::sort.dimname(Tensor self, str dim, bool descending=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::squeeze_.dimname(Tensor(a!) self, str dim) -> Tensor(a!)",
+    "aten::squeeze.dimname(Tensor(a) self, str dim) -> Tensor(a)",
+    "aten::std_mean.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::std_mean.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::std.correction_names_out(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::std.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::std.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::std.names_out(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::stride.Dimname(Tensor self, str dim) -> int",
+    "aten::sum.dim_DimnameList(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::sum.DimnameList_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::transpose.Dimname(Tensor(a) self, str dim0, str dim1) -> Tensor(a)",
+    "aten::unbind.Dimname(Tensor(a -> *) self, str dim) -> Tensor(a)[]",
+    "aten::unflatten.Dimname(Tensor(a) self, str dim, SymInt[] sizes, str[] names) -> Tensor(a)", # noqa E501
+    "aten::var_mean.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::var_mean.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::var.correction_names_out(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::var.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::var.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::var.names_out(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::zeros.names_out(int[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)",
+    "aten::zeros.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
     "cadence::conv2d.out(Tensor input, Tensor weight, Tensor bias, int[2] stride, SymInt[2] padding, int[2] dilation, int groups, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantized_conv2d_nchw.per_tensor_out(Tensor input, Tensor weight, Tensor bias, int[] stride, SymInt[] padding, int[] dilation, int groups, int input_zero_point, int weight_zero_point, float bias_scale, float out_scale, int out_zero_point, int out_multiplier, int out_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantized_linear.out(Tensor src, Tensor weight, Tensor bias, int src_zero_point, Tensor weight_zero_point, Tensor out_multiplier, Tensor out_shift, int out_zero_point, Tensor? offset, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantized_linear.per_tensor_out(Tensor src, Tensor weight, Tensor bias, SymInt src_zero_point, SymInt weight_zero_point, SymInt out_multiplier, SymInt out_shift, SymInt out_zero_point, Tensor? offset, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantized_relu.out(Tensor X, Tensor X_zero_point, int out_zero_point, Tensor out_multiplier, Tensor out_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "cortex_m::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::dequantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "cortex_m::quantized_add.out(Tensor self, Scalar self_zero_point, Scalar self_multiplier, Scalar self_shift, Tensor other, Scalar other_zero_point, Scalar other_multiplier, Scalar other_shift, Scalar output_zero_point, Scalar output_multiplier, Scalar output_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "cortex_m::quantized_mul.out(Tensor self, Scalar self_zero_point, Tensor other, Scalar other_zero_point, Scalar output_zero_point, Scalar output_multiplier, Scalar output_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "cortex_m::minimum.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::maximum.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "cortex_m::quantized_linear.out(Tensor input, Tensor weights, Tensor? bias, Tensor? kernel_sum, Scalar input_offset, Scalar filter_offset, Scalar output_offset, int[] requantize_multipliers, int[] requantize_shifts, Scalar activation_max, Scalar activation_min, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "cortex_m::transpose.out(Tensor input, int[] perm, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::minimum.out(Tensor self, Tensor other, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_add.out(Tensor self, Scalar self_zero_point, Scalar self_multiplier, Scalar self_shift, Tensor other, Scalar other_zero_point, Scalar other_multiplier, Scalar other_shift, Scalar output_zero_point, Scalar output_multiplier, Scalar output_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_avg_pool2d.out(Tensor input, int[] kernel_size, int[] stride, int[] padding, int zero_point, int multiplier, int shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_conv2d.out(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int input_offset, int output_offset, Tensor requantize_multipliers, Tensor requantize_shifts, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_depthwise_conv2d.out(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int depth_multiplier, int input_offset, int output_offset, Tensor requantize_multipliers, Tensor requantize_shifts, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_linear.out(Tensor input, Tensor weights, Tensor? bias, Tensor? kernel_sum, Scalar input_offset, Scalar filter_offset, Scalar output_offset, int[] requantize_multipliers, int[] requantize_shifts, Scalar activation_max, Scalar activation_min, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_max_pool2d.out(Tensor input, int[] kernel_size, int[] stride, int[] padding, int[] dilation, bool ceil_mode, int input_zero_point, int output_zero_point, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::quantized_mul.out(Tensor self, Scalar self_zero_point, Tensor other, Scalar other_zero_point, Scalar output_zero_point, Scalar output_multiplier, Scalar output_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cortex_m::quantized_transpose_conv2d.out(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] output_padding, int[] dilation, int input_offset, int output_offset, Tensor requantize_multipliers, Tensor requantize_shifts, int activation_min, int activation_max, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cortex_m::transpose.out(Tensor input, int[] perm, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "cuda::_current_device() -> int",
     "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor", # noqa E501
     "detectron2::roi_align_rotated_forward(Tensor input, Tensor rois, float spatial_scale, int pooled_height, int pooled_width, int sampling_ratio) -> Tensor", # noqa E501
-    "et_vk::conv_with_clamp(Tensor input, Tensor weight, Tensor? bias, SymInt[] stride, SymInt[] padding, SymInt[] dilation, bool transposed, SymInt[] output_padding, SymInt groups, Scalar? output_min, Scalar? output_max) -> Tensor", # noqa E501
-    "et_vk::prepack(Tensor x) -> Tensor",
     "dim_order_ops::_clone_dim_order.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_empty_dim_order.out(int[] size, *, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "dim_order_ops::_to_dim_order_copy.out(Tensor self, *, bool non_blocking=False, int[]? dim_order=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "et_vk::conv_with_clamp(Tensor input, Tensor weight, Tensor? bias, SymInt[] stride, SymInt[] padding, SymInt[] dilation, bool transposed, SymInt[] output_padding, SymInt groups, Scalar? output_min, Scalar? output_max) -> Tensor", # noqa E501
+    "et_vk::prepack(Tensor x) -> Tensor",
+    "executorch_prim::add.Scalar(Scalar a, Scalar b) -> Scalar",
+    "executorch_prim::ceil.Scalar(Scalar a) -> Scalar",
+    "executorch_prim::eq.Scalar(Scalar a, Scalar b) -> bool",
     "executorch_prim::et_copy_index.tensor(Tensor(a!) copy_to, Tensor copy_from, int index) -> Tensor(a!)",  # noqa: E501
     "executorch_prim::et_view.default(Tensor self, int[] size) -> (Tensor out)",
-    "executorch_prim::add.Scalar(Scalar a, Scalar b) -> Scalar",
-    "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar",
-    "executorch_prim::mul.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::floordiv.Scalar(Scalar a, Scalar b) -> Scalar",
-    "executorch_prim::truediv.Scalar(Scalar a, Scalar b) -> Scalar",
-    "executorch_prim::sym_float.Scalar(Scalar a) -> Scalar",
-    "executorch_prim::gt.Scalar(Scalar a, Scalar b) -> bool",
-    "executorch_prim::lt.Scalar(Scalar a, Scalar b) -> bool",
     "executorch_prim::ge.Scalar(Scalar a, Scalar b) -> bool",
+    "executorch_prim::gt.Scalar(Scalar a, Scalar b) -> bool",
     "executorch_prim::le.Scalar(Scalar a, Scalar b) -> bool",
-    "executorch_prim::eq.Scalar(Scalar a, Scalar b) -> bool",
+    "executorch_prim::lt.Scalar(Scalar a, Scalar b) -> bool",
     "executorch_prim::mod.Scalar(SymInt a, SymInt b) -> SymInt",
+    "executorch_prim::mul.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::neg.Scalar(Scalar a) -> Scalar",
-    "executorch_prim::ceil.Scalar(Scalar a) -> Scalar",
     "executorch_prim::round.Scalar(Scalar a) -> Scalar",
-    "executorch_prim::trunc.Scalar(Scalar a) -> Scalar",
+    "executorch_prim::sub.Scalar(Scalar a, Scalar b) -> Scalar",
+    "executorch_prim::sym_float.Scalar(Scalar a) -> Scalar",
     "executorch_prim::sym_max.Scalar(Scalar a, Scalar b) -> Scalar",
     "executorch_prim::sym_min.Scalar(Scalar a, Scalar b) -> Scalar",
+    "executorch_prim::truediv.Scalar(Scalar a, Scalar b) -> Scalar",
+    "executorch_prim::trunc.Scalar(Scalar a) -> Scalar",
     "fbgemm::asynchronous_complete_cumsum(Tensor t_in) -> Tensor",
-    "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
-    "fbgemm::jagged_to_padded_dense(Tensor values, Tensor[] offsets, SymInt[] max_lengths, float padding_value=0.) -> Tensor", # noqa E501
-    "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
-    "fbgemm::segment_sum_csr(SymInt batch_size, Tensor csr_seg, Tensor values) -> Tensor", # noqa E501
-    "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)",
-    "fbgemm::nccl_reducescatter(Tensor dst, Tensor src, int comm_idx=0) -> ()",
-    "fbgemm::nccl_allgather(Tensor dst, Tensor src, int comm_idx=0) -> ()",
-    "fbgemm::nccl_get_unique_id() -> Tensor",
-    "fbgemm::nccl_comm_init_rank(int world_size, int rank, Tensor id_, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::bf16i4bf16_rowwise(Tensor X, Tensor WQ, Tensor w_scale, Tensor w_zp) -> Tensor", # noqa E501
     "fbgemm::car_init(int rank, int world_size, Tensor local_barrier, Tensor[] all_barrier_handles, Tensor local_buffer, Tensor[] all_buffer_handles) -> ()", # noqa E501
-    "fbgemm::gqa_attn_splitk(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int num_split_ks, int kv_cache_quant_num_groups=1, bool use_tensor_cores=True, int cache_logical_dtype_int=0) -> (Tensor, Tensor, Tensor)", # noqa E501
-    "fbgemm::i8i8bf16(Tensor XQ, Tensor WQ, float scale, int split_k=1) -> Tensor",
-    "fbgemm::dequantize_fp8_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, Tensor? qparam_k=None, Tensor? qparam_v=None) -> (Tensor, Tensor)", # noqa E501
     "fbgemm::car_ipc_handle(Tensor buffer) -> Tensor",
-    "fbgemm::nccl_init(int rank, int world_size, str rendevouz, int comm_idx=0) -> ()",
-    "fbgemm::mqa_attn(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int? num_groups=1, int cache_logical_dtype_int=0) -> Tensor", # noqa E501
     "fbgemm::car_tensor() -> Tensor",
-    "fbgemm::f8f8bf16(Tensor XQ, Tensor WQ, Tensor scale, bool use_fast_accum=True) -> Tensor", # noqa E501
-    "fbgemm::xpos_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::dequantize_fp8_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, Tensor? qparam_k=None, Tensor? qparam_v=None) -> (Tensor, Tensor)", # noqa E501
+    "fbgemm::dequantize_int4_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, int? num_groups=1) -> (Tensor, Tensor)", # noqa E501
     "fbgemm::f8f8bf16_blockwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, int block_m=128, int block_n=128, int block_k=128) -> Tensor", # noqa E501
     "fbgemm::f8f8bf16_cublas(Tensor A, Tensor B, Tensor? Ainvs=None, Tensor? Binvs=None, bool use_fast_accum=True, Tensor(a!)? output=None) -> Tensor", # noqa E501
-    "fbgemm::bf16i4bf16_rowwise(Tensor X, Tensor WQ, Tensor w_scale, Tensor w_zp) -> Tensor", # noqa E501
-    "fbgemm::nccl_alltoall(Tensor dst, Tensor src, int world_size, int comm_idx=0) -> ()", # noqa E501
-    "fbgemm::one_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
-    "fbgemm::rope_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
-    "fbgemm::silu_mul_quantize_i8(Tensor X1, Tensor X2, float scale) -> Tensor",
-    "fbgemm::get_fp8_per_tensor_scale(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor", # noqa E501
-    "fbgemm::f8i4bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor w_zp) -> Tensor", # noqa E501
     "fbgemm::f8f8bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor? bias=None, bool use_fast_accum=True, Tensor(a!)? output=None) -> Tensor", # noqa E501
-    "fbgemm::per_tensor_quantize_i8(Tensor X, float scale) -> Tensor",
-    "fbgemm::quantize_fp8_per_row(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, ScalarType? output_dtype=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
-    "fbgemm::quantize_fp8_per_col(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor[]", # noqa E501
-    "fbgemm::quantize_fp8_per_tensor_fixed_scale(Tensor input, Tensor scale, Tensor? bs=None, bool stochatic_rounding=False) -> Tensor", # noqa E501
     "fbgemm::f8f8bf16_tensorwise(Tensor XQ, Tensor WQ, float scale, bool use_fast_accum=True) -> Tensor", # noqa E501
-    "fbgemm::xpos_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::f8f8bf16(Tensor XQ, Tensor WQ, Tensor scale, bool use_fast_accum=True) -> Tensor", # noqa E501
+    "fbgemm::f8i4bf16_rowwise(Tensor XQ, Tensor WQ, Tensor x_scale, Tensor w_scale, Tensor w_zp) -> Tensor", # noqa E501
+    "fbgemm::get_fp8_per_tensor_scale(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor", # noqa E501
+    "fbgemm::gqa_attn_splitk(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int num_split_ks, int kv_cache_quant_num_groups=1, bool use_tensor_cores=True, int cache_logical_dtype_int=0) -> (Tensor, Tensor, Tensor)", # noqa E501
     "fbgemm::i8i8bf16_dynamic(Tensor XQ, Tensor WQ, Tensor scale, int split_k=1) -> Tensor", # noqa E501
-    "fbgemm::dequantize_int4_cache(Tensor cache_K, Tensor cache_V, Tensor kv_seqlen, int? num_groups=1) -> (Tensor, Tensor)", # noqa E501
-    "fbgemm::two_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::i8i8bf16(Tensor XQ, Tensor WQ, float scale, int split_k=1) -> Tensor",
+    "fbgemm::jagged_to_padded_dense(Tensor values, Tensor[] offsets, SymInt[] max_lengths, float padding_value=0.) -> Tensor", # noqa E501
+    "fbgemm::mqa_attn(Tensor XQ, Tensor cache_K, Tensor cache_V, Tensor seq_positions, float qk_scale, int? num_groups=1, int cache_logical_dtype_int=0) -> Tensor", # noqa E501
+    "fbgemm::nccl_allgather(Tensor dst, Tensor src, int comm_idx=0) -> ()",
+    "fbgemm::nccl_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::nccl_alltoall(Tensor dst, Tensor src, int world_size, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::nccl_comm_init_rank(int world_size, int rank, Tensor id_, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::nccl_get_unique_id() -> Tensor",
+    "fbgemm::nccl_init(int rank, int world_size, str rendevouz, int comm_idx=0) -> ()",
+    "fbgemm::nccl_reducescatter(Tensor dst, Tensor src, int comm_idx=0) -> ()",
+    "fbgemm::one_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::per_tensor_dynamic_quantize_i8(Tensor X) -> (Tensor, Tensor)",
+    "fbgemm::per_tensor_quantize_i8(Tensor X, float scale) -> Tensor",
+    "fbgemm::quantize_fp8_per_col(Tensor input, Tensor? bs=None, Tensor? scale_ub=None) -> Tensor[]", # noqa E501
+    "fbgemm::quantize_fp8_per_row(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, ScalarType? output_dtype=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
+    "fbgemm::quantize_fp8_per_tensor_fixed_scale(Tensor input, Tensor scale, Tensor? bs=None, bool stochatic_rounding=False) -> Tensor", # noqa E501
+    "fbgemm::quantize_fp8_per_tensor(Tensor input, Tensor? bs=None, Tensor? scale_ub=None, bool stochastic_rounding=False) -> Tensor[]", # noqa E501
     "fbgemm::rope_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::rope_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::segment_sum_csr(SymInt batch_size, Tensor csr_seg, Tensor values) -> Tensor", # noqa E501
+    "fbgemm::silu_mul_quantize_i8(Tensor X1, Tensor X2, float scale) -> Tensor",
+    "fbgemm::two_shot_car_allreduce(Tensor dst, Tensor src, Tensor? bias=None, int comm_idx=0) -> ()", # noqa E501
+    "fbgemm::xpos_qkv_decoding(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? actual_batch_size=None, Tensor? batch=None, Tensor? cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "fbgemm::xpos_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor", # noqa E501
+    "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor", # noqa E501
+    "llama::custom_sdpa.out(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "llama::custom_sdpa(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None) -> Tensor", # noqa E501
+    "llama::fast_hadamard_transform.out(Tensor mat, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "llama::sdpa_with_kv_cache.out(Tensor query, Tensor key, Tensor value, Tensor(a!) key_cache, Tensor(b!) value_cache, SymInt start_pos, SymInt seq_len, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(c!) out) -> Tensor(c!)", # noqa E501
+    "llama::sdpa_with_kv_cache(Tensor query, Tensor key, Tensor value, Tensor(a!) key_cache, Tensor(b!) value_cache, SymInt start_pos, SymInt seq_len, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None) -> Tensor", # noqa E501
+    "llama::sdpa.out(Tensor query, Tensor key, Tensor value, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "llama::update_cache_with_indices.out(Tensor value, Tensor(a!) cache, SymInt start_pos, Tensor indices, *, Tensor(b!) out) -> Tensor(b!)", # noqa E501
+    "llama::update_cache_with_indices(Tensor value, Tensor(a!) cache, SymInt start_pos, Tensor indices) -> Tensor", # noqa E501
+    "llama::update_cache.out(Tensor value, Tensor(a!) cache, SymInt start_pos, *, Tensor(b!) out) -> Tensor(b!)", # noqa E501
+    "llama::update_cache(Tensor value, Tensor(a!) cache, SymInt start_pos) -> Tensor",
     "neuron::_execute_neuron(__torch__.torch.classes.neuron.Model _0, Tensor[] _1) -> Tensor[] _0", # noqa E501
     "neuron::_from_neuron(Tensor _0) -> Tensor _0",
     "neuron::_init_neuron() -> ()",
@@ -243,7 +356,6 @@ known_schema_definitions = [
     "neuron::forward_7(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6)", # noqa E501
     "neuron::forward_8(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7)", # noqa E501
     "neuron::forward_9(Tensor[] _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8)", # noqa E501
-    "neuron::forward_v2(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> Tensor[] _0", # noqa E501
     "neuron::forward_v2_1(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> Tensor _0", # noqa E501
     "neuron::forward_v2_10(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9)", # noqa E501
     "neuron::forward_v2_11(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8, Tensor _9, Tensor _10)", # noqa E501
@@ -307,84 +419,74 @@ known_schema_definitions = [
     "neuron::forward_v2_7(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6)", # noqa E501
     "neuron::forward_v2_8(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7)", # noqa E501
     "neuron::forward_v2_9(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5, Tensor _6, Tensor _7, Tensor _8)", # noqa E501
-    "neuron::rnn(Tensor _0, Tensor[] _1, __torch__.torch.classes.neuron.RnnBinding _2, int _3) -> (Tensor _0, Tensor[] _1)", # noqa E501
+    "neuron::forward_v2(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> Tensor[] _0", # noqa E501
     "neuron::rnn_v2(Tensor _0, Tensor _1, Tensor _2, int _3, __torch__.torch.classes.neuron.RnnBinding_v2[] _4) -> (Tensor _0, Tensor _1, Tensor _2)", # noqa E501
-    "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor", # noqa E501
+    "neuron::rnn(Tensor _0, Tensor[] _1, __torch__.torch.classes.neuron.RnnBinding _2, int _3) -> (Tensor _0, Tensor[] _1)", # noqa E501
     "prim::ConstantMKLDNNTensor(...) -> ...",
     "prim::isinstance(Any to_check) -> bool",
     "prim::mkldnn_convolution(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> Tensor", # noqa E501
     "prim::shape(Tensor self) -> int[]",
-    "llama::custom_sdpa.out(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "llama::custom_sdpa(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None) -> Tensor", # noqa E501
-    "llama::fast_hadamard_transform.out(Tensor mat, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "llama::sdpa_with_kv_cache.out(Tensor query, Tensor key, Tensor value, Tensor(a!) key_cache, Tensor(b!) value_cache, SymInt start_pos, SymInt seq_len, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(c!) out) -> Tensor(c!)", # noqa E501
-    "llama::sdpa_with_kv_cache(Tensor query, Tensor key, Tensor value, Tensor(a!) key_cache, Tensor(b!) value_cache, SymInt start_pos, SymInt seq_len, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None) -> Tensor", # noqa E501
-    "llama::sdpa.out(Tensor query, Tensor key, Tensor value, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "llama::update_cache.out(Tensor value, Tensor(a!) cache, SymInt start_pos, *, Tensor(b!) out) -> Tensor(b!)", # noqa E501
-    "llama::update_cache(Tensor value, Tensor(a!) cache, SymInt start_pos) -> Tensor",
-    "llama::update_cache_with_indices.out(Tensor value, Tensor(a!) cache, SymInt start_pos, Tensor indices, *, Tensor(b!) out) -> Tensor(b!)", # noqa E501
-    "llama::update_cache_with_indices(Tensor value, Tensor(a!) cache, SymInt start_pos, Tensor indices) -> Tensor", # noqa E501
-    "quantized_decomposed::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "quantized_decomposed::add_relu(Tensor a, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, Tensor b, float b_scale, int b_zero_point, int b_quant_min, int b_quant_max, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max) -> Tensor qc", # noqa E501
+    "quantized_decomposed::add.scalar(Tensor qa, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, ScalarType a_dtype, Scalar b, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max, ScalarType out_dtype) -> Tensor", # noqa E501
+    "quantized_decomposed::add(Tensor a, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, Tensor b, float b_scale, int b_zero_point, int b_quant_min, int b_quant_max, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max) -> Tensor qc", # noqa E501
+    "quantized_decomposed::choose_qparams_per_token_asymmetric.out(Tensor input, ScalarType dtype, *, Tensor(a!) scale_out, Tensor(b!) zero_point_out) -> (Tensor(a!), Tensor(b!))", # noqa E501
+    "quantized_decomposed::dequantize_per_channel.out(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::dequantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::dequantize_per_tensor.Tensor_out(Tensor input, Tensor scale, Tensor zero_point, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "quantized_decomposed::embedding_4bit(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices) -> Tensor", # noqa E501
+    "quantized_decomposed::embedding_4bit.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::embedding_4bit.dtype(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None) -> Tensor", # noqa E501
     "quantized_decomposed::embedding_4bit.out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "quantized_decomposed::embedding_4bit.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "quantized_decomposed::add(Tensor a, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, Tensor b, float b_scale, int b_zero_point, int b_quant_min, int b_quant_max, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max) -> Tensor qc", # noqa E501
-    "quantized_decomposed::add.scalar(Tensor qa, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, ScalarType a_dtype, Scalar b, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max, ScalarType out_dtype) -> Tensor", # noqa E501
-    "quantized_decomposed::add_relu(Tensor a, float a_scale, int a_zero_point, int a_quant_min, int a_quant_max, Tensor b, float b_scale, int b_zero_point, int b_quant_min, int b_quant_max, float out_scale, int out_zero_point, int out_quant_min, int out_quant_max) -> Tensor qc", # noqa E501
-    "quantized_decomposed::dequantize_per_channel.out(Tensor input, Tensor scales, Tensor? zero_points, int axis, int quant_min, int quant_max, ScalarType dtype, *, ScalarType? out_dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "quantized_decomposed::mixed_linear(Tensor input, Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, ScalarType? dtype=None) -> Tensor", # noqa E501
-    "quantized_decomposed::embedding_byte(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices) -> Tensor", # noqa E501
+    "quantized_decomposed::embedding_4bit(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices) -> Tensor", # noqa E501
+    "quantized_decomposed::embedding_byte.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "quantized_decomposed::embedding_byte.dtype(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None) -> Tensor", # noqa E501
     "quantized_decomposed::embedding_byte.out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "quantized_decomposed::embedding_byte.dtype_out(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "quantized_decomposed::embedding_byte(Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, int weight_quant_min, int weight_quant_max, Tensor indices) -> Tensor", # noqa E501
+    "quantized_decomposed::mixed_linear(Tensor input, Tensor weight, Tensor weight_scales, Tensor? weight_zero_points, ScalarType? dtype=None) -> Tensor", # noqa E501
     "quantized_decomposed::mixed_mm(Tensor input, Tensor weight, Tensor weight_scales, Tensor? weight_zero_points) -> Tensor", # noqa E501
-    "quantized_decomposed::choose_qparams_per_token_asymmetric.out(Tensor input, ScalarType dtype, *, Tensor(a!) scale_out, Tensor(b!) zero_point_out) -> (Tensor(a!), Tensor(b!))", # noqa E501
+    "quantized_decomposed::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "sgl_kernel::extend_attention_cpu(Tensor q_extend, Tensor k_extend, Tensor v_extend, Tensor(a!) o_extend, Tensor k_buffer, Tensor v_buffer, Tensor req_to_token, Tensor req_pool_indices, Tensor seq_lens, Tensor extend_seq_lens, Tensor extend_start_loc, int max_len_extend, float sm_scale, float logit_cap) -> ()", # noqa E501
     "tensorrt::execute_engine(Tensor[] inputs, __torch__.torch.classes.tensorrt.Engine engine) -> Tensor[]", # noqa E501
-    "torch_sparse::hgt_sample(Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, int[]) _3, int _4) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
-    "torch_sparse::cuda_version() -> int _0",
-    "torch_sparse::random_walk(Tensor _0, Tensor _1, Tensor _2, int _3) -> Tensor _0",
-    "torch_scatter::segment_min_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_sparse::partition2(Tensor _0, Tensor _1, Tensor? _2, Tensor? _3, int _4, bool _5) -> Tensor _0", # noqa E501
-    "torch_sparse::ego_k_hop_sample_adj(Tensor _0, Tensor _1, Tensor _2, int _3, int _4, bool _5) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5)", # noqa E501
-    "torch_scatter::segment_sum_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
-    "torch_sparse::sample_adj(Tensor _0, Tensor _1, Tensor _2, int _3, bool _4) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)", # noqa E501
-    "torch_scatter::segment_max_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_scatter::gather_coo(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
-    "torch_sparse::neighbor_sample(Tensor _0, Tensor _1, Tensor _2, int[] _3, bool _4, bool _5) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)", # noqa E501
-    "torch_sparse::hetero_temporal_neighbor_sample(str[] _0, (str, str, str)[] _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3, Dict(str, Tensor) _4, Dict(str, int[]) _5, Dict(str, Tensor) _6, int _7, bool _8, bool _9) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
-    "torch_sparse::partition(Tensor _0, Tensor _1, Tensor? _2, int _3, bool _4) -> Tensor _0", # noqa E501
-    "torch_scatter::segment_min_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_sparse::hetero_neighbor_sample(str[] _0, (str, str, str)[] _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3, Dict(str, Tensor) _4, Dict(str, int[]) _5, int _6, bool _7, bool _8) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
-    "torch_sparse::spmm_mean(Tensor? _0, Tensor _1, Tensor _2, Tensor? _3, Tensor? _4, Tensor? _5, Tensor? _6, Tensor _7) -> Tensor _0", # noqa E501
-    "torch_sparse::spmm_max(Tensor _0, Tensor _1, Tensor? _2, Tensor _3) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_sparse::relabel(Tensor _0, Tensor _1) -> (Tensor _0, Tensor _1)",
-    "torch_sparse::relabel_one_hop(Tensor _0, Tensor _1, Tensor? _2, Tensor _3, bool _4) -> (Tensor _0, Tensor _1, Tensor? _2, Tensor _3)", # noqa E501
-    "torch_scatter::scatter_mul(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0", # noqa E501
-    "torch_sparse::ind2ptr(Tensor _0, int _1) -> Tensor _0",
     "torch_scatter::cuda_version() -> int _0",
-    "torch_sparse::spmm_sum(Tensor? _0, Tensor _1, Tensor _2, Tensor? _3, Tensor? _4, Tensor? _5, Tensor _6) -> Tensor _0", # noqa E501
-    "torch_sparse::ptr2ind(Tensor _0, int _1) -> Tensor _0",
-    "torch_scatter::segment_mean_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
-    "torch_sparse::spmm_min(Tensor _0, Tensor _1, Tensor? _2, Tensor _3) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_scatter::segment_sum_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0", # noqa E501
-    "torch_scatter::scatter_mean(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0", # noqa E501
-    "torch_scatter::scatter_max(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_scatter::segment_max_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_scatter::gather_coo(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
     "torch_scatter::gather_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
-    "torch_scatter::segment_mean_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0", # noqa E501
+    "torch_scatter::scatter_max(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_scatter::scatter_mean(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0", # noqa E501
     "torch_scatter::scatter_min(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> (Tensor _0, Tensor _1)", # noqa E501
-    "torch_sparse::mt_partition(Tensor _0, Tensor _1, Tensor? _2, Tensor? _3, int _4, bool _5, int _6) -> Tensor _0", # noqa E501
-    "torch_sparse::saint_subgraph(Tensor _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2)", # noqa E501
+    "torch_scatter::scatter_mul(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0", # noqa E501
     "torch_scatter::scatter_sum(Tensor _0, Tensor _1, int _2, Tensor? _3, int? _4) -> Tensor _0", # noqa E501
+    "torch_scatter::segment_max_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_scatter::segment_max_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_scatter::segment_mean_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0", # noqa E501
+    "torch_scatter::segment_mean_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
+    "torch_scatter::segment_min_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_scatter::segment_min_csr(Tensor _0, Tensor _1, Tensor? _2) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_scatter::segment_sum_coo(Tensor _0, Tensor _1, Tensor? _2, int? _3) -> Tensor _0", # noqa E501
+    "torch_scatter::segment_sum_csr(Tensor _0, Tensor _1, Tensor? _2) -> Tensor _0",
+    "torch_sparse::cuda_version() -> int _0",
+    "torch_sparse::ego_k_hop_sample_adj(Tensor _0, Tensor _1, Tensor _2, int _3, int _4, bool _5) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Tensor _5)", # noqa E501
+    "torch_sparse::hetero_neighbor_sample(str[] _0, (str, str, str)[] _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3, Dict(str, Tensor) _4, Dict(str, int[]) _5, int _6, bool _7, bool _8) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
+    "torch_sparse::hetero_temporal_neighbor_sample(str[] _0, (str, str, str)[] _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3, Dict(str, Tensor) _4, Dict(str, int[]) _5, Dict(str, Tensor) _6, int _7, bool _8, bool _9) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
+    "torch_sparse::hgt_sample(Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, int[]) _3, int _4) -> (Dict(str, Tensor) _0, Dict(str, Tensor) _1, Dict(str, Tensor) _2, Dict(str, Tensor) _3)", # noqa E501
+    "torch_sparse::ind2ptr(Tensor _0, int _1) -> Tensor _0",
+    "torch_sparse::mt_partition(Tensor _0, Tensor _1, Tensor? _2, Tensor? _3, int _4, bool _5, int _6) -> Tensor _0", # noqa E501
+    "torch_sparse::neighbor_sample(Tensor _0, Tensor _1, Tensor _2, int[] _3, bool _4, bool _5) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)", # noqa E501
     "torch_sparse::non_diag_mask(Tensor _0, Tensor _1, int _2, int _3, int _4) -> Tensor _0", # noqa E501
+    "torch_sparse::partition(Tensor _0, Tensor _1, Tensor? _2, int _3, bool _4) -> Tensor _0", # noqa E501
+    "torch_sparse::partition2(Tensor _0, Tensor _1, Tensor? _2, Tensor? _3, int _4, bool _5) -> Tensor _0", # noqa E501
+    "torch_sparse::ptr2ind(Tensor _0, int _1) -> Tensor _0",
+    "torch_sparse::random_walk(Tensor _0, Tensor _1, Tensor _2, int _3) -> Tensor _0",
+    "torch_sparse::relabel_one_hop(Tensor _0, Tensor _1, Tensor? _2, Tensor _3, bool _4) -> (Tensor _0, Tensor _1, Tensor? _2, Tensor _3)", # noqa E501
+    "torch_sparse::relabel(Tensor _0, Tensor _1) -> (Tensor _0, Tensor _1)",
+    "torch_sparse::saint_subgraph(Tensor _0, Tensor _1, Tensor _2, Tensor _3) -> (Tensor _0, Tensor _1, Tensor _2)", # noqa E501
+    "torch_sparse::sample_adj(Tensor _0, Tensor _1, Tensor _2, int _3, bool _4) -> (Tensor _0, Tensor _1, Tensor _2, Tensor _3)", # noqa E501
+    "torch_sparse::spmm_max(Tensor _0, Tensor _1, Tensor? _2, Tensor _3) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_sparse::spmm_mean(Tensor? _0, Tensor _1, Tensor _2, Tensor? _3, Tensor? _4, Tensor? _5, Tensor? _6, Tensor _7) -> Tensor _0", # noqa E501
+    "torch_sparse::spmm_min(Tensor _0, Tensor _1, Tensor? _2, Tensor _3) -> (Tensor _0, Tensor _1)", # noqa E501
+    "torch_sparse::spmm_sum(Tensor? _0, Tensor _1, Tensor _2, Tensor? _3, Tensor? _4, Tensor? _5, Tensor _6) -> Tensor _0", # noqa E501
     "torchaudio::forced_align(Tensor log_probs, Tensor targets, Tensor input_lengths, Tensor target_lengths, int blank) -> (Tensor, Tensor)", # noqa E501
     "torchaudio::sox_effects_apply_effects_tensor(Tensor tensor, int sample_rate, str[][] effects, bool channels_first=True) -> (Tensor, int)", # noqa E501
     "torchvision::_interpolate_bilinear2d_aa(Tensor input, int[] size, bool align_corners) -> Tensor", # noqa E501
     "torchvision::deform_conv2d.out(Tensor input, Tensor weight, Tensor offset, Tensor mask, Tensor bias, SymInt stride_h, SymInt stride_w, SymInt pad_h, SymInt pad_w, SymInt dilation_h, SymInt dilation_w, SymInt groups, SymInt offset_groups, bool use_mask, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    "sgl_kernel::extend_attention_cpu(Tensor q_extend, Tensor k_extend, Tensor v_extend, Tensor(a!) o_extend, Tensor k_buffer, Tensor v_buffer, Tensor req_to_token, Tensor req_pool_indices, Tensor seq_lens, Tensor extend_seq_lens, Tensor extend_start_loc, int max_len_extend, float sm_scale, float logit_cap) -> ()", # noqa E501
     "vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor" # noqa E501
 ]
 
