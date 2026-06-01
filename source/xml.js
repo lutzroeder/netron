@@ -548,7 +548,7 @@ xml.TextReader = class {
         const position = this._position;
         const name = [];
         let c = this._char.codePointAt(0);
-        while (this._nameCharRegExp.test(this._char) || (c >= 0x300 && c <= 0x36f) || (c >= 0x203F && c <= 0x2040)) {
+        while (xml.TextReader._nameCharRegExp.test(this._char) || (c >= 0x300 && c <= 0x36f) || (c >= 0x203F && c <= 0x2040)) {
             name.push(this._char);
             this._next();
             if (this._char === undefined) {
