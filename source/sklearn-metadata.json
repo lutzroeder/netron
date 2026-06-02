@@ -206,7 +206,7 @@
       },
       {
         "default": null,
-        "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`~sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`~sklearn.model_selection.KFold`\nis used.\n\nRefer to the :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
+        "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds,\n- :term:`CV splitter`,\n- an iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`~sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`~sklearn.model_selection.KFold`\nis used.\n\nRefer to the :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
         "name": "cv",
         "optional": true,
         "type": "int32"
@@ -758,7 +758,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.CountVectorizer",
-    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nFor an efficiency comparison of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_array.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nFor an efficiency comparison of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -1047,7 +1047,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.8\n`penalty` was deprecated in version 1.8 and will be removed in 1.10.\nUse `l1_ratio` instead. `l1_ratio=0` for `penalty='l2'`, `l1_ratio=1` for\n`penalty='l1'` and `l1_ratio` set to any float between 0 and 1 for\n`'penalty='elasticnet'`.\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add an L2 penalty term and it is the default choice;\n- `'l1'`: add an L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.8\n`penalty` was deprecated in version 1.8 and will be removed in 1.10.\nUse `l1_ratio` and `C` instead. `l1_ratio=0` for `penalty='l2'`,\n`l1_ratio=1` for `penalty='l1'`, `l1_ratio` set to any float between 0 and 1\nfor `penalty='elasticnet'`, and `C=np.inf` for `penalty=None`.\n",
         "name": "penalty"
       },
       {
@@ -1135,7 +1135,7 @@
   },
   {
     "name": "sklearn.linear_model.LassoLars",
-    "description": "Lasso model fit with Least Angle Regression a.k.a. Lars.\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
+    "description": "Lasso model fit with Least Angle Regression aka Lars.\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -1256,7 +1256,7 @@
       {
         "name": "tol",
         "default": 1e-06,
-        "description": "The precision of the solution (`coef_`) is determined by `tol` which\nspecifies a different convergence criterion for the `lsqr` solver.\n`tol` is set as `atol` and `btol` of :func:`scipy.sparse.linalg.lsqr` when\nfitting on sparse training data. This parameter has no effect when fitting\non dense data.\n\n.. versionadded:: 1.7\n"
+        "description": "The precision of the solution (`coef_`) is determined by `tol` which\nspecifies the convergence criterion of the underlying solver. `tol` is\nset as `atol` and `btol` of :func:`scipy.sparse.linalg.lsqr` when\nfitting on sparse training data. `tol` is set as `cond` of\n:func:`scipy.linalg.lstsq` when fitting on dense training data.\n\n.. versionadded:: 1.7\n.. versionchanged:: 1.9\nNow supported on dense data, interpreted as the `cond` parameter.\n"
       }
     ]
   },
@@ -1266,7 +1266,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.8\n`penalty` was deprecated in version 1.8 and will be removed in 1.10.\nUse `l1_ratio` instead. `l1_ratio=0` for `penalty='l2'`, `l1_ratio=1` for\n`penalty='l1'` and `l1_ratio` set to any float between 0 and 1 for\n`'penalty='elasticnet'`.\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add an L2 penalty term and it is the default choice;\n- `'l1'`: add an L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.8\n`penalty` was deprecated in version 1.8 and will be removed in 1.10.\nUse `l1_ratio` and `C` instead. `l1_ratio=0` for `penalty='l2'`,\n`l1_ratio=1` for `penalty='l1'`, `l1_ratio` set to any float between 0 and 1\nfor `penalty='elasticnet'`, and `C=np.inf` for `penalty=None`.\n",
         "name": "penalty",
         "optional": true
       },
@@ -1403,7 +1403,7 @@
       },
       {
         "default": null,
-        "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross validation,\n- integer, to specify the number of folds in a `(Stratified)KFold`,\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if the estimator is a classifier and ``y`` is\neither binary or multiclass, :class:`StratifiedKFold` is used. In all\nother cases, :class:`KFold` is used. These splitters are instantiated\nwith `shuffle=False` so the splits will be the same across calls.\n\nRefer :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
+        "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross validation,\n- integer, to specify the number of folds in a `(Stratified)KFold`,\n- :term:`CV splitter`,\n- an iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if the estimator is a classifier and ``y`` is\neither binary or multiclass, :class:`StratifiedKFold` is used. In all\nother cases, :class:`KFold` is used. These splitters are instantiated\nwith `shuffle=False` so the splits will be the same across calls.\n\nRefer :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
         "name": "cv",
         "type": "int32"
       },
@@ -1414,9 +1414,10 @@
         "type": "boolean"
       },
       {
-        "description": "Controls the verbosity: the higher, the more messages.\n\n- >1 : the computation time for each fold and parameter candidate is\ndisplayed;\n- >2 : the score is also displayed;\n- >3 : the fold and candidate parameter indexes are also displayed\ntogether with the starting time of the computation.\n",
+        "description": "Controls the verbosity of information printed during fitting, with higher\nvalues yielding more detailed logging.\n\n- 0 : no messages are printed;\n- >=1 : summary of the total number of fits;\n- >=2 : computation time for each fold and parameter candidate;\n- >=3 : fold indices and scores;\n- >=10 : parameter candidate indices and START messages before each fit.\n",
         "name": "verbose",
-        "type": "int32"
+        "type": "int32",
+        "default": 0
       },
       {
         "description": "Value to assign to the score if an error occurs in estimator fitting.\nIf set to 'raise', the error is raised. If a numeric value is given,\nFitFailedWarning is raised. This parameter does not affect the refit\nstep, which will always raise the error.\n",
@@ -1892,7 +1893,7 @@
       {
         "name": "sparse_output",
         "default": true,
-        "description": "When ``True``, it returns a :class:`scipy.sparse.csr_matrix`,\ni.e. a sparse matrix in \"Compressed Sparse Row\" (CSR) format.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
+        "description": "When ``True``, it returns a SciPy sparse matrix/array\nin \"Compressed Sparse Row\" (CSR) format.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
       },
       {
         "name": "feature_name_combiner",
@@ -1927,7 +1928,7 @@
   },
   {
     "name": "sklearn.preprocessing.MultiLabelBinarizer",
-    "description": "Transform between iterable of iterables and a multilabel format.\n\nAlthough a list of sets or tuples is a very intuitive format for multilabel\ndata, it is unwieldy to process. This transformer converts between this\nintuitive format and the supported multilabel format: a (samples x classes)\nbinary matrix indicating the presence of a class label.\n",
+    "description": "Transform between iterable of iterables and a multilabel format.\n\nAlthough a list of sets or tuples is a very intuitive format for multilabel\ndata, it is unwieldy to process. This transformer converts between this\nintuitive format and the supported multilabel format: a (samples x classes)\nbinary matrix indicating the presence of a class label.\n\nRead more in the :ref:`User Guide <multilabelbinarizer>`.\n",
     "attributes": [
       {
         "default": null,
@@ -2074,7 +2075,7 @@
       },
       {
         "default": false,
-        "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, will slow down that method as it internally uses\n5-fold cross-validation, and `predict_proba` may be inconsistent with\n`predict`. Read more in the :ref:`User Guide <scores_probabilities>`.\n",
+        "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, will slow down that method as it internally uses\n5-fold cross-validation, and `predict_proba` may be inconsistent with\n`predict`. Read more in the :ref:`User Guide <scores_probabilities>`.\n\n..deprecated:: 1.9\nThe `probability` parameter is deprecated and will be removed in 1.11.\nUse `CalibratedClassifierCV(SVC(), ensemble=False)` instead of\n`SVC(probability=True)`.\n",
         "name": "probability",
         "optional": true,
         "type": "boolean"
