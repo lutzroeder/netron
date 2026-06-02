@@ -47,37 +47,11 @@ install() {
     echo "onnx install"
     onnx_src_dir="${src_dir}/onnx"
     venv
-    protobuf_version=$(grep "protobuf" ${onnx_src_dir}/requirements.txt | cut -d'=' -f2)
-    protoc_dir="$(pwd)/third_party/bin/protobuf/v${protobuf_version}"
     case "${OSTYPE}" in
-        # linux*)
-        #     [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
-        #     if [ ! -f "${protoc_dir}/bin/protoc" ]; then
-        #         rm -rf ${protoc_dir}
-        #         git clone --quiet -c advice.detachedHead=false --quiet --recursive --depth=1 --branch v${protobuf_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
-        #         pushd "${protoc_dir}/src/cmake" > /dev/null
-        #         cmake ../cmake -DCMAKE_CXX_FLAGS="-w" -Dprotobuf_BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="..\.." -DCMAKE_INSTALL_SYSCONFDIR=/etc -DCMAKE_POSITION_INDEPENDENT_CODE=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release > /dev/null
-        #         make -j$(nproc) > /dev/null
-        #         make install > /dev/null
-        #         popd > /dev/null
-        #     fi
-        #     export PATH="${protoc_dir}\bin":${PATH}
-        #     ;;
-        # darwin*)
-        #     [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
-        #     if [ ! -f "${protoc_dir}/bin/protoc" ]; then
-        #         rm -rf ${protoc_dir}
-        #         git clone --quiet -c advice.detachedHead=false --quiet --recursive --depth=1 --branch v${protobuf_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
-        #         pushd "${protoc_dir}/src/cmake" > /dev/null
-        #         cmake ../cmake -DCMAKE_CXX_FLAGS="-w" -Dprotobuf_BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="..\.." -DCMAKE_INSTALL_SYSCONFDIR=/etc -DCMAKE_POSITION_INDEPENDENT_CODE=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release > /dev/null
-        #         make > /dev/null
-        #         make install > /dev/null
-        #         popd > /dev/null
-        #     fi
-        #     export PATH="${protoc_dir}\bin":${PATH}
-        #     ;;
         msys*|cygwin*|mingw*)
             # winget install -e --id=Microsoft.VisualStudio.2026.BuildTools --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
+            protobuf_version=$(grep -m1 "protobuf==" ${onnx_src_dir}/pyproject.toml | sed -E 's/.*protobuf==([0-9.]+).*/\1/')
+            protoc_dir="$(pwd)/third_party/bin/protobuf/v${protobuf_version}"
             programfiles_x86=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
             vswhere="${programfiles_x86}\Microsoft Visual Studio\Installer\vswhere.exe"
             build_tools_dir=$("${vswhere}" -latest -products '*' -property installationPath)
