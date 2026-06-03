@@ -412,7 +412,7 @@ flatbuffers.StreamReader = class extends flatbuffers.BinaryReader {
             }
             if (remainder + length > this._size) {
                 const buffer = new Uint8Array(length);
-                this._read(buffer, length);
+                this._read(buffer, offset);
                 this._chunk = -1;
                 this._offset = offset;
                 this._window = length;
