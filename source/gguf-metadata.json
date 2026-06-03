@@ -1803,7 +1803,13 @@
         { "name": "ffn_up_shexp", "type": "MUL_MAT" },
         { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
         { "name": "ffn_down_shexp", "type": "MUL_MAT" },
-        { "name": "exp_probs_b", "type": "ADD" }
+        { "name": "exp_probs_b", "type": "ADD" },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
