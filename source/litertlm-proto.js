@@ -619,6 +619,9 @@ litert.lm.proto.SamplerParameters = class SamplerParameters {
                 case 5:
                     message.seed = reader.int32();
                     break;
+                case 6:
+                    message.backend = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -633,10 +636,17 @@ litert.lm.proto.SamplerParameters.prototype.k = 0;
 litert.lm.proto.SamplerParameters.prototype.p = 0;
 litert.lm.proto.SamplerParameters.prototype.temperature = 0;
 litert.lm.proto.SamplerParameters.prototype.seed = 0;
+litert.lm.proto.SamplerParameters.prototype.backend = 0;
 
 litert.lm.proto.SamplerParameters.Type = {
     "TYPE_UNSPECIFIED": 0,
     "TOP_K": 1,
     "TOP_P": 2,
     "GREEDY": 3
+};
+
+litert.lm.proto.SamplerParameters.Backend = {
+    "UNSPECIFIED": 0,
+    "CPU": 1,
+    "GPU": 2
 };
