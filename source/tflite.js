@@ -468,18 +468,29 @@ tflite.Tensor = class {
             case 'string': {
                 let offset = 0;
                 const data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                if (data.byteLength < 4) {
+                    throw new tflite.Error(`Invalid string tensor '${this.name}'.`);
+                }
                 const count = data.getInt32(0, true);
+                if (count < 0 || count > Math.floor((data.byteLength - 4) / 4)) {
+                    throw new tflite.Error(`Invalid string tensor '${this.name}'.`);
+                }
                 offset += 4;
                 const offsetTable = [];
                 for (let j = 0; j < count; j++) {
-                    offsetTable.push(data.getInt32(offset, true));
+                    offsetTable.push(data.getUint32(offset, true));
                     offset += 4;
                 }
                 offsetTable.push(this._data.length);
                 const stringTable = [];
                 const utf8Decoder = new TextDecoder('utf-8');
                 for (let k = 0; k < count; k++) {
-                    const textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
+                    const start = offsetTable[k];
+                    const end = offsetTable[k + 1];
+                    if (start < offset || start > end || end > this._data.length) {
+                        throw new tflite.Error(`Invalid string tensor '${this.name}'.`);
+                    }
+                    const textArray = this._data.subarray(start, end);
                     stringTable.push(utf8Decoder.decode(textArray));
                 }
                 return stringTable;
