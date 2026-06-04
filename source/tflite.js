@@ -467,8 +467,14 @@ tflite.Tensor = class {
         switch (this.type.dataType) {
             case 'string': {
                 let offset = 0;
+                if (!this._data || this._data.byteLength < 4) {
+                    throw new tflite.Error(`Invalid string tensor '${this.name}'.`);
+                }
                 const data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 const count = data.getInt32(0, true);
+                if (count < 0 || count > Math.floor((data.byteLength - 4) / 4)) {
+                    throw new tflite.Error(`Invalid string tensor '${this.name}'.`);
+                }
                 offset += 4;
                 const offsetTable = [];
                 for (let j = 0; j < count; j++) {
@@ -477,10 +483,15 @@ tflite.Tensor = class {
                 }
                 offsetTable.push(this._data.length);
                 const stringTable = [];
-                const utf8Decoder = new TextDecoder('utf-8');
+                const decoder = new TextDecoder('utf-8');
                 for (let k = 0; k < count; k++) {
-                    const textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
-                    stringTable.push(utf8Decoder.decode(textArray));
+                    const start = offsetTable[k];
+                    const end = offsetTable[k + 1];
+                    if (start < offset || start > end || end > this._data.length) {
+                        throw new tflite.Error(`Invalid string tensor '${this.name}'.`);
+                    }
+                    const textArray = this._data.subarray(start, end);
+                    stringTable.push(decoder.decode(textArray));
                 }
                 return stringTable;
             }
