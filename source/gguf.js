@@ -171,8 +171,15 @@ gguf.Graph = class {
                 const buildFfn = (input) => {
                     if (hasMoe) {
                         const moeInput = applyNorm('ffn_pre_norm_2', input);
-                        const g1 = newValue();
+                        let g1 = newValue();
                         addNode(use('ffn_gate_inp'), [moeInput], g1);
+                        // Expert routing bias (deepseek/step/bailing MoE): added to the
+                        // router logits before top-k selection.
+                        if (has('exp_probs_b')) {
+                            const biased = newValue();
+                            addNode(use('exp_probs_b'), [g1], biased);
+                            g1 = biased;
+                        }
                         let moeOut = hasFusedExps ?
                             buildFusedExpsFfn(g1) :
                             buildLinearFfn(g1, 'ffn_gate_exps', 'ffn_up_exps', 'ffn_down_exps');
@@ -403,8 +410,14 @@ gguf.Graph = class {
                     const r1 = newValue();
                     addOp('ADD', [preAdd1, inp], r1);
                     const f1 = buildFfn(r1);
+                    let preAdd2 = f1;
+                    if (has('ffn_post_norm')) {
+                        const pn = newValue();
+                        addNode(use('ffn_post_norm'), [f1], pn);
+                        preAdd2 = pn;
+                    }
                     const r2 = newValue();
-                    addOp('ADD', [f1, r1], r2);
+                    addOp('ADD', [preAdd2, r1], r2);
                     prevValue = r2;
                 } else {
                     // Fallback: linear chain
