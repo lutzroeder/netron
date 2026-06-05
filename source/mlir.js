@@ -1948,6 +1948,13 @@ _.NoneType = class extends _.Type {
     }
 };
 
+_.TokenType = class extends _.Type {
+
+    constructor() {
+        super('token');
+    }
+};
+
 _.IndexType = class extends _.Type {
 
     constructor() {
@@ -3450,6 +3457,7 @@ _.Parser = class {
                     case 'f128':
                     case 'index':
                     case 'none':
+                    case 'token':
                         return this.parseType();
                     default:
                         break;
@@ -3502,6 +3510,8 @@ _.Parser = class {
                         return this.parseTupleType();
                     case 'none':
                         return new _.NoneType();
+                    case 'token':
+                        return new _.TokenType();
                     case 'index':
                         return new _.IndexType();
                     case 'bf16':
@@ -9080,6 +9090,7 @@ _.Dialect = class {
             case 'IRDL_RegionType': return new _.Type('!irdl.region');
             case 'IREE_Input_GlobalRefAttr': return new _.Type('!iree_input.global.ref');
             case 'LLVM_DefaultPointer': return new _.llvm.LLVMPointerType(0);
+            case 'LLVM_MetadataType': return new _.Type('!llvm.metadata');
             case 'LLVM_PointerGeneric': return new _.llvm.LLVMPointerType(0);
             case 'LLVM_PointerGlobal': return new _.llvm.LLVMPointerType(1);
             case 'LLVM_PointerShared': return new _.llvm.LLVMPointerType(3);
@@ -9158,6 +9169,7 @@ _.Dialect = class {
             case 'TensorRTRuntime_Context': return new _.Type('!trtrt.context');
             case 'TensorRTRuntime_Engine': return new _.Type('!trtrt.engine');
             case 'TensorType': return new _.Type('!tfrt_tensor.tensor');
+            case 'Token': return new _.TokenType();
             case 'TF_MLRT_FutureType': return new _.Type('!tf_mlrt.tensor');
             case 'TF32': return new _.FloatType('tf32');
             case 'TFAllocatorType': return new _.Type('!tfrt_fallback.tf_allocator');
@@ -16629,6 +16641,22 @@ _.quant.CalibratedQuantizedType = class extends _.Type {
     }
 };
 
+_.quant.QuantileQuantizedType = class extends _.Type {
+
+    constructor(storageType, quantileType, quantiles, storageRange) {
+        super(null);
+        this.storageType = storageType;
+        this.quantileType = quantileType;
+        this.quantiles = quantiles;
+        this.storageRange = storageRange;
+    }
+
+    toString() {
+        const range = this.storageRange ? `, <${this.storageRange[0]}:${this.storageRange[1]}>` : '';
+        return `!quant.quantile<${this.storageType}:${this.quantileType}, {${this.quantiles.join(',')}}${range}>`;
+    }
+};
+
 _.quant.QuantDialect = class extends _.Dialect {
 
     constructor(operations) {
@@ -16646,8 +16674,38 @@ _.quant.QuantDialect = class extends _.Dialect {
         if (typeNameSpelling === 'calibrated') {
             return this.parseCalibratedType(parser);
         }
+        if (typeNameSpelling === 'quantile') {
+            return this.parseQuantileType(parser);
+        }
         parser.emitError(parser.getNameLoc(), `Unknown quantized type '${typeNameSpelling}'`);
         return null;
+    }
+
+    parseQuantileType(parser) {
+        parser.parseLess();
+        const storageType = parser.parseType();
+        parser.parseColon();
+        const quantileType = parser.parseType();
+        parser.parseComma();
+        parser.parseLBrace();
+        const quantiles = [];
+        if (!parser.parseOptionalRBrace()) {
+            do {
+                quantiles.push(parser.parseAttribute(new _.FloatType('f64')).value);
+            } while (parser.parseOptionalComma());
+            parser.parseRBrace();
+        }
+        let storageRange = null;
+        if (parser.parseOptionalComma()) {
+            parser.parseLess();
+            const min = parser.parseInteger();
+            parser.parseColon();
+            const max = parser.parseInteger();
+            parser.parseGreater();
+            storageRange = [min, max];
+        }
+        parser.parseGreater();
+        return new _.quant.QuantileQuantizedType(storageType, quantileType, quantiles, storageRange);
     }
 
     parseUniformType(parser) {
@@ -22594,7 +22652,8 @@ _.ROCDLDialect = class extends _.llvm.LLVMDialect {
             _atomicOp = parser.parseOptionalOperand();
         }
         parser.parseColon();
-        parser.parseType();
+        const resultType = parser.parseType();
+        result.addTypes([resultType]);
         for (const operand of unresolvedOperands) {
             parser.resolveOperand(operand, null, result.operands);
         }

@@ -1062,6 +1062,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/mlir-dace/test/SDFG/Dialect/tasklet/missing_return_type.mlir',
         'third_party/source/mlir/mlir-xten/test/Dialect/XTenNN/ops_invalid.mlir',
         'third_party/source/mlir/shardy/shardy/dialect/mpmd/ir/test/memory_kind_parse_and_print.mlir',
+        'third_party/source/mlir/shardy/shardy/dialect/sdy/transforms/export/test/executable_partitioner_pipeline/stablehlo_reverse.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/ops_stablehlo.mlir',
         'third_party/source/mlir/stablehlo/stablehlo/tests/print_types_invalid.mlir',
 
