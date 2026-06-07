@@ -1078,6 +1078,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/tensorflow/tensorflow/core/ir/tests/invalid_types.mlir',
         'third_party/source/mlir/torch-mlir/test/RefBackend/mlprogram-bufferize.mlir',
         'third_party/source/mlir/triton/test/Conversion/amd/invalid_extractslice_to_llvm.mlir',
+        'third_party/source/mlir/triton/test/LLVMIR/convert-to-llvmir-with-dbg-info.mlir',
         'third_party/source/mlir/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
         'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/invalid.mlir',
         'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',

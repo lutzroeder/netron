@@ -10947,6 +10947,14 @@ _.Dialect = class {
         return parser.parseOptionalAttribute();
     }
 
+    parseEnumFlagsPipe(parser, type) {
+        const value = this.parseEnumFlags(parser, type, '|', true);
+        if (value === null) {
+            return parser.parseOptionalAttribute();
+        }
+        return value;
+    }
+
     parseOptional(parser) {
         return parser.parseOptionalType();
     }
@@ -20488,6 +20496,7 @@ _.AMDGPUDialect = class extends _.Dialect {
     constructor(operations) {
         super(operations, 'amdgpu');
         this.registerCustomDirective('MNKDimensionList', this.parseMNKDimensionList.bind(this));
+        this.registerCustomAttribute('ROCDL_SchedGroupMaskAttr', this.parseEnumFlagsPipe.bind(this));
     }
 
     parseMNKDimensionList(parser, op, mAttr, nAttr, kAttr) {
@@ -22579,85 +22588,25 @@ _.ROCDLDialect = class extends _.llvm.LLVMDialect {
 
     constructor(operations) {
         super(operations, 'rocdl');
+        this.registerCustomAttribute('ROCDL_SchedGroupMaskAttr', this.parseEnumFlagsPipe.bind(this));
+        this.registerCustomAttribute('ROCDL_MFMANegModifierAttr', this.parseEnumFlagsPipe.bind(this));
+        this.registerCustomDirective('CachePolicy', this.parseCachePolicy.bind(this));
     }
 
-    parseOperation(parser, result) {
-        const op = result.name.getStringRef();
-        if (op === 'rocdl.raw.buffer.load') {
-            return this.parseRawBufferLoadOp(parser, result);
+    parseCachePolicy(parser, op, aux) {
+        const value = parser.parseOptionalInteger();
+        if (value !== null) {
+            op.addAttribute(aux, String(value));
+            return;
         }
-        if (op === 'rocdl.raw.buffer.store') {
-            return this.parseRawBufferStoreOp(parser, result);
-        }
-        if (op === 'rocdl.raw.buffer.atomic.fadd') {
-            return this.parseRawBufferAtomicOp(parser, result);
-        }
-        if (op === 'rocdl.raw.buffer.atomic.fmax') {
-            return this.parseRawBufferAtomicOp(parser, result);
-        }
-        if (op === 'rocdl.raw.buffer.atomic.smax') {
-            return this.parseRawBufferAtomicOp(parser, result);
-        }
-        if (op === 'rocdl.raw.buffer.atomic.umin') {
-            return this.parseRawBufferAtomicOp(parser, result);
-        }
-        return super.parseOperation(parser, result);
-    }
-
-    parseRawBufferLoadOp(parser, result) {
-        const unresolvedOperands = [];
-        let _bufOp = parser.parseOptionalOperand();
-        while (_bufOp) {
-            unresolvedOperands.push(_bufOp);
-            if (!parser.parseOptionalComma()) {
-                break;
-            }
-            _bufOp = parser.parseOptionalOperand();
-        }
-        parser.parseColon();
-        const resultType = parser.parseType();
-        result.addTypes([resultType]);
-        for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, result.operands);
-        }
-        return true;
-    }
-
-    parseRawBufferStoreOp(parser, result) {
-        const unresolvedOperands = [];
-        let _storeOp = parser.parseOptionalOperand();
-        while (_storeOp) {
-            unresolvedOperands.push(_storeOp);
-            if (!parser.parseOptionalComma()) {
-                break;
-            }
-            _storeOp = parser.parseOptionalOperand();
-        }
-        parser.parseColon();
-        parser.parseType();
-        for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, result.operands);
-        }
-        return true;
-    }
-
-    parseRawBufferAtomicOp(parser, result) {
-        const unresolvedOperands = [];
-        let _atomicOp = parser.parseOptionalOperand();
-        while (_atomicOp) {
-            unresolvedOperands.push(_atomicOp);
-            if (!parser.parseOptionalComma()) {
-                break;
-            }
-            _atomicOp = parser.parseOptionalOperand();
-        }
-        parser.parseColon();
-        const resultType = parser.parseType();
-        result.addTypes([resultType]);
-        for (const operand of unresolvedOperands) {
-            parser.resolveOperand(operand, null, result.operands);
-        }
-        return true;
+        const family = parser.parseKeyword();
+        parser.parseLess();
+        const flags = [];
+        do {
+            flags.push(parser.parseKeyword());
+        } while (parser.parseOptionalVerticalBar());
+        parser.parseGreater();
+        op.addAttribute(aux, `${family}<${flags.join('|')}>`);
     }
 };
 
