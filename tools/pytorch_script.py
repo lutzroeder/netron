@@ -64,117 +64,117 @@ known_schema_definitions = [
     "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::_cat.out(Tensor[] tensors, int dim=0, *, Tensor(a!) out) -> Tensor(a!)",
     "aten::_cat(Tensor[] tensors, int dim=0) -> Tensor",
-    # "aten::all.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::all.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor",
-    # "aten::any.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::any.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor",
+    "aten::all.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::all.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor",
+    "aten::any.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::any.dimname(Tensor self, str dim, bool keepdim=False) -> Tensor",
     "aten::arange.start_out_(Scalar start, Scalar end) -> Tensor",
-    # "aten::argsort.dimname(Tensor self, str dim, bool descending=False) -> Tensor",
-    # "aten::cat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)",
-    # "aten::cat.names(Tensor[] tensors, str dim) -> Tensor",
-    # "aten::concat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::concat.names(Tensor[] tensors, str dim) -> Tensor",
-    # "aten::concatenate.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::concatenate.names(Tensor[] tensors, str dim) -> Tensor",
-    # "aten::cummax.dimname_out(Tensor self, str dim, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::cummax.dimname(Tensor self, str dim) -> (Tensor values, Tensor indices)",
-    # "aten::cumprod.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::cumprod.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",  # noqa: E501
-    # "aten::cumsum_.dimname(Tensor(a!) self, str dim, *, ScalarType? dtype=None) -> Tensor(a!)", # noqa E501
-    # "aten::cumsum.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::cumsum.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",
-    # "aten::diagonal.Dimname(Tensor(a) self, *, str outdim, str dim1, str dim2, int offset=0) -> Tensor(a)", # noqa E501
-    # "aten::empty.names_out(int[] size, *, str[]? names, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::empty.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
+    "aten::argsort.dimname(Tensor self, str dim, bool descending=False) -> Tensor",
+    "aten::cat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)",
+    "aten::cat.names(Tensor[] tensors, str dim) -> Tensor",
+    "aten::concat.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::concat.names(Tensor[] tensors, str dim) -> Tensor",
+    "aten::concatenate.names_out(Tensor[] tensors, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::concatenate.names(Tensor[] tensors, str dim) -> Tensor",
+    "aten::cummax.dimname_out(Tensor self, str dim, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::cummax.dimname(Tensor self, str dim) -> (Tensor values, Tensor indices)",
+    "aten::cumprod.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::cumprod.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",  # noqa: E501
+    "aten::cumsum_.dimname(Tensor(a!) self, str dim, *, ScalarType? dtype=None) -> Tensor(a!)", # noqa E501
+    "aten::cumsum.dimname_out(Tensor self, str dim, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::cumsum.dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",
+    "aten::diagonal.Dimname(Tensor(a) self, *, str outdim, str dim1, str dim2, int offset=0) -> Tensor(a)", # noqa E501
+    "aten::empty.names_out(int[] size, *, str[]? names, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::empty.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
     "aten::fft(Tensor self, int signal_ndim, bool normalized=False) -> Tensor",
-    # "aten::flatten.DimnameList(Tensor(a) self, str[] dims, str out_dim) -> Tensor(a)",
-    # "aten::flatten.named_out_dim(Tensor(a) self, int start_dim, int end_dim, str out_dim) -> Tensor(a)", # noqa E501
-    # "aten::flatten.using_names(Tensor(a) self, str start_dim, str end_dim, str out_dim) -> Tensor(a)", # noqa E501
-    # "aten::full.names_out(int[] size, Scalar fill_value, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::full.names(int[] size, Scalar fill_value, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
-    # "aten::gather.dimname_out(Tensor self, str dim, Tensor index, *, bool sparse_grad=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::gather.dimname(Tensor self, str dim, Tensor index, *, bool sparse_grad=False) -> Tensor", # noqa E501
+    "aten::flatten.DimnameList(Tensor(a) self, str[] dims, str out_dim) -> Tensor(a)",
+    "aten::flatten.named_out_dim(Tensor(a) self, int start_dim, int end_dim, str out_dim) -> Tensor(a)", # noqa E501
+    "aten::flatten.using_names(Tensor(a) self, str start_dim, str end_dim, str out_dim) -> Tensor(a)", # noqa E501
+    "aten::full.names_out(int[] size, Scalar fill_value, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::full.names(int[] size, Scalar fill_value, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::gather.dimname_out(Tensor self, str dim, Tensor index, *, bool sparse_grad=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::gather.dimname(Tensor self, str dim, Tensor index, *, bool sparse_grad=False) -> Tensor", # noqa E501
     "aten::get_num_threads() -> int",
     "aten::greater(Tensor self, Tensor other) -> Tensor",
     "aten::grid_sampler.legacy(Tensor input, Tensor grid, int interpolation_mode, int padding_mode) -> Tensor", # noqa E501
-    # "aten::index_add.dimname(Tensor self, str dim, Tensor index, Tensor source, *, Scalar alpha=1) -> Tensor", # noqa E501
-    # "aten::index_copy_.dimname(Tensor(a!) self, str dim, Tensor index, Tensor source) -> Tensor(a!)", # noqa E501
-    # "aten::index_copy.dimname(Tensor self, str dim, Tensor index, Tensor source) -> Tensor", # noqa E501
-    # "aten::index_fill_.Dimname_Scalar(Tensor(a!) self, str dim, Tensor index, Scalar value) -> Tensor(a!)", # noqa E501
-    # "aten::index_fill_.Dimname_Tensor(Tensor(a!) self, str dim, Tensor index, Tensor value) -> Tensor(a!)", # noqa E501
-    # "aten::index_fill.Dimname_Scalar(Tensor self, str dim, Tensor index, Scalar value) -> Tensor", # noqa E501
-    # "aten::index_fill.Dimname_Tensor(Tensor self, str dim, Tensor index, Tensor value) -> Tensor", # noqa E501
-    # "aten::index_select.dimname_out(Tensor self, str dim, Tensor index, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::index_select.dimname(Tensor self, str dim, Tensor index) -> Tensor",
-    # "aten::kthvalue.dimname_out(Tensor self, SymInt k, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::kthvalue.dimname(Tensor self, SymInt k, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::index_add.dimname(Tensor self, str dim, Tensor index, Tensor source, *, Scalar alpha=1) -> Tensor", # noqa E501
+    "aten::index_copy_.dimname(Tensor(a!) self, str dim, Tensor index, Tensor source) -> Tensor(a!)", # noqa E501
+    "aten::index_copy.dimname(Tensor self, str dim, Tensor index, Tensor source) -> Tensor", # noqa E501
+    "aten::index_fill_.Dimname_Scalar(Tensor(a!) self, str dim, Tensor index, Scalar value) -> Tensor(a!)", # noqa E501
+    "aten::index_fill_.Dimname_Tensor(Tensor(a!) self, str dim, Tensor index, Tensor value) -> Tensor(a!)", # noqa E501
+    "aten::index_fill.Dimname_Scalar(Tensor self, str dim, Tensor index, Scalar value) -> Tensor", # noqa E501
+    "aten::index_fill.Dimname_Tensor(Tensor self, str dim, Tensor index, Tensor value) -> Tensor", # noqa E501
+    "aten::index_select.dimname_out(Tensor self, str dim, Tensor index, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::index_select.dimname(Tensor self, str dim, Tensor index) -> Tensor",
+    "aten::kthvalue.dimname_out(Tensor self, SymInt k, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::kthvalue.dimname(Tensor self, SymInt k, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
     "aten::list_with_default(int[] list, int[] defaults) -> int[]",
-    # "aten::log_softmax.Dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor", # noqa E501
-    # "aten::logcumsumexp.dimname_out(Tensor self, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::logcumsumexp.dimname(Tensor self, str dim) -> Tensor",
-    # "aten::logsumexp.names_out(Tensor self, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::logsumexp.names(Tensor self, str[1] dim, bool keepdim=False) -> Tensor",
-    # "aten::max.names_dim_max(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) max, Tensor(b!) max_values) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::max.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
-    # "aten::mean.names_dim(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
-    # "aten::mean.names_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::median.names_dim_values(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::median.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
-    # "aten::min.names_dim_min(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) min, Tensor(b!) min_indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::min.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
-    # "aten::mode.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::mode.dimname(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
-    # "aten::norm.names_dtype_out(Tensor self, Scalar? p, str[1] dim, bool keepdim, *, ScalarType dtype, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::norm.names_out(Tensor self, Scalar? p, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::norm.names_ScalarOpt_dim_dtype(Tensor self, Scalar? p, str[1] dim, bool keepdim, *, ScalarType dtype) -> Tensor", # noqa E501
-    # "aten::norm.names_ScalarOpt_dim(Tensor self, Scalar? p, str[1] dim, bool keepdim=False) -> Tensor", # noqa E501
-    # "aten::ones.names_out(int[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)",
-    # "aten::ones.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
-    # "aten::prod.dim_Dimname(Tensor self, str dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
-    # "aten::prod.Dimname_out(Tensor self, str dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::rand.generator_with_names_out(SymInt[] size, *, Generator? generator, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::rand.generator_with_names(SymInt[] size, *, Generator? generator, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
-    # "aten::rand.names_out(SymInt[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::rand.names(SymInt[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::log_softmax.Dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::logcumsumexp.dimname_out(Tensor self, str dim, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::logcumsumexp.dimname(Tensor self, str dim) -> Tensor",
+    "aten::logsumexp.names_out(Tensor self, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::logsumexp.names(Tensor self, str[1] dim, bool keepdim=False) -> Tensor",
+    "aten::max.names_dim_max(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) max, Tensor(b!) max_values) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::max.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::mean.names_dim(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::mean.names_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::median.names_dim_values(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::median.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::min.names_dim_min(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) min, Tensor(b!) min_indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::min.names_dim(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::mode.dimname_out(Tensor self, str dim, bool keepdim=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::mode.dimname(Tensor self, str dim, bool keepdim=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::norm.names_dtype_out(Tensor self, Scalar? p, str[1] dim, bool keepdim, *, ScalarType dtype, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::norm.names_out(Tensor self, Scalar? p, str[1] dim, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::norm.names_ScalarOpt_dim_dtype(Tensor self, Scalar? p, str[1] dim, bool keepdim, *, ScalarType dtype) -> Tensor", # noqa E501
+    "aten::norm.names_ScalarOpt_dim(Tensor self, Scalar? p, str[1] dim, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::ones.names_out(int[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)",
+    "aten::ones.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::prod.dim_Dimname(Tensor self, str dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::prod.Dimname_out(Tensor self, str dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::rand.generator_with_names_out(SymInt[] size, *, Generator? generator, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::rand.generator_with_names(SymInt[] size, *, Generator? generator, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::rand.names_out(SymInt[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::rand.names(SymInt[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
     "aten::randint_like.generator_with_low_dtype_out(Tensor self, SymInt low, SymInt high, *, Generator? generator, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "aten::randint_like.generator_with_low_dtype(Tensor self, SymInt low, SymInt high, *, Generator? generator, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None, MemoryFormat? memory_format=None) -> Tensor", # noqa E501
-    # "aten::randn.generator_with_names_out(SymInt[] size, *, Generator? generator, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::randn.generator_with_names(SymInt[] size, *, Generator? generator, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
-    # "aten::randn.names_out(SymInt[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::randn.names(SymInt[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
-    # "aten::scatter_add.dimname(Tensor self, str dim, Tensor index, Tensor src) -> Tensor", # noqa E501
-    # "aten::scatter.dimname_src(Tensor self, str dim, Tensor index, Tensor src) -> Tensor", # noqa E501
-    # "aten::scatter.dimname_value(Tensor self, str dim, Tensor index, Scalar value) -> Tensor", # noqa E501
-    # "aten::select.Dimname(Tensor(a) self, str dim, int index) -> Tensor(a)",
+    "aten::randn.generator_with_names_out(SymInt[] size, *, Generator? generator, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::randn.generator_with_names(SymInt[] size, *, Generator? generator, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::randn.names_out(SymInt[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::randn.names(SymInt[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::scatter_add.dimname(Tensor self, str dim, Tensor index, Tensor src) -> Tensor", # noqa E501
+    "aten::scatter.dimname_src(Tensor self, str dim, Tensor index, Tensor src) -> Tensor", # noqa E501
+    "aten::scatter.dimname_value(Tensor self, str dim, Tensor index, Scalar value) -> Tensor", # noqa E501
+    "aten::select.Dimname(Tensor(a) self, str dim, int index) -> Tensor(a)",
     "aten::set_num_threads(int nthreads) -> ()",
-    # "aten::size.Dimname(Tensor self, str dim) -> int",
-    # "aten::softmax.Dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",  # noqa: E501
-    # "aten::sort.dimname_stable(Tensor self, *, bool? stable, str dim, bool descending=False) -> (Tensor values, Tensor indices)", # noqa E501
-    # "aten::sort.dimname_values_stable(Tensor self, *, bool? stable, str dim, bool descending=False, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::sort.dimname_values(Tensor self, str dim, bool descending=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
-    # "aten::sort.dimname(Tensor self, str dim, bool descending=False) -> (Tensor values, Tensor indices)", # noqa E501
-    # "aten::squeeze_.dimname(Tensor(a!) self, str dim) -> Tensor(a!)",
-    # "aten::squeeze.dimname(Tensor(a) self, str dim) -> Tensor(a)",
-    # "aten::std_mean.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
-    # "aten::std_mean.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
-    # "aten::std.correction_names_out(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::std.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> Tensor", # noqa E501
-    # "aten::std.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> Tensor", # noqa E501
-    # "aten::std.names_out(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::stride.Dimname(Tensor self, str dim) -> int",
-    # "aten::sum.dim_DimnameList(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
-    # "aten::sum.DimnameList_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::transpose.Dimname(Tensor(a) self, str dim0, str dim1) -> Tensor(a)",
-    # "aten::unbind.Dimname(Tensor(a -> *) self, str dim) -> Tensor(a)[]",
-    # "aten::unflatten.Dimname(Tensor(a) self, str dim, SymInt[] sizes, str[] names) -> Tensor(a)", # noqa E501
-    # "aten::var_mean.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
-    # "aten::var_mean.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
-    # "aten::var.correction_names_out(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::var.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> Tensor", # noqa E501
-    # "aten::var.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> Tensor", # noqa E501
-    # "aten::var.names_out(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
-    # "aten::zeros.names_out(int[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)",  # noqa: E501
-    # "aten::zeros.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
+    "aten::size.Dimname(Tensor self, str dim) -> int",
+    "aten::softmax.Dimname(Tensor self, str dim, *, ScalarType? dtype=None) -> Tensor",  # noqa: E501
+    "aten::sort.dimname_stable(Tensor self, *, bool? stable, str dim, bool descending=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::sort.dimname_values_stable(Tensor self, *, bool? stable, str dim, bool descending=False, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::sort.dimname_values(Tensor self, str dim, bool descending=False, *, Tensor(a!) values, Tensor(b!) indices) -> (Tensor(a!) values, Tensor(b!) indices)", # noqa E501
+    "aten::sort.dimname(Tensor self, str dim, bool descending=False) -> (Tensor values, Tensor indices)", # noqa E501
+    "aten::squeeze_.dimname(Tensor(a!) self, str dim) -> Tensor(a!)",
+    "aten::squeeze.dimname(Tensor(a) self, str dim) -> Tensor(a)",
+    "aten::std_mean.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::std_mean.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::std.correction_names_out(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::std.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::std.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::std.names_out(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::stride.Dimname(Tensor self, str dim) -> int",
+    "aten::sum.dim_DimnameList(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None) -> Tensor", # noqa E501
+    "aten::sum.DimnameList_out(Tensor self, str[1] dim, bool keepdim=False, *, ScalarType? dtype=None, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::transpose.Dimname(Tensor(a) self, str dim0, str dim1) -> Tensor(a)",
+    "aten::unbind.Dimname(Tensor(a -> *) self, str dim) -> Tensor(a)[]",
+    "aten::unflatten.Dimname(Tensor(a) self, str dim, SymInt[] sizes, str[] names) -> Tensor(a)", # noqa E501
+    "aten::var_mean.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::var_mean.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> (Tensor, Tensor)", # noqa E501
+    "aten::var.correction_names_out(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::var.correction_names(Tensor self, str[1] dim, *, Scalar? correction=None, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::var.names_dim(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False) -> Tensor", # noqa E501
+    "aten::var.names_out(Tensor self, str[1] dim, bool unbiased=True, bool keepdim=False, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
+    "aten::zeros.names_out(int[] size, *, str[]? names, Tensor(a!) out) -> Tensor(a!)",  # noqa: E501
+    "aten::zeros.names(int[] size, *, str[]? names, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor", # noqa E501
     "cadence::conv2d.out(Tensor input, Tensor weight, Tensor bias, int[2] stride, SymInt[2] padding, int[2] dilation, int groups, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantize_per_tensor.out(Tensor input, float scale, int zero_point, int quant_min, int quant_max, ScalarType dtype, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
     "cadence::quantized_conv2d_nchw.per_tensor_out(Tensor input, Tensor weight, Tensor bias, int[] stride, SymInt[] padding, int[] dilation, int groups, int input_zero_point, int weight_zero_point, float bias_scale, float out_scale, int out_zero_point, int out_multiplier, int out_shift, *, Tensor(a!) out) -> Tensor(a!)", # noqa E501
@@ -422,6 +422,12 @@ known_schema_definitions = [
     "neuron::forward_v2(Tensor[] _0, __torch__.torch.classes.neuron.Model _1) -> Tensor[] _0", # noqa E501
     "neuron::rnn_v2(Tensor _0, Tensor _1, Tensor _2, int _3, __torch__.torch.classes.neuron.RnnBinding_v2[] _4) -> (Tensor _0, Tensor _1, Tensor _2)", # noqa E501
     "neuron::rnn(Tensor _0, Tensor[] _1, __torch__.torch.classes.neuron.RnnBinding _2, int _3) -> (Tensor _0, Tensor[] _1)", # noqa E501
+    "prepacked::conv2d_clamp_prepack(Tensor W, Tensor? B, int[2] stride, int[2] padding, int[2] dilation, int groups, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.Conv2dOpContext", # noqa E501
+    "prepacked::conv2d_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.Conv2dOpContext W_prepack) -> Tensor Y", # noqa E501
+    "prepacked::conv2d_transpose_clamp_prepack(Tensor W, Tensor? B, int[2] stride, int[2] padding, int[2] output_padding, int[2] dilation, int groups, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.TransposeConv2dOpContext", # noqa E501
+    "prepacked::conv2d_transpose_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.TransposeConv2dOpContext W_prepack) -> Tensor Y", # noqa E501
+    "prepacked::linear_clamp_prepack(Tensor W, Tensor? B=None, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.LinearOpContext", # noqa E501
+    "prepacked::linear_clamp_run(Tensor X, __torch__.torch.classes.xnnpack.LinearOpContext W_prepack) -> Tensor Y", # noqa E501
     "prim::ConstantMKLDNNTensor(...) -> ...",
     "prim::isinstance(Any to_check) -> bool",
     "prim::mkldnn_convolution(Tensor input, Tensor weight, Tensor? bias, int[] stride, int[] padding, int[] dilation, int groups) -> Tensor", # noqa E501
