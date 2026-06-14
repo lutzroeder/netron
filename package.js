@@ -414,16 +414,16 @@ const publish = async (target) => {
             writeLine('update manifest');
             const manifestFile = dirname(...paths, identifier);
             await fs.writeFile(`${manifestFile}.yaml`, [
-                '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.6.0.schema.json',
+                '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.12.0.schema.json',
                 `PackageIdentifier: ${identifier}`,
                 `PackageVersion: ${version}`,
                 'DefaultLocale: en-US',
                 'ManifestType: version',
-                'ManifestVersion: 1.6.0',
+                'ManifestVersion: 1.12.0',
                 ''
             ].join('\n'));
             await fs.writeFile(`${manifestFile}.installer.yaml`, [
-                '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json',
+                '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json',
                 `PackageIdentifier: ${identifier}`,
                 `PackageVersion: ${version}`,
                 'Platform:',
@@ -453,11 +453,11 @@ const publish = async (target) => {
                 'FileExtensions:',
                 extensions,
                 'ManifestType: installer',
-                'ManifestVersion: 1.6.0',
+                'ManifestVersion: 1.12.0',
                 ''
             ].join('\n'));
             await fs.writeFile(`${manifestFile}.locale.en-US.yaml`, [
-                '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json',
+                '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json',
                 `PackageIdentifier: ${identifier}`,
                 `PackageVersion: ${version}`,
                 `PackageName: ${product}`,
@@ -478,7 +478,7 @@ const publish = async (target) => {
                 '- deep-learning',
                 '- neural-network',
                 'ManifestType: defaultLocale',
-                'ManifestVersion: 1.6.0',
+                'ManifestVersion: 1.12.0',
                 ''
             ].join('\n'));
             writeLine('git push winget-pkgs');
