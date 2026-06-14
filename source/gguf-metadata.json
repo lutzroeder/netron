@@ -3728,7 +3728,9 @@
         { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
         { "name": "rope_freqs", "type": "ROPE_FREQS", "category": "Attention" },
         { "name": "nextn.pre_projection", "type": "MUL_MAT" },
-        { "name": "nextn.post_projection", "type": "MUL_MAT" }
+        { "name": "nextn.post_projection", "type": "MUL_MAT" },
+        { "name": "masked_embd_centroids" },
+        { "name": "masked_embd_ordering" }
       ],
       "blocks": [
         { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["attn_norm", "attn_q_norm"] },
@@ -3743,6 +3745,33 @@
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" }
+      ]
+    }
+  },
+  {
+    "name": "eagle3",
+    "graph": {
+      "input": [
+        { "name": "token_embd" },
+        { "name": "rope_freqs" },
+        { "name": "fc" },
+        { "name": "d2t" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_norm_2" },
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" }
       ]
     }
   }
