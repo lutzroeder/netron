@@ -1641,6 +1641,17 @@ tablegen.Reader = class {
         // Track which fields were explicitly defined in the def via 'let' statements
         // These should never be overwritten by parent class fields
         const explicitFields = new Set(record.fields.keys());
+        // 'let append'/'let prepend' fields concatenate with the inherited value rather
+        // than replacing it. Pull them out so the parent value resolves normally, then
+        // concatenate the child value against the fully inherited result below.
+        const concatFields = [];
+        for (const [fieldName, field] of record.fields) {
+            if (field.concat) {
+                concatFields.push({ name: fieldName, mode: field.concat, value: field.value });
+                explicitFields.delete(fieldName);
+                record.fields.delete(fieldName);
+            }
+        }
         // Step 1: Build initial template bindings for this record from its immediate parents
         const recordBindings = new Map();
         for (const parent of record.parents) {
@@ -1743,6 +1754,17 @@ tablegen.Reader = class {
         };
         for (const parent of record.parents) {
             processParent(parent, recordBindings, new Set());
+        }
+        // Concatenate 'let append'/'let prepend' values against the inherited value.
+        for (const { name, mode, value } of concatFields) {
+            const inherited = record.fields.get(name);
+            if (inherited && inherited.value) {
+                const parts = mode === 'prepend' ?
+                    [value, inherited.value] : [inherited.value, value];
+                inherited.value = new tablegen.Value('concat', parts);
+            } else {
+                record.fields.set(name, new tablegen.RecordVal(name, null, value));
+            }
         }
     }
 
@@ -2983,10 +3005,19 @@ tablegen.Reader = class {
         while (!this._match('}') && !this._match('eof')) {
             if (this._match('keyword', 'let')) {
                 this._read();
+                // Optional 'append'/'prepend' modifier concatenates with the inherited
+                // value instead of replacing it (TableGen field concatenation).
+                let concat = null;
+                if (this._match('id', 'append') || this._match('id', 'prepend')) {
+                    concat = this._read();
+                }
                 const name = this._expect('id');
                 this._expect('=');
                 const value = this._parseValue();
                 const field = new tablegen.RecordVal(name, null, value);
+                if (concat) {
+                    field.concat = concat;
+                }
                 record.fields.set(name, field);
                 this._eat(';');
             } else if (this._match('keyword', 'defvar')) {

@@ -194,6 +194,7 @@ const schema = async () => {
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVCompositeOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVControlFlowOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVCooperativeMatrixOps.td',
+        'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVExperimentalMLOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVGLOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVGraphOps.td',
         'mlir/include/mlir/Dialect/SPIRV/IR/SPIRVGroupOps.td',

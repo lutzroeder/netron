@@ -26617,18 +26617,20 @@ _.XeVMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'xevm');
-        this.registerCustomAttribute('XeVM_TruncfSrcElemTypeAttr', this.parseTruncfSrcElemTypeAttr.bind(this));
-        this.registerCustomAttribute('XeVM_TruncfDstElemTypeAttr', this.parseTruncfDstElemTypeAttr.bind(this));
+        this.registerCustomAttribute('XeVM_TruncfSrcElemTypeAttr', this.parseSrcElemTypeAttr.bind(this));
+        this.registerCustomAttribute('XeVM_TruncfDstElemTypeAttr', this.parseDstElemTypeAttr.bind(this));
+        this.registerCustomAttribute('XeVM_ExtfSrcElemTypeAttr', this.parseSrcElemTypeAttr.bind(this));
+        this.registerCustomAttribute('XeVM_ExtfDstElemTypeAttr', this.parseDstElemTypeAttr.bind(this));
     }
 
-    parseTruncfSrcElemTypeAttr(parser) {
+    parseSrcElemTypeAttr(parser) {
         parser.parseKeyword('src_etype');
         parser.parseEqual();
         const value = parser.parseKeyword();
         return new _.TypedAttr(value, null);
     }
 
-    parseTruncfDstElemTypeAttr(parser) {
+    parseDstElemTypeAttr(parser) {
         parser.parseKeyword('dst_etype');
         parser.parseEqual();
         const value = parser.parseKeyword();
