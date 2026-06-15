@@ -3774,5 +3774,41 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "cohere2moe",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "ffn_gate_inp" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_gate_up_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_gate_shexp" },
+        { "name": "ffn_down_shexp" },
+        { "name": "ffn_up_shexp" },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" }
+      ]
+    }
   }
 ]
