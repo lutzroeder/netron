@@ -1107,7 +1107,8 @@ MNN.BinaryOpOperation = {
     BITWISE_XOR: 25, '25': 'BITWISE_XOR',
     LOGICALXOR: 26, '26': 'LOGICALXOR',
     LEFTSHIFT: 27, '27': 'LEFTSHIFT',
-    RIGHTSHIFT: 28, '28': 'RIGHTSHIFT'
+    RIGHTSHIFT: 28, '28': 'RIGHTSHIFT',
+    MUL_SILU: 29, '29': 'MUL_SILU'
 };
 
 MNN.BinaryOp = class BinaryOp {
@@ -2631,6 +2632,7 @@ MNN.OpType = {
     SplitGeLU: 303, '303': 'SplitGeLU',
     GroupNorm: 304, '304': 'GroupNorm',
     LinearAttention: 305, '305': 'LinearAttention',
+    RoPE: 306, '306': 'RoPE',
     Extra: 512, '512': 'Extra',
     ConvInt8: 513, '513': 'ConvInt8',
     Int8ToFloat: 514, '514': 'Int8ToFloat',
@@ -2706,6 +2708,9 @@ MNN.AttentionParam = class AttentionParam {
         $.kv_shared_layer = reader.string_(position, 6, null);
         $.layer_index = reader.int32_(position, 8, -1);
         $.kv_shared_layer_index = reader.int32_(position, 10, -1);
+        $.mhq_quant = reader.tables(position, 12, MNN.TensorQuantInfo);
+        $.output_c4 = reader.bool_(position, 14, false);
+        $.attnScale = reader.float32_(position, 16, 0);
         return $;
     }
 
@@ -2715,6 +2720,9 @@ MNN.AttentionParam = class AttentionParam {
         $.kv_shared_layer = reader.value(json.kv_shared_layer, null);
         $.layer_index = reader.value(json.layer_index, -1);
         $.kv_shared_layer_index = reader.value(json.kv_shared_layer_index, -1);
+        $.mhq_quant = reader.objects(json.mhq_quant, MNN.TensorQuantInfo);
+        $.output_c4 = reader.value(json.output_c4, false);
+        $.attnScale = reader.value(json.attnScale, 0);
         return $;
     }
 };
