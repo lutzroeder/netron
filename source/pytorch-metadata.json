@@ -3742,28 +3742,28 @@
     "name": "aten::linear_backward(Tensor self, Tensor grad_output, Tensor weight, bool[3] output_mask) -> (Tensor, Tensor, Tensor)"
   },
   {
-    "name": "aten::linspace.Tensor_Tensor(Tensor start, Tensor end, SymInt steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::linspace.Tensor_Tensor(Tensor start, Tensor end, int steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::linspace.Tensor_Scalar(Tensor start, Scalar end, SymInt steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::linspace.Tensor_Scalar(Tensor start, Scalar end, int steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::linspace.Scalar_Tensor(Scalar start, Tensor end, SymInt steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::linspace.Scalar_Tensor(Scalar start, Tensor end, int steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::linspace(Scalar start, Scalar end, SymInt steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::linspace(Scalar start, Scalar end, int steps, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::linspace.out(Scalar start, Scalar end, SymInt steps, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::linspace.out(Scalar start, Scalar end, int steps, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::linspace.Tensor_Tensor_out(Tensor start, Tensor end, SymInt steps, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::linspace.Tensor_Tensor_out(Tensor start, Tensor end, int steps, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::linspace.Tensor_Scalar_out(Tensor start, Scalar end, SymInt steps, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::linspace.Tensor_Scalar_out(Tensor start, Scalar end, int steps, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::linspace.Scalar_Tensor_out(Scalar start, Tensor end, SymInt steps, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::linspace.Scalar_Tensor_out(Scalar start, Tensor end, int steps, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::list(str t) -> str[]"
@@ -3984,28 +3984,28 @@
     "name": "aten::logit_backward.grad_input(Tensor grad_output, Tensor self, float? eps=None, *, Tensor(a!) grad_input) -> Tensor(a!)"
   },
   {
-    "name": "aten::logspace.Tensor_Tensor(Tensor start, Tensor end, SymInt steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::logspace.Tensor_Tensor(Tensor start, Tensor end, int steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::logspace.Tensor_Scalar(Tensor start, Scalar end, SymInt steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::logspace.Tensor_Scalar(Tensor start, Scalar end, int steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::logspace.Scalar_Tensor(Scalar start, Tensor end, SymInt steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::logspace.Scalar_Tensor(Scalar start, Tensor end, int steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::logspace(Scalar start, Scalar end, SymInt steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
+    "name": "aten::logspace(Scalar start, Scalar end, int steps, float base=10., *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor"
   },
   {
-    "name": "aten::logspace.out(Scalar start, Scalar end, SymInt steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::logspace.out(Scalar start, Scalar end, int steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::logspace.Tensor_Tensor_out(Tensor start, Tensor end, SymInt steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::logspace.Tensor_Tensor_out(Tensor start, Tensor end, int steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::logspace.Tensor_Scalar_out(Tensor start, Scalar end, SymInt steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::logspace.Tensor_Scalar_out(Tensor start, Scalar end, int steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "aten::logspace.Scalar_Tensor_out(Scalar start, Tensor end, SymInt steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "aten::logspace.Scalar_Tensor_out(Scalar start, Tensor end, int steps, float base=10., *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
     "name": "aten::logsumexp(Tensor self, int[1] dim, bool keepdim=False) -> Tensor"
