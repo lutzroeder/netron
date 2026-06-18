@@ -204,6 +204,123 @@ litert.lm.proto.GenericModel = class GenericModel {
                 case 2:
                     message.force_string_content = reader.bool();
                     break;
+                case 3:
+                    message.image_enabled = reader.bool();
+                    break;
+                case 4:
+                    message.audio_enabled = reader.bool();
+                    break;
+                case 5:
+                    message.delimiter_regex = reader.string();
+                    break;
+                case 6:
+                    message.image_token_regex = reader.string();
+                    break;
+                case 7:
+                    message.audio_token_regex = reader.string();
+                    break;
+                case 8:
+                    message.image_tensor_height = reader.int32();
+                    break;
+                case 9:
+                    message.image_tensor_width = reader.int32();
+                    break;
+                case 10:
+                    message.patch_width = reader.int32();
+                    break;
+                case 11:
+                    message.patch_height = reader.int32();
+                    break;
+                case 12:
+                    message.max_num_patches = reader.int32();
+                    break;
+                case 13:
+                    message.pooling_kernel_size = reader.int32();
+                    break;
+                case 14:
+                    message.start_of_image_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
+                case 15:
+                    message.end_of_image_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
+                case 16:
+                    message.image_prefix = reader.string();
+                    break;
+                case 17:
+                    message.image_suffix = reader.string();
+                    break;
+                case 18:
+                    message.add_image_end = reader.bool();
+                    break;
+                case 19:
+                    message.skip_mel_spectrogram_extraction = reader.bool();
+                    break;
+                case 20:
+                    message.audio_sample_rate_hz = reader.int32();
+                    break;
+                case 21:
+                    message.audio_num_channels = reader.int32();
+                    break;
+                case 22:
+                    message.audio_frame_length = reader.int32();
+                    break;
+                case 23:
+                    message.audio_hop_length = reader.int32();
+                    break;
+                case 24:
+                    message.audio_fft_length = reader.int32();
+                    break;
+                case 25:
+                    message.audio_input_scale = reader.float();
+                    break;
+                case 26:
+                    message.audio_pre_emphasis_factor = reader.float();
+                    break;
+                case 27:
+                    message.audio_num_mel_bins = reader.int32();
+                    break;
+                case 28:
+                    message.audio_mel_low_hz = reader.float();
+                    break;
+                case 29:
+                    message.audio_mel_high_hz = reader.float();
+                    break;
+                case 30:
+                    message.audio_mel_floor = reader.float();
+                    break;
+                case 31:
+                    message.audio_normalize_mel = reader.bool();
+                    break;
+                case 32:
+                    message.audio_add_floor_to_mel_before_log = reader.bool();
+                    break;
+                case 33:
+                    message.audio_semicausal_padding = reader.bool();
+                    break;
+                case 34:
+                    message.audio_non_zero_hanning = reader.bool();
+                    break;
+                case 35:
+                    message.audio_periodic_hanning = reader.bool();
+                    break;
+                case 36:
+                    message.audio_fft_padding_type = reader.int32();
+                    break;
+                case 37:
+                    message.start_of_audio_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
+                case 38:
+                    message.end_of_audio_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
+                case 39:
+                    message.audio_prefix = reader.string();
+                    break;
+                case 40:
+                    message.audio_suffix = reader.string();
+                    break;
+                case 41:
+                    message.add_audio_end = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -215,6 +332,45 @@ litert.lm.proto.GenericModel = class GenericModel {
 
 litert.lm.proto.GenericModel.prototype.model_role = "";
 litert.lm.proto.GenericModel.prototype.force_string_content = false;
+litert.lm.proto.GenericModel.prototype.image_enabled = false;
+litert.lm.proto.GenericModel.prototype.audio_enabled = false;
+litert.lm.proto.GenericModel.prototype.delimiter_regex = "";
+litert.lm.proto.GenericModel.prototype.image_token_regex = "";
+litert.lm.proto.GenericModel.prototype.audio_token_regex = "";
+litert.lm.proto.GenericModel.prototype.image_tensor_height = 0;
+litert.lm.proto.GenericModel.prototype.image_tensor_width = 0;
+litert.lm.proto.GenericModel.prototype.patch_width = 0;
+litert.lm.proto.GenericModel.prototype.patch_height = 0;
+litert.lm.proto.GenericModel.prototype.max_num_patches = 0;
+litert.lm.proto.GenericModel.prototype.pooling_kernel_size = 0;
+litert.lm.proto.GenericModel.prototype.start_of_image_token = null;
+litert.lm.proto.GenericModel.prototype.end_of_image_token = null;
+litert.lm.proto.GenericModel.prototype.image_prefix = "";
+litert.lm.proto.GenericModel.prototype.image_suffix = "";
+litert.lm.proto.GenericModel.prototype.add_image_end = false;
+litert.lm.proto.GenericModel.prototype.skip_mel_spectrogram_extraction = false;
+litert.lm.proto.GenericModel.prototype.audio_sample_rate_hz = 0;
+litert.lm.proto.GenericModel.prototype.audio_num_channels = 0;
+litert.lm.proto.GenericModel.prototype.audio_frame_length = 0;
+litert.lm.proto.GenericModel.prototype.audio_hop_length = 0;
+litert.lm.proto.GenericModel.prototype.audio_fft_length = 0;
+litert.lm.proto.GenericModel.prototype.audio_input_scale = 0;
+litert.lm.proto.GenericModel.prototype.audio_pre_emphasis_factor = 0;
+litert.lm.proto.GenericModel.prototype.audio_num_mel_bins = 0;
+litert.lm.proto.GenericModel.prototype.audio_mel_low_hz = 0;
+litert.lm.proto.GenericModel.prototype.audio_mel_high_hz = 0;
+litert.lm.proto.GenericModel.prototype.audio_mel_floor = 0;
+litert.lm.proto.GenericModel.prototype.audio_normalize_mel = false;
+litert.lm.proto.GenericModel.prototype.audio_add_floor_to_mel_before_log = false;
+litert.lm.proto.GenericModel.prototype.audio_semicausal_padding = false;
+litert.lm.proto.GenericModel.prototype.audio_non_zero_hanning = false;
+litert.lm.proto.GenericModel.prototype.audio_periodic_hanning = false;
+litert.lm.proto.GenericModel.prototype.audio_fft_padding_type = 0;
+litert.lm.proto.GenericModel.prototype.start_of_audio_token = null;
+litert.lm.proto.GenericModel.prototype.end_of_audio_token = null;
+litert.lm.proto.GenericModel.prototype.audio_prefix = "";
+litert.lm.proto.GenericModel.prototype.audio_suffix = "";
+litert.lm.proto.GenericModel.prototype.add_audio_end = false;
 
 litert.lm.proto.Gemma3N = class Gemma3N {
 
@@ -262,6 +418,12 @@ litert.lm.proto.ConstraintMode = {
     "CONSTRAINT_MODE_UNSPECIFIED": 0,
     "CONSTRAINT_MODE_TEXT_AND_OR": 1,
     "CONSTRAINT_MODE_FUNCTION_CALL_ONLY": 2
+};
+
+litert.lm.proto.FftPaddingType = {
+    "FFT_PADDING_TYPE_UNSPECIFIED": 0,
+    "FFT_PADDING_TYPE_RIGHT": 1,
+    "FFT_PADDING_TYPE_CENTER": 2
 };
 
 litert.lm.proto.FunctionGemma = class FunctionGemma {
