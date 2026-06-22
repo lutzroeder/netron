@@ -516,6 +516,8 @@ tflite.TensorType = class {
             case tflite.schema.TensorType.BOOL: this.dataType = 'boolean'; break;
             case tflite.schema.TensorType.COMPLEX64: this.dataType = 'complex<float32>'; break;
             case tflite.schema.TensorType.COMPLEX128: this.dataType = 'complex<float64>'; break;
+            case tflite.schema.TensorType.FLOAT8_E4M3FN: this.dataType = 'float8e4m3fn'; break;
+            case tflite.schema.TensorType.FLOAT8_E5M2: this.dataType = 'float8e5m2'; break;
             default: {
                 const name = tflite.schema.TensorType[tensor.type];
                 this.dataType = name ? name.toLowerCase() : '?';

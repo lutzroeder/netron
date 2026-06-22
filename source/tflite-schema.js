@@ -22,7 +22,9 @@ tflite.TensorType = {
     INT4: 17, '17': 'INT4',
     BFLOAT16: 18, '18': 'BFLOAT16',
     INT2: 19, '19': 'INT2',
-    UINT4: 20, '20': 'UINT4'
+    UINT4: 20, '20': 'UINT4',
+    FLOAT8_E4M3FN: 21, '21': 'FLOAT8_E4M3FN',
+    FLOAT8_E5M2: 22, '22': 'FLOAT8_E5M2'
 };
 
 tflite.CustomQuantization = class CustomQuantization {
