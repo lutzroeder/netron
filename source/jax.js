@@ -120,11 +120,11 @@ jax.TensorType = class {
             case 15: this.dataType = 'bfloat16'; break;
             case 16: this.dataType = 'int4'; break;
             case 17: this.dataType = 'uint4'; break;
-            case 18: this.dataType = 'float8_e4m3b11fnuz'; break;
-            case 19: this.dataType = 'float8_e4m3fn'; break;
-            case 20: this.dataType = 'float8_e4m3fnuz'; break;
-            case 21: this.dataType = 'float8_e5m2'; break;
-            case 22: this.dataType = 'float8_e5m2fnuz'; break;
+            case 18: this.dataType = 'float8e4m3b11fnuz'; break;
+            case 19: this.dataType = 'float8e4m3fn'; break;
+            case 20: this.dataType = 'float8e4m3fnuz'; break;
+            case 21: this.dataType = 'float8e5m2'; break;
+            case 22: this.dataType = 'float8e5m2fnuz'; break;
             default: throw new jax.Error(`Unsupported dtype '${aval.dtype}'.`);
         }
         this.shape = aval.shape && aval.shape.length > 0 ? { dimensions: Array.from(aval.shape) } : null;
