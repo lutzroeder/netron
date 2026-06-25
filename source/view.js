@@ -4022,7 +4022,7 @@ view.PrimitiveView = class extends view.Expander {
             const description = this._argument.description;
             if (description) {
                 const line = this.createElement('div', 'sidebar-item-value-line-border');
-                line.innerHTML = description;
+                line.innerHTML = this.escape(description);
                 this.add(line);
             }
         } catch (error) {
@@ -4136,7 +4136,7 @@ view.ValueView = class extends view.Expander {
             const description = this._value.description;
             if (description) {
                 const line = this.createElement('div', 'sidebar-item-value-line-border');
-                line.innerHTML = description;
+                line.innerHTML = this.escape(description);
                 this.add(line);
             }
             const identifier = this._value.identifier;
@@ -4353,7 +4353,7 @@ view.NodeView = class extends view.Expander {
         if (type) {
             const type = node.type.name;
             const element = this.createElement('div', 'sidebar-item-value-line');
-            element.innerHTML = `<span class='sidebar-item-value-line-content'>node: <b>${type || ' '}</b></span>`;
+            element.innerHTML = `<span class='sidebar-item-value-line-content'>node: <b>${this.escape(type || ' ')}</b></span>`;
             element.addEventListener('pointerenter', () => this.emit('focus', this._node));
             element.addEventListener('pointerleave', () => this.emit('blur', this._node));
             element.addEventListener('click', () => this.emit('activate', this._node));
@@ -4361,7 +4361,7 @@ view.NodeView = class extends view.Expander {
             this.element.appendChild(element);
         } else {
             const element = this.createElement('div', 'sidebar-item-value-line');
-            element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name || ' '}</b></span>`;
+            element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${this.escape(name || ' ')}</b></span>`;
             element.addEventListener('pointerenter', () => this.emit('focus', this._node));
             element.addEventListener('pointerleave', () => this.emit('blur', this._node));
             element.addEventListener('click', () => this.emit('activate', this._node));
@@ -4373,7 +4373,7 @@ view.NodeView = class extends view.Expander {
     expand() {
         const name = this._node.name;
         const element = this.createElement('div', 'sidebar-item-value-line-border');
-        element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${name}</b></span>`;
+        element.innerHTML = `<span class='sidebar-item-value-line-content'>name: <b>${this.escape(name)}</b></span>`;
         element.addEventListener('pointerenter', () => this.emit('focus', this._node));
         element.addEventListener('pointerleave', () => this.emit('blur', this._node));
         element.addEventListener('click', () => this.emit('activate', this._node));
