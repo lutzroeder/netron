@@ -336,7 +336,6 @@ const schema = async () => {
         'xla/codegen/xtile/ir/xtile_ops.td',
         'xla/python/ifrt/ir/ifrt_ops.td',
         'xla/python/ifrt/ir/vifrt_ops.td',
-        'xla/xla/mlir/framework/ir/xla_framework_ops.td',
         'xten/Dialect/XTenNN/IR/XTenNNOps.td',
         'ensemble-compilation/lib/Dialect/Ensemble/EnsembleOps.td',
         'mlir-tutorial/lib/Dialect/Poly/PolyOps.td',

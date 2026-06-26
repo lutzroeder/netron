@@ -17716,10 +17716,10 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (op === 'spirv.GL.FClamp' || op === 'spirv.GL.UClamp' || op === 'spirv.GL.SClamp' || op === 'spirv.GL.Fma' ||
-            op === 'spirv.GLSL.FClamp' || op === 'spirv.GLSL.UClamp' || op === 'spirv.GLSL.SClamp' || op === 'spirv.GLSL.Fma' ||
-            op === 'spv.GL.FClamp' || op === 'spv.GL.UClamp' || op === 'spv.GL.SClamp' || op === 'spv.GL.Fma' ||
-            op === 'spv.GLSL.FClamp' || op === 'spv.GLSL.UClamp' || op === 'spv.GLSL.SClamp' || op === 'spv.GLSL.Fma') {
+        if (op === 'spirv.GL.FClamp' || op === 'spirv.GL.UClamp' || op === 'spirv.GL.SClamp' || op === 'spirv.GL.NClamp' || op === 'spirv.GL.Fma' ||
+            op === 'spirv.GLSL.FClamp' || op === 'spirv.GLSL.UClamp' || op === 'spirv.GLSL.SClamp' || op === 'spirv.GLSL.NClamp' || op === 'spirv.GLSL.Fma' ||
+            op === 'spv.GL.FClamp' || op === 'spv.GL.UClamp' || op === 'spv.GL.SClamp' || op === 'spv.GL.NClamp' || op === 'spv.GL.Fma' ||
+            op === 'spv.GLSL.FClamp' || op === 'spv.GLSL.UClamp' || op === 'spv.GLSL.SClamp' || op === 'spv.GLSL.NClamp' || op === 'spv.GLSL.Fma') {
             const unresolvedOperands = parser.parseOperandList();
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
@@ -18424,7 +18424,11 @@ _.WasmSSADialect = class extends _.Dialect {
             result.addAttribute('moduleName', moduleName);
             parser.parseKeyword('as');
             parser.parseSymbolName('sym_name', result.attributes);
-            if (parser.parseOptionalKeyword('mutable')) {
+            // An optional keyword follows: either `mutable` or a symbol
+            // visibility (e.g. `nested`). Only `mutable` is significant; any
+            // other keyword is consumed and ignored, matching the reference.
+            const keyword = parser.parseOptionalKeyword();
+            if (keyword === 'mutable') {
                 result.addAttribute('isMutable', new _.UnitAttr());
             }
             parser.parseColon();
@@ -18480,7 +18484,7 @@ _.WasmSSADialect = class extends _.Dialect {
                 return;
             }
         }
-        if (op.name.getStringRef() === 'wasmssa.local_get') {
+        if (op.name.getStringRef() === 'wasmssa.local_get' || op.name.getStringRef() === 'wasmssa.local_tee') {
             const localVarEntry = vars.get('localVar');
             if (localVarEntry && localVarEntry.types && localVarEntry.types.length > 0) {
                 const localRefType = localVarEntry.types[0];
@@ -20868,6 +20872,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomAttribute('ClauseDistScheduleTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('OrderModifierAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('DeclareTargetDeviceTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
+        this.registerCustomAttribute('TargetExecModeAttr', this.parseParenthesizedEnumAttr.bind(this));
     }
 
     parseType(parser) {
