@@ -3810,5 +3810,34 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "dflash",
+    "graph": {
+      "input": [
+        { "name": "fc" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "attn_q_norm" },
+        { "name": "attn_k_norm" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" }
+      ],
+      "output": [
+        { "name": "output_norm" }
+      ],
+      "encoder": {
+        "output": [
+          { "name": "output_norm" }
+        ]
+      }
+    }
   }
 ]
