@@ -35,7 +35,7 @@
     "devDependencies": {
         "@electron/notarize": "3.1.1",
         "@playwright/test": "1.61.1",
-        "electron": "42.5.0",
+        "electron": "42.5.1",
         "electron-builder": "26.15.3",
         "eslint": "10.6.0"
     },
