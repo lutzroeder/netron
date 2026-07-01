@@ -3839,5 +3839,57 @@
         ]
       }
     }
+  },
+  {
+    "name": "deepseek4",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_sinks" },
+        { "name": "attn_q_a" },
+        { "name": "attn_q_b" },
+        { "name": "attn_q_a_norm" },
+        { "name": "attn_kv" },
+        { "name": "attn_kv_a_norm" },
+        { "name": "attn_output_a" },
+        { "name": "attn_output_b" },
+        { "name": "hc_attn_fn" },
+        { "name": "hc_attn_base" },
+        { "name": "hc_attn_scale" },
+        { "name": "hc_ffn_fn" },
+        { "name": "hc_ffn_base" },
+        { "name": "hc_ffn_scale" },
+        { "name": "attn_compressor_kv" },
+        { "name": "attn_compressor_gate" },
+        { "name": "attn_compressor_ape" },
+        { "name": "attn_compressor_norm" },
+        { "name": "indexer.proj" },
+        { "name": "indexer.attn_q_b" },
+        { "name": "indexer_compressor_kv" },
+        { "name": "indexer_compressor_gate" },
+        { "name": "indexer_compressor_ape" },
+        { "name": "indexer_compressor_norm" },
+        { "name": "ffn_gate_inp" },
+        { "name": "ffn_gate_tid2eid" },
+        { "name": "exp_probs_b" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_gate_shexp" },
+        { "name": "ffn_down_shexp" },
+        { "name": "ffn_up_shexp" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" },
+        { "name": "output_hc_fn" },
+        { "name": "output_hc_base" },
+        { "name": "output_hc_scale" }
+      ]
+    }
   }
 ]
