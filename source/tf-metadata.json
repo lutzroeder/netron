@@ -61961,8 +61961,6 @@
   },
   {
     "name": "TpuHandleToProtoKey",
-    "summary": "Converts XRT's uid handles to TensorFlow-friendly input format.",
-    "description": "Converts a uid handle for a compiled program into a vector of proto keys.\n\nXRT compile ops return uids, and the TensorFlow execute op takes a proto\nkey. This op enables a client to compile on TPU using XRT and execute using the\nstandard TensorFlow execute op.\n\n'uid' is the input handle.\n'proto_keys' is a vector of proto keys, one for each core program.",
     "inputs": [
       {
         "name": "uid",
