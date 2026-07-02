@@ -10546,6 +10546,14 @@ _.Dialect = class {
         return new _.UnitAttr();
     }
 
+    parseEnumAttr(parser, type) {
+        const value = parser.parseOptionalKeyword(type.values);
+        if (value !== null) {
+            return new _.TypedAttr(value, null);
+        }
+        return null;
+    }
+
     parseSymbolNameAttr(parser) {
         const value = parser.parseOptionalSymbolName();
         if (value) {
@@ -17716,10 +17724,10 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
-        if (op === 'spirv.GL.FClamp' || op === 'spirv.GL.UClamp' || op === 'spirv.GL.SClamp' || op === 'spirv.GL.NClamp' || op === 'spirv.GL.Fma' ||
-            op === 'spirv.GLSL.FClamp' || op === 'spirv.GLSL.UClamp' || op === 'spirv.GLSL.SClamp' || op === 'spirv.GLSL.NClamp' || op === 'spirv.GLSL.Fma' ||
-            op === 'spv.GL.FClamp' || op === 'spv.GL.UClamp' || op === 'spv.GL.SClamp' || op === 'spv.GL.NClamp' || op === 'spv.GL.Fma' ||
-            op === 'spv.GLSL.FClamp' || op === 'spv.GLSL.UClamp' || op === 'spv.GLSL.SClamp' || op === 'spv.GLSL.NClamp' || op === 'spv.GLSL.Fma') {
+        if (op === 'spirv.GL.FClamp' || op === 'spirv.GL.UClamp' || op === 'spirv.GL.SClamp' || op === 'spirv.GL.NClamp' || op === 'spirv.GL.Fma' || op === 'spirv.GL.SmoothStep' ||
+            op === 'spirv.GLSL.FClamp' || op === 'spirv.GLSL.UClamp' || op === 'spirv.GLSL.SClamp' || op === 'spirv.GLSL.NClamp' || op === 'spirv.GLSL.Fma' || op === 'spirv.GLSL.SmoothStep' ||
+            op === 'spv.GL.FClamp' || op === 'spv.GL.UClamp' || op === 'spv.GL.SClamp' || op === 'spv.GL.NClamp' || op === 'spv.GL.Fma' || op === 'spv.GL.SmoothStep' ||
+            op === 'spv.GLSL.FClamp' || op === 'spv.GLSL.UClamp' || op === 'spv.GLSL.SClamp' || op === 'spv.GLSL.NClamp' || op === 'spv.GLSL.Fma' || op === 'spv.GLSL.SmoothStep') {
             const unresolvedOperands = parser.parseOperandList();
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
@@ -24751,6 +24759,7 @@ _.TransformDialect = class extends _.Dialect {
         this.registerCustomDirective('AlternativesOpSelectedRegion', this.parseAlternativesOpSelectedRegion.bind(this));
         this.registerCustomDirective('ContinuousTileSizeTypes', this.parseContinuousTileSizeTypes.bind(this));
         this.registerCustomDirective('MultitileSizesTypes', this.parseMultitileSizesTypes.bind(this));
+        this.registerCustomDirective('InnerTileAlignmentArray', this.parseInnerTileAlignmentArray.bind(this));
     }
 
     parseOperation(parser, result) {
@@ -25048,6 +25057,24 @@ _.TransformDialect = class extends _.Dialect {
             }
         } else {
             op.addAttribute(selectedRegionAttr, __altInt);
+        }
+    }
+
+    parseInnerTileAlignmentArray(parser, op, attrName) {
+        const alignments = [];
+        parser.parseLSquare();
+        if (!parser.parseOptionalRSquare()) {
+            do {
+                const alignment = parser.parseOptionalKeyword();
+                if (alignment === null) {
+                    break;
+                }
+                alignments.push(alignment);
+            } while (parser.parseOptionalComma());
+            parser.parseRSquare();
+        }
+        if (attrName) {
+            op.addAttribute(attrName, alignments);
         }
     }
 };
@@ -27497,6 +27524,7 @@ _.SdyDialect = class extends _.Dialect {
         this.registerCustomAttribute('Sdy_AllToAllParamList', this.parseAllToAllParamList.bind(this));
         this.registerCustomAttribute('Sdy_TensorSharding', this.parseTensorShardingAttrWrap.bind(this));
         this.registerCustomAttribute('Sdy_AxisRefList', this.parseAxisRefListWrap.bind(this));
+        this.registerCustomAttribute('Sdy_ReductionOp', this.parseEnumAttr.bind(this));
     }
 
     parseOperation(parser, result) {

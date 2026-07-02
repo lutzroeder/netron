@@ -1078,8 +1078,10 @@ const test = async (pattern) => {
         'third_party/source/mlir/triton/test/Conversion/amd/invalid_extractslice_to_llvm.mlir',
         'third_party/source/mlir/triton/test/LLVMIR/convert-to-llvmir-with-dbg-info.mlir',
         'third_party/source/mlir/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/chlo/chlo_legalize_to_mhlo.mlir',
         'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/invalid.mlir',
         'third_party/source/mlir/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
+        'third_party/source/mlir/xla/xla/mlir_hlo/tests/stablehlo_ext/chlo_recompose_ops.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_tf_drq.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_uniform_quantized.mlir',
         'third_party/source/tensorflow/tensorflow/compiler/mlir/quantization/tensorflow/passes/quantized_function_library_xla_weight_only.mlir',
@@ -1091,8 +1093,10 @@ const test = async (pattern) => {
         'third_party/source/tensorflow/tensorflow/core/ir/tests/invalid.mlir',
         'third_party/source/tensorflow/tensorflow/core/ir/tests/invalid_types.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/hlo/translate/hlo_to_mhlo/tests/import_bounded_dynamism_stablehlo.mlir',
+        'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/chlo/chlo_legalize_to_mhlo.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/invalid.mlir',
         'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/Dialect/mhlo/ops.mlir',
+        'third_party/source/tensorflow/third_party/xla/xla/mlir_hlo/tests/stablehlo_ext/chlo_recompose_ops.mlir',
         'third_party/test/mlir/sample.mlir',
     ]);
     const readHeader = async (filePath) => {
