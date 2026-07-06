@@ -16875,6 +16875,16 @@ _.TosaDialect = class extends _.Dialect {
             if (mnemonic === 'mxint8') {
                 return new _.Type(`!${dialect}.mxint8`);
             }
+            if (mnemonic === 'block_scaled') {
+                parser.parseLess();
+                const blockShape = parser.parseOptionalKeyword();
+                parser.parseColon();
+                const scaleType = parser.parseType();
+                parser.parseColon();
+                const valueType = parser.parseType();
+                parser.parseGreater();
+                return new _.Type(`!${dialect}.block_scaled<${blockShape}:${scaleType}:${valueType}>`);
+            }
         }
         parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
