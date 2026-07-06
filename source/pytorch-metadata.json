@@ -1,5 +1,68 @@
 [
   {
+    "name": "_c10d_functional::_wrap_tensor_autograd(Tensor input) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::all_gather_into_tensor(Tensor input, int group_size, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::all_gather_into_tensor_coalesced(Tensor[] inputs, int group_size, Any group_name) -> Tensor[]"
+  },
+  {
+    "name": "_c10d_functional::all_gather_into_tensor_out(Tensor input, int group_size, Any group_name, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "_c10d_functional::all_reduce(Tensor input, str reduce_op, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::all_reduce_(Tensor(a!) input, str reduce_op, Any group_name) -> Tensor(a!)"
+  },
+  {
+    "name": "_c10d_functional::all_reduce_coalesced(Tensor[] inputs, str reduce_op, Any group_name) -> Tensor[]"
+  },
+  {
+    "name": "_c10d_functional::all_reduce_coalesced_(Tensor[](a!) inputs, str reduce_op, Any group_name) -> Tensor[](a!)"
+  },
+  {
+    "name": "_c10d_functional::all_to_all_single(Tensor input, SymInt[] output_split_sizes, SymInt[] input_split_sizes, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::batch_p2p_ops(str[] op_list, int[] peer_list, int[] tag_list, Tensor[] tensors, str group_name) -> Tensor[]"
+  },
+  {
+    "name": "_c10d_functional::broadcast(Tensor input, int src, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::broadcast_(Tensor(a!) input, int src, Any group_name) -> Tensor(a!)"
+  },
+  {
+    "name": "_c10d_functional::irecv(Tensor tensor, int src, int tag, str group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::isend(Tensor tensor, int dst, int tag, str group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::reduce_scatter_tensor(Tensor input, str reduce_op, int group_size, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional::reduce_scatter_tensor_coalesced(Tensor[] inputs, str reduce_op, int group_size, Any group_name) -> Tensor[]"
+  },
+  {
+    "name": "_c10d_functional::reduce_scatter_tensor_out(Tensor input, str reduce_op, int group_size, Any group_name, *, Tensor(a!) out) -> Tensor(a!)"
+  },
+  {
+    "name": "_c10d_functional::wait_tensor(Tensor tensor) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional_autograd::all_gather_into_tensor(Tensor input, int group_size, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional_autograd::all_to_all_single(Tensor input, SymInt[] output_split_sizes, SymInt[] input_split_sizes, Any group_name) -> Tensor"
+  },
+  {
+    "name": "_c10d_functional_autograd::reduce_scatter_tensor(Tensor input, str reduce_op, int group_size, Any group_name) -> Tensor"
+  },
+  {
     "name": "_caffe2::BBoxTransform(Tensor rois, Tensor deltas, Tensor im_info, float[] weights, bool apply_scale, bool rotated, bool angle_bound_on, int angle_bound_lo, int angle_bound_hi, float clip_angle_thresh, bool legacy_plus_one, Tensor[]? _caffe2_preallocated_outputs=None) -> (Tensor output_0, Tensor output_1)"
   },
   {
@@ -28,6 +91,39 @@
   },
   {
     "name": "_caffe2::RoIAlign(Tensor features, Tensor rois, str order, float spatial_scale, int pooled_h, int pooled_w, int sampling_ratio, bool aligned, Tensor[]? _caffe2_preallocated_outputs=None) -> Tensor"
+  },
+  {
+    "name": "_dtensor::shard_dim_alltoall(Tensor input, int gather_dim, int shard_dim, Any group_name) -> Tensor"
+  },
+  {
+    "name": "abo::stacked_cat(Tensor[] inputs, int dim) -> Tensor"
+  },
+  {
+    "name": "aethercore::QMatmul(Tensor x, Tensor weight, int bitwidth) -> Tensor"
+  },
+  {
+    "name": "aethercore::Rearrange(Tensor x, str pattern) -> Tensor"
+  },
+  {
+    "name": "aethercore::SMA(Tensor x, Tensor y, str mode) -> Tensor"
+  },
+  {
+    "name": "aot_custom::fused_linear(Tensor x, Tensor w, Tensor b) -> Tensor"
+  },
+  {
+    "name": "aot_custom::group_add(Tensor[] xs) -> Tensor"
+  },
+  {
+    "name": "aot_custom::remainder_de_quant(Tensor x, int dim) -> Tensor"
+  },
+  {
+    "name": "aot_custom::svmul_svadd(Tensor a, float s, float c) -> Tensor"
+  },
+  {
+    "name": "aot_custom::svmul_vvadd(Tensor a, int s, Tensor c) -> Tensor"
+  },
+  {
+    "name": "aot_custom::vvmul_vvadd(Tensor a, Tensor b, Tensor c) -> Tensor"
   },
   {
     "name": "aqlm::code2x8_lut_matmat.out(Tensor input, Tensor codes, Tensor codebooks, Tensor scales, Tensor? bias, Tensor(a!) out) -> Tensor(a!)"
@@ -6799,6 +6895,9 @@
     "name": "aten::zeros_like.out(Tensor self, *, MemoryFormat? memory_format=None, Tensor(a!) out) -> Tensor(a!)"
   },
   {
+    "name": "bjxx_la::bjxx_gated_delta_chunk_decay_loop(Tensor attn) -> Tensor"
+  },
+  {
     "name": "cadence::conv2d.out(Tensor input, Tensor weight, Tensor bias, int[2] stride, SymInt[2] padding, int[2] dilation, int groups, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
@@ -6857,6 +6956,9 @@
   },
   {
     "name": "cuda::_current_device() -> int"
+  },
+  {
+    "name": "custom_hardware::rms_norm(Tensor x) -> Tensor"
   },
   {
     "name": "detectron2::nms_rotated(Tensor boxes, Tensor scores, float iou_threshold) -> Tensor"
@@ -7060,7 +7162,67 @@
     "name": "fbgemm::xpos_qkv_varseq_prefill(Tensor XQ, Tensor XK, Tensor XV, Tensor(a!) cache_K, Tensor(b!) cache_V, Tensor varseq_batch, Tensor varseq_seqpos, float theta, float gamma, float scale_base, float exponent_offset, int? num_groups=1, Tensor? block_tables=None, int page_size=64, Tensor? varseq_cache_seqpos=None, int cache_logical_dtype_int=0, bool rope_scaling=False, int old_context_len=8192, float scaling_factor=16., float lo_freq_factor=1., float hi_freq_factor=32., Tensor? qparam_k=None, Tensor? qparam_v=None) -> Tensor"
   },
   {
+    "name": "flash_attn::_flash_attn_forward(Tensor q, Tensor k, Tensor v, float dropout_p, float softmax_scale, bool causal, SymInt window_size_left, SymInt window_size_right, float softcap, Tensor? alibi_slopes, bool return_softmax) -> (Tensor, Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "flash_attn::_flash_attn_varlen_forward(Tensor q, Tensor k, Tensor v, Tensor cu_seqlens_q, Tensor cu_seqlens_k, SymInt max_seqlen_q, SymInt max_seqlen_k, float dropout_p, float softmax_scale, bool causal, SymInt window_size_left=-1, SymInt window_size_right=-1, float softcap=0.0, Tensor? alibi_slopes=None, bool return_softmax=False, Tensor? block_table=None, Tensor? leftpad_k=None, Tensor? seqused_k=None, bool zero_tensors=False) -> (Tensor, Tensor, Tensor, Tensor)"
+  },
+  {
+    "name": "flash_attn::varlen_fwd(Tensor q, Tensor k, Tensor v, Tensor cu_seqlens_q, Tensor cu_seqlens_k, SymInt max_seqlen_q, SymInt max_seqlen_k, float dropout_p, float softmax_scale, bool causal, SymInt window_size_left=-1, SymInt window_size_right=-1, float softcap=0.0, Tensor? alibi_slopes=None, bool return_softmax=False, Tensor? block_table=None, Tensor? leftpad_k=None, Tensor? seqused_k=None, bool zero_tensors=False) -> (Tensor, Tensor, Tensor, Tensor)"
+  },
+  {
     "name": "horizon::scale_quanti(Tensor x, Tensor scale, Tensor zero_point, int d, int min, int max, bool flag1, bool flat2, str str1, str str2) -> Tensor"
+  },
+  {
+    "name": "hpc_ops::gmm(Tensor a, Tensor b, Tensor batch_sizes, bool trans_a, bool trans_b) -> Tensor"
+  },
+  {
+    "name": "hpc_ops_backend::gemm_batched(Tensor A, Tensor B, int dtype) -> Tensor"
+  },
+  {
+    "name": "hpc_ops_backend::gemm_batched_pro(Tensor A, Tensor B) -> Tensor"
+  },
+  {
+    "name": "hpc_ops_backend::quantize_fp8_per_token(Tensor A) -> (Tensor, Tensor)"
+  },
+  {
+    "name": "hpc_ops_hopper::hopper_gmm(Tensor a, Tensor b, Tensor batch_sizes, bool trans_a, bool trans_b) -> Tensor"
+  },
+  {
+    "name": "hw::add_experts(Tensor[] inputs) -> Tensor"
+  },
+  {
+    "name": "hw::add_rotation_fused(Tensor[] inputs, int[] out_shape) -> Tensor"
+  },
+  {
+    "name": "hw::custom_fused(Tensor[] inputs) -> Tensor"
+  },
+  {
+    "name": "hw::linear_ew_mul(Tensor x, Tensor weight, Tensor ew, Tensor? bias) -> Tensor"
+  },
+  {
+    "name": "hw::linear_silu(Tensor x, Tensor weight, Tensor? bias) -> Tensor"
+  },
+  {
+    "name": "hw::linear_softmax(Tensor x, Tensor weight, Tensor? bias) -> Tensor"
+  },
+  {
+    "name": "hw::merged_slice(Tensor[] inputs) -> Tensor"
+  },
+  {
+    "name": "hw::rms_norm(Tensor x, Tensor weight, float eps) -> Tensor"
+  },
+  {
+    "name": "hw::rms_norm_fused(Tensor[] inputs, int[] out_shape) -> Tensor"
+  },
+  {
+    "name": "hw::rms_norm_fused_0(Tensor[] inputs, int[] out_shape) -> Tensor"
+  },
+  {
+    "name": "hw::rms_norm_fused_1(Tensor[] inputs, int[] out_shape) -> Tensor"
+  },
+  {
+    "name": "hw::sub_rotation_fused(Tensor[] inputs, int[] out_shape) -> Tensor"
   },
   {
     "name": "llama::custom_sdpa.out(Tensor query, Tensor key, Tensor value, SymInt start_pos, Tensor? attn_mask=None, float drpout_p=0.0, bool is_causal=False, float? scale=None, *, Tensor(a!) out) -> Tensor(a!)"
@@ -7538,6 +7700,9 @@
   },
   {
     "name": "neuron::rnn_v2(Tensor _0, Tensor _1, Tensor _2, int _3, __torch__.torch.classes.neuron.RnnBinding_v2[] _4) -> (Tensor _0, Tensor _1, Tensor _2)"
+  },
+  {
+    "name": "nezha::tag(Tensor x, str name) -> Tensor"
   },
   {
     "name": "prepacked::conv2d_clamp_prepack(Tensor W, Tensor? B, int[2] stride, int[2] padding, int[2] dilation, int groups, Scalar? output_min=None, Scalar? output_max=None) -> __torch__.torch.classes.xnnpack.Conv2dOpContext"
@@ -8359,6 +8524,66 @@
     "category": "Quantization"
   },
   {
+    "name": "quark::dequant_fp8_e4m3(Tensor x) -> Tensor"
+  },
+  {
+    "name": "quark::dequant_fp8_e4m3_with_scale(Tensor x, float scale) -> Tensor"
+  },
+  {
+    "name": "quark::dequant_fp8_e5m2(Tensor x) -> Tensor"
+  },
+  {
+    "name": "quark::dequant_fp8_e5m2_with_scale(Tensor x, float scale) -> Tensor"
+  },
+  {
+    "name": "quark::dequantize(str quant_dtype, Tensor inputs, Tensor scale, Tensor zero_point, SymInt axis, SymInt group_size, str qscheme) -> Tensor"
+  },
+  {
+    "name": "quark::dequantize_fp8_per_block(Tensor inputs, Tensor scale, int[] block_size) -> Tensor"
+  },
+  {
+    "name": "quark::fake_quantize_per_tensor_affine(Tensor inputs, Tensor scale, Tensor zero_point, float quant_min, float quant_max, int round_mode) -> Tensor"
+  },
+  {
+    "name": "quark::fake_quantize_to_low_precision_fp(Tensor inputs, SymInt ebits, SymInt mbits, float quant_max, SymInt round_mode) -> Tensor"
+  },
+  {
+    "name": "quark::non_scaled_fake_quantize(Tensor input_tensor, str quant_dtype, str mx_element_dtype, SymInt axis, SymInt block_size, str scale_calculation_mode=\"even\") -> Tensor"
+  },
+  {
+    "name": "quark::non_scaled_real_quantize(Tensor input_tensor, str quant_dtype, str mx_element_dtype, SymInt axis, SymInt block_size) -> Tensor"
+  },
+  {
+    "name": "quark::quant_dequant_fp8_e4m3(Tensor x) -> Tensor"
+  },
+  {
+    "name": "quark::quant_dequant_fp8_e5m2(Tensor x) -> Tensor"
+  },
+  {
+    "name": "quark::quant_fp8_e4m3(Tensor x) -> Tensor"
+  },
+  {
+    "name": "quark::quant_fp8_e4m3_with_scale(Tensor x, float scale) -> Tensor"
+  },
+  {
+    "name": "quark::quant_fp8_e5m2(Tensor x) -> Tensor"
+  },
+  {
+    "name": "quark::quant_fp8_e5m2_with_scale(Tensor x, float scale) -> Tensor"
+  },
+  {
+    "name": "quark::scaled_fake_quantize(str quant_dtype, Tensor inputs, Tensor scale, Tensor zero_point, SymInt axis, SymInt group_size, float quant_min, float quant_max, SymInt round_mode, str qscheme, str mx_element_dtype) -> Tensor"
+  },
+  {
+    "name": "quark::scaled_real_quantize(str quant_dtype, Tensor inputs, Tensor scale, Tensor zero_point, SymInt axis, SymInt group_size, float quant_min, float quant_max, SymInt round_mode, str qscheme) -> Tensor"
+  },
+  {
+    "name": "rcar::mli_dequantize(Tensor x, float scale, int zp) -> Tensor"
+  },
+  {
+    "name": "rcar::mli_reduce_sum(Tensor x, int[] dim, bool keepdim) -> Tensor"
+  },
+  {
     "name": "sgl_kernel::extend_attention_cpu(Tensor q_extend, Tensor k_extend, Tensor v_extend, Tensor(a!) o_extend, Tensor k_buffer, Tensor v_buffer, Tensor req_to_token, Tensor req_pool_indices, Tensor seq_lens, Tensor extend_seq_lens, Tensor extend_start_loc, int max_len_extend, float sm_scale, float logit_cap) -> ()"
   },
   {
@@ -8510,6 +8735,12 @@
   },
   {
     "name": "vai::fix_neuron(Tensor input, int valmin, int valmax, float valamp, int zero_point, int method, int device_id, int inplace) -> Tensor"
+  },
+  {
+    "name": "xm::Reshape(Tensor input, int[] shape) -> Tensor"
+  },
+  {
+    "name": "xm::Transpose(Tensor input, int[] perm) -> Tensor"
   },
   {
     "name": "__torch__.torch.classes.rnn.CellParamsBase",
