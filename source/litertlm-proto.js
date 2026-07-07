@@ -128,6 +128,9 @@ litert.lm.proto.LlmMetadata = class LlmMetadata {
                 case 8:
                     message.channels.push(litert.lm.proto.Channel.decode(reader, reader.uint32()));
                     break;
+                case 9:
+                    message.suppress_tokens = litert.lm.proto.TokenIds.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -143,6 +146,7 @@ litert.lm.proto.LlmMetadata.prototype.sampler_params = null;
 litert.lm.proto.LlmMetadata.prototype.max_num_tokens = 0;
 litert.lm.proto.LlmMetadata.prototype.llm_model_type = null;
 litert.lm.proto.LlmMetadata.prototype.jinja_prompt_template = "";
+litert.lm.proto.LlmMetadata.prototype.suppress_tokens = null;
 
 litert.lm.proto.LlmModelType = class LlmModelType {
 
