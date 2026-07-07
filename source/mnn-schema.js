@@ -2752,6 +2752,31 @@ MNN.LinearAttentionParam = class LinearAttentionParam {
     }
 };
 
+MNN.RoPEParam = class RoPEParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.RoPEParam();
+        $.rope_cut_head_dim = reader.int32_(position, 4, 0);
+        $.num_head = reader.int32_(position, 6, 0);
+        $.kv_num_head = reader.int32_(position, 8, 0);
+        $.head_dim = reader.int32_(position, 10, 0);
+        $.q_norm = reader.table(position, 12, MNN.LayerNorm);
+        $.k_norm = reader.table(position, 14, MNN.LayerNorm);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.RoPEParam();
+        $.rope_cut_head_dim = reader.value(json.rope_cut_head_dim, 0);
+        $.num_head = reader.value(json.num_head, 0);
+        $.kv_num_head = reader.value(json.kv_num_head, 0);
+        $.head_dim = reader.value(json.head_dim, 0);
+        $.q_norm = reader.object(json.q_norm, MNN.LayerNorm);
+        $.k_norm = reader.object(json.k_norm, MNN.LayerNorm);
+        return $;
+    }
+};
+
 MNN.FmhaV2Param = class FmhaV2Param {
 
     static decode(reader, position) {
@@ -3027,6 +3052,7 @@ MNN.OpParameter = class {
             case 99: return MNN.StftParam.decode(reader, position);
             case 100: return MNN.LinearAttentionParam.decode(reader, position);
             case 101: return MNN.ShapeParam.decode(reader, position);
+            case 102: return MNN.RoPEParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3134,6 +3160,7 @@ MNN.OpParameter = class {
             case 'StftParam': return MNN.StftParam.decodeText(reader, json);
             case 'LinearAttentionParam': return MNN.LinearAttentionParam.decodeText(reader, json);
             case 'ShapeParam': return MNN.ShapeParam.decodeText(reader, json);
+            case 'RoPEParam': return MNN.RoPEParam.decodeText(reader, json);
             default: return undefined;
         }
     }
