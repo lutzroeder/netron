@@ -16882,8 +16882,13 @@ _.TosaDialect = class extends _.Dialect {
                 const scaleType = parser.parseType();
                 parser.parseColon();
                 const valueType = parser.parseType();
+                let scaleValues = '';
+                if (parser.parseOptionalComma()) {
+                    const values = parser.parseCommaSeparatedList('brace', () => parser.parseAttribute());
+                    scaleValues = `, {${values.join(', ')}}`;
+                }
                 parser.parseGreater();
-                return new _.Type(`!${dialect}.block_scaled<${blockShape}:${scaleType}:${valueType}>`);
+                return new _.Type(`!${dialect}.block_scaled<${blockShape}:${scaleType}:${valueType}${scaleValues}>`);
             }
         }
         parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
