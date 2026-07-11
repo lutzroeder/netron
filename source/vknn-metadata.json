@@ -1,46 +1,785 @@
 [
-  { "name": "Conv", "module": "vxm", "category": "Layer", "description": "2D convolution (includes depthwise via group and pointwise 1x1).", "inputs": [{ "name": "input" }, { "name": "weight" }, { "name": "bias" }] },
-  { "name": "Clip", "module": "vxm", "category": "Activation", "description": "Clamp values into the [min, max] range (Relu6 is Clip(0, 6)).", "inputs": [{ "name": "input" }] },
-  { "name": "Relu", "module": "vxm", "category": "Activation", "description": "Rectified linear unit, max(0, x).", "inputs": [{ "name": "input" }] },
-  { "name": "Add", "module": "vxm", "category": "Tensor", "description": "Element-wise addition (residual).", "inputs": [{ "name": "A" }, { "name": "B" }] },
-  { "name": "GlobalAvgPool", "module": "vxm", "category": "Pool", "description": "Global average pooling over the spatial dimensions.", "inputs": [{ "name": "input" }] },
-  { "name": "AvgPool", "module": "vxm", "category": "Pool", "description": "Average pooling.", "inputs": [{ "name": "input" }] },
-  { "name": "MaxPool", "module": "vxm", "category": "Pool", "description": "Max pooling.", "inputs": [{ "name": "input" }] },
-  { "name": "Gemm", "module": "vxm", "category": "Layer", "description": "General matrix multiply, Y = alpha*A*B + beta*C.", "inputs": [{ "name": "A" }, { "name": "B" }, { "name": "C" }] },
-  { "name": "MatMul", "module": "vxm", "category": "Layer", "description": "Matrix multiplication.", "inputs": [{ "name": "A" }, { "name": "B" }] },
-  { "name": "Einsum", "module": "vxm", "description": "Einstein summation (outer-product and batched mat-vec/matmul)." },
-  { "name": "Reshape", "module": "vxm", "category": "Shape", "description": "Reshape a tensor.", "inputs": [{ "name": "data" }, { "name": "shape" }] },
-  { "name": "Expand", "module": "vxm", "category": "Shape", "description": "Broadcast a tensor to a target shape.", "inputs": [{ "name": "input" }, { "name": "shape" }] },
-  { "name": "Tile", "module": "vxm", "category": "Shape", "description": "Repeat a tensor along each dimension.", "inputs": [{ "name": "input" }, { "name": "repeats" }] },
-  { "name": "Squeeze", "module": "vxm", "category": "Transform", "description": "Remove size-1 dimensions.", "inputs": [{ "name": "input" }] },
-  { "name": "Flatten", "module": "vxm", "category": "Shape", "description": "Flatten dimensions into a 2D matrix.", "inputs": [{ "name": "input" }] },
-  { "name": "Softmax", "module": "vxm", "category": "Activation", "description": "Softmax normalization.", "inputs": [{ "name": "input" }] },
-  { "name": "LayerNorm", "module": "vxm", "category": "Normalization", "description": "Layer normalization.", "inputs": [{ "name": "input" }, { "name": "scale" }, { "name": "bias" }] },
-  { "name": "BatchNorm", "module": "vxm", "category": "Normalization", "description": "Batch normalization.", "inputs": [{ "name": "input" }, { "name": "scale" }, { "name": "bias" }, { "name": "mean" }, { "name": "var" }] },
-  { "name": "Concat", "module": "vxm", "category": "Tensor", "description": "Concatenate tensors along an axis." },
-  { "name": "Pad", "module": "vxm", "category": "Shape", "description": "Pad a tensor.", "inputs": [{ "name": "input" }] },
-  { "name": "Identity", "module": "vxm", "description": "Identity (pass-through).", "inputs": [{ "name": "input" }] },
-  { "name": "Constant", "module": "vxm", "category": "Constant", "description": "A constant tensor." },
-  { "name": "Shape", "module": "vxm", "category": "Shape", "description": "Return the shape of a tensor.", "inputs": [{ "name": "input" }] },
-  { "name": "Gather", "module": "vxm", "category": "Transform", "description": "Gather slices along an axis.", "inputs": [{ "name": "data" }, { "name": "indices" }] },
-  { "name": "Unsqueeze", "module": "vxm", "category": "Transform", "description": "Insert size-1 dimensions.", "inputs": [{ "name": "input" }] },
-  { "name": "Unary", "module": "vxm", "description": "Element-wise unary op (see the operation attribute).", "inputs": [{ "name": "input" }] },
-  { "name": "Binary", "module": "vxm", "description": "Element-wise binary op (see the operation attribute).", "inputs": [{ "name": "A" }, { "name": "B" }] },
-  { "name": "PRelu", "module": "vxm", "category": "Activation", "description": "Parametric ReLU, per-channel slope.", "inputs": [{ "name": "input" }, { "name": "slope" }] },
-  { "name": "Resize", "module": "vxm", "category": "Data", "description": "Resize / upsample (nearest or linear).", "inputs": [{ "name": "input" }] },
-  { "name": "GridSample", "module": "vxm", "description": "Sample input at grid coordinates.", "inputs": [{ "name": "input" }, { "name": "grid" }] },
-  { "name": "Transpose", "module": "vxm", "category": "Transform", "description": "Permute dimensions.", "inputs": [{ "name": "input" }] },
-  { "name": "Slice", "module": "vxm", "category": "Tensor", "description": "Strided slice.", "inputs": [{ "name": "input" }] },
-  { "name": "Reduce", "module": "vxm", "description": "Reduction (mean/sum/max/min/prod/L2; see the operation attribute).", "inputs": [{ "name": "input" }] },
-  { "name": "DepthToSpace", "module": "vxm", "category": "Shape", "description": "Rearrange depth into spatial blocks.", "inputs": [{ "name": "input" }] },
-  { "name": "Cast", "module": "vxm", "description": "Cast to a different data type.", "inputs": [{ "name": "input" }] },
-  { "name": "Split", "module": "vxm", "category": "Tensor", "description": "Split a tensor along an axis.", "inputs": [{ "name": "input" }] },
-  { "name": "Where", "module": "vxm", "description": "Element-wise select, cond ? X : Y.", "inputs": [{ "name": "condition" }, { "name": "X" }, { "name": "Y" }] },
-  { "name": "Equal", "module": "vxm", "description": "Element-wise equality.", "inputs": [{ "name": "A" }, { "name": "B" }] },
-  { "name": "ConstantOfShape", "module": "vxm", "category": "Constant", "description": "Emit a tensor of a given shape filled with a scalar.", "inputs": [{ "name": "shape" }] },
-  { "name": "EyeLike", "module": "vxm", "category": "Constant", "description": "Identity-like matrix matching the input shape.", "inputs": [{ "name": "input" }] },
-  { "name": "ScatterND", "module": "vxm", "description": "Scatter update slices at N-D index rows.", "inputs": [{ "name": "data" }, { "name": "indices" }, { "name": "updates" }] },
-  { "name": "FusedSE", "module": "vxm", "category": "Normalization", "description": "Fused Squeeze-Excite scale (GAP -> FC -> relu -> FC -> hardsigmoid).", "inputs": [{ "name": "input" }] },
-  { "name": "FusedDwPw", "module": "vxm", "category": "Layer", "description": "Fused depthwise-3x3 + 1x1-project convolution.", "inputs": [{ "name": "input" }] },
-  { "name": "ConvertLayout", "module": "vxm", "category": "Shape", "description": "Tensor layout conversion (inserted by the layout pass).", "inputs": [{ "name": "input" }] }
+  {
+    "name": "Conv",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "2D convolution (includes depthwise via group and pointwise 1x1).",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "ConvTranspose",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "Transposed (fractionally-strided) convolution used for upsampling.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "Clip",
+    "module": "vxm",
+    "category": "Activation",
+    "description": "Clamp values into the [min, max] range (Relu6 is Clip(0, 6)).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Relu",
+    "module": "vxm",
+    "category": "Activation",
+    "description": "Rectified linear unit, max(0, x).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Add",
+    "module": "vxm",
+    "category": "Tensor",
+    "description": "Element-wise addition (residual).",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "GlobalAveragePool",
+    "module": "vxm",
+    "category": "Pool",
+    "description": "Global average pooling over the spatial dimensions.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "AveragePool",
+    "module": "vxm",
+    "category": "Pool",
+    "description": "Average pooling.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "MaxPool",
+    "module": "vxm",
+    "category": "Pool",
+    "description": "Max pooling.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Gemm",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "General matrix multiply, Y = alpha*A*B + beta*C.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" },
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "MatMul",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "Matrix multiplication.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "Einsum",
+    "module": "vxm",
+    "description": "Einstein summation (outer-product and batched mat-vec/matmul)."
+  },
+  {
+    "name": "Reshape",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Reshape a tensor.",
+    "inputs": [
+      { "name": "data" },
+      { "name": "shape" }
+    ]
+  },
+  {
+    "name": "Expand",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Broadcast a tensor to a target shape.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "shape" }
+    ]
+  },
+  {
+    "name": "Tile",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Repeat a tensor along each dimension.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "repeats" }
+    ]
+  },
+  {
+    "name": "Squeeze",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "Remove size-1 dimensions.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Flatten",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Flatten dimensions into a 2D matrix.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Softmax",
+    "module": "vxm",
+    "category": "Activation",
+    "description": "Softmax normalization.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "LayerNormalization",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "Layer normalization, y = (x - mean) / sqrt(var + eps) * scale + bias.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "scale" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "BatchNormalization",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "Batch normalization.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "scale" },
+      { "name": "bias" },
+      { "name": "mean" },
+      { "name": "var" }
+    ]
+  },
+  {
+    "name": "Concat",
+    "module": "vxm",
+    "category": "Tensor",
+    "description": "Concatenate tensors along an axis."
+  },
+  {
+    "name": "Pad",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Pad a tensor.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Identity",
+    "module": "vxm",
+    "description": "Identity (pass-through).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Constant",
+    "module": "vxm",
+    "category": "Constant",
+    "description": "A constant tensor."
+  },
+  {
+    "name": "Shape",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Return the shape of a tensor.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Gather",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "Gather slices along an axis.",
+    "inputs": [
+      { "name": "data" },
+      { "name": "indices" }
+    ]
+  },
+  {
+    "name": "Unsqueeze",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "Insert size-1 dimensions.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Unary",
+    "module": "vxm",
+    "description": "Element-wise unary op (see the operation attribute).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Binary",
+    "module": "vxm",
+    "description": "Element-wise binary op (see the operation attribute).",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "PRelu",
+    "module": "vxm",
+    "category": "Activation",
+    "description": "Parametric ReLU, per-channel slope.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "slope" }
+    ]
+  },
+  {
+    "name": "Resize",
+    "module": "vxm",
+    "category": "Data",
+    "description": "Resize / upsample (nearest or linear).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "GridSample",
+    "module": "vxm",
+    "description": "Sample input at grid coordinates.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "grid" }
+    ]
+  },
+  {
+    "name": "Transpose",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "Permute dimensions.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Slice",
+    "module": "vxm",
+    "category": "Tensor",
+    "description": "Strided slice.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Reduce",
+    "module": "vxm",
+    "description": "Reduction (mean/sum/max/min/prod/L2; see the operation attribute).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "DepthToSpace",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Rearrange depth into spatial blocks.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Cast",
+    "module": "vxm",
+    "description": "Cast to a different data type.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Split",
+    "module": "vxm",
+    "category": "Tensor",
+    "description": "Split a tensor along an axis.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Where",
+    "module": "vxm",
+    "description": "Element-wise select, cond ? X : Y.",
+    "inputs": [
+      { "name": "condition" },
+      { "name": "X" },
+      { "name": "Y" }
+    ]
+  },
+  {
+    "name": "Equal",
+    "module": "vxm",
+    "description": "Element-wise equality.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "Greater",
+    "module": "vxm",
+    "description": "Element-wise greater-than.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "GreaterEqual",
+    "module": "vxm",
+    "description": "Element-wise greater-than-or-equal.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "ConstantOfShape",
+    "module": "vxm",
+    "category": "Constant",
+    "description": "Emit a tensor of a given shape filled with a scalar.",
+    "inputs": [
+      { "name": "shape" }
+    ]
+  },
+  {
+    "name": "EyeLike",
+    "module": "vxm",
+    "category": "Constant",
+    "description": "Identity-like matrix matching the input shape.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "ScatterND",
+    "module": "vxm",
+    "description": "Scatter update slices at N-D index rows.",
+    "inputs": [
+      { "name": "data" },
+      { "name": "indices" },
+      { "name": "updates" }
+    ]
+  },
+  {
+    "name": "FusedSE",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "Fused Squeeze-Excite scale (GAP -> FC -> relu -> FC -> hardsigmoid).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "FusedDwPw",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "Fused depthwise-3x3 + 1x1-project convolution.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "FusedPointwise",
+    "module": "vxm",
+    "description": "Fused per-element chain (a standalone unit or a producer's epilogue).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "ConvertLayout",
+    "module": "vxm",
+    "category": "Shape",
+    "description": "Tensor layout conversion (inserted by the layout pass).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "ConvertDtype",
+    "module": "vxm",
+    "description": "fp16<->fp32 storage conversion at a selective-fp32 region frontier.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Range",
+    "module": "vxm",
+    "category": "Constant",
+    "description": "arange(start, limit, delta) -> 1-D output.",
+    "inputs": [
+      { "name": "start" },
+      { "name": "limit" },
+      { "name": "delta" }
+    ]
+  },
+  {
+    "name": "ConvGemm",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "Conv lowered to an implicit-GEMM kernel; weights repacked [K][Cout].",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "Less",
+    "module": "vxm",
+    "description": "Element-wise less-than.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "LessEqual",
+    "module": "vxm",
+    "description": "Element-wise less-than-or-equal.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "Dropout",
+    "module": "vxm",
+    "description": "Identity in inference mode (eliminated at import).",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "TopK",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "The k largest/smallest along an axis -> (values, int64 indices).",
+    "inputs": [
+      { "name": "input" },
+      { "name": "k" }
+    ]
+  },
+  {
+    "name": "InstanceNormalization",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "Per-channel normalization over the spatial dimensions.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "scale" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "QuantizeLinear",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "Quantize fp -> int8/uint8: saturate(round(x / scale) + zero_point).",
+    "inputs": [
+      { "name": "x" },
+      { "name": "scale" },
+      { "name": "zero_point" }
+    ]
+  },
+  {
+    "name": "DequantizeLinear",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "Dequantize int -> fp: (q - zero_point) * scale.",
+    "inputs": [
+      { "name": "x" },
+      { "name": "scale" },
+      { "name": "zero_point" }
+    ]
+  },
+  {
+    "name": "DynamicQuantizeLinear",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "Derive scale/zero-point from the input range -> (x_q u8, x_scale, x_zp).",
+    "inputs": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "QLinearConv",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "Convolution on int8 with per-input scale/zp and output requant.",
+    "inputs": [
+      { "name": "x" },
+      { "name": "x_scale" },
+      { "name": "x_zero_point" },
+      { "name": "w" },
+      { "name": "w_scale" },
+      { "name": "w_zero_point" },
+      { "name": "y_scale" },
+      { "name": "y_zero_point" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "QLinearMatMul",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "Matrix multiply on int8 with per-input scale/zp and output requant.",
+    "inputs": [
+      { "name": "a" },
+      { "name": "a_scale" },
+      { "name": "a_zero_point" },
+      { "name": "b" },
+      { "name": "b_scale" },
+      { "name": "b_zero_point" },
+      { "name": "y_scale" },
+      { "name": "y_zero_point" }
+    ]
+  },
+  {
+    "name": "QLinearAdd",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "com.microsoft: Add on int8 with per-input scale/zp and output requant.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "A_scale" },
+      { "name": "A_zero_point" },
+      { "name": "B" },
+      { "name": "B_scale" },
+      { "name": "B_zero_point" },
+      { "name": "C_scale" },
+      { "name": "C_zero_point" }
+    ]
+  },
+  {
+    "name": "QLinearGlobalAveragePool",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "com.microsoft: GlobalAveragePool on int8 with x/y scale/zp.",
+    "inputs": [
+      { "name": "X" },
+      { "name": "x_scale" },
+      { "name": "x_zero_point" },
+      { "name": "y_scale" },
+      { "name": "y_zero_point" }
+    ]
+  },
+  {
+    "name": "MatMulInteger",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "int8 x int8 -> int32 MatMul, optional zero points.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" },
+      { "name": "a_zero_point" },
+      { "name": "b_zero_point" }
+    ]
+  },
+  {
+    "name": "ConvInteger",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "int8 x int8 -> int32 Conv, optional zero points.",
+    "inputs": [
+      { "name": "x" },
+      { "name": "w" },
+      { "name": "x_zero_point" },
+      { "name": "w_zero_point" }
+    ]
+  },
+  {
+    "name": "QGemm",
+    "module": "vxm",
+    "category": "Quantization",
+    "description": "com.microsoft: Gemm on int8 with scales/zps and int32 bias.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "a_scale" },
+      { "name": "a_zero_point" },
+      { "name": "B" },
+      { "name": "b_scale" },
+      { "name": "b_zero_point" },
+      { "name": "C" },
+      { "name": "y_scale" },
+      { "name": "y_zero_point" }
+    ]
+  },
+  {
+    "name": "IsNaN",
+    "module": "vxm",
+    "description": "Element-wise NaN test: float -> bool.",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "And",
+    "module": "vxm",
+    "description": "Element-wise boolean AND with NumPy broadcasting.",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "RMSNorm",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "Root-mean-square norm: y = x * rsqrt(mean(x^2, last-axis) + eps) * gamma.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "gamma" }
+    ]
+  },
+  {
+    "name": "SimplifiedLayerNormalization",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "com.microsoft RMSNorm spelling (input, gamma) with epsilon/axis.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "gamma" }
+    ]
+  },
+  {
+    "name": "SkipSimplifiedLayerNormalization",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "com.microsoft: residual add + RMSNorm; output 3 is the residual sum.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "skip" },
+      { "name": "gamma" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "SkipLayerNormalization",
+    "module": "vxm",
+    "category": "Normalization",
+    "description": "com.microsoft: residual add + LayerNorm.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "skip" },
+      { "name": "gamma" },
+      { "name": "beta" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "RotaryEmbedding",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "Rotary position embedding (RoPE) over (x, position_ids, cos_cache, sin_cache).",
+    "inputs": [
+      { "name": "input" },
+      { "name": "position_ids" },
+      { "name": "cos_cache" },
+      { "name": "sin_cache" }
+    ]
+  },
+  {
+    "name": "MultiHeadAttention",
+    "module": "vxm",
+    "category": "Attention",
+    "description": "com.microsoft fused multi-head attention (q/k/v with optional additive mask).",
+    "inputs": [
+      { "name": "query" },
+      { "name": "key" },
+      { "name": "value" },
+      { "name": "bias" },
+      { "name": "mask" }
+    ]
+  },
+  {
+    "name": "GroupQueryAttention",
+    "module": "vxm",
+    "category": "Attention",
+    "description": "com.microsoft fused GQA with in-op RoPE and a KV cache.",
+    "inputs": [
+      { "name": "query" },
+      { "name": "key" },
+      { "name": "value" },
+      { "name": "past_key" },
+      { "name": "past_value" },
+      { "name": "seqlens_k" },
+      { "name": "total_sequence_length" },
+      { "name": "cos_cache" },
+      { "name": "sin_cache" }
+    ]
+  },
+  {
+    "name": "MatMulNBits",
+    "module": "vxm",
+    "category": "Layer",
+    "description": "com.microsoft blockwise 4-bit weight MatMul (repacked into the int4 wq format).",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" },
+      { "name": "scales" },
+      { "name": "zero_points" }
+    ]
+  },
+  {
+    "name": "Rope",
+    "module": "vxm",
+    "category": "Transform",
+    "description": "Fused rotate-half rotary embedding (load-time fuseRope pass; never serialized).",
+    "inputs": [
+      { "name": "input" },
+      { "name": "position_ids" },
+      { "name": "cos_table" },
+      { "name": "sin_table" }
+    ]
+  },
+  {
+    "name": "FusedAttention",
+    "module": "vxm",
+    "category": "Attention",
+    "description": "Single-query decode attention core softmax(q.K^T * scale + mask).V in one kernel."
+  }
 ]

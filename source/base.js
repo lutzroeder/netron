@@ -680,6 +680,13 @@ base.StreamReader = class {
     boolean() {
         return this.byte() === 0 ? false : true;
     }
+
+    string() {
+        const length = this.uint32();
+        const data = this._stream.read(length);
+        this._decoder = this._decoder || new TextDecoder('utf-8');
+        return this._decoder.decode(data);
+    }
 };
 
 base.Tensor = class {
