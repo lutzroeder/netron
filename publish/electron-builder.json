@@ -73,7 +73,6 @@
         { "ext": "tosa",         "name": "TOSA Model"               },
         { "ext": "torchscript",  "name": "PyTorch Model"            },
         { "ext": "uff",          "name": "UFF Model"                },
-        { "ext": "vxm",          "name": "VKNN Model"               },
         { "ext": "xmodel",       "name": "Vitis AI Model"           }
     ],
     "publish": [

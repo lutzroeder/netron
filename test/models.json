@@ -9061,20 +9061,6 @@
     "link":     "https://github.com/lutzroeder/netron/issues/511"
   },
   {
-    "type":     "vknn",
-    "target":   "squeezenet.vxm",
-    "source":   "https://raw.githubusercontent.com/katolikov/vknn/main/samples/squeezenet.vxm",
-    "format":   "VKNN",
-    "link":     "https://github.com/lutzroeder/netron/pull/1581"
-  },
-  {
-    "type":     "vknn",
-    "target":   "squeezenet_fp16.vxm",
-    "source":   "https://raw.githubusercontent.com/katolikov/vknn/main/samples/squeezenet_fp16.vxm",
-    "format":   "VKNN",
-    "link":     "https://github.com/lutzroeder/netron/pull/1581"
-  },
-  {
     "type":     "weka",
     "target":   "j48model.model",
     "source":   "https://raw.githubusercontent.com/PTaati/wekaTree2python/master/j48model.model",
