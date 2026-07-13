@@ -20925,7 +20925,7 @@ _.OpenMPDialect = class extends _.Dialect {
         if (op === 'omp.canonical_loop') {
             return this.parseCanonicalLoopOp(parser, result);
         }
-        if (op === 'omp.unroll_heuristic') {
+        if (op === 'omp.unroll_heuristic' || op === 'omp.unroll_partial') {
             return this.parseUnrollHeuristicOp(parser, result);
         }
         return super.parseOperation(parser, result);
