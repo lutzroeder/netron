@@ -420,16 +420,10 @@ gguf.Graph = class {
                     addOp('ADD', [preAdd2, r1], r2);
                     prevValue = r2;
                 } else {
-                    // Fallback: linear chain
+                    // Fallback: unrecognized block shape, render components without
+                    // fabricating sequential data-flow edges.
                     for (const item of layer.layers) {
-                        const node = new gguf.Node(item);
-                        if (prevValue) {
-                            node.inputs.unshift(new gguf.Argument('input', [prevValue]));
-                        }
-                        const out = newValue();
-                        node.outputs.push(new gguf.Argument('output', [out]));
-                        prevValue = out;
-                        this.nodes.push(node);
+                        this.nodes.push(new gguf.Node(item));
                     }
                     continue;
                 }
@@ -911,7 +905,7 @@ gguf.Context = class {
             const weights = new Map();
             for (const [name, tensor] of tensors) {
                 if (name.startsWith(`${prefix}.`) || name === prefix) {
-                    const suffix = name.slice(prefix.length + 1) || 'data';
+                    const suffix = name.slice(prefix.length + 1) || name;
                     weights.set(suffix, tensor);
                     claimed.add(name);
                 }
@@ -947,7 +941,7 @@ gguf.Context = class {
                     metadata.set(label, this._metadata.get(key));
                 }
             }
-            return { type: block.type, category: block.category, metadata };
+            return { type: block.type || 'weights', category: block.category, metadata };
         };
         const pushFlat = (prefix, weights) => {
             const resolved = resolveBlock(prefix);
