@@ -20868,6 +20868,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomDirective('PrivateRegion', this.parsePrivateRegion.bind(this));
         this.registerCustomDirective('InReductionPrivateRegion', this.parseInReductionPrivateRegion.bind(this));
         this.registerCustomDirective('InReductionPrivateReductionRegion', this.parseInReductionPrivateReductionRegion.bind(this));
+        this.registerCustomDirective('InReductionClause', this.parseInReductionClause.bind(this));
         this.registerCustomDirective('TaskReductionRegion', this.parseTaskReductionRegion.bind(this));
         this.registerCustomDirective('UseDeviceAddrUseDevicePtrRegion', this.parseUseDeviceAddrUseDevicePtrRegion.bind(this));
         this.registerCustomDirective('TargetOpRegion', this.parseTargetOpRegion.bind(this));
@@ -21385,14 +21386,38 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
-    parseTargetOpRegion(parser, op, regionName, hasDeviceAddrVars, hasDeviceAddrTypes,hostEvalVars, hostEvalTypes, inReductionVars, inReductionTypes, inReductionByrefAttr, inReductionSymsAttr, mapVars, mapTypes, privateVars, privateTypes, privateSymsAttr, privateNeedsBarrierAttr, privateMapsAttr) {
+    parseTargetOpRegion(parser, op, regionName, hasDeviceAddrVars, hasDeviceAddrTypes, hostEvalVars, hostEvalTypes, mapVars, mapTypes, privateVars, privateTypes, privateSymsAttr, privateNeedsBarrierAttr, privateMapsAttr) {
+        // `in_reduction` is parsed by the standalone InReductionClause directive,
+        // not the region, so it is no longer part of this clause list.
         this.parseBlockArgRegion(parser, op, regionName, [
             { keyword: 'has_device_addr', vars: hasDeviceAddrVars, types: hasDeviceAddrTypes, config: {} },
             { keyword: 'host_eval', vars: hostEvalVars, types: hostEvalTypes, config: {} },
-            { keyword: 'in_reduction', vars: inReductionVars, types: inReductionTypes, config: { syms: { attrName: inReductionSymsAttr }, byref: { attrName: inReductionByrefAttr } } },
             { keyword: 'map_entries', vars: mapVars, types: mapTypes, config: {} },
             { keyword: 'private', vars: privateVars, types: privateTypes, config: { syms: { attrName: privateSymsAttr }, needsBarrier: { attrName: privateNeedsBarrierAttr }, mapIndices: { attrName: privateMapsAttr } } },
         ]);
+    }
+
+    parseInReductionClause(parser, op, vars, types, byrefAttrName, symsAttrName) {
+        // Standalone `in_reduction(byref? @sym %var, ... : type, ...)` clause for
+        // operations that do not define entry block arguments (e.g. omp.target);
+        // the outer format consumes the `in_reduction` keyword and parentheses.
+        const syms = [];
+        const byrefFlags = [];
+        parser.parseCommaSeparatedList('none', () => {
+            byrefFlags.push(Boolean(parser.parseOptionalKeyword('byref')));
+            syms.push(parser.parseOptionalSymbolName());
+            vars.push(parser.parseOperand());
+        });
+        parser.parseColon();
+        parser.parseCommaSeparatedList('none', () => {
+            types.push(parser.parseType());
+        });
+        if (symsAttrName && syms.some((sym) => sym)) {
+            op.addAttribute(symsAttrName, syms);
+        }
+        if (byrefAttrName && byrefFlags.some((flag) => flag)) {
+            op.addAttribute(byrefAttrName, byrefFlags);
+        }
     }
 
     parseIteratorHeader(parser, op) {
@@ -27604,7 +27629,15 @@ _.SdyDialect = class extends _.Dialect {
                 parser.parseEqual();
                 replicatedAxes = this.parseAxisRefList(parser);
             } else if (parser.parseOptionalKeyword('unreduced')) {
-                parser.parseEqual();
+                // Optional reduction op after `=` (sum | max | min, default sum),
+                // e.g. `unreduced=max{"b"}`; also accepts the bare `unreduced{...}`.
+                if (parser.parseOptionalEqual()) {
+                    for (const reductionOp of ['sum', 'max', 'min']) {
+                        if (parser.parseOptionalKeyword(reductionOp)) {
+                            break;
+                        }
+                    }
+                }
                 unreducedAxes = this.parseAxisRefList(parser);
             }
         }
