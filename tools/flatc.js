@@ -327,7 +327,7 @@ flatc.TypeReference = class {
         if (type) {
             return type;
         }
-        throw new flatc.Error(`Falied to resolve type '${this.name}'.`);
+        throw new flatc.Error(`Failed to resolve type '${this.name}'.`);
     }
 };
 
