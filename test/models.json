@@ -2344,6 +2344,27 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
+    "type":     "gml",
+    "target":   "simple_cnn.gml",
+    "source":   "https://github.com/user-attachments/files/REPLACE_ME/simple_cnn.gml.zip[simple_cnn.gml]",
+    "format":   "GML",
+    "assert":   "model.modules[0].nodes[6].type.name == 'Gemm'"
+  },
+  {
+    "type":     "gml",
+    "target":   "grouped_residual_block.gml",
+    "source":   "https://github.com/user-attachments/files/REPLACE_ME/grouped_residual_block.gml.zip[grouped_residual_block.gml]",
+    "format":   "GML",
+    "assert":   "model.modules[0].nodes[1].group == 'ResidualBlock'"
+  },
+  {
+    "type":     "gml",
+    "target":   "quantized_attention.gml",
+    "source":   "https://github.com/user-attachments/files/REPLACE_ME/quantized_attention.gml.zip[quantized_attention.gml]",
+    "format":   "GML",
+    "assert":   "model.modules[0].nodes[2].type.name == 'Attention'"
+  },
+  {
     "type":     "hailo",
     "target":   "fcn_hailo_pp_v2.har",
     "source":   "https://github.com/lutzroeder/netron/files/13482814/fcn_hailo_pp_v2.har.zip[fcn_hailo_pp_v2.har]",

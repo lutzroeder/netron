@@ -1422,6 +1422,7 @@ base.Metadata = class {
             'dlc', 'uff', 'armnn', 'kann', 'kgraph', 'tosa',
             'ms', 'mindir', 'om',
             'mnn', 'ncnn', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn', 'espdl',
+            'dot', 'gml',
             'tar', 'zip'
         ];
     }

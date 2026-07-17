@@ -180,6 +180,12 @@ grapher.Graph = class {
                 node.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 node.element.setAttribute('class', 'cluster');
                 node.element.appendChild(node.rectangle);
+                if (node.label) {
+                    node.labelElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    node.labelElement.setAttribute('class', 'cluster-label');
+                    node.labelElement.textContent = node.label;
+                    node.element.appendChild(node.labelElement);
+                }
                 clusterGroup.appendChild(node.element);
             }
         }
@@ -350,6 +356,10 @@ grapher.Graph = class {
                 node.rectangle.setAttribute('y', - node.height / 2);
                 node.rectangle.setAttribute('width', node.width);
                 node.rectangle.setAttribute('height', node.height);
+                if (node.labelElement) {
+                    node.labelElement.setAttribute('x', - node.width / 2 + 6);
+                    node.labelElement.setAttribute('y', - node.height / 2 + 14);
+                }
             }
         }
         for (const edge of this.edges.values()) {

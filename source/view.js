@@ -2026,7 +2026,8 @@ view.Graph = class extends grapher.Graph {
             }
             const createCluster = (name) => {
                 if (!clusters.has(name)) {
-                    this.setNode({ name, rx: 5, ry: 5 });
+                    const label = name.split('\n')[0].split('/').pop();
+                    this.setNode({ name, label, rx: 5, ry: 5 });
                     clusters.add(name);
                     const parent = clusterParentMap.get(name);
                     if (parent) {
@@ -7298,6 +7299,7 @@ view.ModelFactoryService = class {
         this.register('./hailo', ['.hn', '.har', '.metadata.json']);
         this.register('./tvm', ['.json', '.params']);
         this.register('./dot', ['.dot'], [], [/^\s*(\/\*[\s\S]*?\*\/|\/\/.*|#.*)?\s*digraph\s*([A-Za-z][A-Za-z0-9-_]*|".*?")?\s*{/m]);
+        this.register('./gml', ['.gml'], [], [/^\s*(#.*\r?\n\s*)*graph\s*\[/m]);
         this.register('./jax', ['.jax', '.jax_export', '.jax_exported']);
         this.register('./catboost', ['.cbm', '.pkl'], [], [/^CBM1/]);
         this.register('./weka', ['.model']);
