@@ -87,7 +87,7 @@ jobs:
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
         run: npm run publish cask
 
-      - if: startsWith(matrix.os, 'windows')
+      - if: false # startsWith(matrix.os, 'windows')
         name: Publish winget
         env:
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
