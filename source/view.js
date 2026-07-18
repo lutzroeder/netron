@@ -4156,10 +4156,10 @@ view.ValueView = class extends view.Expander {
                 if (quantization.type && (quantization.type !== 'linear' || (value && value !== 'q'))) {
                     const line = this.createElement('div', 'sidebar-item-value-line-border');
                     const content = [
-                        `<span class='sidebar-item-value-line-content'>quantization: <b>${quantization.type}</b></span>`
+                        `<span class='sidebar-item-value-line-content'>quantization: <b>${this.escape(quantization.type)}</b></span>`
                     ];
                     if (value) {
-                        content.push(`<pre style='margin: 4px 0 2px 0'>${value}</pre>`);
+                        content.push(`<pre style='margin: 4px 0 2px 0'>${this.escape(value)}</pre>`);
                     }
                     line.innerHTML = content.join('');
                     this._add(line);
@@ -4250,9 +4250,9 @@ view.TensorView = class extends view.Expander {
         const value = this._value;
         const tensor = this._tensor;
         if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
-            content.innerHTML = `Tensor encoding '${tensor.layout}' is not implemented.`;
+            content.innerHTML = `Tensor encoding '${this.escape(tensor.encoding)}' is not implemented.`;
         } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
-            content.innerHTML = `Tensor layout '${tensor.layout}' is not implemented.`;
+            content.innerHTML = `Tensor layout '${this.escape(tensor.layout)}' is not implemented.`;
         } else if (tensor.type && tensor.type.dataType === '?') {
             content.innerHTML = 'Tensor data type is not defined.';
         } else if (tensor.type && !tensor.type.shape) {
@@ -4756,7 +4756,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(this.element, 'h2', 'Attributes');
                 const attributes = this._append(this.element, 'dl');
                 for (const attribute of type.attributes) {
-                    this._append(attributes, 'dt', attribute.name + (attribute.type ? `: <tt>${this._escape(attribute.type)}</tt>` : ''));
+                    this._append(attributes, 'dt', this._escape(attribute.name) + (attribute.type ? `: <tt>${this._escape(attribute.type)}</tt>` : ''));
                     this._append(attributes, 'dd', attribute.description);
                 }
                 this.element.appendChild(attributes);
@@ -4765,7 +4765,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(this.element, 'h2', `Inputs${type.inputs_range ? ` (${type.inputs_range})` : ''}`);
                 const inputs = this._append(this.element, 'dl');
                 for (const input of type.inputs) {
-                    this._append(inputs, 'dt', input.name + (input.type ? `: <tt>${this._escape(input.type)}</tt>` : '') + (input.option ? ` (${input.option})` : ''));
+                    this._append(inputs, 'dt', this._escape(input.name) + (input.type ? `: <tt>${this._escape(input.type)}</tt>` : '') + (input.option ? ` (${input.option})` : ''));
                     this._append(inputs, 'dd', input.description);
                 }
             }
@@ -4773,7 +4773,7 @@ view.DocumentationSidebar = class extends view.Control {
                 this._append(this.element, 'h2', `Outputs${type.outputs_range ? ` (${type.outputs_range})` : ''}`);
                 const outputs = this._append(this.element, 'dl');
                 for (const output of type.outputs) {
-                    this._append(outputs, 'dt', output.name + (output.type ? `: <tt>${this._escape(output.type)}</tt>` : '') + (output.option ? ` (${output.option})` : ''));
+                    this._append(outputs, 'dt', this._escape(output.name) + (output.type ? `: <tt>${this._escape(output.type)}</tt>` : '') + (output.option ? ` (${output.option})` : ''));
                     this._append(outputs, 'dd', output.description);
                 }
             }
