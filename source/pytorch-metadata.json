@@ -2018,7 +2018,7 @@
     "name": "aten::cosh.Scalar(Scalar a) -> Scalar"
   },
   {
-    "name": "aten::cosine_similarity(Tensor x1, Tensor x2, int dim=1, float eps=1e-08) -> Tensor"
+    "name": "aten::cosine_similarity(Tensor x1, Tensor x2, int dim=1, float eps=1e-08, bool keepdim=False) -> Tensor"
   },
   {
     "name": "aten::count(str self, str substr, int start=0, int end=-1) -> int"
