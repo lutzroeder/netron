@@ -155,7 +155,7 @@ litert.lm.proto.LlmMetadata.prototype.kv_cache_init_value = 0n;
 litert.lm.proto.LlmModelType = class LlmModelType {
 
     get model_type() {
-        litert.lm.proto.LlmModelType.model_typeSet = litert.lm.proto.LlmModelType.model_typeSet || new Set(["generic_model", "gemma3n", "function_gemma", "gemma3", "qwen3", "qwen2p5", "gemma4", "fast_vlm"]);
+        litert.lm.proto.LlmModelType.model_typeSet = litert.lm.proto.LlmModelType.model_typeSet || new Set(["generic_model", "gemma3n", "function_gemma", "gemma3", "qwen3", "qwen2p5", "gemma4", "fast_vlm", "lfm2"]);
         return Object.keys(this).find((key) => litert.lm.proto.LlmModelType.model_typeSet.has(key) && this[key] !== null);
     }
 
@@ -188,6 +188,9 @@ litert.lm.proto.LlmModelType = class LlmModelType {
                     break;
                 case 9:
                     message.fast_vlm = litert.lm.proto.FastVlm.decode(reader, reader.uint32());
+                    break;
+                case 11:
+                    message.lfm2 = litert.lm.proto.Lfm2.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -713,6 +716,71 @@ litert.lm.proto.FastVlm = class FastVlm {
 
 litert.lm.proto.FastVlm.prototype.image_tensor_height = 0;
 litert.lm.proto.FastVlm.prototype.image_tensor_width = 0;
+
+litert.lm.proto.Lfm2 = class Lfm2 {
+
+    constructor() {
+        this.normalization_mean = [];
+        this.normalization_std = [];
+    }
+
+    static decode(reader, length) {
+        const message = new litert.lm.proto.Lfm2();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.start_of_image_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.end_of_image_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.patch_width = reader.int32();
+                    break;
+                case 4:
+                    message.patch_height = reader.int32();
+                    break;
+                case 5:
+                    message.max_num_patches = reader.int32();
+                    break;
+                case 6:
+                    message.pooling_kernel_size = reader.int32();
+                    break;
+                case 7:
+                    message.image_tensor_height = reader.int32();
+                    break;
+                case 8:
+                    message.image_tensor_width = reader.int32();
+                    break;
+                case 9:
+                    message.normalization_mean = reader.floats(message.normalization_mean, tag);
+                    break;
+                case 10:
+                    message.normalization_std = reader.floats(message.normalization_std, tag);
+                    break;
+                case 11:
+                    message.normalization_rescale_factor = reader.float();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+litert.lm.proto.Lfm2.prototype.start_of_image_token = null;
+litert.lm.proto.Lfm2.prototype.end_of_image_token = null;
+litert.lm.proto.Lfm2.prototype.patch_width = 0;
+litert.lm.proto.Lfm2.prototype.patch_height = 0;
+litert.lm.proto.Lfm2.prototype.max_num_patches = 0;
+litert.lm.proto.Lfm2.prototype.pooling_kernel_size = 0;
+litert.lm.proto.Lfm2.prototype.image_tensor_height = 0;
+litert.lm.proto.Lfm2.prototype.image_tensor_width = 0;
+litert.lm.proto.Lfm2.prototype.normalization_rescale_factor = 0;
 
 litert.lm.proto.TokenUnion = class TokenUnion {
 
