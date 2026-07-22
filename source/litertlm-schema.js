@@ -162,7 +162,8 @@ litert.lm.schema.AnySectionDataType = {
     LlmMetadataProto: 5, '5': 'LlmMetadataProto',
     HF_Tokenizer_Zlib: 6, '6': 'HF_Tokenizer_Zlib',
     TFLiteWeights: 7, '7': 'TFLiteWeights',
-    EmbeddingMetadataProto: 8, '8': 'EmbeddingMetadataProto'
+    EmbeddingMetadataProto: 8, '8': 'EmbeddingMetadataProto',
+    ExecutorMetadataProto: 9, '9': 'ExecutorMetadataProto'
 };
 
 litert.lm.schema.SectionObject = class SectionObject {
