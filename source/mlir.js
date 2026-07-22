@@ -18250,7 +18250,13 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
                 result.addAttribute('selection_control', controlValue);
                 parser.parseRParen();
             }
-            result.addTypes(parser.parseOptionalArrowTypeList());
+            if (parser.parseOptionalArrow()) {
+                const types = [];
+                do {
+                    types.push(parser.parseType());
+                } while (parser.parseOptionalComma());
+                result.addTypes(types);
+            }
             const region = result.addRegion();
             parser.parseRegion(region);
             return true;
