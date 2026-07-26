@@ -603,10 +603,9 @@ paddle.Tensor = class {
 
 paddle.TensorType = class {
 
-    constructor(dataType, shape, layout, denotation) {
+    constructor(dataType, shape, denotation) {
         this.dataType = dataType;
         this.shape = shape;
-        this.layout = layout;
         this.denotation = denotation;
     }
 
@@ -1045,24 +1044,15 @@ paddle.IR = class {
             }
         }
         const createOutput = (output, opInfo, idx, outputAttr) => {
-            const [parameterName, outputName] = this.getParaName(output, opInfo.namePrefix);
-            const valuesMap = new Map();
-            let tType = null;
-            const [, typeType] = output.TT['#'].split('.');
-            if (typeType === 't_dtensor') {
+            const [parameter, name] = this.getParaName(output, opInfo.namePrefix);
+            let tensorType = null;
+            if (output.TT['#'].split('.')[1] === 't_dtensor') {
                 const denotation = this.getOutputAttr(opInfo, idx, outputAttr);
-                const tensorType = this.createTensorType(output, denotation);
-                valuesMap.set(outputName, new paddle.Value(outputName, tensorType, null));
-                tType = tensorType;
-            } else {
-                valuesMap.set(outputName, new paddle.Value(outputName, null, null, null));
+                tensorType = this.createTensorType(output, denotation);
             }
-            return {
-                arguments: [outputName],
-                parameter: parameterName,
-                tensorType: tType,
-                values: valuesMap
-            };
+            const values = new Map();
+            values.set(name, new paddle.Value(name, tensorType, null));
+            return { arguments: [name], parameter, tensorType, values };
         };
         const outputs = [];
         if (op.O) {
@@ -1232,7 +1222,10 @@ paddle.IR = class {
         const [, dataType] = type['#'].split('.');
         const dtype = this.getType(dataType);
         const shape = new paddle.TensorShape(dims);
-        return new paddle.TensorType(dtype, shape, layout, denotation);
+        if (layout) {
+            denotation = denotation ? `${layout};${denotation}` : layout;
+        }
+        return new paddle.TensorType(dtype, shape, denotation);
     }
 
     getType(type) {
