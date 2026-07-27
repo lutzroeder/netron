@@ -1701,7 +1701,7 @@ pytorch.Reader.ExportedProgram = class extends pytorch.Reader {
                     }
                     case 'binary': {
                         if (context && context.stream) {
-                            return context.stream.peek();
+                            return context.stream;
                         }
                         break;
                     }
@@ -2045,7 +2045,7 @@ pytorch.Utility = class {
             case 'Layout': return 'Layout';
             case 'VarType': return type.annotation_str;
             case 'NoneType': return 'None';
-            case 'AnyType': return 'object';
+            case 'AnyType': return 'Any';
             case 'AnyListType': return 'list';
             case 'AnyTupleType': return 'tuple';
             case 'ClassType': return type.annotation_str;

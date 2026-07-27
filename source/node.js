@@ -94,7 +94,12 @@ node.FileStream = class {
             throw new Error(`File '${this._file}' last modified time changed.`);
         }
         try {
-            fs.readSync(descriptor, buffer, 0, buffer.length, offset + this._start);
+            // 'fs.readSync' length is a signed 32-bit value. Read in chunks to support buffers larger than 2 GB.
+            const length = buffer.length;
+            for (let position = 0; position < length;) {
+                const size = Math.min(0x40000000, length - position);
+                position += fs.readSync(descriptor, buffer, position, size, offset + this._start + position);
+            }
         } finally {
             fs.closeSync(descriptor);
         }
