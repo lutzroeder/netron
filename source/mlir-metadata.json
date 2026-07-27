@@ -20870,7 +20870,7 @@
   {
     "name": "linalg.broadcast",
     "summary": "Static broadcast operator",
-    "description": "Broadcast the input into the given shape by adding `dimensions`.\n\n    Example:\n    ```mlir\n      %bcast = linalg.broadcast\n          ins(%input:tensor<16xf32>)\n          outs(%init:tensor<16x64xf32>)\n          dimensions = [1]\n    ```",
+    "description": "Broadcast the input into the given shape by adding `dimensions`.\n\n    Each index in the `dimensions` attribute refers to a dimension of `init`\n    that is added by the operation. The indices must be unique and within the\n    rank of `init`; the sizes of the remaining (non-added) dimensions of\n    `init` must match the shape of `input`.\n\n    Example:\n    ```mlir\n      %bcast = linalg.broadcast\n          ins(%input:tensor<16xf32>)\n          outs(%init:tensor<16x64xf32>)\n          dimensions = [1]\n    ```",
     "operands": [
       { "name": "input", "type": "TensorOrMemref" },
       { "name": "init", "type": "TensorOrMemref" }
@@ -30139,6 +30139,19 @@
       { "name": "output", "type": "AnyMIXRShaped" }
     ],
     "assemblyFormat": "$inA attr-dict `:` type($inA) `->` type($output)"
+  },
+  {
+    "name": "migraphx.max",
+    "summary": "Elementwise maximum of two shaped values",
+    "description": "Computes the elementwise maximum of two inputs. The inputs and result must\n    have the same static logical shape.\n\n    Floating-point values propagate NaNs from either input. The payload of a NaN\n    result is unspecified. Floating-point lowering uses `nsz`, so the sign and\n    ordering of zero are not guaranteed. Signed and signless integers use\n    signed comparison, while unsigned integers use unsigned comparison. One-bit\n    integer element types are not supported.",
+    "operands": [
+      { "name": "inA", "type": "AnyMIXRShaped" },
+      { "name": "inB", "type": "AnyMIXRShaped" }
+    ],
+    "results": [
+      { "name": "output", "type": "AnyMIXRShaped" }
+    ],
+    "assemblyFormat": "$inA `,` $inB attr-dict\n    `:` type($inA) `,` type($inB) `->` type($output)"
   },
   {
     "name": "migraphx.mlir.as.logical.shape",
@@ -134288,6 +134301,18 @@
     "assemblyFormat": "$global attr-dict `:` type($global_val)"
   },
   {
+    "name": "wasmssa.global_set",
+    "summary": "Sets the value of the mutable global passed as argument.",
+    "description": "Sets the value of the mutable global referenced by the symbol to the given\n     value.\n\n     Example:\n\n     ```mlir\n     // Sets the value of `@global_0` to `%v`.\n     wasmssa.global_set @global_0 to %v : i32\n     ```",
+    "operands": [
+      { "name": "value", "type": "WasmSSA_ValType" }
+    ],
+    "attributes": [
+      { "name": "global", "type": "FlatSymbolRefAttr" }
+    ],
+    "assemblyFormat": "$global `to` $value `:` type($value) attr-dict"
+  },
+  {
     "name": "wasmssa.gt",
     "summary": "Check if a float value is greater than another",
     "description": "Example:\n\n     ```mlir\n     %a = wasmssa.gt %b %c : i32\n     ```",
@@ -134792,6 +134817,23 @@
       { "type": "AllTypesMatch<['val', 'bits', 'result']>" }
     ],
     "assemblyFormat": "$val `by` $bits `bits` `:` type($val) attr-dict"
+  },
+  {
+    "name": "wasmssa.select",
+    "summary": "Select between two values based on a condition.",
+    "description": "Returns `true_value` if `condition` is non-zero, `false_value` otherwise.\n     Both operands and the result must share the same Wasm value type.\n\n     Example:\n\n     ```mlir\n     // Returns %a if %cond is non-zero, otherwise %b.\n     %r = wasmssa.select %cond, %a, %b : i32\n     ```",
+    "operands": [
+      { "name": "true_value", "type": "WasmSSA_ValType" },
+      { "name": "false_value", "type": "WasmSSA_ValType" },
+      { "name": "condition", "type": "I32" }
+    ],
+    "results": [
+      { "name": "result", "type": "WasmSSA_ValType" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['true_value', 'false_value', 'result']>" }
+    ],
+    "assemblyFormat": "$condition `,` $true_value `,` $false_value attr-dict `:` type($result)"
   },
   {
     "name": "wasmssa.shl",
