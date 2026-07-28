@@ -208,9 +208,7 @@ onnx.Graph = class {
         for (const output of graph.output) {
             const value = context.value(output.name);
             value.metadata = output.metadata || [];
-            if (!value.initializer) {
-                this._outputs.push(new onnx.Argument(output.name, [value]));
-            }
+            this._outputs.push(new onnx.Argument(output.name, [value]));
         }
         const metadata_props = graph.metadata_props || [];
         this.metadata = metadata_props.map((metadata) => new onnx.Argument(metadata.key, metadata.value));
