@@ -2062,7 +2062,7 @@
       { "name": "ptr", "type": "LLVM_AnyPointer" },
       { "name": "mask", "type": "I1" },
       { "name": "falseVal", "type": "LLVM_Type" },
-      { "name": "multicastMask", "type": "Optional<I16>" }
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "results": [
       { "name": "result", "type": "LLVM_Type" }
@@ -25816,6 +25816,7 @@
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "branch_weights", "type": "OptionalAttr<DenseI32ArrayAttr>" },
       { "name": "CConv", "type": "DefaultValuedAttr<CConv, CConv::C>" },
+      { "name": "default_func_attrs", "type": "OptionalAttr<DictionaryAttr>" },
       { "name": "op_bundle_sizes", "type": "DenseI32ArrayAttr" },
       { "name": "op_bundle_tags", "type": "OptionalAttr<ArrayAttr>" }
     ],
@@ -64190,6 +64191,13 @@
     "assemblyFormat": "(`(` $optional^ `:` type($optional) `)`)? `:` type($optional_res)\n  (`[` $variadic^ `]`)? attr-dict"
   },
   {
+    "name": "test.format_optional_operand_type",
+    "operands": [
+      { "name": "optional", "type": "Optional<AnyType>" }
+    ],
+    "assemblyFormat": "(`(` $optional^ `)`)?\n    (`:` type($optional)^)?\n    attr-dict"
+  },
+  {
     "name": "test.format_optional_prop_dict",
     "attributes": [
       { "name": "a", "type": "OptionalProp<StringProp>" },
@@ -67191,6 +67199,21 @@
       { "type": "AttrSizedOperandSegments" }
     ],
     "assemblyFormat": "$a1 `:` $a2 `:` type($b1) `:` type($b2) prop-dict attr-dict `end`"
+  },
+  {
+    "name": "test.variadic_segment_prop_bulk_type",
+    "operands": [
+      { "name": "a1", "type": "Variadic<I64>" },
+      { "name": "a2", "type": "Variadic<I64>" }
+    ],
+    "results": [
+      { "name": "b1", "type": "Variadic<I64>" },
+      { "name": "b2", "type": "Variadic<I64>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "`(` operands `)` `:` functional-type(operands, results) prop-dict attr-dict"
   },
   {
     "name": "test.variadic_with_same_operand_results",
@@ -81639,12 +81662,12 @@
     "summary": "DynamicUpdateSlice.",
     "description": "DynamicUpdateSlice op that have the same semantics with XLA\n    DynamicUpdateSlice.\n    Generates a result which is the value of the input array\n    operand, with a slice update overwritten at start_indices.\n\n    See https://www.tensorflow.org/xla/operation_semantics#dynamicupdateslice.",
     "operands": [
-      { "name": "operand", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16]>" },
-      { "name": "update", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16]>" },
+      { "name": "operand", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16, BF16]>" },
+      { "name": "update", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16, BF16]>" },
       { "name": "start_indices", "type": "TFL_I32OrI64Tensor" }
     ],
     "results": [
-      { "name": "output", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16]>" }
+      { "name": "output", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16, BF16]>" }
     ]
   },
   {
@@ -83205,11 +83228,11 @@
     "summary": "Transpose operator",
     "description": "Returns the Transpose of x",
     "operands": [
-      { "name": "input", "type": "TFL_TensorOf<[I32, F32, F16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" },
+      { "name": "input", "type": "TFL_TensorOf<[I32, F32, F16, BF16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" },
       { "name": "perm", "type": "TFL_TensorOf<[I32]>" }
     ],
     "results": [
-      { "name": "output", "type": "TFL_TensorOf<[I32, F32, F16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" }
+      { "name": "output", "type": "TFL_TensorOf<[I32, F32, F16, BF16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" }
     ]
   },
   {
@@ -117055,13 +117078,10 @@
   {
     "name": "ttir.fill_cache",
     "summary": "Cache filling operation.",
-    "description": "The `fill_cache` operation fills a cache tensor with values from an input tensor.\n\n    Unlike `update_cache` which updates specific positions, this operation fills the entire cache\n    or a contiguous section of it with values from the input tensor. This is commonly used to\n    initialize a cache in sequence models.\n\n    Example:\n    ```mlir\n    // Fill cache with input values\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x16x64xf32>  // Initial values for the entire cache\n    %result = ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x16x64xf32> -> tensor<2x16x64xf32>\n    // The entire cache tensor is filled with values from input\n\n    // Fill a portion of the cache\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x8x64xf32>   // Values for half of the cache\n    %result = ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x8x64xf32> -> tensor<2x16x64xf32>\n    // The first 8 positions of the cache are filled with values from input\n    ```\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be filled.\n    - `input` (Tensor): The input tensor containing the values to fill the cache with.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.\n\n    Output:\n    - `result` (Tensor): The filled cache tensor.",
+    "description": "The `fill_cache` operation fills a cache tensor with values from an input tensor.\n\n    Unlike `update_cache` which updates specific positions, this operation fills the entire cache\n    or a contiguous section of it with values from the input tensor. This is commonly used to\n    initialize a cache in sequence models.\n\n    Example:\n    ```mlir\n    // Fill cache with input values\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x16x64xf32>  // Initial values for the entire cache\n    ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x16x64xf32>\n    // The entire cache tensor is filled in place with values from input\n\n    // Fill a portion of the cache\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x8x64xf32>   // Values for half of the cache\n    ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x8x64xf32>\n    // The first 8 positions of the cache are filled in place with values from input\n    ```\n\n    This op mutates `cache` in place and produces no result.\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be filled in place.\n    - `input` (Tensor): The input tensor containing the values to fill the cache with.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.",
     "operands": [
       { "name": "cache", "type": "AnyRankedTensor" },
       { "name": "input", "type": "AnyRankedTensor" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ],
     "attributes": [
       { "name": "batch_offset", "type": "I32Attr" }
@@ -117763,9 +117783,6 @@
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "page_table", "type": "AnyRankedTensor" },
       { "name": "batch_idx_tensor", "type": "Optional<AnyRankedTensor>" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ]
   },
   {
@@ -117822,15 +117839,12 @@
   {
     "name": "ttir.paged_update_cache",
     "summary": "Paged update cache op.",
-    "description": "Inputs:\n        - `cache`: The cache tensor to be updated. This tensor is modified in place [max_num_blocks, num_heads, block_size, head_dim]\n        - `input`: The input tensor containing new values. [1, num_users, num_heads (padded to 32), head_dim]\n        - `update_index`: Indices specifying where to update the cache. [num_users]\n        - `share_cache`: Whether the cache tensors share memory regions. Defaults to False.\n        - `page_table`: The page table for managing memory regions during updates. [num_users, max_num_blocks_per_seq]\n\n      Outputs:\n        - `result`: The updated cache tensor.",
+    "description": "Inputs:\n        - `cache`: The cache tensor to be updated. This tensor is modified in place [max_num_blocks, num_heads, block_size, head_dim]\n        - `input`: The input tensor containing new values. [1, num_users, num_heads (padded to 32), head_dim]\n        - `update_index`: Indices specifying where to update the cache. [num_users]\n        - `share_cache`: Whether the cache tensors share memory regions. Defaults to False.\n        - `page_table`: The page table for managing memory regions during updates. [num_users, max_num_blocks_per_seq]\n\n      This op mutates `cache` in place and produces no result.",
     "operands": [
       { "name": "cache", "type": "AnyRankedTensor" },
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "update_index", "type": "AnyRankedTensor" },
       { "name": "page_table", "type": "Optional<AnyRankedTensor>" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ],
     "attributes": [
       { "name": "share_cache", "type": "DefaultValuedAttr<BoolAttr, false>" }
@@ -118696,14 +118710,11 @@
   {
     "name": "ttir.update_cache",
     "summary": "Cache update operation.",
-    "description": "The `update_cache` operation updates a cache tensor with values from an input tensor at specific indices.\n\n    This operation is commonly used in sequence models like transformers to update a key-value cache\n    with new token information. It takes a cache tensor, an input tensor, and update indices, and\n    updates the cache at the specified positions.\n\n    Example:\n    ```mlir\n    // Update cache at specific indices\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x1x64xf32>   // New token embeddings\n    %update_index = ... : tensor<1xi32> // Update at position [15]\n    %result = ttir.update_cache(%cache, %input, %update_index) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x1x64xf32>, tensor<1xi32> -> tensor<2x16x64xf32>\n    // The cache tensor is updated at position 15 for both batches with the values from input\n    ```\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be updated.\n    - `input` (Tensor): The input tensor containing new values.\n    - `update_index` (Tensor): Indices specifying where to update the cache.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.\n\n    Output:\n    - `result` (Tensor): The updated cache tensor.",
+    "description": "The `update_cache` operation updates a cache tensor with values from an input tensor at specific indices.\n\n    This operation is commonly used in sequence models like transformers to update a key-value cache\n    with new token information. It takes a cache tensor, an input tensor, and update indices, and\n    updates the cache at the specified positions.\n\n    Example:\n    ```mlir\n    // Update cache at specific indices\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x1x64xf32>   // New token embeddings\n    %update_index = ... : tensor<1xi32> // Update at position [15]\n    ttir.update_cache(%cache, %input, %update_index) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x1x64xf32>, tensor<1xi32>\n    // The cache tensor is updated in place at position 15 for both batches with the values from input\n    ```\n\n    This op mutates `cache` in place and produces no result.\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be updated in place.\n    - `input` (Tensor): The input tensor containing new values.\n    - `update_index` (Tensor): Indices specifying where to update the cache.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.",
     "operands": [
       { "name": "cache", "type": "AnyRankedTensor" },
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "update_index", "type": "AnyRankedTensor" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ],
     "attributes": [
       { "name": "batch_offset", "type": "I32Attr" }
@@ -122513,6 +122524,21 @@
     "assemblyFormat": "$alloc attr-dict `:` qualified(type($alloc))"
   },
   {
+    "name": "ttng.packed_arith",
+    "summary": "Apply elementwise arithmetic using a packed PTX instruction",
+    "description": "Applies packed x2, mixed-precision, and FP8/FP4/UE8M0 x4 arithmetic.\n    Instruction types, modifiers, and grouping are inferred from tensor types.\n    FP4 uses lower-nibble-first i8 values along the inferred halved dimension.",
+    "operands": [
+      { "name": "operands", "type": "Variadic<RankedTensorOf<[ TTNG_PackedArithOperandElement ]>>" }
+    ],
+    "results": [
+      { "name": "result", "type": "RankedTensorOf<[TTNG_PackedArithResultElement]>" }
+    ],
+    "attributes": [
+      { "name": "op_kind", "type": "TTNG_PackedArithOpKindAttr{add|sub|mul|fma|min|max}" }
+    ],
+    "assemblyFormat": "$op_kind $operands attr-dict `:` functional-type($operands, $result)"
+  },
+  {
     "name": "ttng.reinterpret_tensor_descriptor",
     "summary": "Reinterpret a pointer as a tensor descriptor",
     "description": "This op exists to help the transition from untyped raw TMA objects to typed tensor descriptor objects.\n     Ideally, we can remove this once the APIs are fully fleshed out.",
@@ -122742,7 +122768,7 @@
   {
     "name": "ttng.warp_group_dot_wait",
     "summary": "warp group dot wait",
-    "description": "Waits until there are $pendings or fewer outstanding async dot operations.\n\n    $inputs must be the tensors corresponding to the async dot ops that we're\n    waiting on. For example, if there are N pending async dot ops and we wait\n    until one remains pending, then $inputs must include the results of the\n    first N - 1 dot ops.",
+    "description": "Waits until there are $pendings or fewer outstanding async dot operations.\n\n    $inputs must be the tensors corresponding to the async dot ops that we're\n    waiting on. For example, if there are N pending async dot ops and we wait\n    until one remains pending, then $inputs must include the results of the\n    first N - 1 dot ops.\n\n    The `warpGroupLocal` attribute specifies that we only wait for the local\n    warp group, and if num_warps > 4 then shared memory inputs may still be in\n    use by other warp groups. This is useful when only the result register\n    values need to be ready and the shared memory inputs will not be overwritten.",
     "operands": [
       { "name": "inputs", "type": "Variadic<TTG_TensorOrMemDesc>" }
     ],
@@ -122750,7 +122776,8 @@
       { "name": "outputs", "type": "Variadic<TTG_TensorOrMemDesc>" }
     ],
     "attributes": [
-      { "name": "pendings", "type": "I32Attr" }
+      { "name": "pendings", "type": "I32Attr" },
+      { "name": "warpGroupLocal", "type": "UnitAttr" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['inputs', 'outputs']>" }
@@ -137286,7 +137313,6 @@
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
-      { "name": "tile_info", "type": "OptionalAttr<XTile_TilingInfoAttr>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "num_opaque_args", "type": "DefaultValuedAttr<I32Attr, 0>" }
     ],
