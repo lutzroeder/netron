@@ -10,7 +10,11 @@ path fails — `about:blank#blocked` — for any model over ~1.5&nbsp;MB).
 
 ## Protocol
 
-1. Open Netron in a popup (`window.open`) or an `<iframe>`.
+1. Open Netron in a popup (`window.open`) or an `<iframe>`. Load it with the
+   `?embed` query flag (e.g. `https://netron.app/?embed`) so it runs in
+   **embedded mode** — the first-run update/cookie-consent dialogs and
+   telemetry are suppressed, since an embedder is driving the window and a user
+   may not be present to dismiss a dialog.
 2. Post the string `'PING'` to it repeatedly. Netron replies with the string
    `'PONG'` once it is ready to receive a model. (It stays silent to pings sent
    before it is ready, so keep pinging on an interval until the first `'PONG'`.)

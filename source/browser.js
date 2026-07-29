@@ -43,6 +43,14 @@ browser.Host = class {
         this._ready = false;
         this._pending = null;
         this._window.addEventListener('message', (e) => this._receive(e));
+        // Embedded mode (loaded with `?embed`): an embedder drives this window
+        // via the message protocol, so suppress the update/consent dialogs and
+        // telemetry that would otherwise sit in front of the model or fire
+        // without a user present. Skipping telemetry() leaves the telemetry
+        // session unstarted, so all send() calls no-op on their own.
+        const search = this._window.location.search;
+        const params = search ? new this._window.URLSearchParams(search) : null;
+        this._embedded = params ? params.has('embed') : false;
     }
 
     get window() {
@@ -147,9 +155,11 @@ browser.Host = class {
             });
             return Promise.resolve();
         };
-        await age();
-        await consent();
-        await telemetry();
+        if (!this._embedded) {
+            await age();
+            await consent();
+            await telemetry();
+        }
         await capabilities();
     }
 
