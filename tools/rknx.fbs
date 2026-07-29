@@ -1,0 +1,96 @@
+namespace rknx;
+
+root_type Model;
+
+table Header {
+    version: int;
+    description: string;
+    compiler_version: string;
+    toolkit_version: string;
+    var4: int;
+    hardware: Hardware;
+    var6: int;
+    var7: int;
+    var8: int;
+    io_configs: [IoConfig];
+    llm_config: LlmConfig;
+    var11: int;
+}
+
+table Hardware {
+    name: string;
+    var1: int;
+    var2: int;
+}
+
+table IoConfig {
+    var0: int;
+    input: string;
+    output: string;
+}
+
+table LlmConfig {
+    var00: [int];
+    vocab_size: int;
+    hidden_size: int;
+    var03: [int];
+    var04: int;
+    var05: int;
+    var06: int;
+    var07: [int];
+    var08: int;
+    var09: string;
+    var10: string;
+    config: string;
+}
+
+table Model {
+    var0: int;
+    version: int;
+    subgraphs: [ComputeGraph];
+    var3: int;
+    var4: int;
+    var5: int;
+    var6: int;
+    var7: int;
+}
+
+table ComputeGraph {
+    var0: int;
+    name: string;
+    tensors: [Tensor];
+    inputs: [int];
+    outputs: [int];
+    tasks: [Task];
+}
+
+table Task {
+    var0: int;
+    var1: int;
+    var2: int;
+    var3: int;
+    var4: int;
+}
+
+table Tensor {
+    var00: int;
+    var01: int;
+    var02: int;
+    var03: int;
+    shape: [int];
+    var05: [int];
+    name: string;
+    var07: int;
+    data_type: string;
+    var09: int;
+    var10: int;
+    var11: int;
+    var12: int;
+    size: int;
+    var14: int;
+    stride: [int];
+    var16: int;
+    var17: int;
+    var18: int;
+    var19: int;
+}

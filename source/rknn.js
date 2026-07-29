@@ -4,6 +4,7 @@ import * as flatbuffers from './flatbuffers.js';
 import * as json from './json.js';
 
 const rknn = {};
+const rknx = {};
 const openvx = {};
 
 rknn.ModelFactory = class {
@@ -17,8 +18,9 @@ rknn.ModelFactory = class {
     }
 
     async open(context) {
-        rknn.schema = await context.require('./rknn-schema');
-        rknn.schema = rknn.schema.rknn;
+        const schema = await context.require('./rknn-schema');
+        rknn.schema = schema.rknn;
+        rknx.schema = schema.rknx;
         const metadata = await context.metadata('rknn-metadata.json');
         const target = context.value;
         target.read();
@@ -28,11 +30,17 @@ rknn.ModelFactory = class {
             const model = reader.read();
             return new rknn.Model(metadata, 'json', model, target);
         }
-        if (target.has('flatbuffers')) {
-            const buffer = target.get('flatbuffers');
+        if (target.has('flatbuffers.rknn')) {
+            const buffer = target.get('flatbuffers.rknn');
             const reader = flatbuffers.BinaryReader.open(buffer);
             const model = rknn.schema.Model.create(reader);
-            return new rknn.Model(metadata, 'flatbuffers', model, null);
+            return new rknn.Model(metadata, 'flatbuffers.rknn', model, null);
+        }
+        if (target.has('flatbuffers.rknx')) {
+            const buffer = target.get('flatbuffers.rknx');
+            const reader = flatbuffers.BinaryReader.open(buffer);
+            const model = rknx.schema.Header.decode(reader, reader.root);
+            return new rknn.Model(metadata, 'flatbuffers.rknx', model, target);
         }
         if (target.has('openvx')) {
             const buffer = target.get('openvx');
@@ -55,13 +63,32 @@ rknn.Model = class {
                 this.modules = [new rknn.Graph(metadata, type, model.name || '', model, container)];
                 break;
             }
-            case 'flatbuffers': {
+            case 'flatbuffers.rknn': {
                 const version = model.compiler.split('-').shift();
                 this.format = `RKNN Lite${version ? ` v${version}` : ''}`;
                 this.runtime = model.runtime;
                 this.name = model.name || '';
                 this.modules = model.graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
                 this.source = model.source;
+                break;
+            }
+            case 'flatbuffers.rknx': {
+                const header = model;
+                let graphs = [];
+                if (container && container.has('flatbuffers.rknx.sub')) {
+                    const reader = flatbuffers.BinaryReader.open(container.get('flatbuffers.rknx.sub'));
+                    const target = rknx.schema.Model.create(reader);
+                    graphs = Array.isArray(target.subgraphs) ? target.subgraphs : [];
+                }
+                this.format = 'RKNN3';
+                this.name = header.description || '';
+                this.producer = header.toolkit_version || '';
+                this.runtime = header.hardware ? header.hardware.name : '';
+                this.metadata = [];
+                if (header.compiler_version) {
+                    this.metadata.push(new rknn.Argument('compiler', header.compiler_version));
+                }
+                this.modules = graphs.map((graph) => new rknn.Graph(metadata, type, '', graph, null));
                 break;
             }
             case 'openvx': {
@@ -181,7 +208,7 @@ rknn.Graph = class {
                 this.nodes = model.nodes.map((node) => new rknn.Node(metadata, type, node, value, container));
                 break;
             }
-            case 'flatbuffers': {
+            case 'flatbuffers.rknn': {
                 const graph = obj;
                 const dataTypes = ['?', 'float32', 'uint8', 'int8', 'uint16', 'int16', 'int32', 'int64', 'string', 'boolean', 'float16', 'float64', 'uint32', 'uint64', 'complex<float32>', 'complex<float64>', 'bfloat16'];
                 const args = graph.tensors.map((tensor) => {
@@ -198,6 +225,29 @@ rknn.Graph = class {
                     return args[index];
                 };
                 this.nodes = graph.nodes.map((node) => new rknn.Node(metadata, type, node, arg, container));
+                break;
+            }
+            case 'flatbuffers.rknx': {
+                const graph = obj;
+                const tensors = Array.isArray(graph.tensors) ? graph.tensors : [];
+                const values = tensors.map((tensor) => {
+                    const shape = new rknn.TensorShape(Array.from(tensor.shape || []));
+                    const type = new rknn.TensorType(tensor.data_type || '?', shape);
+                    return new rknn.Value(tensor.name || '', type, null);
+                });
+                const value = (index) => {
+                    if (index >= values.length) {
+                        throw new rknn.Error(`Invalid tensor index '${index}'.`);
+                    }
+                    return values[index];
+                };
+                for (const index of Array.from(graph.inputs || [])) {
+                    this.inputs.push(new rknn.Argument('input', [value(index)]));
+                }
+                for (const index of Array.from(graph.outputs || [])) {
+                    this.outputs.push(new rknn.Argument('output', [value(index)]));
+                }
+                this.nodes = (graph.tasks || []).map((task) => new rknn.Node(metadata, type, task, value, null));
                 break;
             }
             case 'openvx': {
@@ -245,11 +295,11 @@ rknn.Node = class {
                     const buffer = container.get('openvx');
                     const model = new openvx.Model(buffer);
                     this.type = new rknn.Graph(metadata, 'openvx', 'NBG', model, null);
-                } else if (node.op === 'RKNN_OP_NNBG' && container && container.has('flatbuffers')) {
-                    const buffer = container.get('flatbuffers');
+                } else if (node.op === 'RKNN_OP_NNBG' && container && container.has('flatbuffers.rknn')) {
+                    const buffer = container.get('flatbuffers.rknn');
                     const reader = flatbuffers.BinaryReader.open(buffer);
                     const model = rknn.schema.Model.create(reader);
-                    this.type = new rknn.Graph(metadata, 'flatbuffers', 'NNBG', model.graphs[0], null);
+                    this.type = new rknn.Graph(metadata, 'flatbuffers.rknn', 'NNBG', model.graphs[0], null);
                 } else {
                     const type = metadata.type(node.op);
                     this.type = type ? { ...type } : { name: node.op };
@@ -299,7 +349,7 @@ rknn.Node = class {
                 }
                 break;
             }
-            case 'flatbuffers': {
+            case 'flatbuffers.rknn': {
                 this.name = node.name;
                 this.type = metadata.type(node.type);
                 if (node.inputs.length > 0) {
@@ -322,6 +372,16 @@ rknn.Node = class {
                         this.outputs = Array.from(node.outputs).map((output, index) => {
                             return new rknn.Argument(index < outputs.length ? outputs[index].name : index.toString(), [value(output)]);
                         });
+                    }
+                }
+                break;
+            }
+            case 'flatbuffers.rknx': {
+                this.name = node.name || '';
+                this.type = { name: 'Task' };
+                for (const [name, item] of Object.entries(node)) {
+                    if (typeof item === 'number' || typeof item === 'bigint') {
+                        this.attributes.push(new rknn.Argument(name, item));
                     }
                 }
                 break;
@@ -411,8 +471,9 @@ rknn.Container = class extends Map {
             const signature = rknn.Container.signature(stream);
             switch (signature) {
                 case 'rknn':
+                case 'flatbuffers.rknx':
                 case 'openvx':
-                case 'flatbuffers':
+                case 'flatbuffers.rknn':
                 case 'cyptrknn':
                     return new rknn.Container(stream, signature);
                 default:
@@ -463,8 +524,22 @@ rknn.Container = class extends Map {
                     }
                     break;
                 }
+                case 'flatbuffers.rknx': {
+                    // [magic 'RKNX'][0x50 header][header flatbuffer]
+                    // [magic 'RKNX_SUB'][0x58 header][model flatbuffer]
+                    const buffer = stream.peek();
+                    this.set('flatbuffers.rknx', buffer.subarray(0x50));
+                    const signature = [0x52, 0x4B, 0x4E, 0x58, 0x5F, 0x53, 0x55, 0x42]; // RKNX_SUB
+                    for (let i = 0x50; i + signature.length < buffer.length; i += 8) {
+                        if (signature.every((value, index) => value === buffer[i + index])) {
+                            this.set('flatbuffers.rknx.sub', buffer.subarray(i + 0x58));
+                            break;
+                        }
+                    }
+                    break;
+                }
                 case 'openvx':
-                case 'flatbuffers': {
+                case 'flatbuffers.rknn': {
                     this.set(this.signature, stream.peek());
                     break;
                 }
@@ -488,6 +563,12 @@ rknn.Container = class extends Map {
             }
         }
         if (stream && (stream.position + 16) <= length) {
+            const signature = [0x52, 0x4B, 0x4E, 0x58]; // RKNX
+            if (stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                return 'flatbuffers.rknx';
+            }
+        }
+        if (stream && (stream.position + 16) <= length) {
             const signature = [0x43, 0x59, 0x50, 0x54, 0x52, 0x4B, 0x4E, 0x4E]; // CYPTRKNN
             if (stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 return 'cyptrknn';
@@ -496,7 +577,7 @@ rknn.Container = class extends Map {
         if (stream && (stream.position + 8) <= length) {
             const signature = [0x52, 0x4B, 0x4E, 0x4E]; // RKNN
             if (stream.peek(8).subarray(4, 8).every((value, index) => value === signature[index])) {
-                return 'flatbuffers';
+                return 'flatbuffers.rknn';
             }
         }
         if (stream && (stream.position + 8) <= length) {
