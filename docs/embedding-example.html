@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Netron embedding example</title>
+    <style>
+        body { font-family: sans-serif; margin: 1em; }
+        #row { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; margin-bottom: 0.5em; }
+        #origin { width: 22em; }
+        #status { color: #555; margin-bottom: 0.5em; min-height: 1.2em; }
+        iframe { width: 100%; height: 80vh; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <!--
+      Manual test for the postMessage embedding protocol (see embedding.md).
+      Pick a model file; it is read in-page and handed to the embedded Netron as
+      raw bytes over postMessage — nothing is uploaded. Point "Netron origin" at
+      a build that includes the protocol (e.g. this fork's preview deployment);
+      upstream netron.app will not respond to the handshake until it ships.
+    -->
+    <div id="row">
+        <label>Netron origin: <input id="origin" value="https://netron.app"></label>
+        <input id="file" type="file">
+    </div>
+    <div id="status">Pick a model file to load it into the embedded Netron.</div>
+    <iframe id="frame" title="Netron"></iframe>
+
+    <script>
+        const originInput = document.getElementById("origin");
+        const fileInput = document.getElementById("file");
+        const frame = document.getElementById("frame");
+        const status = document.getElementById("status");
+
+        function loadIntoNetron(buffer, name) {
+            const origin = originInput.value.replace(/\/+$/, "");
+            status.textContent = `Loading ${name} (${buffer.byteLength} bytes)…`;
+            frame.src = origin + "/";
+
+            const onMessage = (e) => {
+                if (e.source !== frame.contentWindow) {
+                    return;
+                }
+                if (e.data === "PONG") {
+                    clearInterval(ping);
+                    // Transfer the buffer to hand off large models without a copy.
+                    frame.contentWindow.postMessage({ netron: { buffer, name } }, origin, [buffer]);
+                } else if (e.data && e.data.netron && e.data.netron.status) {
+                    clearInterval(ping);
+                    window.removeEventListener("message", onMessage);
+                    status.textContent = e.data.netron.status === "success"
+                        ? `Loaded ${name}.`
+                        : `Error: ${e.data.netron.message}`;
+                }
+            };
+            window.addEventListener("message", onMessage);
+            // Netron ignores pings sent before it is ready, so keep pinging.
+            const ping = setInterval(() => {
+                if (frame.contentWindow) {
+                    frame.contentWindow.postMessage("PING", origin);
+                }
+            }, 50);
+        }
+
+        fileInput.addEventListener("change", async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                loadIntoNetron(await file.arrayBuffer(), file.name);
+            }
+        });
+    </script>
+</body>
+</html>

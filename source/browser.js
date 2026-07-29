@@ -34,6 +34,15 @@ browser.Host = class {
         if (this.version && !/^\d+\.\d+\.\d+$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
+        // Cross-window embedding protocol (see docs/embedding.md), modeled on
+        // Perfetto's: an embedder posts a model straight into this window/frame
+        // as raw bytes, sidestepping the browser URL-length limit that caps the
+        // '#<data-url>' loading path. The listener is installed here, as early
+        // as possible, but only answers once the host is ready (see start()),
+        // so the handshake can't hand a model to a half-initialized view.
+        this._ready = false;
+        this._pending = null;
+        this._window.addEventListener('message', (e) => this._receive(e));
     }
 
     get window() {
@@ -145,6 +154,17 @@ browser.Host = class {
     }
 
     async start() {
+        // The view is fully wired up by the time start() runs, so it is now
+        // safe to answer the embedding handshake and open a posted model. If a
+        // model arrived early (before the handshake completed), open it now
+        // instead of falling through to the welcome screen.
+        this._ready = true;
+        if (this._pending) {
+            const e = this._pending;
+            this._pending = null;
+            await this._openRequest(e);
+            return;
+        }
         if (this._meta.file) {
             const [url] = this._meta.file;
             if (this._view.accept(url)) {
@@ -218,6 +238,73 @@ browser.Host = class {
             }
         });
         this._view.show('welcome');
+    }
+
+    // Dispatch an incoming window message for the embedding protocol. An
+    // embedder first posts the string 'PING' repeatedly until it receives
+    // 'PONG', which signals the host is ready; it then posts
+    // `{ netron: { buffer, name, identifier, url } }` to load a model. Both the
+    // 'PONG' reply and the load are deferred until the host is ready so a
+    // compliant embedder never races the view's initialization. Messages that
+    // are neither a ping nor a `netron` request are ignored, so this coexists
+    // with unrelated postMessage traffic (extensions, dev tooling, etc.).
+    _receive(e) {
+        const message = e.data;
+        if (message === 'PING') {
+            if (this._ready && e.source) {
+                const origin = e.origin && e.origin !== 'null' ? e.origin : '*';
+                e.source.postMessage('PONG', origin);
+            }
+            return;
+        }
+        if (message && typeof message === 'object' && message.netron && message.netron.buffer !== undefined) {
+            if (this._ready) {
+                this._openRequest(e);
+            } else {
+                this._pending = e;
+            }
+        }
+    }
+
+    // Open a model handed over by an embedder as raw bytes and, when possible,
+    // report the outcome back to the embedder as
+    // `{ netron: { status: 'success' | 'error', ... } }`.
+    async _openRequest(e) {
+        const request = e.data.netron;
+        const origin = e.origin && e.origin !== 'null' ? e.origin : '*';
+        const respond = (status, detail) => {
+            if (e.source) {
+                e.source.postMessage({ netron: { status, ...detail } }, origin);
+            }
+        };
+        this._view.show('welcome spinner');
+        try {
+            let buffer = request.buffer;
+            if (buffer instanceof ArrayBuffer) {
+                buffer = new Uint8Array(buffer);
+            } else if (ArrayBuffer.isView(buffer)) {
+                buffer = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+            } else {
+                throw new Error("Expected 'buffer' to be an ArrayBuffer or a typed array.");
+            }
+            // Netron detects the format from the identifier's extension (with a
+            // content fallback), so prefer a name like 'model.onnx'.
+            const identifier = request.identifier || request.name || request.title || 'model';
+            const name = request.name || request.title || null;
+            const stream = new base.BinaryStream(buffer);
+            const context = new browser.Context(this, request.url || '', identifier, name, stream);
+            const status = await this._openContext(context);
+            if (status === '') {
+                respond('success', { identifier });
+            } else {
+                this._view.show('welcome');
+                respond('error', { message: `Unable to open model (${status}).` });
+            }
+        } catch (error) {
+            await this._view.error(error, 'Model load request failed.');
+            this._view.show('welcome');
+            respond('error', { message: error && error.message ? error.message : String(error) });
+        }
     }
 
     environment(name) {
