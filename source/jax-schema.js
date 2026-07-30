@@ -220,6 +220,7 @@ jax_export.serialization.Exported = class Exported {
         $.out_avals_idxs = reader.array(position, 50, Uint32Array);
         $.in_shardings_idxs = reader.array(position, 52, Uint32Array);
         $.out_shardings_idxs = reader.array(position, 54, Uint32Array);
+        $.jax_version = reader.string_(position, 56, null);
         return $;
     }
 };
