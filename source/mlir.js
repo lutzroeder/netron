@@ -831,6 +831,7 @@ mlir.Utility = class {
                 case 'f8E4M3FNUZ': return 'float8e4m3fnuz';
                 case 'f8E5M2': return 'float8e5m2';
                 case 'f8E5M2FNUZ': return 'float8e5m2fnuz';
+                case 'f8E5M3FNU': return 'float8e5m3fnu';
                 case 'f8E8M0FNU': return 'float8e8m0fnu';
                 default: throw new mlir.Error(`Unexpected float type '${name}'.`);
             }
@@ -1930,6 +1931,7 @@ _.FloatType = class extends _.Type {
             case 'f8E4M3FNUZ': return 8;
             case 'f8E5M2': return 8;
             case 'f8E5M2FNUZ': return 8;
+            case 'f8E5M3FNU': return 8;
             case 'f8E8M0': return 8;
             case 'f8E8M0FNU': return 8;
             default: throw new mlir.Error(`Unexpected float type '${name}'.`);
@@ -3445,6 +3447,7 @@ _.Parser = class {
                     case 'f8E4M3FN':
                     case 'f8E5M2FNUZ':
                     case 'f8E4M3FNUZ':
+                    case 'f8E5M3FNU':
                     case 'f8E4M3B11FNUZ':
                     case 'f8E3M4':
                     case 'f8E8M0FNU':
@@ -3526,6 +3529,7 @@ _.Parser = class {
                     case 'f8E4M3FN':
                     case 'f8E5M2FNUZ':
                     case 'f8E4M3FNUZ':
+                    case 'f8E5M3FNU':
                     case 'f8E4M3B11FNUZ':
                     case 'f8E3M4':
                     case 'f8E8M0FNU':
@@ -9069,6 +9073,7 @@ _.Dialect = class {
             case 'F8E4M3FNUZ': return new _.FloatType('f8E4M3FNUZ');
             case 'F8E5M2': return new _.FloatType('f8E5M2');
             case 'F8E5M2FNUZ': return new _.FloatType('f8E5M2FNUZ');
+            case 'F8E5M3FNU': return new _.FloatType('f8E5M3FNU');
             case 'F8E8M0FNU': return new _.FloatType('f8E8M0FNU');
             case 'FLOW_Channel': return new _.Type('!flow.channel');
             case 'GPU_AsyncToken': return new _.Type('!gpu.async.token');
@@ -20322,6 +20327,14 @@ _.GpuDialect = class extends _.Dialect {
                     parser.emitError(`Operation '${op}' needs to be named when marked 'async'`);
                 }
                 result.addTypes([new _.Type('!gpu.async.token')]);
+            }
+            // Optional async object: '<' value ':' type '>' (GPUDialect.cpp:1028)
+            if (parser.parseOptionalLess()) {
+                const asyncObject = parser.parseOperand();
+                parser.parseColon();
+                const asyncObjectType = parser.parseType();
+                parser.resolveOperand(asyncObject, asyncObjectType, result.operands);
+                parser.parseGreater();
             }
             const asyncTokenType = new _.Type('!gpu.async.token');
             const asyncDeps = parser.parseOperandList('optionalSquare');

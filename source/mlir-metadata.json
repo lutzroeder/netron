@@ -2062,7 +2062,7 @@
       { "name": "ptr", "type": "LLVM_AnyPointer" },
       { "name": "mask", "type": "I1" },
       { "name": "falseVal", "type": "LLVM_Type" },
-      { "name": "multicastMask", "type": "Optional<I16>" }
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "results": [
       { "name": "result", "type": "LLVM_Type" }
@@ -15174,7 +15174,7 @@
   {
     "name": "gpu.launch",
     "summary": "GPU kernel launch operation",
-    "description": "Launch a kernel on the specified grid of thread blocks. The body of the\n    kernel is defined by the single region that this operation contains. The\n    operation takes an optional list of async dependencies followed by six\n    operands and an optional operand.\n\n    The `async` keyword indicates the kernel should be launched asynchronously;\n    the operation returns a new !gpu.async.token when the keyword is specified.\n    The kernel launched does not start executing until the ops producing its\n    async dependencies (optional operands) have completed.\n\n    The first three operands (following any async dependencies) are grid sizes\n    along the x,y,z dimensions and the following three are block sizes along the\n    x,y,z dimensions. When a lower-dimensional kernel is required, unused sizes\n    must be explicitly set to `1`.  The last operand is optional and corresponds\n    to the amount of dynamic shared memory a kernel's workgroup should be\n    allocated; when this operand is not present, a zero size is assumed.\n\n    The body region has at least _twelve_ arguments, or _eighteen_ if cluster\n    dimensions are present, grouped as follows:\n\n    -   three optional arguments that contain cluster identifiers along x,y,z\n        dimensions;\n    -   three arguments that contain block identifiers along x,y,z dimensions;\n    -   three arguments that contain thread identifiers along x,y,z dimensions;\n    -   operands of the `gpu.launch` operation as is (i.e. the operands for\n        grid and block sizes).\n    -   a variadic number of Workgroup memory attributions.\n    -   a variadic number of Private memory attributions.\n\n    The `function` and `module` attributes are optional and specifies\n    the kernel name and a module in which the kernel should be outlined.\n\n    Syntax:\n\n    ```\n    operation ::= `gpu.launch` (`async` (`[` ssa-id-list `]`)? )?\n                             ( `clusters` `(` ssa-id-list `)` `in` ssa-reassignment )?\n                             `blocks` `(` ssa-id-list `)` `in` ssa-reassignment\n                             `threads` `(` ssa-id-list `)` `in` ssa-reassignment\n                             (dynamic_shared_memory_size ssa-use)?\n                             (`module(` symbol-ref-id `)`)?\n                             (`function(` symbol-ref-id `)`)?\n                             memory-attribution\n                             region attr-dict?\n    ssa-reassignment ::= `(` ssa-id `=` ssa-use (`,` ssa-id `=` ssa-use)* `)`\n    memory-attribution ::= (`workgroup` `(` ssa-id-and-type-list `)`)?\n                           (`private` `(` ssa-id-and-type-list `)`)?\n    ```\n\n    Example:\n\n    ```mlir\n    gpu.launch blocks(%bx, %by, %bz) in (%sz_bx = %0, %sz_by = %1, %sz_bz = %2)\n               threads(%tx, %ty, %tz) in (%sz_tx = %3, %sz_ty = %4, %sz_tz = %5) {\n      // Block and thread identifiers, as well as block/grid sizes are\n      // immediately usable inside body region.\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      // Assuming %val1 is defined outside the gpu.launch region.\n      %42 = load %val1[%bx] : memref<?xf32, 1>\n    }\n\n    // Generic syntax explains how the pretty syntax maps to the IR structure.\n    \"gpu.launch\"(%cst, %cst, %c1,  // Grid sizes.\n                 %cst, %c1, %c1)   // Block sizes.\n\n        {/*attributes*/}\n        // All sizes and identifiers have \"index\" size.\n        : (index, index, index, index, index, index) -> () {\n    // The operation passes block and thread identifiers, followed by grid and\n    // block sizes.\n    ^bb0(%bx : index, %by : index, %bz : index,\n         %tx : index, %ty : index, %tz : index,\n         %num_bx : index, %num_by : index, %num_bz : index,\n         %num_tx : index, %num_ty : index, %num_tz : index)\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      %3 = \"memref.load\"(%val1, %bx) : (memref<?xf32, 1>, index) -> f32\n    }\n\n    // Launch with memory attributions.\n    gpu.launch blocks(%bx, %by, %bz) in (%sz_bx = %0, %sz_by = %1, %sz_bz = %2)\n               threads(%tx, %ty, %tz) in (%sz_tx = %3, %sz_ty = %4, %sz_tz = %5)\n               workgroup(%workgroup: memref<32xf32, 3>)\n               private(%private: memref<1xf32, 5>) {\n      // Block and thread identifiers, as well as block/grid sizes are\n      // immediately usable inside body region.\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      // Assuming %val1 is defined outside the gpu.launch region.\n      %42 = load %workgroup[%bx] : memref<32xf32, 3>\n    }\n\n    // Launch with clusters.\n    gpu.launch clusters(%cx, %cy, %cz) in (%sz_cx = %0, %sz_cy = %1, %sz_cz = %2)\n               blocks(%bx, %by, %bz) in (%sz_bx = %3, %sz_by = %4, %sz_bz = %5)\n               threads(%tx, %ty, %tz) in (%sz_tx = %6, %sz_ty = %7, %sz_tz = %8)\n    {\n      // Cluster, block and thread identifiers, as well as cluster/block/grid\n      // sizes are immediately usable inside body region.\n      \"some_op\"(%cx, %bx, %tx) : (index, index, index) -> ()\n    }\n\n    // Launch with module and function attributes.\n    gpu.launch blocks(%bx, %by, %bz) in (%sz_bx = %0, %sz_by = %1, %sz_bz = %2)\n               threads(%tx, %ty, %tz) in (%sz_tx = %3, %sz_ty = %4, %sz_tz = %5)\n               module(@kernel_module) function(@kernel_func) {\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      %42 = load %val1[%bx] : memref<?xf32, 1>\n    }\n    ```\n\n    Rationale: using operation/block arguments gives analyses a clear way of\n    understanding that a value has additional semantics (e.g., we will need to\n    know what value corresponds to threadIdx.x for coalescing). We can recover\n    these properties by analyzing the operations producing values, but it is\n    easier just to have that information by construction.",
+    "description": "Launch a kernel on the specified grid of thread blocks. The body of the\n    kernel is defined by the single region that this operation contains.\n\n    The async execution model is equivalent to the `gpu.launch_func` op, refer\n    to its description.\n\n    The first three operands (following any async dependencies) are grid sizes\n    along the x,y,z dimensions and the following three are block sizes along the\n    x,y,z dimensions. When a lower-dimensional kernel is required, unused sizes\n    must be explicitly set to `1`.  The last operand is optional and corresponds\n    to the amount of dynamic shared memory a kernel's workgroup should be\n    allocated; when this operand is not present, a zero size is assumed.\n\n    The body region has at least _twelve_ arguments, or _eighteen_ if cluster\n    dimensions are present, grouped as follows:\n\n    -   three optional arguments that contain cluster identifiers along x,y,z\n        dimensions;\n    -   three arguments that contain block identifiers along x,y,z dimensions;\n    -   three arguments that contain thread identifiers along x,y,z dimensions;\n    -   operands of the `gpu.launch` operation as is (i.e. the operands for\n        grid and block sizes).\n    -   a variadic number of Workgroup memory attributions.\n    -   a variadic number of Private memory attributions.\n\n    The `function` and `module` attributes are optional and specifies\n    the kernel name and a module in which the kernel should be outlined.\n\n    Syntax:\n\n    ```\n    operation ::= `gpu.launch` (`async` (`[` ssa-id-list `]`)? )?\n                             ( `clusters` `(` ssa-id-list `)` `in` ssa-reassignment )?\n                             `blocks` `(` ssa-id-list `)` `in` ssa-reassignment\n                             `threads` `(` ssa-id-list `)` `in` ssa-reassignment\n                             (dynamic_shared_memory_size ssa-use)?\n                             (`module(` symbol-ref-id `)`)?\n                             (`function(` symbol-ref-id `)`)?\n                             memory-attribution\n                             region attr-dict?\n    ssa-reassignment ::= `(` ssa-id `=` ssa-use (`,` ssa-id `=` ssa-use)* `)`\n    memory-attribution ::= (`workgroup` `(` ssa-id-and-type-list `)`)?\n                           (`private` `(` ssa-id-and-type-list `)`)?\n    ```\n\n    Example:\n\n    ```mlir\n    gpu.launch blocks(%bx, %by, %bz) in (%sz_bx = %0, %sz_by = %1, %sz_bz = %2)\n               threads(%tx, %ty, %tz) in (%sz_tx = %3, %sz_ty = %4, %sz_tz = %5) {\n      // Block and thread identifiers, as well as block/grid sizes are\n      // immediately usable inside body region.\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      // Assuming %val1 is defined outside the gpu.launch region.\n      %42 = load %val1[%bx] : memref<?xf32, 1>\n    }\n\n    // Generic syntax explains how the pretty syntax maps to the IR structure.\n    \"gpu.launch\"(%cst, %cst, %c1,  // Grid sizes.\n                 %cst, %c1, %c1)   // Block sizes.\n\n        {/*attributes*/}\n        // All sizes and identifiers have \"index\" size.\n        : (index, index, index, index, index, index) -> () {\n    // The operation passes block and thread identifiers, followed by grid and\n    // block sizes.\n    ^bb0(%bx : index, %by : index, %bz : index,\n         %tx : index, %ty : index, %tz : index,\n         %num_bx : index, %num_by : index, %num_bz : index,\n         %num_tx : index, %num_ty : index, %num_tz : index)\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      %3 = \"memref.load\"(%val1, %bx) : (memref<?xf32, 1>, index) -> f32\n    }\n\n    // Launch with memory attributions.\n    gpu.launch blocks(%bx, %by, %bz) in (%sz_bx = %0, %sz_by = %1, %sz_bz = %2)\n               threads(%tx, %ty, %tz) in (%sz_tx = %3, %sz_ty = %4, %sz_tz = %5)\n               workgroup(%workgroup: memref<32xf32, 3>)\n               private(%private: memref<1xf32, 5>) {\n      // Block and thread identifiers, as well as block/grid sizes are\n      // immediately usable inside body region.\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      // Assuming %val1 is defined outside the gpu.launch region.\n      %42 = load %workgroup[%bx] : memref<32xf32, 3>\n    }\n\n    // Launch with clusters.\n    gpu.launch clusters(%cx, %cy, %cz) in (%sz_cx = %0, %sz_cy = %1, %sz_cz = %2)\n               blocks(%bx, %by, %bz) in (%sz_bx = %3, %sz_by = %4, %sz_bz = %5)\n               threads(%tx, %ty, %tz) in (%sz_tx = %6, %sz_ty = %7, %sz_tz = %8)\n    {\n      // Cluster, block and thread identifiers, as well as cluster/block/grid\n      // sizes are immediately usable inside body region.\n      \"some_op\"(%cx, %bx, %tx) : (index, index, index) -> ()\n    }\n\n    // Launch with module and function attributes.\n    gpu.launch blocks(%bx, %by, %bz) in (%sz_bx = %0, %sz_by = %1, %sz_bz = %2)\n               threads(%tx, %ty, %tz) in (%sz_tx = %3, %sz_ty = %4, %sz_tz = %5)\n               module(@kernel_module) function(@kernel_func) {\n      \"some_op\"(%bx, %tx) : (index, index) -> ()\n      %42 = load %val1[%bx] : memref<?xf32, 1>\n    }\n    ```\n\n    Rationale: using operation/block arguments gives analyses a clear way of\n    understanding that a value has additional semantics (e.g., we will need to\n    know what value corresponds to threadIdx.x for coalescing). We can recover\n    these properties by analyzing the operations producing values, but it is\n    easier just to have that information by construction.",
     "operands": [
       { "name": "asyncDependencies", "type": "Variadic<GPU_AsyncToken>" },
       { "name": "gridSizeX", "type": "Index" },
@@ -15186,7 +15186,8 @@
       { "name": "clusterSizeX", "type": "Optional<Index>" },
       { "name": "clusterSizeY", "type": "Optional<Index>" },
       { "name": "clusterSizeZ", "type": "Optional<Index>" },
-      { "name": "dynamicSharedMemorySize", "type": "Optional<I32>" }
+      { "name": "dynamicSharedMemorySize", "type": "Optional<I32>" },
+      { "name": "asyncObject", "type": "Optional<AnyType>" }
     ],
     "results": [
       { "name": "asyncToken", "type": "Optional<GPU_AsyncToken>" }
@@ -15208,7 +15209,7 @@
   {
     "name": "gpu.launch_func",
     "summary": "Launches a function as a GPU kernel",
-    "description": "Launch a kernel function on the specified grid of thread blocks.\n    `gpu.launch` operations are lowered to `gpu.launch_func` operations by\n    outlining the kernel body into a function in a dedicated module, which\n    reflects the separate compilation process. The kernel function is required\n    to have the `gpu.kernel` attribute. The module containing the kernel\n    function is required to be a gpu.module. And finally, the module containing\n    the kernel module (which thus cannot be the top-level module) is required\n    to have the `gpu.container_module` attribute. The `gpu.launch_func`\n    operation has a symbol attribute named `kernel` to identify the fully\n    specified kernel function to launch (both the gpu.module and func).\n\n    The `gpu.launch_func` supports async dependencies: the kernel does not start\n    executing until the ops producing those async dependencies have completed.\n\n    By the default, the host implicitly blocks until kernel execution has\n    completed. If the `async` keyword is present, the host does not block but\n    instead a `!gpu.async.token` is returned. Other async GPU ops can take this\n    token as dependency.\n\n    The operation requires at least the grid and block sizes along the x,y,z\n    dimensions as arguments. When a lower-dimensional kernel is required,\n    unused sizes must be explicitly set to `1`.\n\n    The remaining operands are optional. The first optional operand corresponds\n    to the amount of dynamic shared memory a kernel's workgroup should be\n    allocated; when this operand is not present, a zero size is assumed.\n\n    The remaining operands if present are passed as arguments to the kernel\n    function.\n\n    The `gpu.launch_func` also supports kernel launching with clusters if\n    supported by the target architecture. The cluster size can be set by\n    `clusterSizeX`, `clusterSizeY`, and `clusterSizeZ` arguments. When these\n    arguments are present, the Op launches a kernel that clusters the given\n    thread blocks. This feature is exclusive to certain architectures.\n\n    The `cooperative` attribute indicates that the kernel should be launched\n    cooperatively, guaranteeing that all thread blocks in the grid are\n    co-resident on the GPU simultaneously. This enables grid-wide\n    synchronization patterns.\n\n    Example:\n\n    ```mlir\n    module attributes {gpu.container_module} {\n\n      // This module creates a separate compilation unit for the GPU compiler.\n      gpu.module @kernels {\n        func.func @kernel_1(%arg0 : f32, %arg1 : memref<?xf32, 1>)\n            attributes { nvvm.kernel = true } {\n\n          // Operations that produce block/thread IDs and dimensions are\n          // injected when outlining the `gpu.launch` body to a function called\n          // by `gpu.launch_func`.\n          %tIdX = gpu.thread_id x\n          %tIdY = gpu.thread_id y\n          %tIdZ = gpu.thread_id z\n\n          %bDimX = gpu.block_dim x\n          %bDimY = gpu.block_dim y\n          %bDimZ = gpu.block_dim z\n\n          %bIdX = gpu.block_id x\n          %bIdY = gpu.block_id y\n          %bIdZ = gpu.block_id z\n\n          %gDimX = gpu.grid_dim x\n          %gDimY = gpu.grid_dim y\n          %gDimZ = gpu.grid_dim z\n\n          // (Optional)  Cluster size only for support architectures\n          %cIdX = gpu.cluster_id x\n          %cIdY = gpu.cluster_id y\n          %cIdZ = gpu.cluster_id z\n\n          %cDimX = gpu.cluster_dim x\n          %cDimY = gpu.cluster_dim y\n          %cDimZ = gpu.cluster_dim z\n\n          \"some_op\"(%bx, %tx) : (index, index) -> ()\n          %42 = load %arg1[%bx] : memref<?xf32, 1>\n        }\n      }\n\n      %t0 = gpu.wait async\n      gpu.launch_func\n          async                           // (Optional) Don't block host, return token.\n          [%t0]                           // (Optional) Execute only after %t0 has completed.\n          @kernels::@kernel_1             // Kernel function.\n          clusters in (%cst, %cst, %cst)  // (Optional) Cluster size only for support architectures.\n          blocks in (%cst, %cst, %cst)    // Grid size.\n          threads in (%cst, %cst, %cst)   // Block size.\n          dynamic_shared_memory_size %s   // (Optional) Amount of dynamic shared\n                                          // memory to allocate for a workgroup.\n          args(%arg0 : f32,               // (Optional) Kernel arguments.\n               %arg1 : memref<?xf32, 1>)\n    }\n    ```",
+    "description": "Launch a kernel function on the specified grid of thread blocks.\n    `gpu.launch` operations are lowered to `gpu.launch_func` operations by\n    outlining the kernel body into a function in a dedicated module, which\n    reflects the separate compilation process. The kernel function is required\n    to have the `gpu.kernel` attribute. The module containing the kernel\n    function is required to be a gpu.module. And finally, the module containing\n    the kernel module (which thus cannot be the top-level module) is required\n    to have the `gpu.container_module` attribute. The `gpu.launch_func`\n    operation has a symbol attribute named `kernel` to identify the fully\n    specified kernel function to launch (both the gpu.module and func).\n\n    By default, the host implicitly blocks until kernel execution has completed.\n\n    Otherwise, the operation supports two async models.\n\n    The first one is dependency-based and is enabled when the `async` keyword is\n    present in text form, and corresponds to when the operation produces the\n    optional token result of type `!gpu.async.token`. Other async GPU ops can\n    take this token as dependency. In this case, the `gpu.launch_func` does not\n    block, and supports specifying async dependencies: the kernel does not start\n    executing until the ops producing those async dependencies have completed.\n\n    The second async model is stream-based. When `asyncObject` is present, the\n    launch operation is queued to execute on the queue represented by it.\n\n    The two async models are mutually exclusive.\n\n    The operation requires at least the grid and block sizes along the x,y,z\n    dimensions as arguments. When a lower-dimensional kernel is required,\n    unused sizes must be explicitly set to `1`.\n\n    The remaining operands are optional. The first optional operand corresponds\n    to the amount of dynamic shared memory a kernel's workgroup should be\n    allocated; when this operand is not present, a zero size is assumed.\n\n    The remaining operands if present are passed as arguments to the kernel\n    function.\n\n    The `gpu.launch_func` also supports kernel launching with clusters if\n    supported by the target architecture. The cluster size can be set by\n    `clusterSizeX`, `clusterSizeY`, and `clusterSizeZ` arguments. When these\n    arguments are present, the Op launches a kernel that clusters the given\n    thread blocks. This feature is exclusive to certain architectures.\n\n    The `cooperative` attribute indicates that the kernel should be launched\n    cooperatively, guaranteeing that all thread blocks in the grid are\n    co-resident on the GPU simultaneously. This enables grid-wide\n    synchronization patterns.\n\n    Example:\n\n    ```mlir\n    module attributes {gpu.container_module} {\n\n      // This module creates a separate compilation unit for the GPU compiler.\n      gpu.module @kernels {\n        func.func @kernel_1(%arg0 : f32, %arg1 : memref<?xf32, 1>)\n            attributes { nvvm.kernel = true } {\n\n          // Operations that produce block/thread IDs and dimensions are\n          // injected when outlining the `gpu.launch` body to a function called\n          // by `gpu.launch_func`.\n          %tIdX = gpu.thread_id x\n          %tIdY = gpu.thread_id y\n          %tIdZ = gpu.thread_id z\n\n          %bDimX = gpu.block_dim x\n          %bDimY = gpu.block_dim y\n          %bDimZ = gpu.block_dim z\n\n          %bIdX = gpu.block_id x\n          %bIdY = gpu.block_id y\n          %bIdZ = gpu.block_id z\n\n          %gDimX = gpu.grid_dim x\n          %gDimY = gpu.grid_dim y\n          %gDimZ = gpu.grid_dim z\n\n          // (Optional)  Cluster size only for support architectures\n          %cIdX = gpu.cluster_id x\n          %cIdY = gpu.cluster_id y\n          %cIdZ = gpu.cluster_id z\n\n          %cDimX = gpu.cluster_dim x\n          %cDimY = gpu.cluster_dim y\n          %cDimZ = gpu.cluster_dim z\n\n          \"some_op\"(%bx, %tx) : (index, index) -> ()\n          %42 = load %arg1[%bx] : memref<?xf32, 1>\n        }\n      }\n\n      %t0 = gpu.wait async\n      gpu.launch_func\n          async                           // (Optional) Don't block host, return token.\n          [%t0]                           // (Optional) Execute only after %t0 has completed.\n          @kernels::@kernel_1             // Kernel function.\n          clusters in (%cst, %cst, %cst)  // (Optional) Cluster size only for support architectures.\n          blocks in (%cst, %cst, %cst)    // Grid size.\n          threads in (%cst, %cst, %cst)   // Block size.\n          dynamic_shared_memory_size %s   // (Optional) Amount of dynamic shared\n                                          // memory to allocate for a workgroup.\n          args(%arg0 : f32,               // (Optional) Kernel arguments.\n               %arg1 : memref<?xf32, 1>)\n    }\n    ```",
     "operands": [
       { "name": "asyncDependencies", "type": "Variadic<GPU_AsyncToken>" },
       { "name": "gridSizeX", "type": "LaunchIndx" },
@@ -25816,6 +25817,7 @@
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "branch_weights", "type": "OptionalAttr<DenseI32ArrayAttr>" },
       { "name": "CConv", "type": "DefaultValuedAttr<CConv, CConv::C>" },
+      { "name": "default_func_attrs", "type": "OptionalAttr<DictionaryAttr>" },
       { "name": "op_bundle_sizes", "type": "DenseI32ArrayAttr" },
       { "name": "op_bundle_tags", "type": "OptionalAttr<ArrayAttr>" }
     ],
@@ -45298,6 +45300,23 @@
     "assemblyFormat": "attr-dict $old `,` $src0 `,` $src1 `,` $fi `,` $boundControl `:` functional-type(operands, $res)"
   },
   {
+    "name": "rocdl.ptr.s.buffer.load",
+    "operands": [
+      { "name": "rsrc", "type": "ROCDLBufferRsrc" },
+      { "name": "offset", "type": "I32" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "aux", "type": "ROCDL_DefaultCachePolicyAttr<ROCDL_NonAtomicBufferCachePolicyCompatAttr>" },
+      { "name": "alias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
+      { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
+      { "name": "tbaa", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAATagAttr>>" }
+    ],
+    "assemblyFormat": "$rsrc `,` $offset `,` custom<CachePolicy>($aux) attr-dict `:` type($res)"
+  },
+  {
     "name": "rocdl.raw.buffer.atomic.cmpswap",
     "operands": [
       { "name": "src", "type": "LLVM_Type" },
@@ -60065,7 +60084,7 @@
   {
     "name": "stream.async.transfer",
     "summary": "Transfers a resource from one location/state to another.",
-    "description": "Transfers a resource between different states (such as a `staging` lifetime\n    to a `local` lifetime) or different affinities. This is roughly equivalent\n    to a cast but may have special semantics when later lowered to one or more\n    devices with discrete memory spaces or pools.",
+    "description": "Transfers a resource between different states (such as a `staging` lifetime\n    to a `local` lifetime) or different affinities. This is roughly equivalent\n    to a cast but may have special semantics when later lowered to one or more\n    devices with discrete memory spaces or pools.\n\n    The optional execution affinity specifies where the transfer must execute\n    independently of the source and target storage affinities. When omitted an\n    execution affinity is derived from the resource lifetimes and endpoints.",
     "operands": [
       { "name": "source", "type": "AnyTypeOf<[Stream_AnyStreamResource, Stream_StagingResource]>" },
       { "name": "source_size", "type": "Stream_Size" },
@@ -60076,9 +60095,10 @@
     ],
     "attributes": [
       { "name": "source_affinity", "type": "OptionalAttr<Stream_AffinityAttr>" },
-      { "name": "target_affinity", "type": "OptionalAttr<Stream_AffinityAttr>" }
+      { "name": "target_affinity", "type": "OptionalAttr<Stream_AffinityAttr>" },
+      { "name": "execution_affinity", "type": "OptionalAttr<Stream_AffinityAttr>" }
     ],
-    "assemblyFormat": "$source `:` type($source)\n    `` `{` $source_size `}`\n    (`from` `(` $source_affinity^ `)`)?\n    `->`\n    (`to` `(` $target_affinity^ `)`)?\n    type($result) `` `{` $result_size `}`\n    attr-dict-with-keyword",
+    "assemblyFormat": "(`on` `(` $execution_affinity^ `)`)?\n    $source `:` type($source)\n    `` `{` $source_size `}`\n    (`from` `(` $source_affinity^ `)`)?\n    `->`\n    (`to` `(` $target_affinity^ `)`)?\n    type($result) `` `{` $result_size `}`\n    attr-dict-with-keyword",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -64190,6 +64210,13 @@
     "assemblyFormat": "(`(` $optional^ `:` type($optional) `)`)? `:` type($optional_res)\n  (`[` $variadic^ `]`)? attr-dict"
   },
   {
+    "name": "test.format_optional_operand_type",
+    "operands": [
+      { "name": "optional", "type": "Optional<AnyType>" }
+    ],
+    "assemblyFormat": "(`(` $optional^ `)`)?\n    (`:` type($optional)^)?\n    attr-dict"
+  },
+  {
     "name": "test.format_optional_prop_dict",
     "attributes": [
       { "name": "a", "type": "OptionalProp<StringProp>" },
@@ -67191,6 +67218,21 @@
       { "type": "AttrSizedOperandSegments" }
     ],
     "assemblyFormat": "$a1 `:` $a2 `:` type($b1) `:` type($b2) prop-dict attr-dict `end`"
+  },
+  {
+    "name": "test.variadic_segment_prop_bulk_type",
+    "operands": [
+      { "name": "a1", "type": "Variadic<I64>" },
+      { "name": "a2", "type": "Variadic<I64>" }
+    ],
+    "results": [
+      { "name": "b1", "type": "Variadic<I64>" },
+      { "name": "b2", "type": "Variadic<I64>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "`(` operands `)` `:` functional-type(operands, results) prop-dict attr-dict"
   },
   {
     "name": "test.variadic_with_same_operand_results",
@@ -81639,12 +81681,12 @@
     "summary": "DynamicUpdateSlice.",
     "description": "DynamicUpdateSlice op that have the same semantics with XLA\n    DynamicUpdateSlice.\n    Generates a result which is the value of the input array\n    operand, with a slice update overwritten at start_indices.\n\n    See https://www.tensorflow.org/xla/operation_semantics#dynamicupdateslice.",
     "operands": [
-      { "name": "operand", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16]>" },
-      { "name": "update", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16]>" },
+      { "name": "operand", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16, BF16]>" },
+      { "name": "update", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16, BF16]>" },
       { "name": "start_indices", "type": "TFL_I32OrI64Tensor" }
     ],
     "results": [
-      { "name": "output", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16]>" }
+      { "name": "output", "type": "TFL_TensorOf<[I1, TFL_I4, QI4, QI8, I8, I16, I32, I64, F32, F16, BF16]>" }
     ]
   },
   {
@@ -83205,11 +83247,11 @@
     "summary": "Transpose operator",
     "description": "Returns the Transpose of x",
     "operands": [
-      { "name": "input", "type": "TFL_TensorOf<[I32, F32, F16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" },
+      { "name": "input", "type": "TFL_TensorOf<[I32, F32, F16, BF16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" },
       { "name": "perm", "type": "TFL_TensorOf<[I32]>" }
     ],
     "results": [
-      { "name": "output", "type": "TFL_TensorOf<[I32, F32, F16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" }
+      { "name": "output", "type": "TFL_TensorOf<[I32, F32, F16, BF16, I8, UI8, QI8, QUI8, TFL_I4, QI4, TFL_Quint8, I1, I64, QI16]>" }
     ]
   },
   {
@@ -116211,6 +116253,34 @@
     ]
   },
   {
+    "name": "ttir.adamw",
+    "summary": "AdamW optimizer step",
+    "description": "Fused AdamW optimizer step. Returns the updated parameter and moment estimates.\n    `ttnn.adamw` writes all of them in place, so `TTIRToTTNN` maps each result back\n    onto the operand it updates.\n\n    Inputs:\n    - `param` (Tensor): parameter tensor being optimized.\n    - `grad` (Tensor): gradient of the parameter.\n    - `exp_avg` (Tensor): first moment estimate.\n    - `exp_avg_sq` (Tensor): second moment estimate.\n    - `max_exp_avg_sq` (Optional Tensor): max second moment for AMSGrad. Its\n      presence implies amsgrad, and requires the matching result.\n\n    Attributes:\n    - `lr`: learning rate.\n    - `beta1`, `beta2`: exponential decay rates for the moment estimates.\n    - `beta1_pow`, `beta2_pow`: beta1^t and beta2^t bias-correction terms.\n    - `epsilon`: numerical-stability constant.\n    - `weight_decay`: decoupled weight-decay coefficient.\n    - `stochastic_rounding`: enable stochastic rounding (default false).\n\n    Outputs: the updated `param`, `exp_avg`, `exp_avg_sq` and, when\n    `max_exp_avg_sq` is given, the updated `max_exp_avg_sq`.",
+    "operands": [
+      { "name": "param", "type": "AnyRankedTensor" },
+      { "name": "grad", "type": "AnyRankedTensor" },
+      { "name": "exp_avg", "type": "AnyRankedTensor" },
+      { "name": "exp_avg_sq", "type": "AnyRankedTensor" },
+      { "name": "max_exp_avg_sq", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "results": [
+      { "name": "param_out", "type": "AnyRankedTensor" },
+      { "name": "exp_avg_out", "type": "AnyRankedTensor" },
+      { "name": "exp_avg_sq_out", "type": "AnyRankedTensor" },
+      { "name": "max_exp_avg_sq_out", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "lr", "type": "F32Attr" },
+      { "name": "beta1", "type": "F32Attr" },
+      { "name": "beta2", "type": "F32Attr" },
+      { "name": "beta1_pow", "type": "F32Attr" },
+      { "name": "beta2_pow", "type": "F32Attr" },
+      { "name": "epsilon", "type": "F32Attr" },
+      { "name": "weight_decay", "type": "F32Attr" },
+      { "name": "stochastic_rounding", "type": "DefaultValuedAttr<BoolAttr, false>" }
+    ]
+  },
+  {
     "name": "ttir.add",
     "summary": "Elementwise addition operation.",
     "description": "The `add` operation performs an elementwise addition between two tensors.\n\n      For each pair of corresponding elements, it adds the elements and places the result in the output tensor.\n\n      Example:\n      ```mlir\n      // Addition operation\n      %result = ttir.add(%lhs, %rhs) : (tensor<3xi32>, tensor<3xi32>) -> tensor<3xi32>\n      // Input tensors:\n      // %lhs: [10, 20, 30]\n      // %rhs: [1, 2, 3]\n      // Output tensor:\n      // [11, 22, 33]\n\n      // Example with floating point values\n      %result = ttir.add(%float_lhs, %float_rhs) : (tensor<3xf32>, tensor<3xf32>) -> tensor<3xf32>\n      // Input tensors:\n      // %float_lhs: [3.5, 0.0, -1.2]\n      // %float_rhs: [1.5, 2.0, -3.2]\n      // Output tensor:\n      // [5.0, 2.0, -2.0]\n      ```\n\n      Note: The data type of the output tensor matches the data type of the input tensors.\n\n      Mathematical definition: add(x, y) = x + y",
@@ -117055,13 +117125,10 @@
   {
     "name": "ttir.fill_cache",
     "summary": "Cache filling operation.",
-    "description": "The `fill_cache` operation fills a cache tensor with values from an input tensor.\n\n    Unlike `update_cache` which updates specific positions, this operation fills the entire cache\n    or a contiguous section of it with values from the input tensor. This is commonly used to\n    initialize a cache in sequence models.\n\n    Example:\n    ```mlir\n    // Fill cache with input values\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x16x64xf32>  // Initial values for the entire cache\n    %result = ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x16x64xf32> -> tensor<2x16x64xf32>\n    // The entire cache tensor is filled with values from input\n\n    // Fill a portion of the cache\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x8x64xf32>   // Values for half of the cache\n    %result = ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x8x64xf32> -> tensor<2x16x64xf32>\n    // The first 8 positions of the cache are filled with values from input\n    ```\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be filled.\n    - `input` (Tensor): The input tensor containing the values to fill the cache with.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.\n\n    Output:\n    - `result` (Tensor): The filled cache tensor.",
+    "description": "The `fill_cache` operation fills a cache tensor with values from an input tensor.\n\n    Unlike `update_cache` which updates specific positions, this operation fills the entire cache\n    or a contiguous section of it with values from the input tensor. This is commonly used to\n    initialize a cache in sequence models.\n\n    Example:\n    ```mlir\n    // Fill cache with input values\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x16x64xf32>  // Initial values for the entire cache\n    ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x16x64xf32>\n    // The entire cache tensor is filled in place with values from input\n\n    // Fill a portion of the cache\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x8x64xf32>   // Values for half of the cache\n    ttir.fill_cache(%cache, %input) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x8x64xf32>\n    // The first 8 positions of the cache are filled in place with values from input\n    ```\n\n    This op mutates `cache` in place and produces no result.\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be filled in place.\n    - `input` (Tensor): The input tensor containing the values to fill the cache with.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.",
     "operands": [
       { "name": "cache", "type": "AnyRankedTensor" },
       { "name": "input", "type": "AnyRankedTensor" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ],
     "attributes": [
       { "name": "batch_offset", "type": "I32Attr" }
@@ -117763,9 +117830,6 @@
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "page_table", "type": "AnyRankedTensor" },
       { "name": "batch_idx_tensor", "type": "Optional<AnyRankedTensor>" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ]
   },
   {
@@ -117822,15 +117886,12 @@
   {
     "name": "ttir.paged_update_cache",
     "summary": "Paged update cache op.",
-    "description": "Inputs:\n        - `cache`: The cache tensor to be updated. This tensor is modified in place [max_num_blocks, num_heads, block_size, head_dim]\n        - `input`: The input tensor containing new values. [1, num_users, num_heads (padded to 32), head_dim]\n        - `update_index`: Indices specifying where to update the cache. [num_users]\n        - `share_cache`: Whether the cache tensors share memory regions. Defaults to False.\n        - `page_table`: The page table for managing memory regions during updates. [num_users, max_num_blocks_per_seq]\n\n      Outputs:\n        - `result`: The updated cache tensor.",
+    "description": "Inputs:\n        - `cache`: The cache tensor to be updated. This tensor is modified in place [max_num_blocks, num_heads, block_size, head_dim]\n        - `input`: The input tensor containing new values. [1, num_users, num_heads (padded to 32), head_dim]\n        - `update_index`: Indices specifying where to update the cache. [num_users]\n        - `share_cache`: Whether the cache tensors share memory regions. Defaults to False.\n        - `page_table`: The page table for managing memory regions during updates. [num_users, max_num_blocks_per_seq]\n\n      This op mutates `cache` in place and produces no result.",
     "operands": [
       { "name": "cache", "type": "AnyRankedTensor" },
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "update_index", "type": "AnyRankedTensor" },
       { "name": "page_table", "type": "Optional<AnyRankedTensor>" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ],
     "attributes": [
       { "name": "share_cache", "type": "DefaultValuedAttr<BoolAttr, false>" }
@@ -118696,14 +118757,11 @@
   {
     "name": "ttir.update_cache",
     "summary": "Cache update operation.",
-    "description": "The `update_cache` operation updates a cache tensor with values from an input tensor at specific indices.\n\n    This operation is commonly used in sequence models like transformers to update a key-value cache\n    with new token information. It takes a cache tensor, an input tensor, and update indices, and\n    updates the cache at the specified positions.\n\n    Example:\n    ```mlir\n    // Update cache at specific indices\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x1x64xf32>   // New token embeddings\n    %update_index = ... : tensor<1xi32> // Update at position [15]\n    %result = ttir.update_cache(%cache, %input, %update_index) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x1x64xf32>, tensor<1xi32> -> tensor<2x16x64xf32>\n    // The cache tensor is updated at position 15 for both batches with the values from input\n    ```\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be updated.\n    - `input` (Tensor): The input tensor containing new values.\n    - `update_index` (Tensor): Indices specifying where to update the cache.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.\n\n    Output:\n    - `result` (Tensor): The updated cache tensor.",
+    "description": "The `update_cache` operation updates a cache tensor with values from an input tensor at specific indices.\n\n    This operation is commonly used in sequence models like transformers to update a key-value cache\n    with new token information. It takes a cache tensor, an input tensor, and update indices, and\n    updates the cache at the specified positions.\n\n    Example:\n    ```mlir\n    // Update cache at specific indices\n    %cache = ... : tensor<2x16x64xf32>  // Batch size 2, sequence length 16, hidden dim 64\n    %input = ... : tensor<2x1x64xf32>   // New token embeddings\n    %update_index = ... : tensor<1xi32> // Update at position [15]\n    ttir.update_cache(%cache, %input, %update_index) {batch_offset = 0 : i32} :\n        tensor<2x16x64xf32>, tensor<2x1x64xf32>, tensor<1xi32>\n    // The cache tensor is updated in place at position 15 for both batches with the values from input\n    ```\n\n    This op mutates `cache` in place and produces no result.\n\n    Inputs:\n    - `cache` (Tensor): The cache tensor to be updated in place.\n    - `input` (Tensor): The input tensor containing new values.\n    - `update_index` (Tensor): Indices specifying where to update the cache.\n\n    Attributes:\n    - `batch_offset` (Integer): Offset in the batch dimension.",
     "operands": [
       { "name": "cache", "type": "AnyRankedTensor" },
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "update_index", "type": "AnyRankedTensor" }
-    ],
-    "results": [
-      { "name": "result", "type": "AnyRankedTensor" }
     ],
     "attributes": [
       { "name": "batch_offset", "type": "I32Attr" }
@@ -122513,6 +122571,21 @@
     "assemblyFormat": "$alloc attr-dict `:` qualified(type($alloc))"
   },
   {
+    "name": "ttng.packed_arith",
+    "summary": "Apply elementwise arithmetic using a packed PTX instruction",
+    "description": "Applies packed x2, mixed-precision, and FP8/FP4/UE8M0 x4 arithmetic.\n    Instruction types, modifiers, and grouping are inferred from tensor types.\n    FP4 uses lower-nibble-first i8 values along the inferred halved dimension.",
+    "operands": [
+      { "name": "operands", "type": "Variadic<RankedTensorOf<[ TTNG_PackedArithOperandElement ]>>" }
+    ],
+    "results": [
+      { "name": "result", "type": "RankedTensorOf<[TTNG_PackedArithResultElement]>" }
+    ],
+    "attributes": [
+      { "name": "op_kind", "type": "TTNG_PackedArithOpKindAttr{add|sub|mul|fma|min|max}" }
+    ],
+    "assemblyFormat": "$op_kind $operands attr-dict `:` functional-type($operands, $result)"
+  },
+  {
     "name": "ttng.reinterpret_tensor_descriptor",
     "summary": "Reinterpret a pointer as a tensor descriptor",
     "description": "This op exists to help the transition from untyped raw TMA objects to typed tensor descriptor objects.\n     Ideally, we can remove this once the APIs are fully fleshed out.",
@@ -122742,7 +122815,7 @@
   {
     "name": "ttng.warp_group_dot_wait",
     "summary": "warp group dot wait",
-    "description": "Waits until there are $pendings or fewer outstanding async dot operations.\n\n    $inputs must be the tensors corresponding to the async dot ops that we're\n    waiting on. For example, if there are N pending async dot ops and we wait\n    until one remains pending, then $inputs must include the results of the\n    first N - 1 dot ops.",
+    "description": "Waits until there are $pendings or fewer outstanding async dot operations.\n\n    $inputs must be the tensors corresponding to the async dot ops that we're\n    waiting on. For example, if there are N pending async dot ops and we wait\n    until one remains pending, then $inputs must include the results of the\n    first N - 1 dot ops.\n\n    The `warpGroupLocal` attribute specifies that we only wait for the local\n    warp group, and if num_warps > 4 then shared memory inputs may still be in\n    use by other warp groups. This is useful when only the result register\n    values need to be ready and the shared memory inputs will not be overwritten.",
     "operands": [
       { "name": "inputs", "type": "Variadic<TTG_TensorOrMemDesc>" }
     ],
@@ -122750,7 +122823,8 @@
       { "name": "outputs", "type": "Variadic<TTG_TensorOrMemDesc>" }
     ],
     "attributes": [
-      { "name": "pendings", "type": "I32Attr" }
+      { "name": "pendings", "type": "I32Attr" },
+      { "name": "warpGroupLocal", "type": "UnitAttr" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['inputs', 'outputs']>" }
@@ -122777,6 +122851,28 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
+    "name": "ttnn.adamw",
+    "summary": "AdamW optimizer step (ttml).",
+    "description": "Fused AdamW optimizer step, backed by the ttml metal op\n      `ttml::metal::adamw`. Updates the parameter tensor from its gradient and the\n      first/second moment estimates, and updates the moments in place.\n\n      `param`, `exp_avg`, `exp_avg_sq` and the optional `max_exp_avg_sq` (used for\n      AMSGrad) are all mutated in place, so the op has no results. `amsgrad` is\n      implied by the presence of `max_exp_avg_sq`.",
+    "operands": [
+      { "name": "param", "type": "AnyRankedTensor" },
+      { "name": "grad", "type": "AnyRankedTensor" },
+      { "name": "exp_avg", "type": "AnyRankedTensor" },
+      { "name": "exp_avg_sq", "type": "AnyRankedTensor" },
+      { "name": "max_exp_avg_sq", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "lr", "type": "F32Attr" },
+      { "name": "beta1", "type": "F32Attr" },
+      { "name": "beta2", "type": "F32Attr" },
+      { "name": "beta1_pow", "type": "F32Attr" },
+      { "name": "beta2_pow", "type": "F32Attr" },
+      { "name": "epsilon", "type": "F32Attr" },
+      { "name": "weight_decay", "type": "F32Attr" },
+      { "name": "stochastic_rounding", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ]
   },
   {
@@ -123959,6 +124055,23 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
+    "name": "ttnn.indexer_score_dsa",
+    "summary": "DeepSeek Sparse Attention lightning-indexer scorer.",
+    "description": "Computes DSA (Deepseek Sparse Attention) lightning-indexer\n      scores. Corresponds to `ttnn.experimental.indexer_score_dsa`\n      (`ttnn::experimental::indexer_score_dsa`).\n\n      For every query position `s` and key position `t`:\n      ```\n      score[b, s, t] = sum_h relu(q[b, h, s, :] . k[b, t, :]) * weights[b, h, s]\n      ```\n      Causality is controlled by `chunk_start_idx`: key `t` is visible to query\n      `s` iff `t <= chunk_start_idx + s`. Masked (future) positions are set to\n      `-inf`.\n\n      Shapes use `B` (batch, must be 1), `Hi` (indexer heads), `Sq` (queries),\n      `T` (keys), and `D` (indexer head dim).\n\n      Args:\n          query (AnyRankedTensor): `[B x Hi x Sq x D]`.\n          key (AnyRankedTensor): `[B x 1 x T x D]`.\n          weights (AnyRankedTensor): `[B x Hi x Sq x 1]` per-head gate scales.\n          chunk_start_idx (uint): Causal offset of the first query within the\n              full key sequence. Defaults to `0`.\n          cluster_axis (optional uint): Mesh axis carrying the query sequence\n              shard. On a mesh, the op offsets each device's causal window by\n              `rank * Sq`, where `rank` is that device's index along this axis.\n              Unset leaves the op on a flat row-major enumeration over all of\n              the query's devices, which is only correct when the query\n              sequence is sharded across every device.\n\n      Returns:\n          AnyRankedTensor: `[B x 1 x Sq x T]` scores.\n\n      Note: this op is only supported on Blackhole.",
+    "operands": [
+      { "name": "query", "type": "AnyRankedTensor" },
+      { "name": "key", "type": "AnyRankedTensor" },
+      { "name": "weights", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "chunk_start_idx", "type": "DefaultValuedAttr<UI32Attr, 0>" },
+      { "name": "cluster_axis", "type": "OptionalAttr<UI32Attr>" }
     ]
   },
   {
@@ -137286,7 +137399,6 @@
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
-      { "name": "tile_info", "type": "OptionalAttr<XTile_TilingInfoAttr>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "num_opaque_args", "type": "DefaultValuedAttr<I32Attr, 0>" }
     ],
