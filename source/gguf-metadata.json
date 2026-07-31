@@ -1921,7 +1921,10 @@
         { "name": "layer_output_norm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "nextn.eh_proj", "type": "MUL_MAT" },
         { "name": "nextn.enorm", "type": "RMS_NORM", "category": "Normalization" },
-        { "name": "nextn.hnorm", "type": "RMS_NORM", "category": "Normalization" }
+        { "name": "nextn.hnorm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "nextn.embed_tokens", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "nextn.shared_head_head", "type": "MUL_MAT" },
+        { "name": "nextn.shared_head_norm", "type": "RMS_NORM", "category": "Normalization" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },

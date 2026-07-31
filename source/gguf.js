@@ -214,6 +214,34 @@ gguf.Graph = class {
                     const inputs = ropeFreqs ? [input, ropeFreqs] : [input];
                     addNode(use('attention'), inputs, output);
                 };
+                // Multi-token prediction head (nextn/MTP, e.g. cohere2moe.cpp:330-355):
+                //   e_norm  = norm(nextn.embed_tokens, nextn.enorm)
+                //   h_norm  = norm(hidden_state, nextn.hnorm)
+                //   cur     = nextn.eh_proj * concat(e_norm, h_norm)
+                // The projection result is the input to this block.
+                if (has('nextn.eh_proj')) {
+                    const inputs = [];
+                    if (has('nextn.enorm')) {
+                        let embd = prevValue;
+                        if (has('nextn.embed_tokens')) {
+                            embd = newValue();
+                            addNode(use('nextn.embed_tokens'), [], embd);
+                        }
+                        const out = newValue();
+                        addNode(use('nextn.enorm'), embd ? [embd] : [], out);
+                        inputs.push(out);
+                    }
+                    if (has('nextn.hnorm')) {
+                        const out = newValue();
+                        addNode(use('nextn.hnorm'), prevValue ? [prevValue] : [], out);
+                        inputs.push(out);
+                    }
+                    const concat = newValue();
+                    addOp('CONCAT', inputs, concat);
+                    const out = newValue();
+                    addNode(use('nextn.eh_proj'), [concat], out);
+                    prevValue = out;
+                }
                 if (has('attn_norm') && has('attention') && !has('ffn_norm') && !has('attn_post_norm') && hasFfn) {
                     // Parallel attention + FFN (phi-2, falcon)
                     const inp = prevValue || newValue();
@@ -426,6 +454,14 @@ gguf.Graph = class {
                         this.nodes.push(new gguf.Node(item));
                     }
                     continue;
+                }
+                // MTP draft head output: norm then projection to vocabulary logits.
+                for (const name of ['nextn.shared_head_norm', 'nextn.shared_head_head']) {
+                    if (has(name)) {
+                        const out = newValue();
+                        addNode(use(name), prevValue ? [prevValue] : [], out);
+                        prevValue = out;
+                    }
                 }
                 for (const item of layer.layers) {
                     if (!used.has(item.name)) {
