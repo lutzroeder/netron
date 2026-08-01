@@ -155,7 +155,7 @@ litert.lm.proto.LlmMetadata.prototype.kv_cache_init_value = 0n;
 litert.lm.proto.LlmModelType = class LlmModelType {
 
     get model_type() {
-        litert.lm.proto.LlmModelType.model_typeSet = litert.lm.proto.LlmModelType.model_typeSet || new Set(["generic_model", "gemma3n", "function_gemma", "gemma3", "qwen3", "qwen2p5", "gemma4", "fast_vlm", "lfm2"]);
+        litert.lm.proto.LlmModelType.model_typeSet = litert.lm.proto.LlmModelType.model_typeSet || new Set(["generic_model", "gemma3n", "function_gemma", "gemma3", "qwen3", "qwen2p5", "gemma4", "fast_vlm", "lfm2", "minicpm5"]);
         return Object.keys(this).find((key) => litert.lm.proto.LlmModelType.model_typeSet.has(key) && this[key] !== null);
     }
 
@@ -191,6 +191,9 @@ litert.lm.proto.LlmModelType = class LlmModelType {
                     break;
                 case 11:
                     message.lfm2 = litert.lm.proto.Lfm2.decode(reader, reader.uint32());
+                    break;
+                case 12:
+                    message.minicpm5 = litert.lm.proto.MiniCPM5.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -781,6 +784,40 @@ litert.lm.proto.Lfm2.prototype.pooling_kernel_size = 0;
 litert.lm.proto.Lfm2.prototype.image_tensor_height = 0;
 litert.lm.proto.Lfm2.prototype.image_tensor_width = 0;
 litert.lm.proto.Lfm2.prototype.normalization_rescale_factor = 0;
+
+litert.lm.proto.MiniCPM5 = class MiniCPM5 {
+
+    static decode(reader, length) {
+        const message = new litert.lm.proto.MiniCPM5();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.code_fence_start = reader.string();
+                    break;
+                case 2:
+                    message.code_fence_end = reader.string();
+                    break;
+                case 3:
+                    message.escape_fence_strings = reader.bool();
+                    break;
+                case 4:
+                    message.tool_code_regex = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+litert.lm.proto.MiniCPM5.prototype.code_fence_start = "";
+litert.lm.proto.MiniCPM5.prototype.code_fence_end = "";
+litert.lm.proto.MiniCPM5.prototype.escape_fence_strings = false;
+litert.lm.proto.MiniCPM5.prototype.tool_code_regex = "";
 
 litert.lm.proto.TokenUnion = class TokenUnion {
 
