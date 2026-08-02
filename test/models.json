@@ -2228,6 +2228,15 @@
   },
   {
     "type":     "gguf",
+    "target":   "DeepSeek-V4-Flash-Q2-0731.gguf",
+    "source":   "https://github.com/user-attachments/files/30635564/DeepSeek-V4-Flash-Q2-0731.gguf.zip[DeepSeek-V4-Flash-Q2-0731.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'MULTI_LATENT_ATTENTION'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf",
     "source":   "https://github.com/user-attachments/files/25527191/Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf.zip[Falcon-H1-Tiny-90M-Instruct-Q4_K_M.gguf]",
     "format":   "GGUF v3",
