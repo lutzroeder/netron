@@ -26011,7 +26011,7 @@
   {
     "name": "llvm.mlir.metadata_as_value",
     "summary": "Wraps an LLVM `metadata` constant so it can be used as an SSA value.",
-    "description": "Materializes an `!llvm.metadata` SSA value that mirrors LLVM IR's\n    `llvm::MetadataAsValue`: a wrapper that lifts an arbitrary\n    `llvm::Metadata` node into the value domain so it can be used as an\n    operand to instructions that take `metadata` arguments (for example the\n    constrained floating-point intrinsics or `llvm.read_register`).\n\n    The wrapped metadata is described by the `metadata` attribute, which\n    must be one of the LLVM dialect's metadata-attribute classes:\n\n    * `#llvm.md_string<\"...\">` -> `llvm::MDString`.\n    * `#llvm.md_const<...>` -> `llvm::ConstantAsMetadata`.\n    * `#llvm.md_func<@symbol>` -> `llvm::ValueAsMetadata` of a function.\n    * `#llvm.md_node<...>` -> `llvm::MDNode` over any of the above.\n\n    These can be nested arbitrarily to form metadata trees. Lowering to LLVM\n    IR materialises the corresponding `llvm::Metadata` via the dialect's\n    metadata-attribute converter and wraps the result with\n    `llvm::MetadataAsValue::get(ctx, md)`.\n\n    Example:\n\n    ```mlir\n    // Rounding-mode operand of a constrained-FP intrinsic:\n    %rm = llvm.mlir.metadata_as_value #llvm.md_string<\"round.tonearest\">\n        : !llvm.metadata\n    // Named-register metadata for llvm.read_register:\n    %nr = llvm.mlir.metadata_as_value #llvm.md_node<#llvm.md_string<\"sp\">>\n        : !llvm.metadata\n    ```",
+    "description": "Materializes an `!llvm.metadata` SSA value that mirrors LLVM IR's\n    `llvm::MetadataAsValue`: a wrapper that lifts an arbitrary\n    `llvm::Metadata` node into the value domain so it can be used as an\n    operand to instructions that take `metadata` arguments (for example the\n    constrained floating-point intrinsics or `llvm.read_register`).\n\n    The wrapped metadata is described by the `metadata` attribute, which\n    must be one of the LLVM dialect's metadata-attribute classes:\n\n    * `#llvm.md_string<\"...\">` -> `llvm::MDString`.\n    * `#llvm.md_const<...>` -> `llvm::ConstantAsMetadata`.\n    * `#llvm.md_global_value<@symbol>` -> `llvm::ValueAsMetadata` of a\n      symbol-backed global value.\n    * `#llvm.md_node<...>` -> `llvm::MDNode` over any of the above.\n\n    These can be nested arbitrarily to form metadata trees. Lowering to LLVM\n    IR materialises the corresponding `llvm::Metadata` via the dialect's\n    metadata-attribute converter and wraps the result with\n    `llvm::MetadataAsValue::get(ctx, md)`.\n\n    Example:\n\n    ```mlir\n    // Rounding-mode operand of a constrained-FP intrinsic:\n    %rm = llvm.mlir.metadata_as_value #llvm.md_string<\"round.tonearest\">\n        : !llvm.metadata\n    // Named-register metadata for llvm.read_register:\n    %nr = llvm.mlir.metadata_as_value #llvm.md_node<#llvm.md_string<\"sp\">>\n        : !llvm.metadata\n    ```",
     "results": [
       { "name": "res", "type": "LLVM_MetadataType" }
     ],
@@ -26085,10 +26085,10 @@
   {
     "name": "llvm.named_metadata",
     "summary": "Module-level named metadata",
-    "description": "Represents an LLVM named metadata node (`llvm::NamedMDNode`). Named\n    metadata nodes are module-level metadata that associate a name string\n    with a list of metadata nodes. Each operand must be an `#llvm.md_node`.\n\n    Note: cyclic metadata graphs are not supported. Because metadata attributes\n    are represented as MLIR attributes (which form a tree), there is no way to\n    express a metadata node that directly or transitively references itself.\n    LLVM IR permits such cycles (e.g. `!0 = !{!0}`), but they cannot be\n    represented here and will not round-trip through this op.\n\n    Example:\n    ```mlir\n    llvm.named_metadata \"foo.version\" [\n      #llvm.md_node<#llvm.md_const<2 : i32>,\n                    #llvm.md_const<9 : i32>,\n                    #llvm.md_const<0 : i32>\n      >\n    ]\n    llvm.named_metadata \"foo.kernel\" [\n      #llvm.md_node<\n        #llvm.md_func<@my_kernel>,\n        #llvm.md_node<>,\n        #llvm.md_node<\n          #llvm.md_node<#llvm.md_const<0 : i32>,\n                        #llvm.md_string<\"foo.buffer\">\n          >\n        >\n      >\n    ]\n    ```",
+    "description": "Represents an LLVM named metadata node (`llvm::NamedMDNode`). Named\n    metadata nodes are module-level metadata that associate a name string\n    with a list of metadata nodes. Each operand must be an `#llvm.md_node`.\n\n    Note: cyclic metadata graphs are not supported. Because metadata attributes\n    are represented as MLIR attributes (which form a tree), there is no way to\n    express a metadata node that directly or transitively references itself.\n    LLVM IR permits such cycles (e.g. `!0 = !{!0}`), but they cannot be\n    represented here and will not round-trip through this op.\n\n    Example:\n    ```mlir\n    llvm.named_metadata \"foo.version\" [\n      #llvm.md_node<#llvm.md_const<2 : i32>,\n                    #llvm.md_const<9 : i32>,\n                    #llvm.md_const<0 : i32>\n      >\n    ]\n    llvm.named_metadata \"foo.kernel\" [\n      #llvm.md_node<\n        #llvm.md_global_value<@my_kernel>,\n        #llvm.md_node<>,\n        #llvm.md_node<\n          #llvm.md_node<#llvm.md_const<0 : i32>,\n                        #llvm.md_string<\"foo.buffer\">\n          >\n        >\n      >\n    ]\n    ```",
     "attributes": [
       { "name": "metadata_name", "type": "StrAttr" },
-      { "name": "nodes", "type": "ArrayAttr" }
+      { "name": "nodes", "type": "TypedArrayAttrBase<LLVM_MDNodeAttr>" }
     ],
     "assemblyFormat": "$metadata_name $nodes attr-dict"
   },
@@ -33074,7 +33074,7 @@
   {
     "name": "nvvm.inline_ptx",
     "summary": "Inline PTX Op",
-    "description": "This op allows using PTX directly within the NVVM \n    dialect, while greatly simplifying llvm.inline_asm generation. It \n    automatically handles register size selection and sets the correct \n    read/write access for each operand. The operation leverages the \n    `BasicPtxBuilderInterface` to abstract away low-level details of \n    PTX assembly formatting.\n\n    The `predicate` attribute is used to specify a predicate for the \n    PTX instruction.\n\n    Example 1: Read-only Parameters\n    ```mlir\n    nvvm.inline_ptx \"mbarrier.init.b64 [$0], $1;\" (%barrier_gen, %count) : !llvm.ptr, i32\n\n    // Lowers to:\n    llvm.inline_asm has_side_effects asm_dialect = att \n      \"mbarrier.init.b64 [$0], $1;\", \"l,r\" %arg0, %arg2 : (!llvm.ptr, i32) -> ()\n    ```\n\n    Example 2: Read-only and Write-only Parameters\n    ```mlir\n    %0 = nvvm.inline_ptx \"ex2.approx.ftz.f32 $0, $1;\" (%input) : f32 -> f32\n\n    // Lowers to:\n    %0 = llvm.inline_asm has_side_effects asm_dialect = att \n      \"ex2.approx.ftz.f32 $0, $1;\", \"=f,f\" %arg0 : (f32) -> f32\n    ```\n\n    Example 3: Predicate Usage\n    ```mlir\n    nvvm.inline_ptx \"mbarrier.init.b64 [$0], $1;\" (%barrier_gen, %count), \n      predicate = %pred : !llvm.ptr, i32, i1\n\n    // Lowers to:\n    llvm.inline_asm has_side_effects asm_dialect = att \n      \"@$2 mbarrier.init.b64 [$0], $1;\", \"l,r,b\" %arg0, %arg2, %arg3 \n      : (!llvm.ptr, i32, i1) -> ()\n    ```",
+    "description": "This op allows using PTX directly within the NVVM \n    dialect, while greatly simplifying llvm.inline_asm generation. It \n    automatically handles register size selection and sets the correct \n    read/write access for each operand. The operation leverages the \n    `BasicPtxBuilderInterface` to abstract away low-level details of \n    PTX assembly formatting.\n\n    The `predicate` attribute is used to specify a predicate for the\n    PTX instruction.\n\n    The `memory_clobber` attribute appends a \"~{memory}\" clobber to the\n    constraints of the generated inline assembly. Set it when the PTX reads\n    or writes memory beyond its listed operands (e.g. stores, atomics, or\n    instructions with acquire/release semantics such as mbarrier), so that\n    LLVM does not reorder memory accesses across the inline assembly.\n\n    Example 1: Read-only Parameters\n    ```mlir\n    nvvm.inline_ptx \"mbarrier.init.b64 [$0], $1;\" ro(%barrier_gen, %count : !llvm.ptr, i32) memory_clobber = true\n\n    // Lowers to:\n    llvm.inline_asm has_side_effects asm_dialect = att\n      \"mbarrier.init.b64 [$0], $1;\", \"l,r,~{memory}\" %arg0, %arg2 : (!llvm.ptr, i32) -> ()\n    ```\n\n    Example 2: Read-only and Write-only Parameters\n    ```mlir\n    %0 = nvvm.inline_ptx \"ex2.approx.ftz.f32 $0, $1;\" (%input) : f32 -> f32\n\n    // Lowers to:\n    %0 = llvm.inline_asm has_side_effects asm_dialect = att \n      \"ex2.approx.ftz.f32 $0, $1;\", \"=f,f\" %arg0 : (f32) -> f32\n    ```\n\n    Example 3: Predicate Usage\n    ```mlir\n    nvvm.inline_ptx \"mbarrier.init.b64 [$0], $1;\" (%barrier_gen, %count), \n      predicate = %pred : !llvm.ptr, i32, i1\n\n    // Lowers to:\n    llvm.inline_asm has_side_effects asm_dialect = att \n      \"@$2 mbarrier.init.b64 [$0], $1;\", \"l,r,b\" %arg0, %arg2, %arg3 \n      : (!llvm.ptr, i32, i1) -> ()\n    ```",
     "operands": [
       { "name": "readOnlyArgs", "type": "Variadic<AnyType>" },
       { "name": "readWriteArgs", "type": "Variadic<AnyType>" },
@@ -33084,12 +33084,13 @@
       { "name": "writeOnlyArgs", "type": "Variadic<AnyType>" }
     ],
     "attributes": [
-      { "name": "ptxCode", "type": "StrAttr" }
+      { "name": "ptxCode", "type": "StrAttr" },
+      { "name": "memoryClobber", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$ptxCode\n    ( `ro` `(` $readOnlyArgs^ `:` type($readOnlyArgs) `)` )?\n    ( `rw` `(` $readWriteArgs^ `:` type($readWriteArgs) `)` )?\n    (`,` `predicate` `=` $predicate^)? \n    attr-dict\n    ( `->` type($writeOnlyArgs)^ )?"
+    "assemblyFormat": "$ptxCode\n    ( `ro` `(` $readOnlyArgs^ `:` type($readOnlyArgs) `)` )?\n    ( `rw` `(` $readWriteArgs^ `:` type($readWriteArgs) `)` )?\n    ( `memory_clobber` `=` $memoryClobber^ )?\n    (`,` `predicate` `=` $predicate^)?\n    attr-dict\n    ( `->` type($writeOnlyArgs)^ )?"
   },
   {
     "name": "nvvm.ldmatrix",
@@ -110637,6 +110638,11 @@
     "assemblyFormat": "attr-dict"
   },
   {
+    "name": "transform.apply_patterns.x86.move_accumulator_for_contract_loop",
+    "description": "Rewrites an additive vector contraction by zeroing the accumulator input\n         and materializing the accumulation as a separate add after the contraction.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
     "name": "transform.apply_patterns.x86.shuffle_vector_fma_ops",
     "description": "Collect patterns to shuffle FMAs with x86 operations as operands \n    such that FMAs are grouped with respect to odd/even packed index.",
     "assemblyFormat": "attr-dict"
@@ -115614,6 +115620,9 @@
     ],
     "results": [
       { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "force_warp_shuffle", "type": "UnitAttr" }
     ],
     "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
   },
@@ -125622,7 +125631,7 @@
   {
     "name": "ttnn.to_layout",
     "summary": "ToLayout op.",
-    "description": "This op wraps all layout information gathered from ttir.toLayout. It is used/updated by the optimizer\n      to perform optimizations, and later broken down into specific memory/layout operations (toDevice, toMemoryConfig etc.).\n      Currently in the TTNN backend, we use this op solely for tilize/untilize, therefore marking all other attrs as optional.\n      Once ttnn::to_layout supports other attrs, we can remove the optional tag.\n\n      The output data type is derived from the result tensor's TTNNLayoutAttr\n      encoding via the TTNN_DtypeOpInterface. The target page layout (tile vs\n      row-major) is also derived from the encoding. Whether this op actually\n      changes dtype can be queried via `hasDtypeChange()`.",
+    "description": "This is the narrow layout op: it may only change the page layout\n      (tile <-> row-major) of the input tensor and, optionally, its data type.\n      It doesn't change the memory config (buffer type / tensor memory layout /\n      grid) or device placement - those aggregate changes belong to\n      ttnn.to_tensor_spec.\n\n      ttnn.to_layout is produced by the TTNNDecomposeLayouts pass (alongside\n      to_device / to_memory_config / typecast) when it breaks down an aggregate\n      ttnn.to_tensor_spec.\n\n      The output data type is derived from the result tensor's TTNNLayoutAttr\n      encoding via the TTNN_DtypeOpInterface. The target page layout (tile vs\n      row-major) is also derived from the encoding. Whether this op actually\n      changes dtype can be queried via `hasDtypeChange()`.",
     "operands": [
       { "name": "input", "type": "AnyRankedTensor" }
     ],
@@ -125634,6 +125643,17 @@
     "name": "ttnn.to_memory_config",
     "summary": "ToMemoryConfig op.",
     "description": "This op converts the memory config of the input tensor based on the given memory config.\n      It handles:\n        - Dram to L1\n        - L1 to Dram\n        - Interleaved to sharded\n        - Sharded to interleaved\n        - Sharded to sharded (reshard)",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
+    "name": "ttnn.to_tensor_spec",
+    "summary": "ToTensorSpec op.",
+    "description": "This op wraps all layout information gathered from ttir.toLayout (data type,\n      page layout, memory config and device placement). It is the aggregate op\n      that ttir.to_layout lowers to; it is used/updated by the optimizer to perform\n      optimizations, and later broken down into specific memory/layout operations\n      (to_layout, to_device, to_memory_config, typecast) by the TTNNDecomposeLayouts\n      pass. It never reaches flatbuffer serialization.\n\n      The output data type, target page layout (tile vs row-major) and memory config\n      are all derived from the result tensor's TTNNLayoutAttr encoding via the\n      TTNN_TensorSpecInterface. Whether this op actually changes dtype can be queried\n      via `hasDtypeChange()`.",
     "operands": [
       { "name": "input", "type": "AnyRankedTensor" }
     ],
@@ -135772,6 +135792,24 @@
       { "name": "result", "type": "XeGPU_Nbarrier" }
     ],
     "assemblyFormat": "$nbarrier_id `,` $participant_thread_num attr-dict `:`\n    type($nbarrier_id) `,` type($participant_thread_num) `->` qualified(type($result))"
+  },
+  {
+    "name": "xegpu.lane_shuffle",
+    "summary": "Re-distributes a subgroup's fragments across its lanes.",
+    "description": "`xegpu.lane_shuffle` is a lane-level operation. The `source` operand is the\n    fragment (a 1D vector) held by one lane, and the `result` is the fragment\n    that lane holds afterwards. It re-distributes the elements across the lanes\n    of the subgroup without changing their type, so `source` and `result` have\n    the same type.\n\n    Let `S` be the subgroup size and `N` the number of elements per lane, so the\n    subgroup collectively holds `S * N` elements. Number these elements by their\n    logical position `0 .. S*N-1`. The `mode` selects which of the two\n    orientations of the `S x N` (lane, element) index grid the operation maps\n    between:\n\n    * `pack`: element `j` of lane `i` holds logical position `j * S + i` before\n      the operation and `i * N + j` after it. A lane's elements end up at\n      consecutive logical positions.\n    * `unpack`: the reverse mapping. A lane's elements end up strided by `S`.\n\n    The two modes are exact inverses, so shuffling one way and then the other\n    yields the original fragments.\n\n    For example, consider `vector<2xi16>` with a subgroup size of 8, denoting a\n    lane's fragment as `<a,b>`. In `pack` mode:\n\n    ```\n    lane:       0      1      2      3      4      5      6      7\n    source:   <0,8>  <1,9>  <2,10> <3,11> <4,12> <5,13> <6,14> <7,15>\n    result:   <0,1>  <2,3>  <4,5>  <6,7>  <8,9> <10,11> <12,13> <14,15>\n    ```\n\n    In general each lane's result elements come from `N` different lanes'\n    `source` fragments -- that is the cross-lane shuffle.\n\n    This operation implements the `xegpu.convert_layout` semantics at the lane\n    level, for the case where the `lane_layout` is the same but the `lane_data`\n    is different.\n\n    The operation assumes a full subgroup (the subgroup size equals the maximum\n    subgroup size) and that all lanes execute the same dynamic instance of the\n    operation; otherwise the behavior is undefined.\n\n    Arguments:\n    - `source`: The 1D vector fragment held by one lane.\n    - `mode`: The direction of the shuffle, either `pack` or `unpack`.",
+    "operands": [
+      { "name": "source", "type": "XeGPU_LaneShuffleType" }
+    ],
+    "results": [
+      { "name": "result", "type": "XeGPU_LaneShuffleType" }
+    ],
+    "attributes": [
+      { "name": "mode", "type": "XeGPU_LaneShuffleModeAttr{pack|unpack}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['source', 'result']>" }
+    ],
+    "assemblyFormat": "$source $mode attr-dict `:` type($source)"
   },
   {
     "name": "xegpu.load",
