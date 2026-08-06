@@ -723,16 +723,19 @@ keras.Graph = class {
                                         }
                                     }
                                 } else if (inbound_node && inbound_node.args) {
-                                    for (const arg of inbound_node.args) {
-                                        if (arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history)) {
+                                    const is_keras_tensor = (item) => item && item.class_name === '__keras_tensor__' && item.config && is_connection(item.config.keras_history);
+                                    const collect = (arg) => {
+                                        if (is_keras_tensor(arg)) {
                                             const key = read_connection(arg.config.keras_history);
                                             node.inputs.push({ name: key });
-                                        } else if (Array.isArray(arg) && arg.every((arg) => arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history))) {
-                                            for (const input of arg) {
-                                                const key = read_connection(input.config.keras_history);
-                                                node.inputs.push({ name: key });
+                                        } else if (Array.isArray(arg)) {
+                                            for (const item of arg) {
+                                                collect(item);
                                             }
                                         }
+                                    };
+                                    for (const arg of inbound_node.args) {
+                                        collect(arg);
                                     }
                                 }
                             };
