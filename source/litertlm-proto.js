@@ -48,6 +48,9 @@ litert.lm.proto.Channel = class Channel {
                 case 3:
                     message.end = reader.string();
                     break;
+                case 4:
+                    message.is_reasoning_channel = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -60,6 +63,7 @@ litert.lm.proto.Channel = class Channel {
 litert.lm.proto.Channel.prototype.channel_name = "";
 litert.lm.proto.Channel.prototype.start = "";
 litert.lm.proto.Channel.prototype.end = "";
+litert.lm.proto.Channel.prototype.is_reasoning_channel = false;
 
 litert.lm.proto.PromptTemplates = class PromptTemplates {
 
