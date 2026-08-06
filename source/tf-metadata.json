@@ -28432,7 +28432,7 @@
       },
       {
         "name": "argmax",
-        "description": "The indices of the maximum values chosen for each output of `max_pool`.",
+        "description": "The indices of the maximum values chosen for each output of `max_pool`.\nAlthough the type constraint allows both int32 and int64, only int64 is\nsupported by the registered kernels. Passing an int32 argmax will fail\nwith a kernel-not-found error.",
         "typeAttr": "Targmax"
       }
     ],
