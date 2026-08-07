@@ -395,6 +395,12 @@ tablegen.Record = class {
             return init;
         }
         visited.add(key);
+        if (init.condition && init.value) {
+            return {
+                condition: this._resolveInit(init.condition, resolver, visited),
+                value: this._resolveInit(init.value, resolver, visited)
+            };
+        }
         // Resolve def/id type references (template parameters or field access)
         if ((init.type === 'def' || init.type === 'id') && typeof init.value === 'string') {
             // Handle field access syntax (e.g., "meta.mnemonic" or "addrKind.name")

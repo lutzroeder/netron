@@ -701,7 +701,7 @@ base.Tensor = class {
             ['uint8', 1], ['uint16', 2], ['uint32', 4,], ['uint64', 8],
             ['float16', 2], ['float32', 4], ['float64', 8], ['float80', 10], ['float128', 16], ['bfloat16', 2],
             ['complex<float32>', 8], ['complex<float64>', 16], ['complex<int32>', 8],
-            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e4m3b11fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1], ['float4e2m1fn', 1], ['float6e2m3fn', 1], ['float6e3m2fn', 1], ['float8e8m0fnu', 1], ['float8e8m0', 1]
+            ['float8e4m3fn', 1], ['float8e4m3fnuz', 1], ['float8e5m2', 1], ['float8e5m2fnuz', 1], ['float8e4m3b11fnuz', 1], ['float8e3m4', 1], ['float8e4m3', 1], ['float6e2m3fn', 1], ['float6e3m2fn', 1], ['float8e8m0fnu', 1], ['float8e8m0', 1]
         ]);
     }
 
@@ -864,8 +864,8 @@ base.Tensor = class {
                             context.dataType = 'int';
                             context.bits = parseInt(dataType.substring(3), 10);
                             context.itemsize = 1;
-                        } else if (dataType === 'float4e2m1') {
-                            context.dataType = 'float4e2m1';
+                        } else if (dataType === 'float4e2m1' || dataType === 'float4e2m1fn') {
+                            context.dataType = dataType;
                             context.bits = 4;
                             context.itemsize = 1;
                         } else if (dataType === 'quint4x2') {
@@ -884,7 +884,7 @@ base.Tensor = class {
                     case '|': {
                         context.data = this.values;
                         const integer = (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) || (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10)));
-                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'datetime' && dataType !== 'void' && !integer) {
+                        if (!base.Tensor._dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object' && dataType !== 'datetime' && dataType !== 'void' && dataType !== 'float4e2m1' && dataType !== 'float4e2m1fn' && !integer) {
                             throw new Error(`Tensor data type '${dataType}' is not implemented.`);
                         }
                         const size = context.dimensions.reduce((a, v) => a * v, 1);
@@ -1059,6 +1059,7 @@ base.Tensor = class {
                     }
                     break;
                 case 'float4e2m1':
+                case 'float4e2m1fn':
                     for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat4e2m1(offset));
                     }

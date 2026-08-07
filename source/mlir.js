@@ -671,7 +671,6 @@ mlir.Tensor = class {
             this.encoding = '|';
         } else {
             this.type = type;
-            this.values = values;
             this.encoding = values instanceof Uint8Array ? '<' : '|';
             if (this.encoding === '<' && type.shape && type.shape.dimensions.length > 0) {
                 const dims = type.shape.dimensions;
@@ -688,6 +687,14 @@ mlir.Tensor = class {
                     this.stride = new Array(dims.length).fill(0);
                 }
             }
+            if (this.encoding === '<' && type.dataType === 'float4e2m1fn') {
+                const data = new Uint8Array(Math.ceil(values.length / 2));
+                for (let i = 0; i < values.length; i++) {
+                    data[i >> 1] |= (values[i] & 0x0f) << ((i & 1) * 4);
+                }
+                values = data;
+            }
+            this.values = values;
         }
     }
 };
@@ -4491,6 +4498,7 @@ _.TopLevelOperationParser = class extends _.Parser {
                 this.emitError(keyLoc, `Unknown key '${key}' in file metadata dictionary`);
             }
         });
+        this.state.dialectResources.clear();
     }
 };
 
@@ -19585,10 +19593,12 @@ _.BuiltinDialect = class extends _.Dialect {
     }
 
     declareResource(key) {
-        if (!this.blobManager.has(key)) {
-            this.blobManager.set(key, new _.DenseResourceElementsHandle(key));
+        let handle = this.blobManager.get(key);
+        if (!handle || handle.blob !== null) {
+            handle = new _.DenseResourceElementsHandle(key);
+            this.blobManager.set(key, handle);
         }
-        return this.blobManager.get(key);
+        return handle;
     }
 
     getResourceKey(handle) {
@@ -22183,9 +22193,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         if (__visibility) {
             result.addAttribute('visibility_', __visibility);
         }
-        if (parser.parseOptionalKeyword('thread_local')) {
-            result.addAttribute('thread_local_', true);
-        }
+        this.parseLLVMThreadLocal(parser, result);
         const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
         const __unnamedAddr = parser.parseOptionalKeyword(unnamedAddrKeywords);
         if (__unnamedAddr) {
@@ -22233,9 +22241,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         if (__visibility) {
             result.addAttribute('visibility_', __visibility);
         }
-        if (parser.parseOptionalKeyword('thread_local')) {
-            result.addAttribute('thread_local_', true);
-        }
+        this.parseLLVMThreadLocal(parser, result);
         const unnamedAddrKeywords = ['unnamed_addr', 'local_unnamed_addr'];
         const __unnamedAddr = parser.parseOptionalKeyword(unnamedAddrKeywords);
         if (__unnamedAddr) {
@@ -22253,6 +22259,21 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         const region = result.addRegion();
         parser.parseRegion(region);
         return true;
+    }
+
+    parseLLVMThreadLocal(parser, result) {
+        if (parser.parseOptionalKeyword('thread_local')) {
+            const tlsModeKeywords = ['generaldynamic', 'localdynamic', 'initialexec', 'localexec'];
+            let tlsMode = 'generaldynamic';
+            if (parser.parseOptionalLParen()) {
+                tlsMode = parser.parseOptionalKeyword(tlsModeKeywords);
+                if (!tlsMode) {
+                    parser.emitError('invalid value for thread_local');
+                }
+                parser.parseRParen();
+            }
+            result.addAttribute('tls_mode', tlsMode);
+        }
     }
 
     parseGEPIndices(parser, op, operands, attrName) {

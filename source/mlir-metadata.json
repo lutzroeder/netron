@@ -4740,7 +4740,7 @@
   {
     "name": "arm_sve.intr.bfmmla",
     "summary": "BFloat16 matrix multiply-accumulate",
-    "description": "BFMMLA: BFloat16 matrix multiply-accumulate into 2×2 matrices\";\n\n    This operation multiplies the 2x4 BFloat16 matrix held in each 128-bit\n    segment of the first source vector by the 4x2 BFloat16 matrix in the\n    corresponding segment of the second source vector, then accumulates\n    this intermediate result with the 2x2 Float32 matrix in the corresponding\n    segment of the accumulator vector, yielding the final 2x2 Float32\n    segment of the result.\n\n    Source:\n    https://developer.arm.com/documentation/100987/0000",
+    "description": "BFMMLA: BFloat16 matrix multiply-accumulate into 2×2 matrices.\n\n    This operation multiplies the 2x4 BFloat16 matrix held in each 128-bit\n    segment of the first source vector by the 4x2 BFloat16 matrix in the\n    corresponding segment of the second source vector, then accumulates\n    this intermediate result with the 2x2 Float32 matrix in the corresponding\n    segment of the accumulator vector, yielding the final 2x2 Float32\n    segment of the result.\n\n    Source:\n    https://developer.arm.com/documentation/100987/0000",
     "operands": [
       { "name": "acc", "type": "ScalableVectorOfLengthAndType<[4], [F32]>" },
       { "name": "src1", "type": "ScalableVectorOfLengthAndType<[8], [BF16]>" },
@@ -7271,7 +7271,7 @@
   {
     "name": "chlo.top_k",
     "summary": "Finds values and indices of the `k` largest elements for the last dimension",
-    "description": "If the input is a vector (rank-1), finds the `k` largest entries in the\n    vector and outputs their values and indices as vectors.  Thus `values[j]` is\n    the `j`-th largest entry in `input`, and its index is `indices[j]`.\n\n    For matrices (resp. higher rank input), computes the top `k` entries in each\n    row (resp. vector along the last dimension).  Thus,\n\n    ```\n    values.shape = indices.shape = input.shape[:-1] + [k]\n    ```\n\n    If two elements are equal, the lower-index element appears first.",
+    "description": "If the input is a vector (rank-1), finds the `k` largest entries in the\n    vector and outputs their values and indices as vectors.  Thus `values[j]` is\n    the `j`-th largest entry in `input`, and its index is `indices[j]`.\n\n    For matrices (resp. higher rank input), computes the top `k` entries in each\n    row (resp. vector along the last dimension).  Thus,\n\n    ```\n    values.shape = indices.shape = input.shape[:-1] + [k]\n    ```\n\n    If `is_stable` is true, the sort is stable: if two elements are equal, the\n    lower-index element appears first. If false, the relative order of equal\n    elements is implementation-defined.",
     "operands": [
       { "name": "operand", "type": "HLO_AnyTensor" }
     ],
@@ -7280,9 +7280,10 @@
       { "name": "indices", "type": "HLO_AnyTensor" }
     ],
     "attributes": [
-      { "name": "k", "type": "I64Attr" }
+      { "name": "k", "type": "I64Attr" },
+      { "name": "is_stable", "type": "DefaultValuedOptionalAttr<BoolAttr, true>" }
     ],
-    "assemblyFormat": "`(`$operand `,` `k` `=` $k`)` attr-dict `:`\n    type($operand) `->` `(`type($values)`,` type($indices)`)`"
+    "assemblyFormat": "`(`$operand `,` `k` `=` $k (`,` `is_stable` `=` $is_stable^)? `)` attr-dict `:`\n    type($operand) `->` `(`type($values)`,` type($indices)`)`"
   },
   {
     "name": "chlo.zeta",
@@ -23307,6 +23308,46 @@
     "assemblyFormat": "attr-dict `:` type($res)"
   },
   {
+    "name": "llvm.intr.coro.alloc",
+    "operands": [
+      { "name": "id", "type": "Token" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "assemblyFormat": "$id attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.coro.await.suspend.bool",
+    "operands": [
+      { "name": "awaiter", "type": "LLVM_AnyPointer" },
+      { "name": "frame", "type": "LLVM_AnyPointer" },
+      { "name": "wrapper", "type": "LLVM_AnyPointer" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "assemblyFormat": "$awaiter `,` $frame `,` $wrapper attr-dict `:`\n      functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.coro.await.suspend.handle",
+    "operands": [
+      { "name": "awaiter", "type": "LLVM_AnyPointer" },
+      { "name": "frame", "type": "LLVM_AnyPointer" },
+      { "name": "wrapper", "type": "LLVM_AnyPointer" }
+    ],
+    "assemblyFormat": "$awaiter `,` $frame `,` $wrapper attr-dict `:`\n      qualified(type($awaiter)) `,` qualified(type($frame)) `,`\n      qualified(type($wrapper))"
+  },
+  {
+    "name": "llvm.intr.coro.await.suspend.void",
+    "operands": [
+      { "name": "awaiter", "type": "LLVM_AnyPointer" },
+      { "name": "frame", "type": "LLVM_AnyPointer" },
+      { "name": "wrapper", "type": "LLVM_AnyPointer" }
+    ],
+    "assemblyFormat": "$awaiter `,` $frame `,` $wrapper attr-dict `:`\n      qualified(type($awaiter)) `,` qualified(type($frame)) `,`\n      qualified(type($wrapper))"
+  },
+  {
     "name": "llvm.intr.coro.begin",
     "operands": [
       { "name": "token", "type": "Token" },
@@ -23316,6 +23357,30 @@
       { "name": "res", "type": "LLVM_Type" }
     ],
     "assemblyFormat": "$token `,` $mem attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.coro.dead",
+    "operands": [
+      { "name": "handle", "type": "LLVM_AnyPointer" }
+    ],
+    "assemblyFormat": "$handle attr-dict `:` qualified(type($handle))"
+  },
+  {
+    "name": "llvm.intr.coro.destroy",
+    "operands": [
+      { "name": "handle", "type": "LLVM_AnyPointer" }
+    ],
+    "assemblyFormat": "$handle attr-dict `:` qualified(type($handle))"
+  },
+  {
+    "name": "llvm.intr.coro.done",
+    "operands": [
+      { "name": "handle", "type": "LLVM_AnyPointer" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "assemblyFormat": "$handle attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "llvm.intr.coro.end",
@@ -23328,6 +23393,13 @@
       { "name": "res", "type": "LLVM_Type" }
     ],
     "assemblyFormat": "$handle `,` $unwind `,` $retvals attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.coro.frame",
+    "results": [
+      { "name": "res", "type": "LLVM_AnyPointer" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($res)"
   },
   {
     "name": "llvm.intr.coro.free",
@@ -23352,6 +23424,20 @@
       { "name": "res", "type": "LLVM_Type" }
     ],
     "assemblyFormat": "$align `,` $promise `,` $coroaddr `,` $fnaddrs attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.coro.is_in_ramp",
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($res)"
+  },
+  {
+    "name": "llvm.intr.coro.noop",
+    "results": [
+      { "name": "res", "type": "LLVM_AnyPointer" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($res)"
   },
   {
     "name": "llvm.intr.coro.promise",
@@ -23601,6 +23687,168 @@
     "assemblyFormat": "$val `,` $expected `,` $prob attr-dict `:` type($val)"
   },
   {
+    "name": "llvm.intr.experimental.constrained.acos",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.asin",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.atan",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.atan2",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.ceil",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.cos",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.cosh",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.exp",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.exp2",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
     "name": "llvm.intr.experimental.constrained.fadd",
     "operands": [
       { "name": "arg_0", "type": "LLVM_Type" },
@@ -23611,12 +23859,51 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.fcmp",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "predicate", "type": "FCmpPredicate{_false|oeq|ogt|oge|olt|ole|one|ord|ueq|ugt|uge|ult|ule|une|uno|_true}" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'arg_0', 'res', '::getI1SameShape($_self)'>" }
+    ],
+    "assemblyFormat": "$predicate $arg_0 `,` $arg_1 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.fcmps",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "predicate", "type": "FCmpPredicate{_false|oeq|ogt|oge|olt|ole|one|ord|ueq|ugt|uge|ult|ule|une|uno|_true}" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'arg_0', 'res', '::getI1SameShape($_self)'>" }
+    ],
+    "assemblyFormat": "$predicate $arg_0 `,` $arg_1 $fpExceptionBehavior attr-dict `:` type($arg_0)"
   },
   {
     "name": "llvm.intr.experimental.constrained.fdiv",
@@ -23629,12 +23916,30 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.floor",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0)"
   },
   {
     "name": "llvm.intr.experimental.constrained.fma",
@@ -23648,7 +23953,8 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -23666,7 +23972,8 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -23685,7 +23992,8 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -23701,7 +24009,36 @@
       { "name": "res", "type": "LLVM_Type" }
     ],
     "attributes": [
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.fptosi",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.fptoui",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
   },
@@ -23715,7 +24052,8 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
   },
@@ -23730,7 +24068,8 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -23748,12 +24087,354 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.ldexp",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:`\n    functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.llrint",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:`\n    type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.llround",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.log",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.log10",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.log2",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.lrint",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:`\n    type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.lround",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.maximum",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.maxnum",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.minimum",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.minnum",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.nearbyint",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.pow",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.powi",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" },
+      { "name": "arg_1", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "$arg_0 `,` $arg_1 $roundingmode $fpExceptionBehavior attr-dict `:`\n    functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.rint",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.round",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.roundeven",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.sin",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.sinh",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
   },
   {
     "name": "llvm.intr.experimental.constrained.sitofp",
@@ -23765,9 +24446,81 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.sqrt",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.tan",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.tanh",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0)"
+  },
+  {
+    "name": "llvm.intr.experimental.constrained.trunc",
+    "operands": [
+      { "name": "arg_0", "type": "LLVM_Type" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$arg_0 $fpExceptionBehavior attr-dict `:` type($arg_0)"
   },
   {
     "name": "llvm.intr.experimental.constrained.uitofp",
@@ -23779,7 +24532,8 @@
     ],
     "attributes": [
       { "name": "roundingmode", "type": "ConfinedAttr<RoundingModeAttr{towardzero|tonearest|upward|downward|tonearestaway|dynamic|invalid}, [IntMinValue<0>]>" },
-      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" }
+      { "name": "fpExceptionBehavior", "type": "FPExceptionBehaviorAttr{ignore|maytrap|strict}" },
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "assemblyFormat": "$arg_0 $roundingmode $fpExceptionBehavior attr-dict `:` type($arg_0) `to` type(results)"
   },
@@ -25925,7 +26679,7 @@
       { "name": "sym_name", "type": "StrAttr" },
       { "name": "linkage", "type": "Linkage" },
       { "name": "dso_local", "type": "UnitAttr" },
-      { "name": "thread_local_", "type": "UnitAttr" },
+      { "name": "tls_mode", "type": "DefaultValuedAttr<LLVM_TLSMode{NotThreadLocal|GeneralDynamic|LocalDynamic|InitialExec|LocalExec}, mlir::LLVM::ThreadLocalMode::NotThreadLocal>" },
       { "name": "unnamed_addr", "type": "OptionalAttr<UnnamedAddr{local_unnamed_addr|unnamed_addr}>" },
       { "name": "visibility_", "type": "DefaultValuedAttr<Visibility{hidden|protected}, mlir::LLVM::Visibility::Default>" }
     ],
@@ -25959,7 +26713,7 @@
       { "name": "sym_name", "type": "StrAttr" },
       { "name": "linkage", "type": "Linkage" },
       { "name": "dso_local", "type": "UnitAttr" },
-      { "name": "thread_local_", "type": "UnitAttr" },
+      { "name": "tls_mode", "type": "DefaultValuedAttr<LLVM_TLSMode{NotThreadLocal|GeneralDynamic|LocalDynamic|InitialExec|LocalExec}, mlir::LLVM::ThreadLocalMode::NotThreadLocal>" },
       { "name": "externally_initialized", "type": "UnitAttr" },
       { "name": "value", "type": "OptionalAttr<AnyAttr>" },
       { "name": "alignment", "type": "OptionalAttr<I64Attr>" },
@@ -34862,9 +35616,25 @@
       { "name": "stage", "type": "Optional<I32>" }
     ],
     "attributes": [
-      { "name": "async_ops", "type": "TypedArrayAttrBase<NVWS_AsyncOpEnum{none|tma_load|tc5mma|tmem_copy|cp_async|wgmma}>" }
+      { "name": "async_ops", "type": "TypedArrayAttrBase<NVWS_AsyncOpEnum{none|tma_load|tc5mma|tmem_copy|cp_async|wgmma|clc}>" }
     ],
     "assemblyFormat": "$aref (`[` $stage^ `]`)? `,` $token $async_ops attr-dict\n    `:` type($aref) `,` type($token)"
+  },
+  {
+    "name": "nvws.aref.phi",
+    "summary": "Select a local or remote aref value by partition",
+    "description": "Joins exactly two SSA values with disjoint partition ownership.  The\n    partition owning a physical clone selects the operand whose defining value\n    owns that partition.  Partition-loop construction resolves this operation\n    to the selected operand and emits no instruction.",
+    "operands": [
+      { "name": "local", "type": "AnyType" },
+      { "name": "remote", "type": "AnyType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$local `,` $remote attr-dict `:` type($result)"
   },
   {
     "name": "nvws.aref.put.enter",
@@ -34894,9 +35664,18 @@
       { "name": "stage", "type": "Optional<I32>" }
     ],
     "attributes": [
-      { "name": "async_ops", "type": "TypedArrayAttrBase<NVWS_AsyncOpEnum{none|tma_load|tc5mma|tmem_copy|cp_async|wgmma}>" }
+      { "name": "async_ops", "type": "TypedArrayAttrBase<NVWS_AsyncOpEnum{none|tma_load|tc5mma|tmem_copy|cp_async|wgmma|clc}>" }
     ],
     "assemblyFormat": "$aref (`[` $stage^ `]`)? `,` $token  $async_ops attr-dict\n    `:` type($aref) `,` type($token)"
+  },
+  {
+    "name": "nvws.clc_try_cancel",
+    "summary": "Issue a cluster launch control cancellation request",
+    "description": "Issues CLC cancellation request whose raw 16-byte response\n    is written into the supplied shared-memory buffer.",
+    "operands": [
+      { "name": "result", "type": "TTG_MemDescType" }
+    ],
+    "assemblyFormat": "$result attr-dict `:` qualified(type($result))"
   },
   {
     "name": "nvws.consumer_release",
@@ -38534,13 +39313,14 @@
   {
     "name": "onnx.PrintSignature",
     "summary": "ONNX Op to print type signature or data of its input operands",
-    "description": "Print type signature or data of the input operands of this op.\n    The parameter op_name specifies a string to be printed before the tensors.\n    and usually the op_name and onnx_node_name are used.\n    This operation is introduced early so as to preserve the name of the original ONNX op.\n    The argument print_data control whether the data of the tensors to be printed.\n    When print_data == 1, the data of the tensor will be printed. Otherwise, just shape.\n    The argument input specifies the tensor to be printed. They could be a list\n    of the inputs and outputs of an ONNX op.\n\n    This operation is not part of the standard and was added to assist onnx-mlir.",
+    "description": "Print type signature or data of the input operands of this op.\n    The parameter op_name specifies a string to be printed before the tensors.\n    and usually the op_name and onnx_node_name are used.\n    This operation is introduced early so as to preserve the name of the original ONNX op.\n    The argument print_data control whether the data of the tensors to be printed.\n    When print_data == 1, the data of the tensor will be printed. Otherwise, just shape.\n    The argument input specifies the tensor to be printed. They could be a list\n    of the inputs and outputs of an ONNX op.\n    The optional argument io_labels, when present and of the same length as\n    input, gives a per-tensor label (e.g. \"in0\", \"out1\") printed right before\n    that tensor's signature/data, so a caller-selected subset of a node's\n    operands/results can still be told apart in the printed output.\n\n    This operation is not part of the standard and was added to assist onnx-mlir.",
     "operands": [
       { "name": "input", "type": "Variadic<AnyTypeOf<[ AnyTensor, NoneType ]>>" }
     ],
     "attributes": [
       { "name": "op_name", "type": "StrAttr" },
-      { "name": "print_data", "type": "SI64Attr" }
+      { "name": "print_data", "type": "SI64Attr" },
+      { "name": "io_labels", "type": "OptionalAttr<TypedArrayAttrBase<StrAttr>>" }
     ]
   },
   {
@@ -57979,6 +58759,26 @@
     "attributes": [
       { "name": "source_target_pairs", "type": "I64ElementsAttr" },
       { "name": "channel_handle", "type": "OptionalAttr<StableHLO_ChannelHandle>" }
+    ]
+  },
+  {
+    "name": "stablehlo.collective_reduce",
+    "summary": "CollectiveReduce operation",
+    "description": "Within each process group in the process grid, applies a reduction function\n    `computation` to the values of the `operands` from each process and produces\n    a `result` tensor on the root rank of the group. The root rank is determined\n    by `has_dynamic_root`: if false, the root is the 0-th rank in the replica\n    group; if true, the last operand is an i32 tensor specifying per-operand\n    root indices.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#collective_reduce\n\n    Example:\n    ```mlir\n    %result = \"stablehlo.collective_reduce\"(%operand) ({\n      ^bb0(%arg0: tensor<i64>, %arg1: tensor<i64>):\n        %0 = \"stablehlo.add\"(%arg0, %arg1) : (tensor<i64>, tensor<i64>) -> tensor<i64>\n        \"stablehlo.return\"(%0) : (tensor<i64>) -> ()\n    }) {\n      replica_groups = dense<[[0, 1]]> : tensor<1x2xi64>\n    } : (tensor<4xi64>) -> tensor<4xi64>\n    ```",
+    "operands": [
+      { "name": "operands", "type": "Variadic<HLO_Tensor>" }
+    ],
+    "results": [
+      { "name": "result", "type": "Variadic<HLO_Tensor>" }
+    ],
+    "attributes": [
+      { "name": "replica_groups", "type": "StableHLO_ReplicaGroups" },
+      { "name": "channel_handle", "type": "OptionalAttr<StableHLO_ChannelHandle>" },
+      { "name": "use_global_device_ids", "type": "UnitAttr" },
+      { "name": "has_dynamic_root", "type": "UnitAttr" }
+    ],
+    "regions": [
+      { "name": "computation", "type": "SizedRegion<1>" }
     ]
   },
   {
@@ -104141,6 +104941,25 @@
     "assemblyFormat": "$ranks `,` $dtypes attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "torch.quantized_decomposed.dequantize_per_channel",
+    "summary": "PT2E dequantize_per_channel",
+    "description": "Dequantizes an integer tensor with one scale and optional zero point per\n    channel. A None `zero_points` operand denotes symmetric quantization.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scales", "type": "AnyTorchTensorType" },
+      { "name": "zero_points", "type": "AnyTorchOptionalTensorType" },
+      { "name": "axis", "type": "Torch_IntType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" },
+      { "name": "out_dtype", "type": "AnyTorchOptionalIntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $axis `,` $quant_min `,`\n        $quant_max `,` $dtype `,` $out_dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($axis)) `,`\n        qualified(type($quant_min)) `,` qualified(type($quant_max)) `,`\n        qualified(type($dtype)) `,` qualified(type($out_dtype))\n    `->` qualified(type($result))"
+  },
+  {
     "name": "torch.quantized_decomposed.dequantize_per_tensor",
     "summary": "PT2E dequantize_per_tensor (scalar qparams)",
     "description": "Corresponds to `quantized_decomposed::dequantize_per_tensor` (the default /\n    scalar-qparams overload, whose schema overload_name is empty) in\n    PT2E-exported graphs.\n\n    Dequantizes an integer tensor back to floating point:\n    ```\n    output = (input - zero_point) * scale\n    ```\n\n    The `dtype` argument encodes the *input* element type as a `torch.dtype`\n    integer code and is used only for range-clamping metadata.  `out_dtype`,\n    when not None, specifies the output element type; otherwise output is\n    `float32`.  Output shape is identical to the input shape.",
@@ -104157,6 +104976,24 @@
       { "name": "result", "type": "AnyTorchTensorType" }
     ],
     "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,` $dtype `,` $out_dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($out_dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.quantize_per_channel",
+    "summary": "PT2E quantize_per_channel",
+    "description": "Quantizes a floating-point tensor with one affine scale and zero point per\n    channel. `axis` identifies the input dimension indexed by the one\n    dimensional `scales` and `zero_points` tensors.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scales", "type": "AnyTorchTensorType" },
+      { "name": "zero_points", "type": "AnyTorchTensorType" },
+      { "name": "axis", "type": "Torch_IntType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $axis `,` $quant_min `,`\n        $quant_max `,` $dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($axis)) `,`\n        qualified(type($quant_min)) `,` qualified(type($quant_max)) `,`\n        qualified(type($dtype))\n    `->` qualified(type($result))"
   },
   {
     "name": "torch.quantized_decomposed.quantize_per_tensor",
@@ -120129,7 +120966,7 @@
   {
     "name": "ttkernel.experimental.setup_fabric_connections",
     "summary": "SetupFabricConnections",
-    "description": "Setup fabric connections for inter-device communication. The connection scheme\n    is derived from the attribute `TTMetal_FabricConnectionConfigAttr` in the\n    `EnqueueProgramOp`.\n\n   `TTMetal_FabricConnectionConfigAttr` specifies:\n      - `noc_index`: Which NOC the fabric uses (must match kernel's NocConfig)\n      - `topology`: The routing scheme to use for the mesh device (e.g. Line, Ring)\n      - `cluster_axis`: The axis along which the to route for 1D topologies\n      - `num_links`: Number of routing planes (connections to fabric routers)\n\n    After setup, the `FabricConnectionManager` can be used with ops like\n    `fabric_fast_write_any_len` to send data to other devices in the mesh.",
+    "description": "Setup fabric connections for inter-device communication. The connection scheme\n    is selected by the owning kernel's `fabric_config_index`, which indexes into\n    `EnqueueProgramOp`'s `fabricConnectionConfigs` table.\n\n    `FabricConnectionConfig` specifies:\n      - `noc_index`: Which NOC the fabric uses (must match kernel's NocConfig)\n      - `topology`: The routing scheme to use for the mesh device (e.g. Line, Ring)\n      - `cluster_axis`: The axis along which the to route for 1D topologies\n      - `num_links`: Number of routing planes (connections to fabric routers)\n\n    After setup, the `FabricConnectionManager` can be used with ops like\n    `fabric_fast_write_any_len` to send data to other devices in the mesh.",
     "operands": [
       { "name": "fabric_connection_manager", "type": "TTKernel_FabricConnectionManager" }
     ],
@@ -122367,7 +123204,7 @@
     "attributes": [
       { "name": "cb_ports", "type": "DenseI64ArrayAttr" },
       { "name": "kernelConfigs", "type": "TypedArrayAttrBase<TTMetal_KernelConfigAttr>" },
-      { "name": "fabricConnectionConfig", "type": "OptionalAttr<TTCore_FabricConnectionConfigAttr>" }
+      { "name": "fabricConnectionConfigs", "type": "OptionalAttr<TypedArrayAttrBase<TTCore_FabricConnectionConfigAttr>>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
@@ -122610,6 +123447,14 @@
       { "name": "mbarrier", "type": "TTG_MemDescType" }
     ],
     "assemblyFormat": "$result `,` $mbarrier attr-dict `:` qualified(type($result)) `,` qualified(type($mbarrier))"
+  },
+  {
+    "name": "ttng.clc_try_cancel_sync",
+    "summary": "Request cancellation of a pending cluster",
+    "results": [
+      { "name": "response", "type": "TT_Tensor" }
+    ],
+    "assemblyFormat": "attr-dict `:` type($response)"
   },
   {
     "name": "ttng.cluster_arrive",
@@ -127661,6 +128506,24 @@
     "attributes": [
       { "name": "source_target_pairs", "type": "VHLO_AnyAttr" },
       { "name": "channel_id", "type": "VHLO_AnyAttr" }
+    ]
+  },
+  {
+    "name": "vhlo.collective_reduce_v1",
+    "operands": [
+      { "name": "operands", "type": "Variadic<VHLO_AnyType>" }
+    ],
+    "results": [
+      { "name": "results", "type": "Variadic<VHLO_AnyType>" }
+    ],
+    "attributes": [
+      { "name": "replica_groups", "type": "VHLO_AnyAttr" },
+      { "name": "channel_id", "type": "VHLO_AnyAttr" },
+      { "name": "use_global_device_ids", "type": "VHLO_AnyAttr" },
+      { "name": "has_dynamic_root", "type": "VHLO_AnyAttr" }
+    ],
+    "regions": [
+      { "name": "computation", "type": "VHLO_AnyRegion" }
     ]
   },
   {
