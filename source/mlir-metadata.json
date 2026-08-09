@@ -1516,7 +1516,7 @@
   {
     "name": "affine.load",
     "summary": "affine load operation",
-    "description": "Syntax:\n\n    ```\n    operation ::= ssa-id `=` `affine.load` ssa-use `[` multi-dim-affine-map-of-ssa-ids `]` `:` memref-type\n    ```\n\n    The `affine.load` op reads an element from a memref, where the index\n    for each memref dimension is an affine expression of loop induction\n    variables and symbols. The output of `affine.load` is a new value with the\n    same type as the elements of the memref. An affine expression of loop IVs\n    and symbols must be specified for each dimension of the memref. The keyword\n    `symbol` can be used to indicate SSA identifiers which are symbolic.\n\n    Example 1:\n\n    ```mlir\n    %1 = affine.load %0[%i0 + 3, %i1 + 7] : memref<100x100xf32>\n    ```\n\n    Example 2: Uses `symbol` keyword for symbols `%n` and `%m`.\n\n    ```mlir\n    %1 = affine.load %0[%i0 + symbol(%n), %i1 + symbol(%m)] : memref<100x100xf32>\n    ```",
+    "description": "Syntax:\n\n    ```\n    operation ::= ssa-id `=` `affine.load` ssa-use `[` multi-dim-affine-map-of-ssa-ids `]` `:` memref-type\n    ```\n\n    The `affine.load` op reads an element from a memref, where the index\n    for each memref dimension is an affine expression of loop induction\n    variables and symbols. The output of `affine.load` is a new value with the\n    same type as the elements of the memref. An affine expression of loop IVs\n    and symbols must be specified for each dimension of the memref. The keyword\n    `symbol` can be used to indicate SSA identifiers which are symbolic.\n\n    Example 1:\n\n    ```mlir\n    %1 = affine.load %0[%i0 + 3, %i1 + 7] : memref<100x100xf32>\n    ```\n\n    Example 2: Uses `symbol` keyword for symbols `%n` and `%m`.\n\n    ```mlir\n    %1 = affine.load %0[%i0 + symbol(%n), %i1 + symbol(%m)] : memref<100x100xf32>\n    ```\n\n    An optional `alignment` attribute allows to specify the byte alignment of\n    the load operation. It must be a positive power of 2. The operation must\n    access memory at an address aligned to this boundary. Violations may lead\n    to architecture-specific faults or performance penalties.\n    A value of 0 indicates no specific alignment requirement.",
     "operands": [
       { "name": "memref", "type": "AnyMemRef" },
       { "name": "indices", "type": "Variadic<Index>" }
@@ -1525,7 +1525,8 @@
       { "name": "result", "type": "AnyType" }
     ],
     "attributes": [
-      { "name": "map", "type": "AffineMapAttr" }
+      { "name": "map", "type": "AffineMapAttr" },
+      { "name": "alignment", "type": "OptionalAttr<IntValidAlignment<I64Attr>>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -1601,14 +1602,15 @@
   {
     "name": "affine.store",
     "summary": "affine store operation",
-    "description": "Syntax:\n\n    ```\n    operation ::= `affine.store` ssa-use, ssa-use `[` multi-dim-affine-map-of-ssa-ids `]` `:` memref-type\n    ```\n\n    The `affine.store` op writes an element to a memref, where the index\n    for each memref dimension is an affine expression of loop induction\n    variables and symbols. The `affine.store` op stores a new value which is the\n    same type as the elements of the memref. An affine expression of loop IVs\n    and symbols must be specified for each dimension of the memref. The keyword\n    `symbol` can be used to indicate SSA identifiers which are symbolic.\n\n    Example 1:\n\n    ```mlir\n    affine.store %v0, %0[%i0 + 3, %i1 + 7] : memref<100x100xf32>\n    ```\n\n    Example 2: Uses `symbol` keyword for symbols `%n` and `%m`.\n\n    ```mlir\n    affine.store %v0, %0[%i0 + symbol(%n), %i1 + symbol(%m)] : memref<100x100xf32>\n    ```",
+    "description": "Syntax:\n\n    ```\n    operation ::= `affine.store` ssa-use, ssa-use `[` multi-dim-affine-map-of-ssa-ids `]` `:` memref-type\n    ```\n\n    The `affine.store` op writes an element to a memref, where the index\n    for each memref dimension is an affine expression of loop induction\n    variables and symbols. The `affine.store` op stores a new value which is the\n    same type as the elements of the memref. An affine expression of loop IVs\n    and symbols must be specified for each dimension of the memref. The keyword\n    `symbol` can be used to indicate SSA identifiers which are symbolic.\n\n    Example 1:\n\n    ```mlir\n    affine.store %v0, %0[%i0 + 3, %i1 + 7] : memref<100x100xf32>\n    ```\n\n    Example 2: Uses `symbol` keyword for symbols `%n` and `%m`.\n\n    ```mlir\n    affine.store %v0, %0[%i0 + symbol(%n), %i1 + symbol(%m)] : memref<100x100xf32>\n    ```\n\n    An optional `alignment` attribute allows to specify the byte alignment of\n    the store operation. It must be a positive power of 2. The operation must\n    access memory at an address aligned to this boundary. Violations may lead\n    to architecture-specific faults or performance penalties.\n    A value of 0 indicates no specific alignment requirement.",
     "operands": [
       { "name": "value", "type": "AnyType" },
       { "name": "memref", "type": "AnyMemRef" },
       { "name": "indices", "type": "Variadic<Index>" }
     ],
     "attributes": [
-      { "name": "map", "type": "AffineMapAttr" }
+      { "name": "map", "type": "AffineMapAttr" },
+      { "name": "alignment", "type": "OptionalAttr<IntValidAlignment<I64Attr>>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -1624,7 +1626,8 @@
       { "name": "result", "type": "AnyVectorOfNonZeroRank" }
     ],
     "attributes": [
-      { "name": "map", "type": "AffineMapAttr" }
+      { "name": "map", "type": "AffineMapAttr" },
+      { "name": "alignment", "type": "OptionalAttr<IntValidAlignment<I64Attr>>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -1638,7 +1641,8 @@
       { "name": "indices", "type": "Variadic<Index>" }
     ],
     "attributes": [
-      { "name": "map", "type": "AffineMapAttr" }
+      { "name": "map", "type": "AffineMapAttr" },
+      { "name": "alignment", "type": "OptionalAttr<IntValidAlignment<I64Attr>>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -2082,9 +2086,10 @@
     ],
     "attributes": [
       { "name": "cache", "type": "DefaultValuedAttr<TT_CacheModifierAttr{none|ca|cg|wb|cs|wt|cv}, ::mlir::triton::CacheModifier::NONE>" },
+      { "name": "isVolatile", "type": "DefaultValuedAttr<BoolAttr, false>" },
       { "name": "forceNoAlias", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$ptr `,` $mask `,` $falseVal (`,` $multicastMask^)?\n    oilist(`cacheModifier` `=` $cache)\n    (`forceNoAlias` $forceNoAlias^)?\n    attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "$ptr `,` $mask `,` $falseVal (`,` $multicastMask^)?\n    oilist(`cacheModifier` `=` $cache)\n    (`volatile` $isVolatile^)?\n    (`forceNoAlias` $forceNoAlias^)?\n    attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "amdg.masked_store",
@@ -33537,7 +33542,7 @@
       { "name": "predicate", "type": "Optional<I1>" }
     ],
     "attributes": [
-      { "name": "mode", "type": "DefaultValuedAttr<TMAStoreModeAttr{tile|im2col|tile_scatter4}, TMAStoreMode::TILE>" }
+      { "name": "mode", "type": "DefaultValuedAttr<TMAStoreModeAttr{tile|im2col|tile_scatter4|im2col_w}, TMAStoreMode::TILE>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
@@ -33572,7 +33577,7 @@
     ],
     "attributes": [
       { "name": "redKind", "type": "TMAReduxKindAttr{add|max|min|inc|dec|and|or|xor}" },
-      { "name": "mode", "type": "DefaultValuedAttr<TMAStoreModeAttr{tile|im2col|tile_scatter4}, TMAStoreMode::TILE>" }
+      { "name": "mode", "type": "DefaultValuedAttr<TMAStoreModeAttr{tile|im2col|tile_scatter4|im2col_w}, TMAStoreMode::TILE>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
@@ -35236,7 +35241,7 @@
   {
     "name": "nvvm.tcgen05.mma",
     "summary": "Performs MMA operation on 5th-gen tensor cores",
-    "description": "The `tcgen05.mma` operation is an asynchronous tensor core instruction that\n    performs matrix multiplication, accumulation in a single fused operation. It\n    targets 5th-generation tensor cores, providing developers with fine-grained\n    control over execution and scheduling.\n\n    ```\n    D = A * B + (D * 2^ -scaleInputD)    // if `scaleInputD` is provided\n    D = A * B                            // if `enableInputD` is false\n    D = A * B + D                        // otherwise\n    ```\n\n    where:\n    - A is an `M x K` matrix in tensor memory or described using shared memory descriptor\n    - B is a `K x N` matrix described using shared memory descriptor\n    - D is an `M x N` accumulator matrix in tensor memory\n\n    The `shared memory descriptor` can be generated using `tcgen05.mma_smem_desc` Op\n\n    - idesc is a 32-bit value representing the [Instruction Descriptor](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-instruction-descriptor)\n\n    Optional Operands:\n    - `scaleInputD` is an Immediate value operand used for scaling D matrix by 2 ^ (-scaleInputD). The valid range is [0, 15]\n\n    - `disableOutputLane` is a vector mask for selective output\n      * vector<4 x i32> when ctaGroup is CTA_1\n      * vector<8 x i32> when ctaGroup is CTA_2\n\n    Required Attributes:\n    - `kind` is a Tcgen05MMAKind attribute\n\n    - `ctaGroup` specifies CTA group configuration\n      * cta_1: MMA will be performed on the current thread's CTA\n      * cta_2: MMA will be performed on the current thread and it's peer CTA\n\n    Default Attributes:\n    - collectorOp is a Tcgen05MMACollectorOp attribute with matrix A as the collector buffer\n\n    - `aShift` shifts the rows of the A matrix down by one row and can only be\n       applied if A is in tensor memory\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-mma-instructions-mma)",
+    "description": "The `tcgen05.mma` operation is an asynchronous tensor core instruction that\n    performs matrix multiplication, accumulation in a single fused operation. It\n    targets 5th-generation tensor cores, providing developers with fine-grained\n    control over execution and scheduling.\n\n    ```\n    D = A * B + (D * 2^ -scaleInputD)    // if `scaleInputD` is provided\n    D = A * B                            // if `enableInputD` is false\n    D = A * B + D                        // otherwise\n    ```\n\n    where:\n    - A is an `M x K` matrix in tensor memory or described using shared memory descriptor\n    - B is a `K x N` matrix described using shared memory descriptor\n    - D is an `M x N` accumulator matrix in tensor memory\n\n    The `shared memory descriptor` can be generated using `tcgen05.mma_smem_desc` Op\n\n    - idesc is a 32-bit value representing the [Instruction Descriptor](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-instruction-descriptor)\n\n    Optional Operands:\n    - `scaleInputD` is an Immediate value operand used for scaling D matrix by 2 ^ (-scaleInputD). The valid range is [0, 15]\n\n    - `disableOutputLane` is a vector mask for selective output\n      * vector<4 x i32> when ctaGroup is CTA_1\n      * vector<8 x i32> when ctaGroup is CTA_2\n\n    Required Attributes:\n    - `kind` is a Tcgen05MMAKind attribute\n\n    - `ctaGroup` specifies CTA group configuration\n      * cta_1: MMA will be performed on the current thread's CTA\n      * cta_2: MMA will be performed on the current thread and it's peer CTA\n\n    Default Attributes:\n    - collectorOp is a Tcgen05MMACollectorOp attribute with matrix A as the collector buffer\n    - collectorOpB is a Tcgen05MMACollectorOp attribute with matrix B as the collector buffer\n\n    - `aShift` shifts the rows of the A matrix down by one row and can only be\n       applied if A is in tensor memory\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-mma-instructions-mma)",
     "operands": [
       { "name": "matrixD", "type": "LLVM_PointerTensor" },
       { "name": "matrixA", "type": "AnyTypeOf<[LLVM_PointerTensor, I64]>" },
@@ -35250,6 +35255,7 @@
       { "name": "kind", "type": "Tcgen05MMANonBlockScaleKindAttr" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
+      { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "aShift", "type": "UnitAttr" }
     ],
     "traits": [
@@ -35277,7 +35283,7 @@
   {
     "name": "nvvm.tcgen05.mma.block_scale",
     "summary": "Performs block scaled MMA operation on 5th-gen tensor cores",
-    "description": "The `tcgen05.mma.block_scale` operation is an asynchronous tensor core instruction\n    that performs matrix multiplication, accumulation with block scaling in a\n    single fused operation. It targets 5th-generation tensor cores, providing\n    developers with fine-grained control over execution and scheduling.\n\n    ```\n    D = (A * scale_a)  * (B * scale_b)`      // if `enableInputD` is false\n    D = (A * scale_a)  * (B * scale_b) + D`\n    ```\n\n    where:\n    - A is an M x (K / 2) matrix in tensor memory or described using shared memory descriptor\n    - B is a K x N matrix described using shared memory descriptor\n    - D is an M x N accumulator matrix in tensor memory\n    - `scale_a` and `scale_b` are matrices in tensor memory used to scale `A` and `B` respectively\n\n    The `shared memory descriptor` can be generated using `tcgen05.mma_smem_desc` Op\n\n    - `idesc` is a 32 bit value representing the [Instruction Descriptor](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-instruction-descriptor)\n\n    Required Attributes:\n    - `kind` is a Tcgen05MMAKind attribute restricted to mxf8f6f4, mxf4, or mxf4nvf4\n\n    - `ctaGroup` specifies CTA group configuration\n      * cta_1: MMA will be performed on the current thread's CTA\n      * cta_2: MMA will be performed on the current thread and it's peer CTA\n\n    Default Attributes:\n    - collectorOp is a Tcgen05MMACollectorOp attribute with matrix A as the collector buffer\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-mma-instructions-mma)",
+    "description": "The `tcgen05.mma.block_scale` operation is an asynchronous tensor core instruction\n    that performs matrix multiplication, accumulation with block scaling in a\n    single fused operation. It targets 5th-generation tensor cores, providing\n    developers with fine-grained control over execution and scheduling.\n\n    ```\n    D = (A * scale_a)  * (B * scale_b)`      // if `enableInputD` is false\n    D = (A * scale_a)  * (B * scale_b) + D`\n    ```\n\n    where:\n    - A is an M x (K / 2) matrix in tensor memory or described using shared memory descriptor\n    - B is a K x N matrix described using shared memory descriptor\n    - D is an M x N accumulator matrix in tensor memory\n    - `scale_a` and `scale_b` are matrices in tensor memory used to scale `A` and `B` respectively\n\n    The `shared memory descriptor` can be generated using `tcgen05.mma_smem_desc` Op\n\n    - `idesc` is a 32 bit value representing the [Instruction Descriptor](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-instruction-descriptor)\n\n    Required Attributes:\n    - `kind` is a Tcgen05MMAKind attribute restricted to mxf8f6f4, mxf4, or mxf4nvf4\n\n    - `ctaGroup` specifies CTA group configuration\n      * cta_1: MMA will be performed on the current thread's CTA\n      * cta_2: MMA will be performed on the current thread and it's peer CTA\n\n    Default Attributes:\n    - collectorOp is a Tcgen05MMACollectorOp attribute with matrix A as the collector buffer\n    - collectorOpB is a Tcgen05MMACollectorOp attribute with matrix B as the collector buffer\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-mma-instructions-mma)",
     "operands": [
       { "name": "matrixD", "type": "LLVM_PointerTensor" },
       { "name": "matrixA", "type": "AnyTypeOf<[LLVM_PointerTensor, I64]>" },
@@ -35291,7 +35297,8 @@
       { "name": "kind", "type": "Tcgen05MMABlockScaleKindAttr" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "blockScale", "type": "DefaultValuedAttr<Tcgen05MMABlockScaleAttr{default|block16|block32}, Tcgen05MMABlockScale::DEFAULT>" },
-      { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
+      { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
+      { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
     "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $scaleA `,` $scaleB attr-dict `:` `(` type(operands) `)`"
   },
@@ -35313,6 +35320,7 @@
       { "name": "kind", "type": "Tcgen05MMANonBlockScaleKindAttr" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
+      { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "aShift", "type": "UnitAttr" }
     ],
     "traits": [
@@ -35338,7 +35346,8 @@
       { "name": "kind", "type": "Tcgen05MMABlockScaleKindAttr" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "blockScale", "type": "DefaultValuedAttr<Tcgen05MMABlockScaleAttr{default|block16|block32}, Tcgen05MMABlockScale::DEFAULT>" },
-      { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
+      { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
+      { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
     "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata `,` $scaleA `,` $scaleB attr-dict `:` `(` type(operands) `)`"
   },
@@ -35866,14 +35875,15 @@
   {
     "name": "omp.atomic.compare",
     "summary": "performs an atomic compare",
-    "description": "This operation performs an atomic compare-and-swap.\n\n    The `atomic compare` construct implements atomic conditional update\n    semantics. The operand `x` is the address of the variable that is being\n    compared and potentially updated. The region describes the comparison\n    and update logic.\n\n    The region has the following structure:\n    ```\n      omp.atomic.compare {\n        if (x == d) x = e\n        omp.yield\n      }\n    ````hint` is the value of hint (as specified in the hint clause). It is a\n    compile time constant. As the name suggests, this is just a hint for\n    optimization.`memory_order` indicates the memory ordering behavior of the construct. It\n    can be one of `seq_cst`, `acq_rel`, `release`, `acquire` or `relaxed`.",
+    "description": "This operation performs an atomic compare-and-swap.\n\n    The `atomic compare` construct implements atomic conditional update\n    semantics. The operand `x` is the address of the variable that is being\n    compared and potentially updated. The region describes the comparison\n    and update logic.\n\n    The region has the following structure:\n    ```\n      omp.atomic.compare {\n        if (x == d) x = e\n        omp.yield\n      }\n    ```\n\n    The optional `fail_memory_order` attribute specifies the memory ordering\n    to use for the comparison when the atomic conditional update fails (i.e.\n    the value of `x` is not updated). It corresponds to the OpenMP `fail`\n    clause and overrides the failure ordering that would otherwise be derived\n    from the construct's memory ordering.`hint` is the value of hint (as specified in the hint clause). It is a\n    compile time constant. As the name suggests, this is just a hint for\n    optimization.`memory_order` indicates the memory ordering behavior of the construct. It\n    can be one of `seq_cst`, `acq_rel`, `release`, `acquire` or `relaxed`.",
     "operands": [
       { "name": "x", "type": "OpenMP_PointerLikeType" }
     ],
     "attributes": [
       { "name": "weak", "type": "UnitAttr" },
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" },
+      { "name": "fail_memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
     ],
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
@@ -136040,6 +136050,30 @@
       { "type": "AllTypesMatch<['src', 'result']>" }
     ],
     "assemblyFormat": "$src`:` type($src) attr-dict"
+  },
+  {
+    "name": "wasmssa.trunc_sat_si",
+    "summary": "Truncate floating point value to signed integer, saturating.\n\n    Consume a floating point value and produces an unsigned integer holding the value truncated toward zero.\n    NaN is mapped to 0, infinities are mapped to minimal and maximal representable values.\n    Normal values are clamped to the representable range and truncated.",
+    "description": "Example:\n\n     ```mlir\n     %a = wasmssa.trunc_sat_si %b : f32 to i32\n     ```",
+    "operands": [
+      { "name": "input", "type": "AnyTypeOf<[WasmSSA_FPType]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTypeOf<[WasmSSA_IntegerType]>" }
+    ],
+    "assemblyFormat": "$input `:` type($input) `to` type($result)  attr-dict"
+  },
+  {
+    "name": "wasmssa.trunc_sat_ui",
+    "summary": "Truncate floating point value to unsigned integer, saturating.\n\n    Consume a floating point value and produces an unsigned integer holding the value truncated toward zero.\n    Negative infinity and NaN are mapped to 0, positive infinity is mapped to maximal representable values.\n    Normal values are clamped to the representable range and truncated.",
+    "description": "Example:\n\n     ```mlir\n     %a = wasmssa.trunc_sat_ui %b : f32 to i32\n     ```",
+    "operands": [
+      { "name": "input", "type": "AnyTypeOf<[WasmSSA_FPType]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTypeOf<[WasmSSA_IntegerType]>" }
+    ],
+    "assemblyFormat": "$input `:` type($input) `to` type($result)  attr-dict"
   },
   {
     "name": "wasmssa.trunc_si",
