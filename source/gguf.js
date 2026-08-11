@@ -134,30 +134,30 @@ gguf.Graph = class {
                 const hasMoe = has('ffn_gate_inp');
                 const hasFusedExps = has('ffn_gate_up_exps') && has('ffn_down_exps');
                 const hasFfn = has('ffn_up') || hasMoe;
-                const buildLinearFfn = (input, gateKey, upKey, downKey) => {
+                const buildLinearFfn = (input, gateKey, upKey, downKey, route = null) => {
                     if (!has(downKey)) {
                         return input;
                     }
                     const inputs = [input];
                     if (has(gateKey)) {
                         const g = newValue();
-                        addNode(use(gateKey), [input], g);
+                        addNode(use(gateKey), route ? [input, route] : [input], g);
                         inputs.push(g);
                     }
                     if (has(upKey)) {
                         const u = newValue();
-                        addNode(use(upKey), [input], u);
+                        addNode(use(upKey), route ? [input, route] : [input], u);
                         inputs.push(u);
                     }
                     const d = newValue();
-                    addNode(use(downKey), inputs, d);
+                    addNode(use(downKey), route ? [...inputs, route] : inputs, d);
                     return d;
                 };
-                const buildFusedExpsFfn = (input) => {
+                const buildFusedExpsFfn = (input, route = null) => {
                     const gu = newValue();
-                    addNode(use('ffn_gate_up_exps'), [input], gu);
+                    addNode(use('ffn_gate_up_exps'), route ? [input, route] : [input], gu);
                     const d = newValue();
-                    addNode(use('ffn_down_exps'), [gu], d);
+                    addNode(use('ffn_down_exps'), route ? [gu, route] : [gu], d);
                     return d;
                 };
                 const applyNorm = (groupName, value) => {
@@ -180,9 +180,21 @@ gguf.Graph = class {
                             addNode(use('exp_probs_b'), [g1], biased);
                             g1 = biased;
                         }
+                        let expertInput = moeInput;
+                        if (has('ffn_latent_down')) {
+                            const latent = newValue();
+                            addNode(use('ffn_latent_down'), [moeInput], latent);
+                            expertInput = latent;
+                        }
+                        const hasLatent = has('ffn_latent_down') || has('ffn_latent_up');
                         let moeOut = hasFusedExps ?
-                            buildFusedExpsFfn(g1) :
-                            buildLinearFfn(g1, 'ffn_gate_exps', 'ffn_up_exps', 'ffn_down_exps');
+                            buildFusedExpsFfn(hasLatent ? expertInput : g1, hasLatent ? g1 : null) :
+                            buildLinearFfn(hasLatent ? expertInput : g1, 'ffn_gate_exps', 'ffn_up_exps', 'ffn_down_exps', hasLatent ? g1 : null);
+                        if (has('ffn_latent_up')) {
+                            const latent = newValue();
+                            addNode(use('ffn_latent_up'), [moeOut], latent);
+                            moeOut = latent;
+                        }
                         moeOut = applyNorm('ffn_post_norm_2', moeOut);
                         if (has('ffn_up_shexp')) {
                             const sharedOut = buildLinearFfn(input, 'ffn_gate_shexp', 'ffn_up_shexp', 'ffn_down_shexp');
@@ -359,6 +371,22 @@ gguf.Graph = class {
                         cur = n2;
                     }
                     prevValue = cur;
+                } else if (has('attn_norm') && has('attention') && !hasFfn) {
+                    // Attention-only residual block (Nemotron-H and similar hybrids).
+                    const inp = prevValue || newValue();
+                    const n1 = newValue();
+                    addNode(use('attn_norm'), [inp], n1);
+                    const a1 = newValue();
+                    buildAttention(n1, a1);
+                    let preAdd = a1;
+                    if (has('attn_post_norm')) {
+                        const pn = newValue();
+                        addNode(use('attn_post_norm'), [a1], pn);
+                        preAdd = pn;
+                    }
+                    const out = newValue();
+                    addOp('ADD', [preAdd, inp], out);
+                    prevValue = out;
                 } else if (has('attn_norm') && has('ssm') && hasFfn) {
                     // SSM + FFN (hybrid SSM-variant block: jamba, granitehybrid, etc.)
                     const inp = prevValue || newValue();
@@ -400,6 +428,21 @@ gguf.Graph = class {
                     const r1 = newValue();
                     addOp('ADD', [s1, inp], r1);
                     prevValue = r1;
+                } else if (has('attn_norm') && !has('attention') && !has('cross_attention') && !has('ssm') && hasFfn) {
+                    // FFN-only residual block (Nemotron-H and similar hybrids).
+                    const inp = prevValue || newValue();
+                    const n1 = newValue();
+                    addNode(use('attn_norm'), [inp], n1);
+                    const f1 = buildFfn(n1);
+                    let preAdd = f1;
+                    if (has('ffn_post_norm')) {
+                        const pn = newValue();
+                        addNode(use('ffn_post_norm'), [f1], pn);
+                        preAdd = pn;
+                    }
+                    const out = newValue();
+                    addOp('ADD', [preAdd, inp], out);
+                    prevValue = out;
                 } else if (has('attn_norm') && has('time_mix') && has('channel_mix')) {
                     // RWKV
                     const inp = prevValue || newValue();
@@ -880,6 +923,51 @@ gguf.Context = class {
         const blockCountEntry = metadata.get(`${architecture}.block_count`);
         this._blockCount = (blockCountEntry && blockCountEntry.value) || 0;
         this._blockTypes = new Map();
+        this._typeAttributes = new Map([
+            ['RMS_NORM',                [{ key: 'attention.layer_norm_rms_epsilon', name: 'epsilon' }]],
+            ['LAYER_NORM',              [{ key: 'attention.layer_norm_epsilon',     name: 'epsilon' }]],
+            ['MULTI_HEAD_ATTENTION',    [
+                { key: 'attention.head_count',     name: 'head_count' },
+                { key: 'attention.head_count_kv',  name: 'head_count_kv' },
+                { key: 'attention.key_length',     name: 'key_length' },
+                { key: 'attention.value_length',   name: 'value_length' },
+                { key: 'attention.sliding_window', name: 'sliding_window' }
+            ]],
+            ['MULTI_LATENT_ATTENTION',  [
+                { key: 'attention.head_count',       name: 'head_count' },
+                { key: 'attention.head_count_kv',    name: 'head_count_kv' },
+                { key: 'attention.q_lora_rank',      name: 'q_lora_rank' },
+                { key: 'attention.kv_lora_rank',     name: 'kv_lora_rank' },
+                { key: 'attention.key_length_mla',   name: 'key_length_mla' },
+                { key: 'attention.value_length_mla', name: 'value_length_mla' }
+            ]],
+            ['CROSS_ATTENTION',         [
+                { key: 'attention.head_count',    name: 'head_count' },
+                { key: 'attention.head_count_kv', name: 'head_count_kv' },
+                { key: 'attention.key_length',    name: 'key_length' },
+                { key: 'attention.value_length',  name: 'value_length' }
+            ]],
+            ['ROPE_FREQS',              [
+                { key: 'rope.dimension_count',                name: 'dimension_count' },
+                { key: 'rope.freq_base',                      name: 'freq_base' },
+                { key: 'rope.scaling.type',                   name: 'scaling_type' },
+                { key: 'rope.scaling.factor',                 name: 'scaling_factor' },
+                { key: 'rope.scaling.original_context_length', name: 'original_context_length' }
+            ]],
+            ['MAMBA',                   [
+                { key: 'ssm.state_size',     name: 'state_size' },
+                { key: 'ssm.conv_kernel',    name: 'conv_kernel' },
+                { key: 'ssm.inner_size',     name: 'inner_size' },
+                { key: 'ssm.time_step_rank', name: 'time_step_rank' }
+            ]],
+            ['MAMBA2',                  [
+                { key: 'ssm.state_size',  name: 'state_size' },
+                { key: 'ssm.conv_kernel', name: 'conv_kernel' },
+                { key: 'ssm.inner_size',  name: 'inner_size' },
+                { key: 'ssm.group_count', name: 'group_count' }
+            ]],
+            ['CONV_1D',                 [{ key: 'shortconv.l_cache', name: 'l_cache' }]]
+        ]);
         // Classifier rules are derived from this arch's `blocks` entries:
         // each entry's `name` and its `tensors` aliases are prefixes that route
         // to the entry's `name` as the group label. Matching is strict
@@ -968,7 +1056,7 @@ gguf.Context = class {
             // the type-default list. `attributes: []` opts a component out of
             // per-node KV synthesis. Each entry is `{ key, name }` (display
             // label) or a bare string (label derived from the key's last segment).
-            const entries = Array.isArray(block.attributes) ? block.attributes : (gguf.Context._typeAttributes.get(block.type) || []);
+            const entries = Array.isArray(block.attributes) ? block.attributes : (this._typeAttributes.get(block.type) || []);
             const metadata = new Map();
             for (const entry of entries) {
                 const label = entry.name;
@@ -1156,55 +1244,6 @@ gguf.Context = class {
         return 'other';
     }
 };
-
-// Per-node attribute defaults keyed by node type. A component's `attributes`
-// field in `gguf-metadata.json` overrides this; absence falls through to
-// these defaults. Only KV keys actually present in the file resolve to values.
-gguf.Context._typeAttributes = new Map([
-    ['RMS_NORM',                [{ key: 'attention.layer_norm_rms_epsilon', name: 'epsilon' }]],
-    ['LAYER_NORM',              [{ key: 'attention.layer_norm_epsilon',     name: 'epsilon' }]],
-    ['MULTI_HEAD_ATTENTION',    [
-        { key: 'attention.head_count',     name: 'head_count' },
-        { key: 'attention.head_count_kv',  name: 'head_count_kv' },
-        { key: 'attention.key_length',     name: 'key_length' },
-        { key: 'attention.value_length',   name: 'value_length' },
-        { key: 'attention.sliding_window', name: 'sliding_window' }
-    ]],
-    ['MULTI_LATENT_ATTENTION',  [
-        { key: 'attention.head_count',       name: 'head_count' },
-        { key: 'attention.head_count_kv',    name: 'head_count_kv' },
-        { key: 'attention.q_lora_rank',      name: 'q_lora_rank' },
-        { key: 'attention.kv_lora_rank',     name: 'kv_lora_rank' },
-        { key: 'attention.key_length_mla',   name: 'key_length_mla' },
-        { key: 'attention.value_length_mla', name: 'value_length_mla' }
-    ]],
-    ['CROSS_ATTENTION',         [
-        { key: 'attention.head_count',    name: 'head_count' },
-        { key: 'attention.head_count_kv', name: 'head_count_kv' },
-        { key: 'attention.key_length',    name: 'key_length' },
-        { key: 'attention.value_length',  name: 'value_length' }
-    ]],
-    ['ROPE_FREQS',              [
-        { key: 'rope.dimension_count',                name: 'dimension_count' },
-        { key: 'rope.freq_base',                      name: 'freq_base' },
-        { key: 'rope.scaling.type',                   name: 'scaling_type' },
-        { key: 'rope.scaling.factor',                 name: 'scaling_factor' },
-        { key: 'rope.scaling.original_context_length', name: 'original_context_length' }
-    ]],
-    ['MAMBA',                   [
-        { key: 'ssm.state_size',     name: 'state_size' },
-        { key: 'ssm.conv_kernel',    name: 'conv_kernel' },
-        { key: 'ssm.inner_size',     name: 'inner_size' },
-        { key: 'ssm.time_step_rank', name: 'time_step_rank' }
-    ]],
-    ['MAMBA2',                  [
-        { key: 'ssm.state_size',  name: 'state_size' },
-        { key: 'ssm.conv_kernel', name: 'conv_kernel' },
-        { key: 'ssm.inner_size',  name: 'inner_size' },
-        { key: 'ssm.group_count', name: 'group_count' }
-    ]],
-    ['CONV_1D',                 [{ key: 'shortconv.l_cache', name: 'l_cache' }]]
-]);
 
 gguf.Error = class extends Error {
 
