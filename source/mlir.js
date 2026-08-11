@@ -25017,10 +25017,11 @@ _.TransformDialect = class extends _.Dialect {
         }
     }
 
-    parsePackedOrDynamicIndexList(parser, op, packedName, dynamicName, staticAttrName) {
+    parsePackedOrDynamicIndexList(parser, op, packedName, dynamicName, staticAttrName, scalableAttrName) {
         const dynamicOperands = [];
         const dynamicTypes = [];
         const staticValues = [];
+        const scalableFlags = [];
         let packedOperand = null;
 
         // Check for packed syntax: *(%operand)
@@ -25031,6 +25032,7 @@ _.TransformDialect = class extends _.Dialect {
         } else if (parser.parseOptionalLSquare()) {
             // List syntax: [int, %operand, int, ...]
             while (!parser.parseOptionalRSquare()) {
+                const isScalable = parser.parseOptionalLSquare();
                 const __dynOp = parser.parseOptionalOperand();
                 if (__dynOp) {
                     dynamicOperands.push(__dynOp);
@@ -25047,6 +25049,10 @@ _.TransformDialect = class extends _.Dialect {
                     }
                     staticValues.push(__intVal);
                 }
+                scalableFlags.push(isScalable);
+                if (isScalable) {
+                    parser.parseRSquare();
+                }
                 parser.parseOptionalComma();
             }
         }
@@ -25061,6 +25067,9 @@ _.TransformDialect = class extends _.Dialect {
         }
         if (staticAttrName && staticValues.length > 0) {
             op.addAttribute(staticAttrName, staticValues);
+        }
+        if (scalableAttrName && scalableFlags.some((flag) => flag)) {
+            op.addAttribute(scalableAttrName, scalableFlags);
         }
     }
 

@@ -28369,7 +28369,7 @@
   {
     "name": "memref.reinterpret_cast",
     "summary": "memref reinterpret cast operation",
-    "description": "Modify offset, sizes and strides of an unranked/ranked memref.\n\n    Example 1:\n\n    Consecutive `reinterpret_cast` operations on memref's with static\n    dimensions.\n\n    We distinguish between *underlying memory* — the sequence of elements as\n    they appear in the contiguous memory of the memref — and the\n    *strided memref*, which refers to the underlying memory interpreted\n    according to specified offsets, sizes, and strides.\n\n    ```mlir\n    %result1 = memref.reinterpret_cast %arg0 to\n      offset: [9],\n      sizes: [4, 4],\n      strides: [16, 2]\n    : memref<8x8xf32, strided<[8, 1], offset: 0>> to\n      memref<4x4xf32, strided<[16, 2], offset: 9>>\n\n    %result2 = memref.reinterpret_cast %result1 to\n      offset: [0],\n      sizes: [2, 2],\n      strides: [4, 2]\n    : memref<4x4xf32, strided<[16, 2], offset: 9>> to\n      memref<2x2xf32, strided<[4, 2], offset: 0>>\n    ```\n\n    The underlying memory of `%arg0` consists of a linear sequence of integers\n    from 1 to 64. Its memref has the following 8x8 elements:\n\n    ```mlir\n    [[1,  2,  3,  4,  5,  6,  7,  8],\n    [9,  10, 11, 12, 13, 14, 15, 16],\n    [17, 18, 19, 20, 21, 22, 23, 24],\n    [25, 26, 27, 28, 29, 30, 31, 32],\n    [33, 34, 35, 36, 37, 38, 39, 40],\n    [41, 42, 43, 44, 45, 46, 47, 48],\n    [49, 50, 51, 52, 53, 54, 55, 56],\n    [57, 58, 59, 60, 61, 62, 63, 64]]\n    ```\n\n    Following the first `reinterpret_cast`, the strided memref elements\n    of `%result1` are:\n\n    ```mlir\n    [[10, 12, 14, 16],\n    [26, 28, 30, 32],\n    [42, 44, 46, 48],\n    [58, 60, 62, 64]]\n    ```\n\n    Note: The offset and strides are relative to the underlying memory of\n    `%arg0`.\n\n    The second `reinterpret_cast` results in the following strided memref\n    for `%result2`:\n\n    ```mlir\n    [[1, 3],\n    [5, 7]]\n    ```\n\n    Notice that it does not matter if you use %result1 or %arg0 as a source\n    for the second `reinterpret_cast` operation. Only the underlying memory\n    pointers will be reused.\n\n    The offset and stride are relative to the base underlying memory of the\n    memref, starting at 1, not at 10 as seen in the output of `%result1`.\n    This behavior contrasts with the `subview` operator, where values are\n    relative to the strided memref (refer to `subview` examples).\n    Consequently, the second `reinterpret_cast` behaves as if `%arg0` were\n    passed directly as its argument.\n\n    Example 2:\n    ```mlir\n    memref.reinterpret_cast %ranked to\n      offset: [0],\n      sizes: [%size0, 10],\n      strides: [1, %stride1]\n    : memref<?x?xf32> to memref<?x10xf32, strided<[1, ?], offset: 0>>\n\n    memref.reinterpret_cast %unranked to\n      offset: [%offset],\n      sizes: [%size0, %size1],\n      strides: [%stride0, %stride1]\n    : memref<*xf32> to memref<?x?xf32, strided<[?, ?], offset: ?>>\n    ```\n\n    This operation creates a new memref descriptor using the base of the\n    source and applying the input arguments to the other metadata.\n    In other words:\n    ```mlir\n    %dst = memref.reinterpret_cast %src to\n      offset: [%offset],\n      sizes: [%sizes],\n      strides: [%strides] :\n      memref<*xf32> to memref<?x?xf32, strided<[?, ?], offset: ?>>\n    ```\n    means that `%dst`'s descriptor will be:\n    ```mlir\n    %dst.base = %src.base\n    %dst.aligned = %src.aligned\n    %dst.offset = %offset\n    %dst.sizes = %sizes\n    %dst.strides = %strides\n    ```",
+    "description": "Modify offset, sizes and strides of an unranked/ranked memref.\n\n    Example 1:\n\n    Consecutive `reinterpret_cast` operations on memref's with static\n    dimensions.\n\n    This operation is intended for cases where the user can guarantee the\n    validity of the constructed descriptor. Neither static nor runtime\n    verification check that the resulting descriptor is in-bounds. Accessing\n    memory outside the underlying allocation through the resulting memref is\n    undefined behavior.\n\n    We distinguish between *underlying memory* — the sequence of elements as\n    they appear in the contiguous memory of the memref — and the\n    *strided memref*, which refers to the underlying memory interpreted\n    according to specified offsets, sizes, and strides.\n\n    ```mlir\n    %result1 = memref.reinterpret_cast %arg0 to\n      offset: [9],\n      sizes: [4, 4],\n      strides: [16, 2]\n    : memref<8x8xf32, strided<[8, 1], offset: 0>> to\n      memref<4x4xf32, strided<[16, 2], offset: 9>>\n\n    %result2 = memref.reinterpret_cast %result1 to\n      offset: [0],\n      sizes: [2, 2],\n      strides: [4, 2]\n    : memref<4x4xf32, strided<[16, 2], offset: 9>> to\n      memref<2x2xf32, strided<[4, 2], offset: 0>>\n    ```\n\n    The underlying memory of `%arg0` consists of a linear sequence of integers\n    from 1 to 64. Its memref has the following 8x8 elements:\n\n    ```mlir\n    [[1,  2,  3,  4,  5,  6,  7,  8],\n    [9,  10, 11, 12, 13, 14, 15, 16],\n    [17, 18, 19, 20, 21, 22, 23, 24],\n    [25, 26, 27, 28, 29, 30, 31, 32],\n    [33, 34, 35, 36, 37, 38, 39, 40],\n    [41, 42, 43, 44, 45, 46, 47, 48],\n    [49, 50, 51, 52, 53, 54, 55, 56],\n    [57, 58, 59, 60, 61, 62, 63, 64]]\n    ```\n\n    Following the first `reinterpret_cast`, the strided memref elements\n    of `%result1` are:\n\n    ```mlir\n    [[10, 12, 14, 16],\n    [26, 28, 30, 32],\n    [42, 44, 46, 48],\n    [58, 60, 62, 64]]\n    ```\n\n    Note: The offset and strides are relative to the underlying memory of\n    `%arg0`.\n\n    The second `reinterpret_cast` results in the following strided memref\n    for `%result2`:\n\n    ```mlir\n    [[1, 3],\n    [5, 7]]\n    ```\n\n    Notice that it does not matter if you use %result1 or %arg0 as a source\n    for the second `reinterpret_cast` operation. Only the underlying memory\n    pointers will be reused.\n\n    The offset and stride are relative to the base underlying memory of the\n    memref, starting at 1, not at 10 as seen in the output of `%result1`.\n    This behavior contrasts with the `subview` operator, where values are\n    relative to the strided memref (refer to `subview` examples).\n    Consequently, the second `reinterpret_cast` behaves as if `%arg0` were\n    passed directly as its argument.\n\n    Example 2:\n    ```mlir\n    memref.reinterpret_cast %ranked to\n      offset: [0],\n      sizes: [%size0, 10],\n      strides: [1, %stride1]\n    : memref<?x?xf32> to memref<?x10xf32, strided<[1, ?], offset: 0>>\n\n    memref.reinterpret_cast %unranked to\n      offset: [%offset],\n      sizes: [%size0, %size1],\n      strides: [%stride0, %stride1]\n    : memref<*xf32> to memref<?x?xf32, strided<[?, ?], offset: ?>>\n    ```\n\n    This operation creates a new memref descriptor using the base of the\n    source and applying the input arguments to the other metadata.\n    In other words:\n    ```mlir\n    %dst = memref.reinterpret_cast %src to\n      offset: [%offset],\n      sizes: [%sizes],\n      strides: [%strides] :\n      memref<*xf32> to memref<?x?xf32, strided<[?, ?], offset: ?>>\n    ```\n    means that `%dst`'s descriptor will be:\n    ```mlir\n    %dst.base = %src.base\n    %dst.aligned = %src.aligned\n    %dst.offset = %offset\n    %dst.sizes = %sizes\n    %dst.strides = %strides\n    ```",
     "operands": [
       { "name": "source", "type": "AnyRankedOrUnrankedMemRef" },
       { "name": "offsets", "type": "Variadic<Index>" },
@@ -45170,13 +45170,13 @@
     "operands": [
       { "name": "base", "type": "LLVM_AnyPointer" },
       { "name": "stride", "type": "I16" },
-      { "name": "numRecords", "type": "I64" },
+      { "name": "numRecords", "type": "AnySignlessInteger" },
       { "name": "flags", "type": "I32" }
     ],
     "results": [
       { "name": "res", "type": "LLVM_AnyPointer" }
     ],
-    "assemblyFormat": "operands attr-dict `:` type($base) `to` type($res)"
+    "assemblyFormat": "operands attr-dict `:` type($base) `,` type($numRecords) `to` type($res)"
   },
   {
     "name": "rocdl.mbcnt.hi",
@@ -46715,7 +46715,7 @@
   },
   {
     "name": "rocdl.sched.barrier",
-    "description": "Insert a scheduling barrier with the given mask. The mask is a\n    bitfield that controls which instruction types may be scheduled\n    across the barrier. The mask values mirror the `llvm.amdgcn.sched.barrier`\n    intrinsic's documented mask values and the AMDGPU backend's\n    `SchedGroupMask` enum.\n\n    Example:\n    ```mlir\n    // Scheduling barrier with no instructions allowed to cross.\n    rocdl.sched.barrier none\n\n    // Allow VALU and all VMEM instructions to cross.\n    rocdl.sched.barrier valu|all_vmem\n    ```",
+    "description": "Insert a scheduling barrier with the given mask. The mask is a\n    bitfield that controls which instruction types may be scheduled\n    across the barrier. The mask values mirror the `llvm.amdgcn.sched.barrier`\n    intrinsic's documented mask values and the AMDGPU backend's\n    `SchedGroupMask` enum.\n\n    `all_vmem` and `all_ds` are supersets that also include LDSDMA\n    instructions, while `vmem_read`, `vmem_write`, `ds_read`, and `ds_write`\n    do not.\n\n    Example:\n    ```mlir\n    // Scheduling barrier with no instructions allowed to cross.\n    rocdl.sched.barrier none\n\n    // Allow VALU and all VMEM instructions to cross.\n    rocdl.sched.barrier valu|all_vmem\n    ```",
     "attributes": [
       { "name": "mask", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all}" }
     ],
@@ -101794,6 +101794,18 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "torch.aten.repeat_interleave.Tensor",
+    "summary": "Generated op for `aten::repeat_interleave.Tensor : (Tensor, int?) -> (Tensor)`",
+    "operands": [
+      { "name": "repeats", "type": "AnyTorchTensorType" },
+      { "name": "output_size", "type": "AnyTorchOptionalIntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchOptionalTensorType" }
+    ],
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "torch.aten.replication_pad1d",
     "summary": "Generated op for `aten::replication_pad1d : (Tensor, int[]) -> (Tensor)`",
     "operands": [
@@ -114127,10 +114139,13 @@
   },
   {
     "name": "transform.structured.tile_using_for",
-    "description": "Indicates that the given `target` op should be tiled with the given sizes.\n    This transform generates a loop nest with a smaller (\"tiled\") target\n    operation in its body. Currently limited to LinalgOps.\n\n    Tile sizes may be known at transformation time, in which case they are\n    expected to be provided in the `static_size` attribute, or not, in which\n    case the tile value must be computed by the payload IR and the handle to the\n    operation computing it must be provided through `dynamic_sizes`. When the\n    sizes are not known statically, the corresponding entry in the\n    `static_sizes` attribute must be set to `ShapedType::kDynamic`. Only\n    the dynamic sizes must be provided in `dynamic_sizes`, i.e., there should\n    be as many handles as `ShapedType::kDynamic` values in the\n    `static_sizes` attribute. A static size of `0` indicates that the dimension\n    should not be tiled. No loop will be generated for such dimensions. If all\n    tile sizes are `0`, this transform is effectively a no-op.\n\n    This op returns handles to the tiled op (in the generated loop nest) and the\n    generated loops. The number of loops is the number of tile sizes that are\n    statically known to be non-zero.\n\n    #### Return modes\n\n    On success, the resulting handles are associated with co-indexed lists of\n    tiled operations and loops around them.\n\n    This operation only supports Linalg ops and produces a silenceable failure\n    if the input contains any non-Linalg ops. The ops preceding it in the list\n    associated with the `target` handle will have been tiled.\n\n    This operation produces a silenceable failure if the `dynamic_sizes` handles\n    are associated with lists of payload operations of a size different than\n    that of the list associated with the `target` handle.\n\n    If the internal implementation of tiling for any of the operations fails,\n    produces a definite failure.\n\n    The optional `inner_tile_alignments` attribute forwards a per-dimension\n    `InnerTileAlignment` hint to the tiling driver for pack/unpack tiling.\n    These are only used to hint alignment or equality between the pack/unpack\n    operations inner tile sizes, and the loop tile sizes. No other operation\n    needs them.",
+    "description": "Indicates that the given `target` op should be tiled with the given sizes.\n    This transform generates a loop nest with a smaller (\"tiled\") target\n    operation in its body. Currently limited to LinalgOps.\n\n    Tile sizes may be known at transformation time, in which case they are\n    expected to be provided in the `static_size` attribute, or not, in which\n    case the tile value must be computed by the payload IR and the handle to the\n    operation computing it must be provided through `dynamic_sizes`. When the\n    sizes are not known statically, the corresponding entry in the\n    `static_sizes` attribute must be set to `ShapedType::kDynamic`. Only\n    the dynamic sizes must be provided in `dynamic_sizes`, i.e., there should\n    be as many handles as `ShapedType::kDynamic` values in the\n    `static_sizes` attribute. A static size of `0` indicates that the dimension\n    should not be tiled. No loop will be generated for such dimensions. If all\n    tile sizes are `0`, this transform is effectively a no-op.\n\n    This op returns handles to the tiled op (in the generated loop nest) and the\n    generated loops. The number of loops is the number of tile sizes that are\n    statically known to be non-zero.\n\n    Additionally, tile sizes can also be provided as a single handle containing\n    variadic number of values. In that case, all created loops are assigned to\n    a single return handle. For each target, corresponding loops are appended\n    to the return handle in the same order as target operations.\n\n    Loop interchange permutation can be provided as either static attributes,\n    dynamic values or a single handle containing variadic number of values.\n\n    #### Return modes\n\n    On success, the resulting handles are associated with co-indexed lists of\n    tiled operations and loops around them.\n\n    This operation only supports Linalg ops and produces a silenceable failure\n    if the input contains any non-Linalg ops. The ops preceding it in the list\n    associated with the `target` handle will have been tiled.\n\n    This operation produces a silenceable failure if the `dynamic_sizes` handles\n    are associated with lists of payload operations of a size different than\n    that of the list associated with the `target` handle.\n\n    If the internal implementation of tiling for any of the operations fails,\n    produces a definite failure.\n\n    The optional `inner_tile_alignments` attribute forwards a per-dimension\n    `InnerTileAlignment` hint to the tiling driver for pack/unpack tiling.\n    These are only used to hint alignment or equality between the pack/unpack\n    operations inner tile sizes, and the loop tile sizes. No other operation\n    needs them.",
     "operands": [
       { "name": "target", "type": "TransformHandleTypeInterface" },
-      { "name": "dynamic_sizes", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" }
+      { "name": "dynamic_sizes", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" },
+      { "name": "interchange", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" },
+      { "name": "packed_tile_sizes", "type": "Optional<TransformAnyParamTypeOrAnyHandle>" },
+      { "name": "packed_interchange", "type": "Optional<TransformAnyParamTypeOrAnyHandle>" }
     ],
     "results": [
       { "name": "tiled_linalg_op", "type": "TransformHandleTypeInterface" },
@@ -114138,11 +114153,14 @@
     ],
     "attributes": [
       { "name": "static_sizes", "type": "DefaultValuedOptionalAttr<DenseI64ArrayAttr, {}>" },
-      { "name": "interchange", "type": "DefaultValuedOptionalAttr<DenseI64ArrayAttr, {}>" },
+      { "name": "static_interchange", "type": "DefaultValuedOptionalAttr<DenseI64ArrayAttr, {}>" },
       { "name": "scalable_sizes", "type": "DefaultValuedOptionalAttr<DenseBoolArrayAttr, {}>" },
       { "name": "inner_tile_alignments", "type": "DefaultValuedOptionalAttr<DenseI64ArrayAttr, {}>" }
     ],
-    "assemblyFormat": "$target\n      `tile_sizes` custom<DynamicIndexList>(\n        $dynamic_sizes,\n        $static_sizes,\n        $scalable_sizes)\n      (`interchange` `=` $interchange^)?\n      (`inner_tile_alignments` `=`\n          custom<InnerTileAlignmentArray>($inner_tile_alignments)^)?\n    attr-dict\n    `:` functional-type(operands, results)"
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "$target\n      `tile_sizes` custom<PackedOrDynamicIndexList>(\n        $packed_tile_sizes,\n        $dynamic_sizes,\n        $static_sizes,\n        $scalable_sizes)\n      (`interchange` `=` custom<PackedOrDynamicIndexList>(\n        $packed_interchange,\n        $interchange,\n        $static_interchange)^)?\n      (`inner_tile_alignments` `=`\n          custom<InnerTileAlignmentArray>($inner_tile_alignments)^)?\n    attr-dict\n    `:` functional-type(operands, results)"
   },
   {
     "name": "transform.structured.tile_using_forall",
@@ -119246,6 +119264,29 @@
     "attributes": [
       { "name": "dim", "type": "I32Attr" },
       { "name": "scatter_reduce_type", "type": "TTCore_ReduceTypeAttr{sum|mean|max|min|std|var|prod|invalid}" }
+    ]
+  },
+  {
+    "name": "ttir.sdpa_bw",
+    "summary": "Scaled dot-product attention backward (ttml).",
+    "description": "Training-oriented fused scaled dot-product attention backward pass, backed by\n    the ttml metal op `ttml::metal::sdpa_bw`. Given the upstream gradient and the\n    forward pass tensors (output, Q, K, V and log-sum-exp intermediates), it\n    computes the gradients w.r.t. query, key and value.\n\n    Inputs:\n    - `grad_output` (Tensor): `[B x Hq x S x Dv]`, gradient w.r.t. the forward\n      output.\n    - `attn_output` (Tensor): `[B x Hq x S x Dv]`, the forward output.\n    - `query` (Tensor): `[B x Hq x S x D]`.\n    - `key` (Tensor): `[B x Hkv x S x D]`.\n    - `value` (Tensor): `[B x Hkv x S x Dv]`.\n    - `intermediates` (Tensor): `[B x Hq x S x 32]` log-sum-exp from the forward\n      pass.\n    - `attention_mask` (Optional Tensor): `[1 x 1 x S x S]`, only valid when\n      `mask_type` is `arbitrary`.\n\n    Attributes:\n    - `mask_type`: `none`, `causal` or `arbitrary` (default). `arbitrary`\n      requires `attention_mask`; `none`/`causal` forbid it.\n    - `dropout_probability`: dropout probability (currently must be 0.0).\n\n    Outputs:\n    - `grad_query` (Tensor): `[B x Hq x S x D]`.\n    - `grad_key` (Tensor): `[B x Hkv x S x D]`.\n    - `grad_value` (Tensor): `[B x Hkv x S x Dv]`.",
+    "operands": [
+      { "name": "grad_output", "type": "AnyRankedTensor" },
+      { "name": "attn_output", "type": "AnyRankedTensor" },
+      { "name": "query", "type": "AnyRankedTensor" },
+      { "name": "key", "type": "AnyRankedTensor" },
+      { "name": "value", "type": "AnyRankedTensor" },
+      { "name": "intermediates", "type": "AnyRankedTensor" },
+      { "name": "attention_mask", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "results": [
+      { "name": "grad_query", "type": "AnyRankedTensor" },
+      { "name": "grad_key", "type": "AnyRankedTensor" },
+      { "name": "grad_value", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "mask_type", "type": "DefaultValuedAttr<TTCore_AttentionMaskTypeAttr{none|causal|arbitrary}, ::mlir::tt::ttcore::AttentionMaskType::Arbitrary>" },
+      { "name": "dropout_probability", "type": "DefaultValuedAttr<F32Attr, 0.0>" }
     ]
   },
   {
@@ -126311,6 +126352,29 @@
     "attributes": [
       { "name": "dim", "type": "SI32Attr" },
       { "name": "scatter_reduce_type", "type": "TTCore_ReduceTypeAttr{sum|mean|max|min|std|var|prod|invalid}" }
+    ]
+  },
+  {
+    "name": "ttnn.sdpa_bw",
+    "summary": "Scaled dot-product attention backward (ttml).",
+    "description": "Training-oriented fused scaled dot-product attention backward pass, backed\n      by the ttml metal op `ttml::metal::sdpa_bw`. Given the upstream gradient\n      and the forward pass tensors (output, Q, K, V and log-sum-exp\n      intermediates), computes the gradients w.r.t. query, key and value.\n\n      All tensors are rank 4 `(B, H, S, D)`. `attention_mask` is only valid when\n      `mask_type` is `arbitrary`.",
+    "operands": [
+      { "name": "grad_output", "type": "AnyRankedTensor" },
+      { "name": "attn_output", "type": "AnyRankedTensor" },
+      { "name": "query", "type": "AnyRankedTensor" },
+      { "name": "key", "type": "AnyRankedTensor" },
+      { "name": "value", "type": "AnyRankedTensor" },
+      { "name": "intermediates", "type": "AnyRankedTensor" },
+      { "name": "attention_mask", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "results": [
+      { "name": "grad_query", "type": "AnyRankedTensor" },
+      { "name": "grad_key", "type": "AnyRankedTensor" },
+      { "name": "grad_value", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "mask_type", "type": "DefaultValuedAttr<TTCore_AttentionMaskTypeAttr{none|causal|arbitrary}, ::mlir::tt::ttcore::AttentionMaskType::Arbitrary>" },
+      { "name": "dropout_probability", "type": "DefaultValuedAttr<F32Attr, 0.0>" }
     ]
   },
   {
