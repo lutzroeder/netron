@@ -2633,6 +2633,8 @@ MNN.OpType = {
     GroupNorm: 304, '304': 'GroupNorm',
     LinearAttention: 305, '305': 'LinearAttention',
     RoPE: 306, '306': 'RoPE',
+    FusedLinear: 307, '307': 'FusedLinear',
+    GatedRMSNorm: 308, '308': 'GatedRMSNorm',
     Extra: 512, '512': 'Extra',
     ConvInt8: 513, '513': 'ConvInt8',
     Int8ToFloat: 514, '514': 'Int8ToFloat',
@@ -2737,6 +2739,9 @@ MNN.LinearAttentionParam = class LinearAttentionParam {
         $.head_k_dim = reader.int32_(position, 10, 0);
         $.head_v_dim = reader.int32_(position, 12, 0);
         $.use_qk_l2norm = reader.bool_(position, 14, false);
+        $.gate_fold = reader.bool_(position, 16, false);
+        $.gate_coef = reader.array(position, 18, Float32Array);
+        $.gate_bias = reader.array(position, 20, Float32Array);
         return $;
     }
 
@@ -2748,6 +2753,9 @@ MNN.LinearAttentionParam = class LinearAttentionParam {
         $.head_k_dim = reader.value(json.head_k_dim, 0);
         $.head_v_dim = reader.value(json.head_v_dim, 0);
         $.use_qk_l2norm = reader.value(json.use_qk_l2norm, false);
+        $.gate_fold = reader.value(json.gate_fold, false);
+        $.gate_coef = reader.array(json.gate_coef, Float32Array);
+        $.gate_bias = reader.array(json.gate_bias, Float32Array);
         return $;
     }
 };
@@ -2773,6 +2781,29 @@ MNN.RoPEParam = class RoPEParam {
         $.head_dim = reader.value(json.head_dim, 0);
         $.q_norm = reader.object(json.q_norm, MNN.LayerNorm);
         $.k_norm = reader.object(json.k_norm, MNN.LayerNorm);
+        return $;
+    }
+};
+
+MNN.FusedLinearParam = class FusedLinearParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.FusedLinearParam();
+        $.convs = reader.tables(position, 4, MNN.Convolution2D);
+        $.act_silu_mul = reader.bool_(position, 6, false);
+        $.has_ln = reader.bool_(position, 8, false);
+        $.ln = reader.table(position, 10, MNN.LayerNorm);
+        $.ln_fold = reader.bool_(position, 12, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.FusedLinearParam();
+        $.convs = reader.objects(json.convs, MNN.Convolution2D);
+        $.act_silu_mul = reader.value(json.act_silu_mul, false);
+        $.has_ln = reader.value(json.has_ln, false);
+        $.ln = reader.object(json.ln, MNN.LayerNorm);
+        $.ln_fold = reader.value(json.ln_fold, false);
         return $;
     }
 };
@@ -3053,6 +3084,7 @@ MNN.OpParameter = class {
             case 100: return MNN.LinearAttentionParam.decode(reader, position);
             case 101: return MNN.ShapeParam.decode(reader, position);
             case 102: return MNN.RoPEParam.decode(reader, position);
+            case 103: return MNN.FusedLinearParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3161,6 +3193,7 @@ MNN.OpParameter = class {
             case 'LinearAttentionParam': return MNN.LinearAttentionParam.decodeText(reader, json);
             case 'ShapeParam': return MNN.ShapeParam.decodeText(reader, json);
             case 'RoPEParam': return MNN.RoPEParam.decodeText(reader, json);
+            case 'FusedLinearParam': return MNN.FusedLinearParam.decodeText(reader, json);
             default: return undefined;
         }
     }
