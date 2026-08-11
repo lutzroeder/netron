@@ -15,7 +15,8 @@ onnx.Version = {
     "IR_VERSION_2024_3_25": 10,
     "IR_VERSION_2025_05_12": 11,
     "IR_VERSION_2025_08_26": 12,
-    "IR_VERSION": 13
+    "IR_VERSION_2025_11_06": 13,
+    "IR_VERSION": 14
 };
 
 onnx.AttributeProto = class AttributeProto {
