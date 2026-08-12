@@ -630,6 +630,9 @@ litert.lm.proto.Gemma4 = class Gemma4 {
                 case 18:
                     message.pooling_kernel_size = reader.int32();
                     break;
+                case 20:
+                    message.merge_patches = reader.bool();
+                    break;
                 case 3:
                     message.start_of_audio_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
                     break;
@@ -684,6 +687,7 @@ litert.lm.proto.Gemma4.prototype.patch_width = 0;
 litert.lm.proto.Gemma4.prototype.patch_height = 0;
 litert.lm.proto.Gemma4.prototype.max_num_patches = 0;
 litert.lm.proto.Gemma4.prototype.pooling_kernel_size = 0;
+litert.lm.proto.Gemma4.prototype.merge_patches = false;
 litert.lm.proto.Gemma4.prototype.start_of_audio_token = null;
 litert.lm.proto.Gemma4.prototype.end_of_audio_token = null;
 litert.lm.proto.Gemma4.prototype.skip_mel_spectrogram_extraction = false;
