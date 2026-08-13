@@ -21592,7 +21592,7 @@
   },
   {
     "name": "linalg.generic",
-    "description": "Generic Linalg op form where the key properties of the computation are\n    specified as attributes. In pretty form, a `linalg.generic` op is written\n    as:\n\n      ```mlir\n      linalg.generic #trait_attribute\n          ins(%A, %B : memref<?x?xf32, stride_specification>,\n                       memref<?x?xf32, stride_specification>)\n          outs(%C : memref<?x?xf32, stride_specification>)\n          attrs = {other-optional-attributes}\n          {region}\n      ```\n\n    Where #trait_attributes is an alias of a dictionary attribute containing:\n      - doc [optional]: a documentation string\n      - indexing_maps: a list of AffineMapAttr, one AffineMapAttr per each input\n        and output view. Such AffineMapAttr specifies the mapping between the\n        loops and the indexing within each view.\n      - library_call [optional]: a StringAttr containing the name of an\n        external library function that the linalg.generic operation maps to.\n        The external library is assumed to be dynamically linked and no strong\n        compile-time guarantees are provided. In the absence of such a library\n        call, linalg.generic will always lower to loops.\n      - iterator_types: an ArrayAttr specifying the type of the enclosing loops.\n        Each element of the list represents and iterator of one of the following\n        types:\n          parallel, reduction, window\n\n    Example:\n    Defining a #matmul_trait attribute in MLIR can be done as follows:\n      ```mlir\n      #matmul_accesses = [\n        (m, n, k) -> (m, k),\n        (m, n, k) -> (k, n),\n        (m, n, k) -> (m, n)\n      ]\n      #matmul_trait = {\n        doc = \"C(m, n) += A(m, k) * B(k, n)\",\n        indexing_maps = #matmul_accesses,\n        library_call = \"linalg_matmul\",\n        iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n      }\n      ```\n\n    And can be reused in multiple places as:\n      ```mlir\n      linalg.generic #matmul_trait\n        ins(%A, %B : memref<?x?xf32, stride_specification>,\n                     memref<?x?xf32, stride_specification>)\n        outs(%C : memref<?x?xf32, stride_specification>)\n        {other-optional-attributes} {\n        ^bb0(%a: f32, %b: f32, %c: f32) :\n          %d = arith.mulf %a, %b: f32\n          %e = arith.addf %c, %d: f32\n          linalg.yield %e : f32\n      }\n      ```\n\n    This may lower to either:\n      ```mlir\n      call @linalg_matmul(%A, %B, %C) :\n        (memref<?x?xf32, stride_specification>,\n         memref<?x?xf32, stride_specification>,\n         memref<?x?xf32, stride_specification>)\n        -> ()\n      ```\n\n    or IR resembling:\n    ```mlir\n    scf.for %m = %c0 to %M step %c1 {\n      scf.for %n = %c0 to %N step %c1 {\n        scf.for %k = %c0 to %K step %c1 {\n          %a = load %A[%m, %k] : memref<?x?xf32, stride_specification>\n          %b = load %B[%k, %n] : memref<?x?xf32, stride_specification>\n          %c = load %C[%m, %n] : memref<?x?xf32, stride_specification>\n          %d = arith.mulf %a, %b: f32\n          %e = arith.addf %c, %d: f32\n          store %e, %C[%m, %n] : memref<?x?x?xf32, stride_specification>\n        }\n      }\n    }\n    ```",
+    "description": "Generic Linalg op form where the key properties of the computation are\n    specified as attributes. In pretty form, a `linalg.generic` op is written\n    as:\n\n      ```mlir\n      linalg.generic #trait_attribute\n          ins(%A, %B : memref<?x?xf32>, memref<?x?xf32>)\n          outs(%C : memref<?x?xf32>)\n          attrs = {other-optional-attributes}\n          {region}\n      ```\n\n    Where #trait_attribute is an alias of a dictionary attribute containing:\n      - doc [optional]: a documentation string\n      - indexing_maps: a list of AffineMapAttr, one AffineMapAttr per each input\n        and output view. Such AffineMapAttr specifies the mapping between the\n        loops and the indexing within each view.\n      - library_call [optional]: a StringAttr containing the name of an\n        external library function that the linalg.generic operation maps to.\n        The external library is assumed to be dynamically linked and no strong\n        compile-time guarantees are provided. In the absence of such a library\n        call, linalg.generic will always lower to loops.\n      - iterator_types: an ArrayAttr specifying the type of the enclosing loops.\n        Each element of the list represents an iterator of one of the following\n        types:\n          parallel, reduction\n\n    Example:\n    Defining a #matmul_trait attribute in MLIR can be done as follows:\n      ```mlir\n      #matmul_accesses = [\n        affine_map<(m, n, k) -> (m, k)>,\n        affine_map<(m, n, k) -> (k, n)>,\n        affine_map<(m, n, k) -> (m, n)>\n      ]\n      #matmul_trait = {\n        doc = \"C(m, n) += A(m, k) * B(k, n)\",\n        indexing_maps = #matmul_accesses,\n        library_call = \"linalg_matmul\",\n        iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n      }\n      ```\n\n    And can be reused in multiple places as:\n      ```mlir\n      linalg.generic #matmul_trait\n        ins(%A, %B : memref<?x?xf32>, memref<?x?xf32>)\n        outs(%C : memref<?x?xf32>)\n        attrs = {other-optional-attributes} {\n        ^bb0(%a: f32, %b: f32, %c: f32) :\n          %d = arith.mulf %a, %b: f32\n          %e = arith.addf %c, %d: f32\n          linalg.yield %e : f32\n      }\n      ```\n\n    This may lower to either:\n      ```mlir\n      call @linalg_matmul(%A, %B, %C) :\n        (memref<?x?xf32, strided<[?, ?], offset: ?>>,\n         memref<?x?xf32, strided<[?, ?], offset: ?>>,\n         memref<?x?xf32, strided<[?, ?], offset: ?>>)\n        -> ()\n      ```\n\n    or IR resembling:\n    ```mlir\n    scf.for %m = %c0 to %M step %c1 {\n      scf.for %n = %c0 to %N step %c1 {\n        scf.for %k = %c0 to %K step %c1 {\n          %a = memref.load %A[%m, %k] : memref<?x?xf32>\n          %b = memref.load %B[%k, %n] : memref<?x?xf32>\n          %c = memref.load %C[%m, %n] : memref<?x?xf32>\n          %d = arith.mulf %a, %b: f32\n          %e = arith.addf %c, %d: f32\n          memref.store %e, %C[%m, %n] : memref<?x?xf32>\n        }\n      }\n    }\n    ```",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyType>" },
       { "name": "outputs", "type": "Variadic<AnyShaped>" }
@@ -35153,13 +35153,14 @@
   {
     "name": "nvvm.tcgen05.commit",
     "summary": "Tcgen05 commit operations",
-    "description": "The `tcgen05.commit` makes the *mbarrier object*, specified by\n    the operand `addr`, track the completion of all the prior\n    async-tcgen05 operations initiated by the executing thread.\n    The multicast variants allow signaling on the *mbarrier objects*\n    of multiple CTAs within the cluster. Operand `multicastMask`,\n    when present, specifies the destination CTAs in the cluster such\n    that each bit position in the 16-bit `multicastMask` operand\n    corresponds to the `nvvm.read.ptx.sreg.ctaid` of the destination CTA.\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen-async-sync-operations-commit)",
+    "description": "The `tcgen05.commit` makes the *mbarrier object*, specified by\n    the operand `addr`, track the completion of all the prior\n    async-tcgen05 operations initiated by the executing thread.\n    The multicast variants allow signaling on the *mbarrier objects*\n    of multiple CTAs within the cluster. Operand `multicastMask`,\n    when present, specifies the destination CTAs in the cluster such\n    that each bit position in the 16-bit or 32-bit `multicastMask` operand\n    corresponds to the `nvvm.read.ptx.sreg.ctaid` of the destination CTA.\n    When present, the `smem_a_read` attribute restricts tracking to\n    shared-memory reads of matrix A performed by prior `tcgen05.mma`\n    operations.\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen-async-sync-operations-commit)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_AnyPointer, LLVM_PointerShared]>" },
-      { "name": "multicastMask", "type": "Optional<I16>" }
+      { "name": "multicastMask", "type": "Optional<AnyTypeOf<[ I16, I32 ]>>" }
     ],
     "attributes": [
-      { "name": "group", "type": "DefaultValuedAttr<CTAGroupKindAttr{cta_1|cta_2}, CTAGroupKind::CTA_1>" }
+      { "name": "group", "type": "DefaultValuedAttr<CTAGroupKindAttr{cta_1|cta_2}, CTAGroupKind::CTA_1>" },
+      { "name": "smem_a_read", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
     "assemblyFormat": "$addr (`,` `multicast_mask` `=` $multicastMask^)?\n    attr-dict `:` type(operands)"
   },
@@ -35862,10 +35863,11 @@
   {
     "name": "omp.atomic.capture",
     "summary": "performs an atomic capture",
-    "description": "This operation performs an atomic capture.\n\n    The region has the following allowed forms:\n    ```\n      omp.atomic.capture {\n        omp.atomic.update ...\n        omp.atomic.read ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.update ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.write ...\n        omp.terminator\n      }\n    ````hint` is the value of hint (as specified in the hint clause). It is a\n    compile time constant. As the name suggests, this is just a hint for\n    optimization.`memory_order` indicates the memory ordering behavior of the construct. It\n    can be one of `seq_cst`, `acq_rel`, `release`, `acquire` or `relaxed`.",
+    "description": "This operation performs an atomic capture.\n\n    The region has the following allowed forms:\n    ```\n      omp.atomic.capture {\n        omp.atomic.update ...\n        omp.atomic.read ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.update ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.write ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.compare ...\n        omp.terminator\n      }\n    ````hint` is the value of hint (as specified in the hint clause). It is a\n    compile time constant. As the name suggests, this is just a hint for\n    optimization.`memory_order` indicates the memory ordering behavior of the construct. It\n    can be one of `seq_cst`, `acq_rel`, `release`, `acquire` or `relaxed`.",
     "attributes": [
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" },
+      { "name": "fail_only", "type": "UnitAttr" }
     ],
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
@@ -36914,6 +36916,15 @@
       { "name": "sizes", "type": "Variadic<IntLikeType>" }
     ],
     "assemblyFormat": "custom<LoopTransformClis>($generatees, $applyees)oilist(`sizes` `(` $sizes `:` type($sizes) `)`)attr-dict"
+  },
+  {
+    "name": "omp.unroll_full",
+    "summary": "OpenMP full unroll operation",
+    "description": "Represents a `#pragma omp unroll full` construct introduced in OpenMP 5.1.\n\n    The operation has one applyee and no generatees. The applyee is fully\n    unrolled, so it must have a compile-time constant trip count. Because no\n    loop remains afterwards, there is no generatee and no further\n    loop-associated transformation can be chained onto it.\n\n    The lowering is implemented using `OpenMPIRBuilder::unrollLoopFull`.\n\n    Assembly formats:\n      omp.unroll_full(%cli)\n      omp.unroll_full(%cli) -> ()",
+    "operands": [
+      { "name": "applyee", "type": "CanonicalLoopInfoType" }
+    ],
+    "hasCustomAssemblyFormat": true
   },
   {
     "name": "omp.unroll_heuristic",
@@ -58744,16 +58755,17 @@
   {
     "name": "stablehlo.collective_broadcast",
     "summary": "CollectiveBroadcast operation",
-    "description": "Within each process group in the process grid, send the value of the\n    `operand` tensor from the source process to the target processes and produce a\n    `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#collective_broadcast\n\n    Example:\n    ```mlir\n    %result = \"stablehlo.collective_broadcast\"(%operand) {\n      replica_groups = #stablehlo.replica_group_mesh_axes<\n        mesh = #stablehlo.mesh<axes = [#stablehlo.mesh_axis<name = \"foo\", size = 2>]>, axes = [\"foo\"]\n      >,\n      channel_handle = #stablehlo.channel_handle<handle = 0, type = 0>\n    } : (tensor<1x2xi64>) -> tensor<1x2xi64>\n    ```",
+    "description": "Within each process group in the process grid, send the value of the\n    `operand` tensor from the source process to the target processes and produce a\n    `result` tensor.\n\n    When `has_dynamic_root` is false (default), the root is the 0-th rank in\n    each replica group. When `has_dynamic_root` is true, the last operand is a\n    rank-1 i32 tensor specifying per-operand root indices within each group.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#collective_broadcast\n\n    Example:\n    ```mlir\n    %result = \"stablehlo.collective_broadcast\"(%operand) {\n      replica_groups = #stablehlo.replica_group_mesh_axes<\n        mesh = #stablehlo.mesh<axes = [#stablehlo.mesh_axis<name = \"foo\", size = 2>]>, axes = [\"foo\"]\n      >,\n      channel_handle = #stablehlo.channel_handle<handle = 0, type = 0>\n    } : (tensor<1x2xi64>) -> tensor<1x2xi64>\n    ```",
     "operands": [
-      { "name": "operand", "type": "HLO_Tensor" }
+      { "name": "operands", "type": "Variadic<HLO_Tensor>" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_Tensor" }
+      { "name": "result", "type": "Variadic<HLO_Tensor>" }
     ],
     "attributes": [
       { "name": "replica_groups", "type": "StableHLO_ReplicaGroups" },
-      { "name": "channel_handle", "type": "OptionalAttr<StableHLO_ChannelHandle>" }
+      { "name": "channel_handle", "type": "OptionalAttr<StableHLO_ChannelHandle>" },
+      { "name": "has_dynamic_root", "type": "UnitAttr" }
     ]
   },
   {
@@ -113209,8 +113221,20 @@
     "assemblyFormat": "$handles attr-dict (`:` type($handles)^)?"
   },
   {
+    "name": "transform.memref.alloc_to_global",
+    "description": "Inserts a new `memref.global` for each provided `memref.alloc` into the\n    nearest symbol table (e.g., a `builtin.module`) and replaces it with a\n    `memref.get_global`. Any direct `memref.dealloc` operations referencing the\n    allocation are also removed, since the memory is no longer dynamically\n    allocated.\n\n    This transformation assumes that the allocation does not escape the current\n    container (e.g., it is not returned from the function or passed to another\n    function that deallocates it) and is not passed through control-flow or\n    alias operations (e.g., `scf.if`, `cf.cond_br`, `select`, `memref.subview`).\n    Only direct `memref.dealloc` users of the allocation operation are removed;\n    indirect deallocations referencing block arguments, region results, or aliased\n    views will not be removed.\n\n    #### Example\n\n    Consider the following transform op:\n\n    ```mlir\n    %get_global, %global =\n        transform.memref.alloc_to_global %alloc\n          : (!transform.op<\"memref.alloc\">)\n            -> (!transform.any_op, !transform.any_op)\n    ```\n\n    and the following input payload:\n\n    ```mlir\n    module {\n      func.func @func() {\n        %alloc = memref.alloc() : memref<2x32xf32>\n        // usages of %alloc...\n        memref.dealloc %alloc : memref<2x32xf32>\n      }\n    }\n    ```\n\n    then applying the transform op to the payload would result in the following\n    output IR:\n\n    ```mlir\n    module {\n      memref.global \"private\" @alloc : memref<2x32xf32>\n      func.func @func() {\n        %alloc = memref.get_global @alloc : memref<2x32xf32>\n        // usages of %alloc...\n      }\n    }\n    ```\n\n    #### Return modes\n\n    Succeeds if all payload operations are statically shaped allocations with static\n    layouts (no dynamic offsets, strides, or symbol operands).\n    Fails with a silenceable error if any allocation has a dynamic shape, dynamic\n    offset/stride, or symbol operands.\n    The returned handles refer to the `memref.get_global` and\n    `memref.global` ops that were inserted by the transformation.",
+    "operands": [
+      { "name": "alloc", "type": "Transform_MemRefAllocOp" }
+    ],
+    "results": [
+      { "name": "getGlobal", "type": "TransformHandleTypeInterface" },
+      { "name": "global", "type": "TransformHandleTypeInterface" }
+    ],
+    "assemblyFormat": "$alloc attr-dict `:` functional-type(operands, results)"
+  },
+  {
     "name": "transform.memref.alloca_to_global",
-    "description": "Inserts a new `memref.global` for each provided `memref.alloca` into the\n    nearest symbol table (e.g., a `builtin.module`) and replaces it with a\n    `memref.get_global`. This is useful, for example, for allocations that\n    should reside in the shared memory of a GPU, which have to be declared as\n    globals.\n\n    #### Example\n\n    Consider the following transform op:\n\n    ```mlir\n    %get_global, %global =\n        transform.memref.alloca_to_global %alloca\n          : (!transform.op<\"memref.alloca\">)\n            -> (!transform.any_op, !transform.any_op)\n    ```\n\n    and the following input payload:\n\n    ```mlir\n    module {\n      func.func @func() {\n        %alloca = memref.alloca() : memref<2x32xf32>\n        // usages of %alloca...\n      }\n    }\n    ```\n\n    then applying the transform op to the payload would result in the following\n    output IR:\n\n    ```mlir\n    module {\n      memref.global \"private\" @alloc : memref<2x32xf32>\n      func.func @func() {\n        %alloca = memref.get_global @alloc : memref<2x32xf32>\n        // usages of %alloca...\n      }\n    }\n    ```\n\n    #### Return modes\n\n    Succeeds always. The returned handles refer to the `memref.get_global` and\n    `memref.global` ops that were inserted by the transformation.",
+    "description": "Inserts a new `memref.global` for each provided `memref.alloca` into the\n    nearest symbol table (e.g., a `builtin.module`) and replaces it with a\n    `memref.get_global`. This is useful, for example, for allocations that\n    should reside in the shared memory of a GPU, which have to be declared as\n    globals.\n\n    #### Example\n\n    Consider the following transform op:\n\n    ```mlir\n    %get_global, %global =\n        transform.memref.alloca_to_global %alloca\n          : (!transform.op<\"memref.alloca\">)\n            -> (!transform.any_op, !transform.any_op)\n    ```\n\n    and the following input payload:\n\n    ```mlir\n    module {\n      func.func @func() {\n        %alloca = memref.alloca() : memref<2x32xf32>\n        // usages of %alloca...\n      }\n    }\n    ```\n\n    then applying the transform op to the payload would result in the following\n    output IR:\n\n    ```mlir\n    module {\n      memref.global \"private\" @alloc : memref<2x32xf32>\n      func.func @func() {\n        %alloca = memref.get_global @alloc : memref<2x32xf32>\n        // usages of %alloca...\n      }\n    }\n    ```\n\n    #### Return modes\n\n    Succeeds if all payload operations are statically shaped allocations with static\n    layouts (no dynamic offsets, strides, or symbol operands).\n    Fails with a silenceable error if any allocation has a dynamic shape, dynamic\n    offset/stride, or symbol operands.\n    The returned handles refer to the `memref.get_global` and\n    `memref.global` ops that were inserted by the transformation.",
     "operands": [
       { "name": "alloca", "type": "Transform_MemRefAllocaOp" }
     ],
@@ -117051,6 +117075,24 @@
     "assemblyFormat": "$sem `,` $scope `,` $ptr (`,` $mask^)? attr-dict `:` type($ptr)"
   },
   {
+    "name": "tti.experimental_gsan_cluster_barrier_init",
+    "summary": "Initialize a GSan cluster-barrier rendezvous",
+    "description": "Initializes cluster-shared profile scratch used to synchronize GSan vector\n    clocks. This operation is internal to GSan instrumentation.",
+    "operands": [
+      { "name": "scratch", "type": "TT_Ptr" }
+    ],
+    "assemblyFormat": "$scratch attr-dict `:` type($scratch)"
+  },
+  {
+    "name": "tti.experimental_gsan_cluster_barrier_sync",
+    "summary": "Synchronize GSan clocks at a cluster barrier",
+    "description": "Joins the vector clocks of all CTAs participating in a non-relaxed cluster\n    barrier. This operation is internal to GSan instrumentation.",
+    "operands": [
+      { "name": "scratch", "type": "TT_Ptr" }
+    ],
+    "assemblyFormat": "$scratch attr-dict `:` type($scratch)"
+  },
+  {
     "name": "tti.experimental_gsan_grid_dependency_wait",
     "summary": "Acquire completed predecessor clocks after a grid dependency wait",
     "assemblyFormat": "attr-dict"
@@ -117067,6 +117109,61 @@
     "name": "tti.experimental_gsan_kernel_exit",
     "summary": "Publish a completed GSan thread clock to its launch stream",
     "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "tti.experimental_gsan_mbarrier_arrive",
+    "summary": "Record an mbarrier arrival in GSan",
+    "description": "Records an arrival for every mbarrier targeted by the corresponding\n    hardware operation. When `publishClock` is true, the issuing CTA's vector\n    clock is also published as a release. A false value records only phase\n    progress for asynchronous completion signals that provide no generic\n    memory ordering. `multicastMasks` contains CTA-id broadcast masks whose\n    recipient bitsets are unioned. When `multicast` is false, the arrival\n    targets the leader selected by the barrier's CGA layout.\n    This operation is internal to GSan instrumentation.",
+    "operands": [
+      { "name": "scratch", "type": "TT_Ptr" },
+      { "name": "barrier", "type": "TTG_MemDescType" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "count", "type": "I32Attr" },
+      { "name": "multicastMasks", "type": "DenseI32ArrayAttr" },
+      { "name": "multicast", "type": "BoolAttr" },
+      { "name": "sourceBroadcastMask", "type": "I32Attr" },
+      { "name": "publishClock", "type": "DefaultValuedAttr<BoolAttr, true>" }
+    ],
+    "assemblyFormat": "$scratch `,` $barrier `,` $pred `,` $count attr-dict `:` type($scratch) `,`\n    qualified(type($barrier))"
+  },
+  {
+    "name": "tti.experimental_gsan_mbarrier_init",
+    "summary": "Initialize an mbarrier in GSan",
+    "description": "Associates an mbarrier with its expected arrival count.\n    This operation is internal to GSan instrumentation.",
+    "operands": [
+      { "name": "scratch", "type": "TT_Ptr" },
+      { "name": "barrier", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "expectedCount", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$scratch `,` $barrier `,` $expectedCount attr-dict `:` type($scratch) `,`\n    qualified(type($barrier))"
+  },
+  {
+    "name": "tti.experimental_gsan_mbarrier_table_init",
+    "summary": "Initialize GSan mbarrier release state",
+    "description": "Initializes gsan't internal mbarrier table, used to sequence memory accesses\n    through cluster mbarriers. This operation is internal to GSan instrumentation.",
+    "operands": [
+      { "name": "scratch", "type": "TT_Ptr" }
+    ],
+    "attributes": [
+      { "name": "capacity", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$scratch `,` $capacity attr-dict `:` type($scratch)"
+  },
+  {
+    "name": "tti.experimental_gsan_mbarrier_wait",
+    "summary": "Acquire GSan clocks after an mbarrier wait",
+    "description": "Acquires the release clocks published to the completed mbarrier phase.\n    This operation is internal to GSan instrumentation.",
+    "operands": [
+      { "name": "scratch", "type": "TT_Ptr" },
+      { "name": "barrier", "type": "TTG_MemDescType" },
+      { "name": "phase", "type": "I32" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "assemblyFormat": "$scratch `,` $barrier `,` $phase `,` $pred attr-dict `:` type($scratch) `,`\n    qualified(type($barrier))"
   },
   {
     "name": "tti.experimental_gsan_tensor_access",
@@ -121643,6 +121740,25 @@
     "assemblyFormat": "`(` $in0_cb_id `,` $in1_cb_id `,` $in0_tile_idx `,` $in1_tile_idx `,` $dst_tile_idx `)` attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "ttkernel.max_reduce_with_indices",
+    "summary": "Max reduce with indices operation",
+    "description": "Performs MaxPool with indices algorithm on the data tile and index tile\n      that are pre-loaded in DST register. The DST register buffer must be in\n      acquired state via *acquire_dst* call. This call is blocking and is only\n      available on the compute engine. The chunk operand is only used when the\n      accumulate flag is true, controlling when the intermediate data is stored\n      to the accumulators. When accumulate is true, the chunk operand must be\n      zero on the first iteration of a reduction loop and non-zero for the rest\n      of the loop.",
+    "operands": [
+      { "name": "idst", "type": "IndexLike" },
+      { "name": "idst_idx", "type": "IndexLike" },
+      { "name": "chunk", "type": "IndexLike" }
+    ],
+    "attributes": [
+      { "name": "num_rows", "type": "DefaultValuedAttr<I32Attr, 32>" },
+      { "name": "accumulate", "type": "DefaultValuedAttr<BoolAttr, false>" }
+    ]
+  },
+  {
+    "name": "ttkernel.max_reduce_with_indices_init",
+    "summary": "Init for max_reduce_with_indices.",
+    "description": "Initializes max_reduce_with_indices. Must be called before max_reduce_with_indices."
+  },
+  {
     "name": "ttkernel.mem_zeros_base",
     "summary": "Op corresponding to MEM_ZEROS_BASE macro in kernels.",
     "description": "Op corresponding to MEM_ZEROS_BASE macro in kernels.",
@@ -122373,6 +122489,15 @@
     "summary": "Init function for recip_tile operation. Refer to documentation for any init function.",
     "description": "Must be called before recip_tile function.",
     "assemblyFormat": "`(` `)` attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "ttkernel.reconfig_data_format_srca",
+    "summary": "Reconfigure Src A data format for the given input CB.",
+    "description": "Reconfigures the srcA data format for a new operand, always re-deriving the int8/unsigned state from the new format.",
+    "operands": [
+      { "name": "in_cb", "type": "TTKernel_CB" }
+    ],
+    "assemblyFormat": "`(` $in_cb `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "ttkernel.reduce_init",
@@ -124274,7 +124399,7 @@
   {
     "name": "ttnn.capture_or_execute_trace",
     "summary": "Capture or execute trace.",
-    "description": "Captures or executes the trace. Will have read/write memory effects on the cached trace data.\n    If the trace data exists (meaning the trace was captured previously), it will be executed with\n    the execute_callee function. Otherwise, the trace will be captured with the capture_callee function.\n\n    Inputs:\n      - `device` TTNN_Device: The device where the trace was captured.\n      - `capture_callee` FlatSymbolRefAttr: The symbol of the capture trace function.\n      - `execute_callee` FlatSymbolRefAttr: The symbol of the execute trace function.\n      - `inputs` Variadic<AnyRankedTensor>: The input tensors to the trace function.\n      - `semaphore_inputs` Variadic<TTNN_GlobalSemaphore>: Global semaphores forwarded into the capture/execute programs.\n    Outputs:\n      - `results` Variadic<AnyRankedTensor>: The output tensors from the trace function.",
+    "description": "Captures or executes the trace. Will have read/write memory effects on the cached trace data.\n    If the trace data exists (meaning the trace was captured previously), it will be executed with\n    the execute_callee function. Otherwise, the trace is captured.\n\n    Capturing is split across two functions so that the persistent input/output slots are\n    allocated only once - on the very first capture - and reused for every recapture:\n      - `allocate_slots_callee` allocates the persistent device input/output slots. It runs\n        exactly once per trace.\n      - `capture_callee` takes those slots as arguments and captures the trace against them.\n\n    A cached trace that has gone stale is recaptured by invoking `capture_callee` again with the\n    same slots. Because the slots are never reallocated, a recapture leaves the device allocator\n    state untouched and therefore cannot invalidate any other cached trace. The initial capture and\n    every recapture run the identical program, so anything established by the first capture (compiled\n    programs, program cache entries) holds for every recapture by construction.\n\n    Inputs:\n      - `device` TTNN_Device: The device where the trace was captured.\n      - `allocate_slots_callee` FlatSymbolRefAttr: The symbol of the slot allocation function.\n      - `capture_callee` FlatSymbolRefAttr: The symbol of the capture trace function.\n      - `execute_callee` FlatSymbolRefAttr: The symbol of the execute trace function.\n      - `inputs` Variadic<AnyRankedTensor>: The input tensors to the trace function.\n      - `semaphore_inputs` Variadic<TTNN_GlobalSemaphore>: Global semaphores forwarded into the capture/execute programs.\n    Outputs:\n      - `results` Variadic<AnyRankedTensor>: The output tensors from the trace function.",
     "operands": [
       { "name": "device", "type": "TTNN_Device" },
       { "name": "inputs", "type": "Variadic<AnyRankedTensor>" },
@@ -124284,6 +124409,7 @@
       { "name": "results", "type": "Variadic<AnyRankedTensor>" }
     ],
     "attributes": [
+      { "name": "allocate_slots_callee", "type": "FlatSymbolRefAttr" },
       { "name": "capture_callee", "type": "FlatSymbolRefAttr" },
       { "name": "execute_callee", "type": "FlatSymbolRefAttr" }
     ],
@@ -124516,6 +124642,15 @@
     ]
   },
   {
+    "name": "ttnn.copy",
+    "summary": "Device to device copy op.",
+    "description": "Copies `src` into the pre-allocated device tensor `dst`. Both tensors must be\n    on device and have identical types.\n\n    Inputs:\n      - `src` AnyRankedTensor: The device tensor to copy from.\n      - `dst` AnyRankedTensor: The pre-allocated device tensor to copy into.",
+    "operands": [
+      { "name": "src", "type": "AnyRankedTensor" },
+      { "name": "dst", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
     "name": "ttnn.cos",
     "summary": "Eltwise cosine.",
     "description": "Eltwise cosine operation.",
@@ -124737,7 +124872,7 @@
   {
     "name": "ttnn.embedding_bw",
     "summary": "Embedding backward op.",
-    "description": "Embedding backward operation. Generates the gradient of the embedding operation with respect to the input.",
+    "description": "Embedding backward operation. Generates the gradient of the embedding operation with respect to the input.\n\n      The gradient is returned as a 4D tensor of shape (1, 1, dictionary_size, embedding_size), matching\n      what tt-metal produces; the two leading unit dimensions have to be reshaped away by the producer of\n      this op if the consumer expects the 2D weight shape.",
     "operands": [
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "weight", "type": "AnyRankedTensor" },
@@ -128567,6 +128702,20 @@
     "attributes": [
       { "name": "replica_groups", "type": "VHLO_AnyAttr" },
       { "name": "channel_id", "type": "VHLO_AnyAttr" }
+    ]
+  },
+  {
+    "name": "vhlo.collective_broadcast_v2",
+    "operands": [
+      { "name": "operands", "type": "Variadic<VHLO_AnyType>" }
+    ],
+    "results": [
+      { "name": "results", "type": "Variadic<VHLO_AnyType>" }
+    ],
+    "attributes": [
+      { "name": "replica_groups", "type": "VHLO_AnyAttr" },
+      { "name": "channel_id", "type": "VHLO_AnyAttr" },
+      { "name": "has_dynamic_root", "type": "VHLO_AnyAttr" }
     ]
   },
   {

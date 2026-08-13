@@ -8703,7 +8703,7 @@ _.DialectContext = class {
         this._dialects.set('nvvm', new _.NVVMDialect(operations));
         this._dialects.set('rocdl', new _.ROCDLDialect(operations));
         this._dialects.set('nvws', new _.triton.nvws.NVWSDialect(operations));
-        this._dialects.set('tti', new _.Dialect(operations, 'tti'));
+        this._dialects.set('tti', new _.triton.instrument.TritonInstrumentDialect(operations));
         this._dialects.set('omp', new _.OpenMPDialect(operations));
         this._dialects.set('proton', new _.triton.proton.ProtonDialect(operations));
         this._dialects.set('proton_gpu', new _.Dialect(operations, 'proton_gpu'));
@@ -20955,7 +20955,7 @@ _.OpenMPDialect = class extends _.Dialect {
         if (op === 'omp.canonical_loop') {
             return this.parseCanonicalLoopOp(parser, result);
         }
-        if (op === 'omp.unroll_heuristic' || op === 'omp.unroll_partial') {
+        if (op === 'omp.unroll_full' || op === 'omp.unroll_heuristic' || op === 'omp.unroll_partial') {
             return this.parseUnrollHeuristicOp(parser, result);
         }
         return super.parseOperation(parser, result);
@@ -25793,6 +25793,7 @@ _.test.TestDialect = class extends _.Dialect {
 };
 
 _.triton = {};
+_.triton.instrument = {};
 _.triton.nvws = {};
 _.triton.gluon = {};
 _.triton.nvidia_gpu = {};
@@ -25936,6 +25937,14 @@ _.triton.TritonDialect = class extends _.Dialect {
             }
         }
         super.inferResultTypes(op, vars);
+    }
+};
+
+_.triton.instrument.TritonInstrumentDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'tti');
+        this.registerCustomType('TT_Ptr', (parser) => _.triton.PointerType.parse(parser));
     }
 };
 
