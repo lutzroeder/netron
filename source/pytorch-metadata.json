@@ -12,10 +12,10 @@
     "name": "_c10d_functional::all_gather_into_tensor_out(Tensor input, int group_size, Any group_name, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "_c10d_functional::all_reduce(Tensor input, str reduce_op, Any group_name) -> Tensor"
+    "name": "_c10d_functional::all_reduce(Tensor input, Any reduce_op, Any group_name) -> Tensor"
   },
   {
-    "name": "_c10d_functional::all_reduce_(Tensor(a!) input, str reduce_op, Any group_name) -> Tensor(a!)"
+    "name": "_c10d_functional::all_reduce_(Tensor(a!) input, Any reduce_op, Any group_name) -> Tensor(a!)"
   },
   {
     "name": "_c10d_functional::all_reduce_coalesced(Tensor[] inputs, str reduce_op, Any group_name) -> Tensor[]"
