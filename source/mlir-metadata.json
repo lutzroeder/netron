@@ -51811,14 +51811,14 @@
   {
     "name": "spirv.ARM.GraphConstant",
     "summary": "Declare a graph constant.",
-    "description": "Declare a graph constant.\n    Result Type must be an OpTypeTensorARM.\n    GraphConstantID must be a 32-bit integer literal.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.ARM.GraphConstant { graph_constant_id = 42 : i32 } : !spirv.arm.tensor<2x3xi16>\n    ```\n\n    GraphConstantID is a unique identifier which is use to map the contants\n    defined by GraphConstantARM in the SPIRV module with the one provided at\n    shader creation time via the VkDataGraphPipelineShaderModuleCreateInfoARM.\n    That Vulkan structure provides a list of VkDataGraphPipelineConstantARM\n    which contains the bindings from id to data. (For more details see\n    https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#graphs)",
+    "description": "Declare a graph constant.\n    Result Type must be an OpTypeTensorARM.\n    GraphConstantID must be a 32-bit integer literal.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.ARM.GraphConstant id = 42 : !spirv.arm.tensor<2x3xi16>\n    ```\n\n    GraphConstantID is a unique identifier which is use to map the contants\n    defined by GraphConstantARM in the SPIRV module with the one provided at\n    shader creation time via the VkDataGraphPipelineShaderModuleCreateInfoARM.\n    That Vulkan structure provides a list of VkDataGraphPipelineConstantARM\n    which contains the bindings from id to data. (For more details see\n    https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#graphs)",
     "results": [
       { "name": "output", "type": "SPIRV_AnyTensorArm" }
     ],
     "attributes": [
       { "name": "graph_constant_id", "type": "I32Attr" }
     ],
-    "assemblyFormat": "attr-dict `:` type($output)",
+    "assemblyFormat": "`id` `=` $graph_constant_id attr-dict `:` type($output)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -53771,7 +53771,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` $arguments `)` attr-dict `:`\n      functional-type($arguments, results)",
+    "assemblyFormat": "$callee `(` $arguments `)`\n      (`arg_attrs` `=` $arg_attrs^)?\n      (`res_attrs` `=` $res_attrs^)?\n      attr-dict `:`\n      functional-type($arguments, results)",
     "hasCustomAssemblyFormat": true
   },
   {
