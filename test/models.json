@@ -2291,8 +2291,8 @@
   },
   {
     "type":     "gguf",
-    "target":   "Kimi-K3-UD-Q8_K_XL.gguf",
-    "source":   "https://github.com/user-attachments/files/30564609/Kimi-K3-UD-Q8_K_XL.gguf.zip[Kimi-K3-UD-Q8_K_XL.gguf]",
+    "target":   "Kimi-K3-UD-Q8_K_XL-00001-of-00034.gguf",
+    "source":   "https://github.com/user-attachments/files/31109277/Kimi-K3-UD-Q8_K_XL-00001-of-00034.gguf.zip[Kimi-K3-UD-Q8_K_XL-00001-of-00034.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"

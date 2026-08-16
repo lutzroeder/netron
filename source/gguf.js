@@ -160,7 +160,7 @@ gguf.Graph = class {
                     addNode(use('ffn_down_exps'), route ? [gu, route] : [gu], d);
                     return d;
                 };
-                const applyNorm = (groupName, value) => {
+                const applyComponent = (groupName, value) => {
                     if (!has(groupName)) {
                         return value;
                     }
@@ -170,7 +170,7 @@ gguf.Graph = class {
                 };
                 const buildFfn = (input) => {
                     if (hasMoe) {
-                        const moeInput = applyNorm('ffn_pre_norm_2', input);
+                        const moeInput = applyComponent('ffn_pre_norm_2', input);
                         let g1 = newValue();
                         addNode(use('ffn_gate_inp'), [moeInput], g1);
                         // Expert routing bias (deepseek/step/bailing MoE): added to the
@@ -190,12 +190,13 @@ gguf.Graph = class {
                         let moeOut = hasFusedExps ?
                             buildFusedExpsFfn(hasLatent ? expertInput : g1, hasLatent ? g1 : null) :
                             buildLinearFfn(hasLatent ? expertInput : g1, 'ffn_gate_exps', 'ffn_up_exps', 'ffn_down_exps', hasLatent ? g1 : null);
+                        moeOut = applyComponent('ffn_latent_norm', moeOut);
                         if (has('ffn_latent_up')) {
                             const latent = newValue();
                             addNode(use('ffn_latent_up'), [moeOut], latent);
                             moeOut = latent;
                         }
-                        moeOut = applyNorm('ffn_post_norm_2', moeOut);
+                        moeOut = applyComponent('ffn_post_norm_2', moeOut);
                         if (has('ffn_up_shexp')) {
                             const sharedOut = buildLinearFfn(input, 'ffn_gate_shexp', 'ffn_up_shexp', 'ffn_down_shexp');
                             const sum = newValue();
@@ -204,7 +205,7 @@ gguf.Graph = class {
                         }
                         if (hasFusedExps && has('ffn_up')) {
                             let sharedOut = buildLinearFfn(input, 'ffn_gate', 'ffn_up', 'ffn_down');
-                            sharedOut = applyNorm('ffn_post_norm_1', sharedOut);
+                            sharedOut = applyComponent('ffn_post_norm_1', sharedOut);
                             const sum = newValue();
                             addOp('ADD', [moeOut, sharedOut], sum);
                             return sum;
@@ -293,10 +294,13 @@ gguf.Graph = class {
                     // Pre-norm transformer (llama, qwen, gemma, etc.)
                     const inp = prevValue || newValue();
                     let cur = inp;
+                    const attnInput = applyComponent('attn_res_score', cur);
                     const n1 = newValue();
-                    addNode(use('attn_norm'), [cur], n1);
-                    const a1 = newValue();
+                    addNode(use('attn_norm'), [attnInput], n1);
+                    let a1 = newValue();
                     buildAttention(n1, a1);
+                    a1 = applyComponent('attn_output', a1);
+                    const attnResidual = get('attn_norm').residual === 'normalized' ? n1 : cur;
                     let preAdd1 = a1;
                     if (has('ssm')) {
                         const s1 = newValue();
@@ -311,10 +315,12 @@ gguf.Graph = class {
                         preAdd1 = pn;
                     }
                     const r1 = newValue();
-                    addOp('ADD', [preAdd1, cur], r1);
+                    addOp('ADD', [preAdd1, attnResidual], r1);
                     cur = r1;
+                    const ffnInput = applyComponent('ffn_res_score', cur);
                     const n2 = newValue();
-                    addNode(use('ffn_norm'), [cur], n2);
+                    addNode(use('ffn_norm'), [ffnInput], n2);
+                    const ffnResidual = get('ffn_norm').residual === 'normalized' ? n2 : cur;
                     const f1 = buildFfn(n2);
                     let preAdd2 = f1;
                     if (has('ffn_post_norm')) {
@@ -323,7 +329,7 @@ gguf.Graph = class {
                         preAdd2 = pn;
                     }
                     const r2 = newValue();
-                    addOp('ADD', [preAdd2, cur], r2);
+                    addOp('ADD', [preAdd2, ffnResidual], r2);
                     let final = r2;
                     if (has('inp_gate') && has('proj') && has('post_norm')) {
                         const peIn = final;
@@ -390,10 +396,13 @@ gguf.Graph = class {
                 } else if (has('attn_norm') && has('ssm') && hasFfn) {
                     // SSM + FFN (hybrid SSM-variant block: jamba, granitehybrid, etc.)
                     const inp = prevValue || newValue();
+                    const attnInput = applyComponent('attn_res_score', inp);
                     const n1 = newValue();
-                    addNode(use('attn_norm'), [inp], n1);
-                    const s1 = newValue();
+                    addNode(use('attn_norm'), [attnInput], n1);
+                    let s1 = newValue();
                     addNode(use('ssm'), [n1], s1);
+                    s1 = applyComponent('attn_output', s1);
+                    const attnResidual = get('attn_norm').residual === 'normalized' ? n1 : inp;
                     let preAdd1 = s1;
                     if (has('attn_post_norm')) {
                         const pn = newValue();
@@ -401,12 +410,16 @@ gguf.Graph = class {
                         preAdd1 = pn;
                     }
                     const r1 = newValue();
-                    addOp('ADD', [preAdd1, inp], r1);
-                    let cur = r1;
+                    addOp('ADD', [preAdd1, attnResidual], r1);
+                    let cur = applyComponent('ffn_res_score', r1);
+                    let ffnResidual = r1;
                     if (has('ffn_norm')) {
                         const n2 = newValue();
                         addNode(use('ffn_norm'), [cur], n2);
                         cur = n2;
+                        if (get('ffn_norm').residual === 'normalized') {
+                            ffnResidual = n2;
+                        }
                     }
                     const f1 = buildFfn(cur);
                     let preAdd2 = f1;
@@ -416,7 +429,7 @@ gguf.Graph = class {
                         preAdd2 = pn;
                     }
                     const r2 = newValue();
-                    addOp('ADD', [preAdd2, r1], r2);
+                    addOp('ADD', [preAdd2, ffnResidual], r2);
                     prevValue = r2;
                 } else if (has('attn_norm') && has('ssm')) {
                     // SSM (Mamba)
@@ -1065,7 +1078,7 @@ gguf.Context = class {
                     metadata.set(label, this._metadata.get(key));
                 }
             }
-            return { type: block.type || 'weights', category: block.category, metadata };
+            return { type: block.type || 'weights', category: block.category, metadata, residual: block.residual };
         };
         const pushFlat = (prefix, weights) => {
             const resolved = resolveBlock(prefix);
@@ -1107,7 +1120,7 @@ gguf.Context = class {
                 }
                 if (weights.size > 0) {
                     const resolved = resolveBlock(group);
-                    blockLayers.push({ name: group, type: resolved.type, category: resolved.category, weights, metadata: resolved.metadata, layers: [] });
+                    blockLayers.push({ name: group, type: resolved.type, category: resolved.category, weights, metadata: resolved.metadata, residual: resolved.residual, layers: [] });
                 }
             }
             return blockLayers;
