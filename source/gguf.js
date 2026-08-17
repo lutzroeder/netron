@@ -1098,18 +1098,27 @@ gguf.Context = class {
             } else if (blockPrefix.startsWith('dec.')) {
                 sectionPrefix = 'dec.';
             }
-            const groups = new Map();
-            const order = [];
+            const entries = [];
+            const scores = new Map();
             for (const [name] of tensors) {
                 if (name.startsWith(`${blockPrefix}.`)) {
                     const rest = name.slice(blockPrefix.length + 1);
-                    const group = this._classifyTensor(`${sectionPrefix}${rest}`);
-                    if (!groups.has(group)) {
-                        groups.set(group, new Map());
-                        order.push(group);
+                    const tensorName = `${sectionPrefix}${rest}`;
+                    entries.push({ name, rest, tensorName });
+                    for (const group of this._classifyTensorGroups(tensorName)) {
+                        scores.set(group, (scores.get(group) || 0) + 1);
                     }
-                    groups.get(group).set(rest, name);
                 }
+            }
+            const groups = new Map();
+            const order = [];
+            for (const { name, rest, tensorName } of entries) {
+                const group = this._classifyTensor(tensorName, scores);
+                if (!groups.has(group)) {
+                    groups.set(group, new Map());
+                    order.push(group);
+                }
+                groups.get(group).set(rest, name);
             }
             const blockLayers = [];
             for (const group of order) {
@@ -1241,20 +1250,41 @@ gguf.Context = class {
         return layers;
     }
 
-    _classifyTensor(name) {
+    _classifyTensorGroups(name) {
+        const groups = [];
+        let length = -1;
         for (const rule of this._classifierRules) {
             const pattern = rule.pattern;
+            let match = false;
             if (pattern.includes('{N}')) {
                 let regex = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 regex = regex.replace(/\\\{N\\\}/g, '\\d+');
                 if (new RegExp(`^${regex}(\\.|$)`).test(name)) {
-                    return rule.group;
+                    match = true;
                 }
             } else if (name === pattern || name.startsWith(`${pattern}.`)) {
-                return rule.group;
+                match = true;
+            }
+            if (match) {
+                if (length === -1) {
+                    length = pattern.length;
+                } else if (pattern.length < length) {
+                    break;
+                }
+                if (!groups.includes(rule.group)) {
+                    groups.push(rule.group);
+                }
             }
         }
-        return 'other';
+        return groups;
+    }
+
+    _classifyTensor(name, scores = null) {
+        const groups = this._classifyTensorGroups(name);
+        if (scores) {
+            groups.sort((a, b) => (scores.get(b) || 0) - (scores.get(a) || 0));
+        }
+        return groups.length > 0 ? groups[0] : 'other';
     }
 };
 
