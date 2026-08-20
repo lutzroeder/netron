@@ -150,20 +150,20 @@ const generate = (archName, tensorList, tensorNames, existing) => {
         sg.get(group).push(bare);
     }
     const buildSection = (sectionName) => {
-        const groups = sectionGroups.get(sectionName);
-        if (!groups) {
-            return [];
-        }
+        const groups = sectionGroups.get(sectionName) || new Map();
         const result = [];
         const seen = new Set();
         const overlayMap = overlays.get(sectionName) || new Map();
         for (const groupName of sectionOrder.get(sectionName) || []) {
+            const overlay = overlayMap.get(groupName);
             if (groups.has(groupName)) {
-                result.push(buildEntry(groupName, groups.get(groupName), overlayMap.get(groupName)));
+                result.push(buildEntry(groupName, groups.get(groupName), overlay));
                 seen.add(groupName);
+            } else if (overlay.type) {
+                result.push(overlay);
             }
         }
-        for (const groupName of upstreamOrder.get(sectionName)) {
+        for (const groupName of upstreamOrder.get(sectionName) || []) {
             if (!seen.has(groupName)) {
                 result.push(buildEntry(groupName, groups.get(groupName), null));
             }
@@ -249,13 +249,14 @@ MODEL_TENSORS: dict[MODEL_ARCH, list[MODEL_TENSOR]] = {
     const existing = {
         name: 'llama',
         graph: {
-            blocks: [{ name: 'attention', type: 'X', tensors: ['attn_q', 'attn_k'] }]
+            blocks: [{ name: 'attention', type: 'X', tensors: ['attn_q', 'attn_k'] }, { name: 'legacy', type: 'Y' }]
         }
     };
     const out = generate('llama', modelTensors.get('LLAMA'), tensorNames, existing);
     const attention = out.graph.blocks.find((e) => e.name === 'attention');
     assert(attention.tensors, ['attn_q', 'attn_k'], 'curator aliases preserved');
     assert(attention.type, 'X', 'overlay type preserved');
+    assert(out.graph.blocks.find((e) => e.name === 'legacy').type, 'Y', 'curator entry preserved');
     const bare = out.graph.blocks.find((e) => e.name === 'attn_rot_embd');
     assert(bare !== undefined, true, 'unaliased upstream tensor surfaces as its own group');
 };
