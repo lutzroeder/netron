@@ -2735,7 +2735,7 @@ _.Lexer = class {
             parts.push('"');
             return this.formToken(_.Token.string, parts.join(''));
         }
-        this.emitError(this._position, "expected '\"' in string literal");
+        this.emitError(this._position, "Expected '\"' in string literal");
         return null;
     }
 
@@ -2790,7 +2790,7 @@ _.Lexer = class {
                     result += this._read();
                 }
             } else if (result.length === 1) {
-                this.emitError(this._position, '@ identifier expected to start with letter or \'_\'');
+                this.emitError(this._position, "Expected '@' identifier to start with letter or '_'");
             }
         } else if (this._current && /[0-9]/.test(this._current)) {
             // suffix-id ::= digit+ | ...
@@ -4107,15 +4107,15 @@ _.Parser = class {
 
     // Parse an AffineMap where dims/symbols are SSA ids
     // Following reference: Parser::parseAffineMapOfSSAIds
-    parseAffineMapOfSSAIds(parseElement, delimiter = 'Paren') {
-        const affineParser = new _.AffineParser(this.state, true, parseElement);
+    parseAffineMapOfSSAIds(parseElement, addOperand, delimiter = 'Paren') {
+        const affineParser = new _.AffineParser(this.state, true, parseElement, addOperand);
         return affineParser.parseAffineMapOfSSAIds(delimiter);
     }
 
     // Parse an AffineExpr where dims/symbols are SSA ids
     // Following reference: Parser::parseAffineExprOfSSAIds
-    parseAffineExprOfSSAIds(parseElement) {
-        const affineParser = new _.AffineParser(this.state, true, parseElement);
+    parseAffineExprOfSSAIds(parseElement, addOperand) {
+        const affineParser = new _.AffineParser(this.state, true, parseElement, addOperand);
         return affineParser.parseAffineExprOfSSAIds();
     }
 
@@ -4272,9 +4272,9 @@ _.Parser = class {
             const c = decoder.decode();
             if (c === undefined) {
                 if (nestedPunctuation.length > 0) {
-                    this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                    this.emitError(`Unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
                 }
-                this.emitError('unexpected nul or EOF in pretty dialect name');
+                this.emitError('Unexpected nul or EOF in pretty dialect name');
             }
             chars.push(c);
             switch (c) {
@@ -4296,32 +4296,32 @@ _.Parser = class {
                 }
                 case '>':
                     if (nestedPunctuation[nestedPunctuation.length - 1] !== '<') {
-                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                        this.emitError(`Unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
                     }
                     nestedPunctuation.pop();
                     break;
                 case ']':
                     if (nestedPunctuation[nestedPunctuation.length - 1] !== '[') {
-                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                        this.emitError(`Unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
                     }
                     nestedPunctuation.pop();
                     break;
                 case ')':
                     if (nestedPunctuation[nestedPunctuation.length - 1] !== '(') {
-                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                        this.emitError(`Unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
                     }
                     nestedPunctuation.pop();
                     break;
                 case '}':
                     if (nestedPunctuation[nestedPunctuation.length - 1] !== '{') {
-                        this.emitError(`unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
+                        this.emitError(`Unbalanced '${nestedPunctuation[nestedPunctuation.length - 1]}' character in pretty dialect name`);
                     }
                     nestedPunctuation.pop();
                     break;
                 case '"': {
                     this.resetToken(decoder.position - 1);
                     if (this.getToken().isNot(_.Token.string)) {
-                        this.emitError('expected string in dialect symbol body');
+                        this.emitError('Expected string in dialect symbol body');
                     }
                     const spelling = this.getToken().getSpelling().str();
                     for (let i = 1; i < spelling.length; i++) {
@@ -4357,7 +4357,7 @@ _.Parser = class {
 
     consumeToken(kind) {
         if (kind !== undefined && this.state.curToken.kind !== kind) {
-            this.emitError(`consumeToken: Expected '${kind}'`);
+            this.emitError(`ConsumeToken: Expected '${kind}'`);
         }
         this.state.curToken = this.state.lex.lexToken();
     }
@@ -4506,10 +4506,11 @@ _.TopLevelOperationParser = class extends _.Parser {
 // Following the reference implementation in AffineParser.cpp
 _.AffineParser = class extends _.Parser {
 
-    constructor(state, allowParsingSSAIds = false, parseElement = null) {
+    constructor(state, allowParsingSSAIds = false, parseElement = null, addOperand = null) {
         super(state);
         this.allowParsingSSAIds = allowParsingSSAIds;
         this.parseElement = parseElement;
+        this.addOperand = addOperand;
         this.dimsAndSymbols = []; // Array of {name, expr} pairs
         this.numDimOperands = 0;
         this.numSymbolOperands = 0;
@@ -4801,22 +4802,17 @@ _.AffineParser = class extends _.Parser {
         if (this.getToken().isNot(_.Token.percent_identifier)) {
             this.emitError('Expected SSA identifier');
         }
-        const name = this.getTokenSpelling().str();
+        const operand = this.parseElement();
         for (const entry of this.dimsAndSymbols) {
-            if (entry.name === name) {
-                this.consumeToken(_.Token.percent_identifier);
+            if (entry.name === operand.name && entry.number === operand.number) {
                 return entry.expr;
             }
         }
-        if (this.parseElement) {
-            this.parseElement(isSymbol);
-        } else {
-            this.consumeToken(_.Token.percent_identifier);
-        }
+        this.addOperand(isSymbol, operand);
         const idExpr = isSymbol
             ? this.getAffineSymbolExpr(this.numSymbolOperands++)
             : this.getAffineDimExpr(this.numDimOperands++);
-        this.dimsAndSymbols.push({ name, expr: idExpr });
+        this.dimsAndSymbols.push({ name: operand.name, number: operand.number, expr: idExpr });
         return idExpr;
     }
 
@@ -5821,15 +5817,15 @@ _.AsmParser = class {
     parseAffineMapOfSSAIds(mapOperands, mapAttr, attrName, attrs, delimiter = 'Square') {
         const dimOperands = [];
         const symOperands = [];
-        const parseElement = (isSymbol) => {
-            const operand = this.parseOperand();
+        const parseElement = () => this.parseOperand();
+        const addOperand = (isSymbol, operand) => {
             if (isSymbol) {
                 symOperands.push(operand);
             } else {
                 dimOperands.push(operand);
             }
         };
-        const map = this.parser.parseAffineMapOfSSAIds(parseElement, delimiter);
+        const map = this.parser.parseAffineMapOfSSAIds(parseElement, addOperand, delimiter);
         if (map) {
             attrs.set(attrName, map);
         }
@@ -5843,15 +5839,15 @@ _.AsmParser = class {
     parseAffineExprOfSSAIds(mapOperands) {
         const dimOperands = [];
         const symOperands = [];
-        const parseElement = (isSymbol) => {
-            const operand = this.parseOperand();
+        const parseElement = () => this.parseOperand();
+        const addOperand = (isSymbol, operand) => {
             if (isSymbol) {
                 symOperands.push(operand);
             } else {
                 dimOperands.push(operand);
             }
         };
-        const expr = this.parser.parseAffineExprOfSSAIds(parseElement);
+        const expr = this.parser.parseAffineExprOfSSAIds(parseElement, addOperand);
         mapOperands.push(...dimOperands, ...symOperands);
         return expr;
     }
@@ -8526,6 +8522,18 @@ _.AssemblyFormatParser = class {
         }
         if (this.accept('oilist')) {
             this._skipWhitespace();
+            let separator = null;
+            if (this.accept('<')) {
+                this._skipWhitespace();
+                const element = this.parseDirective();
+                if (element.type !== 'literal') {
+                    throw new mlir.Error('Oilist separator must be a non-whitespace literal.');
+                }
+                separator = element.value;
+                this._skipWhitespace();
+                this.expect('>');
+                this._skipWhitespace();
+            }
             this.expect('(');
             let content = '';
             let depth = 1;
@@ -8546,7 +8554,7 @@ _.AssemblyFormatParser = class {
                     this._pos++;
                 }
             }
-            return { type: 'oilist', content };
+            return { type: 'oilist', content, separator };
         }
         if (this.accept('operands')) {
             return { type: 'operands' };
@@ -8953,6 +8961,7 @@ _.Dialect = class {
         this.registerCustomAttribute('BF16Attr', (parser) => parser.parseAttribute(new _.FloatType('bf16')));
         this.registerCustomAttribute('StrAttr', (parser) => parser.parseAttribute(new _.PrimitiveType('string')));
         this.registerCustomAttribute('TypedStrAttr', this.parseTypedAttrInterface.bind(this));
+        this.registerCustomAttribute('DimensionAttr', (parser) => parser.parseAttribute(new _.IntegerType('index')));
         this.registerCustomAttribute('LevelAttr', (parser) => parser.parseAttribute(new _.IntegerType('index')));
         this.registerCustomType('Optional', this.parseOptional.bind(this));
         this.registerCustomType('AnyTypeOf', (parser) => parser.parseType());
@@ -9518,6 +9527,28 @@ _.Dialect = class {
         const peek = (...kinds) => {
             const token = parser.parser.getToken();
             return kinds.some((kind) => kind === 'keyword' ? token.isKeyword() : token.is(kind));
+        };
+        const parseOptionalLiteral = (value) => {
+            switch (value) {
+                case '(': return parser.parseOptionalLParen();
+                case ')': return parser.parseOptionalRParen();
+                case '[': return parser.parseOptionalLSquare();
+                case ']': return parser.parseOptionalRSquare();
+                case '{': return parser.parseOptionalLBrace();
+                case '}': return parser.parseOptionalRBrace();
+                case ':': return parser.parseOptionalColon();
+                case '=': return parser.parseOptionalEqual();
+                case ',': return parser.parseOptionalComma();
+                case '<': return parser.parseOptionalLess();
+                case '>': return parser.parseOptionalGreater();
+                case '?': return parser.parseOptionalQuestion();
+                case '+': return parser.parseOptionalPlus();
+                case '-': return parser.parseOptionalMinus();
+                case '*': return parser.parseOptionalStar();
+                case '->': return parser.parseOptionalArrow();
+                case '...': return parser.parseOptionalEllipsis();
+                default: return parser.parseOptionalKeyword(value);
+            }
         };
         switch (directive.type) {
             case 'whitespace':
@@ -10143,13 +10174,24 @@ _.Dialect = class {
                     }
                     return false;
                 };
-                let progress = true;
-                while (progress) {
-                    progress = false;
-                    for (const clause of parsedClauses) {
-                        if (clause.parsed) {
-                            continue;
+                let oilistClauseParsed = false;
+                while (true) {
+                    const separatorLoc = parser.getCurrentLocation();
+                    let separatorParsed = false;
+                    if (directive.separator && oilistClauseParsed) {
+                        separatorParsed = parseOptionalLiteral(directive.separator);
+                        if (!separatorParsed) {
+                            for (const clause of parsedClauses) {
+                                const firstElem = clause.elements.find((elem) => elem.type !== 'whitespace');
+                                if (firstElem && firstElem.type === 'literal' && parseOptionalLiteral(firstElem.value)) {
+                                    parser.emitError(separatorLoc, `Expected '${directive.separator}' between oilist clauses`);
+                                }
+                            }
+                            break;
                         }
+                    }
+                    let matched = false;
+                    for (const clause of parsedClauses) {
                         if (clause.elements.length === 0) {
                             continue;
                         }
@@ -10158,33 +10200,25 @@ _.Dialect = class {
                             continue;
                         }
                         const firstElem = clause.elements.find((elem) => elem.type !== 'whitespace');
-                        let matches = false;
-                        if (firstElem && firstElem.type === 'literal') {
-                            switch (firstElem.value) {
-                                case '(': matches = parser.parseOptionalLParen(); break;
-                                case ')': matches = parser.parseOptionalRParen(); break;
-                                case '[': matches = parser.parseOptionalLSquare(); break;
-                                case ']': matches = parser.parseOptionalRSquare(); break;
-                                case '{': matches = parser.parseOptionalLBrace(); break;
-                                case '}': matches = parser.parseOptionalRBrace(); break;
-                                case ':': matches = parser.parseOptionalColon(); break;
-                                case '=': matches = parser.parseOptionalEqual(); break;
-                                case ',': matches = parser.parseOptionalComma(); break;
-                                case '<': matches = parser.parseOptionalLess(); break;
-                                case '>': matches = parser.parseOptionalGreater(); break;
-                                case '->': matches = parser.parseOptionalArrow(); break;
-                                case '...': matches = parser.parseOptionalEllipsis(); break;
-                                default: matches = parser.parseOptionalKeyword(firstElem.value); break;
+                        if (firstElem && firstElem.type === 'literal' && parseOptionalLiteral(firstElem.value)) {
+                            if (clause.parsed) {
+                                parser.emitError(parser.getNameLoc(), `\`${firstElem.value}\` clause can appear at most once in the expansion of the oilist directive`);
                             }
-                        }
-                        if (matches) {
                             const firstElemIdx = clause.elements.indexOf(firstElem) + 1;
                             for (let elemIdx = firstElemIdx; elemIdx < clause.elements.length; elemIdx++) {
                                 this.parseDirective(clause.elements[elemIdx], parser, op, opInfo, clause.elements, elemIdx, vars);
                             }
                             clause.parsed = true;
-                            progress = true;
+                            matched = true;
+                            oilistClauseParsed = true;
+                            break;
                         }
+                    }
+                    if (!matched) {
+                        if (separatorParsed) {
+                            parser.emitError(separatorLoc, 'Expected oilist clause after separator');
+                        }
+                        break;
                     }
                 }
                 break;
@@ -10194,23 +10228,7 @@ _.Dialect = class {
                 const firstElem = directive.elements.find((elem) => elem.type !== 'whitespace');
                 if (firstElem) {
                     if (firstElem.type === 'literal') {
-                        switch (firstElem.value) {
-                            case '(': shouldParse = parser.parseOptionalLParen(); break;
-                            case ')': shouldParse = parser.parseOptionalRParen(); break;
-                            case '[': shouldParse = parser.parseOptionalLSquare(); break;
-                            case ']': shouldParse = parser.parseOptionalRSquare(); break;
-                            case '{': shouldParse = parser.parseOptionalLBrace(); break;
-                            case '}': shouldParse = parser.parseOptionalRBrace(); break;
-                            case ':': shouldParse = parser.parseOptionalColon(); break;
-                            case '=': shouldParse = parser.parseOptionalEqual(); break;
-                            case ',': shouldParse = parser.parseOptionalComma(); break;
-                            case '<': shouldParse = parser.parseOptionalLess(); break;
-                            case '>': shouldParse = parser.parseOptionalGreater(); break;
-                            case '?': shouldParse = parser.parseOptionalQuestion(); break;
-                            case '->': shouldParse = parser.parseOptionalArrow(); break;
-                            case '...': shouldParse = parser.parseOptionalEllipsis(); break;
-                            default: shouldParse = parser.parseOptionalKeyword(firstElem.value); break;
-                        }
+                        shouldParse = parseOptionalLiteral(firstElem.value);
                         if (shouldParse) {
                             shouldParse = 'skip_first';
                         }
@@ -10315,28 +10333,9 @@ _.Dialect = class {
                 break;
             }
             case 'conditional_alternative': {
-                const tryParseLiteral = (value) => {
-                    switch (value) {
-                        case '(': return parser.parseOptionalLParen();
-                        case ')': return parser.parseOptionalRParen();
-                        case '[': return parser.parseOptionalLSquare();
-                        case ']': return parser.parseOptionalRSquare();
-                        case '{': return parser.parseOptionalLBrace();
-                        case '}': return parser.parseOptionalRBrace();
-                        case ':': return parser.parseOptionalColon();
-                        case '=': return parser.parseOptionalEqual();
-                        case ',': return parser.parseOptionalComma();
-                        case '<': return parser.parseOptionalLess();
-                        case '>': return parser.parseOptionalGreater();
-                        case '?': return parser.parseOptionalQuestion();
-                        case '->': return parser.parseOptionalArrow();
-                        case '...': return parser.parseOptionalEllipsis();
-                        default: return parser.parseOptionalKeyword(value);
-                    }
-                };
                 const checkMatch = (elem) => {
                     if (elem.type === 'literal') {
-                        return tryParseLiteral(elem.value);
+                        return parseOptionalLiteral(elem.value);
                     }
                     if (elem.type === 'operand_ref') {
                         return peek(_.Token.percent_identifier);
@@ -12097,7 +12096,7 @@ _.AffineDialect = class extends _.Dialect {
         const boundOpInfos = parser.parseOperandList();
         if (boundOpInfos.length > 0) {
             if (boundOpInfos.length > 1) {
-                parser.emitError('expected only one loop bound operand');
+                parser.emitError('Expected only one loop bound operand');
                 return;
             }
             parser.resolveOperand(boundOpInfos[0], indexType, result.operands);
@@ -12117,7 +12116,7 @@ _.AffineDialect = class extends _.Dialect {
             result.addAttribute(boundAttrName, new _.AffineMapAttr(map));
             return;
         }
-        parser.emitError('expected valid affine map representation for loop bounds');
+        parser.emitError('Expected valid affine map representation for loop bounds');
     }
 
     parseStoreOp(parser, result) {
@@ -12196,7 +12195,7 @@ _.AffineDialect = class extends _.Dialect {
                 parser.parseAffineMapOfSSAIds(mapOperands, null, '__map', tmpAttrs, 'Paren');
                 const map = tmpAttrs.get('__map');
                 if (!(map instanceof _.AffineMap)) {
-                    parser.emitError(`expected affine map after '${minMaxKeyword}'`);
+                    parser.emitError(`Expected affine map after '${minMaxKeyword}'`);
                     return;
                 }
                 for (const expr of map.getResults()) {
@@ -12243,7 +12242,7 @@ _.AffineDialect = class extends _.Dialect {
                     if (expr instanceof _.AffineConstantExpr) {
                         steps.push(expr.value);
                     } else {
-                        parser.emitError('steps must be constant integers');
+                        parser.emitError('Steps must be constant integers');
                         return false;
                     }
                 }
@@ -12266,7 +12265,7 @@ _.AffineDialect = class extends _.Dialect {
                     const kind = parser.parseString();
                     const enumValue = _.AffineDialect.symbolizeAtomicRMWKind(kind);
                     if (enumValue === null) {
-                        parser.emitError(`invalid reduction value: "${kind}"`);
+                        parser.emitError(`Invalid reduction value: "${kind}"`);
                         return false;
                     }
                     reductions.push(new _.IntegerAttr(i64Type, enumValue));
@@ -12297,8 +12296,17 @@ _.MemRefDialect = class extends _.Dialect {
     constructor(operations) {
         super(operations, 'memref');
         this.registerCustomDirective('GlobalMemrefOpTypeAndInitialValue', this.parseGlobalMemrefOpTypeAndInitialValue.bind(this));
+        this.registerCustomDirective('BoolAttr', this.parseBoolAttr.bind(this));
         // AtomicRMWKindAttr can appear as bare id (addi) or string ("addi") in different test files
         this.registerCustomAttribute('AtomicRMWKindAttr', this.parseAtomicRMWKindAttr.bind(this));
+    }
+
+    parseBoolAttr(parser, op, name) {
+        const attr = parser.parseAttribute();
+        if (attr instanceof _.BoolAttr === false) {
+            parser.emitError('Expected boolean attribute');
+        }
+        op.addAttribute(name, attr);
     }
 
     parseAtomicRMWKindAttr(parser, type) {
@@ -12482,6 +12490,23 @@ _.MemRefDialect = class extends _.Dialect {
         }
         const memrefOperand = parser.parseOperand();
         const indices = parser.parseOperandList('square');
+        const parseProperty = () => {
+            const name = parser.parseOptionalKeyword(['alignment', 'nontemporal']);
+            if (name) {
+                if (result.attributes.has(name)) {
+                    parser.emitError(`\`${name}\` clause can appear at most once in the expansion of the oilist directive`);
+                }
+                parser.parseLParen();
+                if (name === 'nontemporal') {
+                    this.parseBoolAttr(parser, result, name);
+                } else {
+                    result.addAttribute(name, parser.parseAttribute());
+                }
+                parser.parseRParen();
+            }
+        };
+        parseProperty();
+        parseProperty();
         parser.parseOptionalAttrDict(result.attributes);
         if (parser.parseOptionalColon()) {
             const memrefType = parser.parseType();
@@ -12502,8 +12527,17 @@ _.VectorDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'vector');
+        this.registerCustomDirective('BoolAttr', this.parseBoolAttr.bind(this));
         this.registerCustomAttribute('Vector_CombiningKindAttr', this.parseEnumFlagsAngleBracketComma.bind(this));
         this.registerCustomAttribute('Arith_FastMathAttr', this.parseEnumFlagsAngleBracketComma.bind(this));
+    }
+
+    parseBoolAttr(parser, op, name) {
+        const attr = parser.parseAttribute();
+        if (attr instanceof _.BoolAttr === false) {
+            parser.emitError('Expected boolean attribute');
+        }
+        op.addAttribute(name, attr);
     }
 
     parseOperation(parser, result) {
@@ -12575,7 +12609,35 @@ _.VectorDialect = class extends _.Dialect {
             result.compatibility = true;
             return this.parseExtractOp(parser, result);
         }
+        if (op === 'vector.extract_strided_slice' || op === 'vector.insert_strided_slice') {
+            result.compatibility = true;
+            return this.parseStridedSliceOp(parser, result);
+        }
         return super.parseOperation(parser, result);
+    }
+
+    parseStridedSliceOp(parser, result) {
+        const isExtract = result.name.getStringRef() === 'vector.extract_strided_slice';
+        const operands = parser.parseOperandList();
+        parser.parseOptionalAttrDict(result.attributes);
+        if (!result.attributes.has('offsets')) {
+            const names = isExtract ? ['offsets', 'sizes', 'strides'] : ['offsets', 'strides'];
+            for (let i = 0; i < names.length; i++) {
+                if (i > 0) {
+                    parser.parseComma();
+                }
+                const name = names[i];
+                parser.parseKeyword(name);
+                parser.parseEqual();
+                result.addAttribute(name, parser.parseAttribute());
+            }
+            parser.parseOptionalAttrDict(result.attributes);
+        }
+        const operandType = parser.parseColonType();
+        const resultType = parser.parseKeywordType(isExtract ? 'to' : 'into');
+        parser.resolveOperands(operands, isExtract ? [operandType] : [operandType, resultType], result.operands);
+        result.addTypes([resultType]);
+        return true;
     }
 
     parseOuterProductOp(parser, result) {
@@ -20564,6 +20626,77 @@ _.AMDGPUDialect = class extends _.Dialect {
             op.addAttribute(kAttr, dims[2]);
         }
     }
+
+    parseOperation(parser, result) {
+        if (result.name.getStringRef() === 'amdgpu.mfma') {
+            return this.parseMFMAOp(parser, result);
+        }
+        return super.parseOperation(parser, result);
+    }
+
+    parseMFMAOp(parser, result) {
+        result.compatibility = true;
+        if (parser.parseOptionalKeyword('blocks')) {
+            parser.parseLParen();
+            result.addAttribute('blocks', parser.parseInteger());
+            parser.parseRParen();
+        }
+        this.parseMNKDimensionList(parser, result, 'm', 'n', 'k');
+        const sourceA = parser.parseOperand();
+        parser.parseStar();
+        const sourceB = parser.parseOperand();
+        parser.parsePlus();
+        const destC = parser.parseOperand();
+        const clauses = new Set();
+        const blgpValues = ['none', 'bcast_first_32', 'bcast_second_32', 'rotate_16_right', 'bcast_first_16', 'bcast_second_16', 'bcast_third_16', 'bcast_fourth_16'];
+        const parseBlgp = () => {
+            const value = parser.parseOptionalKeyword(blgpValues);
+            if (!value) {
+                parser.emitError('Expected blgp value');
+            }
+            return new _.TypedAttr(value, null);
+        };
+        let legacy = false;
+        let name = parser.parseOptionalKeyword(['abid', 'blgp', 'cbsz', 'reducePrecision', 'negateA', 'negateB', 'negateC']);
+        while (name) {
+            if (clauses.has(name)) {
+                parser.emitError(`Duplicate '${name}' clause`);
+            }
+            clauses.add(name);
+            if (name === 'reducePrecision' || name === 'negateA' || name === 'negateB' || name === 'negateC') {
+                result.addAttribute(name, new _.UnitAttr());
+            } else if (name === 'blgp' && !parser.parseOptionalLParen()) {
+                parser.parseEqual();
+                result.addAttribute(name, parseBlgp());
+                legacy = true;
+                break;
+            } else {
+                if (name !== 'blgp') {
+                    parser.parseLParen();
+                }
+                const value = name === 'blgp' ? parseBlgp() : parser.parseInteger();
+                result.addAttribute(name, value);
+                parser.parseRParen();
+            }
+            name = parser.parseOptionalKeyword(['abid', 'blgp', 'cbsz', 'reducePrecision', 'negateA', 'negateB', 'negateC']);
+        }
+        parser.parseOptionalAttrDict(result.attributes);
+        if (!legacy && parser.parseOptionalKeyword('blgp')) {
+            parser.parseEqual();
+            result.addAttribute('blgp', parseBlgp());
+        }
+        parser.parseColon();
+        const sourceAType = parser.parseType();
+        parser.parseComma();
+        const sourceBType = parser.parseType();
+        parser.parseComma();
+        const destCType = parser.parseType();
+        parser.resolveOperand(sourceA, sourceAType, result.operands);
+        parser.resolveOperand(sourceB, sourceBType, result.operands);
+        parser.resolveOperand(destC, destCType, result.operands);
+        result.addTypes([destCType]);
+        return true;
+    }
 };
 
 _.nvgpu = {};
@@ -20713,6 +20846,15 @@ _.NVVMDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'nvvm');
+        this._mmaPropertyTypes = new Map();
+        for (const name of ['nvvm.mma.sync', 'nvvm.mma.sp.sync', 'nvvm.mma.block_scale', 'nvvm.mma.sp.block_scale']) {
+            const metadata = this.getOperation(name).metadata;
+            this._mmaPropertyTypes.set(name, new Map(metadata.attributes.map((attribute) => [attribute.name, attribute.type])));
+        }
+        this.registerCustomAttribute('Tcgen05MMABlockScaleKindAttr', this.parseTcgen05MMABlockScaleKindAttr.bind(this));
+        this.registerCustomAttribute('Tcgen05MMANonBlockScaleKindAttr', this.parseTcgen05MMANonBlockScaleKindAttr.bind(this));
+        this.registerCustomAttribute('NVVM_MMAShapeAttr', this.parseMMAShapeAttr.bind(this));
+        this.registerCustomDirective('CTAGroup', this.parseCTAGroup.bind(this));
     }
 
     parseOperation(parser, result) {
@@ -20729,16 +20871,18 @@ _.NVVMDialect = class extends _.Dialect {
             const fragsA = parseMmaOperand('A');
             const fragsB = parseMmaOperand('B');
             const fragsC = parseMmaOperand('C');
-            parser.parseOptionalAttrDict(result.attributes);
-            if (parser.parseOptionalColon()) {
-                const funcType = parser.parseType();
-                if (funcType instanceof _.FunctionType) {
-                    parser.resolveOperands(fragsA, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsB, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsC, funcType.inputs, result.operands);
-                    result.addTypes(funcType.results);
-                }
+            this.parseMmaProperties(parser, result, ['shape', 'b1_op', 'int_overflow', 'layout_a', 'layout_b', 'multiplicand_a_ptx_type', 'multiplicand_b_ptx_type'], ['shape', 'layoutA', 'layoutB']);
+            parser.parseColon();
+            const funcType = parser.parseType();
+            if (funcType instanceof _.FunctionType === false || funcType.inputs.length !== 3) {
+                parser.emitError('Expected one type for each operand segment');
             }
+            const fragments = [fragsA, fragsB, fragsC];
+            for (let i = 0; i < fragments.length; i++) {
+                parser.resolveOperands(fragments[i], fragments[i].map(() => funcType.inputs[i]), result.operands);
+            }
+            result.addTypes(funcType.results);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr(fragments.map((fragment) => fragment.length)));
             return true;
         }
         // Reference: NVVMDialect.cpp - MmaSpOp::parse
@@ -20748,18 +20892,21 @@ _.NVVMDialect = class extends _.Dialect {
             const fragsC = parseMmaOperand('C');
             const fragsSparseMetadata = parseMmaOperand('sparseMetadata');
             const fragsSelector = parseMmaOperand('selector');
-            parser.parseOptionalAttrDict(result.attributes);
-            if (parser.parseOptionalColon()) {
-                const funcType = parser.parseType();
-                if (funcType instanceof _.FunctionType) {
-                    parser.resolveOperands(fragsA, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsB, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsC, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsSparseMetadata, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsSelector, funcType.inputs, result.operands);
-                    result.addTypes(funcType.results);
-                }
+            this.parseMmaProperties(parser, result, ['shape', 'int_overflow', 'multiplicand_a_ptx_type', 'multiplicand_b_ptx_type', 'ordered_metadata', 'kind'], ['shape']);
+            parser.parseColon();
+            const funcType = parser.parseType();
+            if (funcType instanceof _.FunctionType === false || funcType.inputs.length !== 3) {
+                parser.emitError('Expected one type for each operand segment');
             }
+            const fragments = [fragsA, fragsB, fragsC];
+            for (let i = 0; i < fragments.length; i++) {
+                parser.resolveOperands(fragments[i], fragments[i].map(() => funcType.inputs[i]), result.operands);
+            }
+            const i32 = new _.IntegerType('i32');
+            parser.resolveOperands(fragsSparseMetadata, fragsSparseMetadata.map(() => i32), result.operands);
+            parser.resolveOperands(fragsSelector, fragsSelector.map(() => i32), result.operands);
+            result.addTypes(funcType.results);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([...fragments.map((fragment) => fragment.length), 1, 1]));
             return true;
         }
         // Reference: NVVMDialect.cpp - MmaBlockScaleOp::parse
@@ -20769,18 +20916,21 @@ _.NVVMDialect = class extends _.Dialect {
             const fragsC = parseMmaOperand('C');
             const scaleAOperands = parseMmaOperand('scaleA');
             const scaleBOperands = parseMmaOperand('scaleB');
-            parser.parseOptionalAttrDict(result.attributes);
-            if (parser.parseOptionalColon()) {
-                const funcType = parser.parseType();
-                if (funcType instanceof _.FunctionType) {
-                    parser.resolveOperands(fragsA, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsB, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsC, funcType.inputs, result.operands);
-                    parser.resolveOperands(scaleAOperands, funcType.inputs, result.operands);
-                    parser.resolveOperands(scaleBOperands, funcType.inputs, result.operands);
-                    result.addTypes(funcType.results);
-                }
+            this.parseMmaProperties(parser, result, ['shape', 'multiplicand_a_ptx_type', 'multiplicand_b_ptx_type', 'scale_vec_size', 'block_scale_format', 'kind'], ['shape', 'scaleVecSize', 'blockScaleFormat', 'kind']);
+            parser.parseColon();
+            const funcType = parser.parseType();
+            if (funcType instanceof _.FunctionType === false || funcType.inputs.length !== 3) {
+                parser.emitError('Expected one type for each operand segment');
             }
+            const fragments = [fragsA, fragsB, fragsC];
+            for (let i = 0; i < fragments.length; i++) {
+                parser.resolveOperands(fragments[i], fragments[i].map(() => funcType.inputs[i]), result.operands);
+            }
+            const scaleTypes = [new _.IntegerType('i32'), new _.IntegerType('i16'), new _.IntegerType('i16')];
+            parser.resolveOperands(scaleAOperands, scaleTypes, result.operands);
+            parser.resolveOperands(scaleBOperands, scaleTypes, result.operands);
+            result.addTypes(funcType.results);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([...fragments.map((fragment) => fragment.length), 1, 1, 1, 1, 1, 1]));
             return true;
         }
         // Reference: NVVMDialect.cpp - MmaSpBlockScaleOp::parse
@@ -20792,23 +20942,116 @@ _.NVVMDialect = class extends _.Dialect {
             const selectorOperands = parseMmaOperand('selector');
             const scaleAOperands = parseMmaOperand('scaleA');
             const scaleBOperands = parseMmaOperand('scaleB');
-            parser.parseOptionalAttrDict(result.attributes);
-            if (parser.parseOptionalColon()) {
-                const funcType = parser.parseType();
-                if (funcType instanceof _.FunctionType) {
-                    parser.resolveOperands(fragsA, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsB, funcType.inputs, result.operands);
-                    parser.resolveOperands(fragsC, funcType.inputs, result.operands);
-                    parser.resolveOperands(metadataOperands, funcType.inputs, result.operands);
-                    parser.resolveOperands(selectorOperands, funcType.inputs, result.operands);
-                    parser.resolveOperands(scaleAOperands, funcType.inputs, result.operands);
-                    parser.resolveOperands(scaleBOperands, funcType.inputs, result.operands);
-                    result.addTypes(funcType.results);
-                }
+            this.parseMmaProperties(parser, result, ['shape', 'multiplicand_a_ptx_type', 'multiplicand_b_ptx_type', 'ordered_metadata', 'scale_vec_size', 'block_scale_format', 'kind'], ['shape', 'scaleVecSize', 'blockScaleFormat', 'kind']);
+            parser.parseColon();
+            const funcType = parser.parseType();
+            if (funcType instanceof _.FunctionType === false || funcType.inputs.length !== 3) {
+                parser.emitError('Expected one type for each operand segment');
             }
+            const fragments = [fragsA, fragsB, fragsC];
+            for (let i = 0; i < fragments.length; i++) {
+                parser.resolveOperands(fragments[i], fragments[i].map(() => funcType.inputs[i]), result.operands);
+            }
+            const i32 = new _.IntegerType('i32');
+            parser.resolveOperands(metadataOperands, metadataOperands.map(() => i32), result.operands);
+            parser.resolveOperands(selectorOperands, selectorOperands.map(() => i32), result.operands);
+            const scaleTypes = [i32, new _.IntegerType('i16'), new _.IntegerType('i16')];
+            parser.resolveOperands(scaleAOperands, scaleTypes, result.operands);
+            parser.resolveOperands(scaleBOperands, scaleTypes, result.operands);
+            if (result.getAttr('orderedMetadata') === undefined) {
+                result.addAttribute('orderedMetadata', new _.UnitAttr());
+            }
+            result.addTypes(funcType.results);
+            result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr([...fragments.map((fragment) => fragment.length), 1, 1, 1, 1, 1, 1, 1, 1]));
             return true;
         }
         return super.parseOperation(parser, result);
+    }
+
+    parseMmaProperties(parser, result, allowedKeywords, requiredProperties) {
+        let keyword = parser.parseOptionalKeyword();
+        if (keyword === null) {
+            parser.parseOptionalAttrDict(result.attributes);
+            return;
+        }
+        const types = this._mmaPropertyTypes.get(result.name.getStringRef());
+        while (keyword !== null) {
+            if (!allowedKeywords.includes(keyword)) {
+                parser.emitError(`Unknown MMA property '${keyword}'`);
+            }
+            let name = null;
+            switch (keyword) {
+                case 'shape': name = 'shape'; break;
+                case 'b1_op': name = 'b1Op'; break;
+                case 'int_overflow': name = 'intOverflowBehavior'; break;
+                case 'layout_a': name = 'layoutA'; break;
+                case 'layout_b': name = 'layoutB'; break;
+                case 'multiplicand_a_ptx_type': name = 'multiplicandAPtxType'; break;
+                case 'multiplicand_b_ptx_type': name = 'multiplicandBPtxType'; break;
+                case 'ordered_metadata': name = 'orderedMetadata'; break;
+                case 'scale_vec_size': name = 'scaleVecSize'; break;
+                case 'block_scale_format': name = 'blockScaleFormat'; break;
+                case 'kind': name = 'kind'; break;
+                default: break;
+            }
+            if (result.getAttr(name) !== undefined) {
+                parser.emitError(`Duplicate property '${name}'`);
+            }
+            if (keyword === 'ordered_metadata') {
+                result.addAttribute(name, new _.UnitAttr());
+                keyword = parser.parseOptionalComma() ? parser.parseKeyword() : null;
+                continue;
+            }
+            parser.parseEqual();
+            const value = this.parseCustomAttributeWithFallback(parser, types.get(name));
+            if (value === null) {
+                parser.emitError(`Expected value for MMA property '${keyword}'`);
+            }
+            result.addAttribute(name, value);
+            keyword = parser.parseOptionalComma() ? parser.parseKeyword() : null;
+        }
+        for (const name of requiredProperties) {
+            if (result.getAttr(name) === undefined) {
+                parser.emitError(`Missing required property '${name}'`);
+            }
+        }
+        parser.parseOptionalAttrDict(result.attributes);
+    }
+
+    parseMMAShapeAttr(parser) {
+        if (!parser.parseOptionalLess()) {
+            return parser.parseAttribute();
+        }
+        const values = [];
+        const names = ['m', 'n', 'k'];
+        for (let i = 0; i < names.length; i++) {
+            parser.parseKeyword(names[i]);
+            parser.parseEqual();
+            values.push(parser.parseInteger());
+            if (i < names.length - 1) {
+                parser.parseComma();
+            }
+        }
+        parser.parseGreater();
+        return new _.TypedAttr(`<m = ${values[0]}, n = ${values[1]}, k = ${values[2]}>`, null);
+    }
+
+    parseTcgen05MMABlockScaleKindAttr(parser) {
+        const value = parser.parseOptionalKeyword(['mxf8f6f4', 'mxf4', 'mxf4nvf4']);
+        return value === null ? parser.parseAttribute() : new _.TypedAttr(value, null);
+    }
+
+    parseTcgen05MMANonBlockScaleKindAttr(parser) {
+        const value = parser.parseOptionalKeyword(['f16', 'tf32', 'f8f6f4', 'i8', 'ti16']);
+        return value === null ? parser.parseAttribute() : new _.TypedAttr(value, null);
+    }
+
+    parseCTAGroup(parser, op, name) {
+        const value = parser.parseKeyword();
+        if (value !== 'cta_1' && value !== 'cta_2') {
+            parser.emitError('Expected CTA group');
+        }
+        op.addAttribute(name, new _.TypedAttr(value, null));
     }
 };
 
@@ -20926,6 +21169,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomAttribute('OrderModifierAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('DeclareTargetDeviceTypeAttr', this.parseParenthesizedEnumAttr.bind(this));
         this.registerCustomAttribute('TargetExecModeAttr', this.parseParenthesizedEnumAttr.bind(this));
+        this.registerCustomAttribute('MemoryOrderKindAttr', this.parseMemoryOrderKindAttr.bind(this));
     }
 
     parseType(parser) {
@@ -21307,6 +21551,11 @@ _.OpenMPDialect = class extends _.Dialect {
         if (enumValue && attrName) {
             op.addAttribute(attrName, enumValue);
         }
+    }
+
+    parseMemoryOrderKindAttr(parser) {
+        const value = parser.parseOptionalKeyword(['seq_cst', 'acq_rel', 'release', 'acquire', 'relaxed']);
+        return value === null ? null : new _.TypedAttr(value, null);
     }
 
     // Parses: keyword([byref] [@sym] %operand -> %block_arg [map_idx = N] : type, ...) [private_barrier]
@@ -22176,10 +22425,110 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         if (op === 'llvm.landingpad') {
             return this.parseLLVMLandingpadOp(parser, result);
         }
+        if (op === 'llvm.load') {
+            return this.parseLLVMLoadOp(parser, result);
+        }
+        if (op === 'llvm.store') {
+            return this.parseLLVMStoreOp(parser, result);
+        }
+        if (op === 'llvm.getelementptr') {
+            return this.parseLLVMGEPOp(parser, result);
+        }
         if (op === 'llvm.icmp' || op === 'llvm.fcmp') {
             return this.parseLLVMCmpOp(parser, result);
         }
         return super.parseOperation(parser, result);
+    }
+
+    parseLLVMLoadOp(parser, result) {
+        result.compatibility = true;
+        if (parser.parseOptionalKeyword('volatile')) {
+            result.addAttribute('volatile_', new _.UnitAttr());
+        }
+        const address = parser.parseOperand();
+        if (parser.parseOptionalKeyword('atomic')) {
+            if (parser.parseOptionalKeyword('syncscope')) {
+                parser.parseLParen();
+                result.addAttribute('syncscope', new _.StringAttr(parser.parseString()));
+                parser.parseRParen();
+            }
+            const ordering = parser.parseOptionalKeyword(['not_atomic', 'unordered', 'monotonic', 'acquire', 'release', 'acq_rel', 'seq_cst']);
+            if (!ordering) {
+                parser.emitError('Expected atomic ordering');
+            }
+            result.addAttribute('ordering', new _.TypedAttr(ordering, null));
+        }
+        if (parser.parseOptionalKeyword('invariant')) {
+            result.addAttribute('invariant', new _.UnitAttr());
+        }
+        if (parser.parseOptionalKeyword('invariant_group')) {
+            result.addAttribute('invariantGroup', new _.UnitAttr());
+        }
+        if (parser.parseOptionalKeyword('dereferenceable')) {
+            parser.parseLess();
+            parser.parseKeyword('bytes');
+            parser.parseEqual();
+            const dereferenceable = { bytes: parser.parseInteger(), mayBeNull: false };
+            if (parser.parseOptionalComma()) {
+                parser.parseKeyword('mayBeNull');
+                parser.parseEqual();
+                dereferenceable.mayBeNull = parser.parseOptionalKeyword(['false', 'true']) === 'true';
+            }
+            parser.parseGreater();
+            result.addAttribute('dereferenceable', dereferenceable);
+        }
+        parser.parseOptionalAttrDict(result.attributes);
+        parser.parseColon();
+        const addressType = parser.parseType();
+        let resultType = addressType instanceof _.llvm.LLVMPointerType ? addressType.pointeeType : null;
+        if (!resultType) {
+            parser.parseArrow();
+            resultType = parser.parseType();
+        }
+        parser.resolveOperand(address, addressType, result.operands);
+        result.addTypes([resultType]);
+        return true;
+    }
+
+    parseLLVMStoreOp(parser, result) {
+        result.compatibility = true;
+        if (parser.parseOptionalKeyword('volatile')) {
+            result.addAttribute('volatile_', new _.UnitAttr());
+        }
+        const value = parser.parseOperand();
+        parser.parseComma();
+        const address = parser.parseOperand();
+        if (parser.parseOptionalKeyword('atomic')) {
+            if (parser.parseOptionalKeyword('syncscope')) {
+                parser.parseLParen();
+                result.addAttribute('syncscope', new _.StringAttr(parser.parseString()));
+                parser.parseRParen();
+            }
+            const ordering = parser.parseOptionalKeyword(['not_atomic', 'unordered', 'monotonic', 'acquire', 'release', 'acq_rel', 'seq_cst']);
+            if (!ordering) {
+                parser.emitError('Expected atomic ordering');
+            }
+            result.addAttribute('ordering', new _.TypedAttr(ordering, null));
+        }
+        if (parser.parseOptionalKeyword('invariant_group')) {
+            result.addAttribute('invariantGroup', new _.UnitAttr());
+        }
+        parser.parseOptionalAttrDict(result.attributes);
+        parser.parseColon();
+        let valueType = parser.parseType();
+        let addressType = null;
+        if (parser.parseOptionalComma()) {
+            addressType = parser.parseType();
+        } else {
+            addressType = valueType;
+            valueType = addressType instanceof _.llvm.LLVMPointerType ? addressType.pointeeType : null;
+            if (!valueType) {
+                parser.emitError('Expected LLVM pointer type with element type');
+            }
+        }
+        parser.resolveOperand(value, valueType, result.operands);
+        parser.resolveOperand(address, addressType, result.operands);
+        return true;
     }
 
     parseLLVMGlobalOp(parser, result) {
@@ -22268,7 +22617,7 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             if (parser.parseOptionalLParen()) {
                 tlsMode = parser.parseOptionalKeyword(tlsModeKeywords);
                 if (!tlsMode) {
-                    parser.emitError('invalid value for thread_local');
+                    parser.emitError('Invalid value for thread_local');
                 }
                 parser.parseRParen();
             }
@@ -22291,6 +22640,31 @@ _.llvm.LLVMDialect = class extends _.Dialect {
         if (rawConstantIndices.length > 0) {
             op.addAttribute(attrName || 'rawConstantIndices', rawConstantIndices);
         }
+    }
+
+    parseLLVMGEPOp(parser, result) {
+        result.compatibility = true;
+        const noWrapFlags = this.parseEnumFlags(parser, { values: ['none', 'inbounds_flag', 'nusw', 'nuw', 'inbounds'] }, '|', true);
+        if (noWrapFlags) {
+            result.addAttribute('noWrapFlags', noWrapFlags);
+        }
+        const base = parser.parseOperand();
+        const dynamicIndices = [];
+        parser.parseLSquare();
+        this.parseGEPIndices(parser, result, dynamicIndices, 'rawConstantIndices');
+        parser.parseRSquare();
+        parser.parseOptionalAttrDict(result.attributes);
+        parser.parseColon();
+        const type = parser.parseType();
+        if (type instanceof _.FunctionType === false) {
+            parser.emitError('Expected function type');
+        }
+        parser.resolveOperands([base, ...dynamicIndices], type.inputs, result.operands);
+        result.addTypes(type.results);
+        if (parser.parseOptionalComma()) {
+            result.addAttribute('elem_type', parser.parseType());
+        }
+        return true;
     }
 
     parseIndirectBrOpSucessors(parser, op /*, args */) {
@@ -25842,7 +26216,7 @@ _.triton.PointerType = class extends _.Type {
     constructor(pointeeType, addressSpace) {
         super(null);
         this.pointeeType = pointeeType;
-        this.addressSpace = addressSpace || 1;
+        this.addressSpace = addressSpace === undefined ? 1 : addressSpace;
     }
 
     static parse(parser) {
@@ -25850,19 +26224,30 @@ _.triton.PointerType = class extends _.Type {
         const pointeeType = parser.parseType();
         let addressSpace = 1;
         if (parser.parseOptionalComma()) {
-            addressSpace = parser.parseInteger();
-
+            const name = parser.parseOptionalString();
+            if (name === null) {
+                addressSpace = parser.parseInteger(); // compatibility
+            } else {
+                switch (name) {
+                    case 'global': addressSpace = 1; break;
+                    case 'descriptor': addressSpace = 0; break;
+                    case 'constant': addressSpace = 4; break;
+                    default: parser.emitError(`Invalid pointer address space '${name}'`); break;
+                }
+            }
         }
         parser.parseGreater();
         return new _.triton.PointerType(pointeeType, addressSpace);
     }
 
     toString() {
-        const pointeeStr = this.pointeeType?.toString ? this.pointeeType.toString() : this.pointeeType;
-        if (this.addressSpace && this.addressSpace !== 1) {
-            return `!tt.ptr<${pointeeStr}, ${this.addressSpace}>`;
+        const type = this.pointeeType?.toString ? this.pointeeType.toString() : this.pointeeType;
+        switch (this.addressSpace) {
+            case 0: return `!tt.ptr<${type}, "descriptor">`;
+            case 1: return `!tt.ptr<${type}>`;
+            case 4: return `!tt.ptr<${type}, "constant">`;
+            default: return `!tt.ptr<${type}, ${this.addressSpace}>`;
         }
-        return `!tt.ptr<${pointeeStr}>`;
     }
 };
 
@@ -26824,6 +27209,24 @@ _.ACCDialect = class extends _.Dialect {
         this.registerCustomDirective('BindName', this.parseBindName.bind(this));
         this.registerCustomDirective('RoutineGangClause', this.parseRoutineGangClause.bind(this));
         this.registerCustomDirective('DeviceTypeArrayAttr', this.parseDeviceTypeArrayAttr.bind(this));
+        this.registerCustomDirective('ArrayAttr', this.parseArrayAttr.bind(this));
+        this.registerCustomDirective('DenseBoolArrayAttr', this.parseDenseBoolArrayAttr.bind(this));
+    }
+
+    parseArrayAttr(parser, op, name) {
+        const attr = parser.parseAttribute();
+        if (attr instanceof _.ArrayAttr === false) {
+            parser.emitError('Expected array attribute');
+        }
+        op.addAttribute(name, attr);
+    }
+
+    parseDenseBoolArrayAttr(parser, op, name) {
+        const attr = parser.parseAttribute();
+        if (attr instanceof _.DenseArrayAttr === false || attr.type.toString() !== 'i1') {
+            parser.emitError('Expected dense boolean array attribute');
+        }
+        op.addAttribute(name, attr);
     }
 
     // custom<Var>($var) - receives ctx.get('var').operands
@@ -26878,6 +27281,9 @@ _.ACCDialect = class extends _.Dialect {
             op.addAttribute(keywordOnlyVar, keywordOnlyAttrs);
         }
         if (needComma) {
+            if (parser.parseOptionalRParen()) {
+                return;
+            }
             parser.parseComma();
         }
         const deviceTypes = [];
@@ -27242,13 +27648,17 @@ _.ACCDialect = class extends _.Dialect {
         }
     }
 
-    parseDeviceTypeArrayAttr(parser) {
-        if (parser.parseOptionalLSquare()) {
-            while (!parser.parseOptionalRSquare()) {
-                parser.parseAttribute();
-                parser.parseOptionalComma();
-            }
+    parseDeviceTypeArrayAttr(parser, op, name) {
+        const attributes = [];
+        if (parser.parseOptionalLParen()) {
+            parser.parseCommaSeparatedList('square', () => {
+                attributes.push(parser.parseAttribute());
+            });
+            parser.parseRParen();
+        } else {
+            attributes.push(new _.OpaqueAttr('#acc', 'device_type<none>', null));
         }
+        op.addAttribute(name, new _.ArrayAttr(attributes));
     }
 
     parseOperation(parser, result) {
