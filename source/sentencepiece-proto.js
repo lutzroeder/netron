@@ -34,18 +34,6 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case 5:
                     message.accept_language.push(reader.string());
                     break;
-                case 6:
-                    message.self_test_sample_size = reader.int32();
-                    break;
-                case 50:
-                    message.enable_differential_privacy = reader.bool();
-                    break;
-                case 51:
-                    message.differential_privacy_noise_level = reader.float();
-                    break;
-                case 52:
-                    message.differential_privacy_clipping_threshold = reader.uint64();
-                    break;
                 case 10:
                     message.character_coverage = reader.float();
                     break;
@@ -54,12 +42,6 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                     break;
                 case 19:
                     message.shuffle_input_sentence = reader.bool();
-                    break;
-                case 12:
-                    message.mining_sentence_size = reader.int32();
-                    break;
-                case 13:
-                    message.training_sentence_size = reader.int32();
                     break;
                 case 14:
                     message.seed_sentencepiece_size = reader.int32();
@@ -186,18 +168,6 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case "accept_language":
                     reader.array(message.accept_language, () => reader.string());
                     break;
-                case "self_test_sample_size":
-                    message.self_test_sample_size = reader.int32();
-                    break;
-                case "enable_differential_privacy":
-                    message.enable_differential_privacy = reader.bool();
-                    break;
-                case "differential_privacy_noise_level":
-                    message.differential_privacy_noise_level = reader.float();
-                    break;
-                case "differential_privacy_clipping_threshold":
-                    message.differential_privacy_clipping_threshold = reader.uint64();
-                    break;
                 case "character_coverage":
                     message.character_coverage = reader.float();
                     break;
@@ -206,12 +176,6 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                     break;
                 case "shuffle_input_sentence":
                     message.shuffle_input_sentence = reader.bool();
-                    break;
-                case "mining_sentence_size":
-                    message.mining_sentence_size = reader.int32();
-                    break;
-                case "training_sentence_size":
-                    message.training_sentence_size = reader.int32();
                     break;
                 case "seed_sentencepiece_size":
                     message.seed_sentencepiece_size = reader.int32();
@@ -319,15 +283,9 @@ sentencepiece.TrainerSpec.prototype.input_format = "";
 sentencepiece.TrainerSpec.prototype.model_prefix = "";
 sentencepiece.TrainerSpec.prototype.model_type = 1;
 sentencepiece.TrainerSpec.prototype.vocab_size = 8000;
-sentencepiece.TrainerSpec.prototype.self_test_sample_size = 0;
-sentencepiece.TrainerSpec.prototype.enable_differential_privacy = false;
-sentencepiece.TrainerSpec.prototype.differential_privacy_noise_level = 0;
-sentencepiece.TrainerSpec.prototype.differential_privacy_clipping_threshold = 0n;
 sentencepiece.TrainerSpec.prototype.character_coverage = 0.9995;
 sentencepiece.TrainerSpec.prototype.input_sentence_size = 0n;
 sentencepiece.TrainerSpec.prototype.shuffle_input_sentence = true;
-sentencepiece.TrainerSpec.prototype.mining_sentence_size = 0;
-sentencepiece.TrainerSpec.prototype.training_sentence_size = 0;
 sentencepiece.TrainerSpec.prototype.seed_sentencepiece_size = 1000000;
 sentencepiece.TrainerSpec.prototype.shrinking_factor = 0.75;
 sentencepiece.TrainerSpec.prototype.max_sentence_length = 4192;
@@ -439,93 +397,6 @@ sentencepiece.NormalizerSpec.prototype.remove_extra_whitespaces = true;
 sentencepiece.NormalizerSpec.prototype.escape_whitespaces = true;
 sentencepiece.NormalizerSpec.prototype.normalization_rule_tsv = "";
 
-sentencepiece.SelfTestData = class SelfTestData {
-
-    constructor() {
-        this.samples = [];
-    }
-
-    static decode(reader, length) {
-        const message = new sentencepiece.SelfTestData();
-        const end = length === undefined ? reader.length : reader.position + length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.samples.push(sentencepiece.SelfTestData.Sample.decode(reader, reader.uint32()));
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new sentencepiece.SelfTestData();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "samples":
-                    message.samples.push(sentencepiece.SelfTestData.Sample.decodeText(reader));
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-sentencepiece.SelfTestData.Sample = class Sample {
-
-    static decode(reader, length) {
-        const message = new sentencepiece.SelfTestData.Sample();
-        const end = length === undefined ? reader.length : reader.position + length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.input = reader.string();
-                    break;
-                case 2:
-                    message.expected = reader.string();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new sentencepiece.SelfTestData.Sample();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "input":
-                    message.input = reader.string();
-                    break;
-                case "expected":
-                    message.expected = reader.string();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-sentencepiece.SelfTestData.Sample.prototype.input = "";
-sentencepiece.SelfTestData.Sample.prototype.expected = "";
-
 sentencepiece.ModelProto = class ModelProto {
 
     constructor() {
@@ -546,9 +417,6 @@ sentencepiece.ModelProto = class ModelProto {
                     break;
                 case 3:
                     message.normalizer_spec = sentencepiece.NormalizerSpec.decode(reader, reader.uint32());
-                    break;
-                case 4:
-                    message.self_test_data = sentencepiece.SelfTestData.decode(reader, reader.uint32());
                     break;
                 case 5:
                     message.denormalizer_spec = sentencepiece.NormalizerSpec.decode(reader, reader.uint32());
@@ -576,9 +444,6 @@ sentencepiece.ModelProto = class ModelProto {
                 case "normalizer_spec":
                     message.normalizer_spec = sentencepiece.NormalizerSpec.decodeText(reader);
                     break;
-                case "self_test_data":
-                    message.self_test_data = sentencepiece.SelfTestData.decodeText(reader);
-                    break;
                 case "denormalizer_spec":
                     message.denormalizer_spec = sentencepiece.NormalizerSpec.decodeText(reader);
                     break;
@@ -593,7 +458,6 @@ sentencepiece.ModelProto = class ModelProto {
 
 sentencepiece.ModelProto.prototype.trainer_spec = null;
 sentencepiece.ModelProto.prototype.normalizer_spec = null;
-sentencepiece.ModelProto.prototype.self_test_data = null;
 sentencepiece.ModelProto.prototype.denormalizer_spec = null;
 
 sentencepiece.ModelProto.SentencePiece = class SentencePiece {
