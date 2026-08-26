@@ -46065,7 +46065,7 @@
     "module": "com.microsoft",
     "version": 1,
     "status": "experimental",
-    "description": "QEmbedLayerNormalization is the quantized fusion of embedding layer in BERT model, with optional mask processing.\nThe embedding layer takes input_ids (word IDs) and segment_ids (sentence IDs) to look up word_embedding, position_embedding,\nand segment_emedding; the embeddings are added then applied layer normalization using gamma and beta tensors. The input_ids\nand segment_ids remain int32. All embeddings, gamma, and beta tensors are converted to int8/uint8. The last input mask is optional.\nIf mask is provided, mask index (that is position of first 0 in mask, or number of words will be calculated.",
+    "description": "QEmbedLayerNormalization is the quantized fusion of embedding layer in BERT model, with optional mask processing.\nThe embedding layer takes input_ids (word IDs) and segment_ids (sentence IDs) to look up word_embedding, position_embedding,\nand segment_emedding; the embeddings are added then applied layer normalization using gamma and beta tensors. The input_ids\nand segment_ids remain int32. All embeddings, gamma, and beta tensors are converted to int8/uint8. The last input mask is optional.\nsegment_ids, segment_embedding, segment_embedding_scale, and segment_embedding_zero_point must either all be provided or all\nbe omitted.\nIf mask is provided, mask index (that is position of first 0 in mask, or number of words will be calculated.",
     "attributes": [
       {
         "name": "epsilon",
@@ -46085,7 +46085,7 @@
         "name": "segment_ids",
         "type": "T1",
         "option": "optional",
-        "description": "2D segment IDs with shape (batch_size, sequence_length)"
+        "description": "2D segment IDs with shape (batch_size, sequence_length). Part of the all-or-none segment input group."
       },
       {
         "name": "word_embedding_quant",
@@ -46101,7 +46101,7 @@
         "name": "segment_embedding",
         "type": "T2",
         "option": "optional",
-        "description": "2D with shape (, hidden_size)"
+        "description": "2D with shape (, hidden_size). Part of the all-or-none segment input group."
       },
       {
         "name": "gamma_quant",
@@ -46133,7 +46133,7 @@
         "name": "segment_embedding_scale",
         "type": "T",
         "option": "optional",
-        "description": "Scale for segment embeddings"
+        "description": "Scale for segment embeddings. Part of the all-or-none segment input group."
       },
       {
         "name": "gamma_scale",
@@ -46159,7 +46159,7 @@
         "name": "segment_embedding_zero_point",
         "type": "T2",
         "option": "optional",
-        "description": "Zero Point for segment embeddings"
+        "description": "Zero Point for segment embeddings. Part of the all-or-none segment input group."
       },
       {
         "name": "gamma_zero_point",
@@ -68425,7 +68425,7 @@
     "name": "TensorScatter",
     "module": "ai.onnx",
     "version": 24,
-    "description": "TensorScatter is a generic tensor update operation, motivated by the requirements for KV cache updates for Attention\nops commonly found in LLMs. It is a functional operation that models an in-place update to a KV cache buffer.\n\nThe past and present cache tensors have the same shape (batch_size, D1, D2, ..., max_sequence_length, ..., Dn), with\nthe sequence dimension (indicated by the `axis` attribute) being max_sequence_length, so the sizes of these tensors do\nnot need to grow between iterations. The `update` tensor's shape only differs from the cache tensors in the sequence\ndimension: (batch_size, D1, D2, ..., sequence_length, ..., Dn), where sequence_length <= max_sequence_length.\n\nThe optional `write_indices` input indicates the write index for each sample in the batch, assumed to be zero\nif not provided. When the `mode` attribute is set to \"circular\", the write index is modulo max_sequence_length.\nThe operation can be described using the following pseudocode:\n\n```\nfor prefix_idx in np.ndindex(past_cache.shape[:axis]):\n    batch_idx = prefix_idx[0]\n    for sequence_idx in range(sequence_length):\n        cache_idx = (*prefix_idx, write_indices[batch_idx] + sequence_idx)\n        if mode == \"circular\":\n            cache_idx = tuple(np.mod(np.asarray(cache_idx), max_sequence_length))\n        update_idx = (*prefix_idx, sequence_idx)\n        present_cache[cache_idx] = update[update_idx]\n```\n\nDuring the prefill phase of attention, only the first two inputs are needed. During the decode phase, `write_indices`\nis also needed so that the incoming key or value update can be appended after the last valid token for each sample\nin the batch.\n",
+    "description": "TensorScatter is a generic tensor update operation, motivated by the requirements for KV cache updates for Attention\nops commonly found in LLMs. It is a functional operation that models an in-place update to a KV cache buffer.\n\nThe past and present cache tensors have the same shape (batch_size, D1, D2, ..., max_sequence_length, ..., Dn), with\nthe sequence dimension (indicated by the `axis` attribute) being max_sequence_length, so the sizes of these tensors do\nnot need to grow between iterations. The `update` tensor's shape only differs from the cache tensors in the sequence\ndimension: (batch_size, D1, D2, ..., sequence_length, ..., Dn), where sequence_length <= max_sequence_length.\n\nThe optional `write_indices` input indicates the write index for each sample in the batch, assumed to be zero\nif not provided. When the `mode` attribute is set to \"circular\", the write index is modulo max_sequence_length.\nThe operation can be described using the following pseudocode:\n\n```\nfor prefix_idx in np.ndindex(past_cache.shape[:axis]):\n    batch_idx = prefix_idx[0]\n    for sequence_idx in range(sequence_length):\n        cache_sequence_idx = write_indices[batch_idx] + sequence_idx\n        if mode == \"circular\":\n            cache_sequence_idx = cache_sequence_idx % max_sequence_length\n        cache_idx = (*prefix_idx, cache_sequence_idx)\n        update_idx = (*prefix_idx, sequence_idx)\n        present_cache[cache_idx] = update[update_idx]\n```\n\nDuring the prefill phase of attention, only the first two inputs are needed. During the decode phase, `write_indices`\nis also needed so that the incoming key or value update can be appended after the last valid token for each sample\nin the batch.\n",
     "attributes": [
       {
         "name": "axis",
@@ -72487,6 +72487,96 @@
       }
     ],
     "category": "Data"
+  },
+  {
+    "name": "VarlenCausalConvWithState",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA only).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, kernel_size - 1). It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and commit one of the separately\nproduced states instead.\n\nWhen requested, prefix_states has shape\n(max_checkpoints, batch_size, channels, kernel_size - 1). Slot j for request b is the state\nafter local token j when j < min(max_checkpoints, sequence_length[b]). Other slots are\nunspecified and must not be read. max_checkpoints is static, defaults to zero, and is at most 8.\nThis output lets a transactional caller commit any produced prefix without rerunning the\nconvolution.\n\nFor memory-safety containment, each CUDA work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, output, or checkpoints.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n",
+    "attributes": [
+      {
+        "name": "activation",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "Fused activation function. One of: 'silu', 'swish', 'none'. Default is 'none'."
+      },
+      {
+        "name": "max_checkpoints",
+        "type": "int64",
+        "required": false,
+        "description": "Static number of per-request prefix states to expose. Checkpoint j is the state after local token j when that token exists. Unwritten slots are unspecified. Valid range is [0, 8]."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T",
+        "description": "Token-major packed input with shape (total_tokens, channels)."
+      },
+      {
+        "name": "weight",
+        "type": "T",
+        "description": "Depthwise convolution kernel with shape (channels, 1, kernel_size)."
+      },
+      {
+        "name": "cumulative_sequence_length",
+        "type": "M",
+        "description": "Device tensor with shape (batch_size + 1) giving the half-open packed token range of each sequence."
+      },
+      {
+        "name": "bias",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional per-channel bias with shape (channels). Because the following initial_state input is required, an omitted bias must still occupy this position as an empty input name so initial_state stays at input index 4."
+      },
+      {
+        "name": "initial_state",
+        "type": "T",
+        "description": "Required committed carry state with shape (batch_size, channels, kernel_size - 1)."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Token-major convolution output with the same shape as input."
+      },
+      {
+        "name": "final_state",
+        "type": "T",
+        "description": "Fully written state after each sequence's final token, with shape (batch_size, channels, kernel_size - 1)."
+      },
+      {
+        "name": "prefix_states",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional prefix checkpoints with shape (max_checkpoints, batch_size, channels, kernel_size - 1). Unwritten slots are unspecified."
+      }
+    ],
+    "min_output": 2,
+    "max_output": 3,
+    "outputs_range": "2 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain cumulative_sequence_length to a device int32 tensor.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
   },
   {
     "name": "Where",
