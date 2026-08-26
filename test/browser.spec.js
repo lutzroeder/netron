@@ -100,10 +100,11 @@ playwright.test('node neighborhood highlighting', async ({ page }) => {
     await playwright.expect(page.locator('#node-name-output')).toHaveClass(/\boutput-highlight\b/);
     await playwright.expect(inputEdges).toHaveCount(1);
     await playwright.expect(outputEdges).toHaveCount(1);
-    await playwright.expect(page.locator('#node-name-input > .node-border')).toHaveCSS('stroke', 'rgba(0, 128, 0, 0.9)');
-    await playwright.expect(page.locator('#node-name-output > .node-border')).toHaveCSS('stroke', 'rgba(220, 0, 0, 0.9)');
+    await playwright.expect(page.locator('#node-name-input > .node-border')).toHaveCSS('stroke', 'rgb(0, 138, 59)');
+    await playwright.expect(page.locator('#node-name-selected > .node-border')).toHaveCSS('stroke', 'rgb(37, 99, 235)');
+    await playwright.expect(page.locator('#node-name-output > .node-border')).toHaveCSS('stroke', 'rgb(211, 47, 47)');
     await playwright.expect(inputEdges).toHaveCSS('marker-end', /arrowhead-input-highlight/);
-    await playwright.expect(outputEdges).toHaveCSS('marker-end', /arrowhead-select/);
+    await playwright.expect(outputEdges).toHaveCSS('marker-end', /arrowhead-output-highlight/);
 
     const canvas = page.locator('#canvas');
     const style = await canvas.getAttribute('style');
@@ -115,5 +116,6 @@ playwright.test('node neighborhood highlighting', async ({ page }) => {
     await page.locator('#node-name-output .node-item-type').click();
     await playwright.expect(page.locator('#node-name-input')).not.toHaveClass(/\binput-highlight\b/);
     await playwright.expect(page.locator('#node-name-selected')).toHaveClass(/\binput-highlight\b/);
+    await playwright.expect(page.locator('#node-name-output > .node-border')).toHaveCSS('stroke', 'rgb(37, 99, 235)');
     await playwright.expect(outputEdges).toHaveCount(0);
 });
