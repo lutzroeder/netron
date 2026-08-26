@@ -1268,8 +1268,8 @@ coreml.Context.Graph = class {
                         default:
                             throw new coreml.Error(`Unsupported tensor value '${tensor.value}'.`);
                     }
-                    if (type.shape.dimensions.length === 0) {
-                        [values] = values;
+                    if (tensor.value !== 'bytes' && type.shape.dimensions.length === 0) {
+                        return values[0];
                     }
                     return values;
                 }
@@ -1346,14 +1346,12 @@ coreml.Context.Graph = class {
             return operation;
         });
         for (const op of operations) {
-            if (op.type === 'const' && op.inputs.length === 0 &&
-                op.outputs.length === 1 && op.outputs[0].value.length === 1) {
+            if (op.type === 'const' && op.inputs.length === 0 && op.outputs.length === 1 && op.outputs[0].value.length === 1) {
                 const [value] = op.outputs[0].value;
-                if (op.attributes && op.attributes.val) {
+                if (op.attributes && op.attributes.val !== undefined) {
                     const type = value.type;
                     const data = op.attributes.val;
-                    if (data instanceof Uint8Array && data.length === 2 &&
-                        type.dataType === 'float16' && type.shape.dimensions.length === 0) {
+                    if (data instanceof Uint8Array && data.length === 2 && type.dataType === 'float16' && type.shape.dimensions.length === 0) {
                         const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                         value.value = view.getFloat16(0, true);
                     } else {
