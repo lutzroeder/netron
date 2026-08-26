@@ -161,6 +161,7 @@ grapher.Graph = class {
             }
         });
         edgePathGroupDefs.appendChild(marker("arrowhead"));
+        edgePathGroupDefs.appendChild(marker("arrowhead-input-highlight"));
         edgePathGroupDefs.appendChild(marker("arrowhead-select"));
         edgePathGroupDefs.appendChild(marker("arrowhead-hover"));
         for (const nodeId of this.nodes.keys()) {
