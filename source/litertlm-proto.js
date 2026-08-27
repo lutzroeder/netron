@@ -138,6 +138,12 @@ litert.lm.proto.LlmMetadata = class LlmMetadata {
                 case 10:
                     message.kv_cache_init_value = reader.int64();
                     break;
+                case 11:
+                    message.supports_thinking = reader.bool();
+                    break;
+                case 12:
+                    message.supports_function_calling = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -155,6 +161,8 @@ litert.lm.proto.LlmMetadata.prototype.llm_model_type = null;
 litert.lm.proto.LlmMetadata.prototype.jinja_prompt_template = "";
 litert.lm.proto.LlmMetadata.prototype.suppress_tokens = null;
 litert.lm.proto.LlmMetadata.prototype.kv_cache_init_value = 0n;
+litert.lm.proto.LlmMetadata.prototype.supports_thinking = false;
+litert.lm.proto.LlmMetadata.prototype.supports_function_calling = false;
 
 litert.lm.proto.LlmModelType = class LlmModelType {
 
