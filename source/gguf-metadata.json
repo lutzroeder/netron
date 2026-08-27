@@ -4285,5 +4285,34 @@
         { "name": "output", "type": "MUL_MAT" }
       ]
     }
+  },
+  {
+    "name": "qwen4exp",
+    "family": "delta-hybrid",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "per_layer_token_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "hc_attn", "type": "HYPER_CONNECTION", "tensors": ["hc_attn_norm", "hc_attn_down", "hc_attn_up", "hc_attn_inject"] },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_q_norm", "attn_k", "attn_k_norm", "attn_v", "attn_output", "indexer.q_proj", "indexer.k_proj", "indexer.q_norm", "indexer.k_norm"] },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
+        { "name": "hc_ffn", "type": "HYPER_CONNECTION", "tensors": ["hc_ffn_norm", "hc_ffn_down", "hc_ffn_up", "hc_ffn_inject"] },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT", "tensors": ["ffn_gate_inp", "ffn_gate_inp_shexp"] },
+        { "name": "ffn_gate_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_gate_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_down_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_up_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_down_shexp", "type": "MUL_MAT" },
+        { "name": "ple", "type": "PLE", "category": "Transform", "tensors": ["ple_key", "ple_value", "ple_norm_key", "ple_norm_query", "ple_norm_conv", "ple_conv1d"] }
+      ],
+      "output": [
+        { "name": "output_hc", "type": "HYPER_CONNECTION", "tensors": ["output_hc_norm", "output_hc_down", "output_hc_up"] },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
   }
 ]

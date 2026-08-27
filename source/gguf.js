@@ -255,7 +255,33 @@ gguf.Graph = class {
                     addNode(use('nextn.eh_proj'), [concat], out);
                     prevValue = out;
                 }
-                if (has('attn_norm') && has('attention') && !has('ffn_norm') && !has('attn_post_norm') && hasFfn) {
+                if (graph.type === 'qwen4exp' && has('hc_attn') && has('hc_ffn')) {
+                    let residual = prevValue || newValue();
+                    if (has('ple')) {
+                        const out = newValue();
+                        const inputs = perLayerInputValue ? [residual, perLayerInputValue] : [residual];
+                        addNode(use('ple'), inputs, out);
+                        residual = out;
+                    }
+                    const tokenInput = newValue();
+                    addNode(use('hc_attn'), [residual], tokenInput);
+                    let tokenOutput = tokenInput;
+                    for (const name of ['attention', 'ssm']) {
+                        if (has(name)) {
+                            tokenOutput = newValue();
+                            addNode(use(name), [tokenInput], tokenOutput);
+                            break;
+                        }
+                    }
+                    const tokenResidual = newValue();
+                    addOp('HYPER_CONNECTION', [residual, tokenOutput], tokenResidual);
+                    const ffnInput = newValue();
+                    addNode(use('hc_ffn'), [tokenResidual], ffnInput);
+                    const ffnOutput = buildFfn(ffnInput);
+                    const output = newValue();
+                    addOp('HYPER_CONNECTION', [tokenResidual, ffnOutput], output);
+                    prevValue = output;
+                } else if (has('attn_norm') && has('attention') && !has('ffn_norm') && !has('attn_post_norm') && hasFfn) {
                     // Parallel attention + FFN (phi-2, falcon)
                     const inp = prevValue || newValue();
                     const normOut = newValue();
@@ -545,6 +571,9 @@ gguf.Graph = class {
                 node.outputs.push(new gguf.Argument('output', [out]));
                 this.nodes.push(node);
                 perLayerOutputs[layer.name] = out;
+                if (graph.type === 'qwen4exp' && layer.name === 'per_layer_token_embd') {
+                    perLayerInputValue = out;
+                }
                 if (perLayerOutputs.per_layer_token_embd && perLayerOutputs.per_layer_proj_norm && !perLayerInputValue) {
                     perLayerInputValue = newValue();
                     addOp('ADD', [perLayerOutputs.per_layer_proj_norm, perLayerOutputs.per_layer_token_embd], perLayerInputValue);
@@ -1201,7 +1230,16 @@ gguf.Context = class {
         const sectionFlat = (prefix, names) => {
             for (const name of names) {
                 const key = fullPrefix(prefix, name);
-                const weights = collectWeights(key);
+                const block = this._blockTypes.get(name);
+                const members = [name, ...(block?.tensors || [])];
+                const weights = new Map();
+                for (const member of members) {
+                    const memberWeights = collectWeights(fullPrefix(prefix, member));
+                    for (const [param, tensor] of memberWeights) {
+                        const weightName = members.length > 1 ? `${member}.${param}` : param;
+                        weights.set(weightName, tensor);
+                    }
+                }
                 if (weights.size > 0) {
                     pushFlat(key, weights);
                 }
