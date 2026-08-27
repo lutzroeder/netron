@@ -540,6 +540,7 @@
     "description": "Declares an OpenACC privatization recipe with copy of the initial value.\n    The operation requires two mandatory regions and one optional.\n\n      1. The initializer region specifies how to allocate and initialize a new\n         private value. For example in Fortran, a derived-type might have a\n         default initialization. The region has an argument that contains the\n         original value that needs to be privatized, followed by bounds arguments\n         (if any) in order from innermost to outermost dimension. The region must\n         yield the privatized copy.\n      2. The copy region specifies how to copy the initial value to the newly\n         created private value. It takes the original value, the privatized\n         value, followed by bounds arguments (if any) in the same order.\n      3. The destroy region specifies how to destruct the value when it reaches\n         its end of life. It takes the original value, the privatized value, and\n         bounds arguments (if any) in the same order. It is optional.\n\n    A single privatization recipe can be used for multiple operand if they have\n    the same type and do not require a specific default initialization.\n\n    Example:\n\n    ```mlir\n    acc.firstprivate.recipe @firstprivate_memref : memref<10x20xf32> init {\n    ^bb0(%original: memref<10x20xf32>):\n      // init region contains a sequence of operations to create and\n      // initialize the copy. It yields the privatized copy.\n      %alloca = memref.alloca() : memref<10x20xf32>\n      acc.yield %alloca : memref<10x20xf32>\n    } copy {\n    ^bb0(%original: memref<10x20xf32>, %privatized: memref<10x20xf32>):\n      // copy region contains a sequence of operations to copy the initial value\n      // of the firstprivate value to the newly created value.\n      memref.copy %original, %privatized : memref<10x20xf32> to memref<10x20xf32>\n      acc.terminator\n    } destroy {\n    ^bb0(%original: memref<10x20xf32>, %privatized: memref<10x20xf32>):\n      // destroy region is empty since alloca is automatically cleaned up\n      acc.terminator\n    }\n\n    // Example with bounds for array slicing:\n    acc.firstprivate.recipe @firstprivate_slice : memref<10x20xf32> init {\n    ^bb0(%original: memref<10x20xf32>, %bounds_inner: !acc.data_bounds_ty, %bounds_outer: !acc.data_bounds_ty):\n      // Extract bounds and create appropriately sized allocation\n      %extent_inner = acc.get_extent %bounds_inner : (!acc.data_bounds_ty) -> index\n      %extent_outer = acc.get_extent %bounds_outer : (!acc.data_bounds_ty) -> index\n      %slice_alloc = memref.alloca(%extent_outer, %extent_inner) : memref<?x?xf32>\n      // ... base pointer adjustment logic ...\n      acc.yield %result : memref<10x20xf32>\n    } copy {\n    ^bb0(%original: memref<10x20xf32>, %privatized: memref<10x20xf32>, %bounds_inner: !acc.data_bounds_ty, %bounds_outer: !acc.data_bounds_ty):\n      // Copy the slice portion from original to privatized\n      %lb_inner = acc.get_lowerbound %bounds_inner : (!acc.data_bounds_ty) -> index\n      %lb_outer = acc.get_lowerbound %bounds_outer : (!acc.data_bounds_ty) -> index\n      %extent_inner = acc.get_extent %bounds_inner : (!acc.data_bounds_ty) -> index\n      %extent_outer = acc.get_extent %bounds_outer : (!acc.data_bounds_ty) -> index\n      %subview = memref.subview %original[%lb_outer, %lb_inner][%extent_outer, %extent_inner][1, 1]\n        : memref<10x20xf32> to memref<?x?xf32, strided<[20, 1], offset: ?>>\n      // Copy subview to privatized...\n      acc.terminator\n    }\n\n    // The privatization symbol is then used in the corresponding operation.\n    acc.parallel firstprivate(@firstprivate_memref -> %a : memref<10x20xf32>) {\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" }
     ],
     "regions": [
@@ -550,7 +551,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name `:` $type attr-dict-with-keyword `init` $initRegion\n    `copy` $copyRegion\n    (`destroy` $destroyRegion^)?"
+    "assemblyFormat": "($sym_visibility^)? $sym_name `:` $type attr-dict-with-keyword\n    `init` $initRegion\n    `copy` $copyRegion\n    (`destroy` $destroyRegion^)?"
   },
   {
     "name": "acc.get_extent",
@@ -634,7 +635,8 @@
     "summary": "Used to hold construction operations associated with globals such as declare",
     "description": "The \"acc.global_ctor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the entry to the implicit data region.\n    This operation is isolated and intended to be used in a module.\n\n    Example showing `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_ctor @acc_constructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.create varPtr(%0 : !llvm.ptr) -> !llvm.ptr\n      acc.declare_enter dataOperands(%1 : !llvm.ptr)\n    }\n    ```",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "region", "type": "AnyRegion" }
@@ -642,14 +644,15 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name $region attr-dict-with-keyword"
+    "assemblyFormat": "($sym_visibility^)? $sym_name $region attr-dict-with-keyword"
   },
   {
     "name": "acc.global_dtor",
     "summary": "Used to hold destruction operations associated with globals such as declare",
     "description": "The \"acc.global_dtor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the exit from the implicit data\n    region. This operation is isolated and intended to be used in a module.\n\n    Example showing delete associated with `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_dtor @acc_destructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.getdeviceptr varPtr(%0 : !llvm.ptr) -> !llvm.ptr {dataClause = #acc<data_clause create>}\n      acc.declare_exit dataOperands(%1 : !llvm.ptr)\n      acc.delete accPtr(%1 : !llvm.ptr) {dataClause = #acc<data_clause create>}\n    }\n    ```",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "region", "type": "AnyRegion" }
@@ -657,7 +660,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name $region attr-dict-with-keyword"
+    "assemblyFormat": "($sym_visibility^)? $sym_name $region attr-dict-with-keyword"
   },
   {
     "name": "acc.gpu_shared_memory",
@@ -1004,6 +1007,7 @@
     "description": "Declares an OpenACC privatization recipe. The operation requires one\n    mandatory and one optional region.\n\n      1. The initializer region specifies how to allocate and initialize a new\n         private value. For example in Fortran, a derived-type might have a\n         default initialization. The region has an argument that contains the\n         original value that needs to be privatized, followed by bounds arguments\n         (if any) in order from innermost to outermost dimension. The region\n         must yield the privatized copy.\n      2. The destroy region specifies how to destruct the value when it reaches\n         its end of life. It takes the original value, the privatized value, and\n         bounds arguments (if any) in the same order as the init region.\n\n    A single privatization recipe can be used for multiple operand if they have\n    the same type and do not require a specific default initialization.\n\n    Example:\n\n    ```mlir\n    acc.private.recipe @privatization_memref : memref<10x20xf32> init {\n    ^bb0(%original: memref<10x20xf32>):\n      // init region contains a sequence of operations to create and\n      // initialize the copy. It yields the privatized copy.\n      %alloca = memref.alloca() : memref<10x20xf32>\n      acc.yield %alloca : memref<10x20xf32>\n    } destroy {\n    ^bb0(%original: memref<10x20xf32>, %privatized: memref<10x20xf32>):\n      // destroy region is empty since alloca is automatically cleaned up\n      acc.terminator\n    }\n\n    // Example with bounds for array slicing:\n    acc.private.recipe @privatization_slice : memref<10x20xf32> init {\n    ^bb0(%original: memref<10x20xf32>, %bounds_inner: !acc.data_bounds_ty, %bounds_outer: !acc.data_bounds_ty):\n      // Extract bounds and create appropriately sized allocation\n      %extent_inner = acc.get_extent %bounds_inner : (!acc.data_bounds_ty) -> index\n      %extent_outer = acc.get_extent %bounds_outer : (!acc.data_bounds_ty) -> index\n      %slice_alloc = memref.alloca(%extent_outer, %extent_inner) : memref<?x?xf32>\n      // ... base pointer adjustment logic ...\n      acc.yield %result : memref<10x20xf32>\n    } destroy {\n    ^bb0(%original: memref<10x20xf32>, %privatized: memref<10x20xf32>, %bounds_inner: !acc.data_bounds_ty, %bounds_outer: !acc.data_bounds_ty):\n      // Cleanup is automatic for alloca-based allocations\n      acc.terminator\n    }\n\n    // The privatization symbol is then used in the corresponding operation.\n    acc.parallel private(@privatization_memref -> %a : memref<10x20xf32>) {\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" }
     ],
     "regions": [
@@ -1013,7 +1017,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name `:` $type attr-dict-with-keyword `init` $initRegion\n    (`destroy` $destroyRegion^)?"
+    "assemblyFormat": "($sym_visibility^)? $sym_name `:` $type attr-dict-with-keyword\n    `init` $initRegion\n    (`destroy` $destroyRegion^)?"
   },
   {
     "name": "acc.privatize",
@@ -1142,6 +1146,7 @@
     "description": "Declares an OpenACC reduction recipe. The operation requires two\n    mandatory regions and one optional region.\n\n      1. The initializer region specifies how to initialize the local reduction\n         value. The region has a first argument that contains the original value\n         that needs to be reduced, followed by bounds arguments (if any) in order\n         from innermost to outermost dimension. It is expected to `acc.yield` the\n         initialized reduction value.\n      2. The combiner region contains a sequence of operations to combine two\n         values of the reduction type into one. It has the first reduction value,\n         the second reduction value, followed by bounds arguments (if any) in the\n         same order. It is expected to `acc.yield` the combined value.\n      3. The optional destroy region specifies how to destruct the value when it\n         reaches its end of life. It takes the original value, the reduction value,\n         and bounds arguments (if any) in the same order.\n\n    Example:\n\n    ```mlir\n    acc.reduction.recipe @reduction_add_memref : memref<10x20xf32> reduction_operator<add> init {\n    ^bb0(%original: memref<10x20xf32>):\n      // init region contains a sequence of operations to initialize the local\n      // reduction value as specified in 2.5.15\n      %alloca = memref.alloca() : memref<10x20xf32>\n      %cst = arith.constant 0.0 : f32\n      linalg.fill ins(%cst : f32) outs(%alloca : memref<10x20xf32>)\n      acc.yield %alloca : memref<10x20xf32>\n    } combiner {\n    ^bb0(%lhs: memref<10x20xf32>, %rhs: memref<10x20xf32>):\n      // combiner region contains a sequence of operations to combine\n      // two values into one.\n      linalg.add ins(%lhs, %rhs : memref<10x20xf32>, memref<10x20xf32>)\n                 outs(%lhs : memref<10x20xf32>)\n      acc.yield %lhs : memref<10x20xf32>\n    } destroy {\n    ^bb0(%original: memref<10x20xf32>, %reduction: memref<10x20xf32>):\n      // destroy region is empty since alloca is automatically cleaned up\n      acc.terminator\n    }\n\n    // Example with bounds for array slicing:\n    acc.reduction.recipe @reduction_add_slice : memref<10x20xf32> reduction_operator<add> init {\n    ^bb0(%original: memref<10x20xf32>, %bounds_inner: !acc.data_bounds_ty, %bounds_outer: !acc.data_bounds_ty):\n      // Extract bounds and create appropriately sized allocation\n      %extent_inner = acc.get_extent %bounds_inner : (!acc.data_bounds_ty) -> index\n      %extent_outer = acc.get_extent %bounds_outer : (!acc.data_bounds_ty) -> index\n      %slice_alloc = memref.alloca(%extent_outer, %extent_inner) : memref<?x?xf32>\n      %cst = arith.constant 0.0 : f32\n      linalg.fill ins(%cst : f32) outs(%slice_alloc : memref<?x?xf32>)\n      // ... base pointer adjustment logic ...\n      acc.yield %result : memref<10x20xf32>\n    } combiner {\n    ^bb0(%lhs: memref<10x20xf32>, %rhs: memref<10x20xf32>, %bounds_inner: !acc.data_bounds_ty, %bounds_outer: !acc.data_bounds_ty):\n      // Extract bounds to operate only on the slice portion\n      %lb_inner = acc.get_lowerbound %bounds_inner : (!acc.data_bounds_ty) -> index\n      %lb_outer = acc.get_lowerbound %bounds_outer : (!acc.data_bounds_ty) -> index\n      %extent_inner = acc.get_extent %bounds_inner : (!acc.data_bounds_ty) -> index\n      %extent_outer = acc.get_extent %bounds_outer : (!acc.data_bounds_ty) -> index\n\n      // Create subviews to access only the slice portions\n      %lhs_slice = memref.subview %lhs[%lb_outer, %lb_inner][%extent_outer, %extent_inner][1, 1]\n        : memref<10x20xf32> to memref<?x?xf32, strided<[20, 1], offset: ?>>\n      %rhs_slice = memref.subview %rhs[%lb_outer, %lb_inner][%extent_outer, %extent_inner][1, 1]\n        : memref<10x20xf32> to memref<?x?xf32, strided<[20, 1], offset: ?>>\n\n      // Combine only the slice portions\n      linalg.add ins(%lhs_slice, %rhs_slice : memref<?x?xf32, strided<[20, 1], offset: ?>>, memref<?x?xf32, strided<[20, 1], offset: ?>>)\n                 outs(%lhs_slice : memref<?x?xf32, strided<[20, 1], offset: ?>>)\n      acc.yield %lhs : memref<10x20xf32>\n    }\n\n    // The reduction symbol is then used in the corresponding operation.\n    acc.parallel reduction(@reduction_add_memref -> %a : memref<10x20xf32>) {\n    }\n    ```\n\n    The following table lists the valid operators and the initialization values\n    according to OpenACC 3.3:\n\n    |------------------------------------------------|\n    |        C/C++          |        Fortran         |\n    |-----------------------|------------------------|\n    | operator | init value | operator | init value  |\n    |     +    |      0     |     +    |      0      |\n    |     *    |      1     |     *    |      1      |\n    |    max   |    least   |    max   |    least    |\n    |    min   |   largest  |    min   |   largest   |\n    |     &    |     ~0     |   iand   | all bits on |\n    |     |    |      0     |    ior   |      0      |\n    |     ^    |      0     |   ieor   |      0      |\n    |    &&    |      1     |   .and.  |    .true.   |\n    |    ||    |      0     |    .or.  |   .false.   |\n    |          |            |   .eqv.  |    .true.   |\n    |          |            |  .neqv.  |   .false.   |\n    -------------------------------------------------|",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" },
       { "name": "reductionOperator", "type": "OpenACC_ReductionOperatorAttr{none|add|mul|max|min|iand|ior|xor|eqv|neqv|land|lor|maximumf|minimumf|maxnumf|minnumf}" }
     ],
@@ -1153,7 +1158,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name `:` $type attr-dict-with-keyword\n    `reduction_operator` $reductionOperator\n    `init` $initRegion `combiner` $combinerRegion\n    (`destroy` $destroyRegion^)?"
+    "assemblyFormat": "($sym_visibility^)? $sym_name `:` $type attr-dict-with-keyword\n    `reduction_operator` $reductionOperator\n    `init` $initRegion `combiner` $combinerRegion\n    (`destroy` $destroyRegion^)?"
   },
   {
     "name": "acc.routine",
@@ -1161,6 +1166,7 @@
     "description": "The `acc.routine` operation is used to capture the clauses of acc\n    routine directive, including the associated function name. The associated\n    function keeps track of its corresponding routine declaration through\n    the `RoutineInfoAttr`.\n\n    Example:\n\n    ```mlir\n    func.func @acc_func(%a : i64) -> () attributes \n        {acc.routine_info = #acc.routine_info<[@acc_func_rout1]>} {\n      return\n    }\n    acc.routine @acc_func_rout1 func(@acc_func) gang\n    ```\n\n    `bind`, `gang`, `worker`, `vector` and `seq` operands are supported with\n    `device_type` information. They should only be accessed by the extra\n    provided getters. If modified, the corresponding `device_type` attributes\n    must be modified as well.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "func_name", "type": "SymbolRefAttr" },
       { "name": "bindIdName", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "bindStrName", "type": "OptionalAttr<TypedArrayAttrBase<StrAttr>>" },
@@ -1178,7 +1184,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name `func` `(` $func_name `)`\n    oilist (\n        `bind` `(` custom<BindName>($bindIdName, $bindStrName ,$bindIdNameDeviceType, $bindStrNameDeviceType) `)`\n      | `gang` `` custom<RoutineGangClause>($gang, $gangDim, $gangDimDeviceType)\n      | `worker` custom<DeviceTypeArrayAttr>($worker)\n      | `vector` custom<DeviceTypeArrayAttr>($vector)\n      | `seq` custom<DeviceTypeArrayAttr>($seq)\n      | `nohost` $nohost\n      | `implicit` $implicit\n    ) attr-dict-with-keyword"
+    "assemblyFormat": "($sym_visibility^)? $sym_name `func` `(` $func_name `)`\n    oilist (\n        `bind` `(` custom<BindName>($bindIdName, $bindStrName ,$bindIdNameDeviceType, $bindStrNameDeviceType) `)`\n      | `gang` `` custom<RoutineGangClause>($gang, $gangDim, $gangDimDeviceType)\n      | `worker` custom<DeviceTypeArrayAttr>($worker)\n      | `vector` custom<DeviceTypeArrayAttr>($vector)\n      | `seq` custom<DeviceTypeArrayAttr>($seq)\n      | `nohost` $nohost\n      | `implicit` $implicit\n    ) attr-dict-with-keyword"
   },
   {
     "name": "acc.serial",
@@ -11867,6 +11873,7 @@
     "description": "The `emitc.class` operation defines a C++ class, acting as a container\n    for its data fields (`emitc.field`) and methods (`emitc.func`).\n    It creates a distinct scope, isolating its contents from the surrounding\n    MLIR region, similar to how C++ classes encapsulate their internals.\n\n    Example:\n\n    ```mlir\n    emitc.class @modelClass {\n      emitc.field @fieldName0 : !emitc.array<1xf32> = {emitc.opaque = \"input_tensor\"}\n      emitc.func @execute() {\n        %0 = \"emitc.constant\"() <{value = 0 : index}> : () -> !emitc.size_t\n        %1 = get_field @fieldName0 : !emitc.array<1xf32>\n        %2 = subscript %1[%0] : (!emitc.array<1xf32>, !emitc.size_t) -> !emitc.lvalue<f32>\n        return\n      }\n    }\n    // Class with a final specifer\n    emitc.class final @modelClass {\n      emitc.field @fieldName0 : !emitc.array<1xf32> = {emitc.opaque = \"input_tensor\"}\n      emitc.func @execute() {\n        %0 = \"emitc.constant\"() <{value = 0 : index}> : () -> !emitc.size_t\n        %1 = get_field @fieldName0 : !emitc.array<1xf32>\n        %2 = subscript %1[%0] : (!emitc.array<1xf32>, !emitc.size_t) -> !emitc.lvalue<f32>\n        return\n      }\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "final_specifier", "type": "UnitAttr" },
       { "name": "class_type", "type": "DefaultValuedAttr<EmitC_ClassTypeAttr{class|struct|union}, ClassType::class_>" }
     ],
@@ -11876,7 +11883,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "($class_type^)? (`final` $final_specifier^)? $sym_name attr-dict-with-keyword $body"
+    "assemblyFormat": "($class_type^)? (`final` $final_specifier^)? ($sym_visibility^)? $sym_name attr-dict-with-keyword $body"
   },
   {
     "name": "emitc.cmp",
@@ -12004,10 +12011,11 @@
     "description": "The `emitc.field` operation declares a named field within an `emitc.class`\n    operation. The field's type must be an EmitC type.\n\n    Example:\n\n    ```mlir\n    // Example with an attribute:\n    emitc.field @fieldName0 : !emitc.array<1xf32>  {emitc.opaque = \"another_feature\"}\n    // Example with no attribute:\n    emitc.field @fieldName0 : !emitc.array<1xf32>\n    // Example with an initial value:\n    emitc.field @fieldName0 : !emitc.array<1xf32> = dense<0.0>\n    // Example with an initial value and attributes:\n    emitc.field @fieldName0 : !emitc.array<1xf32> = dense<0.0> {\n      emitc.opaque = \"input_tensor\"}\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" },
       { "name": "initial_value", "type": "OptionalAttr<EmitC_OpaqueOrTypedAttr>" }
     ],
-    "assemblyFormat": "$sym_name\n       `:` custom<EmitCFieldOpTypeAndInitialValue>($type, $initial_value)\n       attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name\n       `:` custom<EmitCFieldOpTypeAndInitialValue>($type, $initial_value)\n       attr-dict"
   },
   {
     "name": "emitc.file",
@@ -12049,6 +12057,7 @@
     "description": "Operations within the function cannot implicitly capture values defined\n    outside of the function, i.e. Functions are `IsolatedFromAbove`. All\n    external references must use function arguments or attributes that establish\n    a symbolic connection (e.g. symbols referenced by name via a string\n    attribute like SymbolRefAttr). While the MLIR textual form provides a nice\n    inline syntax for function arguments, they are internally represented as\n    “block arguments” to the first block in the region.\n\n    Only dialect attribute names may be specified in the attribute dictionaries\n    for function arguments, results, or the function itself.\n\n    Example:\n\n    ```mlir\n    // A function with no results:\n    emitc.func @foo(%arg0 : i32) {\n      emitc.call_opaque \"bar\" (%arg0) : (i32) -> ()\n      emitc.return\n    }\n\n    // A function with its argument as single result:\n    emitc.func @foo(%arg0 : i32) -> i32 {\n      emitc.return %arg0 : i32\n    }\n\n    // A function with specifiers attribute:\n    emitc.func @example_specifiers_fn_attr() -> i32\n                attributes {specifiers = [\"static\",\"inline\"]} {\n      %0 = emitc.call_opaque \"foo\" (): () -> i32\n      emitc.return %0 : i32\n    }\n\n    // An external function definition:\n    emitc.func private @extern_func(i32)\n                        attributes {specifiers = [\"extern\"]}\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "specifiers", "type": "OptionalAttr<TypedArrayAttrBase<StrAttr>>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
@@ -12093,13 +12102,14 @@
     "description": "The `emitc.global` operation declares or defines a named global variable.\n    The backing memory for the variable is allocated statically and described by\n    the variable's type, which must be an EmitC type.\n    Optionally, an `initial_value` can be provided.\n    Internal linkage can be specified using the `static_specifier` unit attribute\n    and external linkage can be specified using the `extern_specifier` unit attribute.\n    Note that the default linkage without those two keywords depends on whether\n    the target is C or C++ and whether the global variable is `const`.\n    The global variable can also be marked constant using the `const_specifier`\n    unit attribute. Writing to such constant global variables is\n    undefined.\n\n    The global variable can be accessed by using the `emitc.get_global` to\n    retrieve the value for the global variable.\n\n    Example:\n\n    ```mlir\n    // Global variable with an initial value.\n    emitc.global @x : !emitc.array<2xf32> = dense<0.0>\n    // Global variable with an initial values.\n    emitc.global @x : !emitc.array<3xi32> = dense<[0, 1, 2]>\n    // Global variable with an opaque initial value.\n    emitc.global @x : !emitc.opaque<\"char\"> = #emitc.opaque<\"CHAR_MIN\">\n    // External global variable\n    emitc.global extern @x : !emitc.array<2xf32>\n    // Constant global variable with internal linkage\n    emitc.global static const @x : i32 = 0\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" },
       { "name": "initial_value", "type": "OptionalAttr<EmitC_OpaqueOrTypedAttr>" },
       { "name": "extern_specifier", "type": "UnitAttr" },
       { "name": "static_specifier", "type": "UnitAttr" },
       { "name": "const_specifier", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "(`extern` $extern_specifier^)?\n       (`static` $static_specifier^)?\n       (`const` $const_specifier^)?\n       $sym_name\n       `:` custom<EmitCGlobalOpTypeAndInitialValue>($type, $initial_value)\n       attr-dict"
+    "assemblyFormat": "(`extern` $extern_specifier^)?\n       (`static` $static_specifier^)?\n       (`const` $const_specifier^)?\n       ($sym_visibility^)?\n       $sym_name\n       `:` custom<EmitCGlobalOpTypeAndInitialValue>($type, $initial_value)\n       attr-dict"
   },
   {
     "name": "emitc.if",
@@ -14876,10 +14886,11 @@
     "description": "GPU binaries provide a semantic mechanism for storing GPU objects,\n    e.g. the result of compiling a GPU module to an object file.\n\n    This operation has 3 arguments:\n     - The name of the binary.\n     - An optional attribute implementing the offloading LLVM translation interface.\n     - An array of GPU object attributes.\n\n    During translation, the offloading attribute will be called for translating\n    GPU `binary` and `launch_func` operations. The default offloading handler is:\n    `#gpu.select_object`, this handler selects the first object from the array\n    and embeds it as a string.\n\n    Examples:\n    ```\n      // Selects the first object.\n      gpu.binary @myobject [#gpu.object<...>, #gpu.object<...>]\n      // Uses the `#foo.my_handler` for handling the binary during translation.\n      gpu.binary @myobject <#foo.my_handler> [#gpu.object<...>, #gpu.object<...>]\n      // Selects the object with the `#rocdl.target` target attribute.\n      gpu.binary @myobject <#gpu.select_object<#rocdl.target>> [#gpu.object<...>, #gpu.object<#rocdl.target, ...>]\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "offloadingHandler", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [HasOffloadingTranslationAttrTrait]>>" },
       { "name": "objects", "type": "ConfinedAttr<TypedArrayAttrBase<GPU_ObjectAttr>, [ArrayMinCount<1>]>" }
     ],
-    "assemblyFormat": "$sym_name custom<OffloadingHandler>($offloadingHandler) attr-dict $objects"
+    "assemblyFormat": "($sym_visibility^)? $sym_name\n    custom<OffloadingHandler>($offloadingHandler) attr-dict $objects"
   },
   {
     "name": "gpu.block_dim",
@@ -15139,6 +15150,8 @@
     "summary": "Function executable on a GPU",
     "description": "Defines a function that can be executed on a GPU. This supports memory\n    attribution and its body has a particular execution model.\n\n    GPU functions are either kernels (as indicated by the `kernel` attribute) or\n    regular functions. The former can be launched from the host side, while the\n    latter are device side only.\n\n    The memory attribution defines SSA values that correspond to memory buffers\n    allocated in the memory hierarchy of the GPU (see below).\n\n    The operation has one attached region that corresponds to the body of the\n    function. The region arguments consist of the function arguments without\n    modification, followed by buffers defined in memory annotations. The body of\n    a GPU function, when launched, is executed by multiple work items. There are\n    no guarantees on the order in which work items execute, or on the connection\n    between them. In particular, work items are not necessarily executed in\n    lock-step. Synchronization ops such as \"gpu.barrier\" should be used to\n    coordinate work items. Declarations of GPU functions, i.e. not having the\n    body region, are not supported.\n\n    A function may optionally be annotated with the block and/or grid sizes\n    that will be used when it is launched using the `known_block_size` and\n    `known_grid_size` attributes, respectively. If set, these attributes must\n    be arrays of three 32-bit integers giving the x, y, and z launch dimensions.\n    Launching a kernel that has these annotations, or that calls a function with\n    these annotations, using a block size or grid size other than what is specified\n    is undefined behavior. These attributes may be set on non-`gpu.func` functions\n    by using `gpu.known_block_size` or `gpu.known_grid_size`, but this carries\n    the risk that they will de discarded.\n\n    Syntax:\n\n    ```\n    op ::= `gpu.func` symbol-ref-id `(` argument-list `)` (`->`\n    function-result-list)?\n           memory-attribution `kernel`? function-attributes? region\n\n    memory-attribution ::= (`workgroup` `(` ssa-id-and-type-list `)`)?\n                           (`private` `(` ssa-id-and-type-list `)`)?\n    ```\n\n    Example:\n\n    ```mlir\n    gpu.func @foo(%arg0: index)\n        workgroup(%workgroup: memref<32xf32, 3>)\n        private(%private: memref<1xf32, 5>)\n        kernel\n        attributes {qux: \"quux\"} {\n      gpu.return\n    }\n    ```\n\n    The generic form illustrates the concept\n\n    ```mlir\n    \"gpu.func\"(%arg: index) {sym_name: \"foo\", kernel, qux: \"quux\"} ({\n    ^bb0(%arg0: index, %workgroup: memref<32xf32, 3>,\n         %private: memref<1xf32, 5>):\n      \"gpu.return\"() : () -> ()\n    }) : (index) -> ()\n    ```\n\n    Note the non-default memory spaces used in memref types in memory\n    attribution.",
     "attributes": [
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
@@ -15324,6 +15337,7 @@
     "description": "GPU module contains code that is intended to be run on a GPU. A host device\n    can launch this code through a gpu.launc_func that creates a fully\n    qualified symbol through the gpu.module's symbol and a gpu.func symbol\n    contained in the gpu.module.\n\n    The module's top-level scope is modeled by a single region with a single\n    block. GPU modules are required to have a name that is used for symbol\n    resolution by the gpu.launch_func operation.\n\n    Using an op with a region to define a GPU module enables \"embedding\" GPU\n    modules with SIMT execution models in other dialects in a clean manner and\n    allows filtering of code regions to execute passes on only code intended to\n    or not intended to be run on the separate device.\n\n    Modules can contain zero or more target attributes. These attributes encode\n    how to transform modules into binary strings and are used by the\n    `gpu-module-to-binary` pass to transform modules into GPU binaries.\n\n    Modules can contain an optional `OffloadingTranslationAttr` attribute. This\n    attribute will be used during the `gpu-module-to-binary` pass to specify the\n    `OffloadingTranslationAttr` used when creating the `gpu.binary` operation.\n\n    ```\n    gpu.module @symbol_name {\n      gpu.func {}\n        ...\n    }\n    // Module with offloading handler and target attributes.\n    gpu.module @symbol_name2 <#gpu.select_object<1>> [\n        #nvvm.target,\n        #rocdl.target<chip = \"gfx90a\">] {\n      gpu.func {}\n        ...\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "targets", "type": "OptionalAttr<ConfinedAttr<TypedArrayAttrBase<ConfinedAttr<AnyAttr, [PromisedAttrInterface<GPUTargetAttrInterface>]>>, [ArrayMinCount<1>]>>" },
       { "name": "offloadingHandler", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [HasOffloadingTranslationAttrTrait]>>" }
     ],
@@ -15333,7 +15347,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name\n    (`<` $offloadingHandler^ `>`)?\n    ($targets^)? attr-dict-with-keyword $bodyRegion"
+    "assemblyFormat": "($sym_visibility^)? $sym_name\n    (`<` $offloadingHandler^ `>`)?\n    ($targets^)? attr-dict-with-keyword $bodyRegion"
   },
   {
     "name": "gpu.num_subgroups",
@@ -18482,7 +18496,8 @@
     "summary": "Define a new attribute",
     "description": "`irdl.attribute` defines a new attribute belonging to the `irdl.dialect`\n    parent.\n\n    The attribute parameters can be defined with an `irdl.parameters` operation\n    in the optional region.\n\n    Example:\n\n    ```mlir\n    irdl.dialect @testd {\n      irdl.attribute @enum_attr {\n        %0 = irdl.is \"foo\"\n        %1 = irdl.is \"bar\"\n        %2 = irdl.any_of(%0, %1)\n        irdl.parameters(%2)\n      }\n    }\n    ```\n\n    The above program defines an `enum_attr` attribute inside the `testd`\n    dialect. The attribute has one `StringAttr` parameter that should be\n    either a `\"foo\"` or a `\"bar\"`.",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "SizedRegion<1>" }
@@ -18490,7 +18505,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
+    "assemblyFormat": "($sym_visibility^)? $sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
   },
   {
     "name": "irdl.attributes",
@@ -18534,7 +18549,8 @@
     "summary": "Define a new dialect",
     "description": "The `irdl.dialect` operation defines a dialect. All operations, attributes,\n    and types defined inside its region will be part of the dialect.\n\n    Example:\n\n    ```mlir\n    irdl.dialect @cmath {\n      ...\n    }\n    ```\n\n    The above program defines a `cmath` dialect.",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "SizedRegion<1>" }
@@ -18542,7 +18558,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
+    "assemblyFormat": "($sym_visibility^)? $sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
   },
   {
     "name": "irdl.IRDL_Dialect",
@@ -18584,7 +18600,8 @@
     "summary": "Define a new operation",
     "description": "`irdl.operation` defines a new operation belonging to the `irdl.dialect`\n    parent.\n\n    Operations can define constraints on their operands and results with the\n    `irdl.results` and `irdl.operands` operations. If these operations are not\n    present in the region, the results or operands are expected to be empty.\n\n    Example:\n\n    ```mlir\n    irdl.dialect @cmath {\n\n      irdl.type @complex { /* ... */ }\n\n      irdl.operation @norm {\n        %0 = irdl.any\n        %1 = irdl.parametric @cmath::@complex<%0>\n        irdl.results(%0)\n        irdl.operands(%1)\n      }\n    }\n    ```\n\n    The above program defines an operation `norm` inside the dialect `cmath`.\n    The operation expects a single operand of base type `cmath.complex`, and\n    returns a single result of the element type of the operand.",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "SizedRegion<1>" }
@@ -18592,7 +18609,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
+    "assemblyFormat": "($sym_visibility^)? $sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
   },
   {
     "name": "irdl.parameters",
@@ -18667,7 +18684,8 @@
     "summary": "Define a new type",
     "description": "`irdl.type` defines a new type belonging to the `irdl.dialect` parent.\n\n    The type parameters can be defined with an `irdl.parameters` operation in\n    the optional region.\n\n    Example:\n\n    ```mlir\n    irdl.dialect @cmath {\n      irdl.type @complex {\n        %0 = irdl.is i32\n        %1 = irdl.is i64\n        %2 = irdl.any_of(%0, %1)\n        irdl.parameters(%2)\n      }\n    }\n    ```\n\n    The above program defines a type `complex` inside the dialect `cmath`. The\n    type has a single parameter that should be either `i32` or `i64`.",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "SizedRegion<1>" }
@@ -18675,7 +18693,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
+    "assemblyFormat": "($sym_visibility^)? $sym_name attr-dict-with-keyword custom<SingleBlockRegion>($body)"
   },
   {
     "name": "iree_codegen.constraints",
@@ -22711,12 +22729,13 @@
     "summary": "LLVM dialect comdat region",
     "description": "Provides access to object file COMDAT section/group functionality.\n\n    Examples:\n    ```mlir\n    llvm.comdat @__llvm_comdat {\n      llvm.comdat_selector @any any\n    }\n    llvm.mlir.global internal constant @has_any_comdat(1 : i64) comdat(@__llvm_comdat::@any) : i64\n    ```",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "SizedRegion<1>" }
     ],
-    "assemblyFormat": "$sym_name $body attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name $body attr-dict"
   },
   {
     "name": "llvm.comdat_selector",
@@ -22724,9 +22743,10 @@
     "description": "Provides access to object file COMDAT section/group functionality.\n\n    Examples:\n    ```mlir\n    llvm.comdat @__llvm_comdat {\n      llvm.comdat_selector @any any\n    }\n    llvm.mlir.global internal constant @has_any_comdat(1 : i64) comdat(@__llvm_comdat::@any) : i64\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
-      { "name": "comdat", "type": "Comdat{any|exactmatch|largest|nodeduplicate|samesize}" }
+      { "name": "comdat", "type": "Comdat{any|exactmatch|largest|nodeduplicate|samesize}" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
-    "assemblyFormat": "$sym_name $comdat attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name $comdat attr-dict"
   },
   {
     "name": "llvm.cond_br",
@@ -26720,7 +26740,8 @@
       { "name": "dso_local", "type": "UnitAttr" },
       { "name": "tls_mode", "type": "DefaultValuedAttr<LLVM_TLSMode{NotThreadLocal|GeneralDynamic|LocalDynamic|InitialExec|LocalExec}, mlir::LLVM::ThreadLocalMode::NotThreadLocal>" },
       { "name": "unnamed_addr", "type": "OptionalAttr<UnnamedAddr{local_unnamed_addr|unnamed_addr}>" },
-      { "name": "visibility_", "type": "DefaultValuedAttr<Visibility{hidden|protected}, mlir::LLVM::Visibility::Default>" }
+      { "name": "visibility_", "type": "DefaultValuedAttr<Visibility{hidden|protected}, mlir::LLVM::Visibility::Default>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "initializer", "type": "SizedRegion<1>" }
@@ -26762,7 +26783,8 @@
       { "name": "comdat", "type": "OptionalAttr<SymbolRefAttr>" },
       { "name": "dbg_exprs", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_DIGlobalVariableExpressionAttr>>" },
       { "name": "visibility_", "type": "DefaultValuedAttr<Visibility{hidden|protected}, mlir::LLVM::Visibility::Default>" },
-      { "name": "target_specific_attrs", "type": "OptionalAttr<ArrayAttr>" }
+      { "name": "target_specific_attrs", "type": "OptionalAttr<ArrayAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "initializer", "type": "AnyRegion" }
@@ -26807,12 +26829,13 @@
       { "name": "dso_local", "type": "UnitAttr" },
       { "name": "address_space", "type": "DefaultValuedAttr<ConfinedAttr<I32Attr, [ IntNonNegative ]>, 0>" },
       { "name": "unnamed_addr", "type": "DefaultValuedAttr<UnnamedAddr{local_unnamed_addr|unnamed_addr}, mlir::LLVM::UnnamedAddr::None>" },
-      { "name": "visibility_", "type": "DefaultValuedAttr<Visibility{hidden|protected}, mlir::LLVM::Visibility::Default>" }
+      { "name": "visibility_", "type": "DefaultValuedAttr<Visibility{hidden|protected}, mlir::LLVM::Visibility::Default>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<LLVMLinkage>($linkage) ($visibility_^)? ($unnamed_addr^)?\n    $sym_name `:` $i_func_type `,` $resolver_type $resolver attr-dict"
+    "assemblyFormat": "($sym_visibility^)? custom<LLVMLinkage>($linkage)\n    ($visibility_^)? ($unnamed_addr^)?\n    $sym_name `:` $i_func_type `,` $resolver_type $resolver attr-dict"
   },
   {
     "name": "llvm.mlir.metadata_as_value",
@@ -36076,9 +36099,10 @@
     "description": "Declares a named critical section.The `sym_name` can be used in `omp.critical` constructs in the dialect.`hint` is the value of hint (as specified in the hint clause). It is a\n    compile time constant. As the name suggests, this is just a hint for\n    optimization.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" }
     ],
-    "assemblyFormat": "$sym_name oilist(`hint` `(` custom<SynchronizationHint>($hint) `)`) attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name oilist(`hint` `(` custom<SynchronizationHint>($hint) `)`) attr-dict"
   },
   {
     "name": "omp.declare_mapper",
@@ -36086,6 +36110,7 @@
     "description": "The declare mapper directive declares a user-defined mapper for a given\n    type, and defines a mapper-identifier that can be used in a map clause.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" }
     ],
     "regions": [
@@ -36094,7 +36119,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name `:` $type $body attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name `:` $type $body attr-dict"
   },
   {
     "name": "omp.declare_mapper.info",
@@ -36115,6 +36140,7 @@
     "description": "Declares an OpenMP reduction kind. This requires two mandatory and four\n    optional regions.\n\n      1. The optional alloc region specifies how to allocate the thread-local\n         reduction value. This region should not contain control flow and all\n         IR should be suitable for inlining straight into an entry block. In\n         the common case this is expected to contain only allocas. It is\n         expected to `omp.yield` the allocated value on all control paths.\n         If allocation is conditional (e.g. only allocate if the mold is\n         allocated), this should be done in the initilizer region and this\n         region not included. The alloc region is not used for by-value\n         reductions (where allocation is implicit).\n      2. The initializer region specifies how to initialize the thread-local\n         reduction value. This is usually the neutral element of the reduction.\n         For convenience, the region has an argument that contains the value\n         of the reduction accumulator at the start of the reduction. If an alloc\n         region is specified, there is a second block argument containing the\n         address of the allocated memory. The initializer region is expected to\n         `omp.yield` the new value on all control flow paths.\n      3. The reduction region specifies how to combine two values into one, i.e.\n         the reduction operator. It accepts the two values as arguments and is\n         expected to `omp.yield` the combined value on all control flow paths.\n      4. The atomic reduction region is optional and specifies how two values\n         can be combined atomically given local accumulator variables. It is\n         expected to store the combined value in the first accumulator variable.\n      5. The cleanup region is optional and specifies how to clean up any memory\n         allocated by the initializer region. The region has an argument that\n         contains the value of the thread-local reduction accumulator. This will\n         be executed after the reduction has completed.\n      6. The DataPtrPtr region specifies how to access the base address of a\n         descriptor. This is used, in particular, for GPU reductions in order\n         know where partial reduction results are stored in remote lanes.\n\n    Note that the MLIR type system does not allow for type-polymorphic\n    reductions. Separate reduction declarations should be created for different\n    element and accumulator types.\n\n    For initializer and reduction regions, the operand to `omp.yield` must\n    match the parent operation's results.\n\n    * `$byref_element_type`: For by-ref reductions, we want to keep track of the\n      boxed/allocated type.  For example, for a `real, allocatable` variable, \n      `real` should be stored in this attribute.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttr" },
       { "name": "byref_element_type", "type": "OptionalAttr<TypeAttr>" }
     ],
@@ -36129,7 +36155,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$sym_name ( `byref_element_type` `(` $byref_element_type^ `)` )? `:` $type attr-dict-with-keyword ( `alloc` $allocRegion^ )? `init` $initializerRegion `combiner` $reductionRegion ( `atomic` $atomicReductionRegion^ )? ( `cleanup` $cleanupRegion^ )? ( `data_ptr_ptr` $dataPtrPtrRegion^ )?"
+    "assemblyFormat": "($sym_visibility^)? $sym_name ( `byref_element_type` `(` $byref_element_type^ `)` )? `:` $type attr-dict-with-keyword ( `alloc` $allocRegion^ )? `init` $initializerRegion `combiner` $reductionRegion ( `atomic` $atomicReductionRegion^ )? ( `cleanup` $cleanupRegion^ )? ( `data_ptr_ptr` $dataPtrPtrRegion^ )?"
   },
   {
     "name": "omp.declare_simd",
@@ -36392,7 +36418,7 @@
     ],
     "attributes": [
       { "name": "var_ptr_type", "type": "TypeAttr" },
-      { "name": "map_type", "type": "ClauseMapFlagsAttr{none|storage|to|from|always|del|return_param|priv|literal|implicit|close|present|ompx_hold|attach|attach_always|attach_never|attach_auto|ref_ptr|ref_ptee|is_device_ptr}" },
+      { "name": "map_type", "type": "ClauseMapFlagsAttr{none|storage|to|from|always|del|return_param|priv|literal|implicit|close|present|ompx_hold|attach|attach_always|attach_never|attach_auto|ref_ptr|ref_ptee|is_device_ptr|target_param}" },
       { "name": "map_capture_type", "type": "VariableCaptureKindAttr{This|ByRef|ByCopy|VLAType}" },
       { "name": "var_ptr_ptr_type", "type": "OptionalAttr<TypeAttr>" },
       { "name": "members_index", "type": "OptionalAttr<TypedArrayAttrBase<TypedArrayAttrBase<I64Attr>>>" },
@@ -36493,6 +36519,7 @@
     "description": "This operation provides a declaration of how to implement the\n    [first]privatization of a variable. The dialect users should provide\n    which type should be allocated for this variable. The allocated (usually by\n    alloca) variable is passed to the initialization region which does everything\n    else (e.g. initialization of Fortran runtime descriptors). Information about\n    how to initialize the copy from the original item should be given in the\n    copy region, and if needed, how to deallocate memory (allocated by the\n    initialization region) in the dealloc region.\n\n    Examples:\n\n    * `private(x)` would not need any regions because no initialization is\n      required by the standard for i32 variables and this is not firstprivate.\n    ```mlir\n    omp.private {type = private} @x.privatizer : i32\n    ```\n\n    * `firstprivate(x)` would be emitted as:\n    ```mlir\n    omp.private {type = firstprivate} @x.privatizer : i32 copy {\n    ^bb0(%arg0: !fir.ref<i32>, %arg1: !fir.ref<i32>):\n    // %arg0 is the original host variable.\n    // %arg1 represents the memory allocated for this private variable.\n    ... copy from host to the privatized clone ....\n    omp.yield(%arg1 : !fir.ref<i32>)\n    }\n    ```\n\n    * `private(x)` for \"allocatables\" would be emitted as:\n    ```mlir\n    omp.private {type = private} @x.privatizer : !some.type init {\n    ^bb0(%arg0: !some.pointer<!some.type>, %arg1: !some.pointer<!some.type>):\n    // initialize %arg1, using %arg0 as a mold for allocations.\n    // For example if %arg0 is a heap allocated array with a runtime determined\n    // length and !some.type is a runtime type descriptor, the init region\n    // will read the array length from %arg0, and heap allocate an array of the\n    // right length and initialize %arg1 to contain the array allocation and\n    // length.\n    omp.yield(%arg1 : !some.pointer<!some.type>)\n    } dealloc {\n    ^bb0(%arg0: !some.pointer<!some.type>):\n    // ... deallocate memory allocated by the init region...\n    // In the example above, this will free the heap allocated array data.\n    omp.yield\n    }\n    ```\n\n    There are no restrictions on the body except for:\n    - The `dealloc` regions has a single argument.\n    - The `init` & `copy` regions have 2 arguments.\n    - All three regions are terminated by `omp.yield` ops.\n    The above restrictions and other obvious restrictions (e.g. verifying the\n    type of yielded values) are verified by the custom op verifier. The actual\n    contents of the blocks inside all regions are not verified.\n\n    Instances of this op would then be used by ops that model directives that\n    accept data-sharing attribute clauses.\n\n    The `sym_name` attribute provides a symbol by which the privatizer op can be\n    referenced by other dialect ops.\n\n    The `type` attribute is the type of the value being privatized. This type\n    will be implicitly allocated in MLIR->LLVMIR conversion and passed as the\n    second argument to the init region. Therefore the type of arguments to\n    the regions should be a type which represents a pointer to `type`.\n\n    The `data_sharing_type` attribute specifies whether privatizer corresponds\n    to a `private` or a `firstprivate` clause.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "type", "type": "TypeAttrOf<AnyType>" },
       { "name": "data_sharing_type", "type": "DataSharingClauseTypeAttr{private|firstprivate}" }
     ],
@@ -36504,7 +36531,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$data_sharing_type $sym_name `:` $type\n      (`init` $init_region^)?\n      (`copy` $copy_region^)?\n      (`dealloc` $dealloc_region^)? attr-dict"
+    "assemblyFormat": "$data_sharing_type ($sym_visibility^)? $sym_name `:` $type\n      (`init` $init_region^)?\n      (`copy` $copy_region^)?\n      (`dealloc` $dealloc_region^)? attr-dict"
   },
   {
     "name": "omp.scan",
@@ -41509,7 +41536,8 @@
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
-      { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
+      { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "MinSizedRegion<1>" }
@@ -41892,7 +41920,8 @@
     "description": "`pdl.pattern` operations provide a transformable representation for a\n    `RewritePattern`. The attributes on this operation correspond to the various\n    metadata on a `RewritePattern`, such as the benefit. The match section of\n    the pattern is specified within the region body, with the rewrite provided\n    by a terminating `pdl.rewrite`.\n\n    Example:\n\n    ```mlir\n    // Provide a pattern matching \"foo.op\" that replaces the root with its\n    // operand.\n    pdl.pattern : benefit(1) {\n      %resultType = pdl.type\n      %inputOperand = pdl.operand\n      %root = pdl.operation \"foo.op\"(%inputOperand) -> (%resultType)\n      pdl.rewrite %root {\n        pdl.replace %root with (%inputOperand)\n      }\n    }\n    ```",
     "attributes": [
       { "name": "benefit", "type": "ConfinedAttr<I16Attr, [IntNonNegative]>" },
-      { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" }
+      { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "bodyRegion", "type": "SizedRegion<1>" }
@@ -41901,7 +41930,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "($sym_name^)? `:` `benefit` `(` $benefit `)` attr-dict-with-keyword $bodyRegion"
+    "assemblyFormat": "($sym_visibility^)? ($sym_name^)? `:` `benefit` `(` $benefit `)`\n    attr-dict-with-keyword $bodyRegion"
   },
   {
     "name": "pdl.range",
@@ -50264,9 +50293,10 @@
     "description": "The shard.grid operation is a symbol operation that identifies a specific\n    grid. The operation has three attributes:\n\n    1. `sym_name`: This attribute uniquely identifies the name of the grid.\n    This name serves as a symbolic reference to the grid throughout\n    the MLIR module, allowing for consistent referencing and easier debugging.\n\n    2. `shape`: This attribute represents the shape of the device grid.\n    It uses the same notation as a tensor shape. Also allowing for dynamic\n    dimensions.\n    This flexibility allows for dynamic device assignment or configurations\n    where the exact number of devices might not be determined during compile\n    time.\n    For example `2x?x4`.\n\n    Example:\n    ```\n    // A device grid with 3 axes, the total device number is 4 * 8 * 12\n    // The dimension sizes are 4, 8, 12 \n    shard.grid @grid0(shape = 4x8x12)\n\n    // A device grid with 2 axes, the total device number is unknown\n    // The first dimension size is 4 and the second is unknown\n    shard.grid @grid1(shape = 4x?)\n\n    // A device grid with 2 axes, the total device number is unknown\n    // The first dimension size is unknown and the second is 4\n    shard.grid @grid2(shape = ?x4)\n\n    // A device grid with 2 axes, the number of devices along both axes\n    // is unknown\n    shard.grid @grid3(shape = ?x?)\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "shape", "type": "DenseI64ArrayAttr" }
     ],
-    "assemblyFormat": "$sym_name `(` `shape` `=` custom<DimensionList>($shape) `)`\n      attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name\n      `(` `shape` `=` custom<DimensionList>($shape) `)`\n      attr-dict"
   },
   {
     "name": "shard.grid_shape",
@@ -51878,7 +51908,8 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "entry_point", "type": "OptionalAttr<BoolAttr>" },
-      { "name": "sym_name", "type": "StrAttr" }
+      { "name": "sym_name", "type": "StrAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "AnyRegion" }
@@ -53579,7 +53610,8 @@
     "attributes": [
       { "name": "type", "type": "TypeAttr" },
       { "name": "sym_name", "type": "StrAttr" },
-      { "name": "constituent", "type": "SymbolRefAttr" }
+      { "name": "constituent", "type": "SymbolRefAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -53826,7 +53858,8 @@
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "sym_name", "type": "StrAttr" },
       { "name": "function_control", "type": "SPIRV_FunctionControlAttr{None|Inline|DontInline|Pure|Const|OptNoneINTEL}" },
-      { "name": "linkage_attributes", "type": "OptionalAttr<SPIRV_LinkageAttributesAttr>" }
+      { "name": "linkage_attributes", "type": "OptionalAttr<SPIRV_LinkageAttributesAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "AnyRegion" }
@@ -54977,7 +55010,8 @@
       { "name": "binding", "type": "OptionalAttr<I32Attr>" },
       { "name": "descriptor_set", "type": "OptionalAttr<I32Attr>" },
       { "name": "built_in", "type": "OptionalAttr<StrAttr>" },
-      { "name": "linkage_attributes", "type": "OptionalAttr<SPIRV_LinkageAttributesAttr>" }
+      { "name": "linkage_attributes", "type": "OptionalAttr<SPIRV_LinkageAttributesAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -56617,7 +56651,8 @@
       { "name": "addressing_model", "type": "SPIRV_AddressingModelAttr{Logical|Physical32|Physical64|PhysicalStorageBuffer64}" },
       { "name": "memory_model", "type": "SPIRV_MemoryModelAttr{Simple|GLSL450|OpenCL|Vulkan}" },
       { "name": "vce_triple", "type": "OptionalAttr<SPIRV_VerCapExtAttr>" },
-      { "name": "sym_name", "type": "OptionalAttr<StrAttr>" }
+      { "name": "sym_name", "type": "OptionalAttr<StrAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "traits": [
       { "type": "IsolatedFromAbove" }
@@ -57006,7 +57041,8 @@
     "description": "This op declares a SPIR-V scalar specialization constant. SPIR-V has\n    multiple constant instructions covering different scalar types:\n\n    * `OpSpecConstantTrue` and `OpSpecConstantFalse` for boolean constants\n    * `OpSpecConstant` for scalar constants\n\n    Similar as `spirv.Constant`, this op represents all of the above cases.\n    `OpSpecConstantComposite` and `OpSpecConstantOp` are modelled with\n    separate ops.\n\n    <!-- End of AutoGen section -->\n\n    ```\n    spv-spec-constant-op ::= `spirv.SpecConstant` symbol-ref-id\n                             `spec_id(` integer `)`\n                             `=` attribute-value (`:` spirv-type)?\n    ```\n\n    where `spec_id` specifies the SPIR-V SpecId decoration associated with\n    the op.\n\n    #### Example:\n\n    ```mlir\n    spirv.SpecConstant @spec_const1 = true\n    spirv.SpecConstant @spec_const2 spec_id(5) = 42 : i32\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "StrAttr" },
-      { "name": "default_value", "type": "TypedAttrInterface" }
+      { "name": "default_value", "type": "TypedAttrInterface" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -57017,7 +57053,8 @@
     "attributes": [
       { "name": "type", "type": "TypeAttr" },
       { "name": "sym_name", "type": "StrAttr" },
-      { "name": "constituents", "type": "TypedArrayAttrBase<SymbolRefAttr>" }
+      { "name": "constituents", "type": "TypedArrayAttrBase<SymbolRefAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -65916,6 +65953,27 @@
     ]
   },
   {
+    "name": "test.loop_with_extra_result",
+    "operands": [
+      { "name": "init", "type": "I32" }
+    ],
+    "results": [
+      { "name": "extraResult", "type": "I32" },
+      { "name": "iterResult", "type": "I32" }
+    ],
+    "regions": [
+      { "name": "body", "type": "SizedRegion<1>" }
+    ],
+    "assemblyFormat": "$init `:` type($init) `->` `(` type($extraResult) `,` type($iterResult) `)` $body attr-dict"
+  },
+  {
+    "name": "test.loop_with_extra_result_yield",
+    "operands": [
+      { "name": "iterArg", "type": "I32" }
+    ],
+    "assemblyFormat": "$iterArg `:` type($iterArg) attr-dict"
+  },
+  {
     "name": "test.make_tuple",
     "description": "Test op that creates a tuple value from a list of values.",
     "operands": [
@@ -68345,7 +68403,8 @@
       { "name": "prop", "type": "I64Prop" },
       { "name": "defaulted", "type": "DefaultValuedProp<I64Prop, 42>" },
       { "name": "optional", "type": "OptionalAttr<StrAttr>" },
-      { "name": "unit", "type": "UnitProp" }
+      { "name": "unit", "type": "UnitProp" },
+      { "name": "unit_attr", "type": "UnitAttr" }
     ],
     "assemblyFormat": "prop-dict attr-dict"
   },
@@ -106934,11 +106993,12 @@
     "description": "Defines a new TOSA variable. This is a persistent mutable value across multiple\n    TOSA graph invocations. Modifications are expressed using read/write semantics.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "var_shape", "type": "IndexElementsAttr" },
       { "name": "type", "type": "TypeAttr" },
       { "name": "initial_value", "type": "OptionalAttr<AnyAttr>" }
     ],
-    "assemblyFormat": "$sym_name\n    attr-dict\n    custom<VariableOpTypeOrInitialValue>($var_shape, $type, $initial_value)",
+    "assemblyFormat": "($sym_visibility^)? $sym_name\n    attr-dict\n    custom<VariableOpTypeOrInitialValue>($var_shape, $type, $initial_value)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -107033,6 +107093,7 @@
     "description": "The \"toy.func\" operation represents a user defined function. These are\n    callable SSA-region operations that contain toy computations.\n\n    Example:\n\n    ```mlir\n    toy.func @main() {\n      %0 = toy.constant dense<5.500000e+00> : tensor<f64>\n      %1 = toy.reshape(%0 : tensor<f64>) to tensor<2x2xf64>\n      toy.print %1 : tensor<2x2xf64>\n      toy.return\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
@@ -124201,6 +124262,15 @@
       { "name": "dim", "type": "DefaultValuedAttr<I32Attr, 1>" }
     ],
     "assemblyFormat": "$src attr-dict `:` qualified(type($src)) `->` qualified(type($result))"
+  },
+  {
+    "name": "ttng.tmem_wait",
+    "summary": "Wait for tensor memory loads or stores to complete",
+    "description": "Waits for all prior tensor memory loads or stores issued by the executing\n    threads, as selected by `kind`. All threads in each executing warp must\n    execute this operation. It does not synchronize different warps or wait for\n    asynchronous MMA or tensor memory copy operations.\n\n    Lowers to `tcgen05.wait::ld.sync.aligned` or\n    `tcgen05.wait::st.sync.aligned`.",
+    "attributes": [
+      { "name": "kind", "type": "TTNG_TMEMWaitKindAttr{load|store}" }
+    ],
+    "assemblyFormat": "$kind attr-dict"
   },
   {
     "name": "ttng.wait_barrier",

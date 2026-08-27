@@ -247,7 +247,7 @@ mlir.Graph = class {
                     if (opMetadata && opMetadata.operands) {
                         for (let j = opMetadata.operands.length - 1; j >= 0; j--) {
                             const metaOp = opMetadata.operands[j];
-                            if (metaOp.type && metaOp.type.name === 'Variadic') {
+                            if (metaOp.type.isVariadic()) {
                                 lastVariadicIndex = j;
                                 lastVariadicName = metaOp.name;
                                 break;
@@ -284,7 +284,7 @@ mlir.Graph = class {
                     if (opMetadata && opMetadata.results) {
                         for (let j = opMetadata.results.length - 1; j >= 0; j--) {
                             const metaRes = opMetadata.results[j];
-                            if (metaRes.type && metaRes.type.name === 'Variadic') {
+                            if (metaRes.type.isVariadic()) {
                                 lastVariadicResultIndex = j;
                                 lastVariadicResultName = metaRes.name;
                                 break;
@@ -1688,7 +1688,7 @@ _.DictionaryAttr = class extends _.Attribute {
 
     constructor(value) {
         super();
-        this._value = value; // Map of name -> Attribute
+        this._value = value || new Map(); // Map of name -> Attribute
     }
 
     get value() {
@@ -8009,6 +8009,18 @@ _.Constraint = class {
         return new _.Constraint(name, args, values);
     }
 
+    isOptional() {
+        return this.name === 'Optional';
+    }
+
+    isVariadic() {
+        return this.name === 'Variadic' || this.isVariadicOfVariadic();
+    }
+
+    isVariadicOfVariadic() {
+        return this.name === 'VariadicOfVariadic';
+    }
+
     toString() {
         if (this.args && this.args.length > 0) {
             const args = this.args.map((arg) => arg.name).join(', ');
@@ -9251,8 +9263,8 @@ _.Dialect = class {
     }
 
     inferResultTypes(op, vars) {
-        const metadata = op.name.getRegisteredInfo()?.metadata;
-        if (!metadata?.results) {
+        const metadata = op.name.getRegisteredInfo().metadata;
+        if (!metadata.results) {
             return;
         }
         // If type(results) was used in the format, all result types were explicitly parsed
@@ -9276,8 +9288,7 @@ _.Dialect = class {
                 customDirectiveOffset += varTypes.length;
                 continue;
             }
-            const mnemonic = typeof resultInfo.type === 'string' ? resultInfo.type : resultInfo.type?.name;
-            const isVariadicOrOptional = mnemonic === 'Variadic' || mnemonic === 'Optional';
+            const isVariadicOrOptional = resultInfo.type.isVariadic() || resultInfo.type.isOptional();
             // For Variadic/Optional not in vars, check if custom directive added types to op.types
             if (isVariadicOrOptional && op.types.length > customDirectiveOffset) {
                 // Count how many types belong to this variadic result
@@ -9333,10 +9344,7 @@ _.Dialect = class {
                                 const operandMetaIdx = operandNames.indexOf(argName);
                                 if (operandMetaIdx >= 0) {
                                     const operandMeta = metadata.operands[operandMetaIdx];
-                                    const operandTypeObj = operandMeta?.type;
-                                    const operandTypeName = typeof operandTypeObj === 'string' ? operandTypeObj : (operandTypeObj?.name || '');
-                                    const isVariadic = operandTypeName === 'Variadic' || operandTypeName.startsWith('Variadic<');
-                                    if (isVariadic) {
+                                    if (operandMeta.type.isVariadic()) {
                                         for (let j = 0; j < op.operands.length; j++) {
                                             if (op.operands[j].type) {
                                                 sourceTypes.push(op.operands[j].type);
@@ -9467,11 +9475,11 @@ _.Dialect = class {
                 }
             }
             // For single variadic result matching single variadic operand with same element type, infer from operands
-            if (!resolved && resultInfo.type?.name === 'Variadic' &&
-                metadata.results?.length === 1 && metadata.operands?.length === 1) {
+            if (!resolved && resultInfo.type.isVariadic() &&
+                metadata.results.length === 1 && metadata.operands?.length === 1) {
                 const resultElementType = resultInfo.type.args?.[0]?.name;
                 const operandInfo = metadata.operands[0];
-                if (operandInfo.type?.name === 'Variadic' &&
+                if (operandInfo.type.isVariadic() &&
                     operandInfo.type.args?.[0]?.name === resultElementType) {
                     for (const operand of op.operands) {
                         if (operand.type) {
@@ -9496,34 +9504,54 @@ _.Dialect = class {
         }
     }
 
+    parsePropertiesFromKeyValueList(parser, opInfo) {
+        if (!parser.parseOptionalLess()) {
+            return null;
+        }
+        if (parser.parseOptionalGreater()) {
+            return new _.DictionaryAttr();
+        }
+        if (parser.parser.getToken().is(_.Token.l_brace)) {
+            const properties = parser.parseAttribute();
+            parser.parseGreater();
+            return properties;
+        }
+        const properties = new Map();
+        for (;;) {
+            const name = parser.parseKeyword();
+            let attrInfo = opInfo.metadata.attributes?.find((attr) => attr.name === name);
+            if (!attrInfo && name === 'operandSegmentSizes' && opInfo.metadata.operands?.some((operand) => operand.type.isVariadic())) {
+                attrInfo = { type: null };
+            } else if (!attrInfo && name === 'resultSegmentSizes' && opInfo.metadata.results?.some((result) => result.type.isVariadic())) {
+                attrInfo = { type: null };
+            }
+            if (!attrInfo || properties.has(name)) {
+                parser.emitError(`Duplicate or unknown property '${name}' in properties dictionary`);
+            }
+            let value = null;
+            if (parser.parseOptionalEqual()) {
+                value = this.parseCustomAttributeWithFallback(parser, attrInfo.type);
+                if (!value) {
+                    value = parser.parseAttribute();
+                }
+            } else if (attrInfo.type?.name === 'UnitProp' || attrInfo.type?.name === 'UnitAttr') {
+                value = new _.UnitAttr();
+            } else {
+                parser.parseEqual();
+            }
+            if (!value) {
+                parser.emitError(`Invalid value for property '${name}'`);
+            }
+            properties.set(name, value);
+            if (parser.parseOptionalGreater()) {
+                break;
+            }
+            parser.parseComma();
+        }
+        return new _.DictionaryAttr(properties);
+    }
+
     parseDirective(directive, parser, op, opInfo, directives, i, vars) {
-        const isVariadic = (type) => {
-            if (type.name === 'Variadic' || type.name === 'VariadicOfVariadic') {
-                return true;
-            }
-            if (Array.isArray(type.args) && type.args.length > 0) {
-                return isVariadic(type.args[0]);
-            }
-            return false;
-        };
-        const isVariadicOfVariadic = (type) => {
-            if (type.name === 'VariadicOfVariadic') {
-                return true;
-            }
-            if (Array.isArray(type.args) && type.args.length > 0) {
-                return isVariadicOfVariadic(type.args[0]);
-            }
-            return false;
-        };
-        const isOptional = (type) => {
-            if (type.name === 'Optional') {
-                return true;
-            }
-            if (Array.isArray(type.args) && type.args.length > 0) {
-                return isOptional(type.args[0]);
-            }
-            return false;
-        };
         const peek = (...kinds) => {
             const token = parser.parser.getToken();
             return kinds.some((kind) => kind === 'keyword' ? token.isKeyword() : token.is(kind));
@@ -9560,8 +9588,8 @@ _.Dialect = class {
                     if (!parser.parseOptionalLSquare()) {
                         const nextDir = directives[i + 1];
                         if (nextDir && nextDir.type === 'operand_ref') {
-                            const operandMeta = opInfo.metadata?.operands?.find((o) => o.name === nextDir.name);
-                            if (operandMeta && isVariadic(operandMeta.type)) {
+                            const operandMeta = opInfo.metadata.operands?.find((o) => o.name === nextDir.name);
+                            if (operandMeta && operandMeta.type.isVariadic()) {
                                 vars.set('_skipClosingBracket', true);
                                 break;
                             }
@@ -9702,10 +9730,10 @@ _.Dialect = class {
             }
             case 'operand_ref': {
                 const name = directive.name;
-                const input = opInfo.metadata?.operands?.find((inp) => inp.name === name);
-                const isVariadicOp = input ? isVariadic(input.type) : false;
-                const isVariadicOfVariadicOp = input ? isVariadicOfVariadic(input.type) : false;
-                const isOptionalOp = input ? isOptional(input.type) : false;
+                const input = opInfo.metadata.operands?.find((inp) => inp.name === name);
+                const isVariadicOp = input ? input.type.isVariadic() : false;
+                const isVariadicOfVariadicOp = input ? input.type.isVariadicOfVariadic() : false;
+                const isOptionalOp = input ? input.type.isOptional() : false;
                 // Check for buildable types using createType
                 let buildableType = null;
                 if (isVariadicOp && input?.type?.args?.[0]) {
@@ -9786,7 +9814,7 @@ _.Dialect = class {
                             entry.types.push(buildableType);
                         } else {
                             // Check if this is a region, not an operand
-                            const isActualOperand = opInfo.metadata?.operands?.some((inp) => inp.name === name);
+                            const isActualOperand = opInfo.metadata.operands?.some((inp) => inp.name === name);
                             if (isActualOperand) {
                                 // Try parsing as symbol name (@identifier)
                                 const symbolName = parser.parseOptionalSymbolName();
@@ -9813,7 +9841,7 @@ _.Dialect = class {
                                     }
                                 }
                             } else {
-                                const regionMeta = opInfo.metadata?.regions?.find((r) => r.name === name);
+                                const regionMeta = opInfo.metadata.regions?.find((r) => r.name === name);
                                 const isVariadicRegion = regionMeta?.type?.name === 'VariadicRegion';
                                 const isIsolated = op.name.hasTrait('IsolatedFromAbove');
                                 if (isVariadicRegion) {
@@ -9831,7 +9859,7 @@ _.Dialect = class {
                         }
                     } else {
                         // Check if this is a region, not an operand
-                        const isActualOperand = opInfo.metadata?.operands?.some((inp) => inp.name === name);
+                        const isActualOperand = opInfo.metadata.operands?.some((inp) => inp.name === name);
                         if (isActualOperand) {
                             // Try parsing as symbol name (@identifier)
                             const symbolName = parser.parseOptionalSymbolName();
@@ -9858,7 +9886,7 @@ _.Dialect = class {
                                 }
                             }
                         } else {
-                            const regionMeta = opInfo.metadata?.regions?.find((r) => r.name === name);
+                            const regionMeta = opInfo.metadata.regions?.find((r) => r.name === name);
                             const isVariadicRegion = regionMeta?.type?.name === 'VariadicRegion';
                             const isIsolated = op.name.hasTrait('IsolatedFromAbove');
                             if (isVariadicRegion) {
@@ -9930,21 +9958,21 @@ _.Dialect = class {
                     break;
                 }
                 // Check if it's a result or operand
-                const resultMeta = opInfo.metadata?.results?.find((r) => r.name === name);
-                const operandMeta = opInfo.metadata?.operands?.find((o) => o.name === name);
+                const resultMeta = opInfo.metadata.results?.find((r) => r.name === name);
+                const operandMeta = opInfo.metadata.operands?.find((o) => o.name === name);
                 const isResult = Boolean(resultMeta) && !operandMeta;
                 let isVariadicType = false;
                 if (resultMeta) {
-                    isVariadicType = isVariadic(resultMeta.type);
+                    isVariadicType = resultMeta.type.isVariadic();
                 } else if (operandMeta) {
-                    isVariadicType = isVariadic(operandMeta.type);
+                    isVariadicType = operandMeta.type.isVariadic();
                 }
-                const isVariadicOfVariadicType = operandMeta ? isVariadicOfVariadic(operandMeta.type) : false;
+                const isVariadicOfVariadicType = operandMeta ? operandMeta.type.isVariadicOfVariadic() : false;
                 let isOptionalType = false;
                 if (operandMeta) {
-                    isOptionalType = isOptional(operandMeta.type);
+                    isOptionalType = operandMeta.type.isOptional();
                 } else if (resultMeta) {
-                    isOptionalType = isOptional(resultMeta.type);
+                    isOptionalType = resultMeta.type.isOptional();
                 }
                 if (!vars.has(name)) {
                     vars.set(name, { operands: [], types: [] });
@@ -10011,10 +10039,7 @@ _.Dialect = class {
                 parser.parseOptionalAttrDict(op.attributes);
                 break;
             case 'prop_dict':
-                if (parser.parseOptionalLess()) {
-                    op.propertiesAttr = parser.parseAttribute();
-                    parser.parseGreater();
-                }
+                op.propertiesAttr = this.parsePropertiesFromKeyValueList(parser, opInfo);
                 break;
             case 'regions': {
                 const isIsolated = op.name.hasTrait('IsolatedFromAbove');
@@ -10049,7 +10074,7 @@ _.Dialect = class {
                 }
                 // Distribute input types to operands in metadata order
                 let typeIndex = 0;
-                for (const operandMeta of opInfo.metadata?.operands || []) {
+                for (const operandMeta of opInfo.metadata.operands || []) {
                     if (vars.has(operandMeta.name)) {
                         const entry = vars.get(operandMeta.name);
                         for (let j = 0; j < entry.operands.length && typeIndex < type.inputs.length; j++) {
@@ -10098,7 +10123,7 @@ _.Dialect = class {
                     } else if (arg.startsWith('ref($') && arg.endsWith(')')) {
                         const name = arg.slice(5, -1);
                         // Check if this is an attribute reference
-                        const isAttribute = opInfo.metadata?.attributes?.some((a) => a.name === name);
+                        const isAttribute = opInfo.metadata.attributes?.some((a) => a.name === name);
                         if (isAttribute) {
                             // Get attribute value from op.attributes
                             const attrValue = op.attributes.get(name);
@@ -10121,7 +10146,7 @@ _.Dialect = class {
                     } else if (arg.startsWith('$')) {
                         const name = arg.slice(1);
                         // Could be operand ref or attribute name
-                        const isOperand = opInfo.metadata?.operands?.some((o) => o.name === name);
+                        const isOperand = opInfo.metadata.operands?.some((o) => o.name === name);
                         if (isOperand) {
                             if (!vars.has(name)) {
                                 vars.set(name, { operands: [], types: [] });
@@ -10426,10 +10451,10 @@ _.Dialect = class {
             result.compatibility = true;
         }
         const vars = new Map();
-        for (const input of opInfo.metadata?.operands || []) {
+        for (const input of opInfo.metadata.operands || []) {
             vars.set(input.name, { operands: [], types: [] });
         }
-        for (const resultInfo of opInfo.metadata?.results || []) {
+        for (const resultInfo of opInfo.metadata.results || []) {
             vars.set(resultInfo.name, { types: [] });
         }
         const directives = opInfo.directives || [];
@@ -10451,7 +10476,7 @@ _.Dialect = class {
             }
         }
         // AttrSizedOperandSegments trait
-        if (vars && opInfo.metadata?.operands && result.name.hasTrait('AttrSizedOperandSegments')) {
+        if (vars && opInfo.metadata.operands && result.name.hasTrait('AttrSizedOperandSegments')) {
             const segmentSizes = [];
             for (const operandMeta of opInfo.metadata.operands) {
                 const entry = vars.get(operandMeta.name);
@@ -17833,6 +17858,7 @@ _.spirv.SPIRVDialect = class extends _.Dialect {
             return true;
         }
         if (op === 'spirv.SpecConstantComposite' || op === 'spv.SpecConstantComposite') {
+            parser.parseOptionalVisibilityKeyword(result.attributes);
             parser.parseSymbolName('sym_name', result.attributes);
             parser.parseLParen();
             const constituents = [];
@@ -19707,6 +19733,10 @@ _.BufferizationDialect = class extends _.Dialect {
             if (parser.parseOptionalKeyword('size_hint')) {
                 parser.parseEqual();
                 unresolvedSizeHint = parser.parseOperand();
+            }
+            if (parser.parseOptionalLess()) {
+                result.propertiesAttr = parser.parseAttribute();
+                parser.parseGreater();
             }
             parser.parseOptionalAttrDict(result.attributes);
             if (parser.parseOptionalColon()) {
@@ -25579,6 +25609,7 @@ _.test.TestDialect = class extends _.Dialect {
         this.registerCustomAttribute('TestEnumPropAttrForm', this.parseTestEnumPropAttrForm.bind(this));
         this.registerCustomAttribute('TestBitEnumProp', (parser, type) => this.parseEnumFlags(parser, type, ',', true));
         this.registerCustomAttribute('TestBitEnumPropNamed', this.parseTestBitEnumPropNamed.bind(this));
+        this.registerCustomAttribute('KeyValueSpecializedOptionalProperty', this.parseKeyValueSpecializedOptionalProperty.bind(this));
         this.registerCustomAttribute('TestArrayOfUglyAttrs', this.parseTestArrayOfUglyAttrs.bind(this));
         this.registerCustomAttribute('TestArrayOfInts', this.parseTestArrayOfInts.bind(this));
         this.registerCustomAttribute('TestArrayOfEnums', this.parseTestArrayOfEnums.bind(this));
@@ -25817,6 +25848,17 @@ _.test.TestDialect = class extends _.Dialect {
 
     parseTestEnumPropAttrForm(parser) {
         return parser.parseOptionalAttribute();
+    }
+
+    parseKeyValueSpecializedOptionalProperty(parser) {
+        if (parser.parseOptionalKeyword('none')) {
+            return new _.ArrayAttr([]);
+        }
+        parser.parseKeyword('some');
+        parser.parseLess();
+        const value = parser.parseInteger();
+        parser.parseGreater();
+        return new _.ArrayAttr([new _.IntegerAttr(new _.IntegerType('i16'), value)]);
     }
 
     parseTestBitEnumPropNamed(parser) {
@@ -27723,6 +27765,10 @@ _.ACCDialect = class extends _.Dialect {
             }
             const region = result.addRegion();
             parser.parseRegion(region, entryArguments, true);
+            if (parser.parseOptionalLess()) {
+                result.propertiesAttr = parser.parseAttribute();
+                parser.parseGreater();
+            }
             parser.parseOptionalAttrDict(result.attributes);
             const segmentSizes = [launchOperands.length, inputOperands.length, streamOperand ? 1 : 0];
             result.addAttribute('operandSegmentSizes', new _.DenseI32ArrayAttr(segmentSizes));
