@@ -22631,6 +22631,174 @@
     ]
   },
   {
+    "name": "GatedDeltaNet",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Packed (token-major) gated delta network / linear attention with an explicit recurrent state.\n\nLayout. Query, key and value are token-major, so head counts are derived from the shapes\nrather than from attributes:\n\n  query [total_tokens, num_heads_q, head_size_qk]\n  key   [total_tokens, num_heads_k, head_size_qk]\n  value [total_tokens, num_heads_v, head_size_v]\n\nThe leading token axis may instead be spelled as an explicit `[batch_size, sequence_length]`\npair, making query/key/value (and the output) rank 4 and decay/beta rank 3. The memory layout\nis identical; the rank-4 spelling exists so an exporter can round-trip a `[B, S, H*D]`\nactivation with static Reshape targets instead of Shape-derived ones. Ragged packing\n(`cu_seqlens`) requires the rank-3 spelling.\n\n`num_heads_q` must equal `num_heads_k`, and `num_heads_v` must be a positive multiple of\n`num_heads_q` (inverse grouped-query attention: each query/key head is shared by\n`num_heads_v / num_heads_q` value heads). Decay, beta, the state and the output are all at\n`num_heads_v`.\n\nSequence packing. When `cu_seqlens` is provided it is a device int32 tensor of length\n`batch_size + 1` holding the exclusive prefix sums of the per-request token counts, so\nrequests may have different lengths. When it is absent the packing is uniform and the batch\nsize is taken from `initial_state`, which is then required.\n\nState. `initial_state` and `final_state` are V-major, `[batch_size, num_heads_v, head_size_v,\nhead_size_qk]`, and always float regardless of the query/key/value type: the recurrence\nboundary is where reduced precision hurts most. The two may be the same allocation; the\nimplementation reads the whole incoming state before writing any of it.\n\nCompact state updates. When `state_update_capacity` C is greater than zero, `capture_count`\nis required with shape `[batch_size]`. For request b, the first `capture_count[b]` local token\ntransitions (clamped on device to `[0, min(C, sequence_length)]`) are emitted in one `state_update`\nfloat tensor `[batch_size, C * (num_heads_v + num_heads_k * head_size_qk + num_heads_v * head_size_v)]`.\nEach row is struct-of-arrays: all decay values, then all keys, then all deltas. Entries at positions\ngreater than or equal to `min(capture_count[b], C, sequence_length)` are unspecified; consumers must\nread only the captured prefix. The key retains its shared `num_heads_k` representation. For scalar\ndecay the decoded factors replay one transition as `S *= decay; S += outer(key, delta)`.\nPer-key-dimension decay is not supported when compact updates are enabled. `capture_count` is\nforbidden when C is zero.\n\nThe optional CPU input `state_update_active` has shape `[1]`. When zero, transition capture is\ndisabled, `capture_count` is ignored, `state_update` is zero-filled, and the planner may use an\nengine that cannot emit compact updates. Omitting it preserves the conservative behavior of\ntreating capture as active.\n\nRecurrence, per value head, with S the [head_size_qk x head_size_v] state:\n\n  S_t = exp(g_t) S_{t-1} + k_t (beta_t (v_t - exp(g_t) S_{t-1}^T k_t))^T\n  o_t = scale * S_t^T q_t\n\n`update_rule` selects which terms are present: 'linear' drops both the decay and the delta\nretrieval, 'gated' keeps only the decay, 'delta' keeps only the retrieval, and 'gated_delta'\nkeeps both.\n\nThe delta family ('delta' and 'gated_delta') requires L2-normalized keys. Without them the\nper-chunk system (I + M) is arbitrarily ill-conditioned and the recurrence diverges. Either\nnormalize upstream or set `qk_l2_norm=1` to have the operator do it.\n\nFused activations. `gate_activation='qwen'` computes the effective decay in float32 from the\nraw projection carried by `decay`:\n\n  g = -exp(a_log) * Softplus(decay + dt_bias)\n\n`beta_activation='sigmoid'` applies a sigmoid to `beta`, and `qk_l2_norm=1` L2-normalizes each\nquery and key head vector. Folding these in avoids materializing the intermediates and keeps\nthe gate arithmetic in float32 independent of the input type.\n\n",
+    "attributes": [
+      {
+        "name": "beta_activation",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "'none' (default) treats `beta` as the effective update rate. 'sigmoid' applies a sigmoid."
+      },
+      {
+        "name": "chunk_size",
+        "type": "int64",
+        "required": false,
+        "default": 64,
+        "description": "Tuning hint for the chunk-parallel prefill algorithm. 32 pins the narrow chunk; any other value lets the implementation take the widest chunk the device can hold. Default 64."
+      },
+      {
+        "name": "gate_activation",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "'none' (default) treats `decay` as the effective log-space decay. 'qwen' computes -exp(a_log) * Softplus(decay + dt_bias) in float32."
+      },
+      {
+        "name": "qk_l2_norm",
+        "type": "int64",
+        "required": false,
+        "description": "When 1, L2-normalize each query and key head vector before the recurrence. Default 0."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Output scaling factor. When 0.0 (default) uses 1/sqrt(head_size_qk)."
+      },
+      {
+        "name": "state_update_capacity",
+        "type": "int64",
+        "required": false,
+        "description": "Capacity C for compact contiguous-prefix transition capture, in [0, 8]. 0 (default) disables compact state-update outputs."
+      },
+      {
+        "name": "update_rule",
+        "type": "string",
+        "required": false,
+        "default": "gated_delta",
+        "description": "One of: 'linear', 'gated', 'delta', 'gated_delta'. Default is 'gated_delta'."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Query, shape (total_tokens, num_heads_q, head_size_qk)"
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "description": "Key, shape (total_tokens, num_heads_k, head_size_qk)"
+      },
+      {
+        "name": "value",
+        "type": "T",
+        "description": "Value, shape (total_tokens, num_heads_v, head_size_v)"
+      },
+      {
+        "name": "cu_seqlens",
+        "type": "TI",
+        "option": "optional",
+        "description": "Exclusive prefix sums of the per-request token counts, shape (batch_size + 1). Absent means uniform packing."
+      },
+      {
+        "name": "decay",
+        "type": "TS",
+        "option": "optional",
+        "description": "Log-space decay, shape (total_tokens, num_heads_v) for a scalar per-head decay or (total_tokens, num_heads_v, head_size_qk) for a per-key-dimension decay."
+      },
+      {
+        "name": "beta",
+        "type": "TS",
+        "option": "optional",
+        "description": "Update rate, shape (total_tokens, num_heads_v)"
+      },
+      {
+        "name": "initial_state",
+        "type": "TS",
+        "option": "optional",
+        "description": "Recurrent state, shape (batch_size, num_heads_v, head_size_v, head_size_qk), V-major. May alias final_state."
+      },
+      {
+        "name": "a_log",
+        "type": "TS",
+        "option": "optional",
+        "description": "Per-head A_log, shape (num_heads_v). Requires gate_activation=qwen."
+      },
+      {
+        "name": "dt_bias",
+        "type": "TS",
+        "option": "optional",
+        "description": "Per-head gate bias, shape (num_heads_v). Requires gate_activation=qwen."
+      },
+      {
+        "name": "capture_count",
+        "type": "TI",
+        "option": "optional",
+        "description": "Number of leading local token transitions to capture for each request, shape (batch_size). Clamped on device to [0, min(state_update_capacity, sequence_length)]. Required exactly when state_update_capacity is positive."
+      },
+      {
+        "name": "state_update_active",
+        "type": "TI",
+        "option": "optional",
+        "description": "CPU int32 control with shape (1). Zero disables transition capture, ignores capture_count, and produces a zero-filled state_update. Omission is conservative."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 11,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Output, shape (total_tokens, max(num_heads_q, num_heads_v), head_size_v)"
+      },
+      {
+        "name": "final_state",
+        "type": "TS",
+        "option": "optional",
+        "description": "State after the last token of each request, shape (batch_size, num_heads_v, head_size_v, head_size_qk)"
+      },
+      {
+        "name": "state_update",
+        "type": "TS",
+        "option": "optional",
+        "description": "Struct-of-arrays compact transition factors, shape (batch_size, state_update_capacity * (num_heads_v + num_heads_k * head_size_qk + num_heads_v * head_size_v))."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 3,
+    "inputs_range": "3 - 11",
+    "outputs_range": "1 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain query/key/value/output types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)"
+        ]
+      },
+      {
+        "description": "State, gate, beta and compact state-update tensors are always float.",
+        "type_param_str": "TS",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "Constrain index and count tensors to int32.",
+        "type_param_str": "TI",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "GatedRMSNorm",
     "module": "com.microsoft",
     "version": 1,
@@ -45154,6 +45322,13 @@
         "type": "int64",
         "required": false,
         "description": "Whether to use rotary position embedding. Default value is 0."
+      },
+      {
+        "name": "is_causal",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Whether the attention mask is causal (bottom-right aligned). Default value is 1. Set to 0 for a block drafter whose query tokens attend to each other bidirectionally; local_window_size then bounds the mask on the left only."
       },
       {
         "name": "k_cache_dtype",
@@ -72492,7 +72667,7 @@
     "name": "VarlenCausalConvWithState",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA only).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, kernel_size - 1). It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and commit one of the separately\nproduced states instead.\n\nWhen requested, prefix_states has shape\n(max_checkpoints, batch_size, channels, kernel_size - 1). Slot j for request b is the state\nafter local token j when j < min(max_checkpoints, sequence_length[b]). Other slots are\nunspecified and must not be read. max_checkpoints is static, defaults to zero, and is at most 8.\nThis output lets a transactional caller commit any produced prefix without rerunning the\nconvolution.\n\nFor memory-safety containment, each CUDA work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, output, or checkpoints.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n",
+    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA only).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, kernel_size - 1). It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and replay the compact state update.\n\nWhen state_update_capacity is positive, capture_count is required with shape (batch_size), and\nstate_update has shape (batch_size, state_update_capacity, channels).\nFor request b, slots [0, clamp(capture_count[b], 0,\nmin(state_update_capacity, sequence_length[b]))) contain the original local input token values.\nThese values represent the append component of each shift-left-and-append state transition.\nAll remaining slots are zero. capture_count is forbidden when state_update_capacity is zero.\n\nFor memory-safety containment, each CUDA work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, or output.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n",
     "attributes": [
       {
         "name": "activation",
@@ -72502,10 +72677,10 @@
         "description": "Fused activation function. One of: 'silu', 'swish', 'none'. Default is 'none'."
       },
       {
-        "name": "max_checkpoints",
+        "name": "state_update_capacity",
         "type": "int64",
         "required": false,
-        "description": "Static number of per-request prefix states to expose. Checkpoint j is the state after local token j when that token exists. Unwritten slots are unspecified. Valid range is [0, 8]."
+        "description": "Static number of compact contiguous-prefix transition values to expose per request. Valid range is [0, 8]. capture_count is required exactly when this is positive."
       }
     ],
     "inputs": [
@@ -72534,10 +72709,16 @@
         "name": "initial_state",
         "type": "T",
         "description": "Required committed carry state with shape (batch_size, channels, kernel_size - 1)."
+      },
+      {
+        "name": "capture_count",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional device int32 tensor with shape (batch_size). For each request, captures that many local tokens from the contiguous prefix, clamped to the sequence length and state_update_capacity. Required exactly when state_update_capacity is positive."
       }
     ],
     "min_input": 5,
-    "max_input": 5,
+    "max_input": 6,
     "outputs": [
       {
         "name": "output",
@@ -72550,14 +72731,15 @@
         "description": "Fully written state after each sequence's final token, with shape (batch_size, channels, kernel_size - 1)."
       },
       {
-        "name": "prefix_states",
+        "name": "state_update",
         "type": "T",
         "option": "optional",
-        "description": "Optional prefix checkpoints with shape (max_checkpoints, batch_size, channels, kernel_size - 1). Unwritten slots are unspecified."
+        "description": "Optional compact transition values with shape (batch_size, state_update_capacity, channels). Inactive slots are zero."
       }
     ],
     "min_output": 2,
     "max_output": 3,
+    "inputs_range": "5 - 6",
     "outputs_range": "2 - 3",
     "type_constraints": [
       {
@@ -72570,7 +72752,7 @@
         ]
       },
       {
-        "description": "Constrain cumulative_sequence_length to a device int32 tensor.",
+        "description": "Constrain cumulative_sequence_length and capture_count to device int32 tensors.",
         "type_param_str": "M",
         "allowed_type_strs": [
           "tensor(int32)"
