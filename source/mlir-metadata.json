@@ -12706,10 +12706,10 @@
   {
     "name": "executor.absf",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12719,10 +12719,10 @@
   {
     "name": "executor.absi",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12732,11 +12732,11 @@
   {
     "name": "executor.addf",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12746,11 +12746,11 @@
   {
     "name": "executor.addi",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12829,11 +12829,11 @@
   {
     "name": "executor.atan2",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12949,10 +12949,10 @@
   {
     "name": "executor.cbrt",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12962,10 +12962,10 @@
   {
     "name": "executor.ceil",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -12990,11 +12990,11 @@
   {
     "name": "executor.copysign",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13045,10 +13045,10 @@
   {
     "name": "executor.cos",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13094,11 +13094,11 @@
   {
     "name": "executor.divf",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13108,10 +13108,10 @@
   {
     "name": "executor.erf",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13121,10 +13121,10 @@
   {
     "name": "executor.exp",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13134,10 +13134,10 @@
   {
     "name": "executor.exp2",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13147,10 +13147,10 @@
   {
     "name": "executor.expm1",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13198,10 +13198,10 @@
   {
     "name": "executor.floor",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13240,10 +13240,10 @@
     "name": "executor.fptosi",
     "description": "`executor.fptosi` casts floating point value to the nearest signed integer\n    value. This is similar to `static_cast` in C++.",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `to` type($result)"
   },
@@ -13366,10 +13366,10 @@
   {
     "name": "executor.log",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13379,10 +13379,10 @@
   {
     "name": "executor.log10",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13392,10 +13392,10 @@
   {
     "name": "executor.log1p",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13405,10 +13405,10 @@
   {
     "name": "executor.log2",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13433,11 +13433,11 @@
   {
     "name": "executor.mulf",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13447,11 +13447,11 @@
   {
     "name": "executor.muli",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13461,10 +13461,10 @@
   {
     "name": "executor.negf",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13509,11 +13509,11 @@
   {
     "name": "executor.remf",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13532,10 +13532,10 @@
   {
     "name": "executor.round",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13545,11 +13545,11 @@
   {
     "name": "executor.sdivi",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13586,11 +13586,11 @@
   {
     "name": "executor.sfloor_divi",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13600,11 +13600,11 @@
   {
     "name": "executor.shift_lefti",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13614,11 +13614,11 @@
   {
     "name": "executor.shift_right_arithmetici",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13628,11 +13628,11 @@
   {
     "name": "executor.shift_right_logicali",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13653,10 +13653,10 @@
   {
     "name": "executor.sin",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13667,10 +13667,10 @@
     "name": "executor.sitofp",
     "description": "`executor.sitofp` casts signed integer to the corresponding floating point\n    value. This is similar to `static_cast` in C++. If value can't be exactly\n    represented, it is rounded (implementation-defined).",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `to` type($result)"
   },
@@ -13705,10 +13705,10 @@
   {
     "name": "executor.sqrt",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13718,11 +13718,11 @@
   {
     "name": "executor.sremi",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13770,11 +13770,11 @@
   {
     "name": "executor.subf",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13784,11 +13784,11 @@
   {
     "name": "executor.subi",
     "operands": [
-      { "name": "lhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" },
-      { "name": "rhs", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "lhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" },
+      { "name": "rhs", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "res", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "res", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13852,10 +13852,10 @@
   {
     "name": "executor.tan",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13865,10 +13865,10 @@
   {
     "name": "executor.tanh",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -13901,10 +13901,10 @@
     "name": "executor.uitofp",
     "description": "`executor.uitofp` casts unsigned integer to the corresponding floating point\n    value. If value can't be exactly represented, it is rounded\n    (implementation-defined). Out-of-range casts (truncations) result in mapping\n    to +/-inf or max/min value depending on whether the target floating point\n    type has a representation for infinities.",
     "operands": [
-      { "name": "operand", "type": "AnyTypeOf<Executor_ArithIntTypes>" }
+      { "name": "operand", "type": "AnyTypeOf<[I64, I32, I16, I8, I4, Index]>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTypeOf<Executor_ArithFloatTypes>" }
+      { "name": "result", "type": "AnyTypeOf<[F64, F32, F16, F8E4M3FN, BF16, F4E2M1FN]>" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `to` type($result)"
   },
@@ -17249,6 +17249,8 @@
     "summary": "Host code to determine if the executable is enabled.",
     "description": "Variants are selected based on their target and this optional condition\n    op that returns true if the variant is valid for use on the provided\n    runtime `!hal.device`. If no variants within an executable are valid then\n    loading will fail at runtime. If multiple variants are valid the first valid\n    one found will be loaded and used for execution.",
     "attributes": [
+      { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
@@ -17266,6 +17268,8 @@
     "summary": "Executable constant block initializer.",
     "description": "Initializes one or more constants in the executable constant block by\n    returning one value per identified constant. Each constant block is\n    evaluated on the host prior to instantiating the executable for a given\n    device and allows for the executable to be specialized based on device\n    capabilities and limits.\n\n    The keys specified are unique per variant and will be deduplicated across\n    multiple constant blocks when present. They are only used during lowering\n    and will not survive to runtime so they need only have descriptive enough\n    names to avoid collisions and represent the semantics of the value.\n\n    Constant values can be loaded in the device code with the\n    `hal.executable.constant.load` op:\n\n    ```mlir\n    hal.executable.variant public @target {\n      hal.executable.constant.block(%device: !hal.device) -> (i32, i32) as (\"foo\", \"bar\") {\n        %0 = hal.device.query<%device> key(\"some.device.prop\")...\n        %1 = hal.device.query<%device> key(\"another.device.prop\")...\n        hal.return %0, %1 : i32, i32\n      }\n      builtin.module {\n        func @dispatch0() {\n          %0 = hal.executable.constant.load \"foo\" : i32\n          %1 = hal.executable.constant.load \"bar\" : i32\n          return\n        }\n      }\n    }\n    ```\n\n    Each target backend will implement the constant initialization and access in\n    a way compatible with its execution model. Examples:\n    - CPU: read-only buffer initialized on load and passed to each dispatch\n    - CUDA: read-only buffer initialized on load and passed to each dispatch\n    - SPIR-V: specialization constants\n    - Metal: function constants\n    - WebGPU: pipeline-overridable constants",
     "attributes": [
+      { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "keys", "type": "ArrayAttr" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
@@ -19039,7 +19043,7 @@
   {
     "name": "iree_gpu.barrier_region",
     "summary": "Synchronizes workers on a region of shared code.",
-    "description": "This op is designed to represent synchronization of workers on the operands\n    and results of the given region. This operation naturally arises when combining\n    the regions of producer-consumer `scf.forall` operations that share a\n    mapping type.\n\n    For example, consider the following pair of parallel loops.\n    ```mlir\n      %0 = scf.forall (%idy, %idx) in (2, 32) shared_outs(%init = %empty) -> (tensor<4x128xf32>) {\n        %in = ...\n        %2 = affine.apply #affine_map<(d0) -> (d0 * 2)> (%idy)\n        %3 = affine.apply #affine_map<(d0) -> (d0 * 4)> (%idx)\n        scf.forall.in_parallel {\n          tensor.parallel_insert_slice %in into %init[%2, %3] [2, 4] [1, 1]\n            : tensor<2x4xf32> into tensor<4x128xf32>\n        }\n      } {mapping = [#gpu.thread<y>, #gpu.thread<x>]}\n      %1 = scf.forall (%idy, %idx) in (8, 8) -> (tensor<128x128xf32>) {\n        %4 = affine.apply #affine_map<(d0) -> (d0 * 16)> (%idx)\n        %extracted_slice = tensor.extract_slice %0[0, %4] [4, 16] [1, 1]\n          : tensor<4x128xf32> to tensor<4x16xf32>\n        ...\n      } {mapping = [#gpu.thread<y>, #gpu.thread<x>]}\n    ```\n\n    Because these loops share the same worker type and total count, the bodies\n    of these two loops can be merged with a barrier an insert_slice and a\n    shuffle where the boundary of the loops currently is.\n\n    ```mlir\n      %0 = scf.forall (%idy, %idx) in (8, 8) -> (tensor<4x128xf32>) {\n        %alloc = bufferization.alloc_tensor {memory_space = #gpu.address_space<workgroup>}\n          : tensor<4x128xf32>\n        %barrier = iree_gpu.barrier_region %alloc {\n        ^bb0(%shared: tensor<4x128xf32>):\n          %ids = affine.delinearize_index %idy * 8 + %idx to (2, 32) : index\n          %in = ...\n          %2 = affine.apply #affine_map<(d0) -> (d0 * 2)> (%ids#0)\n          %3 = affine.apply #affine_map<(d0) -> (d0 * 4)> (%ids#1)\n          %inserted_slice = tensor.insert_slice %in into %shared[%2, %3] [2, 4] [1, 1]\n            : tensor<2x4xf32> to tensor<4x128xf32>\n          iree_gpu.yield %slice : tensor<4x16xf32>\n        } : tensor<4x128xf32> -> tensor<4x16xf32>\n        %4 = affine.apply #affine_map<(d0) -> (d0 * 16)> (%idx)\n        %slice = tensor.extract_slice %barrier[0, %4] [4, 16] [1, 1] : tensor<4x128xf32> to tensor<4x16xf32>\n        ...\n      } {mapping = [#gpu.thread<y>, #gpu.thread<x>]}\n    ```\n\n    A barrier_region can be lowered to two barriers, one on the input operands\n    and a second one on the results.\n\n    Movtivation and Intended Use Cases:\n\n    The primary way this op is generated is when fusing parallel loops with\n    tensor results. This operation helps to make lowerings more progressive\n    and flexible.\n      - Lowering directly to an alloc + reads and writes breaks the dependency\n        chain making transformations like barrier placement and pipelining\n        potentially more difficult.\n      - Allows the option of non-vector based lowering paths.",
+    "description": "This op is designed to represent synchronization of workers on the operands\n    and results of the given region. This operation naturally arises when combining\n    the regions of producer-consumer `scf.forall` operations that share a\n    mapping type.\n\n    For example, consider the following pair of parallel loops.\n    ```mlir\n      %0 = scf.forall (%idy, %idx) in (2, 32) shared_outs(%init = %empty) -> (tensor<4x128xf32>) {\n        %in = ...\n        %2 = affine.apply #affine_map<(d0) -> (d0 * 2)> (%idy)\n        %3 = affine.apply #affine_map<(d0) -> (d0 * 4)> (%idx)\n        scf.forall.in_parallel {\n          tensor.parallel_insert_slice %in into %init[%2, %3] [2, 4] [1, 1]\n            : tensor<2x4xf32> into tensor<4x128xf32>\n        }\n      } {mapping = [#gpu.thread<y>, #gpu.thread<x>]}\n      %1 = scf.forall (%idy, %idx) in (8, 8) -> (tensor<128x128xf32>) {\n        %4 = affine.apply #affine_map<(d0) -> (d0 * 16)> (%idx)\n        %extracted_slice = tensor.extract_slice %0[0, %4] [4, 16] [1, 1]\n          : tensor<4x128xf32> to tensor<4x16xf32>\n        ...\n      } {mapping = [#gpu.thread<y>, #gpu.thread<x>]}\n    ```\n\n    Because these loops share the same worker type and total count, the bodies\n    of these two loops can be merged with a barrier an insert_slice and a\n    shuffle where the boundary of the loops currently is.\n\n    ```mlir\n      %0 = scf.forall (%idy, %idx) in (8, 8) -> (tensor<4x128xf32>) {\n        %alloc = bufferization.alloc_tensor <{memory_space = #gpu.address_space<workgroup>}>\n          : tensor<4x128xf32>\n        %barrier = iree_gpu.barrier_region %alloc {\n        ^bb0(%shared: tensor<4x128xf32>):\n          %ids = affine.delinearize_index %idy * 8 + %idx to (2, 32) : index\n          %in = ...\n          %2 = affine.apply #affine_map<(d0) -> (d0 * 2)> (%ids#0)\n          %3 = affine.apply #affine_map<(d0) -> (d0 * 4)> (%ids#1)\n          %inserted_slice = tensor.insert_slice %in into %shared[%2, %3] [2, 4] [1, 1]\n            : tensor<2x4xf32> to tensor<4x128xf32>\n          iree_gpu.yield %slice : tensor<4x16xf32>\n        } : tensor<4x128xf32> -> tensor<4x16xf32>\n        %4 = affine.apply #affine_map<(d0) -> (d0 * 16)> (%idx)\n        %slice = tensor.extract_slice %barrier[0, %4] [4, 16] [1, 1] : tensor<4x128xf32> to tensor<4x16xf32>\n        ...\n      } {mapping = [#gpu.thread<y>, #gpu.thread<x>]}\n    ```\n\n    A barrier_region can be lowered to two barriers, one on the input operands\n    and a second one on the results.\n\n    Movtivation and Intended Use Cases:\n\n    The primary way this op is generated is when fusing parallel loops with\n    tensor results. This operation helps to make lowerings more progressive\n    and flexible.\n      - Lowering directly to an alloc + reads and writes breaks the dependency\n        chain making transformations like barrier placement and pipelining\n        potentially more difficult.\n      - Allows the option of non-vector based lowering paths.",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyType>" }
     ],
@@ -28589,11 +28593,11 @@
     "summary": "AddDependency operation",
     "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation two operands: a data operand and a token. The\n    output of the operation is the data operand. When used with AfterAll this\n    operation enables ordering non-side-effecting operations (those that do not\n    produce token values).\n\n    Example:\n    ```mlir\n    %1 = mhlo.add_dependency %arg0, %0 : (tensor<3x4xf32>, !mhlo.token) -> tensor<3x4xf32>\n    ```",
     "operands": [
-      { "name": "operand", "type": "MHLO_TensorOrAnyToken" },
-      { "name": "token", "type": "MHLO_AnyToken" }
+      { "name": "operand", "type": "AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token]>, StableHLO_TokenType]>" },
+      { "name": "token", "type": "AnyTypeOf<[MHLO_Token, StableHLO_TokenType]>" }
     ],
     "results": [
-      { "name": "output", "type": "MHLO_TensorOrAnyToken" }
+      { "name": "output", "type": "AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token]>, StableHLO_TokenType]>" }
     ],
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
   },
@@ -28708,7 +28712,7 @@
       { "name": "bundle", "type": "MHLO_AsyncBundle" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_TensorOrAnyTokenOrTuple>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, AnyTypeOf<[MHLO_Token, StableHLO_TokenType]>, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>>" }
     ]
   },
   {
@@ -28716,7 +28720,7 @@
     "summary": "AsyncStart operation",
     "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation kicks off an asynchronous computation.\n\n    This is used when there are functions that contain both asynchronous waits\n    (such as DMAs) and on-thread computation. For example, a function might\n    consist of a computation, a DMA, another computation, a second DMA, and a\n    final computation. This would be represented as an async_start followed by\n    and async_update and an async_done. The async_start would do the first\n    computation on-thread and then start the DMA. The async_update would wait\n    for the DMA to complete if it wasn't yet done, then execute the second\n    computation in the function, and start the second DMA. Finally, the\n    async_done would wait on this last DMA, and then run the last computation\n    that needs to be run on-thread and return the result of that final\n    computation.\n\n    `operands` are passed to the computation directly\n    `called_computation` is the function that will be run asynchronously\n    `execution_thread` is the name of the thread in which it will be run. The main\n      thread is called \"main\". All threads have names.\n\n    This returns all the state needed between async ops. After buffer\n    assignment, the return values represents the space needed to hold the input,\n    results, and any scratchpads needed or edited by the async op.",
     "operands": [
-      { "name": "inputs", "type": "Variadic<MHLO_TensorOrAnyTokenOrTuple>" }
+      { "name": "inputs", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, AnyTypeOf<[MHLO_Token, StableHLO_TokenType]>, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>>" }
     ],
     "results": [
       { "name": "result", "type": "MHLO_AsyncBundle" }
@@ -28881,7 +28885,7 @@
       { "name": "index", "type": "I32Tensor" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_TensorOrToken>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token]>>" }
     ],
     "regions": [
       { "name": "branches", "type": "VariadicRegion<SizedRegion<1>>" }
@@ -29027,10 +29031,10 @@
     "summary": "Composite operation",
     "description": "Encapsulates an operation made up (composed) of other StableHLO operations,\n    taking `inputs` and `composite_attributes` and producing `results`. The\n    semantics of the op are implemented by the `decomposition` attribute. The\n    `composite` op can be replaced with its decomposition without changing program\n    semantics. In cases where inlining the decomposition does not provide the same\n    op semantics, prefer using `custom_call`.\n\n    The `version` field (defaults to `0`) is used to denote when a composite's\n    semantics change.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#composite\n\n    Example:\n    ```mlir\n    %results = mhlo.composite \"my.op\" %arg0, %arg1 {\n      decomposition = @my_op,\n      composite_attributes = { my_attribute = \"my_value\" },\n      version = 1 : i32\n    } : (tensor<f32>, tensor<f32>) -> tensor<f32>\n    ```",
     "operands": [
-      { "name": "inputs", "type": "Variadic<MHLO_TensorOrTokenOrTuple>" }
+      { "name": "inputs", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>>" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_TensorOrTokenOrTuple>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>>" }
     ],
     "attributes": [
       { "name": "name", "type": "StrAttr" },
@@ -29123,10 +29127,10 @@
     "summary": "Copy operation",
     "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation a copy of `operand`. Depending on the metadata\n    attached to the operation, it can behave quite differently from a no-op.\n\n    Example:\n    ```mlir\n    %0 = mhlo.copy %arg0 : tensor<f32>\n    ```",
     "operands": [
-      { "name": "operand", "type": "MHLO_TensorOrTokenOrTuple" }
+      { "name": "operand", "type": "AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_TensorOrTokenOrTuple" }
+      { "name": "result", "type": "AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>" }
     ],
     "attributes": [
       { "name": "cross_program_prefetch_index", "type": "OptionalAttr<I32Attr>" }
@@ -29213,10 +29217,10 @@
     "summary": "CustomCall operation",
     "description": "Encapsulates an implementation-defined operation `call_target_name` that\n    takes `inputs` and `called_computations` and produces `results`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#custom_call\n\n    Example:\n    ```mlir\n    %results = \"mhlo.custom_call\"(%input0) {\n      call_target_name = \"foo\",\n      has_side_effect = false,\n      backend_config = \"bar\",\n      api_version = 1 : i32,\n      called_computations = [@foo]\n    } : (tensor<f32>) -> tensor<f32>\n\n    A custom call invokes code external to XLA. The `inputs` are passed to the\n    external code, and the external code is expected to produce a result of the\n    given type. The exact mechanism is backend-specific. For example, in the CPU\n    backend, a call instruction is emitted which targets a symbol with the name\n    `call_target_name`.\n\n    If XLA runtime is enabled for a backend, then custom calls use the runtime\n    custom call calling convention to call into the external functions. This\n    calling convention defines an ABI for encoding arguments, attributes and\n    results.\n\n    Depending on the API version there are two ways to pass extra bits of static\n    information to the external function:\n\n    1. For `API_VERSION_TYPED_FFI` custom calls `backend_config` must be a\n       dictionary attribute, that will be encoded according to the custom call\n       calling convention and passed to the external function as the attributes\n       argument. External code is expected to use declarative bindings (see\n       `xla/runtime/custom_call.h`) to decode them at run time. These custom\n       calls are only supported if XLA uses XLA runtime.\n\n    2. For previous API versions it is the user responsibility to encode extra\n       bits of static information as a string `backend_config` attribute, and\n       decode it at run time.\n    ```",
     "operands": [
-      { "name": "inputs", "type": "Variadic<MHLO_CustomCallValue>" }
+      { "name": "inputs", "type": "Variadic<AnyTypeOf<[MHLO_AnyTensor, MHLO_Buffer, MHLO_Token, NestedTupleOf<[MHLO_AnyTensor, MHLO_Buffer, MHLO_Token]>, HLO_Future]>>" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_CustomCallValue>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[MHLO_AnyTensor, MHLO_Buffer, MHLO_Token, NestedTupleOf<[MHLO_AnyTensor, MHLO_Buffer, MHLO_Token]>, HLO_Future]>>" }
     ],
     "attributes": [
       { "name": "call_target_name", "type": "StrAttr" },
@@ -29255,11 +29259,11 @@
     "summary": "Div operation",
     "description": "Performs element-wise division of dividend `lhs` and divisor `rhs` tensors\n    and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#divide\n\n    Example:\n    ```mlir\n    %result = mhlo.divide %lhs, %rhs : tensor<4xf32>\n    ```",
     "operands": [
-      { "name": "lhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" },
-      { "name": "rhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "lhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" },
+      { "name": "rhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "result", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
   },
@@ -29268,10 +29272,10 @@
     "summary": "Domain operation",
     "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, these operations are used to group instructions with the same\n    DomainMetadata property. ShardingMetadata is the main use case today to\n    group instructions on the same device. Domain instructions provide two\n    major benefits:\n      - Prevent unintentionally optimizing instructions across domains.\n      - Automatically assign the metadata of the instructions created in the domain.\n    Without domain instructions, each HLO optimization pass would have to check\n    and propagate the metadata, which would be easy to miss and also adds\n    complexity to the compiler. Since domain instructions connect two different\n    domains, each domain instruction is associated with two DomainMetadata --\n    one on the operand side and one on the user side of the domain.",
     "operands": [
-      { "name": "operand", "type": "MHLO_TensorOrToken" }
+      { "name": "operand", "type": "AnyTypeOf<[MHLO_Tensor, MHLO_Token]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_TensorOrToken" }
+      { "name": "result", "type": "AnyTypeOf<[MHLO_Tensor, MHLO_Token]>" }
     ],
     "attributes": [
       { "name": "kind", "type": "MHLO_DomainKindAttr{sharding}" },
@@ -29564,7 +29568,7 @@
     "summary": "Fusion operation",
     "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation consists of a group of basic ops (represented as\n    a region attached to it). It serves as a hint to the backend that it is\n    beneficial to emit the contained ops into a single loop nest or kernel.",
     "operands": [
-      { "name": "inputs", "type": "Variadic<MHLO_TensorOrToken>" }
+      { "name": "inputs", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token]>>" }
     ],
     "results": [
       { "name": "results", "type": "Variadic<AnyTypeOf<[ MHLO_Tensor, MHLO_Tuple ]>>" }
@@ -29613,10 +29617,10 @@
     "summary": "GetTupleElement operation",
     "description": "Extracts element at `index` position of the `operand` tuple and produces a\n    `result`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#get_tuple_element\n\n    Example:\n    ```mlir\n    %result = mhlo.get_tuple_element %operand[0] : (tuple<tensor<2xf32>, tuple<tensor<i32>>>) -> tensor<2xf32>\n    ```",
     "operands": [
-      { "name": "operand", "type": "MHLO_Tuple" }
+      { "name": "operand", "type": "NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_TensorOrTokenOrTupleOrBuffer" }
+      { "name": "result", "type": "AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>, MHLO_Buffer]>" }
     ],
     "attributes": [
       { "name": "index", "type": "ConfinedAttr<I32Attr, [IntNonNegative]>" }
@@ -29631,7 +29635,7 @@
       { "name": "pred", "type": "MHLO_PredTensor" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_TensorOrToken>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token]>>" }
     ],
     "regions": [
       { "name": "true_branch", "type": "SizedRegion<1>" },
@@ -29658,7 +29662,7 @@
       { "name": "token", "type": "MHLO_Token" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_StaticShapeTensorOrToken>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[HLO_StaticShapeTensor, MHLO_StaticShapeTensor, MHLO_Token]>>" }
     ],
     "attributes": [
       { "name": "infeed_config", "type": "DefaultValuedStrAttr<StrAttr, >" },
@@ -29819,10 +29823,10 @@
     "summary": "Neg operation",
     "description": "Performs element-wise negation of `operand` tensor and produces a `result`\n    tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#negate\n\n    Example:\n    ```mlir\n    %result = mhlo.negate %operand : tensor<2x3xi32>\n    ```",
     "operands": [
-      { "name": "operand", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "operand", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "result", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
   },
@@ -29843,10 +29847,10 @@
     "summary": "OptimizationBarrier operation",
     "description": "Ensures that the operations that produce the `operand` are executed before any\n    operations that depend on the `result` and prevents compiler transformations\n    from moving operations across the barrier. Other than that, the operation is\n    an identity, i.e. `result` = `operand`.\n\n    See\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#optimization_barrier\n\n    Example:\n    ```mlir\n    %result0, %result1 = mhlo.optimization_barrier %operand0, %operand1 : tensor<f32>, tensor<f32>\n    ```",
     "operands": [
-      { "name": "operand", "type": "Variadic<MHLO_TensorOrToken>" }
+      { "name": "operand", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token]>>" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_TensorOrToken>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[MHLO_Tensor, MHLO_Token]>>" }
     ],
     "assemblyFormat": "attr-dict ($operand^ `:` custom<PairwiseOpType>(type($operand), type($result))):(`(` `)`)?"
   },
@@ -29921,11 +29925,11 @@
     "summary": "Pow operation",
     "description": "Performs element-wise exponentiation of `lhs` tensor by `rhs` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#power\n\n    Example:\n    ```mlir\n    %result = mhlo.power %lhs, %rhs : tensor<6xf32>\n    ```",
     "operands": [
-      { "name": "lhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" },
-      { "name": "rhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "lhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" },
+      { "name": "rhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "result", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
   },
@@ -29995,7 +29999,7 @@
       { "name": "token", "type": "MHLO_Token" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_StaticShapeTensorOrToken>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[HLO_StaticShapeTensor, MHLO_StaticShapeTensor, MHLO_Token]>>" }
     ],
     "attributes": [
       { "name": "channel_handle", "type": "MHLO_ChannelHandle" },
@@ -30085,11 +30089,11 @@
     "summary": "Rem operation",
     "description": "Performs element-wise remainder of dividend `lhs` and divisor `rhs` tensors\n    and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#remainder\n\n    Example:\n    ```mlir\n    %result = mhlo.remainder %lhs, %rhs : tensor<4xi64>\n    ```",
     "operands": [
-      { "name": "lhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" },
-      { "name": "rhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "lhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" },
+      { "name": "rhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "result", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
   },
@@ -30118,7 +30122,7 @@
     "name": "mhlo.return",
     "summary": "This operation is a work in progress, so it is not yet included in\n    the specification: https://github.com/openxla/stablehlo/issues/425.\n\n    Informally, this operation serves as a terminator for regions defined by\n    the StableHLO ops. Non-StableHLO ops, e.g. `func.func`, have their own\n    terminators, e.g. `func.return`.\n\n    Example:\n    ```mlir\n    %result = \"mhlo.reduce\"(%input, %init_value) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.add\"(%arg0, %arg1) : (tensor<i32>, tensor<i32>) -> tensor<i32>\n        \"mhlo.return\"(%0) : (tensor<i32>) -> ()\n    }) {\n      dimensions = dense<1> : tensor<1xi64>\n    } : (tensor<1x6xi32>, tensor<i32>) -> tensor<1xi32>\n    ```",
     "operands": [
-      { "name": "results", "type": "Variadic<MHLO_TensorOrTokenOrTupleOrBuffer>" }
+      { "name": "results", "type": "Variadic<AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>, MHLO_Buffer]>>" }
     ],
     "assemblyFormat": "$results attr-dict (`:` type($results)^)?"
   },
@@ -30489,11 +30493,11 @@
     "summary": "Subtract operation",
     "description": "Performs element-wise subtraction of two tensors `lhs` and `rhs` and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#subtract\n\n    Example:\n    ```mlir\n    %result = mhlo.subtract %lhs, %rhs : tensor<2xi32>\n    ```",
     "operands": [
-      { "name": "lhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" },
-      { "name": "rhs", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "lhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" },
+      { "name": "rhs", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_IntFpOrComplexOrQuantizedIntTensor" }
+      { "name": "result", "type": "RankedTensorOf<[HLO_Int, HLO_Float, HLO_Complex, HLO_QuantizedInt, HLO_PerAxisQuantizedInt]>" }
     ],
     "assemblyFormat": "$lhs `,` $rhs attr-dict\n      `:` custom<SameOperandsAndResultType>(type($lhs), type($rhs), type($result))"
   },
@@ -30610,10 +30614,10 @@
     "summary": "Tuple operation",
     "description": "Produces a `result` tuple from values `val`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#tuple\n\n    Example:\n    ```mlir\n    %result = mhlo.tuple %val0, %val1 : tuple<tensor<2xf32>, tuple<tensor<i32>>>\n    ```",
     "operands": [
-      { "name": "val", "type": "Variadic<MHLO_TensorOrTokenOrTupleOrBuffer>" }
+      { "name": "val", "type": "Variadic<AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token, NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>]>, MHLO_Buffer]>>" }
     ],
     "results": [
-      { "name": "result", "type": "MHLO_Tuple" }
+      { "name": "result", "type": "NestedTupleOf<[MHLO_Tensor, MHLO_Buffer, MHLO_Token]>" }
     ],
     "assemblyFormat": "$val attr-dict `:` custom<TupleOpType>(type($val), type($result))"
   },
@@ -30655,10 +30659,10 @@
     "summary": "While operation",
     "description": "Produces the output from executing `body` function 0 or more times while the\n    `cond` function outputs `true`.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#while\n\n    Example:\n    ```mlir\n    %results0, %results1 = \"mhlo.while\"(%operand0, %operand1) ({\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.compare\"(%arg0, %arg1) {\n          comparison_direction = #stablehlo<comparison_direction LT>\n        } : (tensor<i32>, tensor<i32>) -> tensor<i1>\n        \"mhlo.return\"(%0) : (tensor<i1>) -> ()\n    }, {\n      ^bb0(%arg0: tensor<i32>, %arg1: tensor<i32>):\n        %0 = \"mhlo.add\"(%arg0, %constant0) : (tensor<i32>, tensor<i32>) -> tensor<i32>\n        \"mhlo.return\"(%0, %arg1) : (tensor<i32>, tensor<i32>) -> ()\n    }) : (tensor<i32>, tensor<i32>) -> (tensor<i32>, tensor<i32>)\n    ```",
     "operands": [
-      { "name": "operand", "type": "Variadic<MHLO_TensorOrTokenOrBuffer>" }
+      { "name": "operand", "type": "Variadic<AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token]>, MHLO_Buffer]>>" }
     ],
     "results": [
-      { "name": "result", "type": "Variadic<MHLO_TensorOrTokenOrBuffer>" }
+      { "name": "result", "type": "Variadic<AnyTypeOf<[AnyTypeOf<[MHLO_Tensor, MHLO_Token]>, MHLO_Buffer]>>" }
     ],
     "regions": [
       { "name": "cond", "type": "SizedRegion<1>" },
@@ -31140,13 +31144,13 @@
     "summary": "Dot product of quantized tensors",
     "description": "The `migraphx.quant_dot` op computes the dot product of two tensors. This operation is used when converting MIGraphX IR's quant_dot operation to MIGraphX Dialect. \n    Usually `migraphx.quant_dot` operations have QuantizeLinear and DequantizeLinear operations to convert data types from higher precision to lower precision.  \n    `migraphx.quant_dot` operation is also used for \"scaled\" GEMMs.",
     "operands": [
-      { "name": "in_a", "type": "MIXRShapedOf<QuantDotInTypes>" },
-      { "name": "in_b", "type": "MIXRShapedOf<QuantDotInTypes>" },
-      { "name": "scaleA", "type": "Optional<MIXRShapedOf<QuantDotScaleTypes>>" },
-      { "name": "scaleB", "type": "Optional<MIXRShapedOf<QuantDotScaleTypes>>" }
+      { "name": "in_a", "type": "MIXRShapedOf<[F8E4M3FNUZ, F8E5M2FNUZ, F8E4M3FN, F8E5M2, F4E2M1FN, I8, SI8]>" },
+      { "name": "in_b", "type": "MIXRShapedOf<[F8E4M3FNUZ, F8E5M2FNUZ, F8E4M3FN, F8E5M2, F4E2M1FN, I8, SI8]>" },
+      { "name": "scaleA", "type": "Optional<MIXRShapedOf<[F8E8M0FNU, F32]>>" },
+      { "name": "scaleB", "type": "Optional<MIXRShapedOf<[F8E8M0FNU, F32]>>" }
     ],
     "results": [
-      { "name": "output", "type": "MIXRShapedOf<QuantDotOutTypes>" }
+      { "name": "output", "type": "MIXRShapedOf<[F32, I32, SI32]>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
@@ -33627,6 +33631,28 @@
     "assemblyFormat": "$tmaDescriptor `,` \n    $srcMem `,` \n    `box` `[`$coordinates `]` \n    oilist(\n      `l2_cache_hint` `=` $l2CacheHint | `predicate` `=` $predicate\n      | `mode` `=` $mode\n    )\n    attr-dict `:` type($tmaDescriptor) `,` type($srcMem)"
   },
   {
+    "name": "nvvm.cp.async.bulk.tensor.global.shared.cta.override",
+    "summary": "Async bulk tensor copy from shared::cta to global memory with tensor-map field overrides",
+    "description": "Initiates an asynchronous copy of tensor data from shared::cta memory to global\n      memory while overriding specific fields of the opaque tensor-map object with\n      explicit operands. It corresponds to the `cp.async.bulk.tensor.[1-5]d.*` PTX\n      instructions qualified with `.override::*`.\n\n      The `mode` attribute selects the store mode. The override variant is selected by\n      which optional operands are provided:\n\n      - `override.addr` (`.override::global_address`): only `overrideAddr` is given; the\n        global base address from the tensor-map is replaced. Supported in `TILE` (1D–5D),\n        `IM2COL`/`IM2COL_W` (3D–5D), and `TILE_SCATTER4` (2D, requires 5 coordinates).\n      - `override.addr.dim` (1D, `TILE` only): `overrideAddr` plus `tensorSize` (one\n        element); also overrides the tensor global dimension.\n      - `override.addr.dim.stride` (2D–5D, `TILE` only): `overrideAddr` plus `tensorSize`,\n        `lowerStride`, and `upperStride`; also overrides the global dimensions and strides.\n        The effective global stride is\n        `global_stride[i] = ((%stride{i} + (%upper_stride{i} << 32)) << 4)`.\n\n      `overrideAddr` must be 16B aligned (a runtime error is raised otherwise) and the\n      memory range `[%override_addr, %override_addr + 128 KiB)` must be allocated and\n      accessible during execution. When overriding dimensions/strides, the base-address\n      override is mandatory and the tensor start coordinates must be zero; otherwise the\n      behavior is undefined.\n\n      The optional `l2CacheHint` specifies a cache-eviction policy for the access.\n\n      Examples:\n\n      // override.addr (TILE, 1D)\n      ```mlir\n      nvvm.cp.async.bulk.tensor.global.shared.cta.override %tma_desc, %src, %override_addr, box[%d0] : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr (IM2COL, 3D) with L2 cache hint\n      ```mlir\n      nvvm.cp.async.bulk.tensor.global.shared.cta.override %tma_desc, %src, %override_addr, box[%d0, %d1, %d2]\n        l2_cache_hint = %ch mode = im2col : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr (TILE_SCATTER4, 2D) — 5 coordinates: x0, y0, y1, y2, y3\n      ```mlir\n      nvvm.cp.async.bulk.tensor.global.shared.cta.override %tma_desc, %src, %override_addr, box[%x0, %y0, %y1, %y2, %y3]\n        mode = tile_scatter4 : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr.dim (TILE, 1D)\n      ```mlir\n      nvvm.cp.async.bulk.tensor.global.shared.cta.override %tma_desc, %src, %override_addr,\n        box[%d0] tensor_size[%ts0] : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr.dim.stride (TILE, 2D)\n      ```mlir\n      nvvm.cp.async.bulk.tensor.global.shared.cta.override %tma_desc, %src, %override_addr,\n        box[%d0, %d1] tensor_size[%ts0, %ts1] lower_stride[%lstrd0] upper_stride[%ustrd] : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-tensor)",
+    "operands": [
+      { "name": "tmaDescriptor", "type": "LLVM_PointerGeneric" },
+      { "name": "srcMem", "type": "LLVM_PointerShared" },
+      { "name": "overrideAddr", "type": "LLVM_PointerGlobal" },
+      { "name": "coordinates", "type": "Variadic<I32>" },
+      { "name": "tensorSize", "type": "Variadic<I16>" },
+      { "name": "lowerStride", "type": "Variadic<I32>" },
+      { "name": "upperStride", "type": "Optional<I16>" },
+      { "name": "l2CacheHint", "type": "Optional<I64>" }
+    ],
+    "attributes": [
+      { "name": "mode", "type": "DefaultValuedAttr<TMAStoreModeAttr{tile|im2col|tile_scatter4|im2col_w}, TMAStoreMode::TILE>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "$tmaDescriptor `,`\n      $srcMem `,`\n      $overrideAddr `,`\n      `box` `[`$coordinates `]`\n      oilist(\n        `tensor_size` `[` $tensorSize `]`\n        | `lower_stride` `[` $lowerStride `]`\n        | `upper_stride` `[` $upperStride `]`\n        | `l2_cache_hint` `=` $l2CacheHint\n        | `mode` `=` $mode\n      )\n      attr-dict `:` type($tmaDescriptor) `,` type($srcMem) `,` type($overrideAddr)"
+  },
+  {
     "name": "nvvm.cp.async.bulk.tensor.prefetch",
     "description": "Initiates an asynchronous prefetch operation on the tensor data from global\n    memory to L2 cache. This Op supports all the load modes specified in\n    `TMALoadMode`.\n\n    The `l2CacheHint` operand is optional, and it is used to specify cache\n    eviction policy that may be used during the memory access.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk-prefetch-tensor)",
     "operands": [
@@ -33660,6 +33686,29 @@
       { "type": "AttrSizedOperandSegments" }
     ],
     "assemblyFormat": "$tmaDescriptor `,`\n    $srcMem `,`\n    `box` `[`$coordinates `]`\n    (`l2_cache_hint` `=` $l2CacheHint^ )?\n    `,` `reduction` `=` $redKind oilist(`mode` `=` $mode)\n    attr-dict  `:` type($tmaDescriptor) `,` type($srcMem)"
+  },
+  {
+    "name": "nvvm.cp.async.bulk.tensor.reduce.override",
+    "summary": "Async bulk tensor reduction from shared::cta to global memory with tensor-map field overrides",
+    "description": "Initiates an asynchronous reduction of tensor data in global memory with the tensor\n      data in shared::cta memory, while overriding specific fields of the opaque tensor-map\n      object with explicit operands. It corresponds to the\n      `cp.reduce.async.bulk.tensor.[1-5]d.global.shared::cta.*` PTX instructions qualified\n      with `.override::*`.\n\n      The `mode` attribute selects the store mode and `redKind` selects the reduction\n      operation (`ADD`, `MIN`, `MAX`, `INC`, `DEC`, `AND`, `OR`, `XOR`) that combines the\n      source data in shared memory with the destination data in global memory. The override\n      variant is similar to the `cp.async.bulk.tensor.global.shared.cta.override` op described above.\n\n      The optional `l2CacheHint` specifies a cache-eviction policy for the access.\n\n      Examples:\n\n      // override.addr (TILE, 1D) with ADD reduction\n      ```mlir\n      nvvm.cp.async.bulk.tensor.reduce.override %tma_desc, %src, %override_addr, box[%d0], reduction = add : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr (IM2COL, 3D) with L2 cache hint and MIN reduction\n      ```mlir\n      nvvm.cp.async.bulk.tensor.reduce.override %tma_desc, %src, %override_addr, box[%d0, %d1, %d2]\n        l2_cache_hint = %ch, reduction = min mode = im2col : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr.dim (TILE, 1D)\n      ```mlir\n      nvvm.cp.async.bulk.tensor.reduce.override %tma_desc, %src, %override_addr,\n        box[%d0] tensor_size[%ts0], reduction = add : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      // override.addr.dim.stride (TILE, 2D)\n      ```mlir\n      nvvm.cp.async.bulk.tensor.reduce.override %tma_desc, %src, %override_addr,\n        box[%d0, %d1] tensor_size[%ts0, %ts1] lower_stride[%lstrd0] upper_stride[%ustrd], reduction = and : !llvm.ptr, !llvm.ptr<3>, !llvm.ptr<1>\n      ```\n\n      [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-reduce-async-bulk-tensor)",
+    "operands": [
+      { "name": "tmaDescriptor", "type": "LLVM_PointerGeneric" },
+      { "name": "srcMem", "type": "LLVM_PointerShared" },
+      { "name": "overrideAddr", "type": "LLVM_PointerGlobal" },
+      { "name": "coordinates", "type": "Variadic<I32>" },
+      { "name": "tensorSize", "type": "Variadic<I16>" },
+      { "name": "lowerStride", "type": "Variadic<I32>" },
+      { "name": "upperStride", "type": "Optional<I16>" },
+      { "name": "l2CacheHint", "type": "Optional<I64>" }
+    ],
+    "attributes": [
+      { "name": "redKind", "type": "TMAReduxKindAttr{add|max|min|inc|dec|and|or|xor}" },
+      { "name": "mode", "type": "DefaultValuedAttr<TMAStoreModeAttr{tile|im2col|tile_scatter4|im2col_w}, TMAStoreMode::TILE>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "$tmaDescriptor `,`\n      $srcMem `,`\n      $overrideAddr `,`\n      `box` `[`$coordinates `]`\n      (`tensor_size` `[`$tensorSize^ `]`)?\n      (`lower_stride` `[`$lowerStride^ `]`)?\n      (`upper_stride` `[`$upperStride^ `]`)?\n      (`l2_cache_hint` `=` $l2CacheHint^)?\n      `,` `reduction` `=` $redKind oilist(`mode` `=` $mode)\n      attr-dict  `:` type($tmaDescriptor) `,` type($srcMem) `,` type($overrideAddr)"
   },
   {
     "name": "nvvm.cp.async.bulk.tensor.shared.cluster.global",
@@ -33832,8 +33881,10 @@
   {
     "name": "nvvm.fence.proxy",
     "description": "Fence operation with proxy to establish an ordering between memory accesses\n    that may happen through different proxies.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-membar)",
+    "operands": [
+      { "name": "kind", "type": "ConfinedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, [EnumAttrIsNoneOf<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, [ProxyTensorMap, ProxyGeneric]>]>" }
+    ],
     "attributes": [
-      { "name": "kind", "type": "ProxyKindNotTensormapOrGeneric" },
       { "name": "space", "type": "OptionalAttr<SharedSpaceAttr{cta|cluster}>" }
     ],
     "assemblyFormat": "$kind (`,` `space` `=` $space^)? attr-dict"
@@ -33868,8 +33919,10 @@
     "name": "nvvm.fence.proxy.sync_restrict",
     "summary": "Uni-directional proxy fence operation with sync_restrict",
     "description": "The `nvvm.fence.proxy.sync_restrict` Op used to establish\n    ordering between a prior memory access performed between proxies. Currently,\n    the ordering is only supported between async and generic proxies. `sync_restrict`\n    restricts `acquire` memory semantics to `shared_cluster` and `release` memory\n    semantics to `shared_cta` with cluster scope.\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-membar)",
+    "operands": [
+      { "name": "order", "type": "ConfinedAttr<MemOrderKindAttr{weak|relaxed|acquire|release|acq_rel|sc|mmio|volatile}, [EnumAttrIsOneOf<MemOrderKindAttr{weak|relaxed|acquire|release|acq_rel|sc|mmio|volatile}, [MemOrderKindAcquire, MemOrderKindRelease]>]>" }
+    ],
     "attributes": [
-      { "name": "order", "type": "MemOrderAcquireOrRelease" },
       { "name": "fromProxy", "type": "DefaultValuedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, ProxyKind::GENERIC>" },
       { "name": "toProxy", "type": "DefaultValuedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, ProxyKind::async>" }
     ],
@@ -33883,8 +33936,8 @@
     "name": "nvvm.fence.sync_restrict",
     "summary": "Uni-directional thread fence operation",
     "description": "The `nvvm.fence.sync_restrict` Op restricts the class of memory\n    operations for which the fence instruction provides the memory ordering guarantees.\n    `sync_restrict` restricts `acquire` memory semantics to `shared_cluster` and\n    `release` memory semantics to `shared_cta` with cluster scope.\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-membar)",
-    "attributes": [
-      { "name": "order", "type": "MemOrderAcquireOrRelease" }
+    "operands": [
+      { "name": "order", "type": "ConfinedAttr<MemOrderKindAttr{weak|relaxed|acquire|release|acq_rel|sc|mmio|volatile}, [EnumAttrIsOneOf<MemOrderKindAttr{weak|relaxed|acquire|release|acq_rel|sc|mmio|volatile}, [MemOrderKindAcquire, MemOrderKindRelease]>]>" }
     ],
     "assemblyFormat": "$order attr-dict"
   },
@@ -35356,7 +35409,7 @@
       { "name": "disableOutputLane", "type": "Optional<FixedVectorOfLengthAndType<[ 4, 8 ], [ I32 ]>>" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Tcgen05MMANonBlockScaleKindAttr" },
+      { "name": "kind", "type": "ConfinedAttr<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [EnumAttrIsOneOf<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [Tcgen05MMAKindF16, Tcgen05MMAKindTF32, Tcgen05MMAKindF8F6F4, Tcgen05MMAKindI8, Tcgen05MMAKindTI16]>]>" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
@@ -35398,13 +35451,55 @@
       { "name": "scaleB", "type": "LLVM_PointerTensor" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Tcgen05MMABlockScaleKindAttr" },
+      { "name": "kind", "type": "ConfinedAttr<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [EnumAttrIsOneOf<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [Tcgen05MMAKindMXF8F6F4, Tcgen05MMAKindMXF4, Tcgen05MMAKindMXF4NVF4]>]>" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "blockScale", "type": "DefaultValuedAttr<Tcgen05MMABlockScaleAttr{default|block16|block32}, Tcgen05MMABlockScale::DEFAULT>" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
     "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $scaleA `,` $scaleB `,` `kind` `=` $kind\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` $blockScale | `collector_a` `=` $collectorOp\n      | `collector_b` `=` $collectorOpB\n    )\n    attr-dict `:` `(` type(operands) `)`"
+  },
+  {
+    "name": "nvvm.tcgen05.mma.block_scale.decompress_b",
+    "summary": "Performs block scaled MMA operation with pre-compressed B matrix on 5th-gen tensor cores",
+    "description": "The `tcgen05.mma.block_scale.decompress_b` operation is similar to\n    `tcgen05.mma.decompress_b`, but with block scaling support for the A and B\n    matrices.\n\n    ```\n    D = (A * scale_a)  * (B * scale_b)`      // if `enableInputD` is false\n    D = (A * scale_a)  * (B * scale_b) + D`\n    ```\n\n    where:\n    - A is an M x (K / 2) matrix in tensor memory or described using shared memory descriptor\n    - B is a `K x N` matrix described using shared memory descriptor\n    - D is an `M x N` accumulator matrix in tensor memory\n    - `scale_a` and `scale_b` are matrices in tensor memory used to scale `A` and `B` respectively\n\n    The `shared memory descriptor` can be generated using `tcgen05.mma_smem_desc` Op\n\n    - `idesc` is a 32-bit value representing the [Instruction Descriptor](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-instruction-descriptor)\n\n    - `decompressBMetadata` is a decompress metadata of B matrix\n\n    Default Attributes:\n    - `blockScale` specifies the block scaling granularity\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-mma-instructions-mma)",
+    "operands": [
+      { "name": "matrixD", "type": "LLVM_PointerTensor" },
+      { "name": "matrixA", "type": "AnyTypeOf<[LLVM_PointerTensor, I64]>" },
+      { "name": "matrixB", "type": "I64" },
+      { "name": "idesc", "type": "I32" },
+      { "name": "enableInputD", "type": "I1" },
+      { "name": "scaleA", "type": "LLVM_PointerTensor" },
+      { "name": "scaleB", "type": "LLVM_PointerTensor" },
+      { "name": "decompressBMetadata", "type": "LLVM_PointerTensor" }
+    ],
+    "attributes": [
+      { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
+      { "name": "blockScale", "type": "DefaultValuedAttr<ConfinedAttr<Tcgen05MMABlockScaleAttr{default|block16|block32}, [EnumAttrIsOneOf<Tcgen05MMABlockScaleAttr{default|block16|block32}, [Tcgen05MMABlockScaleDefault, Tcgen05MMABlockScaleBlock32]>]>, Tcgen05MMABlockScale::DEFAULT>" },
+      { "name": "collectorOpA", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
+      { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
+    ],
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    `,` $scaleA `,` $scaleB `,` $decompressBMetadata\n    `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` $blockScale\n      | `collector_a` `=` $collectorOpA\n      | `collector_b` `=` $collectorOpB\n    ) attr-dict `:` `(` type(operands) `)`"
+  },
+  {
+    "name": "nvvm.tcgen05.mma.decompress_b",
+    "summary": "Performs MMA operation with pre-compressed B matrix on 5th-gen tensor cores",
+    "description": "The `tcgen05.mma.decompress_b` operation is an asynchronous tensor core\n    instruction that decompresses the B matrix and performs matrix\n    multiplication, accumulation in a single fused operation. It targets\n    5th-generation tensor cores, providing developers with fine-grained\n    control over execution and scheduling.\n\n    ```\n    D = A * B                            // if `enableInputD` is false\n    D = A * B + D                        // otherwise\n    ```\n\n    where:\n    - A is an `M x K` matrix in tensor memory or described using shared memory descriptor\n    - B is a `K x N` matrix described using shared memory descriptor\n    - D is an `M x N` accumulator matrix in tensor memory\n\n    The `shared memory descriptor` can be generated using `tcgen05.mma_smem_desc` Op\n\n    - `idesc` is a 32-bit value representing the [Instruction Descriptor](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-instruction-descriptor)\n\n    - `decompressBMetadata` is a decompress metadata of B matrix\n\n    Optional Operands:\n    - `disableOutputLane` is a vector mask for selective output\n      * vector<4 x i32> when ctaGroup is CTA_1\n      * vector<8 x i32> when ctaGroup is CTA_2\n\n    Required Attributes:\n    - `ctaGroup` specifies CTA group configuration\n      * cta_1: MMA will be performed on the current thread's CTA\n      * cta_2: MMA will be performed on the current thread and it's peer CTA\n\n    Default Attributes:\n    - collectorOpA is a Tcgen05MMACollectorOp attribute with matrix A as the collector buffer\n    - collectorOpB is a Tcgen05MMACollectorOp attribute with matrix B as the collector buffer\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#tcgen05-mma-instructions-mma)",
+    "operands": [
+      { "name": "matrixD", "type": "LLVM_PointerTensor" },
+      { "name": "matrixA", "type": "AnyTypeOf<[LLVM_PointerTensor, I64]>" },
+      { "name": "matrixB", "type": "I64" },
+      { "name": "idesc", "type": "I32" },
+      { "name": "enableInputD", "type": "I1" },
+      { "name": "decompressBMetadata", "type": "LLVM_PointerTensor" },
+      { "name": "disableOutputLane", "type": "Optional<FixedVectorOfLengthAndType<[ 4, 8 ], [ I32 ]>>" }
+    ],
+    "attributes": [
+      { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
+      { "name": "collectorOpA", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
+      { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
+    ],
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    `,` $decompressBMetadata (`,` `mask` `=` $disableOutputLane^)?\n    `cta_group` `=` $ctaGroup\n    oilist(`collector_a` `=` $collectorOpA | `collector_b` `=` $collectorOpB)\n    attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.sp",
@@ -35421,7 +35516,7 @@
       { "name": "disableOutputLane", "type": "Optional<FixedVectorOfLengthAndType<[ 4, 8 ], [ I32 ]>>" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Tcgen05MMANonBlockScaleKindAttr" },
+      { "name": "kind", "type": "ConfinedAttr<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [EnumAttrIsOneOf<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [Tcgen05MMAKindF16, Tcgen05MMAKindTF32, Tcgen05MMAKindF8F6F4, Tcgen05MMAKindI8, Tcgen05MMAKindTI16]>]>" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
@@ -35447,7 +35542,7 @@
       { "name": "scaleB", "type": "LLVM_PointerTensor" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Tcgen05MMABlockScaleKindAttr" },
+      { "name": "kind", "type": "ConfinedAttr<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [EnumAttrIsOneOf<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [Tcgen05MMAKindMXF8F6F4, Tcgen05MMAKindMXF4, Tcgen05MMAKindMXF4NVF4]>]>" },
       { "name": "ctaGroup", "type": "CTAGroupKindAttr{cta_1|cta_2}" },
       { "name": "blockScale", "type": "DefaultValuedAttr<Tcgen05MMABlockScaleAttr{default|block16|block32}, Tcgen05MMABlockScale::DEFAULT>" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
@@ -35468,7 +35563,7 @@
       { "name": "zeroColMask", "type": "Optional<I64>" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Tcgen05MMANonBlockScaleKindAttr" },
+      { "name": "kind", "type": "ConfinedAttr<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [EnumAttrIsOneOf<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [Tcgen05MMAKindF16, Tcgen05MMAKindTF32, Tcgen05MMAKindF8F6F4, Tcgen05MMAKindI8, Tcgen05MMAKindTI16]>]>" },
       { "name": "collectorBBuffer", "type": "DefaultValuedAttr<Tcgen05MMACollectorBBufferAttr{b0|b1|b2|b3}, Tcgen05MMACollectorBBuffer::B0>" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
@@ -35488,7 +35583,7 @@
       { "name": "zeroColMask", "type": "Optional<I64>" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Tcgen05MMANonBlockScaleKindAttr" },
+      { "name": "kind", "type": "ConfinedAttr<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [EnumAttrIsOneOf<Tcgen05MMAKindAttr{f16|tf32|f8f6f4|i8|mxf8f6f4|mxf4|mxf4nvf4|ti16}, [Tcgen05MMAKindF16, Tcgen05MMAKindTF32, Tcgen05MMAKindF8F6F4, Tcgen05MMAKindI8, Tcgen05MMAKindTI16]>]>" },
       { "name": "collectorBBuffer", "type": "DefaultValuedAttr<Tcgen05MMACollectorBBufferAttr{b0|b1|b2|b3}, Tcgen05MMACollectorBBuffer::B0>" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
@@ -119645,6 +119740,17 @@
     ]
   },
   {
+    "name": "ttir.round",
+    "summary": "Element-wise round operation.",
+    "description": "Element-wise round operation. Rounds each element of the input tensor to the nearest integer,\n    breaking ties towards the even integer, on the operand tensor and produces a result tensor.\n\n    Example:\n    ```mlir\n    // Compute round for all elements in %input\n    %result = \"ttir.round\"(%input) : (tensor<4x4xf32>) -> tensor<4x4xf32>\n    // Input tensor with values [-2.5, 0.4, 0.5, 0.6, 2.5]\n    // Output tensor with values [-2.0, 0.0, 0.0, 1.0, 2.0]\n    ```\n\n    Mathematical definition: round(x) = {\n      floor(x + 0.5) if floor(x) is even\n      ceil(x - 0.5) if floor(x) is odd\n    }",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
     "name": "ttir.rsqrt",
     "summary": "Eltwise reciprocal square root.",
     "description": "The `rsqrt` operation computes the reciprocal square root of each element in the input tensor.\n\n      For each element, it returns the reciprocal of the square root of the value.\n\n      Example:\n      ```mlir\n      // Compute reciprocal square root of all elements in %input\n      %result = ttir.rsqrt(%input) : (tensor<4x4xf32>) -> tensor<4x4xf32>\n      // Input tensor:\n      // [[1.7, 2.0, -0.3, 4.5], ... ]\n      // Output tensor:\n      // [[0.5882, 0.5, -3.3333, 0.2173], ... ]\n      ```\n\n      Mathematical definition: rsqrt(x) = 1 / sqrt(x)",
@@ -126801,6 +126907,17 @@
     ]
   },
   {
+    "name": "ttnn.round",
+    "summary": "Eltwise unary op.",
+    "description": "Element-wise round operation. Rounds each element of the input tensor to the nearest integer,\n    breaking ties towards the even integer, on the operand tensor and produces a result tensor.\n\n    Example:\n    ```mlir\n    // Compute round for all elements in %input\n    %result = \"ttnn.round\"(%input) : (tensor<4x4xf32>) -> tensor<4x4xf32>\n    // Input tensor with values [-2.5, 0.4, 0.5, 0.6, 2.5]\n    // Output tensor with values [-2.0, 0.0, 0.0, 1.0, 2.0]\n    ```\n\n    Mathematical definition: round(x) = {\n      floor(x + 0.5) if floor(x) is even\n      ceil(x - 0.5) if floor(x) is odd\n    }",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
     "name": "ttnn.rsqrt",
     "summary": "Eltwise rsqrt.",
     "description": "Eltwise rsqrt operation.",
@@ -127829,6 +127946,8 @@
     "summary": "Global initialization function.",
     "description": "A function that is called in definition order upon module initialization.\n    Must not load any globals that are defined or initialized after it in the\n    module.\n\n    Module initialization follows a strict execution order to ensure\n    correctness:\n    * Initialization points: two types of operations define initialization:\n      - `util.initializer` ops: explicit initialization functions\n      - `util.global` ops with initial values: implicit initialization via\n        attributes\n    * Execution order: initialization proceeds in exact module definition order:\n      - Operations execute sequentially from top to bottom\n      - Each `util.global` with an initial value conceptually materializes its\n        value and stores it before the next initialization point\n      - Each `util.initializer` executes its entire body before proceeding\n    * Dependency rules:\n      - Initializers may only access globals defined before them in module order\n      - Globals with initial values are considered \"initialized\" at their\n        definition point, not when first accessed\n      - Function calls within initializers observe the current initialization\n        state when the call is made\n    * Transformation guarantees:\n      - Combining passes preserve exact initialization order\n      - Globals with initial values may be converted to explicit initialization\n        while maintaining their position in the initialization sequence\n      - The final initialization state must be identical to sequential execution\n\n    Example execution:\n    ```mlir\n    util.global @A = 1 : i32           // A = 1\n    util.initializer { ... }           // Executes with A = 1\n    util.global @B = 2 : i32           // B = 2\n    util.initializer {\n      %a = util.global.load @A : i32   // Loads 1\n      %b = util.global.load @B : i32   // Loads 2\n    }\n    ```",
     "attributes": [
+      { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
@@ -133482,6 +133601,8 @@
     "summary": "Function defined with VM control flow ops.",
     "description": "Represents a function containing VM ops and those of compatible dialects.\n    All flow control is performed by VM ops.",
     "attributes": [
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "ordinal", "type": "OptionalAttr<VM_Ordinal>" },
       { "name": "inlining_policy", "type": "OptionalAttr<Util_InliningPolicyAttrInterface>" },
@@ -133911,6 +134032,8 @@
     "summary": "Global initialization function.",
     "description": "A function that is called in definition order upon module initialization.\n    Must not load any globals that are defined or initialized after it in the\n    module.",
     "attributes": [
+      { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }

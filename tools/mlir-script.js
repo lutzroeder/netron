@@ -441,6 +441,10 @@ const schema = async () => {
                 const defName = value.value;
                 // Check if this is an enum attribute or property and add enum cases
                 const attrDef = parser.getDef(defName) || parser.getClass(defName);
+                const alias = attrDef ? null : parser.getDefvar(defName);
+                if (alias) {
+                    return toConstraintString(alias);
+                }
                 // Resolve type aliases to their base forms for proper parser dispatch
                 if (attrDef) {
                     for (const parent of attrDef.parents) {

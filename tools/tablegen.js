@@ -1630,6 +1630,10 @@ tablegen.Reader = class {
         return this._defs.get(name);
     }
 
+    getDefvar(name) {
+        return this._defvars.get(name);
+    }
+
     getClass(name) {
         // Check if this is a defvar alias and resolve it
         if (this._defvars.has(name)) {
@@ -2315,7 +2319,7 @@ tablegen.Reader = class {
         this._expect('=');
         // Parse and store the value - needed for resolving type aliases like
         // defvar Util_GlobalRefAttr = FlatSymbolRefAttr;
-        const value = this._parseValue();
+        const value = this._parseValue(true);
         this._expect(';');
         // Store defvar for alias resolution (e.g., type constraint lookups)
         if (name && value) {
@@ -3194,9 +3198,9 @@ tablegen.Reader = class {
         return args;
     }
 
-    _parseValue() {
+    _parseValue(preserveTemplate = false) {
         const values = [];
-        values.push(this._parsePrimaryValue());
+        values.push(this._parsePrimaryValue(preserveTemplate));
         while (this._match('#') || (values[values.length - 1] && values[values.length - 1].type === 'string' && this._match('string'))) {
             if (this._match('#')) {
                 this._read();
@@ -3205,7 +3209,7 @@ tablegen.Reader = class {
                     break;
                 }
             }
-            values.push(this._parsePrimaryValue());
+            values.push(this._parsePrimaryValue(preserveTemplate));
         }
         if (values.length === 1) {
             return values[0];
@@ -3259,7 +3263,7 @@ tablegen.Reader = class {
         return this._parseValue();
     }
 
-    _parsePrimaryValue() {
+    _parsePrimaryValue(preserveTemplate = false) {
         if (this._match('string')) {
             const value = this._read();
             return new tablegen.Value('string', value);
@@ -3380,9 +3384,14 @@ tablegen.Reader = class {
             // Handle various suffixes: templates, subscripts, field access, scope resolution
             while (true) {
                 if (this._match('<')) {
-                    // Template arguments are skipped here - they're parsed properly in
-                    // DAG context by _parseListItem() which creates DAG values with template args
-                    this._skip('<', '>');
+                    if (preserveTemplate) {
+                        this._read();
+                        const args = this._parseTemplateArgList();
+                        const operands = args.map((arg) => ({ value: arg, name: null }));
+                        result = new tablegen.Value('dag', new tablegen.DAG(value, operands));
+                    } else {
+                        this._skip('<', '>');
+                    }
                 } else if (this._eat('[')) {
                     // Array subscripting: x[0]
                     const index = this._parseValue();
