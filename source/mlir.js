@@ -23090,6 +23090,26 @@ _.ROCDLDialect = class extends _.llvm.LLVMDialect {
         this.registerCustomDirective('CachePolicy', this.parseCachePolicy.bind(this));
     }
 
+    parseOperation(parser, result) {
+        if (result.name.getStringRef() === 'rocdl.make.buffer.rsrc') {
+            result.compatibility = true;
+            const metadata = result.name.getRegisteredInfo().metadata;
+            const operands = parser.parseOperandList();
+            parser.parseOptionalAttrDict(result.attributes);
+            parser.parseColon();
+            const baseType = this.parseCustomTypeWithFallback(parser, metadata.operands[0].type);
+            const numRecordsType = parser.parseOptionalComma() ? this.parseCustomTypeWithFallback(parser, metadata.operands[2].type) : null;
+            parser.parseKeyword('to');
+            result.addTypes([this.parseCustomTypeWithFallback(parser, metadata.results[0].type)]);
+            const types = [baseType, null, numRecordsType, null];
+            for (let i = 0; i < operands.length; i++) {
+                parser.resolveOperand(operands[i], types[i], result.operands);
+            }
+            return true;
+        }
+        return super.parseOperation(parser, result);
+    }
+
     parseCachePolicy(parser, op, aux) {
         const value = parser.parseOptionalInteger();
         if (value !== null) {
