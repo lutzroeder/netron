@@ -352,8 +352,11 @@ export class Target {
                                     switch (tensor.type.dataType) {
                                         case 'boolean': data_type = 'bool'; break;
                                         case 'bfloat16': data_type = 'float32'; break;
+                                        case 'float4e2m1': data_type = 'float16'; break;
                                         case 'float4e2m1fn': data_type = 'float16'; break;
+                                        case 'float6e2m3': data_type = 'float16'; break;
                                         case 'float6e2m3fn': data_type = 'float16'; break;
+                                        case 'float6e3m2': data_type = 'float16'; break;
                                         case 'float6e3m2fn': data_type = 'float16'; break;
                                         case 'float8e5m2': data_type = 'float16'; break;
                                         case 'float8e5m2fnuz': data_type = 'float16'; break;

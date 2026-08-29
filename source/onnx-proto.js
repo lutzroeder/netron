@@ -1601,7 +1601,9 @@ onnx.TensorProto.DataType = {
     "FLOAT4E2M1": 23,
     "FLOAT8E8M0": 24,
     "UINT2": 25,
-    "INT2": 26
+    "INT2": 26,
+    "FLOAT6E2M3": 27,
+    "FLOAT6E3M2": 28
 };
 
 onnx.TensorProto.Segment = class Segment {

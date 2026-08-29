@@ -100,6 +100,50 @@ if (!DataView.prototype.getFloat4e2m1) {
     };
 }
 
+if (!DataView.prototype.getFloat6e2m3) {
+    const values = [
+        0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
+        1, 1.125, 1.25, 1.375, 1.5, 1.625, 1.75, 1.875,
+        2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75,
+        4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5
+    ];
+    DataView.__float6e2m3_float32 = new Float32Array(values.concat(values.map((value) => -value)));
+    DataView.prototype.getFloat6e2m3 = function(offset) {
+        const position = (offset >> 2) * 3;
+        let value = 0;
+        switch (offset & 3) {
+            case 0: value = this.getUint8(position) & 0x3f; break;
+            case 1: value = (this.getUint16(position, true) >> 6) & 0x3f; break;
+            case 2: value = (this.getUint16(position + 1, true) >> 4) & 0x3f; break;
+            case 3: value = this.getUint8(position + 2) >> 2; break;
+            default: break;
+        }
+        return DataView.__float6e2m3_float32[value];
+    };
+}
+
+if (!DataView.prototype.getFloat6e3m2) {
+    const values = [
+        0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375,
+        0.5, 0.625, 0.75, 0.875, 1, 1.25, 1.5, 1.75,
+        2, 2.5, 3, 3.5, 4, 5, 6, 7,
+        8, 10, 12, 14, 16, 20, 24, 28
+    ];
+    DataView.__float6e3m2_float32 = new Float32Array(values.concat(values.map((value) => -value)));
+    DataView.prototype.getFloat6e3m2 = function(offset) {
+        const position = (offset >> 2) * 3;
+        let value = 0;
+        switch (offset & 3) {
+            case 0: value = this.getUint8(position) & 0x3f; break;
+            case 1: value = (this.getUint16(position, true) >> 6) & 0x3f; break;
+            case 2: value = (this.getUint16(position + 1, true) >> 4) & 0x3f; break;
+            case 3: value = this.getUint8(position + 2) >> 2; break;
+            default: break;
+        }
+        return DataView.__float6e3m2_float32[value];
+    };
+}
+
 if (!DataView.prototype.getFloat8e4m3) {
     DataView.__float8e4m3_float32 = new Float32Array(1);
     DataView.__float8e4m3_uint32 = new Uint32Array(DataView.__float8e4m3_float32.buffer, DataView.__float8e4m3_float32.byteOffset, 1);
@@ -261,7 +305,7 @@ if (!DataView.prototype.getFloat8e8m0fnu) {
         if (value === 255) {
             return NaN;
         }
-        DataView.__float8e8m0fnu_uint32[0] = value << 23;
+        DataView.__float8e8m0fnu_uint32[0] = value === 0 ? 0x00400000 : value << 23;
         return DataView.__float8e8m0fnu_float32[0];
     };
 }
@@ -868,6 +912,10 @@ base.Tensor = class {
                             context.dataType = dataType;
                             context.bits = 4;
                             context.itemsize = 1;
+                        } else if (dataType === 'float6e2m3' || dataType === 'float6e3m2') {
+                            context.dataType = dataType;
+                            context.bits = 6;
+                            context.itemsize = 1;
                         } else if (dataType === 'quint4x2') {
                             context.dataType = 'uint';
                             context.bits = 4;
@@ -1062,6 +1110,16 @@ base.Tensor = class {
                 case 'float4e2m1fn':
                     for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getFloat4e2m1(offset));
+                    }
+                    break;
+                case 'float6e2m3':
+                    for (let i = 0; i < length; i++, offset += stride) {
+                        results.push(view.getFloat6e2m3(offset));
+                    }
+                    break;
+                case 'float6e3m2':
+                    for (let i = 0; i < length; i++, offset += stride) {
+                        results.push(view.getFloat6e3m2(offset));
                     }
                     break;
                 case 'float8e3m4':

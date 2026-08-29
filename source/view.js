@@ -3172,8 +3172,12 @@ view.Output = class extends grapher.Node {
         return [];
     }
 
-    activate() {
-        this.context.view.showTargetProperties(this.target);
+    activate(source) {
+        if (this.value.value.length === 1 && this.value.value[0].initializer) {
+            this.context.view.showTensorProperties(this.value, source);
+        } else {
+            this.context.view.showTargetProperties(this.target);
+        }
     }
 };
 
@@ -4305,8 +4309,11 @@ view.TensorView = class extends view.Expander {
                 switch (tensor.type.dataType) {
                     case 'boolean': data_type = 'bool'; break;
                     case 'bfloat16': data_type = 'float32'; break;
+                    case 'float4e2m1': data_type = 'float16'; break;
                     case 'float4e2m1fn': data_type = 'float16'; break;
+                    case 'float6e2m3': data_type = 'float16'; break;
                     case 'float6e2m3fn': data_type = 'float16'; break;
+                    case 'float6e3m2': data_type = 'float16'; break;
                     case 'float6e3m2fn': data_type = 'float16'; break;
                     case 'float8e3m4': data_type = 'float16'; break;
                     case 'float8e4m3': data_type = 'float16'; break;

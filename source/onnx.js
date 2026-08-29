@@ -533,6 +533,22 @@ onnx.Tensor = class {
                                 this._encoding = '<';
                             }
                             break;
+                        case onnx.DataType.FLOAT6E2M3:
+                        case onnx.DataType.FLOAT6E3M2:
+                            if (tensor.int32_data && tensor.int32_data.length > 0) {
+                                const array = tensor.int32_data;
+                                const data = new Uint8Array(Math.ceil(array.length * 6 / 8));
+                                for (let i = 0; i < array.length; i++) {
+                                    const offset = i * 6;
+                                    data[offset >> 3] |= (array[i] & 0x3f) << (offset & 7);
+                                    if ((offset & 7) > 2) {
+                                        data[(offset >> 3) + 1] |= (array[i] & 0x3f) >> (8 - (offset & 7));
+                                    }
+                                }
+                                this._data = data;
+                                this._encoding = '<';
+                            }
+                            break;
                         case onnx.DataType.INT2:
                         case onnx.DataType.INT4:
                         case onnx.DataType.UINT2:
@@ -1438,7 +1454,9 @@ onnx.DataType = {
     FLOAT4E2M1: 23,
     FLOAT8E8M0: 24,
     UINT2: 25,
-    INT2: 26
+    INT2: 26,
+    FLOAT6E2M3: 27,
+    FLOAT6E3M2: 28
 };
 
 onnx.AttributeType = {
