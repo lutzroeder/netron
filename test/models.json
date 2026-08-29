@@ -808,13 +808,6 @@
   },
   {
     "type":     "caffe2",
-    "target":   "inception_v2/predict_net.pb,inception_v2/init_net.pb",
-    "source":   "https://github.com/facebookarchive/models/raw/master/inception_v2/predict_net.pb,https://github.com/facebookarchive/models/raw/master/inception_v2/init_net.pb",
-    "format":   "Caffe2",
-    "link":     "https://github.com/caffe2/models"
-  },
-  {
-    "type":     "caffe2",
     "target":   "lenet/predict_net.pbtxt,lenet/init_net.pbtxt",
     "source":   "https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/predict_net.pbtxt,https://raw.githubusercontent.com/jolibrain/deepdetect/master/templates/caffe2/lenet/init_net.pbtxt",
     "format":   "Caffe2",
@@ -847,13 +840,6 @@
     "source":   "https://github.com/user-attachments/files/19404049/while_onnx.zip[predict_net.pb,init_net.pb]",
     "format":   "Caffe2",
     "link":     "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":     "caffe2",
-    "target":   "resnet50/predict_net.pb,resnet50/init_net.pb",
-    "source":   "https://github.com/facebookarchive/models/raw/master/resnet50/predict_net.pb,https://github.com/facebookarchive/models/raw/master/resnet50/init_net.pb",
-    "format":   "Caffe2",
-    "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
@@ -1917,13 +1903,6 @@
     "target":   "mobile_mosaic_hta/model.params",
     "source":   "https://github.com/lutzroeder/netron/files/8767531/mobile_mosaic_hta.zip[model.params]",
     "format":   "DLC Weights",
-    "link":     "https://github.com/lutzroeder/netron/issues/640"
-  },
-  {
-    "type":     "dlc",
-    "target":   "mobilenet_edgetpu_224_1.0_htp.dlc",
-    "source":   "https://github.com/lutzroeder/netron/files/12207884/mobilenet_edgetpu_224_1.0_htp.dlc.zip[mobilenet_edgetpu_224_1.0_htp.dlc]",
-    "format":   "DLC",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
@@ -3982,11 +3961,6 @@
   },
   {
     "type":     "mxnet",
-    "target":   "Inception-BN.model",
-    "source":   "https://s3.amazonaws.com/model-server/models/inception-bn/Inception-BN.model"
-  },
-  {
-    "type":     "mxnet",
     "target":   "lstm_ptb.model",
     "source":   "https://github.com/lutzroeder/netron/files/11931628/lstm_ptb.model.zip[lstm_ptb.model]",
     "format":   "MXNet Model Server v0.1",
@@ -4003,13 +3977,6 @@
     "type":     "mxnet",
     "target":   "nin.model",
     "source":   "https://s3.amazonaws.com/model-server/models/nin/nin.model",
-    "format":   "MXNet Model Server v0.1",
-    "link":     "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":     "mxnet",
-    "target":   "resnet-18.model",
-    "source":   "https://s3.amazonaws.com/model-server/models/resnet-18/resnet-18.model",
     "format":   "MXNet Model Server v0.1",
     "link":     "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
@@ -8141,13 +8108,6 @@
   },
   {
     "type":     "tf",
-    "target":   "densenet.pb",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.pb]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/guide/hosted_models.md"
-  },
-  {
-    "type":     "tf",
     "target":   "drawmodel_attn.ckpt",
     "source":   "https://github.com/lutzroeder/netron/files/8647412/drawmodel_attn.ckpt.zip[drawmodel_attn.ckpt]",
     "format":   "TensorFlow Tensor Bundle v1",
@@ -8263,13 +8223,6 @@
     "source":   "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/cc/saved_model/testdata/half_plus_two_pbtxt/00000123/saved_model.pbtxt",
     "format":   "TensorFlow Saved Model v1",
     "link":     "https://github.com/tensorflow/tensorflow/tree/master/tensorflow/cc/saved_model/testdata"
-  },
-  {
-    "type":     "tf",
-    "target":   "inception_v2_2016_08_28_frozen.pb",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/inception_v2_2016_08_28_frozen.pb.tar.gz[inception_v2_2016_08_28_frozen.pb]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
   },
   {
     "type":     "tf",
@@ -8419,25 +8372,10 @@
   },
   {
     "type":     "tf",
-    "target":   "ssd_mobilenet_v1_android_export.pb",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_android_export.zip[ssd_mobilenet_v1_android_export.pb]",
-    "format":   "TensorFlow Graph",
-    "tags":     "skip-render",
-    "link":     "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":     "tf",
     "target":   "ssd_mobilenet_v1_coco_11_06_2017_graph.pbtxt",
     "source":   "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/graph.pbtxt]",
     "format":   "TensorFlow Graph",
     "tags":     "skip-render",
-    "link":     "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
-  },
-  {
-    "type":     "tf",
-    "target":   "ssd_mobilenet_v1_coco_11_06_2017_frozen_inference.pb",
-    "source":   "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb]",
-    "format":   "TensorFlow Graph",
     "link":     "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
@@ -8666,14 +8604,6 @@
     "format":   "TensorFlow Lite v3",
     "tags":     "quantization",
     "link":     "https://github.com/pqpo/SmartCropper"
-  },
-  {
-    "type":     "tflite",
-    "target":   "inception_v3.tflite",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.tflite]",
-    "format":   "TensorFlow Lite v3",
-    "tags":     "quantization",
-    "link":     "https://github.com/lutzroeder/netron/issues/34"
   },
   {
     "type":     "tflite",
