@@ -144,6 +144,9 @@ litert.lm.proto.LlmMetadata = class LlmMetadata {
                 case 12:
                     message.supports_function_calling = reader.bool();
                     break;
+                case 13:
+                    message.pad_token = litert.lm.proto.TokenUnion.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -163,6 +166,7 @@ litert.lm.proto.LlmMetadata.prototype.suppress_tokens = null;
 litert.lm.proto.LlmMetadata.prototype.kv_cache_init_value = 0n;
 litert.lm.proto.LlmMetadata.prototype.supports_thinking = false;
 litert.lm.proto.LlmMetadata.prototype.supports_function_calling = false;
+litert.lm.proto.LlmMetadata.prototype.pad_token = null;
 
 litert.lm.proto.LlmModelType = class LlmModelType {
 
