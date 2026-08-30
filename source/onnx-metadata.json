@@ -2443,6 +2443,10 @@
         "code": "q_num_heads, kv_num_heads = 3, 3\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nQ = np.random.rand(2, 4, 24).astype(np.float32)\nK = np.random.rand(2, 6, 24).astype(np.float32)\nV = np.random.rand(2, 6, 24).astype(np.float32)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    is_causal=1,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_causal\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_3d_causal_bf16",
+        "code": "\"\"\"3D input with is_causal=1 and bfloat16.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n    q_num_heads=3,\n    kv_num_heads=3,\n)\n\nQ = np.random.rand(2, 4, 24).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 6, 24).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 6, 24).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(\n    Q, K, V, is_causal=1, q_num_heads=3, kv_num_heads=3\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_3d_diff_head_sizes",
         "code": "q_num_heads, kv_num_heads = 3, 3\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nQ = np.random.rand(2, 4, 24).astype(np.float32)\nK = np.random.rand(2, 6, 24).astype(np.float32)\nV = np.random.rand(2, 6, 30).astype(np.float32)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_diff_heads_sizes\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
@@ -2587,6 +2591,10 @@
         "code": "node = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 6, 8).astype(np.float32)\nV = np.random.rand(2, 3, 6, 8).astype(np.float32)\nattn_mask = np.random.rand(2, 3, 4, 6).astype(bool)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_4d_attn_mask_bool_4d\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_attn_mask_causal_bf16",
+        "code": "\"\"\"Float attn_mask + is_causal with bfloat16 \u2014 mask is bf16, causal mask must be cast.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 1, 4, 6).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_4d_attn_mask_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_bidirectional_window",
         "code": "\"\"\"Asymmetric bidirectional window independent of causal masking.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    left_window_size=1,\n    right_window_size=2,\n)\n\nQ = np.zeros((1, 1, 5, 1), dtype=np.float32)\nK = np.zeros((1, 1, 5, 1), dtype=np.float32)\nV = np.arange(5, dtype=np.float32).reshape(1, 1, 5, 1)\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    left_window_size=1,\n    right_window_size=2,\n)\n\nnp.testing.assert_allclose(\n    Y.reshape(-1), np.array([1.0, 1.5, 2.5, 3.0, 3.5], dtype=np.float32)\n)\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_bidirectional_window\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 25)],\n)"
       },
@@ -2595,8 +2603,20 @@
         "code": "node = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 6, 8).astype(np.float32)\nV = np.random.rand(2, 3, 6, 8).astype(np.float32)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_causal_bf16",
+        "code": "\"\"\"is_causal=1 with bfloat16 inputs exercises causal mask CastLike fix.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_causal_boolmask_nan_robustness",
         "code": "\"\"\"Composed ``is_causal`` + boolean ``attn_mask`` NaN-robustness.\n\nThe causal frontier (lower-triangular here, offset 0) and the boolean\n``attn_mask`` are intersected: a key is attended only if allowed by both.\nThis exercises two pre-fix NaN sources on the same forward pass:\n\n* **Bug-1 (allowed cells stay finite).**  Query 0 is allowed key 0 by both\n  the causal frontier (``{0}``) and the mask (``True`` at key 0).  The old\n  ``(1 - attn_mask) * -inf`` conversion computes ``0 * -inf = NaN`` at that\n  allowed cell, poisoning the row.  The select conversion\n  ``where(attn_mask, 0, -inf)`` keeps it finite.\n* **Bug-2 (fully-masked row -> 0).**  Query 1 is allowed keys ``{0, 1}`` by\n  the causal frontier but the mask is ``False`` at both, so the combined\n  constraint allows no key.  ``softmax`` of an all-``-inf`` row is ``NaN``;\n  the fully-masked-row guard zeros it before the ``P @ V`` contraction so\n  the output row is ``0``.\n\n4D Q/K/V is used so ``q_num_heads``/``kv_num_heads`` are omitted (passing\nthem would make the function body treat the input as 3D).\n\"\"\"\nnp.random.seed(3)\nB, H, S, D = 1, 2, 2, 8\n\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(B, H, S, D).astype(np.float32)\nK = np.random.rand(B, H, S, D).astype(np.float32)\nV = np.random.rand(B, H, S, D).astype(np.float32)\n# Row 0: key 0 allowed (Bug-1 allowed cell). Row 1: no key allowed -> fully\n# masked once intersected with the causal frontier (Bug-2 empty row).\nattn_mask = np.array([[True, False], [False, False]], dtype=np.bool_)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n)\n\n# Bug-1: allowed cells are finite (no NaN anywhere). Bug-2: the fully-masked\n# query row is exactly zero, not NaN.\nassert np.all(np.isfinite(Y)), \"allowed cells must be finite (Bug-1)\"\nassert np.array_equal(Y[:, :, 1, :], np.zeros_like(Y[:, :, 1, :])), (\n    \"fully-masked row must be zero (Bug-2)\"\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_causal_boolmask_nan_robustness\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
+      },
+      {
+        "summary": "attention_causal_fp16",
+        "code": "\"\"\"is_causal=1 with float16 inputs.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float16)\nK = np.random.rand(2, 3, 6, 8).astype(np.float16)\nV = np.random.rand(2, 3, 6, 8).astype(np.float16)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_fp16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
+        "summary": "attention_causal_padded_kv_bf16",
+        "code": "\"\"\"is_causal=1 + nonpad_kv_seqlen with bfloat16 exercises both CastLike fixes.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\", \"\", \"\", \"nonpad_kv_seqlen\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 3, 4, 4).astype(ml_dtypes.bfloat16)\nnonpad_kv_seqlen = np.array([3, 4], dtype=np.int64)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n    nonpad_kv_seqlen=nonpad_kv_seqlen,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask, nonpad_kv_seqlen],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_padded_kv_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
       },
       {
         "summary": "attention_diff_head_sizes",
@@ -2697,6 +2717,10 @@
       {
         "summary": "attention_local_window_with_past",
         "code": "\"\"\"Sliding window with internal KV cache (past_key/past_value).\"\"\"\nleft_window_size = 2\npast_sequence_length = 8\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"\", \"past_key\", \"past_value\"],\n    outputs=[\"Y\", \"present_key\", \"present_value\"],\n    is_causal=1,\n    left_window_size=left_window_size,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 2, 8).astype(np.float32)\nV = np.random.rand(2, 3, 2, 8).astype(np.float32)\npast_key = np.random.rand(2, 3, past_sequence_length, 8).astype(np.float32)\npast_value = np.random.rand(2, 3, past_sequence_length, 8).astype(np.float32)\n\nY, present_key, present_value, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    past_key=past_key,\n    past_value=past_value,\n    is_causal=1,\n    left_window_size=left_window_size,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, past_key, past_value],\n    outputs=[Y, present_key, present_value],\n    name=\"test_attention_local_window_with_past\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 25)],\n)"
+      },
+      {
+        "summary": "attention_padded_kv_bf16",
+        "code": "\"\"\"nonpad_kv_seqlen with bfloat16 inputs exercises padding mask CastLike fix.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\", \"\", \"\", \"nonpad_kv_seqlen\"],\n    outputs=[\"Y\"],\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 3, 4, 4).astype(ml_dtypes.bfloat16)\nnonpad_kv_seqlen = np.array([3, 4], dtype=np.int64)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    nonpad_kv_seqlen=nonpad_kv_seqlen,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask, nonpad_kv_seqlen],\n    outputs=[Y],\n    name=\"test_attention_4d_padded_kv_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
       },
       {
         "summary": "attention_scaled",
@@ -2957,6 +2981,10 @@
         "code": "q_num_heads, kv_num_heads = 3, 3\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nQ = np.random.rand(2, 4, 24).astype(np.float32)\nK = np.random.rand(2, 6, 24).astype(np.float32)\nV = np.random.rand(2, 6, 24).astype(np.float32)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    is_causal=1,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_causal\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_3d_causal_bf16",
+        "code": "\"\"\"3D input with is_causal=1 and bfloat16.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n    q_num_heads=3,\n    kv_num_heads=3,\n)\n\nQ = np.random.rand(2, 4, 24).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 6, 24).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 6, 24).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(\n    Q, K, V, is_causal=1, q_num_heads=3, kv_num_heads=3\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_3d_diff_head_sizes",
         "code": "q_num_heads, kv_num_heads = 3, 3\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nQ = np.random.rand(2, 4, 24).astype(np.float32)\nK = np.random.rand(2, 6, 24).astype(np.float32)\nV = np.random.rand(2, 6, 30).astype(np.float32)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_diff_heads_sizes\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
@@ -3101,6 +3129,10 @@
         "code": "node = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 6, 8).astype(np.float32)\nV = np.random.rand(2, 3, 6, 8).astype(np.float32)\nattn_mask = np.random.rand(2, 3, 4, 6).astype(bool)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_4d_attn_mask_bool_4d\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_attn_mask_causal_bf16",
+        "code": "\"\"\"Float attn_mask + is_causal with bfloat16 \u2014 mask is bf16, causal mask must be cast.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 1, 4, 6).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_4d_attn_mask_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_bidirectional_window",
         "code": "\"\"\"Asymmetric bidirectional window independent of causal masking.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    left_window_size=1,\n    right_window_size=2,\n)\n\nQ = np.zeros((1, 1, 5, 1), dtype=np.float32)\nK = np.zeros((1, 1, 5, 1), dtype=np.float32)\nV = np.arange(5, dtype=np.float32).reshape(1, 1, 5, 1)\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    left_window_size=1,\n    right_window_size=2,\n)\n\nnp.testing.assert_allclose(\n    Y.reshape(-1), np.array([1.0, 1.5, 2.5, 3.0, 3.5], dtype=np.float32)\n)\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_bidirectional_window\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 25)],\n)"
       },
@@ -3109,8 +3141,20 @@
         "code": "node = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 6, 8).astype(np.float32)\nV = np.random.rand(2, 3, 6, 8).astype(np.float32)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_causal_bf16",
+        "code": "\"\"\"is_causal=1 with bfloat16 inputs exercises causal mask CastLike fix.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_causal_boolmask_nan_robustness",
         "code": "\"\"\"Composed ``is_causal`` + boolean ``attn_mask`` NaN-robustness.\n\nThe causal frontier (lower-triangular here, offset 0) and the boolean\n``attn_mask`` are intersected: a key is attended only if allowed by both.\nThis exercises two pre-fix NaN sources on the same forward pass:\n\n* **Bug-1 (allowed cells stay finite).**  Query 0 is allowed key 0 by both\n  the causal frontier (``{0}``) and the mask (``True`` at key 0).  The old\n  ``(1 - attn_mask) * -inf`` conversion computes ``0 * -inf = NaN`` at that\n  allowed cell, poisoning the row.  The select conversion\n  ``where(attn_mask, 0, -inf)`` keeps it finite.\n* **Bug-2 (fully-masked row -> 0).**  Query 1 is allowed keys ``{0, 1}`` by\n  the causal frontier but the mask is ``False`` at both, so the combined\n  constraint allows no key.  ``softmax`` of an all-``-inf`` row is ``NaN``;\n  the fully-masked-row guard zeros it before the ``P @ V`` contraction so\n  the output row is ``0``.\n\n4D Q/K/V is used so ``q_num_heads``/``kv_num_heads`` are omitted (passing\nthem would make the function body treat the input as 3D).\n\"\"\"\nnp.random.seed(3)\nB, H, S, D = 1, 2, 2, 8\n\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(B, H, S, D).astype(np.float32)\nK = np.random.rand(B, H, S, D).astype(np.float32)\nV = np.random.rand(B, H, S, D).astype(np.float32)\n# Row 0: key 0 allowed (Bug-1 allowed cell). Row 1: no key allowed -> fully\n# masked once intersected with the causal frontier (Bug-2 empty row).\nattn_mask = np.array([[True, False], [False, False]], dtype=np.bool_)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n)\n\n# Bug-1: allowed cells are finite (no NaN anywhere). Bug-2: the fully-masked\n# query row is exactly zero, not NaN.\nassert np.all(np.isfinite(Y)), \"allowed cells must be finite (Bug-1)\"\nassert np.array_equal(Y[:, :, 1, :], np.zeros_like(Y[:, :, 1, :])), (\n    \"fully-masked row must be zero (Bug-2)\"\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_causal_boolmask_nan_robustness\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
+      },
+      {
+        "summary": "attention_causal_fp16",
+        "code": "\"\"\"is_causal=1 with float16 inputs.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float16)\nK = np.random.rand(2, 3, 6, 8).astype(np.float16)\nV = np.random.rand(2, 3, 6, 8).astype(np.float16)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_fp16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
+        "summary": "attention_causal_padded_kv_bf16",
+        "code": "\"\"\"is_causal=1 + nonpad_kv_seqlen with bfloat16 exercises both CastLike fixes.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\", \"\", \"\", \"nonpad_kv_seqlen\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 3, 4, 4).astype(ml_dtypes.bfloat16)\nnonpad_kv_seqlen = np.array([3, 4], dtype=np.int64)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n    nonpad_kv_seqlen=nonpad_kv_seqlen,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask, nonpad_kv_seqlen],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_padded_kv_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
       },
       {
         "summary": "attention_diff_head_sizes",
@@ -3211,6 +3255,10 @@
       {
         "summary": "attention_local_window_with_past",
         "code": "\"\"\"Sliding window with internal KV cache (past_key/past_value).\"\"\"\nleft_window_size = 2\npast_sequence_length = 8\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"\", \"past_key\", \"past_value\"],\n    outputs=[\"Y\", \"present_key\", \"present_value\"],\n    is_causal=1,\n    left_window_size=left_window_size,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 2, 8).astype(np.float32)\nV = np.random.rand(2, 3, 2, 8).astype(np.float32)\npast_key = np.random.rand(2, 3, past_sequence_length, 8).astype(np.float32)\npast_value = np.random.rand(2, 3, past_sequence_length, 8).astype(np.float32)\n\nY, present_key, present_value, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    past_key=past_key,\n    past_value=past_value,\n    is_causal=1,\n    left_window_size=left_window_size,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, past_key, past_value],\n    outputs=[Y, present_key, present_value],\n    name=\"test_attention_local_window_with_past\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 25)],\n)"
+      },
+      {
+        "summary": "attention_padded_kv_bf16",
+        "code": "\"\"\"nonpad_kv_seqlen with bfloat16 inputs exercises padding mask CastLike fix.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\", \"\", \"\", \"nonpad_kv_seqlen\"],\n    outputs=[\"Y\"],\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 3, 4, 4).astype(ml_dtypes.bfloat16)\nnonpad_kv_seqlen = np.array([3, 4], dtype=np.int64)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    nonpad_kv_seqlen=nonpad_kv_seqlen,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask, nonpad_kv_seqlen],\n    outputs=[Y],\n    name=\"test_attention_4d_padded_kv_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
       },
       {
         "summary": "attention_scaled",
@@ -3485,6 +3533,10 @@
         "code": "q_num_heads, kv_num_heads = 3, 3\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nQ = np.random.rand(2, 4, 24).astype(np.float32)\nK = np.random.rand(2, 6, 24).astype(np.float32)\nV = np.random.rand(2, 6, 24).astype(np.float32)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    is_causal=1,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_causal\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_3d_causal_bf16",
+        "code": "\"\"\"3D input with is_causal=1 and bfloat16.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n    q_num_heads=3,\n    kv_num_heads=3,\n)\n\nQ = np.random.rand(2, 4, 24).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 6, 24).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 6, 24).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(\n    Q, K, V, is_causal=1, q_num_heads=3, kv_num_heads=3\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_3d_diff_head_sizes",
         "code": "q_num_heads, kv_num_heads = 3, 3\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nQ = np.random.rand(2, 4, 24).astype(np.float32)\nK = np.random.rand(2, 6, 24).astype(np.float32)\nV = np.random.rand(2, 6, 30).astype(np.float32)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    q_num_heads=q_num_heads,\n    kv_num_heads=kv_num_heads,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_3d_diff_heads_sizes\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
@@ -3629,6 +3681,10 @@
         "code": "node = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 6, 8).astype(np.float32)\nV = np.random.rand(2, 3, 6, 8).astype(np.float32)\nattn_mask = np.random.rand(2, 3, 4, 6).astype(bool)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_4d_attn_mask_bool_4d\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_attn_mask_causal_bf16",
+        "code": "\"\"\"Float attn_mask + is_causal with bfloat16 \u2014 mask is bf16, causal mask must be cast.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 1, 4, 6).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_4d_attn_mask_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_bidirectional_window",
         "code": "\"\"\"Asymmetric bidirectional window independent of causal masking.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    left_window_size=1,\n    right_window_size=2,\n)\n\nQ = np.zeros((1, 1, 5, 1), dtype=np.float32)\nK = np.zeros((1, 1, 5, 1), dtype=np.float32)\nV = np.arange(5, dtype=np.float32).reshape(1, 1, 5, 1)\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    left_window_size=1,\n    right_window_size=2,\n)\n\nnp.testing.assert_allclose(\n    Y.reshape(-1), np.array([1.0, 1.5, 2.5, 3.0, 3.5], dtype=np.float32)\n)\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_bidirectional_window\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 25)],\n)"
       },
@@ -3637,8 +3693,20 @@
         "code": "node = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 6, 8).astype(np.float32)\nV = np.random.rand(2, 3, 6, 8).astype(np.float32)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
       },
       {
+        "summary": "attention_causal_bf16",
+        "code": "\"\"\"is_causal=1 with bfloat16 inputs exercises causal mask CastLike fix.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
         "summary": "attention_causal_boolmask_nan_robustness",
         "code": "\"\"\"Composed ``is_causal`` + boolean ``attn_mask`` NaN-robustness.\n\nThe causal frontier (lower-triangular here, offset 0) and the boolean\n``attn_mask`` are intersected: a key is attended only if allowed by both.\nThis exercises two pre-fix NaN sources on the same forward pass:\n\n* **Bug-1 (allowed cells stay finite).**  Query 0 is allowed key 0 by both\n  the causal frontier (``{0}``) and the mask (``True`` at key 0).  The old\n  ``(1 - attn_mask) * -inf`` conversion computes ``0 * -inf = NaN`` at that\n  allowed cell, poisoning the row.  The select conversion\n  ``where(attn_mask, 0, -inf)`` keeps it finite.\n* **Bug-2 (fully-masked row -> 0).**  Query 1 is allowed keys ``{0, 1}`` by\n  the causal frontier but the mask is ``False`` at both, so the combined\n  constraint allows no key.  ``softmax`` of an all-``-inf`` row is ``NaN``;\n  the fully-masked-row guard zeros it before the ``P @ V`` contraction so\n  the output row is ``0``.\n\n4D Q/K/V is used so ``q_num_heads``/``kv_num_heads`` are omitted (passing\nthem would make the function body treat the input as 3D).\n\"\"\"\nnp.random.seed(3)\nB, H, S, D = 1, 2, 2, 8\n\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(B, H, S, D).astype(np.float32)\nK = np.random.rand(B, H, S, D).astype(np.float32)\nV = np.random.rand(B, H, S, D).astype(np.float32)\n# Row 0: key 0 allowed (Bug-1 allowed cell). Row 1: no key allowed -> fully\n# masked once intersected with the causal frontier (Bug-2 empty row).\nattn_mask = np.array([[True, False], [False, False]], dtype=np.bool_)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n)\n\n# Bug-1: allowed cells are finite (no NaN anywhere). Bug-2: the fully-masked\n# query row is exactly zero, not NaN.\nassert np.all(np.isfinite(Y)), \"allowed cells must be finite (Bug-1)\"\nassert np.array_equal(Y[:, :, 1, :], np.zeros_like(Y[:, :, 1, :])), (\n    \"fully-masked row must be zero (Bug-2)\"\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask],\n    outputs=[Y],\n    name=\"test_attention_causal_boolmask_nan_robustness\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
+      },
+      {
+        "summary": "attention_causal_fp16",
+        "code": "\"\"\"is_causal=1 with float16 inputs.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float16)\nK = np.random.rand(2, 3, 6, 8).astype(np.float16)\nV = np.random.rand(2, 3, 6, 8).astype(np.float16)\n\nY, _, _, _ = _compute_attention(Q, K, V, is_causal=1)\n\nexpect(\n    node,\n    inputs=[Q, K, V],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_fp16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 23)],\n)"
+      },
+      {
+        "summary": "attention_causal_padded_kv_bf16",
+        "code": "\"\"\"is_causal=1 + nonpad_kv_seqlen with bfloat16 exercises both CastLike fixes.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\", \"\", \"\", \"nonpad_kv_seqlen\"],\n    outputs=[\"Y\"],\n    is_causal=1,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 3, 4, 4).astype(ml_dtypes.bfloat16)\nnonpad_kv_seqlen = np.array([3, 4], dtype=np.int64)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    is_causal=1,\n    nonpad_kv_seqlen=nonpad_kv_seqlen,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask, nonpad_kv_seqlen],\n    outputs=[Y],\n    name=\"test_attention_4d_causal_padded_kv_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
       },
       {
         "summary": "attention_diff_head_sizes",
@@ -3739,6 +3807,10 @@
       {
         "summary": "attention_local_window_with_past",
         "code": "\"\"\"Sliding window with internal KV cache (past_key/past_value).\"\"\"\nleft_window_size = 2\npast_sequence_length = 8\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"\", \"past_key\", \"past_value\"],\n    outputs=[\"Y\", \"present_key\", \"present_value\"],\n    is_causal=1,\n    left_window_size=left_window_size,\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(np.float32)\nK = np.random.rand(2, 3, 2, 8).astype(np.float32)\nV = np.random.rand(2, 3, 2, 8).astype(np.float32)\npast_key = np.random.rand(2, 3, past_sequence_length, 8).astype(np.float32)\npast_value = np.random.rand(2, 3, past_sequence_length, 8).astype(np.float32)\n\nY, present_key, present_value, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    past_key=past_key,\n    past_value=past_value,\n    is_causal=1,\n    left_window_size=left_window_size,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, past_key, past_value],\n    outputs=[Y, present_key, present_value],\n    name=\"test_attention_local_window_with_past\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 25)],\n)"
+      },
+      {
+        "summary": "attention_padded_kv_bf16",
+        "code": "\"\"\"nonpad_kv_seqlen with bfloat16 inputs exercises padding mask CastLike fix.\"\"\"\nnode = onnx.helper.make_node(\n    \"Attention\",\n    inputs=[\"Q\", \"K\", \"V\", \"attn_mask\", \"\", \"\", \"nonpad_kv_seqlen\"],\n    outputs=[\"Y\"],\n)\n\nQ = np.random.rand(2, 3, 4, 8).astype(ml_dtypes.bfloat16)\nK = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nV = np.random.rand(2, 3, 6, 8).astype(ml_dtypes.bfloat16)\nattn_mask = np.random.rand(2, 3, 4, 4).astype(ml_dtypes.bfloat16)\nnonpad_kv_seqlen = np.array([3, 4], dtype=np.int64)\n\nY, _, _, _ = _compute_attention(\n    Q,\n    K,\n    V,\n    attn_mask=attn_mask,\n    nonpad_kv_seqlen=nonpad_kv_seqlen,\n)\n\nexpect(\n    node,\n    inputs=[Q, K, V, attn_mask, nonpad_kv_seqlen],\n    outputs=[Y],\n    name=\"test_attention_4d_padded_kv_bf16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 24)],\n)"
       },
       {
         "summary": "attention_scaled",
@@ -8943,6 +9015,132 @@
     ]
   },
   {
+    "name": "Cast",
+    "module": "ai.onnx",
+    "version": 28,
+    "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\n\nCasting from string tensor in plain (e.g., \"3.14\" and \"1000\") and scientific numeric representations\n(e.g., \"1e-5\" and \"1E8\") to float types is supported. For example, converting string \"100.5\" to an integer may\nyield result 100. There are some string literals reserved for special floating-point values;\n\"+INF\" (and \"INF\"), \"-INF\", and \"NaN\" are positive infinity, negative infinity, and not-a-number, respectively.\nAny string which can exactly match \"+INF\" in a case-insensitive way would be mapped to positive infinite. Similarly,\nthis case-insensitive rule is applied to \"INF\" and \"NaN\". When casting from numeric tensors\nto string tensors, plain floating-point representation (such as \"314.15926\") would be used.\nConverting non-numerical-literal string such as \"Hello World!\" is an undefined behavior. Cases\nof converting string representing floating-point arithmetic value, such as \"2.718\", to INT is an undefined behavior.\n\nConversion from a numerical type to any numerical type is always allowed.\nUser must be aware of precision loss and value change caused by range difference between two types.\nFor example, a 64-bit float 3.1415926459 may be round to a 32-bit float 3.141592. Similarly, converting\nan integer 36 to Boolean may produce 1 because we truncate bits which can't be stored in the targeted type.\n\nIn more detail, the conversion among numerical types should follow these rules\nif the destination type is not a float 8 type.\n\n* Casting from floating point to:\n  * floating point: +/- infinity if OOR (out of range).\n  * fixed point: undefined if OOR.\n  * bool: +/- 0.0 to False; all else to True.\n* Casting from fixed point to:\n  * floating point: +/- infinity if OOR. (+ infinity in the case of uint)\n  * fixed point: when OOR, discard higher bits and reinterpret (with respect to two's complement representation for\n    signed types). For example, 200 (int16) -> -56 (int8).\n  * bool: zero to False; nonzero to True.\n* Casting from bool to:\n  * floating point: `{1.0, 0.0}`.\n  * fixed point: `{1, 0}`.\n  * bool: no change.\n\nFloat 8 types (E4M3FN, E4M3FNUZ, E5M2, E5M2FNUZ) were introduced to speed up the training of\ndeep models. By default the conversion of a float *x* obeys\nto the following rules. `[x]` means the value rounded to\nthe target mantissa width.\n\n| x                 | E4M3FN   | E4M3FNUZ | E5M2     | E5M2FNUZ |\n| ----------------- | -------- | -------- | -------- | -------- |\n| 0                 | 0        | 0        | 0        | 0        |\n| -0                | -0       | 0        | -0       | 0        |\n| NaN               | NaN      | NaN      | NaN      | NaN      |\n| Inf               | FLT_MAX  | FLT_MAX  | FLT_MAX  | FLT_MAX  |\n| -Inf              | -FLT_MAX | -FLT_MAX | -FLT_MAX | -FLT_MAX |\n| \\[x\\] > FLT_MAX   | FLT_MAX  | FLT_MAX  | FLT_MAX  | FLT_MAX  |\n| \\[x\\] \\< -FLT_MAX | -FLT_MAX | -FLT_MAX | -FLT_MAX | -FLT_MAX |\n| else              | RNE      | RNE      | RNE      | RNE      |\n\nThe behavior changes if the parameter 'saturate' is set to False.\nThe rules then become:\n\n| x                 | E4M3FN | E4M3FNUZ | E5M2 | E5M2FNUZ |\n| ----------------- | ------ | -------- | ---- | -------- |\n| 0                 | 0      | 0        | 0    | 0        |\n| -0                | -0     | 0        | -0   | 0        |\n| NaN               | NaN    | NaN      | NaN  | NaN      |\n| -NaN              | -NaN   | NaN      | -NaN | NaN      |\n| Inf               | NaN    | NaN      | Inf  | NaN      |\n| -Inf              | -NaN   | NaN      | -Inf | NaN      |\n| \\[x\\] > FLT_MAX   | NaN    | NaN      | Inf  | NaN      |\n| \\[x\\] \\< -FLT_MAX | NaN    | NaN      | -Inf | NaN      |\n| else              | RNE    | RNE      | RNE  | RNE      |\n\nFLOAT8E8M0 type was introduced to enable [Microscaling (MX) formats](https://www.opencompute.org/documents/ocp-microscaling-formats-mx-v1-0-spec-final-pdf).\nWhen casting to FLOAT8E8M0, the rounding behavior can be specified using the `round_mode` and `saturate` attributes.\nThe current CUDA behavior is to round up and saturate. Casting negative values to FLOAT8E8M0 gives undefined behavior.\nThe following table describes the casting behavior of special values to FLOAT8E8M0 in the two most common cases.\n\n| x                 | saturate + up | non-saturate + nearest |\n| ----------------- | ------------- | ---------------------  |\n| 0                 | 0             | NaN                    |\n| -0                | Unspecified   | Unspecified            |\n| NaN               | NaN           | NaN                    |\n| Inf               | E8M0_MAX      | NaN                    |\n| x > E8M0_MAX      | E8M0_MAX      | NaN                    |\n| x < E8M0_MIN      | E8M0_MIN      | NaN                    |\n| x < 0             | Unspecified   | Unspecified            |\n",
+    "attributes": [
+      {
+        "name": "round_mode",
+        "type": "string",
+        "required": false,
+        "default": "up",
+        "description": "Rounding mode for conversion to float8e8m0. It only applies to casting to float8e8m0 and is `up` by default. `up`: round to nearest value away from zero, `down`: round to nearest value towards zero, `nearest`: round to nearest value and ties round up."
+      },
+      {
+        "name": "saturate",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The parameter defines how the conversion behaves if an input value is out of range of the destination type. It only applies for float 8 conversion (float8e4m3fn, float8e4m3fnuz, float8e5m2, float8e5m2fnuz, float8e8m0). It is true by default. All cases are fully described in the tables inserted in the operator description."
+      },
+      {
+        "name": "to",
+        "type": "DataType",
+        "required": true,
+        "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T1",
+        "description": "Input tensor to be cast."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "Output tensor with the same shape as input with type specified by the 'to' argument"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types. Casting from complex is not supported.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)",
+          "tensor(uint4)",
+          "tensor(int4)",
+          "tensor(float4e2m1)",
+          "tensor(float8e8m0)",
+          "tensor(uint2)",
+          "tensor(int2)",
+          "tensor(float6e2m3)",
+          "tensor(float6e3m2)"
+        ]
+      },
+      {
+        "description": "Constrain output types. Casting to complex is not supported.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)",
+          "tensor(uint4)",
+          "tensor(int4)",
+          "tensor(float4e2m1)",
+          "tensor(float8e8m0)",
+          "tensor(uint2)",
+          "tensor(int2)",
+          "tensor(float6e2m3)",
+          "tensor(float6e3m2)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "cast",
+        "code": "test_cases = [\n    (\"FLOAT\", \"FLOAT16\"),\n    (\"FLOAT\", \"DOUBLE\"),\n    (\"FLOAT16\", \"FLOAT\"),\n    (\"FLOAT16\", \"DOUBLE\"),\n    (\"DOUBLE\", \"FLOAT\"),\n    (\"DOUBLE\", \"FLOAT16\"),\n    (\"FLOAT\", \"BFLOAT16\"),\n    (\"BFLOAT16\", \"FLOAT\"),\n    (\"FLOAT\", \"FLOAT8E4M3FN\"),\n    (\"FLOAT16\", \"FLOAT8E4M3FN\"),\n    (\"FLOAT\", \"FLOAT8E4M3FNUZ\"),\n    (\"FLOAT16\", \"FLOAT8E4M3FNUZ\"),\n    (\"FLOAT8E4M3FN\", \"FLOAT\"),\n    (\"FLOAT8E4M3FN\", \"FLOAT16\"),\n    (\"FLOAT8E4M3FNUZ\", \"FLOAT\"),\n    (\"FLOAT8E4M3FNUZ\", \"FLOAT16\"),\n    (\"FLOAT\", \"FLOAT8E5M2\"),\n    (\"FLOAT16\", \"FLOAT8E5M2\"),\n    (\"FLOAT\", \"FLOAT8E5M2FNUZ\"),\n    (\"FLOAT16\", \"FLOAT8E5M2FNUZ\"),\n    (\"FLOAT8E5M2\", \"FLOAT\"),\n    (\"FLOAT8E5M2\", \"FLOAT16\"),\n    (\"FLOAT8E5M2FNUZ\", \"FLOAT\"),\n    (\"FLOAT8E5M2FNUZ\", \"FLOAT16\"),\n    (\"FLOAT\", \"UINT4\"),\n    (\"FLOAT16\", \"UINT4\"),\n    (\"FLOAT\", \"INT4\"),\n    (\"FLOAT16\", \"INT4\"),\n    (\"UINT4\", \"FLOAT\"),\n    (\"UINT4\", \"FLOAT16\"),\n    (\"UINT4\", \"UINT8\"),\n    (\"INT4\", \"FLOAT\"),\n    (\"INT4\", \"FLOAT16\"),\n    (\"INT4\", \"INT8\"),\n    (\"FLOAT4E2M1\", \"FLOAT\"),\n    (\"FLOAT4E2M1\", \"FLOAT16\"),\n    (\"FLOAT\", \"FLOAT4E2M1\"),\n    (\"FLOAT16\", \"FLOAT4E2M1\"),\n    (\"FLOAT\", \"UINT2\"),\n    (\"FLOAT16\", \"UINT2\"),\n    (\"FLOAT\", \"INT2\"),\n    (\"FLOAT16\", \"INT2\"),\n    (\"UINT2\", \"FLOAT\"),\n    (\"UINT2\", \"FLOAT16\"),\n    (\"UINT2\", \"UINT8\"),\n    (\"INT2\", \"FLOAT\"),\n    (\"INT2\", \"FLOAT16\"),\n    (\"INT2\", \"INT8\"),\n]\n\nfor from_type, to_type in test_cases:\n    if from_type == to_type:\n        # Skip cases where from_type and to_type are the same\n        continue\n    from_dtype = getattr(TensorProto, from_type)\n    to_dtype = getattr(TensorProto, to_type)\n    from_np_dtype = tensor_dtype_to_np_dtype(from_dtype)\n    to_np_dtype = tensor_dtype_to_np_dtype(to_dtype)\n\n    if from_type == \"BFLOAT16\" or to_type == \"BFLOAT16\":\n        np_fp32 = np.array(\n            [\n                \"0.47892547\",\n                \"0.48033667\",\n                \"0.49968487\",\n                \"0.81910545\",\n                \"0.47031248\",\n                \"0.816468\",\n                \"0.21087195\",\n                \"0.7229038\",\n                \"NaN\",\n                \"INF\",\n                \"+INF\",\n                \"-INF\",\n            ],\n            dtype=np.float32,\n        )\n        input_shape = (3, 4)\n\n    elif from_type in F8_TYPES or to_type in F8_TYPES:\n        np_fp32 = np.array(\n            [\n                \"0.47892547\",\n                \"0.48033667\",\n                \"0.49968487\",\n                \"0.81910545\",\n                \"0.47031248\",\n                \"0.7229038\",\n                \"1000000\",\n                \"1e-7\",\n                \"NaN\",\n                \"INF\",\n                \"+INF\",\n                \"-INF\",\n                \"-0.0000001\",\n                \"0.0000001\",\n                \"-1000000\",\n            ],\n            dtype=np.float32,\n        )\n        input_shape = (3, 5)\n    elif from_type in (\"UINT4\", \"INT4\") or to_type in (\"UINT4\", \"INT4\"):\n        np_fp32 = np.arange(-9, 16).astype(np.float32)\n        input_shape = (5, 5)\n    elif from_type in (\"UINT2\", \"INT2\") or to_type in (\"UINT2\", \"INT2\"):\n        np_fp32 = np.arange(-3, 4).astype(np.float32)\n        input_shape = (7, 1)\n    elif from_type == \"FLOAT4E2M1\" or to_type == \"FLOAT4E2M1\":\n        np_fp32 = np.array(\n            [\n                \"0.48\",\n                \"0.25\",\n                \"1.05\",\n                \"-3.5\",\n                \"-8\",\n                \"9\",\n                \"1000000\",\n                \"1e-7\",\n                \"NaN\",\n                \"INF\",\n                \"+INF\",\n                \"-INF\",\n                \"-4\",\n                \"0.01\",\n                \"-0.0\",\n            ],\n            dtype=np.float32,\n        )\n        input_shape = (3, 5)\n\n    else:\n        np_fp32 = np.array(\n            [\n                \"0.47892547\",\n                \"0.48033667\",\n                \"0.49968487\",\n                \"0.81910545\",\n                \"0.47031248\",\n                \"0.816468\",\n                \"0.21087195\",\n                \"0.7229038\",\n                \"NaN\",\n                \"INF\",\n                \"+INF\",\n                \"-INF\",\n            ],\n            dtype=np.float32,\n        ).reshape([3, 4])\n        input_shape = (3, 4)\n\n    if from_type in F8_TYPES:\n        np_from = onnx.numpy_helper.saturate_cast(np_fp32, from_np_dtype)\n        input = make_tensor(\n            \"input\",\n            from_dtype,\n            input_shape,\n            vals=np_from,\n            raw=True,\n        )\n    elif from_type in FOUR_BIT_TYPES:\n        np_from = np_fp32.astype(from_np_dtype)\n        packed = onnx.numpy_helper._pack_4bitx2(np_from)\n        # No byteswap needed on big-endian machines as _pack_4bitx2()\n        # returns a numpy array with uint8 datatype.\n        input = make_tensor(\n            \"input\", from_dtype, input_shape, vals=packed.tobytes(), raw=True\n        )\n    elif from_type in TWO_BIT_TYPES:\n        np_from = np_fp32.astype(from_np_dtype)\n        packed = onnx.numpy_helper._pack_2bitx4(np_from)\n        input = make_tensor(\n            \"input\", from_dtype, input_shape, vals=packed.tobytes(), raw=True\n        )\n    else:\n        np_from = np_fp32.astype(from_np_dtype)\n        input = make_tensor(\n            \"input\", from_dtype, input_shape, vals=np_from, raw=True\n        )\n\n    if to_type in F8_TYPES:\n        output = make_tensor(\n            \"output\",\n            to_dtype,\n            input_shape,\n            vals=onnx.numpy_helper.saturate_cast(np_from, to_np_dtype),\n            raw=True,\n        )\n    elif to_type in FOUR_BIT_TYPES:\n        packed = onnx.numpy_helper._pack_4bitx2(np_from.astype(to_np_dtype))\n        # No byteswap needed on big-endian machines as _pack_4bitx2()\n        # returns a numpy array with uint8 datatype.\n        output = make_tensor(\n            \"output\", to_dtype, input_shape, vals=packed.tobytes(), raw=True\n        )\n    elif to_type in TWO_BIT_TYPES:\n        packed = onnx.numpy_helper._pack_2bitx4(np_from.astype(to_np_dtype))\n        output = make_tensor(\n            \"output\", to_dtype, input_shape, vals=packed.tobytes(), raw=True\n        )\n    else:\n        output = make_tensor(\n            \"output\",\n            to_dtype,\n            input_shape,\n            vals=np_from.astype(to_np_dtype),\n            raw=True,\n        )\n\n    node = onnx.helper.make_node(\n        \"Cast\",\n        inputs=[\"input\"],\n        outputs=[\"output\"],\n        to=to_dtype,\n    )\n    expect(\n        node,\n        inputs=[input],\n        outputs=[output],\n        name=\"test_cast_\" + from_type + \"_to_\" + to_type,\n    )"
+      },
+      {
+        "summary": "e8m0",
+        "code": "np_fp32 = np.array(\n    [\n        \"0.0\",\n        \"0.124\",\n        \"0.25\",\n        \"0.5\",\n        \"1.1\",\n        \"2.0\",\n        \"4.0\",\n        \"8.0\",\n    ],\n    dtype=np.float32,\n)\ntest_cases = [\n    (\"FLOAT\", \"FLOAT8E8M0\"),\n    (\"FLOAT16\", \"FLOAT8E8M0\"),\n    (\"FLOAT8E8M0\", \"FLOAT\"),\n    (\"FLOAT8E8M0\", \"FLOAT16\"),\n]\nfor from_type, to_type in test_cases:\n    if from_type == \"FLOAT\":\n        input_np = np_fp32\n        output_np = to_float8e8m0(np_fp32)\n    elif from_type == \"FLOAT16\":\n        input_np = np_fp32.astype(np.float16)\n        output_np = to_float8e8m0(input_np)\n    elif from_type == \"FLOAT8E8M0\":\n        input_np = to_float8e8m0(np_fp32)\n        if to_type == \"FLOAT\":\n            output_np = input_np.astype(np.float32)\n        elif to_type == \"FLOAT16\":\n            output_np = input_np.astype(np.float16)\n        else:\n            raise ValueError(\n                f\"Conversion from {from_type} to {to_type} is not tested.\"\n            )\n    else:\n        raise ValueError(\n            f\"Conversion from {from_type} to {to_type} is not tested.\"\n        )\n    input = make_tensor(\n        \"input\",\n        getattr(TensorProto, from_type),\n        [2, 4],\n        input_np,\n        raw=True,\n    )\n    output = make_tensor(\n        \"output\",\n        getattr(TensorProto, to_type),\n        [2, 4],\n        output_np,\n        raw=True,\n    )\n    if to_type == \"FLOAT8E8M0\":\n        node = onnx.helper.make_node(\n            \"Cast\",\n            inputs=[\"input\"],\n            outputs=[\"output\"],\n            to=getattr(TensorProto, to_type),\n            saturate=1,\n            round_mode=\"up\",\n        )\n    else:\n        node = onnx.helper.make_node(\n            \"Cast\",\n            inputs=[\"input\"],\n            outputs=[\"output\"],\n            to=getattr(TensorProto, to_type),\n        )\n\n    expect(\n        node,\n        inputs=[input],\n        outputs=[output],\n        name=\"test_cast_e8m0_\" + from_type + \"_to_\" + to_type,\n    )"
+      },
+      {
+        "summary": "saturate_false",
+        "code": "test_cases = itertools.product(\n    [\n        \"FLOAT\",\n        \"FLOAT16\",\n    ],\n    [\n        \"FLOAT8E4M3FN\",\n        \"FLOAT8E4M3FNUZ\",\n        \"FLOAT8E5M2\",\n        \"FLOAT8E5M2FNUZ\",\n    ],\n)\ninput_shape = (3, 5)\nfor from_type, to_type in test_cases:\n    from_dtype = getattr(TensorProto, from_type)\n    to_dtype = getattr(TensorProto, to_type)\n    from_np_dtype = tensor_dtype_to_np_dtype(from_dtype)\n    to_np_dtype = tensor_dtype_to_np_dtype(to_dtype)\n    np_fp32 = np.array(\n        [\n            \"0.47892547\",\n            \"0.48033667\",\n            \"0.49968487\",\n            \"0.81910545\",\n            \"0.47031248\",\n            \"0.7229038\",\n            \"1000000\",\n            \"1e-7\",\n            \"NaN\",\n            \"INF\",\n            \"+INF\",\n            \"-INF\",\n            \"-0.0000001\",\n            \"0.0000001\",\n            \"-1000000\",\n        ],\n        dtype=np.float32,\n    )\n\n    input = make_tensor(\n        \"input\",\n        from_dtype,\n        input_shape,\n        vals=np_fp32.astype(from_np_dtype),\n        raw=True,\n    )\n    output = make_tensor(\n        \"output\",\n        to_dtype,\n        input_shape,\n        vals=np_fp32.astype(from_np_dtype).astype(to_np_dtype),\n        raw=True,\n    )\n\n    node = onnx.helper.make_node(\n        \"Cast\",\n        inputs=[\"input\"],\n        outputs=[\"output\"],\n        to=to_dtype,\n        saturate=0,\n    )\n    expect(\n        node,\n        inputs=[input],\n        outputs=[output],\n        name=\"test_cast_no_saturate_\" + from_type + \"_to_\" + to_type,\n    )"
+      }
+    ]
+  },
+  {
     "name": "CastLike",
     "module": "ai.onnx",
     "version": 15,
@@ -10070,15 +10268,15 @@
     "examples": [
       {
         "summary": "celu",
-        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_celu\")"
+        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * np.expm1(input_data / alpha))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_celu\")"
       },
       {
         "summary": "celu_bfloat16",
-        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=ml_dtypes.bfloat16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = (positive_input + negative_input).astype(ml_dtypes.bfloat16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_bfloat16\",\n)"
+        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=ml_dtypes.bfloat16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * np.expm1(input_data / alpha))\nexpected_output = (positive_input + negative_input).astype(ml_dtypes.bfloat16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_bfloat16\",\n)"
       },
       {
         "summary": "celu_float16",
-        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=np.float16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = (positive_input + negative_input).astype(np.float16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_float16\",\n)"
+        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=np.float16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * np.expm1(input_data / alpha))\nexpected_output = (positive_input + negative_input).astype(np.float16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_float16\",\n)"
       }
     ]
   },
@@ -10129,15 +10327,15 @@
     "examples": [
       {
         "summary": "celu",
-        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_celu\")"
+        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * np.expm1(input_data / alpha))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_celu\")"
       },
       {
         "summary": "celu_bfloat16",
-        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=ml_dtypes.bfloat16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = (positive_input + negative_input).astype(ml_dtypes.bfloat16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_bfloat16\",\n)"
+        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=ml_dtypes.bfloat16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * np.expm1(input_data / alpha))\nexpected_output = (positive_input + negative_input).astype(ml_dtypes.bfloat16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_bfloat16\",\n)"
       },
       {
         "summary": "celu_float16",
-        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=np.float16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = (positive_input + negative_input).astype(np.float16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_float16\",\n)"
+        "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    \"Celu\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    alpha=alpha,\n)\n\ninput_data = np.array([-3.0, -0.5, 0.0, 0.5, 3.0], dtype=np.float16)\n\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * np.expm1(input_data / alpha))\nexpected_output = (positive_input + negative_input).astype(np.float16)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_celu_float16\",\n)"
       }
     ]
   },
@@ -16908,6 +17106,164 @@
   },
   {
     "name": "DequantizeLinear",
+    "module": "ai.onnx",
+    "version": 28,
+    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the\nfull-precision tensor. The dequantization formula is `y = (x - x_zero_point) * x_scale`. `x_scale` and `x_zero_point`\nmust have the same shape, determining the quantization's granularity: a scalar for per-tensor/per-layer quantization,\na 1-D tensor for per-axis quantization, or have a rank identical to the input for blocked quantization.\nSee QuantizeLinear for details on quantization granularity.\n\n`x_zero_point` and `x` must have the same type. `x` and `y` must have the same shape. In the case of dequantizing\n`int32`, there's no zero point (zero point is supposed to be 0).\n`zero-point` is usually not used in the case of float8 and 4-bit types quantization, but the dequantization formula remains the same\nfor consistency. The output type is determined by the attribute `output_dtype`. If `output_dtype` is not supplied then the output type\nis the same as `x_scale`. The output type also determines the precision of the multiplication operation.\n\n",
+    "attributes": [
+      {
+        "name": "axis",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used for per-axis and blocked quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The size of the quantization block (number of times every scale is replicated). Used only for blocked quantization. The block size is a positive integer. Given `x` shape `(D0, ..., Di, ..., Dn)`, `y_scale` shape `(S0, ... Si, ...Sn)` and `axis=i`, the accepted range is `[ceil(Di/Si), ceil(Di/(Si-1))-1]`"
+      },
+      {
+        "name": "output_dtype",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The output data type. If not supplied, the output data type is inferred from `x_scale` data type (`T2`)"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "x",
+        "type": "T1",
+        "description": "N-D quantized input tensor to be de-quantized."
+      },
+      {
+        "name": "x_scale",
+        "type": "T2",
+        "description": "Scale for input `x`. For per-tensor/layer dequantization the scale is a scalar, for per per-axis dequantization it is a 1-D Tensor and for blocked dequantization it has the same shape as the input, except for one dimension in which blocking is performed."
+      },
+      {
+        "name": "x_zero_point",
+        "type": "T1",
+        "option": "optional",
+        "description": "Zero point for input `x`. Shape must match x_scale. It's optional. Zero point is 0 when it's not specified."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "y",
+        "type": "T3",
+        "description": "N-D full precision output tensor. It has the same shape as input `x`. The data type is specified by the `output_dtype` attribute or, in its absence, the type of `x_scale`."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "2 - 3",
+    "type_constraints": [
+      {
+        "description": "The type of the inputs 'x_zero_point' and 'x'.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int8)",
+          "tensor(uint8)",
+          "tensor(int16)",
+          "tensor(uint16)",
+          "tensor(int32)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)",
+          "tensor(uint4)",
+          "tensor(int4)",
+          "tensor(float4e2m1)",
+          "tensor(uint2)",
+          "tensor(int2)",
+          "tensor(float6e2m3)",
+          "tensor(float6e3m2)"
+        ]
+      },
+      {
+        "description": "The type of the input 'x_scale'.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(float8e8m0)"
+        ]
+      },
+      {
+        "description": "The type of the output 'y'.",
+        "type_param_str": "T3",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "axis",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (\n    x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)\n) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_axis\",\n)"
+      },
+      {
+        "summary": "blocked",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [\n            [[3, 89], [34, 200], [74, 59]],\n            [[5, 24], [24, 87], [32, 13]],\n            [[5, 12], [12, 33], [65, 42]],\n            [[245, 99], [4, 142], [121, 102]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\nx_scale = np.array(\n    [\n        [\n            [[3.0, 2.0], [4.0, 1.0], [2.0, 2.0]],\n            [[5.0, 2.0], [4.0, 3.0], [5.0, 2.0]],\n        ],\n    ],\n    dtype=np.float32,\n)\nx_zero_point = np.array(\n    [\n        [\n            [[1, 0], [0, 1], [2, 20]],\n            [[3, 2], [4, 3], [15, 2]],\n        ],\n    ],\n    dtype=np.uint8,\n)\n\n# x.shape = (1, 4, 3, 2)\n# x_scale.shape = (1, 2, 3, 2)\nassert x_scale.shape == x_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // x_scale.shape[i] for i in range(len(x.shape))] = (1, 2, 1, 1)\nassert all(\n    x.shape[i] == x_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % x_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // x_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\nx_scale_elementwise = np.repeat(x_scale, repeats=repeats, axis=block_axis)\nx_zero_point_elementwise = np.repeat(\n    x_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = (\n    x.astype(np.float32) - x_zero_point_elementwise.astype(np.float32)\n) * x_scale_elementwise\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_blocked\",\n)"
+      },
+      {
+        "summary": "dequantizelinear",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear\",\n)"
+      },
+      {
+        "summary": "e4m3fn",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+      },
+      {
+        "summary": "e4m3fn_float16",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float16(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float16)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_float16\",\n)"
+      },
+      {
+        "summary": "e4m3fn_zero_point",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nzero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_zero_point\",\n)"
+      },
+      {
+        "summary": "e5m2",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, -96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, -192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
+      },
+      {
+        "summary": "float4e2m1",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT4E2M1, [5], [0, 1, -1, 1.5, -4])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.FLOAT4E2M1, (1,), [0])\ny = np.array([0, 2, -2, 3, -8], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_float4e2m1\",\n)"
+      },
+      {
+        "summary": "int16",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-300, -30, -1025, 1270]).astype(np.int16)\nx_scale = np.float32(2)\nx_zero_point = np.int16(-1024)\ny = np.array([1448.0, 1988.0, -2.0, 4588.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int16\",\n)"
+      },
+      {
+        "summary": "int2",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT2, [4], [0, 1, -1, -2])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.INT2, (1,), [1])\ny = np.array([-2, 0, -4, -6], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int2\",\n)"
+      },
+      {
+        "summary": "int4",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.INT4, [5], [0, 1, 7, -4, -8])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.INT4, (1,), [1])\ny = np.array([-2, 0, 12, -10, -18], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_int4\",\n)"
+      },
+      {
+        "summary": "uint16",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([30000, 31000, 32768, 33000]).astype(np.uint16)\nx_scale = np.float32(2)\nx_zero_point = np.uint16(32767)\ny = np.array([-5534.0, -3534.0, 2.0, 466.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint16\",\n)"
+      },
+      {
+        "summary": "uint2",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT2, [4], [0, 1, 2, 3])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.UINT2, (1,), [1])\ny = np.array([-2, 0, 2, 4], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint2\",\n)"
+      },
+      {
+        "summary": "uint4",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"x_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.UINT4, [5], [0, 1, 7, 10, 15])\nx_scale = np.float32(2)\nx_zero_point = make_tensor(\"x_zero_point\", TensorProto.UINT4, (1,), [1])\ny = np.array([-2, 0, 12, 18, 28], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, x_zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_uint4\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "DequantizeLinear",
     "module": "com.microsoft",
     "version": 1,
     "description": "The linear dequantization operator. It consumes a quantized data, a scale, a zero point and computes the full precision data.\nThe dequantization formula is y = (x - x_zero_point) * x_scale.\nScale and zero point must have same shape. They must be either scalar (per tensor) or 1-D tensor (per 'axis').",
@@ -19215,11 +19571,11 @@
     "examples": [
       {
         "summary": "elu",
-        "code": "node = onnx.helper.make_node(\"Elu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu\")"
+        "code": "node = onnx.helper.make_node(\"Elu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu\")"
       },
       {
         "summary": "elu_default",
-        "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    \"Elu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_default\")"
+        "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    \"Elu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * default_alpha\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_default\")"
       }
     ],
     "category": "Activation"
@@ -19270,11 +19626,11 @@
     "examples": [
       {
         "summary": "elu",
-        "code": "node = onnx.helper.make_node(\"Elu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu\")"
+        "code": "node = onnx.helper.make_node(\"Elu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu\")"
       },
       {
         "summary": "elu_default",
-        "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    \"Elu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_default\")"
+        "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    \"Elu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * default_alpha\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_default\")"
       }
     ],
     "category": "Activation"
@@ -19326,11 +19682,11 @@
     "examples": [
       {
         "summary": "elu",
-        "code": "node = onnx.helper.make_node(\"Elu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu\")"
+        "code": "node = onnx.helper.make_node(\"Elu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * 2.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu\")"
       },
       {
         "summary": "elu_default",
-        "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    \"Elu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_default\")"
+        "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    \"Elu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.expm1(np.clip(x, -np.inf, 0)) * default_alpha\nexpect(node, inputs=[x], outputs=[y], name=\"test_elu_default\")"
       }
     ],
     "category": "Activation"
@@ -39895,7 +40251,7 @@
     "examples": [
       {
         "summary": "melweightmatrix",
-        "code": "node = onnx.helper.make_node(\n    \"MelWeightMatrix\",\n    inputs=[\n        \"num_mel_bins\",\n        \"dft_length\",\n        \"sample_rate\",\n        \"lower_edge_hertz\",\n        \"upper_edge_hertz\",\n    ],\n    outputs=[\"output\"],\n)\n\nnum_mel_bins = np.int32(8)\ndft_length = np.int32(16)\nsample_rate = np.int32(8192)\nlower_edge_hertz = np.float32(0)\nupper_edge_hertz = np.float32(8192 / 2)\n\nnum_spectrogram_bins = dft_length // 2 + 1\nfrequency_bins = np.arange(0, num_mel_bins + 2)\n\nlow_frequency_mel = 2595 * np.log10(1 + lower_edge_hertz / 700)\nhigh_frequency_mel = 2595 * np.log10(1 + upper_edge_hertz / 700)\nmel_step = (high_frequency_mel - low_frequency_mel) / frequency_bins.shape[0]\n\nfrequency_bins = frequency_bins * mel_step + low_frequency_mel\nfrequency_bins = 700 * (np.power(10, (frequency_bins / 2595)) - 1)\nfrequency_bins = ((dft_length + 1) * frequency_bins) // sample_rate\nfrequency_bins = frequency_bins.astype(int)\n\noutput = np.zeros((num_spectrogram_bins, num_mel_bins))\noutput.flags.writeable = True\n\nfor i in range(num_mel_bins):\n    lower_frequency_value = frequency_bins[i]  # left\n    center_frequency_point = frequency_bins[i + 1]  # center\n    higher_frequency_point = frequency_bins[i + 2]  # right\n    low_to_center = center_frequency_point - lower_frequency_value\n    if low_to_center == 0:\n        output[center_frequency_point, i] = 1\n    else:\n        for j in range(lower_frequency_value, center_frequency_point + 1):\n            output[j, i] = float(j - lower_frequency_value) / float(\n                low_to_center\n            )\n    center_to_high = higher_frequency_point - center_frequency_point\n    if center_to_high > 0:\n        for j in range(center_frequency_point, higher_frequency_point):\n            output[j, i] = float(higher_frequency_point - j) / float(\n                center_to_high\n            )\n\n# Expected output\n# 1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\noutput = output.astype(np.float32)\nexpect(\n    node,\n    inputs=[\n        num_mel_bins,\n        dft_length,\n        sample_rate,\n        lower_edge_hertz,\n        upper_edge_hertz,\n    ],\n    outputs=[output],\n    name=\"test_melweightmatrix\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"MelWeightMatrix\",\n    inputs=[\n        \"num_mel_bins\",\n        \"dft_length\",\n        \"sample_rate\",\n        \"lower_edge_hertz\",\n        \"upper_edge_hertz\",\n    ],\n    outputs=[\"output\"],\n)\n\nnum_mel_bins = np.int32(8)\ndft_length = np.int32(16)\nsample_rate = np.int32(8192)\nlower_edge_hertz = np.float32(0)\nupper_edge_hertz = np.float32(8192 / 2)\n\nnum_spectrogram_bins = dft_length // 2 + 1\nfrequency_bins = np.arange(0, num_mel_bins + 2)\n\nlow_frequency_mel = 2595 * np.log1p(lower_edge_hertz / 700) / np.log(10)\nhigh_frequency_mel = 2595 * np.log1p(upper_edge_hertz / 700) / np.log(10)\nmel_step = (high_frequency_mel - low_frequency_mel) / frequency_bins.shape[0]\n\nfrequency_bins = frequency_bins * mel_step + low_frequency_mel\nfrequency_bins = 700 * np.expm1(frequency_bins / 2595 * np.log(10))\nfrequency_bins = ((dft_length + 1) * frequency_bins) // sample_rate\nfrequency_bins = frequency_bins.astype(int)\n\noutput = np.zeros((num_spectrogram_bins, num_mel_bins))\noutput.flags.writeable = True\n\nfor i in range(num_mel_bins):\n    lower_frequency_value = frequency_bins[i]  # left\n    center_frequency_point = frequency_bins[i + 1]  # center\n    higher_frequency_point = frequency_bins[i + 2]  # right\n    low_to_center = center_frequency_point - lower_frequency_value\n    if low_to_center == 0:\n        output[center_frequency_point, i] = 1\n    else:\n        for j in range(lower_frequency_value, center_frequency_point + 1):\n            output[j, i] = float(j - lower_frequency_value) / float(\n                low_to_center\n            )\n    center_to_high = higher_frequency_point - center_frequency_point\n    if center_to_high > 0:\n        for j in range(center_frequency_point, higher_frequency_point):\n            output[j, i] = float(higher_frequency_point - j) / float(\n                center_to_high\n            )\n\n# Expected output\n# 1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\noutput = output.astype(np.float32)\nexpect(\n    node,\n    inputs=[\n        num_mel_bins,\n        dft_length,\n        sample_rate,\n        lower_edge_hertz,\n        upper_edge_hertz,\n    ],\n    outputs=[output],\n    name=\"test_melweightmatrix\",\n)"
       }
     ]
   },
@@ -40328,7 +40684,7 @@
     "examples": [
       {
         "summary": "mish",
-        "code": "node = onnx.helper.make_node(\"Mish\", inputs=[\"X\"], outputs=[\"Y\"])\n\ninput_data = np.linspace(-10, 10, 10000, dtype=np.float32)\n\n# Calculate expected output data\nexpected_output = input_data * np.tanh(np.log1p(np.exp(input_data)))\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mish\")"
+        "code": "node = onnx.helper.make_node(\"Mish\", inputs=[\"X\"], outputs=[\"Y\"])\n\ninput_data = np.linspace(-10, 10, 10000, dtype=np.float32)\n\n# Calculate expected output data\nexpected_output = input_data * np.tanh(np.logaddexp(0, input_data))\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mish\")"
       }
     ]
   },
@@ -40370,7 +40726,7 @@
     "examples": [
       {
         "summary": "mish",
-        "code": "node = onnx.helper.make_node(\"Mish\", inputs=[\"X\"], outputs=[\"Y\"])\n\ninput_data = np.linspace(-10, 10, 10000, dtype=np.float32)\n\n# Calculate expected output data\nexpected_output = input_data * np.tanh(np.log1p(np.exp(input_data)))\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mish\")"
+        "code": "node = onnx.helper.make_node(\"Mish\", inputs=[\"X\"], outputs=[\"Y\"])\n\ninput_data = np.linspace(-10, 10, 10000, dtype=np.float32)\n\n# Calculate expected output data\nexpected_output = input_data * np.tanh(np.logaddexp(0, input_data))\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mish\")"
       }
     ]
   },
@@ -50000,6 +50356,174 @@
           "tensor(float4e2m1)",
           "tensor(uint2)",
           "tensor(int2)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "axis",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        [\n            [[-162, 10], [-100, 232], [-20, -50]],\n            [[-76, 0], [0, 252], [32, -44]],\n            [[245, -485], [-960, -270], [-375, -470]],\n        ],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(\n    np.uint8\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_axis\",\n)"
+      },
+      {
+        "summary": "blocked_asymmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n)\n\nx = np.array(\n    [\n        [6.0, 12.0, 50.0, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\ny_zero_point = np.array(\n    [\n        [0, 1],\n        [1, 0],\n        [2, 3],\n    ],\n    dtype=np.uint8,\n)\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\nassert y_scale.shape == y_zero_point.shape\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\ny_zero_point_elementwise = np.repeat(\n    y_zero_point, repeats=repeats, axis=block_axis\n)\n\ny = np.rint(x / y_scale_elementwise + y_zero_point_elementwise).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_asymmetric\",\n)"
+      },
+      {
+        "summary": "blocked_symmetric",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\"],\n    outputs=[\"y\"],\n    axis=1,\n    block_size=2,\n    output_dtype=TensorProto.INT16,\n)\n\nx = np.array(\n    [\n        [6.0, -8, -10, 5.0],\n        [1.0, 8.0, 4.0, 5.0],\n        [0.0, 20.0, 10.0, 4.0],\n    ],\n    dtype=np.float32,\n)\n\ny_scale = np.array(\n    [\n        [1.5, 2.5],\n        [3.0, 4.9],\n        [5.1, 6.9],\n    ],\n    dtype=np.float32,\n)\n\n# x.shape = (3, 4)\n# y_scale.shape = (3, 2)\n\nblock_axis = 1\n# The block shape is [x.shape[i] // y_scale.shape[i] for i in range(len(x.shape))] = (1, 2)\nassert all(\n    x.shape[i] == y_scale.shape[i]\n    for i in range(len(x.shape))\n    if i != block_axis\n)\nassert x.shape[block_axis] % y_scale.shape[block_axis] == 0\nrepeats = x.shape[block_axis] // y_scale.shape[block_axis]\n\n# Create element-wise scale and zero point\ny_scale_elementwise = np.repeat(y_scale, repeats=repeats, axis=block_axis)\n\ny_val = np.clip(\n    np.rint(x / y_scale_elementwise), a_min=-32768, a_max=32767\n).astype(np.int16)\ny = make_tensor(\n    \"y\",\n    TensorProto.INT16,\n    x.shape,\n    y_val,\n)\nexpect(\n    node,\n    inputs=[x, y_scale],\n    outputs=[y],\n    name=\"test_quantizelinear_blocked_symmetric\",\n)"
+      },
+      {
+        "summary": "e4m3fn",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e4m3fn\",\n)"
+      },
+      {
+        "summary": "e5m2",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0.0, 1.0, 2.0, 100000.0, 200.0]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = make_tensor(\"y_zero_point\", TensorProto.FLOAT8E5M2, [1], [0.0])\ny = make_tensor(\"y\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_e5m2\",\n)"
+      },
+      {
+        "summary": "float4e2m1",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [-0.0, -2.5, -4.8, -8.6],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\",\n    TensorProto.FLOAT4E2M1,\n    y_scale.shape,\n    np.zeros_like(y_scale),\n)\ny = make_tensor(\n    \"y\",\n    TensorProto.FLOAT4E2M1,\n    x.shape,\n    [0, 1, 2, 4, -6, -6, 2, 3, 0, -0.5, -1, -2],\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_float4e2m1\",\n)"
+      },
+      {
+        "summary": "int16",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        0.0,\n        -514.0,\n        3.0,\n        -3.0,\n        2.9,\n        -2.9,\n        3.1,\n        -3.1,\n        65022.0,\n        -66046.0,\n        65023.0,\n        -66047.0,\n        65024.0,\n        -66048.0,\n        70000.0,\n        -70000.0,\n    ]\n).astype(np.float32)\ny_scale = np.float32(2.0)\ny_zero_point = np.int16(256)\ny = np.array(\n    [\n        256,\n        -1,\n        258,\n        254,\n        257,\n        255,\n        258,\n        254,\n        32767,\n        -32767,\n        32767,\n        -32768,\n        32767,\n        -32768,\n        32767,\n        -32768,\n    ]\n).astype(np.int16)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int16\",\n)"
+      },
+      {
+        "summary": "int2",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-4.0, -3.0, 1.0, 2.0],\n        [-0.0, -2.5, -4.8, -8.6],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.INT2, y_scale.shape, np.zeros_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT2, x.shape, [0, 1, 1, 1, -1, -1, 0, 1, 0, -1, -1, -2]\n)\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int2\",\n)"
+      },
+      {
+        "summary": "int4",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.INT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.INT4, x.shape, [1, 2, 3, 5, -8, -6, 3, 4, 4, 5, 5, 7]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_int4\",\n)"
+      },
+      {
+        "summary": "quantizelinear",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([0, 2, 3, 1000, -254, -1000]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = np.uint8(128)\ny = np.array([128, 129, 130, 255, 1, 0]).astype(np.uint8)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear\",\n)"
+      },
+      {
+        "summary": "uint16",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n)\n\nx = np.array(\n    [\n        0.0,\n        -128.0,\n        3.0,\n        -3.0,\n        2.9,\n        -2.9,\n        3.1,\n        -3.1,\n        65536.0,\n        -65534.0,\n        70000.0,\n        -70000.0,\n    ]\n).astype(np.float32)\ny_scale = np.float32(2.0)\ny_zero_point = np.uint16(32767)\ny = np.array(\n    [\n        32767,\n        32703,\n        32769,\n        32765,\n        32768,\n        32766,\n        32769,\n        32765,\n        65535,\n        0,\n        65535,\n        0,\n    ]\n).astype(np.uint16)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint16\",\n)"
+      },
+      {
+        "summary": "uint2",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-2.0, -1.0, 1.0, 3.0],\n        [4.0, 5.0, 6.0, 7.0],\n    ],\n    dtype=np.float32,\n)\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.UINT2, y_scale.shape, np.zeros_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT2, x.shape, [0, 1, 2, 3, 0, 0, 0, 1, 1, 1, 2, 2]\n)\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint2\",\n)"
+      },
+      {
+        "summary": "uint4",
+        "code": "node = onnx.helper.make_node(\n    \"QuantizeLinear\",\n    inputs=[\"x\", \"y_scale\", \"y_zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\nx = np.array(\n    [\n        [0.0, 2.5, 4.8, 8.6],\n        [-30, -20, 6, 9],\n        [12, 15, 16, 40],\n    ]\n).astype(np.float32)\n\ny_scale = np.asarray([2.0, 3.0, 4.0], dtype=np.float32)\ny_zero_point = make_tensor(\n    \"y_zero_point\", TensorProto.UINT4, y_scale.shape, np.ones_like(y_scale)\n)\ny = make_tensor(\n    \"y\", TensorProto.UINT4, x.shape, [1, 2, 3, 5, 0, 0, 3, 4, 4, 5, 5, 11]\n)\n\nexpect(\n    node,\n    inputs=[x, y_scale, y_zero_point],\n    outputs=[y],\n    name=\"test_quantizelinear_uint4\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "QuantizeLinear",
+    "module": "ai.onnx",
+    "version": 28,
+    "description": "The linear quantization operator consumes a high-precision tensor, a scale, and a zero point to compute the\nlow-precision/quantized tensor. The scale factor and zero point must have the same shape, determining the quantization\ngranularity. The quantization formula is `y = saturate((x / y_scale) + y_zero_point)`.\n\nSaturation is done according to:\n- uint16: [0, 65535]\n- int16: [-32768, 32767]\n- uint8: [0, 255]\n- int8: [-128, 127]\n- uint4: [0, 15]\n- int4: [-8, 7]\n- uint2: [0, 3]\n- int2: [-2, 1]\n\nFor `(x / y_scale)`, it rounds to the nearest even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\n\n`y_zero_point` and `y` must have the same type. `y_zero_point` is usually not used for quantization to float8 and 4bit types, but the quantization\nformula remains the same for consistency, and the type of the attribute `y_zero_point` still determines the quantization type.\n`x` and `y_scale` are allowed to have different types. The type of `y_scale` determines the precision of the division operation between `x` and\n`y_scale`, unless the `precision` attribute is specified.\n\nThere are three supported quantization granularities, determined by the shape of `y_scale`.\nIn all cases, `y_zero_point` must have the same shape as `y_scale`.\n- Per-tensor (per-layer) quantization: `y_scale` is a scalar.\n- Per-axis quantization: The scale must be a 1-D tensor, with the length of the quantization axis. For an input shape\n `(D0, ..., Di, ..., Dn)` and `axis=i`, `y_scale` is a 1-D tensor of length `Di`.\n- Blocked quantization: The scale's shape is identical to the input's shape, except for one dimension, in which\n  blocking is performed. Given `x` shape `(D0, ..., Di, ..., Dn)`, `axis=i`, and block size `B`: `y_scale` shape is\n  `(D0, ..., ceil(Di/B), ..., Dn)`.\n",
+    "attributes": [
+      {
+        "name": "axis",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Used only for per-axis and blocked quantization. Negative value means counting dimensions from the back. Accepted range is `[-r, r-1]` where `r = rank(input)`. When the rank of the input is 1, per-tensor quantization is applied, rendering the axis unnecessary in this scenario."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The size of the quantization block (number of times every scale is replicated). Used only for blocked quantization. The block size is a positive integer. Given `x` shape `(D0, ..., Di, ..., Dn)`, `y_scale` shape `(S0, ... Si, ...Sn)` and `axis=i`, the accepted range is `[ceil(Di/Si), ceil(Di/(Si-1))-1]`"
+      },
+      {
+        "name": "output_dtype",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The output data type. If not supplied, the output data type is inferred from `y_zero_point` data type (`T3`). If neither `output_dtype` nor `y_zero_point` are supplied, output data type is uint8. If both `output_dtype` and `y_zero_point` are specified, `output_dtype` must be `T3`."
+      },
+      {
+        "name": "precision",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) The precision of the division operation between `x` and `y_scale`. If not provided, it will be the same as the type of `y_scale`."
+      },
+      {
+        "name": "saturate",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The parameter defines how the conversion behaves if an input value is out of range of the destination type. It only applies for float 8 quantization (float8e4m3fn, float8e4m3fnuz, float8e5m2, float8e5m2fnuz). It is true by default. All cases are fully described in two tables inserted in the operator description. It has no effect for float4e2m1, float6e2m3, or float6e3m2, since those types have no non-saturating (infinity-representable) encoding to fall back to."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "x",
+        "type": "T1",
+        "description": "N-D full precision Input tensor to be quantized."
+      },
+      {
+        "name": "y_scale",
+        "type": "T2",
+        "description": "Scale for doing quantization to get `y`. For per-tensor/layer quantization the scale is a scalar, for per-axis quantization it is a 1-D Tensor and for blocked quantization it has the same shape as the input, except for one dimension in which blocking is performed."
+      },
+      {
+        "name": "y_zero_point",
+        "type": "T3",
+        "option": "optional",
+        "description": "Zero point for doing quantization to get `y`. Shape must match `y_scale`. Default is uint8 with zero point of 0 if it's not specified."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "y",
+        "type": "T3",
+        "description": "N-D quantized output tensor. It has same shape as input `x`."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "2 - 3",
+    "type_constraints": [
+      {
+        "description": "The type of the input 'x'.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(int32)"
+        ]
+      },
+      {
+        "description": "The type of the input 'y_scale'.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(int32)",
+          "tensor(float8e8m0)"
+        ]
+      },
+      {
+        "description": "The type of the input `y_zero_point` and the output `y`.",
+        "type_param_str": "T3",
+        "allowed_type_strs": [
+          "tensor(int8)",
+          "tensor(uint8)",
+          "tensor(int16)",
+          "tensor(uint16)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)",
+          "tensor(uint4)",
+          "tensor(int4)",
+          "tensor(float4e2m1)",
+          "tensor(uint2)",
+          "tensor(int2)",
+          "tensor(float6e2m3)",
+          "tensor(float6e3m2)"
         ]
       }
     ],
@@ -61868,11 +62392,11 @@
     "examples": [
       {
         "summary": "selu",
-        "code": "node = onnx.helper.make_node(\n    \"Selu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0, gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = (\n    np.clip(x, 0, np.inf) * 3.0\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * 3.0\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu\")"
+        "code": "node = onnx.helper.make_node(\n    \"Selu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0, gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + np.expm1(np.clip(x, -np.inf, 0)) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + np.expm1(np.clip(x, -np.inf, 0)) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu\")"
       },
       {
         "summary": "selu_default",
-        "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    \"Selu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * default_gamma\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_default\")"
+        "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    \"Selu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * default_gamma\n    + np.expm1(np.clip(x, -np.inf, 0)) * default_alpha * default_gamma\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_default\")"
       }
     ],
     "category": "Activation"
@@ -61930,11 +62454,11 @@
     "examples": [
       {
         "summary": "selu",
-        "code": "node = onnx.helper.make_node(\n    \"Selu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0, gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = (\n    np.clip(x, 0, np.inf) * 3.0\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * 3.0\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu\")"
+        "code": "node = onnx.helper.make_node(\n    \"Selu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0, gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + np.expm1(np.clip(x, -np.inf, 0)) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + np.expm1(np.clip(x, -np.inf, 0)) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu\")"
       },
       {
         "summary": "selu_default",
-        "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    \"Selu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * default_gamma\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_default\")"
+        "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    \"Selu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * default_gamma\n    + np.expm1(np.clip(x, -np.inf, 0)) * default_alpha * default_gamma\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_default\")"
       }
     ],
     "category": "Activation"
@@ -61993,11 +62517,11 @@
     "examples": [
       {
         "summary": "selu",
-        "code": "node = onnx.helper.make_node(\n    \"Selu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0, gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = (\n    np.clip(x, 0, np.inf) * 3.0\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * 3.0\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu\")"
+        "code": "node = onnx.helper.make_node(\n    \"Selu\", inputs=[\"x\"], outputs=[\"y\"], alpha=2.0, gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + np.expm1(np.clip(x, -np.inf, 0)) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + np.expm1(np.clip(x, -np.inf, 0)) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu\")"
       },
       {
         "summary": "selu_default",
-        "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    \"Selu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * default_gamma\n    + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_default\")"
+        "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    \"Selu\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = (\n    np.clip(x, 0, np.inf) * default_gamma\n    + np.expm1(np.clip(x, -np.inf, 0)) * default_alpha * default_gamma\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_selu_default\")"
       }
     ],
     "category": "Activation"
@@ -65585,7 +66109,7 @@
     "examples": [
       {
         "summary": "softplus",
-        "code": "node = onnx.helper.make_node(\n    \"Softplus\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.log(\n    np.exp(x) + 1\n)  # expected output [0.31326166, 0.69314718, 1.31326163]\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.log(np.exp(x) + 1)\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus\")"
+        "code": "node = onnx.helper.make_node(\n    \"Softplus\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.logaddexp(0, x)  # expected output [0.31326166, 0.69314718, 1.31326163]\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.logaddexp(0, x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus\")"
       }
     ],
     "category": "Activation"
@@ -65628,7 +66152,7 @@
     "examples": [
       {
         "summary": "softplus",
-        "code": "node = onnx.helper.make_node(\n    \"Softplus\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.log(\n    np.exp(x) + 1\n)  # expected output [0.31326166, 0.69314718, 1.31326163]\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.log(np.exp(x) + 1)\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus\")"
+        "code": "node = onnx.helper.make_node(\n    \"Softplus\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.logaddexp(0, x)  # expected output [0.31326166, 0.69314718, 1.31326163]\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus_example\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.logaddexp(0, x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_softplus\")"
       }
     ],
     "category": "Activation"
