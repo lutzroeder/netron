@@ -125,6 +125,7 @@ tosa.Graph = class {
     constructor(context, block, region) {
         this.name = region ? `${region}/${block.name}` : block.name || '';
         const tensors = new Map();
+        const shapes = new Map();
         for (const tensor of block.tensors) {
             const type = new tosa.TensorType(context, tensor.type, tensor.shape);
             const data = tensor.data && tensor.data.length > 0 ? tensor.data : null;
@@ -138,7 +139,17 @@ tosa.Graph = class {
             }
             tensors.set(tensor.name, value);
         }
-        const value = (name) => {
+        for (const shape of block.shapes || []) {
+            const type = new tosa.TensorType(context, context.schema.DType.SHAPE, [shape.rank]);
+            const data = shape.data && shape.data.length > 0 ? shape.data : null;
+            const initializer = data ? new tosa.Tensor(shape.name, type, data) : null;
+            const value = new tosa.Value(shape.name, type, initializer);
+            shapes.set(shape.name, value);
+        }
+        const value = (name, type) => {
+            if (type === 'shape' && shapes.has(name)) {
+                return shapes.get(name);
+            }
             if (!tensors.has(name)) {
                 tensors.set(name, new tosa.Value(name, null, null));
             }
@@ -171,14 +182,18 @@ tosa.Node = class {
         this.attributes = [];
         const inputs = operator.inputs || [];
         for (let i = 0; i < inputs.length; i++) {
-            const name = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : `input${i}`;
-            const values = [value(inputs[i])];
+            const metadata = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i] : null;
+            const name = metadata ? metadata.name : `input${i}`;
+            const type = metadata ? metadata.type : null;
+            const values = [value(inputs[i], type)];
             this.inputs.push(new tosa.Argument(name, values));
         }
         const outputs = operator.outputs || [];
         for (let i = 0; i < outputs.length; i++) {
-            const name = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : `output${i}`;
-            const values = [value(outputs[i])];
+            const metadata = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i] : null;
+            const name = metadata ? metadata.name : `output${i}`;
+            const type = metadata ? metadata.type : null;
+            const values = [value(outputs[i], type)];
             this.outputs.push(new tosa.Argument(name, values));
         }
         const options = operator.attribute;
@@ -319,6 +334,10 @@ tosa.Context = class {
         for (const [key, value] of Object.entries(schema.DType)) {
             this._dataTypes.set(value, mapping[key] || key.toLowerCase());
         }
+    }
+
+    get schema() {
+        return this._schema;
     }
 
     type(name) {
