@@ -124491,6 +124491,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -124849,6 +124854,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -124872,6 +124882,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -124884,6 +124899,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125340,6 +125360,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125431,6 +125456,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125586,6 +125616,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125683,6 +125718,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125786,6 +125826,25 @@
     ]
   },
   {
+    "name": "ttnn.layernorm_fw",
+    "summary": "Layer normalization forward (ttml).",
+    "description": "Training-oriented fused layer normalization forward pass, backed by the\n      ttml metal op `ttml::metal::layernorm_fw`. Normalizes `input` over its last\n      dimension and applies the affine transform\n      `output = (input - mean) * rstd * weight + bias`, where\n      `rstd = 1 / sqrt(var + epsilon)` and `mean`/`var` are the biased statistics\n      of the last dimension.\n\n      When `return_mean_rstd` is set the per-row `mean` and `rstd` are also\n      returned so the backward pass can reuse them. Both are produced together,\n      so they are either both present or both absent.\n\n      The backing kernel only accepts rank-4 tensors: `input` is `(B, N, S, C)`,\n      `weight` and `bias` are `(1, 1, 1, C)`, and `mean`/`rstd` are\n      `(B, N, S, 1)`. It also requires every tensor to be bfloat16, tiled and\n      interleaved in DRAM; those are satisfied by the workarounds pass rather\n      than the verifier, since the layout is not yet final when the op is\n      created.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "weight", "type": "AnyRankedTensor" },
+      { "name": "bias", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "output", "type": "AnyRankedTensor" },
+      { "name": "mean", "type": "Optional<AnyRankedTensor>" },
+      { "name": "rstd", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "epsilon", "type": "DefaultValuedAttr<F32Attr, 1e-05>" },
+      { "name": "return_mean_rstd", "type": "DefaultValuedAttr<BoolAttr, false>" }
+    ]
+  },
+  {
     "name": "ttnn.le",
     "summary": "Eltwise less than or equal to.",
     "description": "Eltwise less than or equal to operation.",
@@ -125795,6 +125854,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125877,6 +125941,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125889,6 +125958,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125912,6 +125986,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125924,6 +126003,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125936,6 +126020,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -125948,6 +126037,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -126044,6 +126138,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -126121,6 +126220,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -126235,6 +126339,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -126247,6 +126356,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -126466,6 +126580,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -126761,6 +126880,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
@@ -127246,6 +127370,11 @@
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_a_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" },
+      { "name": "input_tensor_b_activations", "type": "TypedArrayAttrBase<UnaryWithParamAttr>" }
     ]
   },
   {
