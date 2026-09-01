@@ -81,7 +81,7 @@ onnx.Model = class {
             const metadata = new Map(metadata_props.map((entry) => [entry.key, entry.value]));
             const converted_from = metadata.get('converted_from');
             if (converted_from) {
-                this.source = converted_from;
+                this._source = converted_from;
             }
             const author = metadata.get('author');
             if (author) {
