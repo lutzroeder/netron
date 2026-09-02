@@ -20217,7 +20217,7 @@
   {
     "name": "krnl.call",
     "summary": "call operation",
-    "description": "The call operation provides a generic way to replace an ONNX Op with a call\n    to an external function at Krnl level.\n    `funcName` attributes determines which function to call.\n    `parameters` is the inputs to Krnl.Call. It includes the outputs and inputs\n    of the ONNX Op. The outputs and inputs are already lowered to MemRefs.\n    The external function is assumed NOT to allocate or free any memory.\n    'numOfOutput` attribute to tell how manu outputs Memref in parameters.\n    mlir::OpTrait::AttrSizedOperandSegments is not used to put outputs and\n    inputs into separate variadic parameters because I am thinking of mixing\n    the inputs and outpus as required by external library.\n\n    The attributes of the ONNX Op will be copied to KrnlCallOp under the control\n    of the user.\n    In Krnl To llvm lowering, the parameters and attributes will be lowered to\n    parameters of the llvm function call.\n\n    Several builder is defined to help translating an ONNX Op to Krnl.Call.\n    User can provides the allocated MemRefs for outputs and the inputs\n    separately. The inputs are usually the operands of the ONNX Op.\n    The attributes of ONNX Op can be copied or not copied based on a bool\n    parameter in the builder. Builder also provide a mechanism for user\n    to selectively copy some attributes.\n\n    The krnl.call op will be lowered to llvm at krnl-to-llvm conversion in which\n    OMTensor is used as a container for MemRef arguments. Other representation\n    of parameters, such as data pointer only, will be supported in future.",
+    "description": "The call operation provides a generic way to replace an ONNX Op with a call\n    to an external function at Krnl level.\n    `funcName` attributes determines which function to call.\n    `parameters` is the inputs to Krnl.Call. It includes the outputs and inputs\n    of the ONNX Op. The outputs and inputs are already lowered to MemRefs.\n    The external function is assumed NOT to allocate or free any memory.\n    'numOfOutput` attribute to tell how many outputs Memref in parameters.\n    mlir::OpTrait::AttrSizedOperandSegments is not used to put outputs and\n    inputs into separate variadic parameters because I am thinking of mixing\n    the inputs and outputs as required by external library.\n\n    The attributes of the ONNX Op will be copied to KrnlCallOp under the control\n    of the user.\n    In Krnl To llvm lowering, the parameters and attributes will be lowered to\n    parameters of the llvm function call.\n\n    Several builder is defined to help translating an ONNX Op to Krnl.Call.\n    User can provides the allocated MemRefs for outputs and the inputs\n    separately. The inputs are usually the operands of the ONNX Op.\n    The attributes of ONNX Op can be copied or not copied based on a bool\n    parameter in the builder. Builder also provide a mechanism for user\n    to selectively copy some attributes.\n\n    The krnl.call op will be lowered to llvm at krnl-to-llvm conversion in which\n    OMTensor is used as a container for MemRef arguments. Other representation\n    of parameters, such as data pointer only, will be supported in future.",
     "operands": [
       { "name": "parameters", "type": "Variadic<AnyType>" }
     ],
@@ -20228,6 +20228,18 @@
       { "name": "funcName", "type": "StrAttr" },
       { "name": "numOfOutput", "type": "DefaultValuedAttr<SI64Attr, 1>" }
     ]
+  },
+  {
+    "name": "krnl.collapse",
+    "summary": "Krnl collapse operation",
+    "description": "Fuse two or more perfectly nested for loops into a single for loop whose\n    trip count is the product of the original trip counts. Operands are given\n    outer-to-inner, and the single result refers to the fused loop.\n\n    `krnl.get_induction_var_value` hands the body one index **per original\n    dimension** by default, so a collapsed nest is queried exactly like an\n    uncollapsed one and a body does not have to know whether it was collapsed:\n\n    ```\n    %ii, %jj = krnl.define_loops 2\n    %f = krnl.collapse(%ii, %jj) : (!krnl.loop, !krnl.loop) -> !krnl.loop\n    krnl.iterate(%f) with (%ii -> %i = 0 to 10, %jj -> %j = 0 to 20) {\n      %i, %j = krnl.get_induction_var_value(%f) : (!krnl.loop) -> (index, index)\n      %v = krnl.load %2d[%i, %j] : memref<10x20xf32>\n    }\n    ```\n\n    Recovering those per-dimension indices costs a floordiv/mod chain. When a\n    **linearized** access is what the body wants instead, ask for the fused index\n    with the `fusedIndex` attribute and no division is emitted at all -- for a flat\n    `memref<200xf32>`, the fused index is already the right subscript:\n\n    ```\n    %idx = krnl.get_induction_var_value(%f) {fusedIndex} : (!krnl.loop) -> index\n    %v = krnl.load %flat[%idx] : memref<200xf32>\n    // %idx is the flat iteration number over the fused range, here 0 to 199.\n    ```\n\n    Both may appear in the same body, as two separate queries on the same loop\n    reference.\n\n    The main motivation is `krnl.parallel`, which can then spread a single\n    fused iteration space over the available threads instead of parallelizing\n    only the outermost dimension.\n\n    Restrictions in this first version:\n\n    * Every collapsed dimension must have a **lower bound of compile-time\n      constant 0** and a **step of 1**. A literal `0 to N` qualifies, and so\n      does a bound spelled as a constant SSA value such as `%c0 to N`, which is\n      folded before being checked. A non-zero bound (`5 to N`) or a bound that\n      is only known at run time (`%lb to N`) is rejected: the trip count of a\n      collapsed dimension is taken to be its upper bound, and recovering the\n      per-dimension indices would additionally have to add each dimension's\n      offset back in, which the recovery does not do.\n    * The enclosing `krnl.iterate` must have no reduction `iterArgs`.\n    * The operands may not themselves be results of `krnl.block` or\n      `krnl.collapse`. Conversely, the result may not be fed to `krnl.block` or\n      `krnl.unroll`.\n    * An **operand** loop reference is consumed by the collapse: after fusing it\n      no longer refers to a loop of its own, so nothing else may use it. In\n      particular `krnl.get_induction_var_value(%ii)` on a collapsed-away operand\n      is invalid, and so is naming that dimension's induction variable in the\n      `with` clause and then using it (the `%i` in `with (%ii -> %i = 0 to N)`).\n      The latter is an implementation restriction rather than a fundamental one:\n      `affine::coalesceLoops` rewrites uses of the collapsed induction variables\n      only within the fused loop's own region, whereas the iterate body has by\n      then been parked elsewhere in the function.\n\n      The **result** is the opposite, and is not restricted at all: `%f` is the\n      one surviving loop, and `krnl.get_induction_var_value(%f)` is exactly how\n      its indices are obtained -- per-dimension by default, or the fused index\n      with `{fusedIndex}`.\n\n    Only the two operand/result restrictions are enforced by this op's verifier.\n    The bound, `iterArgs` and use restrictions depend on the enclosing\n    `krnl.iterate`, which this op cannot see from its own operands, so they are\n    reported when the loop nest is lowered instead.",
+    "operands": [
+      { "name": "loops", "type": "Variadic<AnyType>" }
+    ],
+    "results": [
+      { "name": "collapsed_loop", "type": "AnyType" }
+    ],
+    "assemblyFormat": "`(` $loops `)` attr-dict `:` functional-type($loops, results)"
   },
   {
     "name": "krnl.copy_from_tile_buffer",
@@ -20311,13 +20323,16 @@
   },
   {
     "name": "krnl.get_induction_var_value",
-    "summary": "Krnl",
-    "description": "Krnl operation to convert loop references to corresponding induction\n     variable values. This is useful for accessing optimized loop induction\n     variables, as they are not otherwise accessible during Krnl Dialect.\n\n     For example, this operation can be applied to loop references corresponding to\n     inter-tile iterations. The return values will be the starting index of the\n     current tile being iterated over.",
+    "summary": "Krnl get induction variable value operation",
+    "description": "Krnl operation to convert loop references to corresponding induction\n     variable values. This is useful for accessing optimized loop induction\n     variables, as they are not otherwise accessible during Krnl Dialect.\n\n     For example, this operation can be applied to loop references corresponding to\n     inter-tile iterations. The return values will be the starting index of the\n     current tile being iterated over.\n\n     Every operand yields one result, **except** a loop reference produced by\n     `krnl.collapse`, which by default yields one result per originally collapsed\n     dimension, outer-to-inner. A body therefore reads the same whether or not its\n     nest was collapsed:\n\n     ```\n     %f = krnl.collapse(%d0, %d1) : (!krnl.loop, !krnl.loop) -> !krnl.loop\n     krnl.iterate(%f, %d2) with (%d0 -> %i0 = 0 to A, %d1 -> %i1 = 0 to B,\n                                 %d2 -> %i2 = 0 to C) {\n       // 2 operands, 3 results: %f contributes 2, %d2 contributes 1.\n       %a, %b, %c = krnl.get_induction_var_value(%f, %d2)\n           : (!krnl.loop, !krnl.loop) -> (index, index, index)\n     }\n     ```\n\n     Recovering those indices costs a floordiv/mod chain per collapsed group. Set\n     the **`fusedIndex`** attribute to get the single fused (linear) index of each\n     collapsed loop instead, which emits no division and is what a linearized\n     access wants:\n\n     ```\n     %lin, %c = krnl.get_induction_var_value(%f, %d2) {fusedIndex}\n         : (!krnl.loop, !krnl.loop) -> (index, index)\n     ```\n\n     The attribute applies to the whole operation, so a body needing both forms\n     issues two operations on the same loop references. It is permitted, and inert,\n     on an operation with no collapsed operand, where the two result counts\n     coincide.\n\n     Accordingly the number of results must be exactly the number of operands with\n     `fusedIndex`, and the sum over operands of the number of dimensions each\n     contributes without it.",
     "operands": [
       { "name": "loops", "type": "Variadic<AnyType>" }
     ],
     "results": [
       { "name": "ind_var_vals", "type": "Variadic<AnyType>" }
+    ],
+    "attributes": [
+      { "name": "fusedIndex", "type": "UnitAttr" }
     ],
     "assemblyFormat": "`(` $loops `)` attr-dict `:` functional-type($loops, results)"
   },
@@ -20404,7 +20419,7 @@
   },
   {
     "name": "krnl.matmul",
-    "summary": "Matmul operation for a single pannel.",
+    "summary": "Matmul operation for a single panel.",
     "description": "Perform a matrix multiplication AA * BB + CC with sizes `[IxK] * [KxJ] + [IxJ]`.\n    The original matrices AA, BB, and CC can be buffered in buffered arrays\n    which may be padded. The original matrices and the padded array might\n    have a higher rank than 2, but the actual matrix multiplication operation\n    only deal with the innermost 2 ranks of the matrices to perform its matrix\n    multiplication operations.\n\n    The computations may also compute only a sub-tile of the buffered arrays.\n    This region is depicted using stars '*' below.\n\n    All indices passed to this operation are the global indices in the original\n    computation, so as to better know if we have boundary conditions.\n\n    ORIGINAL ARRAY: denoted as AA, BB, CC with sizes AA: `*xIxK`; BB: `*xKxJ`; CC: `*xI*J`).\n\n    BUFFER ARRAYS: denoted as A, B, and C. Note that this operation does\n      not require the use of buffers arrays. If none are used, then A=AA,\n      B=BB, C=CC. If buffers are used, it is the responsibility of the caller\n      to properly fill the buffers with the appropriate data. Buffers are\n      typically used for cache tiling.\n\n     ORIGINAL ARRAY\n\n```\n     -------------------------------------------------\n     |                                               ]\n     |                                               ]\n     |             buffer array       buffer pad     ]\n     |            (3)---------------- ++++           ]\n     |             |                 |   +           ]\n     |             |     (1)****     |   +           ]\n     |             |      *    *     |   +           ]\n     |             |      *    *     |   +           ]\n     |             |      ****(5)    |   +           ]\n     |             |                 |   +           ]\n     |             |                 |   +           ]\n     |             ------------------|   +           ]\n     |             +                     +           ]\n     |             +++++++++++++++++++++(4)          ]\n     |                                               ]\n     -----------------------------------------------(2)\n```\n\n* (1) `iGlobalIndexComputeStart`/`jGlobalIndexComputeStart`/`kGlobalIndexComputeStart`,\n   required, each three are global 1D indices.\n* (2) `iGlobalUB`/`jGlobalUB`/`jGlobalUB`, required, each three are global 1D indices.\n* (3) `aGlobalIndexMemStart`/`bGlobalIndexMemStart`/`cGlobalIndexMemStart`,\n   required, global nD indices with the same rank as the buffers A, B, and C.\n* (4) `aTileSize`/`bTileSize`/`cTileSize`, required when padding, each 2D sizes.\n* (5) `computeTileSizes`, required when tiled computation within buffer, 3D sizes (I, J, K).\n\n    The `iGlobalIndexComputeStart`/`jGlobalIndexComputeStart`/\n    `kGlobalIndexComputeStart` (1) indicate the global indices of the\n    first element of a tile to be computed in the original computations.\n\n    The `iGlobalUB`/`jGlobalUB`/`kGlobalUB` (2) indicate the global upper bounds\n    in the original computations.\n\n    We provide 3 buffers for matrix multiply: A, B, and C. For each buffer,\n    we indicate the global indices pointing the beginning of the buffer:\n    `aGlobalIndexMemStart`, `bGlobalIndexMemStart`, and `cGlobalIndexMemStart` (3).\n    If no buffers are used, i.e. the computation starts directly in the\n    original memory, the global index is 0. If a buffer for AA is used to\n    put data into it starting at indices `[i1, k1]`, where `i1` & `k1` are the\n    global indices in the original computations, then `aGlobalIndexMemStart0`\n    and `aGlobalIndexMemStart1` are `i1` & `k1`, respectively.\n\n    If the A, B, or C buffers are larger than the actual data tile they\n    contain (see `copy_to_tile_buffer`), then the actual tile size must be\n    given using an optional attribute: `aTileSize`, `bTileSize`, or `cTileSize` (4).\n    These optional tile size have a rank of 2, and their values must be\n    equal or smaller than their corresponding buffer memrefs.\n\n    If the computation are further tiled with respect to the size of the\n    buffers A, B, or C, then the actual computation tile is given by\n    the optional tile attribute `computeTileSize` (5). Its rank is 3, for the\n    I, J, and K dimension. The actual A, B, and C buffer tile size\n    (possibly specified by the optional parameters) must be a multiple of\n    the I, J, and K `computeTileSizes`, in their respective\n    dimensions (A: `[IxK]`, B: `[KxJ]`, C: `[IxJ]`).\n\n    Note that the buffers A, B, and C can be of higher dimensionality than\n    the traditional 2D mentioned up to now, because of broadcasting rules.\n    At this time, we only support broadcast of arrays having ranks of 2 or\n    more. Because of the broadcast rules, the higher dimensions have a\n    constant index during one matrix multiply. These fixed indices are\n    given as prefix dimensions in the starting indices for AA, BB, and CC\n    as described above. E.g. if AA has a rank of 3, and BB has a rank of 2,\n    the starting indices for AA are `[d, i1, k1]` where `i1` and `k1` are as\n    above, and d is index pointing to the current instance of the `IxK`\n    AA matrix to be computed. B start indices would be unchanged at `[k1, j1]`.\n\n    Simdize is used to state if simdization is requested.\n    Unrolling is used to unroll and jam loops as warranted.\n\n    Below is an example calculating a matrix multiply with pre-zeroed\n    C matrix with the sizes below.\n\n```\n    %A: memref<40x60xf32>, %B: memref<60x80xf32>, %C: memref<40x80xf32>\n\n    // 3 tiled loops.\n    %ii, %jj, %kk = krnl.define_loops 3\n    %ib, %il = krnl.block %ii 10 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %jb, %jl = krnl.block %jj 8 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %kb, %kl = krnl.block %kk 10 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    // 3 subtiles.\n    %ilb, %ill = krnl.block %il 5 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %jlb, %jll = krnl.block %jl 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %klb, %kll = krnl.block %kl 5 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    // Permute.\n    krnl.permute(%ib, %ilb, %ill, %jb, %jlb, %jll, %kb, %klb, %kll)\n        [0, 3, 6, 1, 4, 7, 2, 5, 8] :\n        !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop,\n        !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop\n    // Outer 2 for i, j.\n    krnl.iterate(%ib, %jb) with (%ii -> %i = 0 to 40,\n                                 %jj -> %j = 0 to 80,\n                                 %kk -> %k = 0 to 60) {\n        %i1, %j1 = krnl.get_induction_var_value(%ib, %jb) :\n          (!krnl.loop,!krnl.loop) -> (index, index)\n        // Fill C buffer.\n        %Cbuff = alloca(): memref<10x8xf32>  // n x m_simd\n        krnl.copy_to_tile_buffer %Cbuff, %C[%i1, %j1], %f0 :\n          memref<10x8xf32>, memref<40x80xf32>\n        // Outer 1 for k.\n        krnl.iterate(%kb) with () {\n            %k1 = krnl.get_induction_var_value(%kb) : (!krnl.loop) -> (index)\n            // Fill A and B buffer\n            %Abuff = alloca(): memref<10x10xf32> // i x k\n            %Bbuff = alloca(): memref<10x8xf32>  // k x j_simd\n            krnl.copy_to_tile_buffer %Abuff, %A[%i1, %k1], %f0 :\n              memref<10x10xf32>, memref<40x60xf32>\n            krnl.copy_to_tile_buffer %Bbuff, %B[%k1, %j1], %f0 :\n              memref<10x8xf32>, memref<60x80xf32>\n\n            // Inner iterations for subtiles.\n            krnl.iterate(%ilb, %jlb, %klb) with () {\n                %i2, %j2, %k2 = krnl.get_induction_var_value(%ilb, %jlb, %klb) :\n                (!krnl.loop,!krnl.loop,!krnl.loop) -> (index,index,index)\n\n                krnl.matmul %Abuff[%i1, %k1], %Bbuff[%k1, %j1], %Cbuff[%i1, %j1],\n                    (%ill, %jll, %kll), (%i2, %j2, %k2), (%c40, %c80, %c60)\n                    { computeTileSize=[5,4,5], simdize=false, unroll=false } :\n                    memref<10x10xf32>, memref<10x8xf32>, memref<10x8xf32>,\n                    (!krnl.loop,!krnl.loop,!krnl.loop)\n            }\n        }\n        // Copy back the data into C.\n        krnl.copy_from_tile_buffer %Cbuff, %C[%i1, %j1] :\n          memref<10x8xf32>, memref<40x80xf32>\n    }\n```\n\n    Note that code is simdized along the J dim (last dim of B and C matrices).\n    For simd to be enabled, the simdized flag must be set to true, and the\n    following condition must be true:\n    1) The vector length is the second entry of (i, j, k) compute tile size.\n       The vector length must be a compile time constant.",
     "operands": [
       { "name": "A", "type": "AnyMemRef" },
@@ -20450,7 +20465,7 @@
   {
     "name": "krnl.memset",
     "summary": "Set buffer to a given value.",
-    "description": "Krnl operation that sets a buffer to a given value.\n    In case that the buffer is a MemRef with affine_map, `delayed` indicates\n    whether we set values along original or extended iteration space.\n\n    For example, given\n    - an affine_map `#tile = affine_map < (i)->(i floordiv 4, i mod 4) >`, and\n    - a buffer of type `memref<5xf32, #tile>`\n\n    Original iteration space is along the first axis that has 5 elements.\n\n    If we do normalization, the memref becomes `memref<2x4xf32>`. Now we have\n    an extended iteration space along two axes of sizes 2 and 4, respectively.\n    This extended iteration space has 8 elements in total.\n\n    If `delayed = false`, the original iteration space is used to set values.\n    In the above example, only 5 out of 8 elementes will be set to the given value.\n\n    If `delayed = true`, the extended iteration space is used to set values.\n    In the above example, all 8 elements will be set to the given value.",
+    "description": "Krnl operation that sets a buffer to a given value.\n    In case that the buffer is a MemRef with affine_map, `delayed` indicates\n    whether we set values along original or extended iteration space.\n\n    For example, given\n    - an affine_map `#tile = affine_map < (i)->(i floordiv 4, i mod 4) >`, and\n    - a buffer of type `memref<5xf32, #tile>`\n\n    Original iteration space is along the first axis that has 5 elements.\n\n    If we do normalization, the memref becomes `memref<2x4xf32>`. Now we have\n    an extended iteration space along two axes of sizes 2 and 4, respectively.\n    This extended iteration space has 8 elements in total.\n\n    If `delayed = false`, the original iteration space is used to set values.\n    In the above example, only 5 out of 8 elements will be set to the given value.\n\n    If `delayed = true`, the extended iteration space is used to set values.\n    In the above example, all 8 elements will be set to the given value.",
     "operands": [
       { "name": "dest", "type": "AnyMemRef" },
       { "name": "value", "type": "AnyType" }
@@ -20486,7 +20501,7 @@
   {
     "name": "krnl.parallel",
     "summary": "Mark Krnl loops as parallel loops",
-    "description": "Parallelize the specified loops. When multiple loop specifiers are passed\n    as parameters, there loops can be parallelized as a collapsed loop.\n    krnl.parallel should be placed as the last operator before krnl.iterate,\n    Since we do not want to parallelize the loop until we interpret krnl.block,\n    krnl.permute and krnl.unroll.\n\n    Optionally, a value may specifiy the number of threads requested for the\n    parallel loop. A proc_bind string may also be specified; valid values are\n    \"primary\", \"close\", or \"spread\". Default values are used when not specified.\n\n    ```\n    krnl.parallel (%i0, %i1) : !Krnl.loop, !Krnl.loop\n    ```",
+    "description": "Parallelize the specified loops. `krnl.parallel` should be placed as the\n    last operator before krnl.iterate, since we do not want to parallelize the\n    loop until we interpret krnl.block, krnl.permute and krnl.unroll.\n\n    Parallelizing more than one loop of the same loop nest is **not\n    recommended**: each loop specifier is parallelized independently, giving one\n    nested `affine.parallel` per specifier rather than a single parallel region\n    over their combined iteration space, and the optional clauses below then\n    apply to the first (outermost) one only. To spread one fused iteration space\n    over the threads, `krnl.collapse` the dimensions first and parallelize the\n    resulting fused loop reference.\n\n    Optionally, a value may specify the number of threads requested for the\n    parallel loop. A proc_bind string may also be specified; valid values are\n    \"primary\", \"close\", or \"spread\". Default values are used when not specified.\n\n    ```\n    krnl.parallel (%i0) : !Krnl.loop\n    ```",
     "operands": [
       { "name": "loops", "type": "Variadic<AnyType>" },
       { "name": "num_threads", "type": "Optional<I32>" }
@@ -20501,7 +20516,7 @@
   },
   {
     "name": "krnl.parallel_clause",
-    "summary": "Attach OpenMP clauses to an index varialbe",
+    "summary": "Attach OpenMP clauses to an index variable",
     "description": "Attach OpenMP clauses to an index variable. That index variable\n    is used to uniquely associate a parallel loop with its clauses.",
     "operands": [
       { "name": "parallel_loop_index", "type": "Index" },
@@ -20515,7 +20530,7 @@
   {
     "name": "krnl.permute",
     "summary": "Krnl permute operation",
-    "description": "Permute a set of affine for loops using a specified permutation map.\n    The permutation map `map` should be constructed in such way that the\n    for loop referred to by the i-th operand to permute operation is sent\n    to the `map[i]`-th position.\n\n    For example, the following krnl dialect IR:\n    ```\n    %ii, %jj, %kk = krnl.define_loops 3\n    krnl.permute(%ii, %jj, %kk) [1, 2, 0] : !krnl.loop, !krnl.loop, !krnl.loop\n    krnl.iterate (%ii, %jj, %kk) with (%ii -> %i = 0 to 10, %jj -> %j = 0 to 20, %kk -> %k = 0 to 30) {}\n    ```\n    will be lowered to:\n    ```\n    // Referenced by %kk\n    affine.for %arg0 = 0 to 30 {\n      // Referenced by %ii\n      affine.for %arg1 = 0 to 10 {\n        // Referenced by %jj\n        affine.for %arg2 = 0 to 20 {\n        }\n      }\n    }\n    ```\n\n    For a more complicated example, we demonstrate 3-D tiling using krnl.block in\n    conjunction with krnl.permute:\n    ```\n    %ii, %jj, %kk = krnl.define_loops 3\n    // Blocking each loop by a factor of 4.\n    %ib, %il = krnl.block %ii 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %jb, %jl = krnl.block %jj 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %kb, %kl = krnl.block %kk 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    // Move iteration over tile coordinates to be the outer loops and iterateion over\n    // the inter-tile elements to be the inner loops.\n    krnl.permute(%ib, %il, %jb, %jl, %kb, %kl) [0, 3, 1, 4, 2, 5] : !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop\n    krnl.iterate(%ib, %il, %jb, %jl, %kb, %kl) with (%ii -> %i = 0 to 1024, %jj -> %j = 0 to 2048, %kk -> %k = 0 to 4096)  {\n    }\n    ```\n\n    The above IR gets lowered to:\n    ```\n    affine.for %arg0 = 0 to 1024 step 4 {\n      affine.for %arg1 = 0 to 2048 step 4 {\n        affine.for %arg2 = 0 to 4096 step 4 {\n          affine.for %arg3 = #map0(%arg0) to #map1(%arg0) {\n            affine.for %arg4 = #map0(%arg1) to #map1(%arg1) {\n              affine.for %arg5 = #map0(%arg2) to #map1(%arg2) {\n              }\n            }\n          }\n        }\n      }\n    }\n    ```",
+    "description": "Permute a set of affine for loops using a specified permutation map.\n    The permutation map `map` should be constructed in such way that the\n    for loop referred to by the i-th operand to permute operation is sent\n    to the `map[i]`-th position.\n\n    For example, the following krnl dialect IR:\n    ```\n    %ii, %jj, %kk = krnl.define_loops 3\n    krnl.permute(%ii, %jj, %kk) [1, 2, 0] : !krnl.loop, !krnl.loop, !krnl.loop\n    krnl.iterate (%ii, %jj, %kk) with (%ii -> %i = 0 to 10, %jj -> %j = 0 to 20, %kk -> %k = 0 to 30) {}\n    ```\n    will be lowered to:\n    ```\n    // Referenced by %kk\n    affine.for %arg0 = 0 to 30 {\n      // Referenced by %ii\n      affine.for %arg1 = 0 to 10 {\n        // Referenced by %jj\n        affine.for %arg2 = 0 to 20 {\n        }\n      }\n    }\n    ```\n\n    For a more complicated example, we demonstrate 3-D tiling using krnl.block in\n    conjunction with krnl.permute:\n    ```\n    %ii, %jj, %kk = krnl.define_loops 3\n    // Blocking each loop by a factor of 4.\n    %ib, %il = krnl.block %ii 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %jb, %jl = krnl.block %jj 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    %kb, %kl = krnl.block %kk 4 : (!krnl.loop) -> (!krnl.loop, !krnl.loop)\n    // Move iteration over tile coordinates to be the outer loops and iteration over\n    // the inter-tile elements to be the inner loops.\n    krnl.permute(%ib, %il, %jb, %jl, %kb, %kl) [0, 3, 1, 4, 2, 5] : !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop, !krnl.loop\n    krnl.iterate(%ib, %il, %jb, %jl, %kb, %kl) with (%ii -> %i = 0 to 1024, %jj -> %j = 0 to 2048, %kk -> %k = 0 to 4096)  {\n    }\n    ```\n\n    The above IR gets lowered to:\n    ```\n    affine.for %arg0 = 0 to 1024 step 4 {\n      affine.for %arg1 = 0 to 2048 step 4 {\n        affine.for %arg2 = 0 to 4096 step 4 {\n          affine.for %arg3 = #map0(%arg0) to #map1(%arg0) {\n            affine.for %arg4 = #map0(%arg1) to #map1(%arg1) {\n              affine.for %arg5 = #map0(%arg2) to #map1(%arg2) {\n              }\n            }\n          }\n        }\n      }\n    }\n    ```",
     "operands": [
       { "name": "loops", "type": "Variadic<AnyType>" }
     ],
@@ -66866,23 +66881,30 @@
   {
     "name": "test.op_with_bit_enum",
     "attributes": [
-      { "name": "value", "type": "TestBitEnumAttr{read|write|execute}" },
+      { "name": "value", "type": "TestBitEnumAttr{none|read|write|execute}" },
       { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
   },
   {
+    "name": "test.op_with_bit_enum_directive",
+    "attributes": [
+      { "name": "value", "type": "TestBitEnumAttr{none|read|write|execute}" }
+    ],
+    "assemblyFormat": "enum($value) attr-dict"
+  },
+  {
     "name": "test.op_with_bit_enum_prop",
     "attributes": [
-      { "name": "value1", "type": "TestBitEnumProp{read|write|execute}" },
-      { "name": "value2", "type": "TestBitEnumProp{read|write|execute}" }
+      { "name": "value1", "type": "TestBitEnumProp{none|read|write|execute}" },
+      { "name": "value2", "type": "TestBitEnumProp{none|read|write|execute}" }
     ],
     "assemblyFormat": "$value1 ($value2^)? attr-dict `:` `(``)`"
   },
   {
     "name": "test.op_with_bit_enum_prop_dict",
     "attributes": [
-      { "name": "flags", "type": "TestBitEnumProp{read|write|execute}" },
+      { "name": "flags", "type": "TestBitEnumProp{none|read|write|execute}" },
       { "name": "next", "type": "I64Prop" }
     ],
     "assemblyFormat": "prop-dict attr-dict"
@@ -66898,10 +66920,17 @@
   {
     "name": "test.op_with_bit_enum_vbar",
     "attributes": [
-      { "name": "value", "type": "TestBitEnumVerticalBarAttr{user|group|other}" },
+      { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other}" },
       { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
+  },
+  {
+    "name": "test.op_with_bit_enum_vbar_directive",
+    "attributes": [
+      { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other}" }
+    ],
+    "assemblyFormat": "enum($value) attr-dict"
   },
   {
     "name": "test.op_with_data_layout",
@@ -66931,6 +66960,13 @@
       { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
+  },
+  {
+    "name": "test.op_with_enum_directive",
+    "attributes": [
+      { "name": "value", "type": "TestPrettyEnumAttr{first|second|third|non-keyword}" }
+    ],
+    "assemblyFormat": "enum($value) attr-dict"
   },
   {
     "name": "test.op_with_enum_prop",
@@ -67080,8 +67116,8 @@
   {
     "name": "test.op_with_two_default_bit_enum_props",
     "attributes": [
-      { "name": "value1", "type": "TestBitEnumPropDefault{read|write|execute}" },
-      { "name": "value2", "type": "TestBitEnumVerticalBarPropDefault{user|group|other}" }
+      { "name": "value1", "type": "TestBitEnumPropDefault{none|read|write|execute}" },
+      { "name": "value2", "type": "TestBitEnumVerticalBarPropDefault{none|user|group|other}" }
     ],
     "assemblyFormat": "($value1^)? ($value2^)? attr-dict"
   },
@@ -67956,6 +67992,21 @@
     ]
   },
   {
+    "name": "test.tblgen_build_10",
+    "operands": [
+      { "name": "input", "type": "AnyType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "attributes": [
+      { "name": "type", "type": "TypeAttr" }
+    ],
+    "traits": [
+      { "type": "FirstAttrDerivedResultType" }
+    ]
+  },
+  {
     "name": "test.tblgen_build_2",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyType>" }
@@ -68018,6 +68069,41 @@
     "name": "test.tblgen_build_7",
     "attributes": [
       { "name": "attr0", "type": "BoolAttr" }
+    ]
+  },
+  {
+    "name": "test.tblgen_build_8",
+    "operands": [
+      { "name": "a", "type": "Variadic<AnyType>" },
+      { "name": "b", "type": "Variadic<AnyType>" }
+    ],
+    "results": [
+      { "name": "resultA", "type": "Variadic<AnyType>" },
+      { "name": "resultB", "type": "Variadic<AnyType>" }
+    ],
+    "attributes": [
+      { "name": "attr0", "type": "BoolAttr" },
+      { "name": "defaultAttr", "type": "DefaultValuedAttr<I32Attr, 7>" },
+      { "name": "nativeProp", "type": "I64Prop" }
+    ],
+    "traits": [
+      { "type": "InferTypeOpInterface" },
+      { "type": "AttrSizedOperandSegments" }
+    ]
+  },
+  {
+    "name": "test.tblgen_build_9",
+    "operands": [
+      { "name": "input", "type": "AnyType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "attributes": [
+      { "name": "attr0", "type": "BoolAttr" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
     ]
   },
   {
@@ -116292,7 +116378,7 @@
   {
     "name": "tt.elementwise_inline_asm",
     "summary": "inline assembly applying an elementwise operation to a group of packed elements.",
-    "description": "Runs an inline asm block to generate one or more tensors.\n\n    The asm block is given `packed_element` elements at a time.  Exactly which\n    elems it receives is unspecified.",
+    "description": "Runs an inline asm block to generate one or more tensors.\n\n    The asm block is given `packed_element` elements at a time.  Exactly which\n    elems it receives is unspecified.\n    Incomplete groups are padded with undefined inputs, and the corresponding\n    padded outputs are discarded.\n\n    When `pure` is false, each logical group of packed elements executes the\n    asm block once, even if the tensor layout replicates those elements across\n    physical threads.",
     "operands": [
       { "name": "args", "type": "Variadic<AnyTypeOf<[ TT_Type ]>>" }
     ],
@@ -118372,6 +118458,18 @@
     "description": "The `cos` operation computes the cosine of each element in the input tensor.\n\n      For each element, it returns the cosine of the angle in radians.\n\n      Example:\n      ```mlir\n      // Compute cosine of all elements in %input\n      %result = ttir.cos(%input) : (tensor<4x4xf32>) -> tensor<4x4xf32>\n      // Input tensor:\n      // [[1.7, 2.0, -0.3, 4.5], ... ]\n      // Output tensor:\n      // [[0.9601, 0.5403, -0.9553, -0.1365], ... ]\n      ```",
     "operands": [
       { "name": "input", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
+    "name": "ttir.cross_entropy_fw",
+    "summary": "Cross entropy loss, forward pass",
+    "description": "Per-row cross entropy loss against integer class indices.\n\n    The reduction over rows is not part of this op: the result holds one loss\n    value per row, so a mean or sum reduction is a separate op.\n\n    Inputs:\n    - `input` (Tensor): logits, shaped `(N, 1, H, W)` where `W` is the number of\n      classes.\n    - `target` (Tensor): ground-truth class indices, shaped `(N, H)`. Each value\n      selects a class along `input`'s last dimension.\n\n    Outputs: the per-row loss, shaped `(N, 1, H, 1)`.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "target", "type": "AnyRankedTensor" }
     ],
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
@@ -125184,6 +125282,18 @@
     "attributes": [
       { "name": "initial_value", "type": "OptionalAttr<UI32Attr>" },
       { "name": "core_range_set", "type": "TTNN_CoreRangeSetAttr" }
+    ]
+  },
+  {
+    "name": "ttnn.cross_entropy_fw",
+    "summary": "Cross entropy loss forward pass (ttml).",
+    "description": "Per-row cross entropy loss against integer class indices, backed by the\n      ttml metal op `ttml::metal::cross_entropy_fw`. Computes\n\n        loss = -input[target] + max(input) + log(sum(exp(input - max(input))))\n\n      one value per row, with no reduction across rows.\n\n      `input` holds the logits as `(N, 1, H, W)` and must be bf16: the kernel\n      hardcodes its circular buffers to `Float16_b`. `target` holds the class\n      indices as `(N, H)` and reaches the kernel as row-major uint32.\n\n      The result is shaped `(N, 1, H, 1)`.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "target", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
     ]
   },
   {

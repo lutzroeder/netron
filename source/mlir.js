@@ -8484,6 +8484,10 @@ _.AssemblyFormatParser = class {
             const anchor = this.accept('^');
             return { type: 'qualified', args, anchor };
         }
+        if (this.accept('enum')) {
+            const args = this.parseParenList();
+            return { type: 'enum', args };
+        }
         if (this.accept('attr-dict-with-keyword')) {
             return { type: 'attr_dict_with_keyword' };
         }
@@ -9707,6 +9711,27 @@ _.Dialect = class {
                 } else {
                     parseOneSuccessor();
                 }
+                break;
+            }
+            case 'enum': {
+                const [arg] = directive.args;
+                const refName = arg.substring(1);
+                const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
+                const attrType = attrInfo.type;
+                let attrValue = null;
+                if (attrType.name.includes('BitEnum')) {
+                    const separator = attrType.name.includes('VerticalBar') ? '|' : ',';
+                    attrValue = this.parseEnumFlags(parser, attrType, separator);
+                } else {
+                    const value = parser.parseOptionalKeyword(attrType.values) || parser.parseOptionalString();
+                    if (value && attrType.values.includes(value)) {
+                        attrValue = new _.TypedAttr(value, null);
+                    }
+                }
+                if (!attrValue) {
+                    parser.emitError(`Invalid enum value for attribute '${refName}'`);
+                }
+                op.addAttribute(refName, attrValue);
                 break;
             }
             case 'attribute_ref': {
