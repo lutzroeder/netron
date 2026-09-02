@@ -4255,6 +4255,14 @@
         "code": "\"\"\"input_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\npads = None\nkernel_shape = [2]\nstrides = [1]\nout_shape, _ = get_output_shape_explicit_padding(\n    pads, x_shape[2:], kernel_shape, strides\n)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
+        "summary": "averagepool_1d_dilations_same_lower",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_LOWER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[2, 3, 4]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_lower\",\n)"
+      },
+      {
+        "summary": "averagepool_1d_dilations_same_upper",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_UPPER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[3, 4, 5]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_upper\",\n)"
+      },
+      {
         "summary": "averagepool_2d_ceil",
         "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
       },
@@ -4268,7 +4276,15 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations_count_include_pad",
+        "code": "\"\"\"input_shape: [1, 1, 3, 3]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    dilations=[2, 2],\n    pads=[1, 1, 1, 1],\n    count_include_pad=1,\n)\n\nx = np.arange(1, 10, dtype=np.float32).reshape(1, 1, 3, 3)\ny = np.array(\n    [[[[1.25, 2.5, 1.25], [2.5, 5.0, 2.5], [1.25, 2.5, 1.25]]]],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_dilations_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_dilations_valid",
+        "code": "\"\"\"input_shape: [1, 1, 7, 7]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    auto_pad=\"VALID\",\n)\n\nx = np.arange(1, 50, dtype=np.float32).reshape(1, 1, 7, 7)\ny = np.array([[[[17, 18, 19], [24, 25, 26], [31, 32, 33]]]]).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations_valid\"\n)"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -4394,6 +4410,14 @@
         "code": "\"\"\"input_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\npads = None\nkernel_shape = [2]\nstrides = [1]\nout_shape, _ = get_output_shape_explicit_padding(\n    pads, x_shape[2:], kernel_shape, strides\n)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
+        "summary": "averagepool_1d_dilations_same_lower",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_LOWER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[2, 3, 4]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_lower\",\n)"
+      },
+      {
+        "summary": "averagepool_1d_dilations_same_upper",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_UPPER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[3, 4, 5]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_upper\",\n)"
+      },
+      {
         "summary": "averagepool_2d_ceil",
         "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
       },
@@ -4407,7 +4431,15 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations_count_include_pad",
+        "code": "\"\"\"input_shape: [1, 1, 3, 3]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    dilations=[2, 2],\n    pads=[1, 1, 1, 1],\n    count_include_pad=1,\n)\n\nx = np.arange(1, 10, dtype=np.float32).reshape(1, 1, 3, 3)\ny = np.array(\n    [[[[1.25, 2.5, 1.25], [2.5, 5.0, 2.5], [1.25, 2.5, 1.25]]]],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_dilations_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_dilations_valid",
+        "code": "\"\"\"input_shape: [1, 1, 7, 7]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    auto_pad=\"VALID\",\n)\n\nx = np.arange(1, 50, dtype=np.float32).reshape(1, 1, 7, 7)\ny = np.array([[[[17, 18, 19], [24, 25, 26], [31, 32, 33]]]]).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations_valid\"\n)"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -4539,6 +4571,14 @@
         "code": "\"\"\"input_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\npads = None\nkernel_shape = [2]\nstrides = [1]\nout_shape, _ = get_output_shape_explicit_padding(\n    pads, x_shape[2:], kernel_shape, strides\n)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
+        "summary": "averagepool_1d_dilations_same_lower",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_LOWER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[2, 3, 4]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_lower\",\n)"
+      },
+      {
+        "summary": "averagepool_1d_dilations_same_upper",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_UPPER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[3, 4, 5]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_upper\",\n)"
+      },
+      {
         "summary": "averagepool_2d_ceil",
         "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
       },
@@ -4552,7 +4592,15 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations_count_include_pad",
+        "code": "\"\"\"input_shape: [1, 1, 3, 3]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    dilations=[2, 2],\n    pads=[1, 1, 1, 1],\n    count_include_pad=1,\n)\n\nx = np.arange(1, 10, dtype=np.float32).reshape(1, 1, 3, 3)\ny = np.array(\n    [[[[1.25, 2.5, 1.25], [2.5, 5.0, 2.5], [1.25, 2.5, 1.25]]]],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_dilations_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_dilations_valid",
+        "code": "\"\"\"input_shape: [1, 1, 7, 7]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    auto_pad=\"VALID\",\n)\n\nx = np.arange(1, 50, dtype=np.float32).reshape(1, 1, 7, 7)\ny = np.array([[[[17, 18, 19], [24, 25, 26], [31, 32, 33]]]]).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations_valid\"\n)"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -4684,6 +4732,14 @@
         "code": "\"\"\"input_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\npads = None\nkernel_shape = [2]\nstrides = [1]\nout_shape, _ = get_output_shape_explicit_padding(\n    pads, x_shape[2:], kernel_shape, strides\n)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
+        "summary": "averagepool_1d_dilations_same_lower",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_LOWER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[2, 3, 4]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_lower\",\n)"
+      },
+      {
+        "summary": "averagepool_1d_dilations_same_upper",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_UPPER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[3, 4, 5]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_upper\",\n)"
+      },
+      {
         "summary": "averagepool_2d_ceil",
         "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
       },
@@ -4697,7 +4753,15 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations_count_include_pad",
+        "code": "\"\"\"input_shape: [1, 1, 3, 3]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    dilations=[2, 2],\n    pads=[1, 1, 1, 1],\n    count_include_pad=1,\n)\n\nx = np.arange(1, 10, dtype=np.float32).reshape(1, 1, 3, 3)\ny = np.array(\n    [[[[1.25, 2.5, 1.25], [2.5, 5.0, 2.5], [1.25, 2.5, 1.25]]]],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_dilations_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_dilations_valid",
+        "code": "\"\"\"input_shape: [1, 1, 7, 7]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    auto_pad=\"VALID\",\n)\n\nx = np.arange(1, 50, dtype=np.float32).reshape(1, 1, 7, 7)\ny = np.array([[[[17, 18, 19], [24, 25, 26], [31, 32, 33]]]]).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations_valid\"\n)"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -4835,6 +4899,14 @@
         "code": "\"\"\"input_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\npads = None\nkernel_shape = [2]\nstrides = [1]\nout_shape, _ = get_output_shape_explicit_padding(\n    pads, x_shape[2:], kernel_shape, strides\n)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
+        "summary": "averagepool_1d_dilations_same_lower",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_LOWER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[2, 3, 4]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_lower\",\n)"
+      },
+      {
+        "summary": "averagepool_1d_dilations_same_upper",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_UPPER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[3, 4, 5]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_upper\",\n)"
+      },
+      {
         "summary": "averagepool_2d_ceil",
         "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
       },
@@ -4848,7 +4920,15 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations_count_include_pad",
+        "code": "\"\"\"input_shape: [1, 1, 3, 3]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    dilations=[2, 2],\n    pads=[1, 1, 1, 1],\n    count_include_pad=1,\n)\n\nx = np.arange(1, 10, dtype=np.float32).reshape(1, 1, 3, 3)\ny = np.array(\n    [[[[1.25, 2.5, 1.25], [2.5, 5.0, 2.5], [1.25, 2.5, 1.25]]]],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_dilations_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_dilations_valid",
+        "code": "\"\"\"input_shape: [1, 1, 7, 7]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    auto_pad=\"VALID\",\n)\n\nx = np.arange(1, 50, dtype=np.float32).reshape(1, 1, 7, 7)\ny = np.array([[[[17, 18, 19], [24, 25, 26], [31, 32, 33]]]]).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations_valid\"\n)"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -4987,6 +5067,14 @@
         "code": "\"\"\"input_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\npads = None\nkernel_shape = [2]\nstrides = [1]\nout_shape, _ = get_output_shape_explicit_padding(\n    pads, x_shape[2:], kernel_shape, strides\n)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
+        "summary": "averagepool_1d_dilations_same_lower",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_LOWER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[2, 3, 4]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_lower\",\n)"
+      },
+      {
+        "summary": "averagepool_1d_dilations_same_upper",
+        "code": "\"\"\"input_shape: [1, 1, 6]\noutput_shape: [1, 1, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3],\n    strides=[2],\n    dilations=[2],\n    auto_pad=\"SAME_UPPER\",\n)\n\nx = np.arange(1, 7, dtype=np.float32).reshape(1, 1, 6)\ny = np.array([[[3, 4, 5]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_1d_dilations_same_upper\",\n)"
+      },
+      {
         "summary": "averagepool_2d_ceil",
         "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
       },
@@ -5000,7 +5088,15 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"input_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations_count_include_pad",
+        "code": "\"\"\"input_shape: [1, 1, 3, 3]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    dilations=[2, 2],\n    pads=[1, 1, 1, 1],\n    count_include_pad=1,\n)\n\nx = np.arange(1, 10, dtype=np.float32).reshape(1, 1, 3, 3)\ny = np.array(\n    [[[[1.25, 2.5, 1.25], [2.5, 5.0, 2.5], [1.25, 2.5, 1.25]]]],\n    dtype=np.float32,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_dilations_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_dilations_valid",
+        "code": "\"\"\"input_shape: [1, 1, 7, 7]\noutput_shape: [1, 1, 3, 3]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    auto_pad=\"VALID\",\n)\n\nx = np.arange(1, 50, dtype=np.float32).reshape(1, 1, 7, 7)\ny = np.array([[[[17, 18, 19], [24, 25, 26], [31, 32, 33]]]]).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations_valid\"\n)"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -46081,6 +46177,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46156,6 +46268,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46166,7 +46294,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 11,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.0, 1.2, 1.0, 1.2],\n      [2.3, 3.4, 2.3, 3.4],\n      [4.5, 5.7, 4.5, 5.7],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 1, 0, 1]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.2, 1.0, 1.2, 1.0],\n      [3.4, 2.3, 3.4, 2.3],\n      [5.7, 4.5, 5.7, 4.5],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
     "attributes": [
       {
         "name": "mode",
@@ -46239,6 +46367,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46249,7 +46393,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 13,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.0, 1.2, 1.0, 1.2],\n      [2.3, 3.4, 2.3, 3.4],\n      [4.5, 5.7, 4.5, 5.7],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 1, 0, 1]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.2, 1.0, 1.2, 1.0],\n      [3.4, 2.3, 3.4, 2.3],\n      [5.7, 4.5, 5.7, 4.5],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
     "attributes": [
       {
         "name": "mode",
@@ -46327,6 +46471,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46337,7 +46497,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 18,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -46429,6 +46589,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46439,7 +46615,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 19,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -46531,6 +46707,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46541,7 +46733,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 21,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -46639,6 +46831,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46649,7 +46857,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 23,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -46748,6 +46956,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46758,7 +46982,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 24,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -46858,6 +47082,22 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -46868,7 +47108,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 25,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe four supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -46968,6 +47208,22 @@
       {
         "summary": "constant_pad_negative_axes",
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
+      },
+      {
+        "summary": "constant_pad_negative_pads",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.int32)\npads = np.array([-4, 2], dtype=np.int64)\nvalue = np.int32(-1)\ny = np.array([-1], dtype=np.int32)\n\nexpect(\n    node,\n    inputs=[x, pads, value],\n    outputs=[y],\n    name=\"test_constant_pad_negative_pads\",\n)"
+      },
+      {
+        "summary": "constant_pad_to_empty",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.array([1, 2, 3], dtype=np.float32)\npads = np.array([-3, 0], dtype=np.int64)\ny = np.empty((0,), dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, pads],\n    outputs=[y],\n    name=\"test_constant_pad_to_empty\",\n)"
+      },
+      {
+        "summary": "negative_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"\", \"axes\"], outputs=[\"y\"], mode=\"edge\"\n)\nx = np.array([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=np.int64)\npads = np.array([-1, 2], dtype=np.int64)\naxes = np.array([-1], dtype=np.int32)\ny = np.array(\n    [[1, 2, 3, 3, 3], [5, 6, 7, 7, 7]],\n    dtype=np.int64,\n)\n\nexpect(\n    node,\n    inputs=[x, pads, axes],\n    outputs=[y],\n    name=\"test_negative_pad_axes\",\n)"
+      },
+      {
+        "summary": "negative_pad_reflect_and_wrap",
+        "code": "x = np.array([0, 1, 2, 3], dtype=np.float32)\npads = np.array([-1, 2], dtype=np.int64)\nexpected = {\n    \"reflect\": np.array([1, 2, 3, 2, 1], dtype=np.float32),\n    \"wrap\": np.array([1, 2, 3, 1, 2], dtype=np.float32),\n}\n\nfor mode, y in expected.items():\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    expect(\n        node,\n        inputs=[x, pads],\n        outputs=[y],\n        name=f\"test_negative_pad_{mode}\",\n    )"
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
