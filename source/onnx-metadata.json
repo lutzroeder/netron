@@ -10359,7 +10359,7 @@
     "name": "CausalConvWithState",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Stateful causal depthwise convolution, generalized to N spatial dimensions.\n\nUsed by Gated DeltaNet (Qwen3.5) and Mamba (Jamba, FalconMamba) as a preprocessing step.\nReplaces the 3-op pattern (Concat + Conv + Slice) with a single fused operation.\n\nThe convolution is causal (looks only at current and past positions along the last\nspatial dimension) and depthwise (each channel is convolved independently with its own kernel).\n\nInput layout is channels-first: (batch_size, channels, ...).\nWeight layout: (channels, 1, k_1, ...) for depthwise convolution.\nThe carry state stores the last (k-1) positions along the causal axis for incremental decode.\n\nThe ndim attribute generalizes the op to 1D, 2D, or 3D spatial dimensions. Causality is\nenforced on the last spatial dimension only.\n\nThe optional activation attribute supports fused SiLU/Swish activation.\n",
+    "description": "Stateful causal depthwise convolution, generalized to N spatial dimensions.\n\nUsed by Gated DeltaNet (Qwen3.5) and Mamba (Jamba, FalconMamba) as a preprocessing step.\nReplaces the 3-op pattern (Concat + Conv + Slice) with a single fused operation.\n\nThe convolution is causal (looks only at current and past positions along the last\nspatial dimension) and depthwise (each channel is convolved independently with its own kernel).\n\nInput layout is channels-first: (batch_size, channels, ...).\nWeight layout: (channels, 1, k_1, ...) for depthwise convolution.\nThe carry state stores the last (k-1) positions along the causal axis for incremental decode.\n\nThe ndim attribute generalizes the op to 1D, 2D, or 3D spatial dimensions. Causality is\nenforced on the last spatial dimension only.\n\nThe optional activation attribute supports fused SiLU/Swish activation.\n\nThe dilation attribute spaces the kernel taps along the causal axis: output position t reads\ninput positions t - (k_1 - 1 - j) * dilation for tap j. The receptive field therefore spans\n(k_1 - 1) * dilation positions before the current one, and the carry state grows to match:\npast_state and present_state hold (k_1 - 1) * dilation positions instead of k_1 - 1. Dilation 1\n(the default) is the undilated case and keeps the original state length, so models exported\nbefore the attribute existed are unaffected.\n\nThe channels_last attribute selects a sequence-major layout for the activations and the carry\nstate, so a model that already produces channels-last activations does not have to transpose into\nand out of the channels-first layout. With channels_last = 1 and ndim = 1, input and output are\n(batch_size, sequence_length, d_1, ..., d_n) and the state tensors are\n(batch_size, state_length, d_1, ..., d_n), where channels = d_1 * ... * d_n. Any number of trailing\nchannel axes is accepted, so an activation that keeps hyper-connections and hidden size as separate\naxes needs no reshape either. weight and bias keep their channels-first (channels, 1, k_1) and\n(channels) shapes because they have no sequence axis. The computed values are identical to the\nchannels-first layout; only the memory layout differs.\n",
     "attributes": [
       {
         "name": "activation",
@@ -10367,6 +10367,19 @@
         "required": false,
         "default": "none",
         "description": "Fused activation function. One of: 'silu', 'swish', 'none'. Default is 'none'."
+      },
+      {
+        "name": "channels_last",
+        "type": "int64",
+        "required": false,
+        "description": "When 1, input, output, past_state and present_state use a sequence-major, channels-last layout: input and output are (batch_size, sequence_length, d_1, ..., d_n) and the state tensors are (batch_size, state_length, d_1, ..., d_n), where channels = d_1 * ... * d_n. weight and bias keep their channels-first shapes. Requires ndim = 1. Default is 0 (channels-first)."
+      },
+      {
+        "name": "dilation",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Spacing between kernel taps along the causal (last spatial) axis. The receptive field spans (k_1 - 1) * dilation positions before the current one, and past_state / present_state hold that many positions. Must be >= 1. Default is 1 (undilated)."
       },
       {
         "name": "ndim",
@@ -10379,14 +10392,14 @@
         "name": "state_window",
         "type": "int64",
         "required": false,
-        "description": "Number of trailing per-position carry states held by past_state and present_state. When 0 (default) the state tensors have no window axis and hold only the state after the last position, i.e. the backward-compatible (batch_size, channels, k_1 - 1). When W > 0 both gain a LEADING axis of extent W, right-aligned: slot j is the state after position (seq_len - W + j), so slot W-1 is always the state after the last position (identical to the W = 0 tensor) and is the slot past_state is read from. The window axis leads the batch axis so that each slot is one contiguous (batch_size, channels, k_1 - 1) block. Slots below max(0, W - seq_len) hold no position from this call and are filled with zeros. A window lets a speculative decoder roll the state back to an accepted prefix without replaying the forward. Valid range is [0, 8]."
+        "description": "Number of trailing per-position carry states held by past_state and present_state. When 0 (default) the state tensors have no window axis and hold only the state after the last position, i.e. the backward-compatible (batch_size, channels, state_length) where state_length = (k_1 - 1) * dilation. When W > 0 both gain a LEADING axis of extent W, right-aligned: slot j is the state after position (seq_len - W + j), so slot W-1 is always the state after the last position (identical to the W = 0 tensor) and is the slot past_state is read from. The window axis leads the batch axis so that each slot is one contiguous (batch_size, channels, state_length) block. Slots below max(0, W - seq_len) hold no position from this call and are filled with zeros. A window lets a speculative decoder roll the state back to an accepted prefix without replaying the forward. Valid range is [0, 8]."
       }
     ],
     "inputs": [
       {
         "name": "input",
         "type": "T",
-        "description": "Input tensor with shape (batch_size, channels, ...). Channels-first layout. Spatial dims: 1D: (L,); 2D: (H, W); 3D: (D, H, W)."
+        "description": "Input tensor with shape (batch_size, channels, ...) in the default channels-first layout. Spatial dims: 1D: (L,); 2D: (H, W); 3D: (D, H, W). When channels_last = 1 the shape is (batch_size, sequence_length, d_1, ..., d_n) instead."
       },
       {
         "name": "weight",
@@ -10403,7 +10416,7 @@
         "name": "past_state",
         "type": "T",
         "option": "optional",
-        "description": "Carry state from previous step. For ndim=1: (batch_size, channels, k_1 - 1), or (W, batch_size, channels, k_1 - 1) when state_window = W > 0, in which case only slot W-1 is read. If not provided, padding is zero."
+        "description": "Carry state from previous step. For ndim=1: (batch_size, channels, state_length), or (W, batch_size, channels, state_length) when state_window = W > 0, in which case only slot W-1 is read, where state_length = (k_1 - 1) * dilation. When channels_last = 1 each slot is (batch_size, state_length, d_1, ..., d_n) instead. If not provided, padding is zero."
       }
     ],
     "min_input": 2,
@@ -10417,7 +10430,7 @@
       {
         "name": "present_state",
         "type": "T",
-        "description": "Updated carry state. For ndim=1: (batch_size, channels, k_1 - 1), or (W, batch_size, channels, k_1 - 1) when state_window = W > 0. Slot W-1 contains the last (k-1) values from the virtual input along the causal axis; slot j contains the same for the prefix ending at position (seq_len - W + j)."
+        "description": "Updated carry state. For ndim=1: (batch_size, channels, state_length), or (W, batch_size, channels, state_length) when state_window = W > 0, and (batch_size, state_length, d_1, ..., d_n) per slot when channels_last = 1. Slot W-1 contains the last state_length values from the virtual input along the causal axis; slot j contains the same for the prefix ending at position (seq_len - W + j)."
       }
     ],
     "min_output": 2,
@@ -20424,6 +20437,70 @@
     ]
   },
   {
+    "name": "EngramGate",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Fuses the Engram gate.\n\nThe op consumes already projected keys in (batch_size, sequence_length, hc_mult, hidden_size) layout,\nthe hidden-state queries in the same layout, an already projected value in\n(batch_size, sequence_length, hidden_size) layout that is shared by every hyper-connection, and the two\nRMSNorm scales. The key and value projections stay outside the op so they can run on the execution\nprovider's tuned MatMul (weight prepacking, tensor cores, quantized weights) and so the value\nprojection is computed once per token instead of once per hyper-connection.\n\nIt computes the Engram gate:\n\ngate = sigmoid(sign(dot) * sqrt(max(abs(dot), 1e-6))) where\ndot = sum(RMSNorm(key) * RMSNorm(query)) / sqrt(hidden_size).\n\nThe output is gate * value, broadcast across the hyper-connections. The final Engram residual\nvalue + short_conv(value) is then expressed with RMSNorm, CausalConvWithState and Add.\n",
+    "attributes": [
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999747378752e-06,
+        "description": "Epsilon used by both RMS normalization steps. Default is 1e-5."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "key",
+        "type": "T",
+        "description": "Projected Engram keys with shape (batch_size, sequence_length, hc_mult, hidden_size)."
+      },
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Hidden-state queries with shape (batch_size, sequence_length, hc_mult, hidden_size)."
+      },
+      {
+        "name": "value",
+        "type": "T",
+        "description": "Projected Engram value shared by every hyper-connection, with shape (batch_size, sequence_length, hidden_size)."
+      },
+      {
+        "name": "key_norm_scale",
+        "type": "T",
+        "description": "RMSNorm scale for keys with shape (hc_mult, hidden_size)."
+      },
+      {
+        "name": "query_norm_scale",
+        "type": "T",
+        "description": "RMSNorm scale for queries with shape (hc_mult, hidden_size)."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Gated value tensor with shape (batch_size, sequence_length, hc_mult, hidden_size)."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "Equal",
     "module": "ai.onnx",
     "version": 1,
@@ -26302,6 +26379,10 @@
         "code": "node = onnx.helper.make_node(\n    \"GlobalMaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\ny = np.max(x, axis=tuple(range(2, np.ndim(x))), keepdims=True)\nexpect(node, inputs=[x], outputs=[y], name=\"test_globalmaxpool\")"
       },
       {
+        "summary": "globalmaxpool_3d",
+        "code": "node = onnx.helper.make_node(\n    \"GlobalMaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(2, 4, 10).astype(np.float32)\ny = np.max(x, axis=tuple(range(2, np.ndim(x))), keepdims=True)\nexpect(node, inputs=[x], outputs=[y], name=\"test_globalmaxpool_3d\")"
+      },
+      {
         "summary": "globalmaxpool_precomputed",
         "code": "node = onnx.helper.make_node(\n    \"GlobalMaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3],\n                [4, 5, 6],\n                [7, 8, 9],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[9]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_globalmaxpool_precomputed\")"
       }
@@ -26347,6 +26428,10 @@
       {
         "summary": "globalmaxpool",
         "code": "node = onnx.helper.make_node(\n    \"GlobalMaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\ny = np.max(x, axis=tuple(range(2, np.ndim(x))), keepdims=True)\nexpect(node, inputs=[x], outputs=[y], name=\"test_globalmaxpool\")"
+      },
+      {
+        "summary": "globalmaxpool_3d",
+        "code": "node = onnx.helper.make_node(\n    \"GlobalMaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nx = np.random.randn(2, 4, 10).astype(np.float32)\ny = np.max(x, axis=tuple(range(2, np.ndim(x))), keepdims=True)\nexpect(node, inputs=[x], outputs=[y], name=\"test_globalmaxpool_3d\")"
       },
       {
         "summary": "globalmaxpool_precomputed",
@@ -42756,6 +42841,84 @@
     ]
   },
   {
+    "name": "NGramHashMapping",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Computes Engram n-gram hash ids from pre-compressed tokenizer ids.\n\nFor n in [2, max_ngram_size], the op creates causal shifts of input_ids, padding positions before the\nsequence with pad_id, and computes\nmix = shifted_0 * multipliers[0] xor ... xor shifted_(n-1) * multipliers[n-1].\nFor every head of that n-gram order it emits mix modulo the corresponding head vocabulary size.\nThe output layout is (batch_size, sequence_length, (max_ngram_size - 1) * n_head_per_ngram), with\nheads for n=2 first, then n=3, and so on.\n\nAn n-gram window reaches max_ngram_size - 1 positions before the current token. To keep the op causal\nacross invocations (chunked prefill or autoregressive decode), the optional past_ids input carries\nthose preceding ids and present_ids returns the ids to pass to the next call. Both have shape\n(batch_size, max_ngram_size - 1) and are right-aligned, so the last slot is the most recent id.\nPositions before the start of the whole sequence use pad_id. Running the op once over a full sequence\nand running it over consecutive chunks while threading present_ids into past_ids produce identical\nhash ids. When past_ids is omitted the missing history is pad_id, which matches a fresh sequence.\npast_ids and present_ids may use the same allocation. Such in-place execution is transaction-safe\nonly when the whole operator call is unconditionally committed; a caller that may select a prefix or\nroll back must preserve past_ids.\n",
+    "attributes": [
+      {
+        "name": "max_ngram_size",
+        "type": "int64",
+        "required": true,
+        "description": "Maximum n-gram order. Must be at least 2."
+      },
+      {
+        "name": "n_head_per_ngram",
+        "type": "int64",
+        "required": true,
+        "description": "Number of hash heads emitted for each n-gram order."
+      },
+      {
+        "name": "pad_id",
+        "type": "int64",
+        "required": true,
+        "description": "Compressed tokenizer id used to pad causal shifts before the beginning of a sequence."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_ids",
+        "type": "M",
+        "description": "Compressed tokenizer ids with shape (batch_size, sequence_length)."
+      },
+      {
+        "name": "multipliers",
+        "type": "M",
+        "description": "Per-shift hash multipliers with shape (max_ngram_size). Conventionally odd, but any value is accepted."
+      },
+      {
+        "name": "vocab_sizes",
+        "type": "M",
+        "description": "Per-output-head vocabulary sizes, conventionally prime, with shape ((max_ngram_size - 1) * n_head_per_ngram). Every entry must be strictly positive. The CPU implementation rejects a non-positive entry; GPU implementations guard the modulo to avoid a device-side division by zero and emit a hash id of 0 for that head."
+      },
+      {
+        "name": "past_ids",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional compressed tokenizer ids for the max_ngram_size - 1 positions that precede this call, with shape (batch_size, max_ngram_size - 1). Right-aligned, so the last slot is the most recent id. If omitted the history is pad_id."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "hash_ids",
+        "type": "M",
+        "description": "Hash ids with shape (batch_size, sequence_length, (max_ngram_size - 1) * n_head_per_ngram)."
+      },
+      {
+        "name": "present_ids",
+        "type": "M",
+        "option": "optional",
+        "description": "Trailing max_ngram_size - 1 ids of past_ids followed by input_ids, with shape (batch_size, max_ngram_size - 1). Feed this back as past_ids on the next call."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 2,
+    "inputs_range": "3 - 4",
+    "outputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Constrain ids, multipliers, vocabulary sizes, and output ids to integer tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "NGramRepeatBlock",
     "module": "com.microsoft",
     "version": 1,
@@ -46294,7 +46457,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 11,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 1, 0, 1]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.2, 1.0, 1.2, 1.0],\n      [3.4, 2.3, 3.4, 2.3],\n      [5.7, 4.5, 5.7, 4.5],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.0, 1.2, 1.0, 1.2],\n      [2.3, 3.4, 2.3, 3.4],\n      [4.5, 5.7, 4.5, 5.7],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
     "attributes": [
       {
         "name": "mode",
@@ -46393,7 +46556,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 13,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 1, 0, 1]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.2, 1.0, 1.2, 1.0],\n      [3.4, 2.3, 3.4, 2.3],\n      [5.7, 4.5, 5.7, 4.5],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.0, 1.2, 1.0, 1.2],\n      [2.3, 3.4, 2.3, 3.4],\n      [4.5, 5.7, 4.5, 5.7],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
     "attributes": [
       {
         "name": "mode",
@@ -46497,7 +46660,7 @@
     "name": "Pad",
     "module": "ai.onnx",
     "version": 18,
-    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 1, 0, 1]\n\nmode = 'reflect'\n\noutput = [\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n",
     "attributes": [
       {
         "name": "mode",
@@ -75268,7 +75431,7 @@
     "name": "VarlenCausalConvWithState",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA only).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, kernel_size - 1). It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and replay the compact state update.\n\nWhen state_update_capacity is positive, capture_count is required with shape (batch_size), and\nstate_update has shape (batch_size, state_update_capacity, channels).\nFor request b, slots [0, clamp(capture_count[b], 0,\nmin(state_update_capacity, sequence_length[b]))) contain the original local input token values.\nThese values represent the append component of each shift-left-and-append state transition.\nAll remaining slots are zero. capture_count is forbidden when state_update_capacity is zero.\n\nFor memory-safety containment, each CUDA work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, or output.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n",
+    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA only).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, state_length), where\nstate_length = (kernel_size - 1) * dilation. It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and replay the compact state update.\n\nWhen state_update_capacity is positive, capture_count is required with shape (batch_size), and\nstate_update has shape (batch_size, state_update_capacity, channels).\nFor request b, slots [0, clamp(capture_count[b], 0,\nmin(state_update_capacity, sequence_length[b]))) contain the original local input token values.\nThese values represent the append component of each shift-left-and-append state transition.\nAll remaining slots are zero. capture_count is forbidden when state_update_capacity is zero.\n\nFor memory-safety containment, each CUDA work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, or output.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n\nThe dilation attribute spaces the kernel taps along the sequence axis: local token t of a request\nreads that request's local positions t - (kernel_size - 1 - j) * dilation for tap j, and positions\nbefore the request's first token come from the carry state. The carry state therefore holds\nstate_length = (kernel_size - 1) * dilation positions per request instead of kernel_size - 1.\nDilation 1 (the default) is the undilated case and keeps the original state length, so models\nexported before the attribute existed are unaffected. input and output are already token-major\n(sequence-major, channels-last), so this op needs no separate layout attribute.\n",
     "attributes": [
       {
         "name": "activation",
@@ -75276,6 +75439,13 @@
         "required": false,
         "default": "none",
         "description": "Fused activation function. One of: 'silu', 'swish', 'none'. Default is 'none'."
+      },
+      {
+        "name": "dilation",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Spacing between kernel taps along the sequence axis. The receptive field spans (kernel_size - 1) * dilation positions before the current token, and initial_state / final_state hold that many positions per request. Must be >= 1. Default is 1 (undilated)."
       },
       {
         "name": "state_update_capacity",
@@ -75309,7 +75479,7 @@
       {
         "name": "initial_state",
         "type": "T",
-        "description": "Required committed carry state with shape (batch_size, channels, kernel_size - 1)."
+        "description": "Required committed carry state with shape (batch_size, channels, (kernel_size - 1) * dilation)."
       },
       {
         "name": "capture_count",
@@ -75329,7 +75499,7 @@
       {
         "name": "final_state",
         "type": "T",
-        "description": "Fully written state after each sequence's final token, with shape (batch_size, channels, kernel_size - 1)."
+        "description": "Fully written state after each sequence's final token, with shape (batch_size, channels, (kernel_size - 1) * dilation)."
       },
       {
         "name": "state_update",
