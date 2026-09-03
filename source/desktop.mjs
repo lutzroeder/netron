@@ -588,7 +588,17 @@ desktop.Host = class {
                 const path = label.split(this._environment.separator || '/');
                 for (let i = 0; i < path.length; i++) {
                     const span = this.document.createElement('span');
-                    span.innerHTML = ` ${path[i]} ${i === path.length - 1 ? '' : '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>'}`;
+                    span.textContent = ` ${path[i]} `;
+                    if (i !== path.length - 1) {
+                        const namespace = 'http://www.w3.org/2000/svg';
+                        const svg = this.document.createElementNS(namespace, 'svg');
+                        svg.setAttribute('class', 'titlebar-icon');
+                        svg.setAttribute('aria-hidden', 'true');
+                        const use = this.document.createElementNS(namespace, 'use');
+                        use.setAttribute('href', '#icon-arrow-right');
+                        svg.appendChild(use);
+                        span.appendChild(svg);
+                    }
                     element.appendChild(span);
                 }
             }
