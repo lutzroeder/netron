@@ -76,7 +76,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.bounds",
@@ -127,7 +127,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.compute_region",
@@ -182,7 +182,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.copyout",
@@ -207,7 +207,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.create",
@@ -236,7 +236,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.data",
@@ -255,7 +255,7 @@
       { "name": "waitOperandsDeviceType", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
       { "name": "hasWaitDevnum", "type": "OptionalAttr<TypedArrayAttrBase<BoolAttr>>" },
       { "name": "waitOnly", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
-      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr>" }
+      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr{present|none}>" }
     ],
     "regions": [
       { "name": "region", "type": "AnyRegion" }
@@ -263,7 +263,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "oilist(\n        `if` `(` $ifCond `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n    )\n    $region\n    (`defaultAttr` `(` qualified($defaultAttr)^ `)`)?\n    attr-dict-with-keyword"
+    "assemblyFormat": "oilist(\n        `if` `(` $ifCond `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n    )\n    $region\n    (`defaultAttr` `(` enum($defaultAttr)^ `)`)?\n    attr-dict-with-keyword"
   },
   {
     "name": "acc.declare",
@@ -304,7 +304,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.declare_enter",
@@ -321,7 +321,7 @@
   {
     "name": "acc.declare_exit",
     "summary": "declare directive - exit from implicit data region",
-    "description": "The \"acc.declare_exit\" operation represents the OpenACC declare directive\n    and captures the exit semantics from the implicit data region.\n    This operation is modeled similarly to \"acc.exit_data\".\n\n    Example showing `acc declare device_resident(a)`:\n\n    ```mlir\n    %0 = acc.getdeviceptr varPtr(%a : !llvm.ptr) -> !llvm.ptr {dataClause = #acc<data_clause declare_device_resident>}\n    acc.declare_exit dataOperands(%0 : !llvm.ptr)\n    acc.delete accPtr(%0 : !llvm.ptr) {dataClause = #acc<data_clause declare_device_resident>}\n    ```",
+    "description": "The \"acc.declare_exit\" operation represents the OpenACC declare directive\n    and captures the exit semantics from the implicit data region.\n    This operation is modeled similarly to \"acc.exit_data\".\n\n    Example showing `acc declare device_resident(a)`:\n\n    ```mlir\n    %0 = acc.getdeviceptr varPtr(%a : !llvm.ptr) -> !llvm.ptr {dataClause = #acc.data_clause<declare_device_resident>}\n    acc.declare_exit dataOperands(%0 : !llvm.ptr)\n    acc.delete accPtr(%0 : !llvm.ptr) {dataClause = #acc.data_clause<declare_device_resident>}\n    ```",
     "operands": [
       { "name": "token", "type": "Optional<OpenACC_DeclareTokenType>" },
       { "name": "dataClauseOperands", "type": "Variadic<OpenACC_AnyPointerOrMappableType>" }
@@ -358,7 +358,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.delete",
@@ -381,7 +381,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.detach",
@@ -404,7 +404,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.deviceptr",
@@ -433,7 +433,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.enter_data",
@@ -503,7 +503,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.firstprivate_map",
@@ -532,7 +532,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.firstprivate.recipe",
@@ -628,7 +628,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.global_ctor",
@@ -649,7 +649,7 @@
   {
     "name": "acc.global_dtor",
     "summary": "Used to hold destruction operations associated with globals such as declare",
-    "description": "The \"acc.global_dtor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the exit from the implicit data\n    region. This operation is isolated and intended to be used in a module.\n\n    Example showing delete associated with `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_dtor @acc_destructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.getdeviceptr varPtr(%0 : !llvm.ptr) -> !llvm.ptr {dataClause = #acc<data_clause create>}\n      acc.declare_exit dataOperands(%1 : !llvm.ptr)\n      acc.delete accPtr(%1 : !llvm.ptr) {dataClause = #acc<data_clause create>}\n    }\n    ```",
+    "description": "The \"acc.global_dtor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the exit from the implicit data\n    region. This operation is isolated and intended to be used in a module.\n\n    Example showing delete associated with `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_dtor @acc_destructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.getdeviceptr varPtr(%0 : !llvm.ptr) -> !llvm.ptr {dataClause = #acc.data_clause<create>}\n      acc.declare_exit dataOperands(%1 : !llvm.ptr)\n      acc.delete accPtr(%1 : !llvm.ptr) {dataClause = #acc.data_clause<create>}\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
@@ -766,7 +766,7 @@
       { "name": "numWorkersDeviceType", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
       { "name": "vectorLengthDeviceType", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
       { "name": "selfAttr", "type": "UnitAttr" },
-      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr>" },
+      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr{present|none}>" },
       { "name": "combined", "type": "UnitAttr" }
     ],
     "regions": [
@@ -775,7 +775,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "( `combined` `(` `loop` `)` $combined^)?\n    oilist(\n        `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `firstprivate` `(` $firstprivateOperands `:` type($firstprivateOperands) `)`\n      | `num_gangs` `(` custom<NumGangs>($numGangs,\n            type($numGangs), $numGangsDeviceType, $numGangsSegments) `)`\n      | `num_workers` `(` custom<DeviceTypeOperands>($numWorkers,\n            type($numWorkers), $numWorkersDeviceType) `)`\n      | `private` `(` $privateOperands `:` type($privateOperands) `)`\n      | `vector_length` `(` custom<DeviceTypeOperands>($vectorLength,\n            type($vectorLength), $vectorLengthDeviceType) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n      | `self` `(` $selfCond `)`\n      | `if` `(` $ifCond `)`\n      | `reduction` `(` $reductionOperands `:` type($reductionOperands) `)`\n    )\n    $region\n    oilist(\n        `defaultAttr` `(` qualified($defaultAttr) `)`\n      | `selfAttr` $selfAttr\n    )\n    attr-dict-with-keyword"
+    "assemblyFormat": "( `combined` `(` `loop` `)` $combined^)?\n    oilist(\n        `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `firstprivate` `(` $firstprivateOperands `:` type($firstprivateOperands) `)`\n      | `num_gangs` `(` custom<NumGangs>($numGangs,\n            type($numGangs), $numGangsDeviceType, $numGangsSegments) `)`\n      | `num_workers` `(` custom<DeviceTypeOperands>($numWorkers,\n            type($numWorkers), $numWorkersDeviceType) `)`\n      | `private` `(` $privateOperands `:` type($privateOperands) `)`\n      | `vector_length` `(` custom<DeviceTypeOperands>($vectorLength,\n            type($vectorLength), $vectorLengthDeviceType) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n      | `self` `(` $selfCond `)`\n      | `if` `(` $ifCond `)`\n      | `reduction` `(` $reductionOperands `:` type($reductionOperands) `)`\n    )\n    $region\n    oilist(\n        `defaultAttr` `(` enum($defaultAttr) `)`\n      | `selfAttr` $selfAttr\n    )\n    attr-dict-with-keyword"
   },
   {
     "name": "acc.loop",
@@ -853,7 +853,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.on_device",
@@ -911,7 +911,7 @@
       { "name": "numWorkersDeviceType", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
       { "name": "vectorLengthDeviceType", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
       { "name": "selfAttr", "type": "UnitAttr" },
-      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr>" },
+      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr{present|none}>" },
       { "name": "combined", "type": "UnitAttr" }
     ],
     "regions": [
@@ -920,7 +920,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "( `combined` `(` `loop` `)` $combined^)?\n    oilist(\n        `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `firstprivate` `(` $firstprivateOperands `:` type($firstprivateOperands) `)`\n      | `num_gangs` `(` custom<NumGangs>($numGangs,\n            type($numGangs), $numGangsDeviceType, $numGangsSegments) `)`\n      | `num_workers` `(` custom<DeviceTypeOperands>($numWorkers,\n            type($numWorkers), $numWorkersDeviceType) `)`\n      | `private` `(` $privateOperands `:` type($privateOperands) `)`\n      | `vector_length` `(` custom<DeviceTypeOperands>($vectorLength,\n            type($vectorLength), $vectorLengthDeviceType) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n      | `self` `(` $selfCond `)`\n      | `if` `(` $ifCond `)`\n      | `reduction` `(` $reductionOperands `:` type($reductionOperands) `)`\n    )\n    $region\n    oilist(\n        `defaultAttr` `(` qualified($defaultAttr) `)`\n      | `selfAttr` $selfAttr\n    )\n    attr-dict-with-keyword"
+    "assemblyFormat": "( `combined` `(` `loop` `)` $combined^)?\n    oilist(\n        `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `firstprivate` `(` $firstprivateOperands `:` type($firstprivateOperands) `)`\n      | `num_gangs` `(` custom<NumGangs>($numGangs,\n            type($numGangs), $numGangsDeviceType, $numGangsSegments) `)`\n      | `num_workers` `(` custom<DeviceTypeOperands>($numWorkers,\n            type($numWorkers), $numWorkersDeviceType) `)`\n      | `private` `(` $privateOperands `:` type($privateOperands) `)`\n      | `vector_length` `(` custom<DeviceTypeOperands>($vectorLength,\n            type($vectorLength), $vectorLengthDeviceType) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n      | `self` `(` $selfCond `)`\n      | `if` `(` $ifCond `)`\n      | `reduction` `(` $reductionOperands `:` type($reductionOperands) `)`\n    )\n    $region\n    oilist(\n        `defaultAttr` `(` enum($defaultAttr) `)`\n      | `selfAttr` $selfAttr\n    )\n    attr-dict-with-keyword"
   },
   {
     "name": "acc.predicate_region",
@@ -958,7 +958,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.private",
@@ -987,7 +987,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.private_local",
@@ -1061,7 +1061,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.reduction_accumulate",
@@ -1208,7 +1208,7 @@
       { "name": "hasWaitDevnum", "type": "OptionalAttr<TypedArrayAttrBase<BoolAttr>>" },
       { "name": "waitOnly", "type": "OptionalAttr<TypedArrayAttrBase<OpenACC_DeviceTypeAttr{none|star|default|host|multicore|nvidia|radeon}>>" },
       { "name": "selfAttr", "type": "UnitAttr" },
-      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr>" },
+      { "name": "defaultAttr", "type": "OptionalAttr<DefaultValueAttr{present|none}>" },
       { "name": "combined", "type": "UnitAttr" }
     ],
     "regions": [
@@ -1217,7 +1217,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "( `combined` `(` `loop` `)` $combined^)?\n    oilist(\n        `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `firstprivate` `(` $firstprivateOperands `:` type($firstprivateOperands) `)`\n      | `private` `(` $privateOperands `:` type($privateOperands) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n      | `self` `(` $selfCond `)`\n      | `if` `(` $ifCond `)`\n      | `reduction` `(` $reductionOperands `:` type($reductionOperands) `)`\n    )\n    $region\n    oilist(\n        `defaultAttr` `(` qualified($defaultAttr) `)`\n      | `selfAttr` $selfAttr\n    )\n    attr-dict-with-keyword"
+    "assemblyFormat": "( `combined` `(` `loop` `)` $combined^)?\n    oilist(\n        `dataOperands` `(` $dataClauseOperands `:` type($dataClauseOperands) `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `firstprivate` `(` $firstprivateOperands `:` type($firstprivateOperands) `)`\n      | `private` `(` $privateOperands `:` type($privateOperands) `)`\n      | `wait` `` custom<WaitClause>($waitOperands, type($waitOperands),\n          $waitOperandsDeviceType, $waitOperandsSegments, $hasWaitDevnum,\n          $waitOnly)\n      | `self` `(` $selfCond `)`\n      | `if` `(` $ifCond `)`\n      | `reduction` `(` $reductionOperands `:` type($reductionOperands) `)`\n    )\n    $region\n    oilist(\n        `defaultAttr` `(` enum($defaultAttr) `)`\n      | `selfAttr` $selfAttr\n    )\n    attr-dict-with-keyword"
   },
   {
     "name": "acc.set",
@@ -1321,7 +1321,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.update_host",
@@ -1346,7 +1346,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.use_device",
@@ -1375,7 +1375,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` qualified($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.wait",
@@ -2295,7 +2295,7 @@
     "traits": [
       { "type": "AllTypesMatch<['result', 'old', 'src']>" }
     ],
-    "assemblyFormat": "$old $src $kind (`(` $permArgument^ `)`)?\n    oilist (`row_mask` `(` $row_mask `)`\n          | `bank_mask` `(` $bank_mask `)`\n          | `bound_ctrl` `(` $bound_ctrl `)`)\n    attr-dict `:` type($result)"
+    "assemblyFormat": "$old $src enum($kind) (`(` $permArgument^ `)`)?\n    oilist (`row_mask` `(` $row_mask `)`\n          | `bank_mask` `(` $bank_mask `)`\n          | `bound_ctrl` `(` $bound_ctrl `)`)\n    attr-dict `:` type($result)"
   },
   {
     "name": "amdgpu.ds_async_barrier_arrive",
@@ -2480,7 +2480,7 @@
       { "name": "cacheScope", "type": "AMDGPU_CacheScopeAttr{WGP|SE|DEV|SYS}" },
       { "name": "speculative", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "$src `[` $indices `]` $temporalHint $cacheScope (`speculative` $speculative^)? attr-dict `:` qualified(type($src))"
+    "assemblyFormat": "$src `[` $indices `]` enum($temporalHint) enum($cacheScope)\n    (`speculative` $speculative^)? attr-dict `:` qualified(type($src))"
   },
   {
     "name": "amdgpu.global_transpose_load",
@@ -2643,7 +2643,7 @@
     "traits": [
       { "type": "AllTypesMatch<['destC', 'destD']>" }
     ],
-    "assemblyFormat": "(`blocks` `(` $blocks^ `)`)?\n    custom<MNKDimensionList>($m, $n, $k) $sourceA `*` $sourceB `+` $destC\n    oilist (`abid` `(` $abid `)`\n          | `blgp` `(` $blgp `)`\n          | `cbsz` `(` $cbsz `)`\n          | `reducePrecision` $reducePrecision\n          | `negateA` $negateA\n          | `negateB` $negateB\n          | `negateC` $negateC)\n    attr-dict\n    `:` type($sourceA) `,` type($sourceB) `,` type($destC)"
+    "assemblyFormat": "(`blocks` `(` $blocks^ `)`)?\n    custom<MNKDimensionList>($m, $n, $k) $sourceA `*` $sourceB `+` $destC\n    oilist (`abid` `(` $abid `)`\n          | `blgp` `(` enum($blgp) `)`\n          | `cbsz` `(` $cbsz `)`\n          | `reducePrecision` $reducePrecision\n          | `negateA` $negateA\n          | `negateB` $negateB\n          | `negateC` $negateC)\n    attr-dict\n    `:` type($sourceA) `,` type($sourceB) `,` type($destC)"
   },
   {
     "name": "amdgpu.packed_scaled_trunc",
@@ -3005,9 +3005,9 @@
     "summary": "Barrier that limits the backend scheduler of instruction movement",
     "description": "`amdgpu.sched_barrier` serves as a barrier that could be\n    configured to restrict movements of instructions through it as\n    defined by the ROCDL scheduling group mask enum.",
     "attributes": [
-      { "name": "opts", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all}" }
+      { "name": "opts", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all; separator='|'}" }
     ],
-    "assemblyFormat": "`allow` `=` $opts attr-dict"
+    "assemblyFormat": "`allow` `=` enum($opts) attr-dict"
   },
   {
     "name": "amdgpu.sparse_mfma",
@@ -9095,7 +9095,7 @@
       { "name": "result", "type": "CIR_PointerType" }
     ],
     "attributes": [
-      { "name": "noWrapFlags", "type": "CIR_GEPNoWrapFlagsProp{none|inbounds_flag|nusw|nuw|inbounds}" }
+      { "name": "noWrapFlags", "type": "CIR_GEPNoWrapFlagsProp{none|inbounds_flag|nusw|nuw|inbounds; separator='|'}" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['base', 'result']>" }
@@ -14832,7 +14832,7 @@
       { "type": "SameOperandsAndResultType" },
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<AllReduceOperation>($op) $value\n                          (`uniform` $uniform^)? $body attr-dict\n                          `:` functional-type(operands, results)"
+    "assemblyFormat": "(enum($op)^)? $value\n                          (`uniform` $uniform^)? $body attr-dict\n                          `:` functional-type(operands, results)"
   },
   {
     "name": "gpu.alloc",
@@ -14902,7 +14902,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.block_id",
@@ -14914,7 +14914,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.cluster_block_id",
@@ -14926,7 +14926,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.cluster_dim",
@@ -14938,7 +14938,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.cluster_dim_blocks",
@@ -14950,7 +14950,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.cluster_id",
@@ -14962,7 +14962,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.create_2to4_spmat",
@@ -14981,7 +14981,7 @@
     "attributes": [
       { "name": "pruneFlag", "type": "GPU_Prune2To4SpMatFlagAttr{NONE|PRUNE_ONLY|PRUNE_AND_CHECK}" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n     `{` $pruneFlag `}` $rows `,` $cols `,` $memref attr-dict `:` type($memref)"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n     `{` enum($pruneFlag) `}` $rows `,` $cols `,` $memref attr-dict `:` type($memref)"
   },
   {
     "name": "gpu.create_bsr",
@@ -15181,7 +15181,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.grid_dim",
@@ -15193,7 +15193,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.host_register",
@@ -15420,7 +15420,7 @@
       { "name": "modeB", "type": "GPU_TransposeModeAttr{NON_TRANSPOSE|TRANSPOSE|CONJUGATE_TRANSPOSE}" },
       { "name": "computeType", "type": "TypeAttr" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $dnmatA (`{` $modeA^ `}`)? `,` $dnmatB (`{` $modeB^ `}`)? `,` $spmatC `,` $buffer attr-dict `:` type($buffer) `into` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $dnmatA (`{` enum($modeA)^ `}`)? `,` $dnmatB\n    (`{` enum($modeB)^ `}`)? `,` $spmatC `,` $buffer attr-dict `:`\n    type($buffer) `into` $computeType"
   },
   {
     "name": "gpu.sddmm_buffer_size",
@@ -15441,7 +15441,7 @@
       { "name": "modeB", "type": "GPU_TransposeModeAttr{NON_TRANSPOSE|TRANSPOSE|CONJUGATE_TRANSPOSE}" },
       { "name": "computeType", "type": "TypeAttr" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $dnmatA (`{` $modeA^ `}`)? `,` $dnmatB (`{` $modeB^ `}`)? `,` $spmatC attr-dict `into` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $dnmatA (`{` enum($modeA)^ `}`)? `,` $dnmatB\n    (`{` enum($modeB)^ `}`)? `,` $spmatC attr-dict `into` $computeType"
   },
   {
     "name": "gpu.set_csr_pointers",
@@ -15487,7 +15487,7 @@
     "traits": [
       { "type": "AllTypesMatch<['value', 'shuffleResult']>" }
     ],
-    "assemblyFormat": "$mode $value `,` $offset `,` $width attr-dict `:` type($value)"
+    "assemblyFormat": "enum($mode) $value `,` $offset `,` $width attr-dict `:` type($value)"
   },
   {
     "name": "gpu.spgemm_copy",
@@ -15508,7 +15508,7 @@
       { "name": "modeB", "type": "GPU_TransposeModeAttr{NON_TRANSPOSE|TRANSPOSE|CONJUGATE_TRANSPOSE}" },
       { "name": "computeType", "type": "TypeAttr" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` $modeA^ `}`)? `,` $spmatB (`{` $modeB^ `}`)? `,` $spmatC `,` $desc attr-dict `:` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` enum($modeA)^ `}`)? `,` $spmatB\n    (`{` enum($modeB)^ `}`)? `,` $spmatC `,` $desc attr-dict `:` $computeType"
   },
   {
     "name": "gpu.spgemm_create_descr",
@@ -15559,7 +15559,7 @@
       { "name": "computeType", "type": "TypeAttr" },
       { "name": "kind", "type": "GPU_SpGEMMWorkEstimationOrComputeKindAttr{WORK_ESTIMATION|COMPUTE}" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    `{` $kind `}` $spmatA (`{` $modeA^ `}`)? `,` $spmatB (`{` $modeB^ `}`)? `,` $spmatC `,` $desc `,` $bufferSz `,` $buffer attr-dict `:` $computeType `into` type($buffer)"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    `{` enum($kind) `}` $spmatA (`{` enum($modeA)^ `}`)? `,` $spmatB\n    (`{` enum($modeB)^ `}`)? `,` $spmatC `,` $desc `,` $bufferSz `,`\n    $buffer attr-dict `:` $computeType `into` type($buffer)"
   },
   {
     "name": "gpu.spmat_get_size",
@@ -15599,7 +15599,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` $modeA^ `}`)? `,` $dnmatB (`{` $modeB^ `}`)? `,` $dnmatC `,` $buffers attr-dict `:` type($buffers) `into` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` enum($modeA)^ `}`)? `,` $dnmatB\n    (`{` enum($modeB)^ `}`)? `,` $dnmatC `,` $buffers attr-dict `:`\n    type($buffers) `into` $computeType"
   },
   {
     "name": "gpu.spmm_buffer_size",
@@ -15620,7 +15620,7 @@
       { "name": "modeB", "type": "GPU_TransposeModeAttr{NON_TRANSPOSE|TRANSPOSE|CONJUGATE_TRANSPOSE}" },
       { "name": "computeType", "type": "TypeAttr" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` $modeA^ `}`)? `,` $dnmatB (`{` $modeB^ `}`)? `,` $dnmatC attr-dict `:` type($bufferSzs) `into` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` enum($modeA)^ `}`)? `,` $dnmatB\n    (`{` enum($modeB)^ `}`)? `,` $dnmatC attr-dict `:` type($bufferSzs)\n    `into` $computeType"
   },
   {
     "name": "gpu.spmv",
@@ -15640,7 +15640,7 @@
       { "name": "modeA", "type": "GPU_TransposeModeAttr{NON_TRANSPOSE|TRANSPOSE|CONJUGATE_TRANSPOSE}" },
       { "name": "computeType", "type": "TypeAttr" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` $modeA^ `}`)? `,` $dnX `,` $dnY `,` $buffer attr-dict `:` type($buffer) `into` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` enum($modeA)^ `}`)? `,` $dnX `,` $dnY `,` $buffer attr-dict `:` type($buffer) `into` $computeType"
   },
   {
     "name": "gpu.spmv_buffer_size",
@@ -15660,7 +15660,7 @@
       { "name": "modeA", "type": "GPU_TransposeModeAttr{NON_TRANSPOSE|TRANSPOSE|CONJUGATE_TRANSPOSE}" },
       { "name": "computeType", "type": "TypeAttr" }
     ],
-    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` $modeA^ `}`)? `,` $dnX `,` $dnY attr-dict  `into` $computeType"
+    "assemblyFormat": "custom<AsyncDependencies>(type($asyncToken), $asyncDependencies)\n    $spmatA (`{` enum($modeA)^ `}`)? `,` $dnX `,` $dnY attr-dict  `into` $computeType"
   },
   {
     "name": "gpu.subgroup_broadcast",
@@ -15679,7 +15679,7 @@
     "traits": [
       { "type": "AllTypesMatch<['result', 'src']>" }
     ],
-    "assemblyFormat": "$src `,` $broadcast_type ($lane^)? attr-dict `:` type($result)"
+    "assemblyFormat": "$src `,` enum($broadcast_type) ($lane^)? attr-dict `:` type($result)"
   },
   {
     "name": "gpu.subgroup_id",
@@ -15744,7 +15744,7 @@
     "traits": [
       { "type": "AllTypesMatch<['args']>" }
     ],
-    "assemblyFormat": "$opType $args attr-dict `:` functional-type($args, $res)"
+    "assemblyFormat": "enum($opType) $args attr-dict `:` functional-type($args, $res)"
   },
   {
     "name": "gpu.subgroup_mma_extract_thread_local",
@@ -15830,7 +15830,7 @@
     "traits": [
       { "type": "SameOperandsAndResultType" }
     ],
-    "assemblyFormat": "custom<AllReduceOperation>($op) $value\n                          (`uniform` $uniform^)?\n                          (`cluster` `(` `size` `=` $cluster_size^ (`,` `stride` `=` $cluster_stride^)? `)`)? attr-dict\n                          `:` functional-type(operands, results)"
+    "assemblyFormat": "enum($op) $value\n                          (`uniform` $uniform^)?\n                          (`cluster` `(` `size` `=` $cluster_size^ (`,` `stride` `=` $cluster_stride^)? `)`)? attr-dict\n                          `:` functional-type(operands, results)"
   },
   {
     "name": "gpu.subgroup_size",
@@ -15859,7 +15859,7 @@
       { "name": "dimension", "type": "GPU_DimensionAttr{x|y|z}" },
       { "name": "upper_bound", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "$dimension (`upper_bound` $upper_bound^)? attr-dict"
+    "assemblyFormat": "enum($dimension) (`upper_bound` $upper_bound^)? attr-dict"
   },
   {
     "name": "gpu.wait",
@@ -18118,7 +18118,7 @@
     "attributes": [
       { "name": "pred", "type": "IndexCmpPredicateAttr{eq|ne|slt|sle|sgt|sge|ult|ule|ugt|uge}" }
     ],
-    "assemblyFormat": "$pred `(` $lhs `,` $rhs `)` attr-dict"
+    "assemblyFormat": "enum($pred) `(` $lhs `,` $rhs `)` attr-dict"
   },
   {
     "name": "index.constant",
@@ -22280,6 +22280,29 @@
     "hasCustomAssemblyFormat": 1
   },
   {
+    "name": "linalg.scaled_contract",
+    "summary": "Perform a scaled contraction on two inputs where their scaling is described\n    by affine maps of the two corresponding scales, accumulating into the output.",
+    "description": "Extends the semantics of `linalg.contract` by including extra scaling factors\n    for the inputs `A` and `B` described by the scales' affine maps.\n    The data types of the inputs are chosen independently from the scales.\n\n    The output element type must be floating-point. Input element types must be\n    integer or floating-point, with bitwidth no greater than the output element\n    type's bitwidth.\n\n    The semantics of contracting inputs `A` and `B` with scales `scale_A` and\n    `scale_B` on top of `C` to produce output `D` is given by:\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} (A[I] * scale_A[I]) * (B[J] * scale_B[J])) + C[H]`\n\n    The iteration type of each dim is inferred.\n\n    The input operands `A`, `B`, and `C` follow the standard contraction semantics\n    together with broadcasting and transposition rules.\n    See `linalg.contract` for further details.\n\n    **Affine maps for scales**\n\n    Each scale indexing map describes the scaling scheme for the corresponding\n    input `A` and `B`. The following scaling schemes are supported:\n\n    - Tensor scaling - no dimensions: a scalar value used to scale the whole input.\n    - Dimension scaling - dimension `d`: one scale value per element along `d`.\n    - Block scaling - binary expression `d floordiv B`: one scale value for every\n      `B` elements along `d` where `B` corresponds to the block size.\n\n    Scale maps may only use dimensions present in the corresponding input's map.\n    A dimension absent from the scale map indicates that a single scale value is\n    reused across the whole input dimension.\n\n    **Dim sizes for scales**\n\n    - Tensor scaling: a unit-size scale.\n    - Dimension scaling (`d`): the scale dim size equals the input dim size.\n    - Block scaling (`d floordiv B`): the scale dim size equals\n      `ceil(input_dim_size / B)`.\n\n    For dynamic shapes, all sizes are assumed to be correct at runtime.\n\n    Example scaled matmul with transposed B using semi-affine maps:\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (m floordiv 32, k floordiv 128)>, // A - 32x128 block scale\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (n)>, // B - row-wise scale\n          affine_map<(m, n, k) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<200x512xf8E5M2>, tensor<7x4xf8E8M0FNU>,\n            tensor<128x512xf8E5M2>, tensor<128xf8E8M0FNU>)\n        outs(%C: tensor<200x128xf32>) -> tensor<200x128xf32>\n    ```\n\n    or using expanded dimensions:\n\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, ko, kb) -> (m, ko, kb)>, // A - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (m, ko)>,\n          affine_map<(m, n, ko, kb) -> (n, ko, kb)>, // B - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (n, ko)>,\n          affine_map<(m, n, ko, kb) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<128x4x32xf4E2M1FN>, tensor<128x4xf8E8M0FNU>,\n            tensor<64x4x32xf4E2M1FN>, tensor<64x4xf8E8M0FNU>)\n        outs(%C : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```\n\n    Numeric casting promotes inputs and scales to the accumulator/output type.\n\n    TODO: Allow control over the combining/accumulating op and possibly the\n          multiplication op.",
+    "operands": [
+      { "name": "inputs", "type": "Variadic<AnyType>" },
+      { "name": "outputs", "type": "Variadic<AnyShaped>" }
+    ],
+    "results": [
+      { "name": "result_tensors", "type": "Variadic<AnyShaped>" }
+    ],
+    "attributes": [
+      { "name": "indexing_maps", "type": "TypedArrayAttrBase<AffineMapAttr>" },
+      { "name": "cast", "type": "DefaultValuedOptionalAttr<TypeFnAttr{cast_signed|cast_unsigned}, TypeFn::cast_signed>" }
+    ],
+    "regions": [
+      { "name": "combiner", "type": "SizedRegion<1>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "linalg.select",
     "summary": "Chooses one value based on a binary condition supplied as its first operand.",
     "description": "The shapes and element types must be identical. The appropriate casts,\nbroadcasts and reductions should be done previously to calling this op.\n\nThis means reduction/broadcast/element cast semantics is explicit. Further\npasses can take that into account when lowering this code. For example,\na `linalg.broadcast` + `linalg.select` sequence can be lowered to a\n`linalg.generic` with different affine maps for the two operands.",
@@ -22504,7 +22527,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
     ],
     "attributes": [
-      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp" }
+      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp{none|nsw|nuw; separator=','}" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -22674,6 +22697,7 @@
       { "name": "zero_call_used_regs", "type": "OptionalAttr<StrAttr>" },
       { "name": "trap_func_name", "type": "OptionalAttr<StrAttr>" },
       { "name": "default_func_attrs", "type": "OptionalAttr<DictionaryAttr>" },
+      { "name": "uniform_work_group_size", "type": "UnitAttr" },
       { "name": "op_bundle_sizes", "type": "DenseI32ArrayAttr" },
       { "name": "op_bundle_tags", "type": "OptionalAttr<ArrayAttr>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
@@ -23081,6 +23105,7 @@
       { "name": "save_reg_params", "type": "OptionalAttr<UnitAttr>" },
       { "name": "zero_call_used_regs", "type": "OptionalAttr<StrAttr>" },
       { "name": "default_func_attrs", "type": "OptionalAttr<DictionaryAttr>" },
+      { "name": "uniform_work_group_size", "type": "OptionalAttr<UnitAttr>" },
       { "name": "vec_type_hint", "type": "OptionalAttr<LLVM_VecTypeHintAttr>" },
       { "name": "work_group_size_hint", "type": "OptionalAttr<DenseI32ArrayAttr>" },
       { "name": "reqd_work_group_size", "type": "OptionalAttr<DenseI32ArrayAttr>" },
@@ -23110,7 +23135,7 @@
     "attributes": [
       { "name": "rawConstantIndices", "type": "DenseI32ArrayAttr" },
       { "name": "elem_type", "type": "TypeAttr" },
-      { "name": "noWrapFlags", "type": "GEPNoWrapFlagsProp{none|inbounds_flag|nusw|nuw|inbounds}" }
+      { "name": "noWrapFlags", "type": "GEPNoWrapFlagsProp{none|inbounds_flag|nusw|nuw|inbounds; separator='|'}" }
     ],
     "assemblyFormat": "($noWrapFlags^)?\n    $base `[` custom<GEPIndices>($dynamicIndices, $rawConstantIndices) `]` attr-dict\n    `:` functional-type(operands, results) `,` $elem_type"
   },
@@ -26663,6 +26688,7 @@
       { "name": "branch_weights", "type": "OptionalAttr<DenseI32ArrayAttr>" },
       { "name": "CConv", "type": "DefaultValuedAttr<CConv, CConv::C>" },
       { "name": "default_func_attrs", "type": "OptionalAttr<DictionaryAttr>" },
+      { "name": "uniform_work_group_size", "type": "UnitAttr" },
       { "name": "op_bundle_sizes", "type": "DenseI32ArrayAttr" },
       { "name": "op_bundle_tags", "type": "OptionalAttr<ArrayAttr>" }
     ],
@@ -26925,7 +26951,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
     ],
     "attributes": [
-      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp" }
+      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp{none|nsw|nuw; separator=','}" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -27049,7 +27075,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
     ],
     "attributes": [
-      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp" }
+      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp{none|nsw|nuw; separator=','}" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -27129,7 +27155,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
     ],
     "attributes": [
-      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp" }
+      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp{none|nsw|nuw; separator=','}" }
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
@@ -27166,7 +27192,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
     ],
     "attributes": [
-      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp" }
+      { "name": "overflowFlags", "type": "LLVM_IntegerOverflowFlagsProp{none|nsw|nuw; separator=','}" }
     ],
     "assemblyFormat": "$arg ($overflowFlags^)? attr-dict `:` type($arg) `to` type($res)"
   },
@@ -33110,7 +33136,7 @@
     "traits": [
       { "type": "InferTypeOpInterface" }
     ],
-    "assemblyFormat": "`query` `=` $query_type `,` $try_cancel_response attr-dict `:` type($res)"
+    "assemblyFormat": "`query` `=` enum($query_type) `,` $try_cancel_response attr-dict `:` type($res)"
   },
   {
     "name": "nvvm.clusterlaunchcontrol.try.cancel",
@@ -33645,7 +33671,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$tmaDescriptor `,` \n    $srcMem `,` \n    `box` `[`$coordinates `]` \n    oilist(\n      `l2_cache_hint` `=` $l2CacheHint | `predicate` `=` $predicate\n      | `mode` `=` $mode\n    )\n    attr-dict `:` type($tmaDescriptor) `,` type($srcMem)"
+    "assemblyFormat": "$tmaDescriptor `,` \n    $srcMem `,` \n    `box` `[`$coordinates `]` \n    oilist(\n      `l2_cache_hint` `=` $l2CacheHint | `predicate` `=` $predicate\n      | `mode` `=` enum($mode)\n    )\n    attr-dict `:` type($tmaDescriptor) `,` type($srcMem)"
   },
   {
     "name": "nvvm.cp.async.bulk.tensor.global.shared.cta.override",
@@ -33667,7 +33693,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$tmaDescriptor `,`\n      $srcMem `,`\n      $overrideAddr `,`\n      `box` `[`$coordinates `]`\n      oilist(\n        `tensor_size` `[` $tensorSize `]`\n        | `lower_stride` `[` $lowerStride `]`\n        | `upper_stride` `[` $upperStride `]`\n        | `l2_cache_hint` `=` $l2CacheHint\n        | `mode` `=` $mode\n      )\n      attr-dict `:` type($tmaDescriptor) `,` type($srcMem) `,` type($overrideAddr)"
+    "assemblyFormat": "$tmaDescriptor `,`\n      $srcMem `,`\n      $overrideAddr `,`\n      `box` `[`$coordinates `]`\n      oilist(\n        `tensor_size` `[` $tensorSize `]`\n        | `lower_stride` `[` $lowerStride `]`\n        | `upper_stride` `[` $upperStride `]`\n        | `l2_cache_hint` `=` $l2CacheHint\n        | `mode` `=` enum($mode)\n      )\n      attr-dict `:` type($tmaDescriptor) `,` type($srcMem) `,` type($overrideAddr)"
   },
   {
     "name": "nvvm.cp.async.bulk.tensor.prefetch",
@@ -33684,7 +33710,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$tmaDescriptor `,`\n    `box` `[`$coordinates `]`\n    oilist(\n      `im2col` `[` $im2colOffsets `]`\n      | `l2_cache_hint` `=` $l2CacheHint | `mode` `=` $mode\n    )\n    attr-dict  `:` type($tmaDescriptor)"
+    "assemblyFormat": "$tmaDescriptor `,`\n    `box` `[`$coordinates `]`\n    oilist(\n      `im2col` `[` $im2colOffsets `]`\n      | `l2_cache_hint` `=` $l2CacheHint | `mode` `=` enum($mode)\n    )\n    attr-dict  `:` type($tmaDescriptor)"
   },
   {
     "name": "nvvm.cp.async.bulk.tensor.reduce",
@@ -33702,7 +33728,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$tmaDescriptor `,`\n    $srcMem `,`\n    `box` `[`$coordinates `]`\n    (`l2_cache_hint` `=` $l2CacheHint^ )?\n    `,` `reduction` `=` $redKind oilist(`mode` `=` $mode)\n    attr-dict  `:` type($tmaDescriptor) `,` type($srcMem)"
+    "assemblyFormat": "$tmaDescriptor `,`\n    $srcMem `,`\n    `box` `[`$coordinates `]`\n    (`l2_cache_hint` `=` $l2CacheHint^ )?\n    `,` `reduction` `=` enum($redKind) oilist(`mode` `=` enum($mode))\n    attr-dict  `:` type($tmaDescriptor) `,` type($srcMem)"
   },
   {
     "name": "nvvm.cp.async.bulk.tensor.reduce.override",
@@ -33725,7 +33751,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$tmaDescriptor `,`\n      $srcMem `,`\n      $overrideAddr `,`\n      `box` `[`$coordinates `]`\n      (`tensor_size` `[`$tensorSize^ `]`)?\n      (`lower_stride` `[`$lowerStride^ `]`)?\n      (`upper_stride` `[`$upperStride^ `]`)?\n      (`l2_cache_hint` `=` $l2CacheHint^)?\n      `,` `reduction` `=` $redKind oilist(`mode` `=` $mode)\n      attr-dict  `:` type($tmaDescriptor) `,` type($srcMem) `,` type($overrideAddr)"
+    "assemblyFormat": "$tmaDescriptor `,`\n      $srcMem `,`\n      $overrideAddr `,`\n      `box` `[`$coordinates `]`\n      (`tensor_size` `[`$tensorSize^ `]`)?\n      (`lower_stride` `[`$lowerStride^ `]`)?\n      (`upper_stride` `[`$upperStride^ `]`)?\n      (`l2_cache_hint` `=` $l2CacheHint^)?\n      `,` `reduction` `=` enum($redKind) oilist(`mode` `=` enum($mode))\n      attr-dict  `:` type($tmaDescriptor) `,` type($srcMem) `,` type($overrideAddr)"
   },
   {
     "name": "nvvm.cp.async.bulk.tensor.shared.cluster.global",
@@ -33748,7 +33774,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$dstMem `,` \n    $tmaDescriptor `,` \n    $mbar `,` \n    `box` `[`$coordinates `]` \n    oilist(\n      `im2col` `[` $im2colOffsets `]`\n      | `multicast_mask` `=` $multicastMask\n      | `l2_cache_hint` `=` $l2CacheHint | `predicate` `=` $predicate\n      | `mode` `=` $mode | `cta_only` `=` $isCTAOnly\n      | `group` `=` custom<CTAGroup>($group)\n    )\n    attr-dict  `:` type($dstMem) `,` type($tmaDescriptor)"
+    "assemblyFormat": "$dstMem `,` \n    $tmaDescriptor `,` \n    $mbar `,` \n    `box` `[`$coordinates `]` \n    oilist(\n      `im2col` `[` $im2colOffsets `]`\n      | `multicast_mask` `=` $multicastMask\n      | `l2_cache_hint` `=` $l2CacheHint | `predicate` `=` $predicate\n      | `mode` `=` enum($mode) | `cta_only` `=` $isCTAOnly\n      | `group` `=` custom<CTAGroup>($group)\n    )\n    attr-dict  `:` type($dstMem) `,` type($tmaDescriptor)"
   },
   {
     "name": "nvvm.cp.async.bulk.wait_group",
@@ -33786,7 +33812,7 @@
       { "name": "size", "type": "I32Attr" },
       { "name": "modifier", "type": "LoadCacheModifierAttr{ca|cg|cs|lu|cv}" }
     ],
-    "assemblyFormat": "$dst `,` $src `,` $size `,` `cache` `=` $modifier (`,` $cpSize^)? attr-dict `:` type(operands)"
+    "assemblyFormat": "$dst `,` $src `,` $size `,` `cache` `=` enum($modifier) (`,` $cpSize^)? attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.cp.async.wait.group",
@@ -33919,7 +33945,7 @@
       { "name": "fromProxy", "type": "DefaultValuedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, ProxyKind::GENERIC>" },
       { "name": "toProxy", "type": "DefaultValuedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, ProxyKind::TENSORMAP>" }
     ],
-    "assemblyFormat": "$scope $addr `,` $size oilist(\n      `from_proxy` `=` $fromProxy | `to_proxy` `=` $toProxy\n    ) attr-dict"
+    "assemblyFormat": "enum($scope) $addr `,` $size oilist(\n      `from_proxy` `=` $fromProxy | `to_proxy` `=` $toProxy\n    ) attr-dict"
   },
   {
     "name": "nvvm.fence.proxy.release",
@@ -33930,7 +33956,7 @@
       { "name": "fromProxy", "type": "DefaultValuedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, ProxyKind::GENERIC>" },
       { "name": "toProxy", "type": "DefaultValuedAttr<ProxyKindAttr{alias|async|async.global|async.shared|tensormap|generic}, ProxyKind::TENSORMAP>" }
     ],
-    "assemblyFormat": "$scope oilist(\n      `from_proxy` `=` $fromProxy | `to_proxy` `=` $toProxy\n    ) attr-dict"
+    "assemblyFormat": "enum($scope) oilist(\n      `from_proxy` `=` $fromProxy | `to_proxy` `=` $toProxy\n    ) attr-dict"
   },
   {
     "name": "nvvm.fence.proxy.sync_restrict",
@@ -33988,7 +34014,7 @@
     "attributes": [
       { "name": "kind", "type": "GridDepActionAttr{wait|launch_dependents}" }
     ],
-    "assemblyFormat": "$kind attr-dict"
+    "assemblyFormat": "enum($kind) attr-dict"
   },
   {
     "name": "nvvm.inline_ptx",
@@ -34077,7 +34103,7 @@
     "traits": [
       { "type": "InferTypeOpInterface" }
     ],
-    "assemblyFormat": "$kind $thread_mask `,` $val attr-dict `:` type($val) `->` type($res)"
+    "assemblyFormat": "enum($kind) $thread_mask `,` $val attr-dict `:` type($val) `->` type($res)"
   },
   {
     "name": "nvvm.mbarrier.arrive",
@@ -34094,7 +34120,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr (`,` $count^)? oilist(`scope` `=` $scope | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
+    "assemblyFormat": "$addr (`,` $count^)? oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive_drop",
@@ -34111,7 +34137,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr (`,` $count^)? oilist(`scope` `=` $scope | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
+    "assemblyFormat": "$addr (`,` $count^)? oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive_drop.expect_tx",
@@ -34128,7 +34154,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` $scope | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands)\n    (`->` type($res)^)?"
+    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands)\n    (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive_drop.nocomplete",
@@ -34159,7 +34185,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount (`,` `predicate` `=` $predicate^)?\n    oilist(`scope` `=` $scope | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands) (`->` type($res)^)?"
+    "assemblyFormat": "$addr `,` $txcount (`,` `predicate` `=` $predicate^)?\n    oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands) (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive.nocomplete",
@@ -34185,7 +34211,7 @@
     "attributes": [
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` $scope) attr-dict `:` type(operands)"
+    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` enum($scope)) attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.mbarrier.expect_tx",
@@ -34198,7 +34224,7 @@
     "attributes": [
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` $scope) attr-dict `:` type(operands)"
+    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` enum($scope)) attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.mbarrier.init",
@@ -34235,7 +34261,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $stateOrPhase oilist(\n      `scope` `=` $scope | `relaxed` `=` $relaxed\n    ) attr-dict `:` type(operands) `->` type($res)"
+    "assemblyFormat": "$addr `,` $stateOrPhase oilist(\n      `scope` `=` enum($scope) | `relaxed` `=` $relaxed\n    ) attr-dict `:` type(operands) `->` type($res)"
   },
   {
     "name": "nvvm.mbarrier.try_wait",
@@ -34253,7 +34279,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $stateOrPhase (`,` $ticks^)? oilist(\n      `scope` `=` $scope | `relaxed` `=` $relaxed\n    ) attr-dict `:` type(operands) `->` type($res)"
+    "assemblyFormat": "$addr `,` $stateOrPhase (`,` $ticks^)? oilist(\n      `scope` `=` enum($scope) | `relaxed` `=` $relaxed\n    ) attr-dict `:` type(operands) `->` type($res)"
   },
   {
     "name": "nvvm.mbarrier.try_wait.parity",
@@ -34273,7 +34299,7 @@
     "attributes": [
       { "name": "scope", "type": "MemScopeKindAttr{cta|cluster|gpu|sys}" }
     ],
-    "assemblyFormat": "$scope attr-dict"
+    "assemblyFormat": "enum($scope) attr-dict"
   },
   {
     "name": "nvvm.mma.block_scale",
@@ -34444,7 +34470,7 @@
       { "name": "uniform", "type": "UnitAttr" },
       { "name": "in_param_space", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "(`level` `=` $cacheLevel^ (`uniform` $uniform^)? `,`)? (`tensormap` $tensormap^ (`in_param_space` $in_param_space^)? `,`)? (`evict_priority` `=` $evictPriority^ `,`)? $addr (`,` `predicate` `=` $predicate^)? attr-dict `:` type(operands)"
+    "assemblyFormat": "(`level` `=` enum($cacheLevel)^ (`uniform` $uniform^)? `,`)? (`tensormap` $tensormap^ (`in_param_space` $in_param_space^)? `,`)? (`evict_priority` `=` enum($evictPriority)^ `,`)? $addr (`,` `predicate` `=` $predicate^)? attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.prmt",
@@ -35130,7 +35156,7 @@
     "traits": [
       { "type": "AllTypesMatch<['res', 'val']>" }
     ],
-    "assemblyFormat": "$kind $val `,` $mask_and_clamp oilist(\n      `abs` `=` $abs | `nan` `=` $nan\n    ) attr-dict `:` type($val) `->` type($res)"
+    "assemblyFormat": "enum($kind) $val `,` $mask_and_clamp oilist(\n      `abs` `=` $abs | `nan` `=` $nan\n    ) attr-dict `:` type($val) `->` type($res)"
   },
   {
     "name": "nvvm.rsqrt",
@@ -35156,7 +35182,7 @@
       { "name": "regCount", "type": "I32Attr" },
       { "name": "action", "type": "SetMaxRegisterActionAttr{decrease|increase}" }
     ],
-    "assemblyFormat": "$action $regCount attr-dict"
+    "assemblyFormat": "enum($action) $regCount attr-dict"
   },
   {
     "name": "nvvm.shfl.sync",
@@ -35178,7 +35204,7 @@
     "traits": [
       { "type": "InferTypeOpInterface" }
     ],
-    "assemblyFormat": "$kind $thread_mask `,` $val `,` $offset `,` $mask_and_clamp\n    (`return_value_and_is_valid` $return_value_and_is_valid^)? attr-dict\n     `:` type($val) `->` type($res)"
+    "assemblyFormat": "enum($kind) $thread_mask `,` $val `,` $offset `,` $mask_and_clamp\n    (`return_value_and_is_valid` $return_value_and_is_valid^)? attr-dict\n     `:` type($val) `->` type($res)"
   },
   {
     "name": "nvvm.sin",
@@ -35276,7 +35302,7 @@
       { "name": "multimem", "type": "DefaultValuedAttr<BoolAttr, false>" },
       { "name": "mmio", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $value `scope` `=` $scope\n    oilist(`multimem` `=` $multimem | `mmio` `=` $mmio)\n    attr-dict `:` type($addr) `,` type($value)"
+    "assemblyFormat": "$addr `,` $value `scope` `=` enum($scope)\n    oilist(`multimem` `=` $multimem | `mmio` `=` $mmio)\n    attr-dict `:` type($addr) `,` type($value)"
   },
   {
     "name": "nvvm.store.async.shared",
@@ -35351,7 +35377,7 @@
       { "name": "multicast", "type": "DefaultValuedAttr<Tcgen05CpMulticastAttr{none|warpx2_02_13|warpx2_01_23|warpx4}, Tcgen05CpMulticast::NONE>" },
       { "name": "srcFormat", "type": "OptionalAttr<Tcgen05CpSrcFormatAttr{b6x16_p32|b4x16_p64}>" }
     ],
-    "assemblyFormat": "$taddr `,` $smem_desc `,` `shape` `=` $shape\n    oilist(\n      `group` `=` $group | `multicast` `=` $multicast\n      | `source_format` `=` $srcFormat\n    ) attr-dict"
+    "assemblyFormat": "$taddr `,` $smem_desc `,` `shape` `=` enum($shape)\n    oilist(\n      `group` `=` $group | `multicast` `=` enum($multicast)\n      | `source_format` `=` $srcFormat\n    ) attr-dict"
   },
   {
     "name": "nvvm.tcgen05.dealloc",
@@ -35390,7 +35416,7 @@
       { "name": "pack", "type": "UnitAttr" },
       { "name": "shape", "type": "Tcgen05LdStShapeAttr{shape_16x64b|shape_16x128b|shape_16x256b|shape_32x32b|shape_16x32bx2}" }
     ],
-    "assemblyFormat": "$tmemAddr (`,` $offset^)? (`pack` $pack^)?\n    `shape` `=` $shape attr-dict `:` type($res)"
+    "assemblyFormat": "$tmemAddr (`,` $offset^)? (`pack` $pack^)?\n    `shape` `=` enum($shape) attr-dict `:` type($res)"
   },
   {
     "name": "nvvm.tcgen05.ld.red",
@@ -35410,7 +35436,7 @@
       { "name": "abs", "type": "UnitAttr" },
       { "name": "nan", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "$op $addr (`,` $offset^)? `shape` `=` $shape\n    oilist(`abs` $abs | `nan` $nan) attr-dict\n    `:` type($data) `,` type($redVal)"
+    "assemblyFormat": "enum($op) $addr (`,` $offset^)? `shape` `=` enum($shape)\n    oilist(`abs` $abs | `nan` $nan) attr-dict\n    `:` type($data) `,` type($redVal)"
   },
   {
     "name": "nvvm.tcgen05.mma",
@@ -35435,7 +35461,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    oilist(`scale` `=` $scaleInputD | `mask` `=` $disableOutputLane)\n    `,` `kind` `=` $kind\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `collector_a` `=` $collectorOp | `collector_b` `=` $collectorOpB\n      | `a_shift` $aShift\n    ) attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    oilist(`scale` `=` $scaleInputD | `mask` `=` $disableOutputLane)\n    `,` `kind` `=` enum($kind)\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `collector_a` `=` enum($collectorOp)\n      | `collector_b` `=` enum($collectorOpB)\n      | `a_shift` $aShift\n    ) attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma_smem_desc",
@@ -35474,7 +35500,7 @@
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $scaleA `,` $scaleB `,` `kind` `=` $kind\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` $blockScale | `collector_a` `=` $collectorOp\n      | `collector_b` `=` $collectorOpB\n    )\n    attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $scaleA `,` $scaleB `,` `kind` `=` enum($kind)\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` enum($blockScale)\n      | `collector_a` `=` enum($collectorOp)\n      | `collector_b` `=` enum($collectorOpB)\n    )\n    attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.block_scale.decompress_b",
@@ -35496,7 +35522,7 @@
       { "name": "collectorOpA", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    `,` $scaleA `,` $scaleB `,` $decompressBMetadata\n    `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` $blockScale\n      | `collector_a` `=` $collectorOpA\n      | `collector_b` `=` $collectorOpB\n    ) attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    `,` $scaleA `,` $scaleB `,` $decompressBMetadata\n    `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` enum($blockScale)\n      | `collector_a` `=` enum($collectorOpA)\n      | `collector_b` `=` enum($collectorOpB)\n    ) attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.decompress_b",
@@ -35516,7 +35542,7 @@
       { "name": "collectorOpA", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    `,` $decompressBMetadata (`,` `mask` `=` $disableOutputLane^)?\n    `cta_group` `=` $ctaGroup\n    oilist(`collector_a` `=` $collectorOpA | `collector_b` `=` $collectorOpB)\n    attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD\n    `,` $decompressBMetadata (`,` `mask` `=` $disableOutputLane^)?\n    `cta_group` `=` $ctaGroup\n    oilist(`collector_a` `=` enum($collectorOpA)\n      | `collector_b` `=` enum($collectorOpB))\n    attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.sp",
@@ -35542,7 +35568,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata\n    oilist(`scale` `=` $scaleInputD | `mask` `=` $disableOutputLane)\n    `,` `kind` `=` $kind\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `collector_a` `=` $collectorOp | `collector_b` `=` $collectorOpB\n      | `a_shift` $aShift\n    ) attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata\n    oilist(`scale` `=` $scaleInputD | `mask` `=` $disableOutputLane)\n    `,` `kind` `=` enum($kind)\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `collector_a` `=` enum($collectorOp)\n      | `collector_b` `=` enum($collectorOpB)\n      | `a_shift` $aShift\n    ) attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.sp.block_scale",
@@ -35565,7 +35591,7 @@
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" },
       { "name": "collectorOpB", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata `,` $scaleA `,` $scaleB `,` `kind` `=` $kind\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` $blockScale | `collector_a` `=` $collectorOp\n      | `collector_b` `=` $collectorOpB\n    )\n    attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata `,` $scaleA `,` $scaleB `,` `kind` `=` enum($kind)\n    `,` `cta_group` `=` $ctaGroup\n    oilist(\n      `block_scale` `=` enum($blockScale)\n      | `collector_a` `=` enum($collectorOp)\n      | `collector_b` `=` enum($collectorOpB)\n    )\n    attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.ws",
@@ -35584,7 +35610,7 @@
       { "name": "collectorBBuffer", "type": "DefaultValuedAttr<Tcgen05MMACollectorBBufferAttr{b0|b1|b2|b3}, Tcgen05MMACollectorBBuffer::B0>" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD (`,` $zeroColMask^)?\n    `kind` `=` $kind\n    oilist(\n      `collector_b_buffer` `=` $collectorBBuffer\n      | `collector_b` `=` $collectorOp\n    )\n    attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD (`,` $zeroColMask^)?\n    `kind` `=` enum($kind)\n    oilist(\n      `collector_b_buffer` `=` enum($collectorBBuffer)\n      | `collector_b` `=` enum($collectorOp)\n    )\n    attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.mma.ws.sp",
@@ -35604,7 +35630,7 @@
       { "name": "collectorBBuffer", "type": "DefaultValuedAttr<Tcgen05MMACollectorBBufferAttr{b0|b1|b2|b3}, Tcgen05MMACollectorBBuffer::B0>" },
       { "name": "collectorOp", "type": "DefaultValuedAttr<Tcgen05MMACollectorOpAttr{discard|lastuse|fill|use}, Tcgen05MMACollectorOp::DISCARD>" }
     ],
-    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata (`,` $zeroColMask^)? `kind` `=` $kind\n    oilist(\n      `collector_b_buffer` `=` $collectorBBuffer\n      | `collector_b` `=` $collectorOp\n    )\n    attr-dict `:` `(` type(operands) `)`"
+    "assemblyFormat": "$matrixD `,` $matrixA `,` $matrixB `,` $idesc `,` $enableInputD `,`\n    $sparseMetadata (`,` $zeroColMask^)? `kind` `=` enum($kind)\n    oilist(\n      `collector_b_buffer` `=` enum($collectorBBuffer)\n      | `collector_b` `=` enum($collectorOp)\n    )\n    attr-dict `:` `(` type(operands) `)`"
   },
   {
     "name": "nvvm.tcgen05.relinquish_alloc_permit",
@@ -35640,7 +35666,7 @@
       { "name": "unpack", "type": "UnitAttr" },
       { "name": "shape", "type": "Tcgen05LdStShapeAttr{shape_16x64b|shape_16x128b|shape_16x256b|shape_32x32b|shape_16x32bx2}" }
     ],
-    "assemblyFormat": "$tmemAddr `,` $val (`,` $offset^)? (`unpack` $unpack^)?\n    `shape` `=` $shape attr-dict `:` type($val)"
+    "assemblyFormat": "$tmemAddr `,` $val (`,` $offset^)? (`unpack` $unpack^)?\n    `shape` `=` enum($shape) attr-dict `:` type($val)"
   },
   {
     "name": "nvvm.tcgen05.wait",
@@ -35664,7 +35690,7 @@
       { "name": "ord", "type": "OptionalAttr<ConfinedAttr<I32Attr, [ IntMinValue < 0 >, IntMaxValue < 4 > ]>>" },
       { "name": "new_value_attr", "type": "OptionalAttr<TensormapFieldValueAttr>" }
     ],
-    "assemblyFormat": "`field` `=` $field (`[` $ord^ `]`)? `,` `new_value` `=` ($new_value_attr^):($new_value)? `in` $addr attr-dict `:` type(operands)"
+    "assemblyFormat": "`field` `=` enum($field) (`[` $ord^ `]`)? `,` `new_value` `=`\n    ($new_value_attr^):($new_value)? `in` $addr attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.vote.sync",
@@ -35683,7 +35709,7 @@
     "traits": [
       { "type": "InferTypeOpInterface" }
     ],
-    "assemblyFormat": "$kind $mask `,` $pred attr-dict `->` type($res)"
+    "assemblyFormat": "enum($kind) $mask `,` $pred attr-dict `->` type($res)"
   },
   {
     "name": "nvvm.wgmma.commit.group.sync.aligned",
@@ -35746,7 +35772,7 @@
       { "name": "eltype", "type": "MMATypesAttr{f16|f32|tf32|bf16|s8|u8|s32|s4|u4|b1|f64|e4m3|e5m2|e3m2|e2m3|e2m1}" },
       { "name": "frag", "type": "MMAFragAttr{a|b|c}" }
     ],
-    "assemblyFormat": "$ptr `,` $stride `,` `m` `=` $m `,` `n` `=` $n `,` `k` `=` $k\n    `,` `layout` `=` $layout\n    `,` `element_type` `=` $eltype\n    `,` `fragment` `=` $frag attr-dict `:` functional-type($ptr, $res)"
+    "assemblyFormat": "$ptr `,` $stride `,` `m` `=` $m `,` `n` `=` $n `,` `k` `=` $k\n    `,` `layout` `=` $layout\n    `,` `element_type` `=` $eltype\n    `,` `fragment` `=` enum($frag) attr-dict `:` functional-type($ptr, $res)"
   },
   {
     "name": "nvvm.wmma.mma",
@@ -36081,7 +36107,7 @@
     "description": "This operation performs an atomic capture.\n\n    The region has the following allowed forms:\n    ```\n      omp.atomic.capture {\n        omp.atomic.update ...\n        omp.atomic.read ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.update ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.write ...\n        omp.terminator\n      }\n\n      omp.atomic.capture {\n        omp.atomic.read ...\n        omp.atomic.compare ...\n        omp.terminator\n      }\n    ````hint` is the value of hint (as specified in the hint clause). It is a\n    compile time constant. As the name suggests, this is just a hint for\n    optimization.`memory_order` indicates the memory ordering behavior of the construct. It\n    can be one of `seq_cst`, `acq_rel`, `release`, `acquire` or `relaxed`.",
     "attributes": [
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" },
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr{seq_cst|acq_rel|acquire|release|relaxed}>" },
       { "name": "fail_only", "type": "UnitAttr" }
     ],
     "regions": [
@@ -36099,13 +36125,13 @@
     "attributes": [
       { "name": "weak", "type": "UnitAttr" },
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" },
-      { "name": "fail_memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr{seq_cst|acq_rel|acquire|release|relaxed}>" },
+      { "name": "fail_memory_order", "type": "OptionalAttr<MemoryOrderKindAttr{seq_cst|acq_rel|acquire|release|relaxed}>" }
     ],
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
     ],
-    "assemblyFormat": "oilist(`hint` `(` custom<SynchronizationHint>($hint) `)`|`memory_order` `(` custom<ClauseAttr>($memory_order) `)`)$x `:` type($x) $region oilist(`weak` $weak | `fail_memory_order` `(` $fail_memory_order `)`) attr-dict"
+    "assemblyFormat": "oilist(`hint` `(` custom<SynchronizationHint>($hint) `)`|`memory_order` `(` custom<ClauseAttr>($memory_order) `)`)$x `:` type($x) $region oilist(`weak` $weak | `fail_memory_order` `(` enum($fail_memory_order) `)`) attr-dict"
   },
   {
     "name": "omp.atomic.read",
@@ -36118,7 +36144,7 @@
     "attributes": [
       { "name": "element_type", "type": "TypeAttr" },
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr{seq_cst|acq_rel|acquire|release|relaxed}>" }
     ],
     "assemblyFormat": "$v `=` $x oilist(`hint` `(` custom<SynchronizationHint>($hint) `)`|`memory_order` `(` custom<ClauseAttr>($memory_order) `)`) `:` type($v) `,` type($x) `,` $element_type attr-dict"
   },
@@ -36132,7 +36158,7 @@
     "attributes": [
       { "name": "atomic_control", "type": "OptionalAttr<AtomicControlAttr>" },
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr{seq_cst|acq_rel|acquire|release|relaxed}>" }
     ],
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
@@ -36149,7 +36175,7 @@
     ],
     "attributes": [
       { "name": "hint", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
-      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr>" }
+      { "name": "memory_order", "type": "OptionalAttr<MemoryOrderKindAttr{seq_cst|acq_rel|acquire|release|relaxed}>" }
     ],
     "assemblyFormat": "$x `=` $expr oilist(`hint` `(` custom<SynchronizationHint>($hint) `)`|`memory_order` `(` custom<ClauseAttr>($memory_order) `)`) `:` type($x) `,` type($expr) attr-dict"
   },
@@ -36167,7 +36193,7 @@
       { "name": "if_expr", "type": "Optional<I1>" }
     ],
     "attributes": [
-      { "name": "cancel_directive", "type": "CancellationConstructTypeAttr" }
+      { "name": "cancel_directive", "type": "CancellationConstructTypeAttr{parallel|loop|sections|taskgroup}" }
     ],
     "assemblyFormat": "`cancellation_construct_type` `(`\n      custom<ClauseAttr>($cancel_directive) `)` oilist(`if` `(` $if_expr `)`) attr-dict"
   },
@@ -36176,7 +36202,7 @@
     "summary": "cancellation point directive",
     "description": "The cancellation point construct introduces a user-defined cancellation\n    point at which implicit or explicit tasks check if cancellation of the\n    innermost enclosing region of the type specified has been activated.",
     "attributes": [
-      { "name": "cancel_directive", "type": "CancellationConstructTypeAttr" }
+      { "name": "cancel_directive", "type": "CancellationConstructTypeAttr{parallel|loop|sections|taskgroup}" }
     ],
     "assemblyFormat": "`cancellation_construct_type` `(`\n      custom<ClauseAttr>($cancel_directive) `)`  attr-dict"
   },
@@ -36303,7 +36329,7 @@
       { "name": "allocate_alignments", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "allocate_private_indices", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "dist_schedule_static", "type": "UnitAttr" },
-      { "name": "order", "type": "OptionalAttr<OrderKindAttr>" },
+      { "name": "order", "type": "OptionalAttr<OrderKindAttr{concurrent}>" },
       { "name": "order_mod", "type": "OptionalAttr<OrderModifierAttr{reproducible|unconstrained}>" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "private_needs_barrier", "type": "UnitAttr" }
@@ -36374,7 +36400,7 @@
       { "name": "sym_name", "type": "FlatSymbolRefAttr" },
       { "name": "device_type", "type": "OptionalAttr<DeclareTargetDeviceTypeAttr{any|host|nohost}>" }
     ],
-    "assemblyFormat": "$sym_name (`device_type` $device_type^)? `:` type($gp_addr) attr-dict"
+    "assemblyFormat": "$sym_name (`device_type` ` ` `(` enum($device_type)^ `)`)?\n      `:` type($gp_addr) attr-dict"
   },
   {
     "name": "omp.interop.destroy",
@@ -36461,10 +36487,10 @@
       { "name": "reduction_vars", "type": "Variadic<OpenMP_PointerLikeType>" }
     ],
     "attributes": [
-      { "name": "bind_kind", "type": "OptionalAttr<BindKindAttr>" },
+      { "name": "bind_kind", "type": "OptionalAttr<BindKindAttr{parallel|teams|thread}>" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "private_needs_barrier", "type": "UnitAttr" },
-      { "name": "order", "type": "OptionalAttr<OrderKindAttr>" },
+      { "name": "order", "type": "OptionalAttr<OrderKindAttr{concurrent}>" },
       { "name": "order_mod", "type": "OptionalAttr<OrderModifierAttr{reproducible|unconstrained}>" },
       { "name": "reduction_mod", "type": "OptionalAttr<ReductionModifierAttr{defaultmod|inscan|task}>" },
       { "name": "reduction_byref", "type": "OptionalAttr<DenseBoolArrayAttr>" },
@@ -36584,7 +36610,7 @@
       { "name": "doacross_depend_type", "type": "OptionalAttr<ClauseDependAttr{dependsource|dependsink}>" },
       { "name": "doacross_num_loops", "type": "ConfinedAttr<OptionalAttr<I64Attr>, [IntMinValue<0>]>" }
     ],
-    "assemblyFormat": "( `depend_type` `` $doacross_depend_type^ )?\n    ( `depend_vec` `(` $doacross_depend_vars^ `:` type($doacross_depend_vars)\n                   `)` )?\n    ( `num_loops` `(` $doacross_num_loops^ `)` )?  attr-dict"
+    "assemblyFormat": "( `depend_type` `(` enum($doacross_depend_type)^ `)` )?\n    ( `depend_vec` `(` $doacross_depend_vars^ `:` type($doacross_depend_vars)\n                   `)` )?\n    ( `num_loops` `(` $doacross_num_loops^ `)` )?  attr-dict"
   },
   {
     "name": "omp.ordered.region",
@@ -36615,7 +36641,7 @@
       { "name": "allocate_private_indices", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "private_needs_barrier", "type": "UnitAttr" },
-      { "name": "proc_bind_kind", "type": "OptionalAttr<ProcBindKindAttr>" },
+      { "name": "proc_bind_kind", "type": "OptionalAttr<ProcBindKindAttr{primary|master|close|spread}>" },
       { "name": "reduction_mod", "type": "OptionalAttr<ReductionModifierAttr{defaultmod|inscan|task}>" },
       { "name": "reduction_byref", "type": "OptionalAttr<DenseBoolArrayAttr>" },
       { "name": "reduction_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" }
@@ -36643,7 +36669,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "$data_sharing_type ($sym_visibility^)? $sym_name `:` $type\n      (`init` $init_region^)?\n      (`copy` $copy_region^)?\n      (`dealloc` $dealloc_region^)? attr-dict"
+    "assemblyFormat": "` ` `{` `type` `=` enum($data_sharing_type) `}`\n      ($sym_visibility^)? $sym_name `:` $type\n      (`init` $init_region^)?\n      (`copy` $copy_region^)?\n      (`dealloc` $dealloc_region^)? attr-dict"
   },
   {
     "name": "omp.scan",
@@ -36734,7 +36760,7 @@
       { "name": "alignments", "type": "OptionalAttr<TypedArrayAttrBase<I64Attr>>" },
       { "name": "linear_var_types", "type": "OptionalAttr<ArrayAttr>" },
       { "name": "linear_modifiers", "type": "OptionalAttr<ArrayAttr>" },
-      { "name": "order", "type": "OptionalAttr<OrderKindAttr>" },
+      { "name": "order", "type": "OptionalAttr<OrderKindAttr{concurrent}>" },
       { "name": "order_mod", "type": "OptionalAttr<OrderModifierAttr{reproducible|unconstrained}>" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "private_needs_barrier", "type": "UnitAttr" },
@@ -36811,7 +36837,7 @@
     "regions": [
       { "name": "region", "type": "AnyRegion" }
     ],
-    "assemblyFormat": "`kernel_type` `` $kernel_type  oilist(`allocate` `(`\n      custom<AllocateAndAllocator>($allocate_vars, type($allocate_vars),\n                                   $allocator_vars, type($allocator_vars)) `)`\n      (`allocate_alignments` `(` $allocate_alignments^ `)`)?\n      (`allocate_private_indices` `(` $allocate_private_indices^ `)`)?|`depend` `(`\n      custom<DependVarList>($depend_vars, type($depend_vars), $depend_kinds,\n                            $depend_iterated, type($depend_iterated),\n                            $depend_iterated_kinds) `)`|`device` `(` $device `:` type($device) `)`|`dyn_groupprivate` `(`\n      custom<DynGroupprivateClause>($dyn_groupprivate_access_group,\n      $dyn_groupprivate_fallback,\n      $dyn_groupprivate_size, type($dyn_groupprivate_size))\n    `)`|`if` `(` $if_expr `)`|`in_reduction` `(`\n      custom<InReductionClause>($in_reduction_vars, type($in_reduction_vars),\n                                $in_reduction_byref, $in_reduction_syms) `)`|`is_device_ptr` `(` $is_device_ptr_vars `:` type($is_device_ptr_vars) `)`|`nowait` $nowait|`thread_limit` `(` $thread_limit_vars `:` type($thread_limit_vars) `)` | `map_iterated` `(` $map_iterated `:` type($map_iterated) `)`)custom<TargetOpRegion>(\n          $region, $has_device_addr_vars, type($has_device_addr_vars),\n          $host_eval_vars, type($host_eval_vars),\n          $map_vars, type($map_vars), $private_vars, type($private_vars),\n          $private_syms, $private_needs_barrier, $private_maps) attr-dict"
+    "assemblyFormat": "`kernel_type` `(` enum($kernel_type) `)`  oilist(`allocate` `(`\n      custom<AllocateAndAllocator>($allocate_vars, type($allocate_vars),\n                                   $allocator_vars, type($allocator_vars)) `)`\n      (`allocate_alignments` `(` $allocate_alignments^ `)`)?\n      (`allocate_private_indices` `(` $allocate_private_indices^ `)`)?|`depend` `(`\n      custom<DependVarList>($depend_vars, type($depend_vars), $depend_kinds,\n                            $depend_iterated, type($depend_iterated),\n                            $depend_iterated_kinds) `)`|`device` `(` $device `:` type($device) `)`|`dyn_groupprivate` `(`\n      custom<DynGroupprivateClause>($dyn_groupprivate_access_group,\n      $dyn_groupprivate_fallback,\n      $dyn_groupprivate_size, type($dyn_groupprivate_size))\n    `)`|`if` `(` $if_expr `)`|`in_reduction` `(`\n      custom<InReductionClause>($in_reduction_vars, type($in_reduction_vars),\n                                $in_reduction_byref, $in_reduction_syms) `)`|`is_device_ptr` `(` $is_device_ptr_vars `:` type($is_device_ptr_vars) `)`|`nowait` $nowait|`thread_limit` `(` $thread_limit_vars `:` type($thread_limit_vars) `)` | `map_iterated` `(` $map_iterated `:` type($map_iterated) `)`)custom<TargetOpRegion>(\n          $region, $has_device_addr_vars, type($has_device_addr_vars),\n          $host_eval_vars, type($host_eval_vars),\n          $map_vars, type($map_vars), $private_vars, type($private_vars),\n          $private_syms, $private_needs_barrier, $private_maps) attr-dict"
   },
   {
     "name": "omp.target_allocmem",
@@ -37025,12 +37051,12 @@
     "attributes": [
       { "name": "allocate_alignments", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "allocate_private_indices", "type": "OptionalAttr<DenseI64ArrayAttr>" },
-      { "name": "grainsize_mod", "type": "OptionalAttr<GrainsizeTypeAttr>" },
+      { "name": "grainsize_mod", "type": "OptionalAttr<GrainsizeTypeAttr{strict}>" },
       { "name": "in_reduction_byref", "type": "OptionalAttr<DenseBoolArrayAttr>" },
       { "name": "in_reduction_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "mergeable", "type": "UnitAttr" },
       { "name": "nogroup", "type": "UnitAttr" },
-      { "name": "num_tasks_mod", "type": "OptionalAttr<NumTasksTypeAttr>" },
+      { "name": "num_tasks_mod", "type": "OptionalAttr<NumTasksTypeAttr{strict}>" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
       { "name": "private_needs_barrier", "type": "UnitAttr" },
       { "name": "reduction_mod", "type": "OptionalAttr<ReductionModifierAttr{defaultmod|inscan|task}>" },
@@ -37215,7 +37241,7 @@
       { "name": "linear_var_types", "type": "OptionalAttr<ArrayAttr>" },
       { "name": "linear_modifiers", "type": "OptionalAttr<ArrayAttr>" },
       { "name": "nowait", "type": "UnitAttr" },
-      { "name": "order", "type": "OptionalAttr<OrderKindAttr>" },
+      { "name": "order", "type": "OptionalAttr<OrderKindAttr{concurrent}>" },
       { "name": "order_mod", "type": "OptionalAttr<OrderModifierAttr{reproducible|unconstrained}>" },
       { "name": "ordered", "type": "ConfinedAttr<OptionalAttr<I64Attr>, [IntMinValue<0>]>" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
@@ -37223,7 +37249,7 @@
       { "name": "reduction_mod", "type": "OptionalAttr<ReductionModifierAttr{defaultmod|inscan|task}>" },
       { "name": "reduction_byref", "type": "OptionalAttr<DenseBoolArrayAttr>" },
       { "name": "reduction_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
-      { "name": "schedule_kind", "type": "OptionalAttr<ScheduleKindAttr>" },
+      { "name": "schedule_kind", "type": "OptionalAttr<ScheduleKindAttr{static|dynamic|guided|auto|runtime|distribute}>" },
       { "name": "schedule_mod", "type": "OptionalAttr<ScheduleModifierAttr{none|monotonic|nonmonotonic|simd}>" },
       { "name": "schedule_simd", "type": "UnitAttr" }
     ],
@@ -42767,7 +42793,7 @@
       { "name": "result", "type": "Ptr_IntLikeType" }
     ],
     "attributes": [
-      { "name": "flags", "type": "DefaultValuedProp<EnumProp<Ptr_PtrDiffFlags{none|nuw|nsw}>, PtrDiffFlags::none>" }
+      { "name": "flags", "type": "DefaultValuedProp<EnumProp<Ptr_PtrDiffFlags{none|nuw|nsw; separator='|'}>, PtrDiffFlags::none>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['lhs', 'rhs']>" }
@@ -45458,7 +45484,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x16f16",
@@ -45476,7 +45502,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x1f32",
@@ -45494,7 +45520,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x2bf16",
@@ -45512,7 +45538,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x32.bf16",
@@ -45530,7 +45556,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x32.bf8.bf8",
@@ -45548,7 +45574,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x32.bf8.fp8",
@@ -45566,7 +45592,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x32.f16",
@@ -45584,7 +45610,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x32.fp8.bf8",
@@ -45602,7 +45628,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x32.fp8.fp8",
@@ -45620,7 +45646,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x4bf16.1k",
@@ -45638,7 +45664,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x4f16",
@@ -45656,7 +45682,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x4f32",
@@ -45674,7 +45700,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x8.xf32",
@@ -45692,7 +45718,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.16x16x8bf16",
@@ -45710,7 +45736,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x16.bf16",
@@ -45728,7 +45754,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x16.bf8.bf8",
@@ -45746,7 +45772,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x16.bf8.fp8",
@@ -45764,7 +45790,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x16.f16",
@@ -45782,7 +45808,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x16.fp8.bf8",
@@ -45800,7 +45826,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x16.fp8.fp8",
@@ -45818,7 +45844,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x1f32",
@@ -45836,7 +45862,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x2bf16",
@@ -45854,7 +45880,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x2f32",
@@ -45872,7 +45898,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x4.xf32",
@@ -45890,7 +45916,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x4bf16",
@@ -45908,7 +45934,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x4bf16.1k",
@@ -45926,7 +45952,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x4f16",
@@ -45944,7 +45970,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x8bf16.1k",
@@ -45962,7 +45988,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.32x32x8f16",
@@ -45980,7 +46006,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.4x4x1f32",
@@ -45998,7 +46024,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.4x4x2bf16",
@@ -46016,7 +46042,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.4x4x4bf16.1k",
@@ -46034,7 +46060,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f32.4x4x4f16",
@@ -46052,7 +46078,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f64.16x16x4f64",
@@ -46068,9 +46094,9 @@
     "attributes": [
       { "name": "cbsz", "type": "I32Attr" },
       { "name": "abid", "type": "I32Attr" },
-      { "name": "blgp", "type": "ROCDL_MFMANegModifierAttr{none|neg_a|neg_b|neg_c}" }
+      { "name": "blgp", "type": "ROCDL_MFMANegModifierAttr{none|neg_a|neg_b|neg_c; separator='|'}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.f64.4x4x4f64",
@@ -46086,9 +46112,9 @@
     "attributes": [
       { "name": "cbsz", "type": "I32Attr" },
       { "name": "abid", "type": "I32Attr" },
-      { "name": "blgp", "type": "ROCDL_MFMANegModifierAttr{none|neg_a|neg_b|neg_c}" }
+      { "name": "blgp", "type": "ROCDL_MFMANegModifierAttr{none|neg_a|neg_b|neg_c; separator='|'}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.16x16x16i8",
@@ -46106,7 +46132,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.16x16x32.i8",
@@ -46124,7 +46150,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.16x16x4i8",
@@ -46142,7 +46168,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.16x16x64.i8",
@@ -46160,7 +46186,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.32x32x16.i8",
@@ -46178,7 +46204,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.32x32x32.i8",
@@ -46196,7 +46222,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.32x32x4i8",
@@ -46214,7 +46240,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.32x32x8i8",
@@ -46232,7 +46258,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.i32.4x4x4i8",
@@ -46250,7 +46276,7 @@
       { "name": "abid", "type": "I32Attr" },
       { "name": "blgp", "type": "ROCDL_MFMAPermBAttr{none|bcast_first_32|bcast_second_32|rotate_16_right|bcast_first_16|bcast_second_16|bcast_third_16|bcast_fourth_16}" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` $blgp attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $abid `,` enum($blgp)\n    attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.scale.f32.16x16x128.f8f6f4",
@@ -46271,7 +46297,7 @@
       { "name": "opselA", "type": "I32Attr" },
       { "name": "opselB", "type": "I32Attr" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $blgp `,` $opselA `,` $scaleA `,` $opselB `,` $scaleB attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` enum($cbsz) `,` enum($blgp) `,` $opselA `,`\n    $scaleA `,` $opselB `,` $scaleB attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.mfma.scale.f32.32x32x64.f8f6f4",
@@ -46292,7 +46318,7 @@
       { "name": "opselA", "type": "I32Attr" },
       { "name": "opselB", "type": "I32Attr" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $cbsz `,` $blgp `,` $opselA `,` $scaleA `,` $opselB `,` $scaleB attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` enum($cbsz) `,` enum($blgp) `,` $opselA `,`\n    $scaleA `,` $opselB `,` $scaleB attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.permlane16.swap",
@@ -46949,19 +46975,19 @@
     "name": "rocdl.sched.barrier",
     "description": "Insert a scheduling barrier with the given mask. The mask is a\n    bitfield that controls which instruction types may be scheduled\n    across the barrier. The mask values mirror the `llvm.amdgcn.sched.barrier`\n    intrinsic's documented mask values and the AMDGPU backend's\n    `SchedGroupMask` enum.\n\n    `all_vmem` and `all_ds` are supersets that also include LDSDMA\n    instructions, while `vmem_read`, `vmem_write`, `ds_read`, and `ds_write`\n    do not.\n\n    Example:\n    ```mlir\n    // Scheduling barrier with no instructions allowed to cross.\n    rocdl.sched.barrier none\n\n    // Allow VALU and all VMEM instructions to cross.\n    rocdl.sched.barrier valu|all_vmem\n    ```",
     "attributes": [
-      { "name": "mask", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all}" }
+      { "name": "mask", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all; separator='|'}" }
     ],
-    "assemblyFormat": "$mask attr-dict"
+    "assemblyFormat": "enum($mask) attr-dict"
   },
   {
     "name": "rocdl.sched.group.barrier",
     "description": "Insert a scheduling group barrier. The first parameter uses the same\n    scheduling group mask values as `rocdl.sched.barrier`.\n\n    Example:\n    ```mlir\n    // Schedule group barrier with mask, size, and group id.\n    rocdl.sched.group.barrier mfma_wmma, 1, 0\n    ```",
     "attributes": [
-      { "name": "mask", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all}" },
+      { "name": "mask", "type": "ROCDL_SchedGroupMaskAttr{none|non_mem_non_sideeffect|valu|salu|mfma_wmma|all_vmem|vmem_read|vmem_write|all_ds|ds_read|ds_write|transcendental|ldsdma|all; separator='|'}" },
       { "name": "size", "type": "I32Attr" },
       { "name": "groupId", "type": "I32Attr" }
     ],
-    "assemblyFormat": "$mask `,` $size `,` $groupId attr-dict"
+    "assemblyFormat": "enum($mask) `,` $size `,` $groupId attr-dict"
   },
   {
     "name": "rocdl.sdot2",
@@ -48195,11 +48221,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<BF16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.bf16f32.16x16x32.bf16",
@@ -48213,11 +48239,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<BF16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x128.bf8_bf8",
@@ -48231,11 +48257,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x128.bf8_fp8",
@@ -48249,11 +48275,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x128.fp8_bf8",
@@ -48267,11 +48293,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x128.fp8_fp8",
@@ -48285,11 +48311,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x16.f16",
@@ -48319,11 +48345,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x64.bf8_bf8",
@@ -48337,11 +48363,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x64.bf8_fp8",
@@ -48355,11 +48381,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x64.fp8_bf8",
@@ -48373,11 +48399,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f16.16x16x64.fp8_fp8",
@@ -48391,11 +48417,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F16>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x128.bf8_bf8",
@@ -48409,11 +48435,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x128.bf8_fp8",
@@ -48427,11 +48453,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x128.fp8_bf8",
@@ -48445,11 +48471,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x128.fp8_fp8",
@@ -48463,11 +48489,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x16.bf16",
@@ -48559,11 +48585,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x32.f16",
@@ -48577,11 +48603,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x4.f32",
@@ -48595,11 +48621,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x64.bf8_bf8",
@@ -48613,11 +48639,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x64.bf8_fp8",
@@ -48631,11 +48657,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x64.fp8_bf8",
@@ -48649,11 +48675,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.f32.16x16x64.fp8_fp8",
@@ -48667,11 +48693,11 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` $modC prop-dict attr-dict `:`\n    functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` `modC` `=` enum($modC) prop-dict attr-dict `:`\n    functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.i32.16x16x16.iu4",
@@ -48763,7 +48789,7 @@
     "attributes": [
       { "name": "fmtA", "type": "DefaultValuedAttr<ROCDL_MatrixFormatAttr{fp8_e4m3|fp8_e5m2|fp6_e2m3|fp6_e3m2|fp4_e2m1}, ::mlir::ROCDL::MatrixFormat::fp8_e4m3>" },
       { "name": "fmtB", "type": "DefaultValuedAttr<ROCDL_MatrixFormatAttr{fp8_e4m3|fp8_e5m2|fp6_e2m3|fp6_e3m2|fp4_e2m1}, ::mlir::ROCDL::MatrixFormat::fp8_e4m3>" },
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "scaleAType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
       { "name": "fmtScaleA", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleFormatAttr{e8|e5m3|e4m3}, ::mlir::ROCDL::WMMAMatrixScaleFormat::e8>" },
       { "name": "scaleBType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
@@ -48771,7 +48797,7 @@
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `fmtA` `=` $fmtA `,` `fmtB` `=` $fmtB `,`\n    `modC` `=` $modC `,`\n    `scaleAType` `=` $scaleAType `,` `fmtScaleA` `=` $fmtScaleA `,`\n    `scaleBType` `=` $scaleBType `,` `fmtScaleB` `=` $fmtScaleB\n    prop-dict attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `fmtA` `=` enum($fmtA) `,` `fmtB` `=` enum($fmtB) `,`\n    `modC` `=` enum($modC) `,`\n    `scaleAType` `=` enum($scaleAType) `,`\n    `fmtScaleA` `=` enum($fmtScaleA) `,`\n    `scaleBType` `=` enum($scaleBType) `,`\n    `fmtScaleB` `=` enum($fmtScaleB)\n    prop-dict attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.scale.f32.32x16x128.f4",
@@ -48787,7 +48813,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "scaleAType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
       { "name": "fmtScaleA", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleFormatAttr{e8|e5m3|e4m3}, ::mlir::ROCDL::WMMAMatrixScaleFormat::e8>" },
       { "name": "scaleBType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
@@ -48795,7 +48821,7 @@
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `modC` `=` $modC `,`\n    `scaleAType` `=` $scaleAType `,` `fmtScaleA` `=` $fmtScaleA `,`\n    `scaleBType` `=` $scaleBType `,` `fmtScaleB` `=` $fmtScaleB\n    prop-dict attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `modC` `=` enum($modC) `,`\n    `scaleAType` `=` enum($scaleAType) `,`\n    `fmtScaleA` `=` enum($fmtScaleA) `,`\n    `scaleBType` `=` enum($scaleBType) `,`\n    `fmtScaleB` `=` enum($fmtScaleB)\n    prop-dict attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.scale16.f32.16x16x128.f8f6f4",
@@ -48813,7 +48839,7 @@
     "attributes": [
       { "name": "fmtA", "type": "DefaultValuedAttr<ROCDL_MatrixFormatAttr{fp8_e4m3|fp8_e5m2|fp6_e2m3|fp6_e3m2|fp4_e2m1}, ::mlir::ROCDL::MatrixFormat::fp8_e4m3>" },
       { "name": "fmtB", "type": "DefaultValuedAttr<ROCDL_MatrixFormatAttr{fp8_e4m3|fp8_e5m2|fp6_e2m3|fp6_e3m2|fp4_e2m1}, ::mlir::ROCDL::MatrixFormat::fp8_e4m3>" },
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "scaleAType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
       { "name": "fmtScaleA", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleFormatAttr{e8|e5m3|e4m3}, ::mlir::ROCDL::WMMAMatrixScaleFormat::e8>" },
       { "name": "scaleBType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
@@ -48821,7 +48847,7 @@
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `fmtA` `=` $fmtA `,` `fmtB` `=` $fmtB `,`\n    `modC` `=` $modC `,`\n    `scaleAType` `=` $scaleAType `,` `fmtScaleA` `=` $fmtScaleA `,`\n    `scaleBType` `=` $scaleBType `,` `fmtScaleB` `=` $fmtScaleB\n    prop-dict attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `fmtA` `=` enum($fmtA) `,` `fmtB` `=` enum($fmtB) `,`\n    `modC` `=` enum($modC) `,`\n    `scaleAType` `=` enum($scaleAType) `,`\n    `fmtScaleA` `=` enum($fmtScaleA) `,`\n    `scaleBType` `=` enum($scaleBType) `,`\n    `fmtScaleB` `=` enum($fmtScaleB)\n    prop-dict attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.wmma.scale16.f32.32x16x128.f4",
@@ -48837,7 +48863,7 @@
       { "name": "res", "type": "LLVM_ScalarOrVectorOf<F32>" }
     ],
     "attributes": [
-      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs}, ::mlir::ROCDL::WMMACModifier::none>" },
+      { "name": "modC", "type": "DefaultValuedAttr<ROCDL_WMMACModifierAttr{none|neg|abs|neg_abs; separator='|'}, ::mlir::ROCDL::WMMACModifier::none>" },
       { "name": "scaleAType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
       { "name": "fmtScaleA", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleFormatAttr{e8|e5m3|e4m3}, ::mlir::ROCDL::WMMAMatrixScaleFormat::e8>" },
       { "name": "scaleBType", "type": "DefaultValuedAttr<ROCDL_WMMAMatrixScaleAttr{row0|row1}, ::mlir::ROCDL::WMMAMatrixScale::row0>" },
@@ -48845,7 +48871,7 @@
       { "name": "reuseA", "type": "DefaultValuedAttr<I1Attr, 0>" },
       { "name": "reuseB", "type": "DefaultValuedAttr<I1Attr, 0>" }
     ],
-    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `modC` `=` $modC `,`\n    `scaleAType` `=` $scaleAType `,` `fmtScaleA` `=` $fmtScaleA `,`\n    `scaleBType` `=` $scaleBType `,` `fmtScaleB` `=` $fmtScaleB\n    prop-dict attr-dict `:` functional-type(operands, $res)"
+    "assemblyFormat": "$a `,` $b `,` $c `,` $scaleA `,` $scaleB `,`\n    `modC` `=` enum($modC) `,`\n    `scaleAType` `=` enum($scaleAType) `,`\n    `fmtScaleA` `=` enum($fmtScaleA) `,`\n    `scaleBType` `=` enum($scaleBType) `,`\n    `fmtScaleB` `=` enum($fmtScaleB)\n    prop-dict attr-dict `:` functional-type(operands, $res)"
   },
   {
     "name": "rocdl.workgroup.dim.x",
@@ -50313,7 +50339,7 @@
       { "name": "grid_axes", "type": "DefaultValuedAttr<Shard_GridAxesAttr, {}>" },
       { "name": "reduction", "type": "DefaultValuedAttr<Shard_ReductionKindAttr{sum|max|min|product|average|bitwise_and|bitwise_or|bitwise_xor|generic}, ::mlir::shard::ReductionKind::Sum>" }
     ],
-    "assemblyFormat": "$input `on` $grid (`grid_axes` `=` $grid_axes^)? (`reduction` `=` $reduction^)?\n    attr-dict `:` type($input) `->` type($result)"
+    "assemblyFormat": "$input `on` $grid (`grid_axes` `=` $grid_axes^)?\n    (`reduction` `=` enum($reduction)^)?\n    attr-dict `:` type($input) `->` type($result)"
   },
   {
     "name": "shard.all_slice",
@@ -50499,7 +50525,7 @@
       { "name": "reduction", "type": "DefaultValuedAttr<Shard_ReductionKindAttr{sum|max|min|product|average|bitwise_and|bitwise_or|bitwise_xor|generic}, ::mlir::shard::ReductionKind::Sum>" },
       { "name": "root", "type": "DenseI64ArrayAttr" }
     ],
-    "assemblyFormat": "$input `on` $grid (`grid_axes` `=` $grid_axes^)?\n    (`reduction` `=` $reduction^)?\n    `root` `=` custom<DynamicIndexList>($root_dynamic, $root)\n    attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "$input `on` $grid (`grid_axes` `=` $grid_axes^)?\n    (`reduction` `=` enum($reduction)^)?\n    `root` `=` custom<DynamicIndexList>($root_dynamic, $root)\n    attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "shard.reduce_scatter",
@@ -50517,7 +50543,7 @@
       { "name": "reduction", "type": "DefaultValuedAttr<Shard_ReductionKindAttr{sum|max|min|product|average|bitwise_and|bitwise_or|bitwise_xor|generic}, ::mlir::shard::ReductionKind::Sum>" },
       { "name": "scatter_dim", "type": "IndexAttr" }
     ],
-    "assemblyFormat": "$input `on` $grid (`grid_axes` `=` $grid_axes^)?\n    (`reduction` `=` $reduction^)?\n    `scatter_dim` `=` $scatter_dim\n    attr-dict `:` type($input) `->` type($result)"
+    "assemblyFormat": "$input `on` $grid (`grid_axes` `=` $grid_axes^)?\n    (`reduction` `=` enum($reduction)^)?\n    `scatter_dim` `=` $scatter_dim\n    attr-dict `:` type($input) `->` type($result)"
   },
   {
     "name": "shard.scatter",
@@ -51550,7 +51576,7 @@
       { "name": "direction", "type": "SparseTensorCrdTransDirectionAttr{dim_to_lvl|lvl_to_dim}" },
       { "name": "encoder", "type": "SparseTensorEncodingAttr" }
     ],
-    "assemblyFormat": "$direction `[` $in_crds `]` `as` $encoder attr-dict `:` type($out_crds)"
+    "assemblyFormat": "enum($direction) `[` $in_crds `]` `as` $encoder attr-dict `:` type($out_crds)"
   },
   {
     "name": "sparse_tensor.disassemble",
@@ -51824,7 +51850,7 @@
     "attributes": [
       { "name": "algorithm", "type": "SparseTensorSortKindAttr{hybrid_quick_sort|insertion_sort_stable|quick_sort|heap_sort}" }
     ],
-    "assemblyFormat": "$algorithm $input_coo attr-dict`:` type($input_coo) `to` type($result_coo)"
+    "assemblyFormat": "enum($algorithm) $input_coo attr-dict`:` type($input_coo) `to` type($result_coo)"
   },
   {
     "name": "sparse_tensor.select",
@@ -51888,7 +51914,7 @@
       { "name": "ny", "type": "OptionalAttr<IndexAttr>" },
       { "name": "algorithm", "type": "SparseTensorSortKindAttr{hybrid_quick_sort|insertion_sort_stable|quick_sort|heap_sort}" }
     ],
-    "assemblyFormat": "$algorithm $n`,`$xy (`jointly` $ys^)? `perm_map` `=` $perm_map (`ny` `=` $ny^)? attr-dict`:` type($xy) (`jointly` type($ys)^)?"
+    "assemblyFormat": "enum($algorithm) $n`,`$xy (`jointly` $ys^)? `perm_map` `=` $perm_map (`ny` `=` $ny^)? attr-dict`:` type($xy) (`jointly` type($ys)^)?"
   },
   {
     "name": "sparse_tensor.storage_specifier.get",
@@ -51903,7 +51929,7 @@
       { "name": "specifierKind", "type": "SparseTensorStorageSpecifierKindAttr{lvl_sz|pos_mem_sz|crd_mem_sz|val_mem_sz|dim_offset|dim_stride}" },
       { "name": "level", "type": "OptionalAttr<LevelAttr>" }
     ],
-    "assemblyFormat": "$specifier $specifierKind (`at` $level^)? attr-dict`:` qualified(type($specifier))"
+    "assemblyFormat": "$specifier enum($specifierKind) (`at` $level^)? attr-dict`:` qualified(type($specifier))"
   },
   {
     "name": "sparse_tensor.storage_specifier.init",
@@ -51933,7 +51959,7 @@
     "traits": [
       { "type": "AllTypesMatch<['result', 'specifier']>" }
     ],
-    "assemblyFormat": "$specifier $specifierKind (`at` $level^)? `with` $value attr-dict `:` qualified(type($result))"
+    "assemblyFormat": "$specifier enum($specifierKind) (`at` $level^)? `with` $value attr-dict `:` qualified(type($result))"
   },
   {
     "name": "sparse_tensor.unary",
@@ -66881,7 +66907,7 @@
   {
     "name": "test.op_with_bit_enum",
     "attributes": [
-      { "name": "value", "type": "TestBitEnumAttr{none|read|write|execute}" },
+      { "name": "value", "type": "TestBitEnumAttr{none|read|write|execute; separator=','}" },
       { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
@@ -66889,22 +66915,22 @@
   {
     "name": "test.op_with_bit_enum_directive",
     "attributes": [
-      { "name": "value", "type": "TestBitEnumAttr{none|read|write|execute}" }
+      { "name": "value", "type": "TestBitEnumAttr{none|read|write|execute; separator=','}" }
     ],
     "assemblyFormat": "enum($value) attr-dict"
   },
   {
     "name": "test.op_with_bit_enum_prop",
     "attributes": [
-      { "name": "value1", "type": "TestBitEnumProp{none|read|write|execute}" },
-      { "name": "value2", "type": "TestBitEnumProp{none|read|write|execute}" }
+      { "name": "value1", "type": "TestBitEnumProp{none|read|write|execute; separator=','}" },
+      { "name": "value2", "type": "TestBitEnumProp{none|read|write|execute; separator=','}" }
     ],
     "assemblyFormat": "$value1 ($value2^)? attr-dict `:` `(``)`"
   },
   {
     "name": "test.op_with_bit_enum_prop_dict",
     "attributes": [
-      { "name": "flags", "type": "TestBitEnumProp{none|read|write|execute}" },
+      { "name": "flags", "type": "TestBitEnumProp{none|read|write|execute; separator=','}" },
       { "name": "next", "type": "I64Prop" }
     ],
     "assemblyFormat": "prop-dict attr-dict"
@@ -66912,15 +66938,15 @@
   {
     "name": "test.op_with_bit_enum_prop_named",
     "attributes": [
-      { "name": "value1", "type": "TestBitEnumPropNamed" },
-      { "name": "value2", "type": "TestBitEnumPropNamed" }
+      { "name": "value1", "type": "TestBitEnumPropNamed{none|read|write|execute; separator=','}" },
+      { "name": "value2", "type": "TestBitEnumPropNamed{none|read|write|execute; separator=','}" }
     ],
     "assemblyFormat": "$value1 ($value2^)? attr-dict"
   },
   {
     "name": "test.op_with_bit_enum_vbar",
     "attributes": [
-      { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other}" },
+      { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other; separator='|'}" },
       { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
@@ -66928,7 +66954,7 @@
   {
     "name": "test.op_with_bit_enum_vbar_directive",
     "attributes": [
-      { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other}" }
+      { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other; separator='|'}" }
     ],
     "assemblyFormat": "enum($value) attr-dict"
   },
@@ -66959,7 +66985,7 @@
       { "name": "value", "type": "TestEnumAttr{first|second|third}" },
       { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
     ],
-    "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
+    "assemblyFormat": "enum($value) (`tag` $tag^)? attr-dict"
   },
   {
     "name": "test.op_with_enum_directive",
@@ -67116,8 +67142,8 @@
   {
     "name": "test.op_with_two_default_bit_enum_props",
     "attributes": [
-      { "name": "value1", "type": "TestBitEnumPropDefault{none|read|write|execute}" },
-      { "name": "value2", "type": "TestBitEnumVerticalBarPropDefault{none|user|group|other}" }
+      { "name": "value1", "type": "TestBitEnumPropDefault{none|read|write|execute; separator=','}" },
+      { "name": "value2", "type": "TestBitEnumVerticalBarPropDefault{none|user|group|other; separator='|'}" }
     ],
     "assemblyFormat": "($value1^)? ($value2^)? attr-dict"
   },
@@ -68576,6 +68602,14 @@
       { "name": "attr", "type": "TestEnumAttr{first|second|third}" },
       { "name": "optionalAttr", "type": "OptionalAttr<TestEnumAttr{first|second|third}>" },
       { "name": "prop", "type": "I64Prop" }
+    ],
+    "assemblyFormat": "prop-dict attr-dict"
+  },
+  {
+    "name": "test.with_custom_bit_enum_attr_prop_dict",
+    "attributes": [
+      { "name": "flags", "type": "TestBitEnumAttr{none|read|write|execute; separator=','}" },
+      { "name": "next", "type": "I64Attr" }
     ],
     "assemblyFormat": "prop-dict attr-dict"
   },
@@ -116146,21 +116180,22 @@
   {
     "name": "tt.atomic_poll",
     "summary": "poll an atomic value",
-    "description": "Repeatedly load from $ptr with relaxed semantics on a single thread\n        until the loaded value equals $expected. For acquire semantics, issue\n        an acquire fence only after a successful poll. Other threads wait for\n        the polling thread to finish.",
+    "description": "Repeatedly load each logical element of $ptr with relaxed semantics\n        until it equals $expected or the operation's timeout expires. One thread polls\n        each element; threads replicating that element wait for its result.\n        For acquire semantics, issue an acquire fence after each successful\n        poll. The block waits for all elements to finish. The result has the\n        same shape and encoding as $ptr. All elements share one timeout budget,\n        and each element is loaded at least once, even with a zero timeout.",
     "operands": [
-      { "name": "ptr", "type": "TT_Ptr" },
-      { "name": "expected", "type": "TT_Int" },
+      { "name": "ptr", "type": "TT_PtrLike" },
+      { "name": "expected", "type": "TT_IntLike" },
       { "name": "timeout", "type": "Optional<I64>" }
     ],
     "results": [
-      { "name": "result", "type": "I1" }
+      { "name": "result", "type": "TT_BoolLike" }
     ],
     "attributes": [
       { "name": "sem", "type": "TT_MemSemanticAttr{relaxed|acquire|release|acq_rel}" },
       { "name": "scope", "type": "TT_MemSyncScopeAttr{gpu|cta|sys}" }
     ],
     "traits": [
-      { "type": "TypesMatchWith<'expected', 'ptr', 'getPointerTypeSameShape($_self)'>" }
+      { "type": "TypesMatchWith<'expected', 'ptr', 'getPointerTypeSameShape($_self)'>" },
+      { "type": "TypesMatchWith<'expected', 'result', 'getI1SameShape($_self)'>" }
     ],
     "assemblyFormat": "$sem `,` $scope `,` $ptr `,` $expected (`timeout` $timeout^)?\n      attr-dict `:` qualified(type($ptr)) `,` type($expected) `->` type($result)"
   },
@@ -116378,7 +116413,7 @@
   {
     "name": "tt.elementwise_inline_asm",
     "summary": "inline assembly applying an elementwise operation to a group of packed elements.",
-    "description": "Runs an inline asm block to generate one or more tensors.\n\n    The asm block is given `packed_element` elements at a time.  Exactly which\n    elems it receives is unspecified.\n    Incomplete groups are padded with undefined inputs, and the corresponding\n    padded outputs are discarded.\n\n    When `pure` is false, each logical group of packed elements executes the\n    asm block once, even if the tensor layout replicates those elements across\n    physical threads.",
+    "description": "Runs an inline asm block to generate one or more tensors.\n\n    The asm block is given `packed_element` elements at a time.  Exactly which\n    elems it receives is unspecified.",
     "operands": [
       { "name": "args", "type": "Variadic<AnyTypeOf<[ TT_Type ]>>" }
     ],
@@ -117536,12 +117571,15 @@
     "summary": "Instrument a completed atomic poll for GSan",
     "description": "Records the successful read performed by an atomic poll after the hardware\n    polling loop has completed.",
     "operands": [
-      { "name": "ptr", "type": "TT_Ptr" },
-      { "name": "matched", "type": "I1" }
+      { "name": "ptr", "type": "TT_PtrLike" },
+      { "name": "matched", "type": "TT_BoolLike" }
     ],
     "attributes": [
       { "name": "sem", "type": "TT_MemSemanticAttr{relaxed|acquire|release|acq_rel}" },
       { "name": "scope", "type": "TT_MemSyncScopeAttr{gpu|cta|sys}" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'ptr', 'matched', 'getI1SameShape($_self)'>" }
     ],
     "assemblyFormat": "$sem `,` $scope `,` $ptr `,` $matched attr-dict `:` qualified(type($ptr))"
   },
@@ -117848,12 +117886,15 @@
   {
     "name": "ttir.adamw",
     "summary": "AdamW optimizer step",
-    "description": "Fused AdamW optimizer step. Returns the updated parameter and moment estimates.\n    `ttnn.adamw` writes all of them in place, so `TTIRToTTNN` maps each result back\n    onto the operand it updates.\n\n    Inputs:\n    - `param` (Tensor): parameter tensor being optimized.\n    - `grad` (Tensor): gradient of the parameter.\n    - `exp_avg` (Tensor): first moment estimate.\n    - `exp_avg_sq` (Tensor): second moment estimate.\n    - `max_exp_avg_sq` (Optional Tensor): max second moment for AMSGrad. Its\n      presence implies amsgrad, and requires the matching result.\n\n    Attributes:\n    - `lr`: learning rate.\n    - `beta1`, `beta2`: exponential decay rates for the moment estimates.\n    - `beta1_pow`, `beta2_pow`: beta1^t and beta2^t bias-correction terms.\n    - `epsilon`: numerical-stability constant.\n    - `weight_decay`: decoupled weight-decay coefficient.\n    - `stochastic_rounding`: enable stochastic rounding (default false).\n\n    Outputs: the updated `param`, `exp_avg`, `exp_avg_sq` and, when\n    `max_exp_avg_sq` is given, the updated `max_exp_avg_sq`.",
+    "description": "Fused AdamW optimizer step. Returns the updated parameter and moment estimates.\n    `ttnn.adamw` writes all of them in place, so `TTIRToTTNN` maps each result back\n    onto the operand it updates.\n\n    Inputs:\n    - `param` (Tensor): parameter tensor being optimized.\n    - `grad` (Tensor): gradient of the parameter.\n    - `exp_avg` (Tensor): first moment estimate.\n    - `exp_avg_sq` (Tensor): second moment estimate.\n    - `lr`, `beta1_pow`, `beta2_pow` (single-element f32 Tensors): learning rate\n      and the beta1^t / beta2^t bias-correction terms. They change every step,\n      so they are tensors rather than attributes to keep the compiled graph stable.\n    - `max_exp_avg_sq` (Optional Tensor): max second moment for AMSGrad. Its\n      presence implies amsgrad, and requires the matching result.\n\n    Attributes:\n    - `beta1`, `beta2`: exponential decay rates for the moment estimates.\n    - `epsilon`: numerical-stability constant.\n    - `weight_decay`: decoupled weight-decay coefficient.\n    - `stochastic_rounding`: enable stochastic rounding (default false).\n\n    Outputs: the updated `param`, `exp_avg`, `exp_avg_sq` and, when\n    `max_exp_avg_sq` is given, the updated `max_exp_avg_sq`.",
     "operands": [
       { "name": "param", "type": "AnyRankedTensor" },
       { "name": "grad", "type": "AnyRankedTensor" },
       { "name": "exp_avg", "type": "AnyRankedTensor" },
       { "name": "exp_avg_sq", "type": "AnyRankedTensor" },
+      { "name": "lr", "type": "AnyRankedTensor" },
+      { "name": "beta1_pow", "type": "AnyRankedTensor" },
+      { "name": "beta2_pow", "type": "AnyRankedTensor" },
       { "name": "max_exp_avg_sq", "type": "Optional<AnyRankedTensor>" }
     ],
     "results": [
@@ -117863,11 +117904,8 @@
       { "name": "max_exp_avg_sq_out", "type": "Optional<AnyRankedTensor>" }
     ],
     "attributes": [
-      { "name": "lr", "type": "F32Attr" },
       { "name": "beta1", "type": "F32Attr" },
       { "name": "beta2", "type": "F32Attr" },
-      { "name": "beta1_pow", "type": "F32Attr" },
-      { "name": "beta2_pow", "type": "F32Attr" },
       { "name": "epsilon", "type": "F32Attr" },
       { "name": "weight_decay", "type": "F32Attr" },
       { "name": "stochastic_rounding", "type": "DefaultValuedAttr<BoolAttr, false>" }
@@ -118431,7 +118469,7 @@
   {
     "name": "ttir.conv3d",
     "summary": "Conv3d operation.",
-    "description": "Applies a 3D convolution over an input volume composed of several input planes.\n\n      This operation performs a 3D convolution on the input tensor using the provided weight tensor\n      and optional bias. It supports configurable stride, padding, padding_mode and grouping parameters\n      to control the convolution behavior. This is commonly used for video or volumetric data processing.\n\n      Example:\n      ```mlir\n      // Basic 3D convolution with 3x3x3 kernel\n      %input = ... : tensor<1x8x28x28x4xf32>     // Batch=1, Depth=8, H=28, W=28, Channels=4\n      %weight = ... : tensor<16x4x3x3x3xf32>     // 16 output channels, 4 input channels, 3x3x3 kernel\n      %bias = ... : tensor<1x1x1x1x16xf32>       // Bias for 16 output channels\n      %result = ttir.conv3d(%input, %weight, %bias) {\n          stride = [1, 1, 1],\n          padding = [0, 0, 0],\n          groups = 1,\n          padding_mode = \"zeros\"\n      } : (tensor<1x8x28x28x4xf32>, tensor<16x4x3x3x3xf32>, tensor<1x1x1x1x16xf32>) -> tensor<1x6x26x26x16xf32>\n\n      // Convolution with stride 2 and padding\n      %input = ... : tensor<1x8x28x28x4xf32>     // Batch size 1, Depth=8, H=28, W=28, Channels=4\n      %weight = ... : tensor<16x4x3x3x3xf32>     // 16 output channels, 4 input channels, 3x3x3 kernel\n      %bias = ... : tensor<1x1x1x1x16xf32>       // Bias for 16 output channels\n      %result = ttir.conv3d(%input, %weight, %bias) {\n          stride = [2, 2, 2],\n          padding = [1, 1, 1],\n          groups = 1,\n          padding_mode = \"zeros\"\n      } : (tensor<1x8x28x28x4xf32>, tensor<16x4x3x3x3xf32>, tensor<1x1x1x1x16xf32>) -> tensor<1x4x14x14x16xf32>\n      ```\n\n      Inputs:\n      - `input` (AnyRankedTensor): expected in the following format (N, D, H, W, C) where:\n        - N is the batch size\n        - D is the depth of the input volume\n        - H is the height of the input planes\n        - W is the width of the input planes\n        - C is the number of input channels\n      - `weight` (AnyRankedTensor): expected in the following format (C_out, C_in, K_D, K_H, K_W) where:\n        - C_out is the number of output channels\n        - C_in is the number of input channels\n        - K_D is the depth of the kernel\n        - K_H is the height of the kernel\n        - K_W is the width of the kernel\n      - `bias` Optional<AnyRankedTensor>: expected in the following format (1, 1, 1, 1, C_out).\n\n      Attributes:\n      - `stride` (i32 | array<3xi32>): [sD, sH, sW] where sD is stride for depth, sH for height, sW for width.\n      - `padding` (i32 |array<3xi32>): [pD, pH, pW] where pD is padding for depth, pH for height, pW for width.\n        Padding is symmetric (same on both sides of each dimension).\n      - `padding_mode` (StrAttr): \"zeros\" or \"replicate\" - padding fill strategy.\n      - `groups` (i32): Number of blocked connections from input channels to output channels.\n\n      Output:\n      - `result` AnyRankedTensor: 5D tensor in format (N, D_out, H_out, W_out, C_out) where:\n        - `D_out = (D_in + 2*pD - K_D) / sD + 1`\n        - `H_out = (H_in + 2*pH - K_H) / sH + 1`\n        - `W_out = (W_in + 2*pW - K_W) / sW + 1`",
+    "description": "Applies a 3D convolution over an input volume composed of several input planes.\n\n      This operation performs a 3D convolution on the input tensor using the provided weight tensor\n      and optional bias. It supports configurable stride, padding, dilation, padding_mode and grouping parameters\n      to control the convolution behavior. This is commonly used for video or volumetric data processing.\n\n      Example:\n      ```mlir\n      // Basic 3D convolution with 3x3x3 kernel\n      %input = ... : tensor<1x8x28x28x4xf32>     // Batch=1, Depth=8, H=28, W=28, Channels=4\n      %weight = ... : tensor<16x4x3x3x3xf32>     // 16 output channels, 4 input channels, 3x3x3 kernel\n      %bias = ... : tensor<1x1x1x1x16xf32>       // Bias for 16 output channels\n      %result = ttir.conv3d(%input, %weight, %bias) {\n          stride = [1, 1, 1],\n          padding = [0, 0, 0],\n          dilation = [1, 1, 1],\n          groups = 1,\n          padding_mode = \"zeros\"\n      } : (tensor<1x8x28x28x4xf32>, tensor<16x4x3x3x3xf32>, tensor<1x1x1x1x16xf32>) -> tensor<1x6x26x26x16xf32>\n\n      // Convolution with stride 2 and padding\n      %input = ... : tensor<1x8x28x28x4xf32>     // Batch size 1, Depth=8, H=28, W=28, Channels=4\n      %weight = ... : tensor<16x4x3x3x3xf32>     // 16 output channels, 4 input channels, 3x3x3 kernel\n      %bias = ... : tensor<1x1x1x1x16xf32>       // Bias for 16 output channels\n      %result = ttir.conv3d(%input, %weight, %bias) {\n          stride = [2, 2, 2],\n          padding = [1, 1, 1],\n          dilation = [1, 1, 1],\n          groups = 1,\n          padding_mode = \"zeros\"\n      } : (tensor<1x8x28x28x4xf32>, tensor<16x4x3x3x3xf32>, tensor<1x1x1x1x16xf32>) -> tensor<1x4x14x14x16xf32>\n      ```\n\n      Inputs:\n      - `input` (AnyRankedTensor): expected in the following format (N, D, H, W, C) where:\n        - N is the batch size\n        - D_in is the depth of the input volume\n        - H_in is the height of the input planes\n        - W_in is the width of the input planes\n        - C is the number of input channels\n      - `weight` (AnyRankedTensor): expected in the following format (C_out, C_in, K_D, K_H, K_W) where:\n        - C_out is the number of output channels\n        - C_in is the number of input channels\n        - K_D is the depth of the kernel\n        - K_H is the height of the kernel\n        - K_W is the width of the kernel\n      - `bias` Optional<AnyRankedTensor>: expected in the following format (1, 1, 1, 1, C_out).\n\n      Attributes:\n      - `stride` (i32 | array<3xi32>): [sD, sH, sW] where sD is stride for depth, sH for height, sW for width.\n      - `padding` (i32 |array<3xi32>): [pD, pH, pW] where pD is padding for depth, pH for height, pW for width.\n        Padding is symmetric (same on both sides of each dimension).\n      - `dilation` (array<3xi32>): [dD, dH, dW] where dD is dilation for depth, dH for height, dW for width.\n      - `padding_mode` (StrAttr): \"zeros\" or \"replicate\" - padding fill strategy.\n      - `groups` (i32): Number of blocked connections from input channels to output channels.\n\n      Output:\n      - `result` AnyRankedTensor: 5D tensor in format (N, D_out, H_out, W_out, C_out) where:\n        - `D_out = (D_in + 2*pD - dD*(K_D-1) - 1) / sD + 1`\n        - `H_out = (H_in + 2*pH - dH*(K_H-1) - 1) / sH + 1`\n        - `W_out = (W_in + 2*pW - dW*(K_W-1) - 1) / sW + 1`",
     "operands": [
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "weight", "type": "AnyRankedTensor" },
@@ -118443,6 +118481,7 @@
     "attributes": [
       { "name": "stride", "type": "AnyAttrOf<[I32Attr, DenseI32ArrayAttr]>" },
       { "name": "padding", "type": "AnyAttrOf<[I32Attr, DenseI32ArrayAttr]>" },
+      { "name": "dilation", "type": "DefaultValuedAttr<DenseI32ArrayAttr, {1, 1, 1}>" },
       { "name": "groups", "type": "I32Attr" },
       { "name": "batch_dim", "type": "DefaultValuedAttr<I64Attr, 0>" },
       { "name": "depth_dim", "type": "DefaultValuedAttr<I64Attr, 1>" },
@@ -124560,20 +124599,20 @@
   {
     "name": "ttnn.adamw",
     "summary": "AdamW optimizer step (ttml).",
-    "description": "Fused AdamW optimizer step, backed by the ttml metal op\n      `ttml::metal::adamw`. Updates the parameter tensor from its gradient and the\n      first/second moment estimates, and updates the moments in place.\n\n      `param`, `exp_avg`, `exp_avg_sq` and the optional `max_exp_avg_sq` (used for\n      AMSGrad) are all mutated in place, so the op has no results. `amsgrad` is\n      implied by the presence of `max_exp_avg_sq`.",
+    "description": "Fused AdamW optimizer step, backed by the ttml metal op\n      `ttml::metal::adamw`. Updates the parameter tensor from its gradient and the\n      first/second moment estimates, and updates the moments in place.\n\n      `param`, `exp_avg`, `exp_avg_sq` and the optional `max_exp_avg_sq` (used for\n      AMSGrad) are all mutated in place, so the op has no results. `amsgrad` is\n      implied by the presence of `max_exp_avg_sq`.\n\n      `lr`, `beta1_pow` and `beta2_pow` are single-element f32 tensors. The\n      backing kernel takes them as host floats, so they are read back from the\n      device at execution time; the op is therefore excluded from trace capture.",
     "operands": [
       { "name": "param", "type": "AnyRankedTensor" },
       { "name": "grad", "type": "AnyRankedTensor" },
       { "name": "exp_avg", "type": "AnyRankedTensor" },
       { "name": "exp_avg_sq", "type": "AnyRankedTensor" },
+      { "name": "lr", "type": "AnyRankedTensor" },
+      { "name": "beta1_pow", "type": "AnyRankedTensor" },
+      { "name": "beta2_pow", "type": "AnyRankedTensor" },
       { "name": "max_exp_avg_sq", "type": "Optional<AnyRankedTensor>" }
     ],
     "attributes": [
-      { "name": "lr", "type": "F32Attr" },
       { "name": "beta1", "type": "F32Attr" },
       { "name": "beta2", "type": "F32Attr" },
-      { "name": "beta1_pow", "type": "F32Attr" },
-      { "name": "beta2_pow", "type": "F32Attr" },
       { "name": "epsilon", "type": "F32Attr" },
       { "name": "weight_decay", "type": "F32Attr" },
       { "name": "stochastic_rounding", "type": "DefaultValuedAttr<BoolAttr, false>" }
@@ -125223,7 +125262,7 @@
   {
     "name": "ttnn.conv3d",
     "summary": "Conv3d operation.",
-    "description": "Applies a 3D convolution over an input volume composed of several input planes.\n\n      Inputs:\n      - `input` (AnyRankedTensor): expected in the following format (N, D, H, W, C) where:\n        - N is the batch size\n        - D is the depth of the input volume\n        - H is the height of the input planes\n        - W is the width of the input planes\n        - C is the number of input channels\n      - `weight` (AnyRankedTensor): expected in the following format (K_D * K_H * K_W * C / G, O) where:\n        - K_D is the depth of the kernel\n        - K_H is the height of the kernel\n        - K_W is the width of the kernel\n        - C is the number of input channels\n        - O is the number of output channels\n        - G is the number of groups\n        The spatial kernel dimensions and input channels are flattened together into a 2D tensor.\n      - `bias` (Optional<AnyRankedTensor>): expected in the following format (1, O) where:\n        - O is the number of output channels\n\n      Attributes:\n      - `in_channels` (i32): The number of input channels.\n      - `out_channels` (i32): The number of output channels.\n      - `batch_size` (i32): The batch size.\n      - `input_depth` (i32): The input depth.\n      - `input_height` (i32): The input height.\n      - `input_width` (i32): The input width.\n      - `kernel_size` (array<3xi32>): [K_D, K_H, K_W] where K_D is the kernel depth, K_H is the kernel height and K_W is the kernel width.\n      - `stride` (array<3xi32>): [sD, sH, sW] where sD is stride for depth, sH for height and sW is stride for width.\n      - `padding` (array<3xi32>): [pD, pH, pW] where pD is padding for depth, pH is padding for height and pW is padding for width.\n        Padding is symmetric (same on both sides of each dimension).\n      - `padding_mode` (StrAttr): \"zeros\" or \"replicate\" - padding fill strategy.\n      - `groups` (i32): Number of blocked connections from input channels to output channels. Input and output channels must both be divisible by groups.\n\n      Outputs:\n      - `result` (AnyRankedTensor): returned in the following format (N, D_out, H_out, W_out, O) where:\n        - `D_out = (D_in + 2*pD - K_D) / sD + 1`\n        - `H_out = (H_in + 2*pH - K_H) / sH + 1`\n        - `W_out = (W_in + 2*pW - K_W) / sW + 1`\n\n      Example:\n        %input = ttir.empty() : () -> tensor<1x28x28x28x32xbf16>\n        %weight = ttir.empty() : () -> tensor<864x64xbf16>  // 864 = 3*3*3*32 (2D tensor)\n        %bias = ttir.empty() : () -> tensor<1x64xbf16>      // 2D tensor\n        %device = \"ttnn.get_device\"() <{mesh_shape = #ttnn<mesh_shape 1x1>}> : () -> !ttnn.device\n        %0 = \"ttnn.conv3d\"(%input, %weight, %bias, %device)\n          <{\n            in_channels = 32: i32,\n            out_channels = 64: i32,\n            batch_size = 1: i32,\n            input_depth = 28: i32,\n            input_height = 28: i32,\n            input_width = 28: i32,\n            kernel_size = array<i32: 3, 3, 3>,\n            stride = array<i32: 1, 1, 1>,\n            padding = array<i32: 0, 0, 0>,\n            padding_mode = \"zeros\",\n            groups = 1: i32\n          }> : (tensor<1x28x28x28x32xbf16>, tensor<864x64xbf16>, tensor<1x64xbf16>, !ttnn.device) -> tensor<1x26x26x26x64xbf16>",
+    "description": "Applies a 3D convolution over an input volume composed of several input planes.\n\n      Inputs:\n      - `input` (AnyRankedTensor): expected in the following format (N, D, H, W, C) where:\n        - N is the batch size\n        - D_in is the depth of the input volume\n        - H_in is the height of the input planes\n        - W_in is the width of the input planes\n        - C is the number of input channels\n      - `weight` (AnyRankedTensor): expected in the following format (K_D * K_H * K_W * C / G, O) where:\n        - K_D is the depth of the kernel\n        - K_H is the height of the kernel\n        - K_W is the width of the kernel\n        - C is the number of input channels\n        - O is the number of output channels\n        - G is the number of groups\n        The spatial kernel dimensions and input channels are flattened together into a 2D tensor.\n      - `bias` (Optional<AnyRankedTensor>): expected in the following format (1, O) where:\n        - O is the number of output channels\n\n      Attributes:\n      - `in_channels` (i32): The number of input channels.\n      - `out_channels` (i32): The number of output channels.\n      - `batch_size` (i32): The batch size.\n      - `input_depth` (i32): The input depth.\n      - `input_height` (i32): The input height.\n      - `input_width` (i32): The input width.\n      - `kernel_size` (array<3xi32>): [K_D, K_H, K_W] where K_D is the kernel depth, K_H is the kernel height and K_W is the kernel width.\n      - `stride` (array<3xi32>): [sD, sH, sW] where sD is stride for depth, sH for height and sW is stride for width.\n      - `padding` (array<3xi32>): [pD, pH, pW] where pD is padding for depth, pH is padding for height and pW is padding for width.\n        Padding is symmetric (same on both sides of each dimension).\n      - `dilation` (array<3xi32>): [dD, dH, dW] where dD is dilation for depth, dH is dilation for height and dW is dilation for width.\n      - `padding_mode` (StrAttr): \"zeros\" or \"replicate\" - padding fill strategy.\n      - `groups` (i32): Number of blocked connections from input channels to output channels. Input and output channels must both be divisible by groups.\n\n      Outputs:\n      - `result` (AnyRankedTensor): returned in the following format (N, D_out, H_out, W_out, O) where:\n        - `D_out = (D_in + 2*pD - dD*(K_D-1) - 1) / sD + 1`\n        - `H_out = (H_in + 2*pH - dH*(K_H-1) - 1) / sH + 1`\n        - `W_out = (W_in + 2*pW - dW*(K_W-1) - 1) / sW + 1`\n\n      Example:\n        %input = ttir.empty() : () -> tensor<1x28x28x28x32xbf16>\n        %weight = ttir.empty() : () -> tensor<864x64xbf16>  // 864 = 3*3*3*32 (2D tensor)\n        %bias = ttir.empty() : () -> tensor<1x64xbf16>      // 2D tensor\n        %device = \"ttnn.get_device\"() <{mesh_shape = #ttnn<mesh_shape 1x1>}> : () -> !ttnn.device\n        %0 = \"ttnn.conv3d\"(%input, %weight, %bias, %device)\n          <{\n            in_channels = 32: i32,\n            out_channels = 64: i32,\n            batch_size = 1: i32,\n            input_depth = 28: i32,\n            input_height = 28: i32,\n            input_width = 28: i32,\n            kernel_size = array<i32: 3, 3, 3>,\n            stride = array<i32: 1, 1, 1>,\n            padding = array<i32: 0, 0, 0>,\n            dilation = array<i32: 1, 1, 1>,\n            padding_mode = \"zeros\",\n            groups = 1: i32\n          }> : (tensor<1x28x28x28x32xbf16>, tensor<864x64xbf16>, tensor<1x64xbf16>, !ttnn.device) -> tensor<1x26x26x26x64xbf16>",
     "operands": [
       { "name": "input", "type": "AnyRankedTensor" },
       { "name": "weight", "type": "AnyRankedTensor" },
@@ -125243,6 +125282,7 @@
       { "name": "kernel_size", "type": "DenseI32ArrayAttr" },
       { "name": "stride", "type": "DenseI32ArrayAttr" },
       { "name": "padding", "type": "DenseI32ArrayAttr" },
+      { "name": "dilation", "type": "DefaultValuedAttr<DenseI32ArrayAttr, {1, 1, 1}>" },
       { "name": "padding_mode", "type": "DefaultValuedAttr<StrAttr, \"zeros\">" },
       { "name": "groups", "type": "I32Attr" },
       { "name": "conv3d_config", "type": "OptionalAttr<TTNN_Conv3dConfigAttr>" },
@@ -137763,7 +137803,7 @@
       { "name": "memory_kind", "type": "XeGPU_MemorySpaceAttr{global|slm}" },
       { "name": "fence_scope", "type": "XeGPU_FenceScopeAttr{workgroup|gpu}" }
     ],
-    "assemblyFormat": "`memory_kind` `=` $memory_kind `,` `fence_scope` `=` $fence_scope attr-dict"
+    "assemblyFormat": "`memory_kind` `=` enum($memory_kind) `,`\n    `fence_scope` `=` enum($fence_scope) attr-dict"
   },
   {
     "name": "xegpu.init_nbarrier",
@@ -137794,7 +137834,7 @@
     "traits": [
       { "type": "AllTypesMatch<['source', 'result']>" }
     ],
-    "assemblyFormat": "$source $mode attr-dict `:` type($source)"
+    "assemblyFormat": "$source enum($mode) attr-dict `:` type($source)"
   },
   {
     "name": "xegpu.load",

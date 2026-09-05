@@ -6,7 +6,7 @@ pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 src_dir=./third_party/source/mlir
 
 entries=(
-    "https://github.com/llvm/llvm-project.git|main|${src_dir}/llvm-project|mlir"
+    "https://github.com/llvm/llvm-project.git|main|${src_dir}/llvm-project|mlir llvm/include/llvm/Frontend"
     "https://github.com/openxla/stablehlo.git|main|${src_dir}/stablehlo|stablehlo"
     "https://github.com/openxla/shardy.git|main|${src_dir}/shardy|shardy"
     "https://github.com/openxla/xla.git|main|${src_dir}/xla|xla"
@@ -88,14 +88,6 @@ sync() {
     curl --silent --show-error --location --output "${src_dir}/_/llvm-project/mlir/include/mlir/Interfaces/CopyOpInterface.td" "https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-14.0.0/mlir/include/mlir/Interfaces/CopyOpInterface.td"
     mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Arithmetic/IR"
     curl --silent --show-error --location --output "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Arithmetic/IR/ArithmeticBase.td" "https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-14.0.0/mlir/include/mlir/Dialect/Arithmetic/IR/ArithmeticBase.td"
-    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenACC"
-    echo '#ifndef ACCCOMMON_TD
-#define ACCCOMMON_TD
-#endif // ACCCOMMON_TD' > "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenACC/AccCommon.td"
-    mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenMP"
-    echo '#ifndef OMPCOMMON_TD
-#define OMPCOMMON_TD
-#endif // OMPCOMMON_TD' > "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/OpenMP/OmpCommon.td"
     mkdir -p "${src_dir}/_/llvm-project/mlir/include/mlir/Dialect/Linalg/IR"
     echo '#ifndef LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD
 #define LINALG_NAMED_STRUCTURED_OPS_YAMLGEN_TD

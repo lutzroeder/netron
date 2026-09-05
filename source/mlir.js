@@ -7996,17 +7996,20 @@ _.BytecodeReader = class {
 
 _.Constraint = class {
 
-    constructor(name, args, values) {
+    constructor(name, fields, args) {
         this.name = name;
+        this.fields = fields || null;
         this.args = args || null;
-        this.values = values || null;
     }
 
     static parse(value) {
         const tokens = _.Constraint.tokenize(value);
         const result = _.Constraint.parseTokens(tokens, 0);
-        const { name, args, values } = result.value;
-        return new _.Constraint(name, args, values);
+        return result.value;
+    }
+
+    getValue(name) {
+        return this.fields?.get(name) ?? null;
     }
 
     isOptional() {
@@ -8021,13 +8024,28 @@ _.Constraint = class {
         return this.name === 'VariadicOfVariadic';
     }
 
+    getBaseAttr() {
+        const wrappers = ['OptionalAttr', 'DefaultValuedAttr', 'DefaultValuedStrAttr', 'DefaultValuedOptionalAttr', 'DefaultValuedOptionalStrAttr', 'ConfinedAttr'];
+        if (!wrappers.includes(this.name)) {
+            return this;
+        }
+        let [type] = this.args;
+        while (wrappers.includes(type.name)) {
+            [type] = type.args;
+        }
+        return type;
+    }
+
     toString() {
         if (this.args && this.args.length > 0) {
             const args = this.args.map((arg) => arg.name).join(', ');
             return `${this.name}<${args}>`;
         }
-        if (this.values && this.values.length > 0) {
-            return `${this.name}{${this.values.join(' | ')}}`;
+        const enumerants = this.getValue('enumerants');
+        if (enumerants && enumerants.length > 0) {
+            const fields = Array.from(this.fields).filter(([name]) => name !== 'enumerants')
+                .map(([name, value]) => `; ${name}='${value}'`).join('');
+            return `${this.name}{${enumerants.join(' | ')}${fields}}`;
         }
         return this.name;
     }
@@ -8041,7 +8059,7 @@ _.Constraint = class {
                 i++;
                 continue;
             }
-            if ('<>={}[](),|'.indexOf(ch) !== -1) {
+            if ('<>={}[](),|;'.indexOf(ch) !== -1) {
                 tokens.push({ type: ch, value: ch, pos: i });
                 i++;
                 continue;
@@ -8120,7 +8138,7 @@ _.Constraint = class {
                     return _.Constraint._parseGeneric(tokens, pos, name);
                 }
             }
-            return { value: { name }, nextPos };
+            return { value: new _.Constraint(name), nextPos };
 
         }
         if (token.type !== 'ident') {
@@ -8138,7 +8156,7 @@ _.Constraint = class {
             }
         }
         if (nextPos >= tokens.length) {
-            return { value: { name }, nextPos };
+            return { value: new _.Constraint(name), nextPos };
         }
         const nextToken = tokens[nextPos];
         if (nextToken.type === '{') {
@@ -8147,7 +8165,7 @@ _.Constraint = class {
         if (nextToken.type === '<') {
             return _.Constraint._parseGeneric(tokens, pos, name);
         }
-        return { value: { name }, nextPos };
+        return { value: new _.Constraint(name), nextPos };
     }
 
     static _parseEnum(tokens, startPos, name) {
@@ -8159,13 +8177,13 @@ _.Constraint = class {
             return null;
         }
         pos++;
-        const values = [];
+        const enumerants = [];
         let currentValue = '';
-        while (pos < tokens.length && tokens[pos].type !== '}') {
+        while (pos < tokens.length && tokens[pos].type !== '}' && tokens[pos].type !== ';') {
             const token = tokens[pos];
             if (token.type === '|') {
                 if (currentValue.trim()) {
-                    values.push(currentValue.trim());
+                    enumerants.push(currentValue.trim());
                     currentValue = '';
                 }
                 pos++;
@@ -8183,12 +8201,26 @@ _.Constraint = class {
             }
         }
         if (currentValue.trim()) {
-            values.push(currentValue.trim());
+            enumerants.push(currentValue.trim());
+        }
+        const fields = new Map([['enumerants', enumerants]]);
+        while (tokens[pos]?.type === ';') {
+            const field = tokens[pos + 1];
+            const value = tokens[pos + 3];
+            if (field?.type !== 'ident' || tokens[pos + 2]?.type !== '=' ||
+                value?.type !== 'string' || ![';', '}'].includes(tokens[pos + 4]?.type)) {
+                throw new mlir.Error(`Invalid field in constraint '${name}'.`);
+            }
+            if (fields.has(field.value)) {
+                throw new mlir.Error(`Duplicate field '${field.value}' in constraint '${name}'.`);
+            }
+            fields.set(field.value, value.value);
+            pos += 4;
         }
         if (pos < tokens.length && tokens[pos].type === '}') {
             pos++;
         }
-        return { value: { name, values }, nextPos: pos };
+        return { value: new _.Constraint(name, fields), nextPos: pos };
     }
 
     static _parseGeneric(tokens, startPos, name) {
@@ -8246,7 +8278,7 @@ _.Constraint = class {
                 pos++;
             }
         }
-        return { value: { name, args }, nextPos: pos };
+        return { value: new _.Constraint(name, null, args), nextPos: pos };
     }
 
     static parseArgumentTokens(tokens) {
@@ -9717,14 +9749,15 @@ _.Dialect = class {
                 const [arg] = directive.args;
                 const refName = arg.substring(1);
                 const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === refName);
-                const attrType = attrInfo.type;
+                const attrType = attrInfo.type.getBaseAttr();
+                const separator = attrType.getValue('separator');
                 let attrValue = null;
-                if (attrType.name.includes('BitEnum')) {
-                    const separator = attrType.name.includes('VerticalBar') ? '|' : ',';
+                if (separator) {
                     attrValue = this.parseEnumFlags(parser, attrType, separator);
                 } else {
-                    const value = parser.parseOptionalKeyword(attrType.values) || parser.parseOptionalString();
-                    if (value && attrType.values.includes(value)) {
+                    const enumerants = attrType.getValue('enumerants');
+                    const value = parser.parseOptionalKeyword(enumerants) || parser.parseOptionalString();
+                    if (value && enumerants.includes(value)) {
                         attrValue = new _.TypedAttr(value, null);
                     }
                 }
@@ -9848,7 +9881,7 @@ _.Dialect = class {
                                 } else if (!isOptionalOp) {
                                     // Try keyword (enum value)
                                     const inputType = input?.type;
-                                    if (inputType && Array.isArray(inputType.values)) {
+                                    if (inputType && Array.isArray(inputType.getValue('enumerants'))) {
                                         const keyword = parser.parseKeyword();
                                         op.addAttribute(name, keyword);
                                     } else {
@@ -9893,7 +9926,7 @@ _.Dialect = class {
                             } else if (!isOptionalOp) {
                                 // Try keyword (enum value)
                                 const inputType = input?.type;
-                                if (inputType && Array.isArray(inputType.values)) {
+                                if (inputType && Array.isArray(inputType.getValue('enumerants'))) {
                                     const keyword = parser.parseKeyword();
                                     op.addAttribute(name, keyword);
                                 } else {
@@ -10361,6 +10394,12 @@ _.Dialect = class {
                                 shouldParse = 'skip_first';
                             }
                         }
+                    } else if (firstElem.type === 'enum') {
+                        const [arg] = firstElem.args;
+                        const attrInfo = opInfo.metadata.attributes.find((attr) => attr.name === arg.substring(1));
+                        const attrType = attrInfo.type.getBaseAttr();
+                        const token = parser.parser.getToken();
+                        shouldParse = token.is(_.Token.string) || attrType.getValue('enumerants').includes(token.getSpelling().str());
                     } else if (firstElem.type === 'qualified') {
                         if (firstElem.args && firstElem.args.length > 0) {
                             const [arg] = firstElem.args;
@@ -10533,8 +10572,9 @@ _.Dialect = class {
             const attrT = this._customAttributes.get(type.name);
             return parser.parseCustomAttributeWithFallback(attrT, type);
         }
-        if (type && Array.isArray(type.values)) {
-            const value = parser.parseOptionalKeyword(type.values);
+        const enumerants = type ? type.getValue('enumerants') : null;
+        if (Array.isArray(enumerants)) {
+            const value = parser.parseOptionalKeyword(enumerants);
             if (value !== null) {
                 return new _.TypedAttr(value, null);
             }
@@ -10609,7 +10649,7 @@ _.Dialect = class {
     }
 
     parseEnumAttr(parser, type) {
-        const value = parser.parseOptionalKeyword(type.values);
+        const value = parser.parseOptionalKeyword(type.getValue('enumerants'));
         if (value !== null) {
             return new _.TypedAttr(value, null);
         }
@@ -10981,16 +11021,17 @@ _.Dialect = class {
 
     parseEnumFlags(parser, type, separator, optional) {
         const flags = [];
+        const enumerants = type.getValue('enumerants');
         do {
             if (optional && flags.length === 0) {
-                const value = parser.parseOptionalKeyword(type.values);
+                const value = parser.parseOptionalKeyword(enumerants);
                 if (!value) {
                     return null;
                 }
                 flags.push(value);
             } else {
                 const value = parser.parseKeyword();
-                if (!type.values.includes(value)) {
+                if (!enumerants.includes(value)) {
                     parser.emitError(`Invalid enum value '${value}'`);
                 }
                 flags.push(value);
@@ -12365,8 +12406,9 @@ _.MemRefDialect = class extends _.Dialect {
         if (str !== null) {
             return str;
         }
-        if (type.values) {
-            const kw = parser.parseOptionalKeyword(type.values);
+        const enumerants = type.getValue('enumerants');
+        if (enumerants) {
+            const kw = parser.parseOptionalKeyword(enumerants);
             if (kw) {
                 return kw;
             }
@@ -15990,7 +16032,7 @@ _.LinalgDialect = class extends _.Dialect {
         if (op === 'linalg.map') {
             return this.parseMapOp(parser, result);
         }
-        if (op === 'linalg.contract') {
+        if (op === 'linalg.contract' || op === 'linalg.scaled_contract') {
             const indexingMapsAttr = this.parseIndexingMapsAttr(parser);
             if (!indexingMapsAttr) {
                 parser.emitError("Expected 'indexing_maps' attribute");
@@ -22192,7 +22234,8 @@ _.llvm.LLVMDialect = class extends _.Dialect {
 
     parseLLVMIntegerOverflowFlagsProp(parser) {
         if (parser.parseOptionalKeyword('overflow')) {
-            return this.parseEnumFlagsAngleBracketComma(parser, { values: ['wrap', 'nuw', 'nsw'] });
+            const type = new _.Constraint('LLVM_IntegerOverflowFlagsProp', new Map([['enumerants', ['wrap', 'nuw', 'nsw']]]));
+            return this.parseEnumFlagsAngleBracketComma(parser, type);
         }
         return null;
     }
@@ -22699,7 +22742,8 @@ _.llvm.LLVMDialect = class extends _.Dialect {
 
     parseLLVMGEPOp(parser, result) {
         result.compatibility = true;
-        const noWrapFlags = this.parseEnumFlags(parser, { values: ['none', 'inbounds_flag', 'nusw', 'nuw', 'inbounds'] }, '|', true);
+        const constraint = new _.Constraint('GEPNoWrapFlagsProp', new Map([['enumerants', ['none', 'inbounds_flag', 'nusw', 'nuw', 'inbounds']]]));
+        const noWrapFlags = this.parseEnumFlags(parser, constraint, '|', true);
         if (noWrapFlags) {
             result.addAttribute('noWrapFlags', noWrapFlags);
         }
@@ -25884,7 +25928,7 @@ _.test.TestDialect = class extends _.Dialect {
     }
 
     parseTestEnumAttr(parser, type) {
-        const keyword = parser.parseOptionalKeyword(type.values);
+        const keyword = parser.parseOptionalKeyword(type.getValue('enumerants'));
         if (keyword) {
             return new _.TypedAttr(keyword, null);
         }
@@ -26011,6 +26055,7 @@ _.test.TestDialect = class extends _.Dialect {
     parseTestArrayOfEnums(parser) {
         const elements = [];
         parser.parseCommaSeparatedList('square', () => {
+            parser.parseLess();
             const __enumStr = parser.parseOptionalString();
             if (__enumStr === null) {
                 const value = parser.parseKeyword();
@@ -26018,6 +26063,7 @@ _.test.TestDialect = class extends _.Dialect {
             } else {
                 elements.push(new _.TypedAttr(__enumStr, null));
             }
+            parser.parseGreater();
         });
         return new _.ArrayAttr(elements);
     }

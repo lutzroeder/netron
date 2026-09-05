@@ -426,20 +426,7 @@ tablegen.Record = class {
                                 return init; // Def not found
                             }
                         } else if (current && current.type === 'dag' && current.value) {
-                            // Handle DAG (anonymous class instantiation)
-                            const className = current.value.operator;
-                            const templateArgs = current.value.operands.map((op) => op.value);
-                            // Instantiate an anonymous class with template arguments
-                            // Used for resolving field access like meta.mnemonic where meta is ROCDL_TrLoadOpMeta<...>
-                            let instantiated = null;
-                            const baseClass = this.parser.getClass(className);
-                            if (baseClass) {
-                                // Create an anonymous record that inherits from the class
-                                instantiated = new tablegen.Record(`<anonymous ${className}>`, this.parser);
-                                instantiated.parents = [{ name: className, args: templateArgs }];
-                                this.parser.addSubClass(instantiated);
-                                instantiated.resolveReferences();
-                            }
+                            const instantiated = this.parser.getRecord(current);
                             if (instantiated) {
                                 const field = instantiated.getValue(fieldName);
                                 if (field && field.value) {
@@ -632,6 +619,9 @@ tablegen.Record = class {
         if (!field || !field.value) {
             return null;
         }
+        if (field.value.type === 'dag') {
+            return this.parser.getRecord(field.value);
+        }
         if (field.value.type === 'def' && typeof field.value.value === 'string') {
             const defName = field.value.value;
             const candidates = [];
@@ -646,7 +636,7 @@ tablegen.Record = class {
                 }
             }
             if (candidates.length === 0) {
-                return null;
+                return this.parser.getRecord(field.value);
             }
             if (candidates.length === 1) {
                 return candidates[0];
@@ -676,6 +666,16 @@ tablegen.Record = class {
             return candidates[0];
         }
         return null;
+    }
+
+    getBaseAttr() {
+        const attr = this.getValueAsDef('baseAttr');
+        return attr ? attr.getBaseAttr() : this;
+    }
+
+    getBaseProperty() {
+        const property = this.getValueAsDef('baseProperty');
+        return property ? property.getBaseProperty() : this;
     }
 
     isEnumAttr() {
@@ -1067,19 +1067,8 @@ tablegen.Record = class {
                     // Handle DAG values representing class instantiations with template args
                     // e.g., OpenMP_MapClauseSkip<assemblyFormat = true> is stored as a DAG
                     if (baseValue && typeof baseValue === 'object' && baseValue.operator) {
-                        const className = baseValue.operator;
-                        const baseClass = this.parser.getClass(className);
-                        if (baseClass) {
-                            const templateArgs = baseValue.operands ? baseValue.operands.map((op) => {
-                                if (op.name && op.value) {
-                                    return op;
-                                }
-                                return op.value || op;
-                            }) : [];
-                            const instantiated = new tablegen.Record(`<anonymous ${className}>`, this.parser);
-                            instantiated.parents = [{ name: className, args: templateArgs }];
-                            this.parser.addSubClass(instantiated);
-                            instantiated.resolveReferences();
+                        const instantiated = this.parser.getRecord(new tablegen.Value('dag', baseValue));
+                        if (instantiated) {
                             let current = instantiated;
                             for (const fieldName of fieldPath) {
                                 const field = current.getValue(fieldName);
@@ -1632,6 +1621,24 @@ tablegen.Reader = class {
 
     getDefvar(name) {
         return this._defvars.get(name);
+    }
+
+    getRecord(value) {
+        if (value.type === 'def') {
+            const record = this.getDef(value.value) || this.getClass(value.value);
+            const alias = this.getDefvar(value.value);
+            return record || (alias ? this.getRecord(alias) : null);
+        }
+        if (value.type === 'dag' && this.getClass(value.value.operator)) {
+            const { operator, operands } = value.value;
+            const record = new tablegen.Record(`<anonymous ${operator}>`, this);
+            const args = operands.map((operand) => operand.name && operand.value ? operand : operand.value || operand);
+            record.parents = [{ name: operator, args }];
+            this.addSubClass(record);
+            record.resolveReferences();
+            return record;
+        }
+        return null;
     }
 
     getClass(name) {

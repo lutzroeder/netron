@@ -364,6 +364,39 @@ const schema = async () => {
     let count = 0;
     const parser = new tablegen.Reader();
     const source = path.join(dirname, '..', 'third_party', 'source', 'mlir');
+    for (const [dialect, name] of [['OpenACC', 'Acc'], ['OpenMP', 'Omp']]) {
+        const clauses = new tablegen.Reader();
+        // eslint-disable-next-line no-await-in-loop
+        await clauses.parse([`llvm/Frontend/${dialect}/${name.toUpperCase()}.td`], [path.join(source, 'llvm-project/llvm/include')]);
+        // Generate the common clause enums as in MLIR's DirectiveCommonGen.cpp.
+        const namespace = clauses.getDef(dialect).getValueAsString('cppNamespace');
+        const definitions = [];
+        for (const clause of clauses.defs) {
+            const enumName = clause.getValueAsString('enumClauseValue');
+            if (!enumName) {
+                continue;
+            }
+            const values = clause.evaluateValue(clause.getValue('allowedClauseValues').value);
+            const cases = [];
+            for (const [index, value] of values.entries()) {
+                const record = clauses.getDef(value);
+                if (record.getValueAsBit('isUserValue')) {
+                    const spelling = record.getValueAsString('name').replaceAll(' ', '_');
+                    const symbol = spelling.charAt(0).toUpperCase() + spelling.slice(1).toLowerCase();
+                    const caseName = enumName + spelling;
+                    definitions.push(`def ${caseName} : I32EnumAttrCase<"${symbol}", ${index}, "${spelling}">;`);
+                    cases.push(caseName);
+                }
+            }
+            definitions.push(`def ${enumName} : I32EnumAttr<"Clause${enumName}", "${enumName} Clause", [${cases.join(', ')}]> { let cppNamespace = "::mlir::${namespace}"; let genSpecializedAttr = 0; }`);
+            definitions.push(`def ${enumName}Attr : EnumAttr<${dialect}_Dialect, ${enumName}, "${enumName.toLowerCase()}">;`);
+        }
+        const directory = path.join(source, '_/llvm-project/mlir/include/mlir/Dialect', dialect);
+        // eslint-disable-next-line no-await-in-loop
+        await fs.mkdir(directory, { recursive: true });
+        // eslint-disable-next-line no-await-in-loop
+        await fs.writeFile(path.join(directory, `${name}Common.td`), `${definitions.join('\n')}\n`, 'utf-8');
+    }
     await parser.parse(dialects, paths.map((p) => path.join(source, ...p.split('/'))));
     for (const def of parser.defs) {
         const op = new Operator(def);
@@ -471,9 +504,13 @@ const schema = async () => {
                     }
                 }
                 if (attrDef && (attrDef.isEnumAttr() || attrDef.isEnumProp())) {
-                    const cases = attrDef.getEnumCases();
+                    const cases = attrDef.getEnumCases() || attrDef.getValueAsDef('enum')?.getEnumCases();
                     if (cases && cases.length > 0) {
-                        return `${defName}{${cases.join('|')}}`;
+                        const record = attrDef.getBaseAttr().getBaseProperty();
+                        const info = record.getValueAsDef('enum') || record;
+                        const separator = info.getValueAsBit('printBitEnumQuoted') === false ? info.getValueAsString('separator')?.trim() : null;
+                        const properties = separator ? `; separator='${separator}'` : '';
+                        return `${defName}{${cases.join('|')}${properties}}`;
                     }
                 }
                 return defName;
