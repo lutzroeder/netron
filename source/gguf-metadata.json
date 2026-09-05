@@ -3880,7 +3880,8 @@
         { "name": "nextn.enorm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "nextn.hnorm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "nextn.shared_head_head", "type": "MUL_MAT" },
-        { "name": "nextn.shared_head_norm", "type": "RMS_NORM", "category": "Normalization" }
+        { "name": "nextn.shared_head_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "exp_probs_b_vl" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -4312,6 +4313,57 @@
       "output": [
         { "name": "output_hc", "type": "HYPER_CONNECTION", "tensors": ["output_hc_norm", "output_hc_down", "output_hc_up"] },
         { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "hy_v4",
+    "graph": {
+      "input": [
+        { "name": "token_embd" },
+        { "name": "rope_freqs" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_sinks" },
+        { "name": "attn_q_a" },
+        { "name": "attn_q_a_norm" },
+        { "name": "attn_q_b" },
+        { "name": "attn_kv_a_mqa" },
+        { "name": "attn_kv_a_norm" },
+        { "name": "attn_k_b" },
+        { "name": "attn_v_b" },
+        { "name": "attn_output" },
+        { "name": "attn_gate" },
+        { "name": "indexer.k_norm" },
+        { "name": "indexer.proj" },
+        { "name": "indexer.attn_k" },
+        { "name": "indexer.attn_q_b" },
+        { "name": "hc_attn_fn" },
+        { "name": "hc_attn_base" },
+        { "name": "hc_attn_scale" },
+        { "name": "hc_ffn_fn" },
+        { "name": "hc_ffn_base" },
+        { "name": "hc_ffn_scale" },
+        { "name": "ffn_gate_inp" },
+        { "name": "exp_probs_b" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_gate_shexp" },
+        { "name": "ffn_down_shexp" },
+        { "name": "ffn_up_shexp" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" },
+        { "name": "output_hc_fn" },
+        { "name": "output_hc_base" },
+        { "name": "output_hc_scale" }
       ]
     }
   }

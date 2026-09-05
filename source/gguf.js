@@ -175,9 +175,12 @@ gguf.Graph = class {
                         addNode(use('ffn_gate_inp'), [moeInput], g1);
                         // Expert routing bias (deepseek/step/bailing MoE): added to the
                         // router logits before top-k selection.
-                        if (has('exp_probs_b')) {
+                        // DeepSeek4 selects the vision bias for image tokens.
+                        const biases = ['exp_probs_b', 'exp_probs_b_vl'].filter(has).map(use);
+                        if (biases.length > 0) {
+                            const weights = new Map(biases.flatMap((bias) => Array.from(bias.weights)));
                             const biased = newValue();
-                            addNode(use('exp_probs_b'), [g1], biased);
+                            addNode({ ...biases[0], type: 'ADD', weights }, [g1], biased);
                             g1 = biased;
                         }
                         let expertInput = moeInput;
