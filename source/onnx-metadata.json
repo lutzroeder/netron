@@ -40122,8 +40122,16 @@
     ],
     "examples": [
       {
+        "summary": "1d",
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n    strides=[2],\n)\nxT = np.array([[[1, 2]]], dtype=np.float32)\nxI = np.array([[[1, 3]]], dtype=np.int64)\ny = np.array([[[0, 1, 0, 2]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI], outputs=[y], name=\"test_maxunpool_export_1d\")"
+      },
+      {
+        "summary": "4d",
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2, 2],\n    strides=[2, 2, 2, 2],\n)\nxT = np.array([[[[[[1, 2]]]]]], dtype=np.float32)\nxI = np.array([[[[[[0, 31]]]]]], dtype=np.int64)\ny = np.zeros((1, 1, 2, 2, 2, 4), dtype=np.float32)\ny.flat[[0, 31]] = xT.flat\nexpect(node, inputs=[xT, xI], outputs=[y], name=\"test_maxunpool_export_4d\")"
+      },
+      {
         "summary": "with_output_shape",
-        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\", \"output_shape\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nxT = np.array([[[[5, 6], [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[5, 7], [13, 15]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array(\n    [\n        [\n            [\n                [0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[xT, xI, output_shape],\n    outputs=[y],\n    name=\"test_maxunpool_export_with_output_shape\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\", \"output_shape\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nxT = np.array([[[[5, 6], [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[6, 8], [16, 18]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array(\n    [\n        [\n            [\n                [0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[xT, xI, output_shape],\n    outputs=[y],\n    name=\"test_maxunpool_export_with_output_shape\",\n)"
       },
       {
         "summary": "without_output_shape",
@@ -40206,8 +40214,16 @@
     ],
     "examples": [
       {
+        "summary": "1d",
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n    strides=[2],\n)\nxT = np.array([[[1, 2]]], dtype=np.float32)\nxI = np.array([[[1, 3]]], dtype=np.int64)\ny = np.array([[[0, 1, 0, 2]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI], outputs=[y], name=\"test_maxunpool_export_1d\")"
+      },
+      {
+        "summary": "4d",
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2, 2],\n    strides=[2, 2, 2, 2],\n)\nxT = np.array([[[[[[1, 2]]]]]], dtype=np.float32)\nxI = np.array([[[[[[0, 31]]]]]], dtype=np.int64)\ny = np.zeros((1, 1, 2, 2, 2, 4), dtype=np.float32)\ny.flat[[0, 31]] = xT.flat\nexpect(node, inputs=[xT, xI], outputs=[y], name=\"test_maxunpool_export_4d\")"
+      },
+      {
         "summary": "with_output_shape",
-        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\", \"output_shape\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nxT = np.array([[[[5, 6], [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[5, 7], [13, 15]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array(\n    [\n        [\n            [\n                [0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[xT, xI, output_shape],\n    outputs=[y],\n    name=\"test_maxunpool_export_with_output_shape\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\", \"output_shape\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nxT = np.array([[[[5, 6], [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[6, 8], [16, 18]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array(\n    [\n        [\n            [\n                [0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[xT, xI, output_shape],\n    outputs=[y],\n    name=\"test_maxunpool_export_with_output_shape\",\n)"
       },
       {
         "summary": "without_output_shape",
@@ -40291,8 +40307,16 @@
     ],
     "examples": [
       {
+        "summary": "1d",
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n    strides=[2],\n)\nxT = np.array([[[1, 2]]], dtype=np.float32)\nxI = np.array([[[1, 3]]], dtype=np.int64)\ny = np.array([[[0, 1, 0, 2]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI], outputs=[y], name=\"test_maxunpool_export_1d\")"
+      },
+      {
+        "summary": "4d",
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2, 2],\n    strides=[2, 2, 2, 2],\n)\nxT = np.array([[[[[[1, 2]]]]]], dtype=np.float32)\nxI = np.array([[[[[[0, 31]]]]]], dtype=np.int64)\ny = np.zeros((1, 1, 2, 2, 2, 4), dtype=np.float32)\ny.flat[[0, 31]] = xT.flat\nexpect(node, inputs=[xT, xI], outputs=[y], name=\"test_maxunpool_export_4d\")"
+      },
+      {
         "summary": "with_output_shape",
-        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\", \"output_shape\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nxT = np.array([[[[5, 6], [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[5, 7], [13, 15]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array(\n    [\n        [\n            [\n                [0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[xT, xI, output_shape],\n    outputs=[y],\n    name=\"test_maxunpool_export_with_output_shape\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"MaxUnpool\",\n    inputs=[\"xT\", \"xI\", \"output_shape\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nxT = np.array([[[[5, 6], [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[6, 8], [16, 18]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array(\n    [\n        [\n            [\n                [0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0],\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[xT, xI, output_shape],\n    outputs=[y],\n    name=\"test_maxunpool_export_with_output_shape\",\n)"
       },
       {
         "summary": "without_output_shape",
