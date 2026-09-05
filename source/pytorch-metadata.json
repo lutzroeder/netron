@@ -18,10 +18,10 @@
     "name": "_c10d_functional::all_reduce_(Tensor(a!) input, Any reduce_op, Any group_name) -> Tensor(a!)"
   },
   {
-    "name": "_c10d_functional::all_reduce_coalesced(Tensor[] inputs, str reduce_op, Any group_name) -> Tensor[]"
+    "name": "_c10d_functional::all_reduce_coalesced(Tensor[] inputs, Any reduce_op, Any group_name) -> Tensor[]"
   },
   {
-    "name": "_c10d_functional::all_reduce_coalesced_(Tensor[](a!) inputs, str reduce_op, Any group_name) -> Tensor[](a!)"
+    "name": "_c10d_functional::all_reduce_coalesced_(Tensor[](a!) inputs, Any reduce_op, Any group_name) -> Tensor[](a!)"
   },
   {
     "name": "_c10d_functional::all_to_all_single(Tensor input, SymInt[] output_split_sizes, SymInt[] input_split_sizes, Any group_name) -> Tensor"
