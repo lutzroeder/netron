@@ -130,6 +130,9 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case 54:
                     message.seed_sentencepieces_file = reader.string();
                     break;
+                case 55:
+                    message.auto_character_coverage = reader.bool();
+                    break;
                 case 5:
                     message.accept_language.push(reader.string());
                     break;
@@ -282,6 +285,9 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case "seed_sentencepieces_file":
                     message.seed_sentencepieces_file = reader.string();
                     break;
+                case "auto_character_coverage":
+                    message.auto_character_coverage = reader.bool();
+                    break;
                 case "accept_language":
                     reader.array(message.accept_language, () => reader.string());
                     break;
@@ -350,6 +356,7 @@ sentencepiece.TrainerSpec.prototype.eos_piece = "</s>";
 sentencepiece.TrainerSpec.prototype.pad_piece = "<pad>";
 sentencepiece.TrainerSpec.prototype.unk_surface = " E28187 ";
 sentencepiece.TrainerSpec.prototype.seed_sentencepieces_file = "";
+sentencepiece.TrainerSpec.prototype.auto_character_coverage = false;
 sentencepiece.TrainerSpec.prototype.self_test_sample_size = 0;
 sentencepiece.TrainerSpec.prototype.mining_sentence_size = 0;
 sentencepiece.TrainerSpec.prototype.training_sentence_size = 0;
