@@ -1848,6 +1848,7 @@ view.Graph = class extends grapher.Graph {
         this._tensors = new Map();
         this._table = new Map();
         this._selection = new Set();
+        this._neighborhood = [];
         this.blocks = new Set();
         this._zoom = 1;
         this._listeners = {};
@@ -2361,6 +2362,12 @@ view.Graph = class extends grapher.Graph {
     }
 
     clearSelection() {
+        for (const [item, className] of this._neighborhood) {
+            if (item.element) {
+                item.element.classList.remove(className);
+            }
+        }
+        this._neighborhood = [];
         if (this._selection.size > 0) {
             for (const element of this._selection) {
                 element.deselect();
@@ -2393,11 +2400,35 @@ view.Graph = class extends grapher.Graph {
                     this._selection.add(element);
                 }
             }
+            if (this._selection.size === 1) {
+                const [element] = this._selection;
+                if (element instanceof grapher.Node) {
+                    this._highlightNeighborhood(element);
+                }
+            }
             this.emit('selectionchange', source);
             return array;
         }
         this.emit('selectionchange', source);
         return null;
+    }
+
+    _highlightNeighborhood(node) {
+        const highlight = (item, className) => {
+            if (item.element) {
+                item.element.classList.add(className);
+                this._neighborhood.push([item, className]);
+            }
+        };
+        for (const { label: edge } of this.edges.values()) {
+            if (edge.to === node && edge.from !== node) {
+                highlight(edge.from, 'input-highlight');
+                highlight(edge, 'input-highlight');
+            } else if (edge.from === node && edge.to !== node) {
+                highlight(edge.to, 'output-highlight');
+                highlight(edge, 'output-highlight');
+            }
+        }
     }
 
     activate(value, source) {
