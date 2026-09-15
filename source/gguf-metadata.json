@@ -4466,5 +4466,38 @@
         { "name": "output", "type": "MUL_MAT" }
       ]
     }
+  },
+  {
+    "name": "maple",
+    "family": "decoder-moe",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        {
+          "name": "attention",
+          "type": "MULTI_HEAD_ATTENTION",
+          "category": "Attention",
+          "tensors": ["attn_q", "attn_k", "attn_v", "attn_output", "attn_q_norm", "attn_k_norm"],
+          "attributes": [
+            { "key": "attention.head_count", "name": "head_count" },
+            { "key": "attention.head_count_kv", "name": "head_count_kv" },
+            { "key": "attention.key_length", "name": "key_length" },
+            { "key": "attention.value_length", "name": "value_length" }
+          ]
+        },
+        { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT" },
+        { "name": "ffn_gate_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_down_exps", "type": "MUL_MAT_ID" }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
   }
 ]
