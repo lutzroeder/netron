@@ -26793,6 +26793,7 @@ _.triton.nvws.NVWSDialect = class extends _.Dialect {
                 partitionIndex++;
             }
             result.addAttribute('numWarps', numWarps);
+            result.addTypes(parser.parseOptionalArrowTypeList());
             return true;
         }
         return super.parseOperation(parser, result);

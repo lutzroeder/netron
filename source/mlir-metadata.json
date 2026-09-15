@@ -34009,12 +34009,12 @@
   {
     "name": "nvvm.ex2",
     "summary": "Base-2 exponential (fast approximation)",
-    "description": "Computes a fast approximation of 2 raised to the power of the input\n    value. The `ftz` attribute, when set, flushes subnormal inputs and\n    results to sign-preserving zero.",
+    "description": "Computes a fast approximation of 2 raised to the power of the input value.\n    Supports f32, vector<1xf32>, and packed f16x2 and bf16x2 values. The `ftz`\n    attribute is optional for f32 and vector<1xf32>, unavailable for f16x2,\n    and required for bf16x2.",
     "operands": [
-      { "name": "src", "type": "F32" }
+      { "name": "src", "type": "AnyTypeOf<[F32, VectorOfLengthAndType<[1], [F32]>, VectorOfLengthAndType<[2], [F16]>, VectorOfLengthAndType<[2], [BF16]>]>" }
     ],
     "results": [
-      { "name": "res", "type": "F32" }
+      { "name": "res", "type": "AnyTypeOf<[F32, VectorOfLengthAndType<[1], [F32]>, VectorOfLengthAndType<[2], [F16]>, VectorOfLengthAndType<[2], [BF16]>]>" }
     ],
     "attributes": [
       { "name": "ftz", "type": "DefaultValuedAttr<BoolAttr, false>" }
@@ -38306,13 +38306,14 @@
   {
     "name": "onnx.DimGroup",
     "summary": "ONNX dimension group operation.",
-    "description": "This operation is to link a compile-time unknown dimension of a Tensor\n    to a group id. Two dimensions that have the same group id are expected\n    to be equal at runtime.\n\n    ```\n    \"onnx.DimGroup\"(%tensor) {axis = 0 : si64, group_id = 1: si64} : (tensor<?x3x5xf32>) -> ()\n    ```\n\n    `axis` identifies the dimension position in the tensor.\n\n    `group_id` identifies the group id of the dimension. It is non-negative.\n    Value -1 for `group_id` means the dimension does not belong to any group.\n\n    This operation is currently used in the pass `--onnx-dim-analysis`\n    for testing the unknown dimension analysis class.\n\n    This operation is not part of the standard and was added to assist onnx-mlir.",
+    "description": "This operation is to link a compile-time unknown dimension of a Tensor\n    to a group id. Two dimensions that have the same group id are expected\n    to be equal at runtime.\n\n    ```\n    \"onnx.DimGroup\"(%tensor) {axis = 0 : si64, group_id = 1: si64} : (tensor<?x3x5xf32>) -> ()\n    ```\n\n    `axis` identifies the dimension position in the tensor.\n\n    `group_id` identifies the group id of the dimension. It is non-negative.\n    Value -1 for `group_id` means the dimension does not belong to any group.\n\n    `group_name` is the symbolic name of the group when it is known, either\n    from the `onnx.dim_params` attribute of a function argument/result or\n    synthesized from a function argument, e.g. `X_0` or `arg0_0`. It is absent\n    when the group has no known name.\n\n    This operation is currently used in the pass `--onnx-dim-analysis`\n    for testing the unknown dimension analysis class.\n\n    This operation is not part of the standard and was added to assist onnx-mlir.",
     "operands": [
       { "name": "data", "type": "AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[UI32]>, TensorOf<[UI64]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[I32]>, TensorOf<[I64]>, TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>, TensorOf<[StringType]>, TensorOf<[I1]>, TensorOf<[Complex<F32>]>, TensorOf<[Complex<F64>]>]>" }
     ],
     "attributes": [
       { "name": "axis", "type": "DefaultValuedAttr<SI64Attr, 0>" },
-      { "name": "group_id", "type": "DefaultValuedAttr<SI64Attr, -1>" }
+      { "name": "group_id", "type": "DefaultValuedAttr<SI64Attr, -1>" },
+      { "name": "group_name", "type": "OptionalAttr<StrAttr>" }
     ]
   },
   {
