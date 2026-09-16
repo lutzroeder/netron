@@ -175,7 +175,7 @@ litert.lm.proto.LlmMetadata.prototype.min_runtime_version = "";
 litert.lm.proto.LlmModelType = class LlmModelType {
 
     get model_type() {
-        litert.lm.proto.LlmModelType.model_typeSet = litert.lm.proto.LlmModelType.model_typeSet || new Set(["generic_model", "gemma3n", "function_gemma", "gemma3", "qwen3", "qwen2p5", "gemma4", "fast_vlm", "lfm2", "minicpm5"]);
+        litert.lm.proto.LlmModelType.model_typeSet = litert.lm.proto.LlmModelType.model_typeSet || new Set(["generic_model", "gemma3n", "function_gemma", "gemma3", "qwen3", "qwen2p5", "gemma4", "fast_vlm", "lfm2", "minicpm5", "minicpmv4"]);
         return Object.keys(this).find((key) => litert.lm.proto.LlmModelType.model_typeSet.has(key) && this[key] !== null);
     }
 
@@ -215,6 +215,9 @@ litert.lm.proto.LlmModelType = class LlmModelType {
                 case 12:
                     message.minicpm5 = litert.lm.proto.MiniCPM5.decode(reader, reader.uint32());
                     break;
+                case 13:
+                    message.minicpmv4 = litert.lm.proto.MiniCpmV4.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -232,12 +235,6 @@ litert.lm.proto.GenericModel = class GenericModel {
         while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
-                case 1:
-                    message.model_role = reader.string();
-                    break;
-                case 2:
-                    message.force_string_content = reader.bool();
-                    break;
                 case 3:
                     message.image_enabled = reader.bool();
                     break;
@@ -364,8 +361,6 @@ litert.lm.proto.GenericModel = class GenericModel {
     }
 };
 
-litert.lm.proto.GenericModel.prototype.model_role = "";
-litert.lm.proto.GenericModel.prototype.force_string_content = false;
 litert.lm.proto.GenericModel.prototype.image_enabled = false;
 litert.lm.proto.GenericModel.prototype.audio_enabled = false;
 litert.lm.proto.GenericModel.prototype.delimiter_regex = "";
@@ -855,6 +850,23 @@ litert.lm.proto.MiniCPM5.prototype.code_fence_end = "";
 litert.lm.proto.MiniCPM5.prototype.escape_fence_strings = false;
 litert.lm.proto.MiniCPM5.prototype.tool_code_regex = "";
 
+litert.lm.proto.MiniCpmV4 = class MiniCpmV4 {
+
+    static decode(reader, length) {
+        const message = new litert.lm.proto.MiniCpmV4();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
 litert.lm.proto.TokenUnion = class TokenUnion {
 
     get token_union() {
@@ -933,6 +945,9 @@ litert.lm.proto.SamplerParameters = class SamplerParameters {
                 case 6:
                     message.backend = reader.int32();
                     break;
+                case 7:
+                    message.compute_exact_log_probs = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -948,6 +963,7 @@ litert.lm.proto.SamplerParameters.prototype.p = 0;
 litert.lm.proto.SamplerParameters.prototype.temperature = 0;
 litert.lm.proto.SamplerParameters.prototype.seed = 0;
 litert.lm.proto.SamplerParameters.prototype.backend = 0;
+litert.lm.proto.SamplerParameters.prototype.compute_exact_log_probs = false;
 
 litert.lm.proto.SamplerParameters.Type = {
     "TYPE_UNSPECIFIED": 0,
