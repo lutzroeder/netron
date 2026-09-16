@@ -4268,7 +4268,7 @@ view.TensorView = class extends view.Expander {
                 if (tensor.empty) {
                     content.innerHTML = 'Tensor data is empty.';
                 } else {
-                    content.innerHTML = tensor.toString();
+                    content.textContent = tensor.toString();
                     if (this._host.save && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length > 0) {
                         this._saveButton = this.createElement('div', 'sidebar-item-value-button');
                         this._saveButton.classList.add('sidebar-item-value-button-context');
@@ -4281,7 +4281,7 @@ view.TensorView = class extends view.Expander {
                     }
                 }
             }).catch((error) => {
-                content.innerHTML = error.message;
+                content.textContent = error.message;
             });
         }
         return content;
