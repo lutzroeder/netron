@@ -18214,7 +18214,7 @@
     "name": "Div",
     "module": "ai.onnx",
     "version": 6,
-    "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero).\n",
+    "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero). For example, `-11 / 3` yields `-3`.\n",
     "attributes": [
       {
         "name": "axis",
@@ -18282,7 +18282,7 @@
     "name": "Div",
     "module": "ai.onnx",
     "version": 7,
-    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero).\n",
+    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero). For example, `-11 / 3` yields `-3`.\n",
     "inputs": [
       {
         "name": "A",
@@ -18336,7 +18336,7 @@
     "name": "Div",
     "module": "ai.onnx",
     "version": 13,
-    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero).\n",
+    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero). For example, `-11 / 3` yields `-3`.\n",
     "inputs": [
       {
         "name": "A",
@@ -18391,7 +18391,7 @@
     "name": "Div",
     "module": "ai.onnx",
     "version": 14,
-    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero).\n(Opset 14 change): Extend supported types to include uint8, int8, uint16, and int16.\n",
+    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\nFor integer inputs, the result is computed using truncating division (rounding toward zero). For example, `-11 / 3` yields `-3`.\n(Opset 14 change): Extend supported types to include uint8, int8, uint16, and int16.\n",
     "inputs": [
       {
         "name": "A",
@@ -20440,7 +20440,7 @@
     "name": "EngramGate",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Fuses the Engram gate.\n\nThe op consumes already projected keys in (batch_size, sequence_length, hc_mult, hidden_size) layout,\nthe hidden-state queries in the same layout, an already projected value in\n(batch_size, sequence_length, hidden_size) layout that is shared by every hyper-connection, and the two\nRMSNorm scales. The key and value projections stay outside the op so they can run on the execution\nprovider's tuned MatMul (weight prepacking, tensor cores, quantized weights) and so the value\nprojection is computed once per token instead of once per hyper-connection.\n\nIt computes the Engram gate:\n\ngate = sigmoid(sign(dot) * sqrt(max(abs(dot), 1e-6))) where\ndot = sum(RMSNorm(key) * RMSNorm(query)) / sqrt(hidden_size).\n\nThe output is gate * value, broadcast across the hyper-connections. The final Engram residual\nvalue + short_conv(value) is then expressed with RMSNorm, CausalConvWithState and Add.\n",
+    "description": "Fuses the Engram gate.\n\nThe op consumes already projected keys in (batch_size, sequence_length, hc_mult, hidden_size) layout,\nthe hidden-state queries in the same layout, an already projected value in\n(batch_size, sequence_length, hidden_size) layout that is shared by every hyper-connection, and the two\nRMSNorm scales. The key and value projections stay outside the op so they can run on the execution\nprovider's tuned MatMul (weight prepacking, tensor cores, quantized weights) and so the value\nprojection is computed once per token instead of once per hyper-connection.\n\nIt computes the Engram gate:\n\ngate = sigmoid(sign(dot) * sqrt(max(abs(dot), 1e-6))) where\ndot = sum(RMSNorm(key) * RMSNorm(query)) / sqrt(hidden_size).\n\nThe output is gate * value, broadcast across the hyper-connections. The optional gated_value_normed\noutput applies RMSNorm to gate * value with conv_norm_scale, which can feed a following\nCausalConvWithState. The final Engram residual value + short_conv(value) is then expressed with\nRMSNorm, CausalConvWithState and Add.\n",
     "attributes": [
       {
         "name": "epsilon",
@@ -20475,19 +20475,33 @@
         "name": "query_norm_scale",
         "type": "T",
         "description": "RMSNorm scale for queries with shape (hc_mult, hidden_size)."
+      },
+      {
+        "name": "conv_norm_scale",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional RMSNorm scale for the gated value, with shape (hc_mult, hidden_size). Required when gated_value_normed is requested."
       }
     ],
     "min_input": 5,
-    "max_input": 5,
+    "max_input": 6,
     "outputs": [
       {
         "name": "output",
         "type": "T",
         "description": "Gated value tensor with shape (batch_size, sequence_length, hc_mult, hidden_size)."
+      },
+      {
+        "name": "gated_value_normed",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional RMS-normalized gated value tensor with shape (batch_size, sequence_length, hc_mult, hidden_size)."
       }
     ],
     "min_output": 1,
-    "max_output": 1,
+    "max_output": 2,
+    "inputs_range": "5 - 6",
+    "outputs_range": "1 - 2",
     "type_constraints": [
       {
         "description": "Constrain input and output types to float tensors.",
@@ -24251,21 +24265,21 @@
     "name": "GatherBlockQuantized",
     "module": "com.microsoft",
     "version": 1,
-    "description": "GatherBlockQuantized is a Gather with data quantized. It is similar to Gather (https://github.com/onnx/onnx/blob/main/docs/Operators.md#gather) with differences:\n  1. Input `data` is a constant. It is quantized block-wise along attribute `quantize_axis` with block size specified by attribute `block_size`.\n     `block_size` must be a power of 2 and not smaller than 16, like 16, 32, 64, 128, ...\n  2. Input `data`'s scale and zero point are specified by input `scales` and `zero_points`. `scales` and `zero_points` are also constants.\n     If `zero_points` is not provided, the default value is 0 for int4/uint4, or 2^(bits-1) for uint8.\n  3. During the op execution, `data` and `indices` are first used to generate the quantized output. Then, `scales` and `zero_points` are used\n     to dequantize the output.\n  4. The `output` and `scales` have the same type. The `data` and `zero_points` have the same type.\n  5. For uint8 data, the `gather_axis` must be 0. The supported `bits` values for uint8 data are 2, 4, and 8;\n     for `bits` < 8 the values are packed along the last dimension (low-order bits first).\n",
+    "description": "GatherBlockQuantized is a Gather with data quantized. It is similar to Gather (https://github.com/onnx/onnx/blob/main/docs/Operators.md#gather) with differences:\n  1. Input `data` is a constant. It is quantized block-wise along attribute `quantize_axis` with block size specified by attribute `block_size`.\n     `block_size` must be a power of 2 and not smaller than 16, like 16, 32, 64, 128, ...\n     For an FP8 or FP4 `data` type (see point 6 below), `block_size` may also be 0, meaning the entire `quantize_axis`\n     dimension forms a single block (i.e. one scale per row).\n  2. Input `data`'s scale and zero point are specified by input `scales` and `zero_points`. `scales` and `zero_points` are also constants.\n     If `zero_points` is not provided, the default value is 0 for int4/uint4, or 2^(bits-1) for uint8.\n     `zero_points` must not be provided when `data` is an FP8 or FP4 type: FP8/FP4 quantization is symmetric.\n  3. During the op execution, `data` and `indices` are first used to generate the quantized output. Then, `scales` and `zero_points` are used\n     to dequantize the output.\n  4. The `output` and `scales` have the same type. The `data` and `zero_points` have the same type.\n  5. For uint8 data, the `gather_axis` must be 0. The supported `bits` values for uint8 data are 2, 4, and 8;\n     for `bits` < 8 the values are packed along the last dimension (low-order bits first).\n  6. `data` may also be an FP8 type (float8e4m3fn, float8e4m3fnuz, float8e5m2 or float8e5m2fnuz) or an FP4 type\n     (float4e2m1), rather than an integer block-quantized type. In that case `bits` is ignored, there is\n     no `zero_points` input, and dequantization is simply `output[...] = float(data[...]) * scales[block_index(...)]`.\n     On any axis other than `quantize_axis`, the corresponding `scales` dimension must either equal `data`'s\n     dimension, or be 1, in which case the scale is broadcast along that axis (e.g. a single scale shared by\n     every row, as with a per-tensor scale applied to an entire embedding table).\n",
     "attributes": [
       {
         "name": "bits",
         "type": "int64",
         "required": false,
         "default": 4,
-        "description": "Number of bits used for weight quantization. Must be 2, 4 or 8. "
+        "description": "Number of bits used for weight quantization. Must be 2, 4 or 8. Ignored when `data` is an FP8 or FP4 type."
       },
       {
         "name": "block_size",
         "type": "int64",
         "required": false,
         "default": 128,
-        "description": "(Optional) block size used for weight quantization. It needs to be a power of 2 and not smaller than 16."
+        "description": "(Optional) block size used for weight quantization. It needs to be a power of 2 and not smaller than 16, or 0. A value of 0 is only valid for an FP8 or FP4 `data` type and means the entire `quantize_axis` dimension forms a single block."
       },
       {
         "name": "gather_axis",
@@ -24290,18 +24304,18 @@
       {
         "name": "indices",
         "type": "Tind",
-        "description": "Tensor of int32/int64 indices, of any rank q. All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds."
+        "description": "Tensor of int32/int64 indices, of any rank q. Values in [-s, s-1] select elements along an axis of size s. Unlike ONNX Gather, an out-of-range index produces zeros for the corresponding output slice."
       },
       {
         "name": "scales",
         "type": "T2",
-        "description": "quantization scale"
+        "description": "quantization scale. Same rank as data. On axes other than quantize_axis, a dimension of 1 broadcasts the scale along that axis (e.g. a single per-tensor scale for the whole table); only applicable when `data` is an FP8 or FP4 type."
       },
       {
         "name": "zero_points",
         "type": "T1",
         "option": "optional",
-        "description": "quantization zero points"
+        "description": "quantization zero points. Must not be provided when `data` is an FP8 or FP4 type."
       }
     ],
     "min_input": 3,
@@ -24323,7 +24337,12 @@
         "allowed_type_strs": [
           "tensor(int4)",
           "tensor(uint4)",
-          "tensor(uint8)"
+          "tensor(uint8)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)",
+          "tensor(float4e2m1)"
         ]
       },
       {
@@ -27872,7 +27891,7 @@
     "name": "GroupNormalization",
     "module": "ai.onnx",
     "version": 21,
-    "description": "A GroupNormalization function. Carries out group normalization as described in\nthe paper https://arxiv.org/abs/1803.08494\n\nThis operator transforms input according to\n```\ny = scale * (x - mean) / sqrt(variance + epsilon) + bias,\n```\nwhere the mean and variance are computed per instance per group of channels, and\n`scale` and `bias` should be specified for each channel. The number of\ngroups `num_groups` should be divisible by the number of channels so that there are\nan equal number of channels per group.\n\nThe overall computation has two stages: the first stage normalizes the elements to\nhave zero mean and unit variance for each instance in each group, and the second\nstage scales and shifts the results of the first stage. The floating-point precision\nused in the first stage is determined by the `stash_type` attribute. For example,\nif `stash_type` is 1, the operator casts all input variables to 32-bit float,\nperforms the computation, and finally casts the normalized results back to the\noriginal type of `X`. The second stage does not depend on `stash_type`.\n\nWhen the number of groups is the same as the number of channels, this operator is\nequivalent to InstanceNormalization. When there is only one group, this operator\nis equivalent to LayerNormalization.\n",
+    "description": "A GroupNormalization function. Carries out group normalization as described in\nthe paper https://arxiv.org/abs/1803.08494\n\nThis operator transforms input according to\n```\ny = scale * (x - mean) / sqrt(variance + epsilon) + bias,\n```\nwhere the mean and variance are computed per instance per group of channels, and\n`scale` and `bias` should be specified for each channel. The number of channels\nshould be divisible by `num_groups` so that there are an equal number of channels\nper group.\n\nThe overall computation has two stages: the first stage normalizes the elements to\nhave zero mean and unit variance for each instance in each group, and the second\nstage scales and shifts the results of the first stage. The floating-point precision\nused in the first stage is determined by the `stash_type` attribute. For example,\nif `stash_type` is 1, the operator casts all input variables to 32-bit float,\nperforms the computation, and finally casts the normalized results back to the\noriginal type of `X`. The second stage does not depend on `stash_type`.\n\nWhen the number of groups is the same as the number of channels, this operator is\nequivalent to InstanceNormalization. When there is only one group, this operator\nis equivalent to LayerNormalization.\n",
     "attributes": [
       {
         "name": "epsilon",
@@ -27950,7 +27969,7 @@
     "name": "GroupQueryAttention",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Group Query Self/Cross Attention with KV Cache Quantization Support.\n\nThis operator implements grouped-query attention with past state (KV cache) support.\nIt also supports optional float8, int8 or int4 quantization for the KV cache to reduce memory footprint.\n\n**Cache Format:**\nThe past and present KV cache tensors are expected in a BNSH format: `(batch_size, num_heads, cache_sequence_length, head_size)`, where `cache_sequence_length` is the length of the cached key/value sequences, or the maximum sequence length when past and present buffer sharing is used.\n\n**Quantization:**\nWhen quantization is enabled, `past_key` and `past_value` inputs can be of type `float8e4m3fn`, `uint8` or `int8`. The corresponding `k_scale` and `v_scale` tensors must be provided.\nThe operator will output `present_key` and `present_value` in same format as the `past_key` and `past_value`.\n\nFor 4-bit quantization, the data type is uint8 where each byte contains two 4-bit values. The bit width of quantized KV cache can be set using `kv_cache_bit_width` attribute.\n\nThe shapes of the k_scale, v_scale tensors shall be broadcastable to present_key shape.\n\n**Quantization Modes (`k_quant_type`, `v_quant_type` attributes):**\n- **\"NONE\"**: No quantization.\n- **\"PER_TENSOR\"**: A single scale for the entire tensor. Scale example shape: `[1]`.\n- **\"PER_CHANNEL\"**: A scale for each channel. Scale example shape: `[1, num_heads_k, 1, head_size]`.\n",
+    "description": "Group Query Self/Cross Attention with KV Cache Quantization Support.\n\nThis operator implements grouped-query attention with past state (KV cache) support.\nIt also supports optional float8, int8 or int4 quantization for the KV cache to reduce memory footprint.\n\n**Cache Format:**\nThe past and present KV cache tensors are expected in a BNSH format: `(batch_size, num_heads, cache_sequence_length, head_size)`, where `cache_sequence_length` is the length of the cached key/value sequences, or the maximum sequence length when past and present buffer sharing is used.\n\n**Windowed KV Cache (`sliding_window_cache` attribute):**\nWhen `sliding_window_cache` is 1, the past/present buffers are window-sized instead of full-length and the operator evicts internally. Let `C` be the cache capacity (dimension 2 of `past_key`, which is also the sequence dimension of `present_key`), `W` be `local_window_size`, and `T` be the absolute number of tokens processed so far by this batch entry, i.e. `seqlens_k[b] + 1`. The scalar `total_sequence_length` input is only the batch maximum of `T`; the layout below is per batch entry, so a ragged batch gets a different resident range per entry. `C` must be at least `W`.\n\nAfter a step, rows `[0, L)` of `present_key` and `present_value` hold the `L` most recent positions in increasing position order, so row `i` holds absolute position `T - L + i`. The retained positions are always physically contiguous and start at row 0; the layout never wraps around, so a ring-buffer layout cannot be exposed through these outputs. Rows `[L, C)` are unspecified. The resident count `L` is a function of `T` alone:\n\n```\nG = C - W + 1\nL(T) = T                            if T <= C\nL(T) = T - G * ceil((T - C) / G)    otherwise\n```\n\nHence `min(T, W) <= L(T) <= min(T, C)`: the whole window stays resident, and eviction reclaims `G` positions at once rather than one position per step, so consumers must not assume that the cache is kept full at `min(T, C)`.\n\n  Because `L` depends only on `T`, the resulting layout is independent of how the tokens were split into steps: a multi-token step of `S` tokens (speculative decoding, chunked prefill) leaves exactly the layout that the same tokens would produce one at a time. Any `S >= 1` is accepted, including `S > C`; a step that would evict positions it still has to read is staged internally, so the capacity does not have to cover the step. When past context is present, the existing operator restriction still applies: `sequence_length > 1` requires `batch_size == 1`.\n\n  An execution provider may accept only part of the `C >= W` range. A configuration with `C < W` (equivalently, `W > C`) is invalid and is rejected with `INVALID_ARGUMENT`. The CUDA implementation requires `C == W`, so there `G` is 1 and `L(T)` is `min(T, C)`; a larger capacity is rejected. The CPU implementation accepts any `C >= W`, and slack above the window amortizes compaction over `G` steps.\n\nTo drop the last `k` tokens, for example after rejecting speculative draft tokens, re-run with the smaller `total_sequence_length` and `seqlens_k` and leave the buffer untouched. That is exact when `L(T - k) == L(T) - k`, which callers can evaluate with the formula above. Otherwise the shorter layout needs positions that have already been evicted, and the window has to be re-materialized.\n\n**Quantization:**\nWhen quantization is enabled, `past_key` and `past_value` inputs can be of type `float8e4m3fn`, `uint8` or `int8`. The corresponding `k_scale` and `v_scale` tensors must be provided.\nThe operator will output `present_key` and `present_value` in same format as the `past_key` and `past_value`.\n\nFor 4-bit quantization, the data type is uint8 where each byte contains two 4-bit values. The bit width of quantized KV cache can be set using `kv_cache_bit_width` attribute.\n\nThe shapes of the k_scale, v_scale tensors shall be broadcastable to present_key shape.\n\n**Quantization Modes (`k_quant_type`, `v_quant_type` attributes):**\n- **\"NONE\"**: No quantization.\n- **\"PER_TENSOR\"**: A single scale for the entire tensor. Scale example shape: `[1]`.\n- **\"PER_CHANNEL\"**: A scale for each channel. Scale example shape: `[1, num_heads_k, 1, head_size]`.\n",
     "attributes": [
       {
         "name": "causal",
@@ -28026,7 +28045,7 @@
         "name": "sliding_window_cache",
         "type": "int64",
         "required": false,
-        "description": "Set to 1 when the past/present KV buffers are window-sized instead of holding the whole sequence. The op then keeps only the min(total_sequence_length, cache_capacity) most recent tokens, contiguously, using cache-relative indexing and evicting from the front as needed. Requires local_window_size > 0 and a cache capacity of at least local_window_size. Multi-token steps may use a temporary staging buffer, so the capacity need not cover the entire step. Default value is 0 (full-length cache)."
+        "description": "Set to 1 when the past/present KV buffers are window-sized instead of holding the whole sequence. The op then evicts internally and indexes the buffers in cache-relative coordinates, keeping the most recent positions contiguously at rows [0, L) with min(T, local_window_size) <= L <= min(T, capacity), where T is seqlens_k[b] + 1 for that batch entry. Requires local_window_size > 0 and a cache capacity of at least local_window_size; a smaller capacity (W > C) is rejected with INVALID_ARGUMENT. The CUDA implementation additionally requires the capacity to equal local_window_size. Multi-token steps of any length are supported and produce the same layout as single-token steps, so the capacity need not cover the entire step. When past context is present, sequence_length > 1 requires batch_size == 1. See the Windowed KV Cache section of the operator description for the exact resident-range, eviction and rollback contract. Default value is 0 (full-length cache)."
       },
       {
         "name": "smooth_softmax",
@@ -28071,13 +28090,13 @@
         "name": "past_key",
         "type": "T_CACHE",
         "option": "optional",
-        "description": "past state key with support for format BNSH. When past_key uses same tensor as present_key(k-v cache), it is of length max_sequence_length... otherwise of length past_sequence_length."
+        "description": "past state key with support for format BNSH. When past_key uses same tensor as present_key(k-v cache), it is of length max_sequence_length... otherwise of length past_sequence_length. When sliding_window_cache is 1 this length is the window cache capacity C, which is chosen by the caller independently of the sequence length and must be at least local_window_size."
       },
       {
         "name": "past_value",
         "type": "T_CACHE",
         "option": "optional",
-        "description": "past state value with support for format BNSH. When past_value uses same tensor as present_value(k-v cache), it is of length max_sequence_length... otherwise of length past_sequence_length."
+        "description": "past state value with support for format BNSH. When past_value uses same tensor as present_value(k-v cache), it is of length max_sequence_length... otherwise of length past_sequence_length. When sliding_window_cache is 1 this length is the window cache capacity C, which is chosen by the caller independently of the sequence length and must be at least local_window_size."
       },
       {
         "name": "seqlens_k",
@@ -28111,7 +28130,7 @@
         "name": "attention_bias",
         "type": "T",
         "option": "optional",
-        "description": "additional add to QxK' with shape (batch_size or 1, num_heads or 1, sequence_length, total_sequence_length)"
+        "description": "additional add to QxK' with shape (batch_size or 1, num_heads or 1, sequence_length, total_sequence_length). The last dimension is indexed by absolute key position and stays total_sequence_length when sliding_window_cache is 1: it is not reduced to the cache capacity or to local_window_size. The operator reads the columns of the positions that are resident in the cache and ignores the rest. CPU supports this windowed absolute-column indexing; CUDA rejects attention_bias when sliding_window_cache is 1."
       },
       {
         "name": "head_sink",
@@ -42918,7 +42937,7 @@
     "name": "NGramHashMapping",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Computes Engram n-gram hash ids from pre-compressed tokenizer ids.\n\nFor n in [2, max_ngram_size], the op creates causal shifts of input_ids, padding positions before the\nsequence with pad_id, and computes\nmix = shifted_0 * multipliers[0] xor ... xor shifted_(n-1) * multipliers[n-1].\nFor every head of that n-gram order it emits mix modulo the corresponding head vocabulary size.\nThe output layout is (batch_size, sequence_length, (max_ngram_size - 1) * n_head_per_ngram), with\nheads for n=2 first, then n=3, and so on.\n\nAn n-gram window reaches max_ngram_size - 1 positions before the current token. To keep the op causal\nacross invocations (chunked prefill or autoregressive decode), the optional past_ids input carries\nthose preceding ids and present_ids returns the ids to pass to the next call. Both have shape\n(batch_size, max_ngram_size - 1) and are right-aligned, so the last slot is the most recent id.\nPositions before the start of the whole sequence use pad_id. Running the op once over a full sequence\nand running it over consecutive chunks while threading present_ids into past_ids produce identical\nhash ids. When past_ids is omitted the missing history is pad_id, which matches a fresh sequence.\npast_ids and present_ids may use the same allocation. Such in-place execution is transaction-safe\nonly when the whole operator call is unconditionally committed; a caller that may select a prefix or\nroll back must preserve past_ids.\n",
+    "description": "Computes Engram n-gram hash ids from pre-compressed tokenizer ids.\n\nFor n in [2, max_ngram_size], the op creates causal shifts of input_ids, padding positions before the\nsequence with pad_id, and computes\nmix = shifted_0 * multipliers[0] xor ... xor shifted_(n-1) * multipliers[n-1].\nFor every head of that n-gram order it emits mix modulo the corresponding head vocabulary size.\nThe output layout is (batch_size, sequence_length, (max_ngram_size - 1) * n_head_per_ngram), with\nheads for n=2 first, then n=3, and so on.\n\nAn n-gram window reaches max_ngram_size - 1 positions before the current token. To keep the op causal\nacross invocations (chunked prefill or autoregressive decode), the optional past_ids input carries\nthose preceding ids and present_ids returns the ids to pass to the next call. Both have shape\n(batch_size, max_ngram_size - 1) and are right-aligned, so the last slot is the most recent id.\nPositions before the start of the whole sequence use pad_id, or eos_token_id when it is provided.\nRunning the op once over a full sequence and running it over consecutive chunks while threading\npresent_ids into past_ids produce identical hash ids, including when reset_on_eos is enabled. When\nsegment_ids is used, segment boundaries are applied only within the current input_ids chunk and are\nnot inferred from past_ids. When past_ids is omitted the missing history is pad_id, or eos_token_id\nwhen it is provided.\npast_ids and present_ids may use the same allocation. Such in-place execution is transaction-safe\nonly when the whole operator call is unconditionally committed; a caller that may select a prefix or\nroll back must preserve past_ids.\n\nOptional inputs add packed-sequence and Qwen4-Exp-style n-gram embedding support:\n\n- eos_token_id, when provided together with reset_on_eos != 0, causes causal history to reset at EOS\n  boundaries: any shifted position at or before the most recent EOS strictly before the current\n  position is replaced with eos_token_id instead of the real token.\n- segment_ids, when provided, additionally resets causal history at any position whose segment id\n  differs from the immediately preceding position's segment id within input_ids. Segment boundaries\n  are not checked against past_ids history.\n- head_offsets, when provided, adds a fixed per-output-head offset after the modulo by the head's\n  vocabulary size, letting all heads across all n-gram orders share one flat embedding table.\n",
     "attributes": [
       {
         "name": "max_ngram_size",
@@ -42937,6 +42956,12 @@
         "type": "int64",
         "required": true,
         "description": "Compressed tokenizer id used to pad causal shifts before the beginning of a sequence."
+      },
+      {
+        "name": "reset_on_eos",
+        "type": "int64",
+        "required": false,
+        "description": "When non-zero and the eos_token_id input is provided, reset causal n-gram history at EOS boundaries as described in the op doc. Default is 0 (disabled), which preserves the original pad_id-only behavior."
       }
     ],
     "inputs": [
@@ -42948,7 +42973,7 @@
       {
         "name": "multipliers",
         "type": "M",
-        "description": "Per-shift hash multipliers with shape (max_ngram_size). Conventionally odd, but any value is accepted."
+        "description": "Per-shift hash multipliers with shape at least (max_ngram_size). Conventionally odd, but any value is accepted."
       },
       {
         "name": "vocab_sizes",
@@ -42959,11 +42984,29 @@
         "name": "past_ids",
         "type": "M",
         "option": "optional",
-        "description": "Optional compressed tokenizer ids for the max_ngram_size - 1 positions that precede this call, with shape (batch_size, max_ngram_size - 1). Right-aligned, so the last slot is the most recent id. If omitted the history is pad_id."
+        "description": "Optional compressed tokenizer ids for the max_ngram_size - 1 positions that precede this call, with shape (batch_size, max_ngram_size - 1). Right-aligned, so the last slot is the most recent id. If omitted the history is pad_id, or eos_token_id when provided."
+      },
+      {
+        "name": "head_offsets",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional per-output-head additive offset with shape ((max_ngram_size - 1) * n_head_per_ngram), added after the modulo."
+      },
+      {
+        "name": "eos_token_id",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional scalar end-of-sequence token id, same type as input_ids. Required for reset_on_eos to take effect and for EOS-based substitution of unavailable prior context; see the op doc."
+      },
+      {
+        "name": "segment_ids",
+        "type": "tensor(int32)",
+        "option": "optional",
+        "description": "Optional per-token segment id with shape (batch_size, sequence_length), used to reset causal history at packed-sequence boundaries within input_ids."
       }
     ],
     "min_input": 3,
-    "max_input": 4,
+    "max_input": 7,
     "outputs": [
       {
         "name": "hash_ids",
@@ -42979,7 +43022,7 @@
     ],
     "min_output": 1,
     "max_output": 2,
-    "inputs_range": "3 - 4",
+    "inputs_range": "3 - 7",
     "outputs_range": "1 - 2",
     "type_constraints": [
       {
@@ -44169,7 +44212,7 @@
     "name": "Normalizer",
     "module": "ai.onnx.ml",
     "version": 1,
-    "description": "Normalize the input.  There are three normalization modes, which have the corresponding formulas,\n    defined using element-wise infix operators '/' and '^' and tensor-wide functions 'max' and 'sum':<br>\n<br>\n    Max: Y = X / max(X)<br>\n    L1:  Y = X / sum(X)<br>\n    L2:  Y = sqrt(X^2 / sum(X^2)}<br>\n    In all modes, if the divisor is zero, Y == X.\n<br>\n    For batches, that is, [N,C] tensors, normalization is done along the C axis. In other words, each row\n    of the batch is normalized independently.\n",
+    "description": "Normalize the input. There are three normalization modes, which have the corresponding formulas.\n    The function 'abs' and operator '^' are element-wise, while 'max' and 'sum' reduce along the normalization axis:<br>\n<br>\n    Max: Y = X / max(X)<br>\n    L1:  Y = X / sum(abs(X))<br>\n    L2:  Y = X / sqrt(sum(X^2))<br>\n    In all modes, if the divisor is zero, Y == X.\n<br>\n    For batches, that is, [N,C] tensors, normalization is done along the C axis. In other words, each row\n    of the batch is normalized independently.\n",
     "attributes": [
       {
         "name": "norm",
@@ -75530,7 +75573,7 @@
     "name": "VarlenCausalConvWithState",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA only).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, state_length), where\nstate_length = (kernel_size - 1) * dilation. It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and replay the compact state update.\n\nWhen state_update_capacity is positive, capture_count is required with shape (batch_size), and\nstate_update has shape (batch_size, state_update_capacity, channels).\nFor request b, slots [0, clamp(capture_count[b], 0,\nmin(state_update_capacity, sequence_length[b]))) contain the original local input token values.\nThese values represent the append component of each shift-left-and-append state transition.\nAll remaining slots are zero. capture_count is forbidden when state_update_capacity is zero.\n\nFor memory-safety containment, each CUDA work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, or output.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n\nThe dilation attribute spaces the kernel taps along the sequence axis: local token t of a request\nreads that request's local positions t - (kernel_size - 1 - j) * dilation for tap j, and positions\nbefore the request's first token come from the carry state. The carry state therefore holds\nstate_length = (kernel_size - 1) * dilation positions per request instead of kernel_size - 1.\nDilation 1 (the default) is the undilated case and keeps the original state length, so models\nexported before the attribute existed are unaffected. input and output are already token-major\n(sequence-major, channels-last), so this op needs no separate layout attribute.\n",
+    "description": "Stateful causal depthwise convolution over a packed, token-major batch of variable-length\nsequences (CUDA and WebGPU).\n\ninput and output have shape (total_tokens, channels). cumulative_sequence_length is a\ndevice-resident int32 tensor of shape (batch_size + 1); sequence i occupies\n[cumulative_sequence_length[i], cumulative_sequence_length[i + 1]). Every sequence contributes\nat least one token. weight has shape (channels, 1, kernel_size), and optional bias has shape\n(channels). The convolution never reads across a sequence boundary.\n\ninitial_state is required and has shape (batch_size, channels, state_length), where\nstate_length = (kernel_size - 1) * dilation. It contains\nthe committed raw activation samples immediately preceding this call. final_state has the same\nshape and type and is fully written with the state after each sequence's final token. State\nuses the activation type because it stores raw samples, not accumulated convolution values.\ninitial_state and final_state may use the same allocation. Such in-place execution is\ntransaction-safe only when the whole operator call is unconditionally committed; a caller that\nmay select a prefix or roll back must preserve initial_state and replay the compact state update.\n\nWhen state_update_capacity is positive, capture_count is required with shape (batch_size), and\nstate_update has shape (batch_size, state_update_capacity, channels).\nFor request b, slots [0, clamp(capture_count[b], 0,\nmin(state_update_capacity, sequence_length[b]))) contain the original local input token values.\nThese values represent the append component of each shift-left-and-append state transition.\nAll remaining slots are zero. capture_count is forbidden when state_update_capacity is zero.\n\nFor memory-safety containment, each GPU work item validates cumulative_sequence_length[0] == 0,\ncumulative_sequence_length[batch_size] == total_tokens, and its local range\n0 <= start < end <= total_tokens before accessing input, state, or output.\nMalformed offsets cause affected work to return without those accesses; outputs are unspecified.\nThis device-side containment is not a synchronous validation or rejection mechanism.\n\nThe optional activation attribute supports none, SiLU, and Swish.\n\nThe dilation attribute spaces the kernel taps along the sequence axis: local token t of a request\nreads that request's local positions t - (kernel_size - 1 - j) * dilation for tap j, and positions\nbefore the request's first token come from the carry state. The carry state therefore holds\nstate_length = (kernel_size - 1) * dilation positions per request instead of kernel_size - 1.\nDilation 1 (the default) is the undilated case and keeps the original state length, so models\nexported before the attribute existed are unaffected. input and output are already token-major\n(sequence-major, channels-last), so this op needs no separate layout attribute.\n",
     "attributes": [
       {
         "name": "activation",
