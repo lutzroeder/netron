@@ -22757,7 +22757,7 @@ python.StreamReader = class {
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._position;
             this._stream.seek(this._offset);
-            const size = Math.max(length, Math.min(0x10000000, this._length - this._offset));
+            const size = Math.min(Math.max(length, 0x10000), this._length - this._offset);
             this._buffer = this._stream.read(size);
             this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
         }
