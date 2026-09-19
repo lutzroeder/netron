@@ -172,6 +172,24 @@ litert.lm.proto.LlmMetadata.prototype.supports_function_calling = false;
 litert.lm.proto.LlmMetadata.prototype.pad_token = null;
 litert.lm.proto.LlmMetadata.prototype.min_runtime_version = "";
 
+litert.lm.proto.LlmMetadata.TfLiteModelType = {
+    "TF_LITE_MODEL_TYPE_UNSPECIFIED": 0,
+    "TF_LITE_PREFILL_DECODE": 1,
+    "TF_LITE_EMBEDDER": 2,
+    "TF_LITE_PER_LAYER_EMBEDDER": 3,
+    "TF_LITE_AUX": 4,
+    "TF_LITE_AUDIO_ENCODER_HW": 5,
+    "TF_LITE_END_OF_AUDIO": 6,
+    "TF_LITE_VISION_ADAPTER": 7,
+    "TF_LITE_VISION_ENCODER": 8,
+    "TF_LITE_AUDIO_FRONTEND": 9,
+    "TF_LITE_AUDIO_ADAPTER": 10,
+    "TF_LITE_ARTISAN_TEXT_DECODER": 11,
+    "TF_LITE_END_OF_VISION": 12,
+    "TF_LITE_MTP_DRAFTER": 13,
+    "TF_LITE_MTP_AUX": 14
+};
+
 litert.lm.proto.LlmModelType = class LlmModelType {
 
     get model_type() {
@@ -677,9 +695,6 @@ litert.lm.proto.Gemma4 = class Gemma4 {
                 case 12:
                     message.function_response_start = reader.string();
                     break;
-                case 13:
-                    message.use_template_for_fc_format = reader.bool();
-                    break;
                 case 14:
                     message.constraint_mode = reader.int32();
                     break;
@@ -710,7 +725,6 @@ litert.lm.proto.Gemma4.prototype.tool_code_regex = "";
 litert.lm.proto.Gemma4.prototype.open_quote = "";
 litert.lm.proto.Gemma4.prototype.close_quote = "";
 litert.lm.proto.Gemma4.prototype.function_response_start = "";
-litert.lm.proto.Gemma4.prototype.use_template_for_fc_format = false;
 litert.lm.proto.Gemma4.prototype.constraint_mode = 0;
 
 litert.lm.proto.FastVlm = class FastVlm {
