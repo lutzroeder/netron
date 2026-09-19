@@ -630,6 +630,7 @@ fb_xnnpack.XNodeUnion = class {
             case 45: return fb_xnnpack.XNNSin.decode(reader, position);
             case 46: return fb_xnnpack.XNNCopy.decode(reader, position);
             case 47: return fb_xnnpack.XNNCos.decode(reader, position);
+            case 48: return fb_xnnpack.XNNApproxGelu.decode(reader, position);
             default: return undefined;
         }
     }
@@ -1265,6 +1266,15 @@ fb_xnnpack.XNNCos = class XNNCos {
 
     static decode(reader, position) {
         const $ = new fb_xnnpack.XNNCos();
+        fb_xnnpack._XNNNode1x1.decode(reader, position, $);
+        return $;
+    }
+};
+
+fb_xnnpack.XNNApproxGelu = class XNNApproxGelu {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack.XNNApproxGelu();
         fb_xnnpack._XNNNode1x1.decode(reader, position, $);
         return $;
     }
