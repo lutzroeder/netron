@@ -844,7 +844,7 @@
     "attributes": [
       { "name": "varType", "type": "TypeAttr" },
       { "name": "descKind", "type": "DefaultValuedAttr<OpenACC_DataDescKindAttr{none|cfi|memref|openacc; separator=','}, mlir::acc::DataDescKind::none>" },
-      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction; separator=','}, mlir::acc::MapFlags::none>" },
+      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach; separator=','}, mlir::acc::MapFlags::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "elementSize", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" },
       { "name": "exitLoc", "type": "OptionalAttr<LocationAttr>" }
@@ -954,7 +954,7 @@
   {
     "name": "acc.predicate_region",
     "summary": "Groups operations at intermediate loop-nest points",
-    "description": "Groups statements within an `acc.compute_region` that sit at an\n    intermediate point in a loop nest (outside a partitioned loop body,\n    between or around nested loops). This grouping marks code whose execution\n    scope differs from that of surrounding partitioned loops, so predication\n    and synchronization can be applied correctly during lowering. Corresponds\n    to OpenACC single or redundant execution at nest transitions.\n\n    Example:\n    ```mlir\n    // !$acc parallel num_gangs(NG) vector_length(VL)\n    // !$acc loop gang\n    //   !$acc atomic update\n    //   !$acc loop vector\n    //     !$acc atomic update\n    %w_gang = acc.par_width %cNG {par_dim = #acc.par_dim<block_x>}\n    %w_vector = acc.par_width %cVL {par_dim = #acc.par_dim<thread_x>}\n    acc.compute_region launch(%ng = %w_gang, %vl = %w_vector)\n        ins(%arg_c1 = %c1, %arg_c2 = %c2) : (memref<i32>, memref<i32>) {\n      scf.parallel (%i) = (%c1) to (%cN) step (%c1) {\n        acc.predicate_region {\n          acc.atomic.update %arg_c1 : memref<i32> {\n          ^bb0(%old: i32):\n            %one = arith.constant 1 : i32\n            %sum = arith.addi %old, %one : i32\n            acc.yield %sum : i32\n          }\n        }\n        scf.parallel (%j) = (%c1) to (%cN) step (%c1) {\n          acc.atomic.update %arg_c2 : memref<i32> {\n          ^bb0(%old: i32):\n            %one = arith.constant 1 : i32\n            %sum = arith.addi %old, %one : i32\n            acc.yield %sum : i32\n          }\n          scf.reduce\n        } {acc.par_dims = #acc<par_dims[thread_x]>}\n        scf.reduce\n      } {acc.par_dims = #acc<par_dims[block_x]>}\n      acc.yield\n    } <{origin = \"acc.parallel\"}>\n    ```",
+    "description": "Groups statements within an `acc.compute_region` that sit at an\n    intermediate point in a loop nest (outside a partitioned loop body,\n    between or around nested loops). This grouping marks code whose execution\n    scope differs from that of surrounding partitioned loops, so predication\n    and synchronization can be applied correctly during lowering. Corresponds\n    to OpenACC single or redundant execution at nest transitions.\n\n    Example:\n    ```mlir\n    // !$acc parallel num_gangs(NG) vector_length(VL)\n    // !$acc loop gang\n    //   !$acc atomic update\n    //   !$acc loop vector\n    //     !$acc atomic update\n    %w_gang = acc.par_width %cNG par_dim(#acc.par_dim<block_x>)\n    %w_vector = acc.par_width %cVL par_dim(#acc.par_dim<thread_x>)\n    acc.compute_region launch(%ng = %w_gang, %vl = %w_vector)\n        ins(%arg_c1 = %c1, %arg_c2 = %c2) : (memref<i32>, memref<i32>) {\n      scf.parallel (%i) = (%c1) to (%cN) step (%c1) {\n        acc.predicate_region {\n          acc.atomic.update %arg_c1 : memref<i32> {\n          ^bb0(%old: i32):\n            %one = arith.constant 1 : i32\n            %sum = arith.addi %old, %one : i32\n            acc.yield %sum : i32\n          }\n        }\n        scf.parallel (%j) = (%c1) to (%cN) step (%c1) {\n          acc.atomic.update %arg_c2 : memref<i32> {\n          ^bb0(%old: i32):\n            %one = arith.constant 1 : i32\n            %sum = arith.addi %old, %one : i32\n            acc.yield %sum : i32\n          }\n          scf.reduce\n        } {acc.par_dims = #acc<par_dims[thread_x]>}\n        scf.reduce\n      } {acc.par_dims = #acc<par_dims[block_x]>}\n      acc.yield\n    } <{origin = \"acc.parallel\"}>\n    ```",
     "regions": [
       { "name": "region", "type": "AnyRegion" }
     ],
@@ -19261,6 +19261,29 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "iree_linalg_ext.dequantize_affine",
+    "summary": "Affine (uniform) dequantization of an integer tensor.",
+    "description": "Dequantizes `input` elementwise, producing a real valued `output`:\n\n    ```\n    output[out_map(d)] = (extend(input[in_map(d)])\n                            - extend(zero_point[zp_map(d)]))\n                           * scale[scale_map(d)]\n    ```\n\n    See `iree_linalg_ext.quantize_affine` for the meaning of `indexing_maps` and\n    of the signedness attributes; here `input_unsigned` refers to the quantized\n    operand, which is the input rather than the output.\n\n    As in `quantize_affine`, the multiplication is performed in the element type of\n    `scale`. Distinct floating-point formats of the same bit width cannot be mixed.\n\n    `zero_point` must be a point on the quantized grid: its values must be\n    representable in the element type of `input`, even when its own element\n    type is wider (PT2E emits `i64` zero points for `i8` data).\n\n    It is what makes the subtraction width depend only on the storage\n    type, `PowerOf2Ceil(storage_width + 1)`, so `i8` data subtracts in `i16`\n    whatever the zero point's own element type.\n\n    `quant_min`/`quant_max` optionally describe the inclusive range of the\n    quantized input values. They do not clamp the input or change the\n    dequantization arithmetic. This preserves information that the storage\n    type alone cannot express: an i8 tensor with range `[-8, 7]` uses a\n    four-bit quantization grid, which a consumer can use to pack the values\n    into i4 storage.\n\n    Example:\n\n    ```mlir\n    %dq = iree_linalg_ext.dequantize_affine\n        {indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         input_unsigned}\n        ins(%q, %scale, %zp : tensor<128x64xi8>, tensor<128xf32>, tensor<128xi32>)\n        outs(%init : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```",
+    "operands": [
+      { "name": "input", "type": "AnyRankedShapedType" },
+      { "name": "scale", "type": "AnyRankedShapedOrScalarType" },
+      { "name": "zero_point", "type": "Optional<AnyRankedShapedOrScalarType>" },
+      { "name": "output", "type": "AnyRankedShapedType" }
+    ],
+    "results": [
+      { "name": "result", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "indexing_maps", "type": "TypedArrayAttrBase<AffineMapAttr>" },
+      { "name": "quant_min", "type": "OptionalAttr<IREELinalgExt_QuantizationBoundAttr>" },
+      { "name": "quant_max", "type": "OptionalAttr<IREELinalgExt_QuantizationBoundAttr>" },
+      { "name": "input_unsigned", "type": "UnitAttr" },
+      { "name": "zp_unsigned", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "attr-dict\n    `ins` `(` $input `,` $scale (`,` $zero_point^)? `:`\n              type($input) `,` type($scale) (`,` type($zero_point)^)? `)`\n    `outs` `(` $output `:` type($output) `)`\n    (`->` type($result)^)?",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "iree_linalg_ext.exp_reduction",
     "summary": "A linalg.generic extension with support for exponential reduction.",
     "description": "This operation is a restricted form of a linalg.generic operation,\n    representing a reduction over `e^{x}` where `x` is an input, and it is known\n    that the function's result is independent of translation over x,\n      i.e. f(x) = f(x + c).\n\n    Since `e{x}` grows exponentially for `x > 0`, if the values of `x` are\n    unbounded, the intermediate computation for `e^{x}` in `f(x)`, may not fit\n    in the floating point range, even if the result does. To prevent such\n    numerical inaccuracies, we can instead compute `f(max(x) - x)`, which will\n    ensure that `e{max(x) - x}` always fits in the range (0, 1], because\n    0 < e{negative} <= 1.\n\n    These properties allow us to compute an online normalization of this\n    function, in which we don't have to compute the `max(x)` as a separate\n    reduction, but as a running max.\n\n    Generally, these properties are hard to infer from a linalg.generic, because\n    two back-to-back reduction combiners in a linalg.generic can have hard to\n    infer properties. This restricted form ensures we don't have to do\n    complicated analysis to infer these properties.\n\n    The first input and output operands are intrinsically linked.\n    - The first output operand is always the maximum of the first input operand,\n      henceforth 'nmax'.\n    - The first input operand in the basic block is always `2^{nmax-x}`, where\n      `x` is the value\n\n    `norm` is calculated by `2^{nmax - pmax}`, where\n    - `pmax` is the value from the previous iteration.\n    - `nmax` is the new maximum, read from the current element from the input\n      tensor\n\n    The other input operands are unaffected.\n\n    The operands listed in `exp_reduced_operands` will be multiplied by `norm`\n    before executing the basic block. Other output operands are unaffected.\n\n    For example, we write the online normalized softmax algorithm as follows:\n\n    ```mlir\n    // compute the exponentials and the sum\n    %M, %O = iree_linalg_ext.exp_reduction {\n      indexing_maps = [\n        affine_map<(i) -> (i)>,\n        affine_map<(i) -> ()>,\n        affine_map<(i) -> ()>\n      ],\n      iterator_types = [\n        #iree_linalg_ext.iterator_type<reduction>\n      ],\n      exp_reduced_operands = [ 1 ]  // 1 corresponds to %s being normalized by %m\n    } ins(%V: tensor<256xf32>)\n      outs(%M_init, %S: tensor<f32>, tensor<f32>) {\n      ^bb0(%exp_v: f32, %m: f32, %s: f32):\n        // take note of the operand names when comparing with the subsequent\n        // code snippets\n        %add = arith.addf %exp_v, %s : f32\n        linalg.yield %m, %add        : f32, f32\n    } -> tensor<f32>, tensor<f32>\n  ```\n\n  This encodes the following computation, sans handling of the norms\n\n  ```\n  %M, %O = linalg.generic {\n      indexing_maps = [\n        affine_map<(i) -> (i)>,\n        affine_map<(i) -> ()>,\n        affine_map<(i) -> ()>\n      ],\n  } ins(%V: tensor<256xf32>)\n    outs(%M_init, %S: tensor<f32>, tensor<f32>) {\n    ^bb0(%v: f32, %m: f32, %s: f32):\n      %exp_v = math.exp2 %v       : f32\n      %add = arith.addf %exp_v, %s : f32\n      linalg.yield %m, %add       : f32, f32\n  } -> tensor<f32>, tensor<f32>\n  ```\n\n  And decomposes into operations equivalent to the following:\n\n  ```\n  %M, %O = linalg.generic {\n      indexing_maps = [\n        affine_map<(i) -> (i)>,\n        affine_map<(i) -> ()>,\n        affine_map<(i) -> ()>\n      ],\n  } ins(%V: tensor<256xf32>)\n    outs(%M_init, %S: tensor<f32>, tensor<f32>) {\n    ^bb0(%v: f32, %prev_m: f32, %prev_s: f32):\n      %m      = arith.maximumf %v, %prev_m : f32\n      %m_diff = arith.subf %m, %prev_m     : f32\n      %norm   = math.exp2 %m_diff          : f32\n\n      %exp_v  = math.exp2 %v               : f32  // raise v to the exponent\n      %s      = arith.mulf %prev_s, %norm  : f32  // multiply s by the norm\n      %add    = arith.addf %exp_v, %s      : f32\n      linalg.yield %m, %add                : f32, f32\n  } -> tensor<f32>, tensor<f32>\n  ```",
@@ -19494,6 +19517,29 @@
       { "type": "AttrSizedOperandSegments" }
     ],
     "assemblyFormat": "attr-dict\n    $input\n    (`padding_value` `(` $padding_value^ `:` type($padding_value) `)`)?\n    (`outer_dims_perm` `=` $outer_dims_perm^)?\n    `inner_dims_pos` `=` $inner_dims_pos\n    `inner_tiles` `=`\n    custom<DynamicIndexList>($inner_tiles, $static_inner_tiles)\n    `into` $output `:` `(` type($input) type($output) `)`\n     (`->` type($results)^)?",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "iree_linalg_ext.quantize_affine",
+    "summary": "Affine (uniform) quantization of a real valued tensor.",
+    "description": "Quantizes `input` elementwise, producing an integer `output`:\n\n    ```\n    output[out_map(d)] = clamp(round(input[in_map(d)] / scale[scale_map(d)])\n                                 + extend(zero_point[zp_map(d)]),\n                               quant_min, quant_max)\n    ```\n\n    `round` breaks ties to even, matching ONNX `QuantizeLinear`, the PT2E\n    `quantize_per_tensor` family and StableHLO `uniform_quantize`. The\n    arithmetic is performed in the element type of `scale`, so an f32 scale\n    over an f16 input gives f32 arithmetic. Distinct floating-point formats of\n    the same bit width, such as f16 and bf16, cannot be mixed.\n\n    The `scale` and `zero_point` maps are independent projected permutations\n    whose number of results is the granularity of that parameter:\n\n    - per-tensor:  `affine_map<(d0, d1) -> ()>`\n    - per-channel: `affine_map<(d0, d1) -> (d0)>`\n    - per-block:   `affine_map<(d0, d1, d2) -> (d0, d1)>` over an input whose\n                   blocked dimension has been expanded, e.g. `MxKxi4` reshaped\n                   to `Mx(K/B)xBxi4`.\n\n    `zero_point` is optional; when absent the quantization is symmetric.\n\n    `quant_min`/`quant_max` are the inclusive clamp bounds in the storage value\n    space, following the PT2E `quantize_per_tensor` convention. They are\n    required because the representable range is frequently not the full range\n    of the storage type (narrow-range `[-127, 127]` weights, sub-byte values\n    packed into a wider storage type).\n\n    MLIR integers are signless, so `storage_unsigned` and `zp_unsigned` declare\n    how `output` and `zero_point` are interpreted. Because the signedness lives\n    in those attributes, the integer element types themselves have to be\n    signless: `si8` and `ui8` are rejected in favor of `i8`.\n\n    Example:\n\n    ```mlir\n    %q = iree_linalg_ext.quantize_affine\n        {indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         quant_min = -128 : i64, quant_max = 127 : i64}\n        ins(%x, %scale, %zp : tensor<128x64xf32>, tensor<128xf32>, tensor<128xi8>)\n        outs(%init : tensor<128x64xi8>) -> tensor<128x64xi8>\n    ```",
+    "operands": [
+      { "name": "input", "type": "AnyRankedShapedType" },
+      { "name": "scale", "type": "AnyRankedShapedOrScalarType" },
+      { "name": "zero_point", "type": "Optional<AnyRankedShapedOrScalarType>" },
+      { "name": "output", "type": "AnyRankedShapedType" }
+    ],
+    "results": [
+      { "name": "result", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "indexing_maps", "type": "TypedArrayAttrBase<AffineMapAttr>" },
+      { "name": "quant_min", "type": "IREELinalgExt_QuantizationBoundAttr" },
+      { "name": "quant_max", "type": "IREELinalgExt_QuantizationBoundAttr" },
+      { "name": "storage_unsigned", "type": "UnitAttr" },
+      { "name": "zp_unsigned", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "attr-dict\n    `ins` `(` $input `,` $scale (`,` $zero_point^)? `:`\n              type($input) `,` type($scale) (`,` type($zero_point)^)? `)`\n    `outs` `(` $output `:` type($output) `)`\n    (`->` type($result)^)?",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -23141,7 +23187,8 @@
       { "name": "intel_reqd_sub_group_size", "type": "OptionalAttr<I32Attr>" },
       { "name": "function_metadata", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_FunctionMetadataAttr>>" },
       { "name": "uwtable_kind", "type": "OptionalAttr<UWTableKindAttr>" },
-      { "name": "use_sample_profile", "type": "OptionalAttr<BoolAttr>" }
+      { "name": "use_sample_profile", "type": "OptionalAttr<BoolAttr>" },
+      { "name": "disable_tail_calls", "type": "OptionalAttr<BoolAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "AnyRegion" }
@@ -25325,6 +25372,19 @@
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.modf",
+    "operands": [
+      { "name": "val", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
     ],
     "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
   },
@@ -36447,6 +36507,22 @@
       { "name": "simdlen", "type": "ConfinedAttr<OptionalAttr<I64Attr>, [IntPositive]>" }
     ],
     "assemblyFormat": "oilist(`aligned` `(` custom<AlignedClause>($aligned_vars, type($aligned_vars),\n                                        $alignments) `)`|`inbranch` $inbranch|`linear` `(`\n      custom<LinearClause>($linear_vars, type($linear_vars),\n                           $linear_step_vars, type($linear_step_vars),\n                           $linear_modifiers) `)`\n      ( `linear_var_types` `(` $linear_var_types^ `)` )?|`notinbranch` $notinbranch|`simdlen` `(` $simdlen  `)`|`uniform` `(` custom<UniformClause>($uniform_vars, type($uniform_vars)) `)`) attr-dict"
+  },
+  {
+    "name": "omp.dispatch",
+    "summary": "dispatch construct",
+    "description": "The dispatch construct enables the invocation of a variant of a\n    base procedure. It was introduced in OpenMP 5.1; the section numbers cited\n    here follow the OpenMP 5.2 spec (7.6). At the source level (C/C++/Fortran)\n    the structured block of a dispatch construct is a single expression\n    statement containing a function or subroutine call. That is a restriction on\n    the source form, not an invariant of this op: the region may contain\n    multiple blocks and control flow (for example, a runtime base/variant\n    branch).\n\n    The producer of the region is responsible for materializing the base/variant\n    selection inside the region. The `nocontext` and `novariants` operands are\n    retained on the op only so the producer can read them back during call\n    lowering; the LLVM IR translation deliberately ignores these operands.When parameter to `nocontext` evaluates to `true`, the dispatch construct is\n    not added to the OpenMP context, so a function variant that would be selected\n    only because of the enclosing dispatch construct is not selected.\n\n    At the dialect level this operand carries no semantics of its own. The\n    producer of the region is responsible for materializing the base/variant\n    selection, and the LLVM IR translation deliberately ignores this operand.When a `novariants` clause is present and its expression evaluates to\n    `true`, no function variant is selected for the target call of the dispatch\n    region, even if one would be selected normally. The use of a variable in a\n    `novariants` clause expression causes an implicit reference to the variable\n    in all enclosing constructs.\n\n    At the dialect level this operand carries no semantics of its own. The\n    producer of the region is responsible for materializing the base/variant\n    selection, and the LLVM IR translation deliberately ignores this operand.The optional `nowait` attribute, when present, eliminates the implicit\n    barrier at the end of the construct, so the parent operation can make\n    progress even if the child operation has not completed yet.",
+    "operands": [
+      { "name": "nocontext", "type": "Optional<I1>" },
+      { "name": "novariants", "type": "Optional<I1>" }
+    ],
+    "attributes": [
+      { "name": "nowait", "type": "UnitAttr" }
+    ],
+    "regions": [
+      { "name": "region", "type": "AnyRegion" }
+    ],
+    "assemblyFormat": "oilist(`nocontext` `(` $nocontext `)`|`novariants` `(` $novariants `)`|`nowait` $nowait) $region attr-dict"
   },
   {
     "name": "omp.distribute",
@@ -51847,7 +51923,7 @@
   {
     "name": "sparse_tensor.lvl",
     "summary": "level index operation",
-    "description": "The `sparse_tensor.lvl` behaves similar to `tensor.dim` operation.\n    It takes a sparse tensor and a level operand of type `index` and returns\n    the size of the requested level of the given sparse tensor.\n    If the sparse tensor has an identity dimension to level mapping, it returns\n    the same result as `tensor.dim`.\n    If the level index is out of bounds, the behavior is undefined.\n\n    Example:\n\n    ```mlir\n    #BSR = #sparse_tensor.encoding<{\n      map = ( i, j ) ->\n        ( i floordiv 2 : dense,\n          j floordiv 3 : compressed,\n          i mod 2      : dense,\n          j mod 3      : dense\n        )\n    }>\n\n    // Always returns 2 (4 floordiv 2), can be constant folded:\n    %c0 = arith.constant 0 : index\n    %x = sparse_tensor.lvl %A, %c0 : tensor<4x?xf32, #BSR>\n\n    // Return the dynamic dimension of %A computed by %j mod 3.\n    %c1 = arith.constant 1 : index\n    %y = sparse_tensor.lvl %A, %c1 : tensor<4x?xf32, #BSR>\n\n    // Always return 3 (since j mod 3 < 3), can be constant fold\n    %c3 = arith.constant 3 : index\n    %y = sparse_tensor.lvl %A, %c3 : tensor<4x?xf32, #BSR>\n    ```",
+    "description": "The `sparse_tensor.lvl` behaves similar to `tensor.dim` operation.\n    It takes a sparse tensor and a level operand of type `index` and returns\n    the size of the requested level of the given sparse tensor.\n    If the sparse tensor has an identity dimension to level mapping, it returns\n    the same result as `tensor.dim`.\n    If the level index is out of bounds, the behavior is undefined.\n\n    Example:\n\n    ```mlir\n    #BSR = #sparse_tensor.encoding<{\n      map = ( i, j ) ->\n        ( i floordiv 2 : dense,\n          j floordiv 3 : compressed,\n          i mod 2      : dense,\n          j mod 3      : dense\n        )\n    }>\n\n    // Always returns 2 (4 floordiv 2), can be constant folded:\n    %c0 = arith.constant 0 : index\n    %x = sparse_tensor.lvl %A, %c0 : tensor<4x?xf32, #BSR>\n\n    // Return the dynamic level size of %A computed by j floordiv 3.\n    %c1 = arith.constant 1 : index\n    %y = sparse_tensor.lvl %A, %c1 : tensor<4x?xf32, #BSR>\n\n    // Always return 3 (since j mod 3 < 3), can be constant folded.\n    %c3 = arith.constant 3 : index\n    %y = sparse_tensor.lvl %A, %c3 : tensor<4x?xf32, #BSR>\n    ```",
     "operands": [
       { "name": "source", "type": "AnySparseTensor" },
       { "name": "index", "type": "Index" }
@@ -66085,6 +66161,27 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "test.isolated_region_branch",
+    "operands": [
+      { "name": "inputs", "type": "Variadic<AnyType>" }
+    ],
+    "results": [
+      { "name": "outputs", "type": "Variadic<AnyType>" }
+    ],
+    "regions": [
+      { "name": "branches", "type": "VariadicRegion<SizedRegion<1>>" }
+    ],
+    "traits": [
+      { "type": "IsolatedFromAbove" }
+    ]
+  },
+  {
+    "name": "test.isolated_region_yield",
+    "operands": [
+      { "name": "values", "type": "Variadic<AnyType>" }
+    ]
+  },
+  {
     "name": "test.isolated_regions",
     "regions": [
       { "name": "regions", "type": "VariadicRegion<AnyRegion>" }
@@ -67850,6 +67947,45 @@
     ],
     "traits": [
       { "type": "SameOperandsAndResultType" }
+    ]
+  },
+  {
+    "name": "test.segmented_region_branch",
+    "description": "Select one of two regions and pass the corresponding operand segment to\n    its block arguments. Each region can branch to either region or exit.\n    The control operands are not successor operands.",
+    "operands": [
+      { "name": "condition", "type": "I1" },
+      { "name": "first", "type": "Variadic<AnyType>" },
+      { "name": "second", "type": "Variadic<AnyType>" },
+      { "name": "exitCondition", "type": "Optional<I1>" }
+    ],
+    "regions": [
+      { "name": "firstRegion", "type": "SizedRegion<1>" },
+      { "name": "secondRegion", "type": "SizedRegion<1>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ]
+  },
+  {
+    "name": "test.segmented_region_branch_terminator",
+    "operands": [
+      { "name": "condition", "type": "I1" },
+      { "name": "first", "type": "Variadic<AnyType>" },
+      { "name": "second", "type": "Variadic<AnyType>" },
+      { "name": "exitCondition", "type": "Optional<I1>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ]
+  },
+  {
+    "name": "test.segmented_return",
+    "operands": [
+      { "name": "first", "type": "Variadic<AnyType>" },
+      { "name": "second", "type": "Variadic<AnyType>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
     ]
   },
   {
@@ -116415,7 +116551,7 @@
   {
     "name": "tt.broadcast",
     "summary": "broadcast a tensor",
-    "description": "For a given tensor, broadcast changes one or more dimensions with size 1\n      to a new size, e.g. tensor<1x32x1xf32> -> tensor<2x32x4xf32>.  You cannot\n      change the size of a non-1 dimension.",
+    "description": "For a given tensor, broadcast changes one or more dimensions with size 1\n      to a new size, e.g. tensor<1x32x1xf32> -> tensor<2x32x4xf32>.  You cannot\n      change the size of a non-1 dimension.\n      After projecting the result layout onto the source shape, the layouts\n      must match up to repeated registers. Broadcasting cannot permute registers\n      or move data between threads.",
     "operands": [
       { "name": "src", "type": "TT_Tensor" }
     ],
@@ -120722,6 +120858,39 @@
     "results": [
       { "name": "result", "type": "AnyRankedTensor" }
     ]
+  },
+  {
+    "name": "ttir.while",
+    "summary": "While loop.",
+    "description": "Repeatedly executes `body` while `cond` yields true, threading the\n    loop-carried values from one iteration to the next.\n\n    Both regions take the same block arguments: the loop-carried values\n    followed by the loop-invariant captures, i.e. `inits ++ captures`. On the\n    first iteration the loop-carried arguments are bound to `inits`; on every\n    subsequent iteration they are bound to the values yielded by `body`. The\n    captures are bound to the same values on every iteration.\n\n    `cond` yields exactly one single-element tensor, interpreted as a boolean.\n    `body` yields one value per loop-carried value, with matching types. The\n    op's results are the loop-carried values after the final iteration.\n\n    The op is `IsolatedFromAbove`: at runtime each region becomes its own\n    flatbuffer program with its own tensor pool, and a nested program can only\n    see tensors bound through its own inputs. Values a region uses but that are\n    defined outside the op must therefore be promoted to explicit `captures`\n    operands.\n\n    `trip_count`, when present, is the statically known number of iterations,\n    set by the `ttir-while-trip-count` pass. It must agree with `cond`, which\n    remains valid and is still lowered, so consumers may ignore the attribute.\n\n    Example:\n    ```mlir\n    %r:2 = ttir.while inits(%i0, %acc0 : tensor<1xi32>, tensor<2xf32>)\n                      captures(%limit : tensor<1xi32>)\n      cond {\n      ^cond(%i: tensor<1xi32>, %acc: tensor<2xf32>, %lim: tensor<1xi32>):\n        %p = ttir.lt(%i, %lim, ...) : ...\n        ttir.yield %p : tensor<1xi1>\n      } do {\n      ^body(%i: tensor<1xi32>, %acc: tensor<2xf32>, %lim: tensor<1xi32>):\n        ...\n        ttir.yield %i_next, %acc_next : tensor<1xi32>, tensor<2xf32>\n      } -> (tensor<1xi32>, tensor<2xf32>)\n    ```",
+    "operands": [
+      { "name": "inits", "type": "Variadic<AnyRankedTensor>" },
+      { "name": "captures", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "results": [
+      { "name": "results", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "trip_count", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" }
+    ],
+    "regions": [
+      { "name": "cond", "type": "SizedRegion<1>" },
+      { "name": "body", "type": "SizedRegion<1>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" },
+      { "type": "IsolatedFromAbove" }
+    ],
+    "assemblyFormat": "`inits` `(` $inits `:` type($inits) `)`\n    (`captures` `(` $captures^ `:` type($captures) `)`)?\n    attr-dict\n    `cond` $cond\n    `do` $body\n    `->` `(` type($results) `)`"
+  },
+  {
+    "name": "ttir.yield",
+    "summary": "Terminator for TTIR control flow regions.",
+    "description": "Terminates a region of a TTIR control flow op. The meaning of the yielded\n    values is defined by the parent op;",
+    "operands": [
+      { "name": "operands", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "assemblyFormat": "attr-dict ($operands^ `:` type($operands))?"
   },
   {
     "name": "ttir.zeros",
@@ -127394,6 +127563,38 @@
     ]
   },
   {
+    "name": "ttnn.rmsnorm_bw",
+    "summary": "Root mean square normalization backward (ttml).",
+    "description": "Training-oriented fused RMS normalization backward pass, backed by the\n      ttml metal op `ttml::metal::rmsnorm_bw`. Given the forward `input`,\n      `gamma`, the per-row `rms` produced by `ttnn.rmsnorm_fw` and the upstream\n      gradient `grad_output`, computes the gradients w.r.t. `input` and `gamma`.\n\n      The kernel cannot reduce `grad_gamma` across the leading dimensions, so\n      the wrapper finishes the job with a trailing `ttnn::sum` over dims\n      (0, 1, 2). That reduction inherits `gamma`'s memory config, which is why\n      every operand is constrained to tiled, DRAM-interleaved bfloat16.\n\n      All tensors are rank 4: `input`, `grad_output` and `grad_input` are\n      `(B, N, S, C)`, `rms` is `(B, N, S, 1)`, and `gamma` and `grad_gamma` are\n      `(1, 1, 1, C)`.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "gamma", "type": "AnyRankedTensor" },
+      { "name": "rms", "type": "AnyRankedTensor" },
+      { "name": "grad_output", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "grad_input", "type": "AnyRankedTensor" },
+      { "name": "grad_gamma", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
+    "name": "ttnn.rmsnorm_fw",
+    "summary": "Root mean square normalization forward (ttml).",
+    "description": "Training-oriented fused RMS normalization forward pass, backed by the\n      ttml metal op `ttml::metal::rmsnorm_fw`. Computes RMS normalization over\n      the last dimension and scales the normalized values by `gamma`:\n      `output = input / rms * gamma`, where\n      `rms = sqrt(mean(input^2) + epsilon)`.\n\n      When `return_intermediates` is set, the per-row `rms` is also returned so\n      the backward pass can reuse it.\n\n      The backing kernel requires `input` and `gamma` to be 4D bfloat16 tensors\n      in tiled, interleaved device memory. The output has the same shape as\n      `input`, while `rms` has the same shape except that its last dimension is\n      one.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "gamma", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "output", "type": "AnyRankedTensor" },
+      { "name": "rms", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "return_intermediates", "type": "DefaultValuedAttr<BoolAttr, true>" },
+      { "name": "epsilon", "type": "DefaultValuedAttr<F32Attr, 1e-06>" }
+    ]
+  },
+  {
     "name": "ttnn.rotary_embedding",
     "summary": "Rotary embedding op in TTNN dialect.",
     "description": "Applies rotary embedding to the input tensor using precomputed cosine and sine caches.\n    Formula used:\n      x_rotated = x * cos + rotate_half(x) * sin\n      where rotate_half(x) swaps the first and second halves of the last dimension of x.\n\n    Example:\n      ```mlir\n      %result = ttnn.rotary_embedding(%input, %cos_cache, %sin_cache)\n        : tensor<1x32x1024x64xf16>, tensor<1x1x1024x64xf16>, tensor<1x1x1024x64xf16>\n        -> tensor<1x32x1024x64xf16>\n      ```",
@@ -127790,6 +127991,20 @@
     ]
   },
   {
+    "name": "ttnn.swiglu_elemwise_bw",
+    "summary": "SwiGLU elementwise backward (ttml).",
+    "description": "Training-oriented fused backward pass of the SwiGLU elementwise product,\n      backed by the ttml metal op `ttml::metal::swiglu_elemwise_bw`. The\n      forward pass it differentiates is\n\n        output = gate * silu(input)\n\n      where `silu(x) = x * sigmoid(x)` is applied to `input` and `gate` scales\n      it. Given the upstream gradient `grad_output`, the op computes both input\n      gradients in one kernel pass:\n\n        grad_input = grad_output * gate * silu'(input)\n        grad_gate = grad_output * silu(input)\n\n      The backing kernel requires all three operands to be rank 4 bfloat16\n      tensors with the same shape, in tiled, interleaved device memory. Both\n      results have the shape of `input`.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "gate", "type": "AnyRankedTensor" },
+      { "name": "grad_output", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "grad_input", "type": "AnyRankedTensor" },
+      { "name": "grad_gate", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
     "name": "ttnn.tan",
     "summary": "Eltwise tan op.",
     "description": "Eltwise tan operation.",
@@ -127993,6 +128208,30 @@
     ]
   },
   {
+    "name": "ttnn.while",
+    "summary": "While loop.",
+    "description": "Repeatedly executes `body` while `cond` yields true, threading the\n    loop-carried values from one iteration to the next.\n\n    Two requirements are specific to this level, both materialized by\n    `TTNNLayout`:\n\n    - `cond` must yield a single-element `uint32` tensor resident in system\n      memory, since the runtime reads it back to host to decide whether to\n      continue;\n    - every loop-carried value must keep the same layout across the yield,\n      because the next iteration rebinds the regions' inputs from the values\n      `body` yielded.",
+    "operands": [
+      { "name": "inits", "type": "Variadic<AnyRankedTensor>" },
+      { "name": "captures", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "results": [
+      { "name": "results", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "trip_count", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" }
+    ],
+    "regions": [
+      { "name": "cond", "type": "SizedRegion<1>" },
+      { "name": "body", "type": "SizedRegion<1>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" },
+      { "type": "IsolatedFromAbove" }
+    ],
+    "assemblyFormat": "`inits` `(` $inits `:` type($inits) `)`\n    (`captures` `(` $captures^ `:` type($captures) `)`)?\n    attr-dict\n    `cond` $cond\n    `do` $body\n    `->` `(` type($results) `)`"
+  },
+  {
     "name": "ttnn.write_tensor",
     "summary": "Write tensor op.",
     "description": "Copies host_tensor data into device_tensor through cq_id.\n    Memory copy is done in place, thus no output is returned.\n    Inputs:\n      - `host_tensor` AnyRankedTensor: The host tensor to copy.\n      - `device_tensor` AnyRankedTensor: The device tensor to copy into.\n      - `blocking` bool: Whether the copy should be executed synchronously.\n      - `cq_id` i32: The command queue to copy the tensor with. Must be 0 or 1.",
@@ -128004,6 +128243,15 @@
       { "name": "blocking", "type": "DefaultValuedAttr<BoolAttr, false>" },
       { "name": "cq_id", "type": "DefaultValuedAttr<UI32Attr, 0>" }
     ]
+  },
+  {
+    "name": "ttnn.yield",
+    "summary": "Terminator for TTNN control flow regions.",
+    "description": "Terminates a region of a TTNN control flow op. The meaning of the yielded\n    values is defined by the parent op;",
+    "operands": [
+      { "name": "operands", "type": "Variadic<AnyRankedTensor>" }
+    ],
+    "assemblyFormat": "attr-dict ($operands^ `:` type($operands))?"
   },
   {
     "name": "ttnn.zeros",
@@ -138117,7 +138365,7 @@
   {
     "name": "xegpu.load",
     "summary": "load a set of scattered data points from memory.",
-    "description": "It (aka. load) load data per each lane. The output\n    describes the data being loaded at the subgroup level, so its size is\n    consistent with the number of lanes in a subgroup. When the chunk size\n    is larger than 2, the output vector is a 2D vector, with dim-0 correspoding\n    to lanes, and dim-1 corresponding to the chunk size loaded by each lane.\n    The mask operand masks out memory access so that it is safe to pass out-of-boundary\n    addresses/offsets as long as they are masked. Each mask element applies to one lane.\n\n    In lane level, the result is a 1D vector that represents the data to be loaded by\n    each lane. If size is not 1, size should be equal to the chunk size.\n\n    This operation serves as an anchor through which users assign a layout attribute\n    to govern computation distribution.\n\n    Arguments:\n\n    - `source`: represents the memory region to be loaded from, which can be either a\n        1D memref or pointer (ui64, ui32, i64 or i32).\n\n    - `offsets`: represents offsets from source.\n        offsets is a vector of `index` type and vector length is either the subgroup size\n        or 1 at lane level. scalar offset is also valid for lane level.\n\n    - `mask`: is a vector of `i1` type, which is used to mask out the memory access.\n        mask is a vector of size equal to the subgroup size, or 1 at lane level.\n        scalar mask is also valid for lane level.\n\n    - `chunk_size`: [optional] represents contiguous number of elements to load from per work item.\n\n    - `l1_hint`, `l2_hint`, `l3_hint`: [optional] cache hints for each level of cache.\n\n    - `layout`: [optional] Describes the expected layout of the `tensor_desc` operand or the result\n      of load. Only valid at workgroup and subgroup levels.\n\n    Results:\n    - `res`: represents loaded data\n\n  Example 1 (Subgroup level):\n  A variant accepts memref as base pointer or the source operand\n  could be a raw pointer (ui64, ui32, i64, i32).\n  ```mlir\n    %a = memref.alloc() : memref<1024xf32>\n    %offsets = vector.step : vector<16xindex>\n    %mask = vector.constant_mask [16]: vector<16xi1>\n    %val = xegpu.load %a[%offsets], %mask {l1_hint = #xegpu.cache_hint<cached>,\n                           l2_hint = #xegpu.cache_hint<cached>,\n                           l3_hint = #xegpu.cache_hint<cached>,\n                           layout = #xegpu.layout<lane_layout = [16], lane_data = [1]>}\n      : memref<1024xf32>, vector<16xi1>, vector<16xindex> -> vector<16xf32>\n  ```\n\n  Example 2 (lane level):\n  lane level only accepts the offsets variant. chunk_size can be inferred from result\n  type. In this example, chunk_size is 8.\n  ```mlir\n    %2 = xegpu.load %1[%2], %0 <{l1_hint = #xegpu.cache_hint<cached>,\n                             l2_hint = #xegpu.cache_hint<uncached>,\n                             l3_hint = #xegpu.cache_hint<uncached>}>\n          : memref<128xf32>, vector<1xindex>, vector<1xi1> -> vector<8xf32>\n  ```",
+    "description": "It (aka. load) load data per each lane.\n    The mask operand masks out memory access so that it is safe to pass out-of-boundary\n    addresses/offsets as long as they are masked. Each mask element applies to one lane.\n\n    At every level the mask, offsets, and result may be nD vectors, and all three\n    must have the same shape.\n\n    This operation serves as an anchor through which users assign a layout attribute\n    to govern computation distribution.\n\n    Arguments:\n\n    - `source`: represents the memory region to be loaded from, which can be either a\n        1D memref or pointer (ui64, ui32, i64 or i32).\n\n    - `offsets`: represents offsets from source.\n        offsets is a vector of `index` type with the same shape as the result.\n        A scalar offset is also valid: one lane then reads only one element.\n\n    - `mask`: is a vector of `i1` type, which is used to mask out the memory access.\n        mask has the same shape as the offsets and the result. Each element applies\n        to one lane. A scalar mask is also valid, and gates that one element.\n\n    - `l1_hint`, `l2_hint`, `l3_hint`: [optional] cache hints for each level of cache.\n\n    - `contiguity`: [optional] the number of neighbouring elements in the\n      innermost dimension that are contiguous in memory. It is an upper bound,\n      not the final access width: `xegpu-propagate-layout` turns it into\n      `lane_data`, capped by what one lane can access in one instruction. It\n      must be at least 2 and must divide the innermost offsets dimension.\n\n    - `layout`: [optional] Describes the expected layout of the `tensor_desc` operand or the result\n      of load. Only valid at workgroup and subgroup levels.\n\n    Results:\n    - `res`: represents loaded data\n\n  Example 1 (Subgroup level):\n  A variant accepts memref as base pointer or the source operand\n  could be a raw pointer (ui64, ui32, i64, i32).\n  ```mlir\n    %a = memref.alloc() : memref<1024xf32>\n    %offsets = vector.step : vector<16xindex>\n    %mask = vector.constant_mask [16]: vector<16xi1>\n    %val = xegpu.load %a[%offsets], %mask <{l1_hint = #xegpu.cache_hint<cached>,\n                           l2_hint = #xegpu.cache_hint<cached>,\n                           l3_hint = #xegpu.cache_hint<cached>,\n                           layout = #xegpu.layout<lane_layout = [16], lane_data = [1]>}>\n      : memref<1024xf32>, vector<16xindex>, vector<16xi1> -> vector<16xf32>\n  ```\n\n  Example 2 (lane level):\n  lane level only accepts the offsets variant. The mask, offsets, and result all\n  have the same shape; here each lane reads 8 elements.\n  ```mlir\n    %val = xegpu.load %src[%offsets], %mask <{l1_hint = #xegpu.cache_hint<cached>,\n                             l2_hint = #xegpu.cache_hint<uncached>,\n                             l3_hint = #xegpu.cache_hint<uncached>}>\n          : memref<128xf32>, vector<8xindex>, vector<8xi1> -> vector<8xf32>\n  ```\n\n  Example 3 (subgroup level, contiguous runs):\n  `contiguity = 4` says 4 neighbouring elements in the innermost dimension are\n  contiguous. The shapes stay the same.\n  ```mlir\n    %val = xegpu.load %src[%offsets], %mask <{contiguity = 4 : i64}>\n          : i64, vector<16xindex>, vector<16xi1> -> vector<16xf32>\n  ```",
     "operands": [
       { "name": "source", "type": "XeGPU_GatherScatterBaseAddrType" },
       { "name": "offsets", "type": "AnyTypeOf<[XeGPU_OffsetType, Index]>" },
@@ -138127,7 +138375,6 @@
       { "name": "value", "type": "XeGPU_ValueOrScalarType" }
     ],
     "attributes": [
-      { "name": "chunk_size", "type": "OptionalAttr<I64Attr>" },
       { "name": "l1_hint", "type": "OptionalAttr<XeGPU_CacheHintAttr{cached|uncached|streaming|read_invalidate|write_back|write_through}>" },
       { "name": "l2_hint", "type": "OptionalAttr<XeGPU_CacheHintAttr{cached|uncached|streaming|read_invalidate|write_back|write_through}>" },
       { "name": "l3_hint", "type": "OptionalAttr<XeGPU_CacheHintAttr{cached|uncached|streaming|read_invalidate|write_back|write_through}>" },
@@ -138230,7 +138477,7 @@
   {
     "name": "xegpu.store",
     "summary": "store data to scattered memory locations.",
-    "description": "It (aka. store) stores data to scattered memory locations. The value is\n  typically a 1D vector. But when the chunk size of the TensorDesc is larger than 1, it will be\n  a 2D vector instead. For the later case, dim-1 of the value correspods to the simd lanes\n  and the dim-0 of the value corresponds to the chunk size stored per lane. So `store_scatter`\n  has transpose effect, which is similar to `load_gather`. Therefore, a transpose attribute is\n  introduced on purpose, making sure users are aware of this implicit transformation.\n\n  In lane level, the result is a 1D vector that represents the data to be stored by\n  each lane. If size is not 1, size should be equal to the chunk size.\n\n  This operation serves as an anchor through which users assign a layout attribute\n  to govern computation distribution.\n\n    Arguments:\n\n    - `value`: represents the data to be stored.\n\n    - `dest`: represents the memory region to be stored to, which can be either a\n        1D memref or pointer (ui64, ui32, i64 or i32).\n\n    - `offsets`: represents offsets from dest.\n        offsets is a vector of `index` type and vector length is either the subgroup size\n        or 1 at lane level. scalar offset is also valid for lane level.\n\n    - `mask`: is a vector of `i1` type, which is used to mask out the memory access.\n        mask is a vector of size equal to the subgroup size, or 1 at lane level.\n        scalar mask is also valid for lane level.\n\n    - `chunk_size`: [optional] represents contiguous number of elements to store to per work item.\n\n    - `l1_hint`, `l2_hint`, `l3_hint`: [optional] cache hints for each level of cache.\n\n    - `layout`: [optional] Describes the expected layout of the `tensor_desc` operand or the value\n      to be stored. Only valid at workgroup and subgroup levels.\n\n\n  Example 1 (Subgroup level):\n  A variant accepts memref as base pointer and an offset.\n  The dest operand could be a raw pointer (uint64_t).\n  ```mlir\n    %a = memref.alloc() : memref<1024xf32>\n    %val = arith.constant dense<0.0> : vector<16xf32>\n    %offsets = vector.step : vector<16xindex>\n    %mask = vector.constant_mask [16]: vector<16xi1>\n    xegpu.store %val, %a[%offsets], %mask {l1_hint = #xegpu.cache_hint<cached>,\n                           l2_hint = #xegpu.cache_hint<cached>,\n                           l3_hint = #xegpu.cache_hint<cached>,\n                           layout = #xegpu.layout<lane_layout = [16], lane_data = [1]>}\n      : vector<16xf32>, memref<1024xf32>, vector<16xi1>, vector<16xindex>\n  ```\n\n  Example 2 (Lane level):\n  Lane level IR only accepts the offsets variant. chunk_size can be inferred from value\n  type. In this example, chunk_size is 8.\n  ```mlir\n    xegpu.store %0, %1[%2], %3 <{l1_hint = #xegpu.cache_hint<uncached>,\n                             l2_hint = #xegpu.cache_hint<write_back>,\n                             l3_hint = #xegpu.cache_hint<write_through>}>\n          : vector<8xf32>, memref<256xf32>, vector<1xindex>, vector<1xi1>\n  ```",
+    "description": "It (aka. store) stores data to scattered memory locations.\n\n  At every level the mask, offsets, and value may be nD vectors, and all three\n  must have the same shape.\n\n  This operation serves as an anchor through which users assign a layout attribute\n  to govern computation distribution.\n\n    Arguments:\n\n    - `value`: represents the data to be stored.\n\n    - `dest`: represents the memory region to be stored to, which can be either a\n        1D memref or pointer (ui64, ui32, i64 or i32).\n\n    - `offsets`: represents offsets from dest.\n        offsets is a vector of `index` type with the same shape as the value.\n        A scalar offset is also valid: one lane then writes only one element.\n\n    - `mask`: is a vector of `i1` type, which is used to mask out the memory access.\n        mask has the same shape as the offsets and the value. Each element applies\n        to one lane. A scalar mask is also valid, and gates that one element.\n\n    - `l1_hint`, `l2_hint`, `l3_hint`: [optional] cache hints for each level of cache.\n\n    - `contiguity`: [optional] the number of neighbouring elements in the\n      innermost dimension that are contiguous in memory. It is an upper bound,\n      not the final access width: `xegpu-propagate-layout` turns it into\n      `lane_data`, capped by what one lane can access in one instruction. It\n      must be at least 2 and must divide the innermost offsets dimension.\n\n    - `layout`: [optional] Describes the expected layout of the `tensor_desc` operand or the value\n      to be stored. Only valid at workgroup and subgroup levels.\n\n\n  Example 1 (Subgroup level):\n  A variant accepts memref as base pointer and an offset.\n  The dest operand could be a raw pointer (uint64_t).\n  ```mlir\n    %a = memref.alloc() : memref<1024xf32>\n    %val = arith.constant dense<0.0> : vector<16xf32>\n    %offsets = vector.step : vector<16xindex>\n    %mask = vector.constant_mask [16]: vector<16xi1>\n    xegpu.store %val, %a[%offsets], %mask <{l1_hint = #xegpu.cache_hint<cached>,\n                           l2_hint = #xegpu.cache_hint<cached>,\n                           l3_hint = #xegpu.cache_hint<cached>,\n                           layout = #xegpu.layout<lane_layout = [16], lane_data = [1]>}>\n      : vector<16xf32>, memref<1024xf32>, vector<16xindex>, vector<16xi1>\n  ```\n\n  Example 2 (Lane level):\n  Lane level IR only accepts the offsets variant. The mask, offsets, and value all\n  have the same shape; here each lane writes 8 elements.\n  ```mlir\n    xegpu.store %val, %dest[%offsets], %mask <{l1_hint = #xegpu.cache_hint<uncached>,\n                             l2_hint = #xegpu.cache_hint<write_back>,\n                             l3_hint = #xegpu.cache_hint<write_through>}>\n          : vector<8xf32>, memref<256xf32>, vector<8xindex>, vector<8xi1>\n  ```\n\n  Example 3 (Subgroup level, contiguous runs):\n  `contiguity = 4` says 4 neighbouring elements in the innermost dimension are\n  contiguous. The shapes stay the same.\n  ```mlir\n    xegpu.store %val, %dest[%offsets], %mask <{contiguity = 4 : i64}>\n          : vector<16xf32>, i64, vector<16xindex>, vector<16xi1>\n  ```",
     "operands": [
       { "name": "value", "type": "XeGPU_ValueOrScalarType" },
       { "name": "dest", "type": "XeGPU_GatherScatterBaseAddrType" },
@@ -138238,7 +138485,6 @@
       { "name": "mask", "type": "AnyTypeOf<[XeGPU_MaskType, I1]>" }
     ],
     "attributes": [
-      { "name": "chunk_size", "type": "OptionalAttr<I64Attr>" },
       { "name": "l1_hint", "type": "OptionalAttr<XeGPU_CacheHintAttr{cached|uncached|streaming|read_invalidate|write_back|write_through}>" },
       { "name": "l2_hint", "type": "OptionalAttr<XeGPU_CacheHintAttr{cached|uncached|streaming|read_invalidate|write_back|write_through}>" },
       { "name": "l3_hint", "type": "OptionalAttr<XeGPU_CacheHintAttr{cached|uncached|streaming|read_invalidate|write_back|write_through}>" },
@@ -139823,7 +140069,7 @@
   {
     "name": "xtile.scan",
     "summary": "scan operation",
-    "description": "Mirrors HLO's kScan operation.",
+    "description": "Mirrors HLO's kScan operation.\n\n    Unlike HLO, the inits and carries keep the scan dimension as a unit\n    dimension, i.e. they have the same rank as the inputs and outputs. This\n    avoids rank-zero carries for 1D scans, which Triton does not support, and\n    allows broadcasting a carry across a tile without changing its rank.\n\n    Example: for inputs of type `tensor<16x1024xf32>` and `dimension = 1`, the\n    inits and carries have type `tensor<16x1xf32>`.",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyRankedTensor>" },
       { "name": "inits", "type": "Variadic<AnyRankedTensor>" }
