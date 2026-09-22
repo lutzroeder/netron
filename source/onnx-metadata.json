@@ -50394,7 +50394,7 @@
     "name": "QMoE",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Quantized mixture of experts (MoE).\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      The formula of linear dequantization of the quantized weights using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      If block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      If block_size and zero_point are provided, both hidden_size and inter_size must be divisible by block_size * pack_size,\n      where pack_size = 8 / expert_weight_bits.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
+    "description": "Quantized mixture of experts (MoE).\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      The formula of linear dequantization of the quantized weights using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      If block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
     "attributes": [
       {
         "name": "accuracy_level",
@@ -50434,6 +50434,24 @@
         "required": false,
         "default": 4,
         "description": "Number of bits used in quantized weights. Supported values are 2, 4, and 8. Default is 4 bits"
+      },
+      {
+        "name": "fc1_expert_weight_bits",
+        "type": "int64",
+        "required": false,
+        "description": "Optional FC1 override for expert_weight_bits. Inherits expert_weight_bits when omitted."
+      },
+      {
+        "name": "fc2_expert_weight_bits",
+        "type": "int64",
+        "required": false,
+        "description": "Optional FC2 override for expert_weight_bits. Inherits expert_weight_bits when omitted."
+      },
+      {
+        "name": "fc3_expert_weight_bits",
+        "type": "int64",
+        "required": false,
+        "description": "Optional FC3 override for expert_weight_bits. Inherits expert_weight_bits when omitted. For fused SwiGLU, the effective FC3 width must equal the effective FC1 width."
       },
       {
         "name": "k",
@@ -50495,7 +50513,7 @@
       {
         "name": "fc1_experts_weights",
         "type": "T1",
-        "description": "3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size / pack_size), The fusion_size is 2 for fused swiglu, or 1 otherwise. The pack_size is 8 / expert_weight_bits."
+        "description": "3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size * effective_fc1_bits / 8). The last dimension must be byte-aligned. The fusion_size is 2 for fused swiglu, or 1 otherwise. effective_fc1_bits is fc1_expert_weight_bits when provided, otherwise expert_weight_bits."
       },
       {
         "name": "fc1_scales",
@@ -50512,7 +50530,7 @@
       {
         "name": "fc2_experts_weights",
         "type": "T1",
-        "description": "3D tensor with shape (num_experts, hidden_size, inter_size / pack_size)"
+        "description": "3D tensor with shape (num_experts, hidden_size, inter_size * effective_fc2_bits / 8). The last dimension must be byte-aligned. effective_fc2_bits is fc2_expert_weight_bits when provided, otherwise expert_weight_bits."
       },
       {
         "name": "fc2_scales",
@@ -50530,7 +50548,7 @@
         "name": "fc3_experts_weights",
         "type": "T1",
         "option": "optional",
-        "description": "3D optional tensor with shape (num_experts, inter_size, hidden_size / pack_size)"
+        "description": "3D optional tensor with shape (num_experts, inter_size, hidden_size * effective_fc3_bits / 8). The last dimension must be byte-aligned. effective_fc3_bits is fc3_expert_weight_bits when provided, otherwise expert_weight_bits."
       },
       {
         "name": "fc3_scales",
@@ -50548,19 +50566,19 @@
         "name": "fc1_zero_points",
         "type": "T1",
         "option": "optional",
-        "description": "2D tensor with shape (num_experts, fusion_size * inter_size / pack_size), or 3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size / block_size / pack_size) when block_size is provided."
+        "description": "2D tensor with shape (num_experts, ceil(fusion_size * inter_size * effective_fc1_bits / 8)), or 3D tensor with shape (num_experts, fusion_size * inter_size, ceil((hidden_size / block_size) * effective_fc1_bits / 8)) when block_size is provided."
       },
       {
         "name": "fc2_zero_points",
         "type": "T1",
         "option": "optional",
-        "description": "2D tensor with shape (num_experts, hidden_size / pack_size), or 3D tensor with shape (num_experts, hidden_size, inter_size / block_size / pack_size) when block_size is provided."
+        "description": "2D tensor with shape (num_experts, ceil(hidden_size * effective_fc2_bits / 8)), or 3D tensor with shape (num_experts, hidden_size, ceil((inter_size / block_size) * effective_fc2_bits / 8)) when block_size is provided."
       },
       {
         "name": "fc3_zero_points",
         "type": "T1",
         "option": "optional",
-        "description": "2D optional tensor with shape (num_experts, inter_size / pack_size), or 3D optional tensor with shape (num_experts, inter_size, hidden_size / block_size / pack_size) when block_size is provided."
+        "description": "2D optional tensor with shape (num_experts, ceil(inter_size * effective_fc3_bits / 8)), or 3D optional tensor with shape (num_experts, inter_size, ceil((hidden_size / block_size) * effective_fc3_bits / 8)) when block_size is provided."
       },
       {
         "name": "router_weights",
