@@ -1060,6 +1060,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/ocl-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/structure-ops.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/SPIRV/IR/types.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Dialect/Tosa/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Tosa/verifier.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Transform/include/test-interpreter-library-invalid/definitions-invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Transform/test-pass-application.mlir',
