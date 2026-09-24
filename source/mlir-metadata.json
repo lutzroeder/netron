@@ -52,7 +52,7 @@
   {
     "name": "acc.attach",
     "summary": "Represents acc attach semantics which updates a pointer in device memory with the corresponding device address of the pointee.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -69,6 +69,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_attach>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -76,7 +77,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.bounds",
@@ -104,7 +105,7 @@
   {
     "name": "acc.cache",
     "summary": "Represents the cache directive that is associated with a loop.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -121,6 +122,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_cache>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -128,7 +130,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.compute_region",
@@ -159,7 +161,7 @@
   {
     "name": "acc.copyin",
     "summary": "Represents copyin semantics for acc data clauses like acc copyin and acc copy.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -176,6 +178,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_copyin>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -183,12 +186,12 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.copyout",
     "summary": "Represents acc copyout semantics - reverse of copyin.",
-    "description": "- `varPtr`: The address of variable to copy back to.- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "- `varPtr`: The address of variable to copy back to.- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "accVar", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
@@ -202,18 +205,19 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_copyout>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.create",
     "summary": "Represents create semantics for acc data clauses like acc create and acc copyout.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -230,6 +234,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_create>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -237,7 +242,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.data",
@@ -281,7 +286,7 @@
   {
     "name": "acc.declare_device_resident",
     "summary": "Represents acc declare device_resident semantics.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -298,6 +303,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_declare_device_resident>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -305,7 +311,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.declare_enter",
@@ -335,7 +341,7 @@
   {
     "name": "acc.declare_link",
     "summary": "Represents acc declare link semantics.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -352,6 +358,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_declare_link>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -359,12 +366,12 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.delete",
     "summary": "Represents acc delete semantics - reverse of create.",
-    "description": "- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "accVar", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "bounds", "type": "Variadic<OpenACC_DataBoundsType>" },
@@ -376,18 +383,19 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_delete>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.detach",
     "summary": "Represents acc detach semantics - reverse of attach.",
-    "description": "- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "accVar", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "bounds", "type": "Variadic<OpenACC_DataBoundsType>" },
@@ -399,18 +407,19 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_detach>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.deviceptr",
     "summary": "Specifies that the variable pointer is a device pointer.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -427,6 +436,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_deviceptr>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -434,7 +444,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.enter_data",
@@ -480,7 +490,7 @@
   {
     "name": "acc.firstprivate",
     "summary": "Represents firstprivate semantic for the acc firstprivate clause.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -497,6 +507,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_firstprivate>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -504,7 +515,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.firstprivate_map",
@@ -526,6 +537,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_firstprivate>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -533,7 +545,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.firstprivate.recipe",
@@ -605,7 +617,7 @@
   {
     "name": "acc.getdeviceptr",
     "summary": "Gets device address if variable exists on device.",
-    "description": "This operation is used to get the `accPtr` for a variable. This is often\n      used in conjunction with data exit operations when the data entry\n      operation is not visible. This operation can have a `dataClause` argument\n      that is any of the valid `mlir::acc::DataClause` entries.\n      \\Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "This operation is used to get the `accPtr` for a variable. This is often\n      used in conjunction with data exit operations when the data entry\n      operation is not visible. This operation can have a `dataClause` argument\n      that is any of the valid `mlir::acc::DataClause` entries.\n      \\Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -622,6 +634,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_getdeviceptr>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -629,7 +642,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.global_ctor",
@@ -858,7 +871,7 @@
   {
     "name": "acc.nocreate",
     "summary": "Represents acc no_create semantics.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -875,6 +888,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_no_create>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -882,7 +896,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.on_device",
@@ -963,7 +977,7 @@
   {
     "name": "acc.present",
     "summary": "Specifies that the variable is already present on device.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -980,6 +994,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_present>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -987,12 +1002,12 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.private",
     "summary": "Represents private semantics for acc private clause.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -1009,6 +1024,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_private>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -1016,7 +1032,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.private_local",
@@ -1066,7 +1082,7 @@
   {
     "name": "acc.reduction",
     "summary": "Represents reduction semantics for acc reduction clause.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -1083,6 +1099,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_reduction>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -1090,7 +1107,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.reduction_accumulate",
@@ -1326,7 +1343,7 @@
   {
     "name": "acc.update_device",
     "summary": "Represents acc update device semantics.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -1343,6 +1360,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_update_device>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -1350,12 +1368,12 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.update_host",
     "summary": "Represents acc update host semantics.",
-    "description": "- `varPtr`: The address of variable to copy back to.- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "- `varPtr`: The address of variable to copy back to.- `accVar`: The acc variable. This is the link from the data-entry\n    operation used.\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, always, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data exit operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "accVar", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
@@ -1369,18 +1387,19 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_update_host>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
+    "assemblyFormat": "custom<AccVar>($accVar, type($accVar))\n    (`bounds` `(` $bounds^ `)` )?\n    (`async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)^)?\n    `to` custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    )\n    prop-dict attr-dict"
   },
   {
     "name": "acc.use_device",
     "summary": "Represents acc use_device semantics.",
-    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
+    "description": "Description of arguments:\n    - `var`: The variable to copy. Must be either `MappableType` or\n    `PointerLikeType`.\n    - `varType`: The type of the variable that is being copied. When `var` is\n    a `MappableType`, this matches the type of `var`. When `var` is a\n    `PointerLikeType`, this type holds information about the target of the\n    pointer.\n    - `varPtrPtr`: Specifies the address of the address of `var` - only used\n    when the variable copied is a field in a struct. This is important for\n    OpenACC due to implicit attach semantics on data clauses (2.6.4).\n    - `bounds`: Used when copying just slice of array or array's bounds are not\n    encoded in type. They are in rank order where rank 0 is inner-most dimension.\n    - `asyncOperands` and `asyncOperandsDeviceType`:\n    pair-wise lists of the async clause values associated with device_type's.\n    - `asyncOnly`: a list of device_type's for which async clause\n    does not specify a value (default is acc_async_noval - OpenACC 3.3 2.16.1).\n    - `dataClause`: Keeps track of the data clause the user used. This is because\n    the acc operations are decomposed. So a 'copy' clause is decomposed to both \n    `acc.copyin` and `acc.copyout` operations, but both have dataClause that\n    specifies `acc_copy` in this field.\n    - `structured`: Flag to note whether this is associated with structured region\n    (parallel, kernels, data) or unstructured (enter data, exit data). This is\n    important due to spec specifically calling out structured and dynamic reference\n    counters (2.6.7).\n    - `implicit`: Whether this is an implicitly generated operation, such as copies\n    done to satisfy \"Variables with Implicitly Determined Data Attributes\" in 2.6.2.\n    - `synthetic`: Whether the implementation created this operation for its own\n    bookkeeping instead of to represent a data attribute of the program being\n    compiled. Unlike an `implicit` operation, it has no counterpart in that\n    program, so it is not described to the user.\n    - `modifiers`: Keeps track of the data clause modifiers (eg zero, readonly, etc)\n    - `name`: Holds the name of variable as specified in user clause (including bounds).\n\n    The async values attached to the data entry operation imply that the data\n    action applies to all device types specified by the device_type clauses\n    using the activity queues on these devices as defined by the async values.",
     "operands": [
       { "name": "var", "type": "OpenACC_AnyPointerOrMappableType" },
       { "name": "varPtrPtr", "type": "Optional<OpenACC_PointerLikeTypeInterface>" },
@@ -1397,6 +1416,7 @@
       { "name": "dataClause", "type": "DefaultValuedAttr<OpenACC_DataClauseAttr{acc_copyin|acc_copyin_readonly|acc_copy|acc_copyout|acc_copyout_zero|acc_present|acc_create|acc_create_zero|acc_delete|acc_attach|acc_detach|acc_no_create|acc_private|acc_firstprivate|acc_deviceptr|acc_getdeviceptr|acc_update_host|acc_update_self|acc_update_device|acc_use_device|acc_reduction|acc_declare_device_resident|acc_declare_link|acc_cache|acc_cache_readonly}, mlir::acc::DataClause::acc_use_device>" },
       { "name": "structured", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "implicit", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "synthetic", "type": "UnitAttr" },
       { "name": "modifiers", "type": "DefaultValuedAttr<OpenACC_DataClauseModifierAttr{none|zero|readonly|alwaysin|alwaysout|always|capture}, mlir::acc::DataClauseModifier::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "recipe", "type": "OptionalAttr<SymbolRefAttr>" }
@@ -1404,7 +1424,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
+    "assemblyFormat": "custom<Var>($var) `:` custom<VarPtrType>(type($var), $varType)\n    oilist(\n        `varPtrPtr` `(` $varPtrPtr `:` type($varPtrPtr) `)`\n      | `bounds` `(` $bounds `)`\n      | `async` `` custom<DeviceTypeOperandsWithKeywordOnly>($asyncOperands,\n            type($asyncOperands), $asyncOperandsDeviceType, $asyncOnly)\n      | `recipe` `(` custom<RecipeSym>($recipe) `)`\n      | `dataClause` `(` enum($dataClause) `)`\n      | `structured` `(` $structured `)`\n      | `implicit` `(` $implicit `)`\n      | `synthetic` $synthetic\n      | `name` `(` $name `)`\n    ) prop-dict `->` type($accVar) attr-dict"
   },
   {
     "name": "acc.wait",
@@ -3638,6 +3658,25 @@
     "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
   },
   {
+    "name": "arith.maximumnumf",
+    "summary": "floating-point maximumNumber operation",
+    "description": "Returns the maximum of the two arguments, not propagating NaNs and treating\n    -0.0 as less than +0.0.\n\n    If both operands are NaNs, returns a NaN. If one operand is NaN and the\n    other operand is a number, returns the number. Otherwise, returns the\n    greater of the two arguments. -0.0 is considered to be less than +0.0 for\n    this operation.\n\n    If the `nsz` flag is specified, `arith.maximumnumf` with one +0.0 and one\n    -0.0 operand may non-deterministically return either operand. Unlike the\n    usual `nsz` semantics, if both zero operands have the same sign, the result\n    must retain that sign. For example, `maximumnumf(+0.0, +0.0)` with `nsz`\n    must return +0.0, while `maximumnumf(-0.0, +0.0)` may return either zero.\n\n    This operation follows the semantics of `maximumNumber` in IEEE 754-2019.",
+    "operands": [
+      { "name": "lhs", "type": "FloatLike" },
+      { "name": "rhs", "type": "FloatLike" }
+    ],
+    "results": [
+      { "name": "result", "type": "FloatLike" }
+    ],
+    "attributes": [
+      { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
     "name": "arith.maxnumf",
     "summary": "floating-point maximum operation",
     "description": "Returns the maximum of the two arguments.\n    If the arguments are -0.0 and +0.0, then the result is either of them.\n    If one of the arguments is NaN, then the result is the other argument.\n\n    Example:\n\n    ```mlir\n    // Scalar floating-point maximum.\n    %a = arith.maxnumf %b, %c : f64\n    ```",
@@ -3690,6 +3729,25 @@
     "name": "arith.minimumf",
     "summary": "floating-point minimum operation",
     "description": "Returns the minimum of the two arguments, treating -0.0 as less than +0.0.\n    If one of the arguments is NaN, then the result is also NaN.\n\n    Example:\n\n    ```mlir\n    // Scalar floating-point minimum.\n    %a = arith.minimumf %b, %c : f64\n    ```",
+    "operands": [
+      { "name": "lhs", "type": "FloatLike" },
+      { "name": "rhs", "type": "FloatLike" }
+    ],
+    "results": [
+      { "name": "result", "type": "FloatLike" }
+    ],
+    "attributes": [
+      { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs (`fastmath` `` $fastmath^)?\n                          attr-dict `:` type($result)"
+  },
+  {
+    "name": "arith.minimumnumf",
+    "summary": "floating-point minimumNumber operation",
+    "description": "Returns the minimum of the two arguments, not propagating NaNs and treating\n    -0.0 as less than +0.0.\n\n    If both operands are NaNs, returns a NaN. If one operand is NaN and the\n    other operand is a number, returns the number. Otherwise, returns the\n    lesser of the two arguments. -0.0 is considered to be less than +0.0 for\n    this operation.\n\n    If the `nsz` flag is specified, `arith.minimumnumf` with one +0.0 and one\n    -0.0 operand may non-deterministically return either operand. Unlike the\n    usual `nsz` semantics, if both zero operands have the same sign, the result\n    must retain that sign. For example, `minimumnumf(-0.0, -0.0)` with `nsz`\n    must return -0.0, while `minimumnumf(-0.0, +0.0)` may return either zero.\n\n    This operation follows the semantics of `minimumNumber` in IEEE 754-2019.",
     "operands": [
       { "name": "lhs", "type": "FloatLike" },
       { "name": "rhs", "type": "FloatLike" }
@@ -23188,7 +23246,8 @@
       { "name": "function_metadata", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_FunctionMetadataAttr>>" },
       { "name": "uwtable_kind", "type": "OptionalAttr<UWTableKindAttr>" },
       { "name": "use_sample_profile", "type": "OptionalAttr<BoolAttr>" },
-      { "name": "disable_tail_calls", "type": "OptionalAttr<BoolAttr>" }
+      { "name": "disable_tail_calls", "type": "OptionalAttr<BoolAttr>" },
+      { "name": "sample_profile_suffix_elision_policy", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "body", "type": "AnyRegion" }
@@ -25240,6 +25299,23 @@
     "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "llvm.intr.maximumnum",
+    "operands": [
+      { "name": "a", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" },
+      { "name": "b", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
     "name": "llvm.intr.maxnum",
     "operands": [
       { "name": "a", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" },
@@ -25343,6 +25419,23 @@
   },
   {
     "name": "llvm.intr.minimum",
+    "operands": [
+      { "name": "a", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" },
+      { "name": "b", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.minimumnum",
     "operands": [
       { "name": "a", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" },
       { "name": "b", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" }
@@ -26076,6 +26169,19 @@
     "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "llvm.intr.vector.reduce.fmaximumnum",
+    "operands": [
+      { "name": "in", "type": "LLVM_VectorOf<AnyFloat>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
     "name": "llvm.intr.vector.reduce.fmin",
     "operands": [
       { "name": "in", "type": "LLVM_VectorOf<AnyFloat>" }
@@ -26090,6 +26196,19 @@
   },
   {
     "name": "llvm.intr.vector.reduce.fminimum",
+    "operands": [
+      { "name": "in", "type": "LLVM_VectorOf<AnyFloat>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "attributes": [
+      { "name": "fastmathFlags", "type": "DefaultValuedAttr<LLVM_FastmathFlagsAttr{none|nnan|ninf|nsz|arcp|contract|afn|reassoc|fast}, {}>" }
+    ],
+    "assemblyFormat": "`(` operands `)` (`fastmath` `` $fastmathFlags^)? attr-dict `:` functional-type(operands, results)"
+  },
+  {
+    "name": "llvm.intr.vector.reduce.fminimumnum",
     "operands": [
       { "name": "in", "type": "LLVM_VectorOf<AnyFloat>" }
     ],
@@ -38685,10 +38804,10 @@
     "summary": "ONNX GlobalLpPool operation",
     "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across\n   the values in the same channel. This is equivalent to LpPool with kernel size\n   equal to the spatial dimension of input tensor.",
     "operands": [
-      { "name": "X", "type": "AnyTypeOf<[TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>]>" }
+      { "name": "X", "type": "AnyTypeOf<[TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>]>" }
     ],
     "results": [
-      { "name": "Y", "type": "AnyTypeOf<[TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>]>" }
+      { "name": "Y", "type": "AnyTypeOf<[TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>]>" }
     ],
     "attributes": [
       { "name": "p", "type": "DefaultValuedAttr<SI64Attr, 2>" }
@@ -41142,6 +41261,23 @@
     ],
     "results": [
       { "name": "output", "type": "AnyTypeOf<[TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>]>" }
+    ]
+  },
+  {
+    "name": "onnx.TensorScatter",
+    "summary": "ONNX TensorScatter operation",
+    "description": "TensorScatter is a generic tensor update operation, motivated by the requirements for KV cache updates for Attention\n  ops commonly found in LLMs. It is a functional operation that models an in-place update to a KV cache buffer.\n  \n  The past and present cache tensors have the same shape (batch_size, D1, D2, ..., max_sequence_length, ..., Dn), with\n  the sequence dimension (indicated by the `axis` attribute) being max_sequence_length, so the sizes of these tensors do\n  not need to grow between iterations. The `update` tensor's shape only differs from the cache tensors in the sequence\n  dimension: (batch_size, D1, D2, ..., sequence_length, ..., Dn), where sequence_length <= max_sequence_length.\n  \n  The optional `write_indices` input indicates the write index for each sample in the batch, assumed to be zero\n  if not provided. When the `mode` attribute is set to \\\"circular\\\", the write index is modulo max_sequence_length.\n  The operation can be described using the following pseudocode:\n  \n  ```\n  for prefix_idx in np.ndindex(past_cache.shape[:axis]):\n      batch_idx = prefix_idx[0]\n      for sequence_idx in range(sequence_length):\n          cache_idx = (*prefix_idx, write_indices[batch_idx] + sequence_idx)\n          if mode == \\\"circular\\\":\n              cache_idx = tuple(np.mod(np.asarray(cache_idx), max_sequence_length))\n          update_idx = (*prefix_idx, sequence_idx)\n          present_cache[cache_idx] = update[update_idx]\n  ```\n  \n  During the prefill phase of attention, only the first two inputs are needed. During the decode phase, `write_indices`\n  is also needed so that the incoming key or value update can be appended after the last valid token for each sample\n  in the batch.",
+    "operands": [
+      { "name": "past_cache", "type": "AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[UI32]>, TensorOf<[UI64]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[I32]>, TensorOf<[I64]>, TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>, TensorOf<[StringType]>, TensorOf<[I1]>, TensorOf<[Complex<F32>]>, TensorOf<[Complex<F64>]>, TensorOf<[F8E4M3FN]>, TensorOf<[F8E4M3FNUZ]>, TensorOf<[F8E5M2]>, TensorOf<[F8E5M2FNUZ]>, TensorOf<[UI<4>]>, TensorOf<[I<4>]>, TensorOf<[F4E2M1FN]>, TensorOf<[F8E8M0FNU]>]>" },
+      { "name": "update", "type": "AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[UI32]>, TensorOf<[UI64]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[I32]>, TensorOf<[I64]>, TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>, TensorOf<[StringType]>, TensorOf<[I1]>, TensorOf<[Complex<F32>]>, TensorOf<[Complex<F64>]>, TensorOf<[F8E4M3FN]>, TensorOf<[F8E4M3FNUZ]>, TensorOf<[F8E5M2]>, TensorOf<[F8E5M2FNUZ]>, TensorOf<[UI<4>]>, TensorOf<[I<4>]>, TensorOf<[F4E2M1FN]>, TensorOf<[F8E8M0FNU]>]>" },
+      { "name": "write_indices", "type": "AnyTypeOf<[TensorOf<[I64]>, NoneType]>" }
+    ],
+    "results": [
+      { "name": "present_cache", "type": "AnyTypeOf<[TensorOf<[UI8]>, TensorOf<[UI16]>, TensorOf<[UI32]>, TensorOf<[UI64]>, TensorOf<[I8]>, TensorOf<[I16]>, TensorOf<[I32]>, TensorOf<[I64]>, TensorOf<[BF16]>, TensorOf<[F16]>, TensorOf<[F32]>, TensorOf<[F64]>, TensorOf<[StringType]>, TensorOf<[I1]>, TensorOf<[Complex<F32>]>, TensorOf<[Complex<F64>]>, TensorOf<[F8E4M3FN]>, TensorOf<[F8E4M3FNUZ]>, TensorOf<[F8E5M2]>, TensorOf<[F8E5M2FNUZ]>, TensorOf<[UI<4>]>, TensorOf<[I<4>]>, TensorOf<[F4E2M1FN]>, TensorOf<[F8E8M0FNU]>]>" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "DefaultValuedAttr<SI64Attr, -2>" },
+      { "name": "mode", "type": "DefaultValuedStrAttr<StrAttr, linear>" }
     ]
   },
   {
@@ -53985,7 +54121,7 @@
   {
     "name": "spirv.FConvert",
     "summary": "Convert value numerically from one floating-point width to another\n    width.",
-    "description": "Result Type must be a scalar or vector of floating-point type.\n\n    Float Value must be a scalar or vector of floating-point type.  It must\n    have the same number of components as Result Type.  The component width\n    cannot equal the component width in Result Type.\n\n    Results are computed per component.\n\n    #### Example:\n\n    ```mlir\n    %1 = spirv.FConvert %0 : f32 to f64\n    %3 = spirv.FConvert %2 : vector<3xf32> to vector<3xf64>\n    ```",
+    "description": "Result Type must be a scalar or vector of floating-point type.\n\n    Float Value must be a scalar or vector of floating-point type.  It must\n    have the same number of components as Result Type.  The component type\n    must not equal the component type in Result Type.\n\n    Results are computed per component.\n\n    #### Example:\n\n    ```mlir\n    %1 = spirv.FConvert %0 : f32 to f64\n    %3 = spirv.FConvert %2 : vector<3xf32> to vector<3xf64>\n    ```",
     "operands": [
       { "name": "operand", "type": "SPIRV_ScalarOrVectorOrCoopMatrixOf<SPIRV_AnyFloat>" }
     ],
@@ -106102,7 +106238,7 @@
     "attributes": [
       { "name": "rounding_mode", "type": "Tosa_RoundingModeAttr{SINGLE_ROUND|INEXACT_ROUND|DOUBLE_ROUND}" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `rounding_mode` `` $rounding_mode attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.argmax",
@@ -106118,7 +106254,7 @@
       { "name": "axis", "type": "I32Attr" },
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `axis` `(` $axis `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.arithmetic_right_shift",
@@ -106134,7 +106270,7 @@
     "attributes": [
       { "name": "round", "type": "BoolAttr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `round` `(` $round `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.assert_equal_shape",
@@ -106147,7 +106283,7 @@
     "attributes": [
       { "name": "allow_broadcast", "type": "BoolAttr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `allow_broadcast` `(` $allow_broadcast `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.avg_pool2d",
@@ -106167,7 +106303,7 @@
       { "name": "pad", "type": "ConfinedAttr<DenseI64ArrayAttr, [DenseArrayCount<4>]>" },
       { "name": "acc_type", "type": "TypeAttrOf<Tosa_AccType>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `kernel` `(` $kernel `)` `stride` `(` $stride `)` `pad` `(` $pad `)` `acc_type` `(` $acc_type `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.avg_pool2d_adaptive",
@@ -106187,7 +106323,7 @@
     "attributes": [
       { "name": "acc_type", "type": "TypeAttrOf<Tosa_AccType>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `acc_type` `(` $acc_type `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.bitwise_and",
@@ -106253,7 +106389,7 @@
     "attributes": [
       { "name": "input_unsigned", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands custom<InputUnsigned>($input_unsigned) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.cast_from_block_scaled",
@@ -106269,7 +106405,7 @@
     "attributes": [
       { "name": "block_size", "type": "Tosa_BlockSizeAttr{BLOCK_SIZE_1|BLOCK_SIZE_32}" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `block_size` `` $block_size attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.cast_to_block_scaled",
@@ -106285,7 +106421,7 @@
     "attributes": [
       { "name": "block_size", "type": "Tosa_BlockSizeAttr{BLOCK_SIZE_1|BLOCK_SIZE_32}" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `block_size` `` $block_size attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.ceil",
@@ -106315,7 +106451,7 @@
       { "name": "max_val", "type": "Tosa_IntOrFloatAttr" },
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `min_val` `(` $min_val `)` `max_val` `(` $max_val `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.clz",
@@ -106343,7 +106479,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.concat_shape",
@@ -106377,7 +106513,7 @@
   {
     "name": "tosa.const",
     "summary": "Constant operator.",
-    "description": "A node containing constant data for use as the input to an operation. May\n    hold data in any of the supported data formats.\n\n    Example:\n\n    ```mlir\n    // Generic form\n    %out = \"tosa.const\"() {values = dense<0> : tensor<2x3xi32>} : () -> tensor<2x3xi32>\n    ```",
+    "description": "A node containing constant data for use as the input to an operation. May\n    hold data in any of the supported data formats.\n\n    Example:\n\n    ```mlir\n    // Generic form\n    %out = \"tosa.const\"() <{values = dense<0> : tensor<2x3xi32>}> : () -> tensor<2x3xi32>\n    ```",
     "results": [
       { "name": "output", "type": "Tosa_Tensor" }
     ],
@@ -106391,14 +106527,14 @@
   {
     "name": "tosa.const_shape",
     "summary": "Constant Shape operator.",
-    "description": "A node containing a constant shape.\n\n    Example:\n\n    ```mlir\n    // Generic form\n    %out = \"tosa.const_shape\"() {values = dense<0> : tensor<4xindex>} : () -> !tosa.shape<4>\n    ```",
+    "description": "A node containing a constant shape.\n\n    Example:\n\n    ```mlir\n    // Generic form\n    %out = \"tosa.const_shape\"() <{values = dense<0> : tensor<4xindex>}> : () -> !tosa.shape<4>\n    ```",
     "results": [
       { "name": "output", "type": "Tosa_Shape" }
     ],
     "attributes": [
       { "name": "values", "type": "IndexElementsAttr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `values` `(` $values `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.conv2d",
@@ -106422,7 +106558,7 @@
       { "name": "acc_type", "type": "TypeAttrOf<Tosa_AccType>" },
       { "name": "local_bound", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `pad` `(` $pad `)` `stride` `(` $stride `)` `dilation` `(` $dilation `)` `acc_type` `(` $acc_type `)` custom<LocalBound>($local_bound) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.conv2d_block_scaled",
@@ -106444,7 +106580,7 @@
     "attributes": [
       { "name": "block_size", "type": "Tosa_BlockSizeAttr{BLOCK_SIZE_1|BLOCK_SIZE_32}" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `block_size` `` $block_size attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.conv3d",
@@ -106468,7 +106604,7 @@
       { "name": "acc_type", "type": "TypeAttrOf<Tosa_AccType>" },
       { "name": "local_bound", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `pad` `(` $pad `)` `stride` `(` $stride `)` `dilation` `(` $dilation `)` `acc_type` `(` $acc_type `)` custom<LocalBound>($local_bound) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.cos",
@@ -106485,7 +106621,7 @@
   {
     "name": "tosa.custom",
     "summary": "Custom operator wrapper for Tosa",
-    "description": "Hardware implementing TOSA may choose to add additional custom operators\n    that are not expressed in the existing TOSA operations. These operators are\n    not expected to be portable across TOSA implementations. The input and\n    output signatures must be expressed in the corresponding TOSA node.\n\n    `operator_name` is a string that tells the backend which custom operator is\n    being called.\n\n    `domain_name` is a string identifier which can help avoid name collisions on\n    the identifier field.\n\n    `implementation_attrs` is a string which is a backend and identifier specific\n    set of attributes to the custom operator.\n\n    `input_list` is the set of tensor inputs to the custom operator.\n\n    `output_list` is the list of tensors returned by the operator. The number of operators\n    is backend specific.\n\n    Example:\n\n    ```mlir\n    %out = tosa.custom %in {domain_name = \"tosa_mlir_test\", operator_name =\n           \"custom_test\", implementation_attrs = \"\"}: (tensor<10xi32>) ->\n           (tensor<10xi32>)\n    ```",
+    "description": "Hardware implementing TOSA may choose to add additional custom operators\n    that are not expressed in the existing TOSA operations. These operators are\n    not expected to be portable across TOSA implementations. The input and\n    output signatures must be expressed in the corresponding TOSA node.\n\n    `operator_name` is a string that tells the backend which custom operator is\n    being called.\n\n    `domain_name` is a string identifier which can help avoid name collisions on\n    the identifier field.\n\n    `implementation_attrs` is a string which is a backend and identifier specific\n    set of attributes to the custom operator.\n\n    `input_list` is the set of tensor inputs to the custom operator.\n\n    `output_list` is the list of tensors returned by the operator. The number of operators\n    is backend specific.\n\n    Example:\n\n    ```mlir\n    %out = tosa.custom %in operator_name(\"custom_test\")\n           domain_name(\"tosa_mlir_test\") implementation_attrs(\"\") :\n           (tensor<10xi32>) -> (tensor<10xi32>)\n    ```",
     "operands": [
       { "name": "input_list", "type": "Variadic<Tosa_Tensor>" }
     ],
@@ -106497,7 +106633,7 @@
       { "name": "domain_name", "type": "StrAttr" },
       { "name": "implementation_attrs", "type": "StrAttr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `operator_name` `(` $operator_name `)` `domain_name` `(` $domain_name `)` `implementation_attrs` `(` $implementation_attrs `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.depthwise_conv2d",
@@ -106520,7 +106656,7 @@
       { "name": "acc_type", "type": "TypeAttrOf<Tosa_AccType>" },
       { "name": "local_bound", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `pad` `(` $pad `)` `stride` `(` $stride `)` `dilation` `(` $dilation `)` `acc_type` `(` $acc_type `)` custom<LocalBound>($local_bound) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.dim",
@@ -106535,7 +106671,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.div_ceil_shape",
@@ -106615,7 +106751,7 @@
   {
     "name": "tosa.fft2d",
     "summary": "Performs FFT2D operation on the input.",
-    "description": "Performs a batched complex 2D Fast Fourier Transform over the input. The\n    complex input values are constructed from the corresponding values in the\n    input_real and input_imag tensors. The resulting values in the output are\n    split into the output_real and output_imag tensors. No normalization is\n    applied on either the forward or inverse versions of the operation.\n\n    Example:\n\n    ```mlir\n     %output_real, %output_imag = tosa.fft2d %input_real, %input_imag : (tensor<8x9xf32>, tensor<8x9xf32>) -> (tensor<8x9xf32>, tensor<8x9xf32>)\n    ```",
+    "description": "Performs a batched complex 2D Fast Fourier Transform over the input. The\n    complex input values are constructed from the corresponding values in the\n    input_real and input_imag tensors. The resulting values in the output are\n    split into the output_real and output_imag tensors. No normalization is\n    applied on either the forward or inverse versions of the operation.\n\n    Example:\n\n    ```mlir\n    %output_real, %output_imag = tosa.fft2d %input_real, %input_imag\n        inverse(false) : (tensor<1x8x9xf32>, tensor<1x8x9xf32>) ->\n        (tensor<1x8x9xf32>, tensor<1x8x9xf32>)\n    ```",
     "operands": [
       { "name": "input_real", "type": "Tosa_Tensor3D" },
       { "name": "input_imag", "type": "Tosa_Tensor3D" }
@@ -106628,7 +106764,7 @@
       { "name": "inverse", "type": "BoolAttr" },
       { "name": "local_bound", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `inverse` `(` $inverse `)` custom<LocalBound>($local_bound) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.floor",
@@ -106866,7 +107002,7 @@
     "attributes": [
       { "name": "block_size", "type": "Tosa_BlockSizeAttr{BLOCK_SIZE_1|BLOCK_SIZE_32}" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `block_size` `` $block_size attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.max_pool2d",
@@ -106885,7 +107021,7 @@
       { "name": "pad", "type": "ConfinedAttr<DenseI64ArrayAttr, [DenseArrayCount<4>]>" },
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `kernel` `(` $kernel `)` `stride` `(` $stride `)` `pad` `(` $pad `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.max_pool2d_adaptive",
@@ -106903,7 +107039,7 @@
     "attributes": [
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.max_shape",
@@ -106932,7 +107068,7 @@
     "attributes": [
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.min_shape",
@@ -106961,7 +107097,7 @@
     "attributes": [
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.mod_shape",
@@ -107021,7 +107157,7 @@
     "name": "tosa.pad",
     "category": "Transform",
     "summary": "Pads a tensor with value specified.",
-    "description": "Pads a tensor along the borders of each dimension with a supplied value.\n    Returns a new tensor with the padding included. The pad_const value includes\n    the zero point if the tensor uses a zero point.\n\n    Example:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() {values = dense<3.14> : tensor<1xf32>} : () -> tensor<1xf32>\n    %padding = tosa.const_shape {values = dense<[1, 2, 3, 4]> : tensor<4xindex>} : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const: (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>)  -> (tensor<4x9xf32>)\n    ```\n\n    Example 2:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() {values = dense<3.14> : tensor<1xf32>} : () -> tensor<1xf32>\n    %padding = tosa.const_shape {values = dense<[-1, 2, 3, 4]> : tensor<4xindex>} : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>)  -> (tensor<?x9xf32>)\n    ```",
+    "description": "Pads a tensor along the borders of each dimension with a supplied value.\n    Returns a new tensor with the padding included. The pad_const value includes\n    the zero point if the tensor uses a zero point.\n\n    Example:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<4x9xf32>\n    ```\n\n    Example 2:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[-1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<?x9xf32>\n    ```",
     "operands": [
       { "name": "input1", "type": "Tosa_TensorAtLeast1D" },
       { "name": "padding", "type": "Tosa_Shape" },
@@ -107070,7 +107206,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reduce_any",
@@ -107085,7 +107221,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reduce_max",
@@ -107101,7 +107237,7 @@
       { "name": "axis", "type": "I32Attr" },
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `axis` `(` $axis `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reduce_min",
@@ -107117,7 +107253,7 @@
       { "name": "axis", "type": "I32Attr" },
       { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `axis` `(` $axis `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reduce_product",
@@ -107132,7 +107268,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reduce_sum",
@@ -107147,7 +107283,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.rescale",
@@ -107170,7 +107306,7 @@
       { "name": "input_unsigned", "type": "BoolAttr" },
       { "name": "output_unsigned", "type": "BoolAttr" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `scale32` `(` $scale32 `)` `rounding_mode` `` $rounding_mode `per_channel` `(` $per_channel `)` `input_unsigned` `(` $input_unsigned `)` `output_unsigned` `(` $output_unsigned `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reshape",
@@ -107200,7 +107336,7 @@
     "attributes": [
       { "name": "block_size", "type": "Tosa_BlockSizeAttr{BLOCK_SIZE_1|BLOCK_SIZE_32}" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `block_size` `` $block_size attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.resize",
@@ -107218,7 +107354,7 @@
     "attributes": [
       { "name": "mode", "type": "Tosa_ResizeModeAttr{NEAREST_NEIGHBOR|BILINEAR}" }
     ],
-    "hasCustomAssemblyFormat": true
+    "assemblyFormat": "operands `mode` `` $mode attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.reverse",
@@ -107234,12 +107370,12 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `axis` `(` $axis `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.rfft2d",
     "summary": "Performs RFFT2D operation on the input.",
-    "description": "Performs a batched 2D real-valued Fast Fourier Transform over the input where\n    the input tensor consists of real values producing complex valued output. The\n    complex output values will be split into the output_real and output_imag\n    tensor arguments. RFFT2D takes advantage of Hermitian symmetry to only\n    calculate the first half of the final output axis. Implementations may choose\n    to skip calculation of the imaginary values at (0,0), (0,W/2), (H/2,0), and\n    (H/2, W/2). If the calculation is skipped, the result at that location must be\n    zero.\n\n    Example:\n\n    ```mlir\n     %ouput_real, %output_imag = tosa.rfft2d %input_real : (tensor<8x16xf32>) -> (tensor<8x9xf32>, tensor<8x9xf32>)\n    ```",
+    "description": "Performs a batched 2D real-valued Fast Fourier Transform over the input where\n    the input tensor consists of real values producing complex valued output. The\n    complex output values will be split into the output_real and output_imag\n    tensor arguments. RFFT2D takes advantage of Hermitian symmetry to only\n    calculate the first half of the final output axis. Implementations may choose\n    to skip calculation of the imaginary values at (0,0), (0,W/2), (H/2,0), and\n    (H/2, W/2). If the calculation is skipped, the result at that location must be\n    zero.\n\n    Example:\n\n    ```mlir\n    %output_real, %output_imag = tosa.rfft2d %input_real :\n        (tensor<1x8x16xf32>) ->\n        (tensor<1x8x9xf32>, tensor<1x8x9xf32>)\n    ```",
     "operands": [
       { "name": "input_real", "type": "Tosa_Tensor3D" }
     ],
@@ -107250,7 +107386,7 @@
     "attributes": [
       { "name": "local_bound", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands custom<LocalBound>($local_bound) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.row_gather",
@@ -107281,7 +107417,7 @@
     "attributes": [
       { "name": "block_size", "type": "Tosa_BlockSizeAttr{BLOCK_SIZE_1|BLOCK_SIZE_32}" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `block_size` `` $block_size attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.rsqrt",
@@ -107457,7 +107593,7 @@
     "attributes": [
       { "name": "perms", "type": "DenseI32ArrayAttr" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `perms` `(` $perms `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.transpose_conv2d",
@@ -107479,7 +107615,7 @@
       { "name": "acc_type", "type": "TypeAttrOf<Tosa_AccType>" },
       { "name": "local_bound", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "operands `out_pad` `(` $out_pad `)` `stride` `(` $stride `)` `acc_type` `(` $acc_type `)` custom<LocalBound>($local_bound) attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.variable",
@@ -116419,6 +116555,22 @@
       { "type": "TypesMatchWith<'result', 'ptr', '$_self'>" }
     ],
     "assemblyFormat": "$ptr `,` `[` $offsets `]` attr-dict `:` type($result)"
+  },
+  {
+    "name": "tt.approx_divf",
+    "summary": "Approximate division for 32-bit floating point types",
+    "description": "Divides x by y with approximate accuracy. On NVIDIA, this lowers to\n        div.approx.f32, with a maximum error of 2 ULP for denominators whose\n        magnitude is in [2^-126, 2^126]. Results outside this range may differ\n        from full-range division. On AMD, this lowers to llvm.amdgcn.fdiv.fast,\n        with a maximum error of 2.5 ULP and no support for denormal inputs or\n        results.",
+    "operands": [
+      { "name": "x", "type": "AnyTypeOf<[F32, RankedTensorOf<[F32]>]>" },
+      { "name": "y", "type": "AnyTypeOf<[F32, RankedTensorOf<[F32]>]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTypeOf<[F32, RankedTensorOf<[F32]>]>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$x `,` $y attr-dict `:` type($x)"
   },
   {
     "name": "tt.assert",
@@ -125486,6 +125638,39 @@
     ]
   },
   {
+    "name": "ttnn.chunk_gated_delta_rule",
+    "summary": "Chunked gated delta rule forward operation.",
+    "description": "Implements the chunked gated delta rule used by gated linear attention\n      models. Mirrors `ttnn::transformer::chunk_gated_delta_rule`.\n\n      `query` and `key` are `[B, T, H, K]`, `value` is `[B, T, HV, V]`,\n      and `g` and `beta` are `[B, T, HV]`. The operation also accepts the\n      flat rank-3 Q/K/V representation supported by tt-metal. `initial_state`\n      is `[B, HV, K, V]`.\n\n      The default output is token-major `[B, T, HV, V]`. When\n      `output_head_major` is true it is `[B * HV, T, V]`. `final_state` is\n      present exactly when `output_final_state` is true. The four optional\n      constant tensors (`eye`, `tril`, `ones`, and `masks`) must either all be\n      supplied or all be absent.",
+    "operands": [
+      { "name": "query", "type": "AnyRankedTensor" },
+      { "name": "key", "type": "AnyRankedTensor" },
+      { "name": "value", "type": "AnyRankedTensor" },
+      { "name": "g", "type": "AnyRankedTensor" },
+      { "name": "beta", "type": "AnyRankedTensor" },
+      { "name": "initial_state", "type": "Optional<AnyRankedTensor>" },
+      { "name": "eye", "type": "Optional<AnyRankedTensor>" },
+      { "name": "tril", "type": "Optional<AnyRankedTensor>" },
+      { "name": "ones", "type": "Optional<AnyRankedTensor>" },
+      { "name": "masks", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "results": [
+      { "name": "output", "type": "AnyRankedTensor" },
+      { "name": "final_state", "type": "Optional<AnyRankedTensor>" }
+    ],
+    "attributes": [
+      { "name": "scale", "type": "OptionalAttr<F32Attr>" },
+      { "name": "output_final_state", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "chunk_size", "type": "DefaultValuedAttr<UI32Attr, 64>" },
+      { "name": "use_qk_l2norm", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "output_head_major", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "memory_config", "type": "OptionalAttr<TTNN_MemoryConfigAttr>" },
+      { "name": "compute_config", "type": "OptionalAttr<TTNN_DeviceComputeKernelConfig>" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ]
+  },
+  {
     "name": "ttnn.chunked_scaled_dot_product_attention",
     "summary": "Chunked prefill scaled dot product attention over a paged KV cache.",
     "description": "Chunked-prefill attention. A prefill chunk of `query` attends\n    causally over the prefix `[0, chunk_start_idx + chunk_len)` resident in the\n    paged K/V cache, read on device via `page_table`, with the prefix offset given\n    by the device tensor `chunk_start_idx` (`[1]` int32).\n\n    Because the prefix offset is a device tensor (not a host scalar) and the page\n    table is consumed on device, the op holds no host-side state: it can be\n    captured inside a trace and replayed across invocations with a different\n    `chunk_start_idx` without recompiling.",
@@ -127737,7 +127922,7 @@
   {
     "name": "ttnn.sdpa_bw",
     "summary": "Scaled dot-product attention backward (ttml).",
-    "description": "Training-oriented fused scaled dot-product attention backward pass, backed\n      by the ttml metal op `ttml::metal::sdpa_bw`. Given the upstream gradient\n      and the forward pass tensors (output, Q, K, V and log-sum-exp\n      intermediates), computes the gradients w.r.t. query, key and value.\n\n      All tensors are rank 4 `(B, H, S, D)`. `attention_mask` is only valid when\n      `mask_type` is `arbitrary`.\n\n      `dropout_probability` must be 0.0. Dropout is not implemented in the\n      backward pass, so a nonzero value would silently produce the gradients of\n      the dropout-free forward pass. The verifier rejects it.",
+    "description": "Training-oriented fused scaled dot-product attention backward pass, backed\n      by the ttml metal op `ttml::metal::sdpa_bw`. Given the upstream gradient\n      and the forward pass tensors (output, Q, K, V and log-sum-exp\n      intermediates), computes the gradients w.r.t. query, key and value.\n\n      All tensors are rank 4 `(B, H, S, D)`. The sequence dimension `S` of Q,\n      K and V must be a multiple of `TILE_HEIGHT`, and the head dimension `D`\n      of Q and K must be a multiple of `TILE_WIDTH`. V's head dimension may be\n      unaligned because the backing operation supports a different V dimension.\n\n      `attention_mask` is only valid when `mask_type` is `arbitrary`.\n\n      `dropout_probability` must be 0.0. Dropout is not implemented in the\n      backward pass, so a nonzero value would silently produce the gradients of\n      the dropout-free forward pass. The verifier rejects it.",
     "operands": [
       { "name": "grad_output", "type": "AnyRankedTensor" },
       { "name": "attn_output", "type": "AnyRankedTensor" },
@@ -127760,7 +127945,7 @@
   {
     "name": "ttnn.sdpa_fw",
     "summary": "Scaled dot-product attention forward (ttml).",
-    "description": "Training-oriented fused scaled dot-product attention forward pass, backed\n      by the ttml metal op `ttml::metal::sdpa_fw`. Computes\n      `softmax(Q @ K^T / sqrt(D) + mask) @ V` and, when `return_intermediates`\n      is set, also returns the per-row log-sum-exp intermediates used by the\n      backward pass.\n\n      All tensors are rank 4 `(B, H, S, D)`. `attention_mask` is only valid when\n      `mask_type` is `arbitrary`.",
+    "description": "Training-oriented fused scaled dot-product attention forward pass, backed\n      by the ttml metal op `ttml::metal::sdpa_fw`. Computes\n      `softmax(Q @ K^T / sqrt(D) + mask) @ V` and, when `return_intermediates`\n      is set, also returns the per-row log-sum-exp intermediates used by the\n      backward pass.\n\n      All tensors are rank 4 `(B, H, S, D)`. The sequence dimension `S` of Q,\n      K and V must be a multiple of `TILE_HEIGHT`, and the head dimension `D`\n      of Q and K must be a multiple of `TILE_WIDTH`. V's head dimension may be\n      unaligned because the backing operation supports a different V dimension.\n\n      `attention_mask` is only valid when `mask_type` is `arbitrary`.",
     "operands": [
       { "name": "query", "type": "AnyRankedTensor" },
       { "name": "key", "type": "AnyRankedTensor" },
@@ -129089,7 +129274,7 @@
     "attributes": [
       { "name": "indexing_maps", "type": "ArrayAttr" },
       { "name": "iterator_types", "type": "TypedArrayAttrBase<Vector_IteratorTypeEnum{parallel|reduction}>" },
-      { "name": "kind", "type": "DefaultValuedAttr<Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf}, CombiningKind::ADD>" },
+      { "name": "kind", "type": "DefaultValuedAttr<Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}, CombiningKind::ADD>" },
       { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
     ],
     "hasCustomAssemblyFormat": true
@@ -129360,7 +129545,7 @@
       { "name": "dest", "type": "AnyType" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf}" },
+      { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}" },
       { "name": "reduction_dims", "type": "DenseI64ArrayAttr" }
     ],
     "traits": [
@@ -129381,7 +129566,7 @@
       { "name": "result", "type": "AnyVectorOfNonZeroRankNonI0Elem" }
     ],
     "attributes": [
-      { "name": "kind", "type": "DefaultValuedAttr<Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf}, CombiningKind::ADD>" }
+      { "name": "kind", "type": "DefaultValuedAttr<Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}, CombiningKind::ADD>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -129410,7 +129595,7 @@
       { "name": "dest", "type": "AnyType" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf}" },
+      { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}" },
       { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
     ],
     "traits": [
@@ -129465,7 +129650,7 @@
       { "name": "accumulated_value", "type": "AnyVectorOfNonI0Elem" }
     ],
     "attributes": [
-      { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf}" },
+      { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}" },
       { "name": "reduction_dim", "type": "I64Attr" },
       { "name": "inclusive", "type": "BoolAttr" }
     ],

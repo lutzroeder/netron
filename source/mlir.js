@@ -17011,24 +17011,9 @@ _.TosaDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'tosa');
-        this._enumOps = new Map([
-            ['tosa.rescale', 'rounding_mode'],
-            ['tosa.apply_scale', 'rounding_mode'],
-            ['tosa.resize', 'mode'],
-            ['tosa.argmax', 'nan_mode'],
-            ['tosa.max_pool2d', 'nan_mode'],
-            ['tosa.max_pool2d_adaptive', 'nan_mode'],
-            ['tosa.clamp', 'nan_mode'],
-            ['tosa.maximum', 'nan_mode'],
-            ['tosa.minimum', 'nan_mode'],
-            ['tosa.reduce_max', 'nan_mode'],
-            ['tosa.reduce_min', 'nan_mode'],
-            ['tosa.matmul_t_block_scaled', 'block_size'],
-            ['tosa.cast_from_block_scaled', 'block_size'],
-            ['tosa.cast_to_block_scaled', 'block_size'],
-            ['tosa.conv2d_block_scaled', 'block_size'],
-        ]);
         this.registerCustomDirective('VariableOpTypeOrInitialValue', this.parseVariableOpTypeOrInitialValue.bind(this));
+        this.registerCustomDirective('LocalBound', (parser, op, name) => this.parseOptionalBoolClause(parser, op, 'local_bound', name));
+        this.registerCustomDirective('InputUnsigned', (parser, op, name) => this.parseOptionalBoolClause(parser, op, 'input_unsigned', name));
     }
 
     parseType(parser, dialect) {
@@ -17071,8 +17056,28 @@ _.TosaDialect = class extends _.Dialect {
         if (op === 'tosa.while_loop') {
             return this.parseWhileOp(parser, result);
         }
-        if (this._enumOps.has(op)) {
-            return this.parseWithEnumHandling(parser, result, this._enumOps.get(op));
+        const format = result.name.getRegisteredInfo()?.metadata?.assemblyFormat;
+        if (format && format.startsWith('operands ') && !format.startsWith('operands attr-dict') && format.endsWith('functional-type(operands, results)')) {
+            const position = parser.getCurrentLocation().position;
+            const operands = parser.parseOperandList();
+            const hasAttributes = parser.parseOptionalLBrace();
+            if (hasAttributes || parser.parseOptionalColon()) {
+                result.compatibility = true;
+                if (hasAttributes && !parser.parseOptionalRBrace()) {
+                    do {
+                        const name = parser.parseKeyword();
+                        parser.parseEqual();
+                        const value = ['rounding_mode', 'nan_mode', 'mode'].includes(name) ? parser.parseOptionalKeyword() : null;
+                        result.attributes.set(name, value || parser.parseAttribute());
+                    } while (parser.parseOptionalComma());
+                    parser.parseRBrace();
+                }
+                const type = hasAttributes ? parser.parseColonType() : parser.parseType();
+                parser.resolveOperands(operands, type.inputs, result.operands);
+                result.addTypes(type.results);
+                return true;
+            }
+            parser.parser.resetToken(position);
         }
         return super.parseOperation(parser, result);
     }
@@ -17121,42 +17126,12 @@ _.TosaDialect = class extends _.Dialect {
         return true;
     }
 
-    parseAttrEntryWithEnumHandling(parser, attrs, enumKey) {
-        const name = parser.parseKeyword();
-        parser.parseEqual();
-        if (name === enumKey) {
-            const kw = parser.parseOptionalKeyword();
-            if (kw) {
-                attrs.set(name, kw);
-                return;
-            }
+    parseOptionalBoolClause(parser, op, keyword, name) {
+        if (parser.parseOptionalKeyword(keyword)) {
+            parser.parseLParen();
+            op.addAttribute(name, parser.parseAttribute());
+            parser.parseRParen();
         }
-        const attr = parser.parseAttribute();
-        attrs.set(name, attr);
-    }
-
-    parseWithEnumHandling(parser, result, enumKey) {
-        const operands = [];
-        do {
-            operands.push(parser.parseOperand());
-        } while (parser.parseOptionalComma());
-        const attrs = new Map();
-        if (parser.parseOptionalLBrace()) {
-            if (!parser.parseOptionalRBrace()) {
-                do {
-                    this.parseAttrEntryWithEnumHandling(parser, attrs, enumKey);
-                } while (parser.parseOptionalComma());
-                parser.parseRBrace();
-            }
-        }
-        parser.parseColon();
-        const fnTy = parser.parseType();
-        parser.resolveOperands(operands, fnTy.inputs, result.operands);
-        result.addTypes(fnTy.results);
-        for (const [name, value] of attrs) {
-            result.attributes.set(name, value);
-        }
-        return true;
     }
 
     parseVariableOpTypeOrInitialValue(parser, op /*, args */) {
