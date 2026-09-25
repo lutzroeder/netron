@@ -41596,12 +41596,12 @@
       {
         "name": "input",
         "type": "T",
-        "description": "2D input tensor with shape (num_tokens, hidden_size) or 3D input tensor with shape (batch_size, sequence_length, hidden_size)"
+        "description": "2D packed token tensor with shape (total_tokens, hidden_size), where tokens from ragged sequences may be concatenated without padding, or 3D input tensor with shape (batch_size, sequence_length, hidden_size)"
       },
       {
         "name": "router_probs",
         "type": "T",
-        "description": "2D input tensor with shape (num_tokens, num_experts)"
+        "description": "2D input tensor with shape (total_tokens, num_experts), where total_tokens must match the flattened token count of input"
       },
       {
         "name": "fc1_experts_weights",
@@ -41644,7 +41644,7 @@
       {
         "name": "output",
         "type": "T",
-        "description": "2D input tensor with shape (num_tokens, hidden_size) or 3D input tensor with shape (batch_size, sequence_length, hidden_size)"
+        "description": "Same shape as input: packed (total_tokens, hidden_size) or padded (batch_size, sequence_length, hidden_size)"
       }
     ],
     "min_output": 1,
@@ -50503,12 +50503,12 @@
       {
         "name": "input",
         "type": "T",
-        "description": "2D tensor with shape (num_tokens, hidden_size), or 3D tensor with shape (batch_size, sequence_length, hidden_size)"
+        "description": "2D packed token tensor with shape (total_tokens, hidden_size), where tokens from ragged sequences may be concatenated without padding, or 3D tensor with shape (batch_size, sequence_length, hidden_size)"
       },
       {
         "name": "router_probs",
         "type": "T",
-        "description": "2D tensor with shape (num_tokens, num_experts)"
+        "description": "2D tensor with shape (total_tokens, num_experts), where total_tokens must match the flattened token count of input"
       },
       {
         "name": "fc1_experts_weights",
