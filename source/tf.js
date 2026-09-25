@@ -1212,7 +1212,8 @@ tf.Tensor = class {
                     case DataType.DT_FLOAT8_E4M3FN:
                     case DataType.DT_FLOAT8_E4M3FNUZ:
                     case DataType.DT_FLOAT8_E4M3B11FNUZ:
-                    case DataType.DT_FLOAT8_E5M2FNUZ: {
+                    case DataType.DT_FLOAT8_E5M2FNUZ:
+                    case DataType.DT_FLOAT8_E8M0FNU: {
                         this._values = tensor.float8_val || null;
                         this.encoding = '<';
                         break;
@@ -2194,6 +2195,7 @@ tf.Utility = class {
             dataTypes.set(DataType.DT_FLOAT8_E4M3FNUZ, 'float8e4m3fnuz');
             dataTypes.set(DataType.DT_FLOAT8_E4M3B11FNUZ, 'float8e4m3b11fnuz');
             dataTypes.set(DataType.DT_FLOAT8_E5M2FNUZ, 'float8e5m2fnuz');
+            dataTypes.set(DataType.DT_FLOAT8_E8M0FNU, 'float8e8m0fnu');
             tf.Utility._dataTypes = dataTypes;
         }
         return tf.Utility._dataTypes.has(type) ? tf.Utility._dataTypes.get(type) : '?';

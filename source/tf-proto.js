@@ -2343,6 +2343,7 @@ tensorflow.DataType = {
     "DT_INT2": 31,
     "DT_UINT2": 32,
     "DT_FLOAT4_E2M1FN": 33,
+    "DT_FLOAT8_E8M0FNU": 34,
     "DT_FLOAT_REF": 101,
     "DT_DOUBLE_REF": 102,
     "DT_INT32_REF": 103,
@@ -2375,7 +2376,8 @@ tensorflow.DataType = {
     "DT_UINT4_REF": 130,
     "DT_INT2_REF": 131,
     "DT_UINT2_REF": 132,
-    "DT_FLOAT4_E2M1FN_REF": 133
+    "DT_FLOAT4_E2M1FN_REF": 133,
+    "DT_FLOAT8_E8M0FNU_REF": 134
 };
 
 tensorflow.SerializedDType = class SerializedDType {
