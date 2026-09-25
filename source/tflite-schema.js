@@ -70,6 +70,7 @@ tflite.BlockwiseQuantization = class BlockwiseQuantization {
         $.scales = reader.int32_(position, 4, 0);
         $.zero_points = reader.int32_(position, 6, 0);
         $.block_size = reader.int32_(position, 8, 0);
+        $.block_shape = reader.array(position, 10, Int32Array);
         return $;
     }
 
@@ -78,6 +79,7 @@ tflite.BlockwiseQuantization = class BlockwiseQuantization {
         $.scales = reader.value(json.scales, 0);
         $.zero_points = reader.value(json.zero_points, 0);
         $.block_size = reader.value(json.block_size, 0);
+        $.block_shape = reader.array(json.block_shape, Int32Array);
         return $;
     }
 };
