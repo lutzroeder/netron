@@ -281,7 +281,8 @@
       { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
       { "name": "keep_num_dims", "type": "boolean", "default": false },
       { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false },
-      { "name": "quantized_bias_type", "type": "TensorType", "default": "FLOAT32" }
+      { "name": "quantized_bias_type", "type": "TensorType", "default": "FLOAT32" },
+      { "name": "quant_spec", "type": "uint8[]", "default": 0 }
     ],
     "inputs": [
       { "name": "input", "type": "T" },

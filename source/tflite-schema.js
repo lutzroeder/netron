@@ -1502,6 +1502,7 @@ tflite.FullyConnectedOptions = class FullyConnectedOptions {
         $.keep_num_dims = reader.bool_(position, 8, false);
         $.asymmetric_quantize_inputs = reader.bool_(position, 10, false);
         $.quantized_bias_type = reader.int8_(position, 12, 0);
+        $.quant_spec = reader.array(position, 14, Uint8Array);
         return $;
     }
 
@@ -1512,6 +1513,7 @@ tflite.FullyConnectedOptions = class FullyConnectedOptions {
         $.keep_num_dims = reader.value(json.keep_num_dims, false);
         $.asymmetric_quantize_inputs = reader.value(json.asymmetric_quantize_inputs, false);
         $.quantized_bias_type = tflite.TensorType[json.quantized_bias_type];
+        $.quant_spec = reader.array(json.quant_spec, Uint8Array);
         return $;
     }
 };
