@@ -1089,6 +1089,7 @@ const test = async (pattern) => {
         'third_party/source/mlir/llvm-project/mlir/test/IR/traits.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/IR/zero_whitespace.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/mlir-tblgen/attr-or-type-format.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/mlir-tblgen/constant-str-attr-invalid.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/consume.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/lib.mlir',
         'third_party/source/mlir/mlir-dace/design/mlir/map.mlir',

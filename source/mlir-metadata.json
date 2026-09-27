@@ -6442,7 +6442,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "($sym_name^)? attr-dict-with-keyword $bodyRegion"
+    "assemblyFormat": "($sym_name^)? prop-dict attr-dict-with-keyword $bodyRegion"
   },
   {
     "name": "builtin.unrealized_conversion_cast",
@@ -25758,6 +25758,20 @@
     ]
   },
   {
+    "name": "llvm.intr.smulh",
+    "operands": [
+      { "name": "a", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" },
+      { "name": "b", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "`(` operands `)` attr-dict `:` functional-type(operands, results)"
+  },
+  {
     "name": "llvm.intr.sqrt",
     "operands": [
       { "name": "in", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" }
@@ -25986,6 +26000,20 @@
     "results": [
       { "name": "res", "type": "LLVM_Type" }
     ]
+  },
+  {
+    "name": "llvm.intr.umulh",
+    "operands": [
+      { "name": "a", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" },
+      { "name": "b", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "`(` operands `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "llvm.intr.ushl.sat",
@@ -35579,12 +35607,12 @@
     "description": "Initializes a region of shared memory at the address given by `addr`.\n    The `size` operand specifies the number of bytes to initialize and must be \n    a multiple of 8.\n    The `initVal` operand specifies the value to initialize the memory to. The \n    only supported value is 0.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-st-bulk)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerGeneric, LLVM_PointerShared]>" },
-      { "name": "size", "type": "I64" }
+      { "name": "size", "type": "AnyTypeOf<[I32, I64]>" }
     ],
     "attributes": [
       { "name": "initVal", "type": "DefaultValuedAttr<I64Attr, 0>" }
     ],
-    "assemblyFormat": "$addr `,` `size` `=` $size (`,` `init` `=` $initVal^)? attr-dict `:` type($addr)"
+    "assemblyFormat": "$addr `,` `size` `=` $size (`,` `init` `=` $initVal^)? attr-dict `:` type($addr) `,` type($size)"
   },
   {
     "name": "nvvm.stmatrix",
@@ -64721,7 +64749,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` $forwarded_operands `)` attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "$callee `(` $forwarded_operands `)` prop-dict attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "test.call_and_store",
@@ -64738,7 +64766,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` $callee_operands `)` `,` $address attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "$callee `(` $callee_operands `)` `,` $address prop-dict attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "test.call_on_device",
@@ -64754,7 +64782,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` $forwarded_operands `)` `,` $non_forwarded_device_operand attr-dict `:` functional-type(operands, results)"
+    "assemblyFormat": "$callee `(` $forwarded_operands `)` `,` $non_forwarded_device_operand prop-dict attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "test.call_with_segments",
@@ -64948,7 +64976,7 @@
     "attributes": [
       { "name": "valid", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "($args^ `:` type($args))? attr-dict"
+    "assemblyFormat": "($args^ `:` type($args))? prop-dict attr-dict"
   },
   {
     "name": "test.create_memref_op",
@@ -65026,7 +65054,7 @@
     "attributes": [
       { "name": "value_with_default", "type": "DefaultValuedAttr<I32Attr, 0>" }
     ],
-    "assemblyFormat": "attr-dict $operand"
+    "assemblyFormat": "prop-dict attr-dict $operand"
   },
   {
     "name": "test.dense_array_attr",
@@ -65307,7 +65335,7 @@
       { "name": "attr", "type": "I64Attr" },
       { "name": "opt_attr", "type": "OptionalAttr<I64Attr>" }
     ],
-    "assemblyFormat": "attr-dict-with-keyword"
+    "assemblyFormat": "prop-dict attr-dict-with-keyword"
   },
   {
     "name": "test.format_attr_op",
@@ -65353,7 +65381,7 @@
       { "name": "attr", "type": "I64Attr" },
       { "name": "optAttr", "type": "OptionalAttr<I64Attr>" }
     ],
-    "assemblyFormat": "custom<CustomDirectiveAttrDict>( attr-dict )"
+    "assemblyFormat": "prop-dict custom<CustomDirectiveAttrDict>( attr-dict )"
   },
   {
     "name": "test.format_custom_directive_attributes",
@@ -66080,7 +66108,7 @@
     "attributes": [
       { "name": "value", "type": "DefaultValuedStrAttr<StrAttr, >" }
     ],
-    "assemblyFormat": "attr-dict"
+    "assemblyFormat": "prop-dict attr-dict"
   },
   {
     "name": "test.i32_enum_attr",
@@ -66817,7 +66845,7 @@
     "attributes": [
       { "name": "value", "type": "DefaultValuedAttr<StrAttr, >" }
     ],
-    "assemblyFormat": "attr-dict"
+    "assemblyFormat": "prop-dict attr-dict"
   },
   {
     "name": "test.non_negative_int_attr",
@@ -67847,7 +67875,7 @@
   },
   {
     "name": "test.reflect_bounds",
-    "description": "Integer range analysis will update this op to reflect inferred integer range\n    of the input, so it can be checked with FileCheck\n\n    Example:\n\n    ```mlir\n    CHECK: test.reflect_bounds {smax = 7 : index, smin = 0 : index, umax = 7 : index, umin = 0 : index}\n    %1 = test.reflect_bounds %0 : index\n    ```",
+    "description": "Integer range analysis will update this op to reflect inferred integer range\n    of the input, so it can be checked with FileCheck\n\n    Example:\n\n    ```mlir\n    CHECK: test.reflect_bounds <umin = 0 : index, umax = 7 : index, smin = 0 : index, smax = 7 : index>\n    %1 = test.reflect_bounds %0 : index\n    ```",
     "operands": [
       { "name": "value", "type": "InferIntRangeType" }
     ],
@@ -67863,7 +67891,7 @@
     "traits": [
       { "type": "AllTypesMatch<['value', 'result']>" }
     ],
-    "assemblyFormat": "attr-dict $value `:` type($result)"
+    "assemblyFormat": "prop-dict attr-dict $value `:` type($result)"
   },
   {
     "name": "test.region_buffer_based",
@@ -68236,7 +68264,7 @@
     "regions": [
       { "name": "body", "type": "AnyRegion" }
     ],
-    "assemblyFormat": "$address attr-dict-with-keyword regions `:` type($address)"
+    "assemblyFormat": "$address prop-dict attr-dict-with-keyword regions `:` type($address)"
   },
   {
     "name": "test.store_with_a_region",
@@ -68249,7 +68277,7 @@
     "regions": [
       { "name": "body", "type": "AnyRegion" }
     ],
-    "assemblyFormat": "$address attr-dict-with-keyword regions `:` type($address)"
+    "assemblyFormat": "$address prop-dict attr-dict-with-keyword regions `:` type($address)"
   },
   {
     "name": "test.store_with_a_region_terminator",
@@ -68834,7 +68862,7 @@
   },
   {
     "name": "test.value_with_bounds",
-    "description": "Creates a value with specified [min, max] range for value bounds analysis.\n\n    Example:\n\n    ```mlir\n    %0 = test.value_with_bounds { min = 4 : index, max = 5 : index}\n    ```",
+    "description": "Creates a value with specified [min, max] range for value bounds analysis.\n\n    Example:\n\n    ```mlir\n    %0 = test.value_with_bounds <min = 4, max = 5>\n    ```",
     "results": [
       { "name": "result", "type": "Index" }
     ],
@@ -68842,7 +68870,7 @@
       { "name": "min", "type": "IndexAttr" },
       { "name": "max", "type": "IndexAttr" }
     ],
-    "assemblyFormat": "attr-dict"
+    "assemblyFormat": "prop-dict attr-dict"
   },
   {
     "name": "test.variadic_args_types_split",
@@ -68980,7 +69008,7 @@
   },
   {
     "name": "test.with_bounds",
-    "description": "Creates a value with specified [min, max] range for integer range analysis.\n\n    Example:\n\n    ```mlir\n    %0 = test.with_bounds { umin = 4 : index, umax = 5 : index, smin = 4 : index, smax = 5 : index } : index\n    ```",
+    "description": "Creates a value with specified [min, max] range for integer range analysis.\n\n    Example:\n\n    ```mlir\n    %0 = test.with_bounds <umin = 4 : index, umax = 5 : index, smin = 4 : index, smax = 5 : index> : index\n    ```",
     "results": [
       { "name": "fakeVal", "type": "InferIntRangeType" }
     ],
@@ -68990,7 +69018,7 @@
       { "name": "smin", "type": "APIntAttr" },
       { "name": "smax", "type": "APIntAttr" }
     ],
-    "assemblyFormat": "attr-dict `:` type($fakeVal)"
+    "assemblyFormat": "prop-dict attr-dict `:` type($fakeVal)"
   },
   {
     "name": "test.with_bounds_region",
@@ -74979,7 +75007,7 @@
   {
     "name": "tf.MatrixSolve",
     "summary": "Solves systems of linear equations.",
-    "description": "`Matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. `Rhs` is a tensor of shape `[..., M, K]`. The `output` is\na tensor shape `[..., M, K]`.  If `adjoint` is `False` then each output matrix\nsatisfies `matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `True` then each output matrix satisfies\n`adjoint(matrix[..., :, :]) * output[..., :, :] = rhs[..., :, :]`.",
+    "description": "`Matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. `Rhs` is a tensor of shape `[..., M, K]`. The `output` is\na tensor shape `[..., M, K]`.  If `adjoint` is `False` then each output matrix\nsatisfies `matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `True` then each output matrix satisfies\n`adjoint(matrix[..., :, :]) * output[..., :, :] = rhs[..., :, :]`.\n\nIf a matrix is not invertible there is no guarantee what the op does. It\nmay detect the condition and raise an exception or it may simply return a\ngarbage result. In particular, under XLA compilation (e.g.\n`tf.function(jit_compile=True)`) the condition is not detected and the\nresult is implementation-defined.",
     "operands": [
       { "name": "matrix", "type": "TensorOf<[ TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64 ]>" },
       { "name": "rhs", "type": "TensorOf<[ TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64 ]>" }
@@ -83162,6 +83190,42 @@
     ],
     "results": [
       { "name": "output", "type": "TFL_TensorOf<[I8, UI8, I16, UI16, I32, UI32]>" }
+    ]
+  },
+  {
+    "name": "tfl.blockwise_dequantize",
+    "summary": "Blockwise dequantize operator",
+    "description": "Reconstructs floating point values from a blockwise quantized tensor as\n    `scale * (input - zero_point)`. A missing `zero_points` operand means a\n    zero point of 0.",
+    "operands": [
+      { "name": "input", "type": "TensorOf<[TFL_I2, TFL_I4, I8, I16]>" },
+      { "name": "scales", "type": "TFL_TensorOf<[F8E8M0FNU, F16, BF16, F32]>" },
+      { "name": "zero_points", "type": "TFL_TensorOfOrNone<[TFL_I2, TFL_I4, I8, I16, F32]>" }
+    ],
+    "results": [
+      { "name": "output", "type": "TFL_FpTensor" }
+    ],
+    "attributes": [
+      { "name": "block_shape", "type": "TypedArrayAttrBase<I64Attr>" },
+      { "name": "symmetric", "type": "BoolAttr" }
+    ]
+  },
+  {
+    "name": "tfl.blockwise_quantize",
+    "summary": "Blockwise dynamic quantize operator",
+    "description": "Computes a per-block scale (and, when asymmetric, zero point) from the\n    input at runtime and quantizes the input with them. The computed\n    parameters are returned alongside the quantized tensor so that a matching\n    `tfl.blockwise_dequantize` can undo the transformation.\n\n    The scale of a block is `max(abs(block)) / (q_max + range_dilation)`,\n    where `q_max` is the largest representable value of the output storage\n    type. `range_dilation` widens the denominator so that outliers clip\n    instead of stretching the whole block; it defaults to 0. When\n    `scale_type` is `f8E8M0FNU`, the scale is rounded up to the next power of\n    two.",
+    "operands": [
+      { "name": "input", "type": "TFL_FpTensor" }
+    ],
+    "results": [
+      { "name": "output", "type": "TensorOf<[TFL_I2, TFL_I4, I8, I16]>" },
+      { "name": "scale", "type": "TFL_TensorOf<[F8E8M0FNU, F16, BF16, F32]>" },
+      { "name": "zero_point", "type": "TFL_TensorOfOrNone<[TFL_I2, TFL_I4, I8, I16, F32]>" }
+    ],
+    "attributes": [
+      { "name": "block_shape", "type": "TypedArrayAttrBase<I64Attr>" },
+      { "name": "scale_type", "type": "TFL_ScaleTypeAttr" },
+      { "name": "symmetric", "type": "BoolAttr" },
+      { "name": "range_dilation", "type": "DefaultValuedAttr<F32Attr, 0.0f>" }
     ]
   },
   {
@@ -105934,6 +105998,25 @@
     "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $axis `,` $quant_min `,`\n        $quant_max `,` $dtype `,` $out_dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($axis)) `,`\n        qualified(type($quant_min)) `,` qualified(type($quant_max)) `,`\n        qualified(type($dtype)) `,` qualified(type($out_dtype))\n    `->` qualified(type($result))"
   },
   {
+    "name": "torch.quantized_decomposed.dequantize_per_channel_group",
+    "summary": "PT2E dequantize_per_channel_group",
+    "description": "Dequantizes an integer tensor with per-channel-group affine quantization.\n\n    The input tensor is dequantized in groups along the last dimension.\n    `scales` has shape `[num_channels, num_groups]` where\n    `num_groups = input.shape[-1] / group_size`. `zero_points` may be None\n    for symmetric quantization.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scales", "type": "AnyTorchTensorType" },
+      { "name": "zero_points", "type": "AnyTorchOptionalTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" },
+      { "name": "group_size", "type": "Torch_IntType" },
+      { "name": "out_dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $quant_min `,`\n        $quant_max `,` $dtype `,` $group_size `,` $out_dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($group_size)) `,` qualified(type($out_dtype))\n    `->` qualified(type($result))"
+  },
+  {
     "name": "torch.quantized_decomposed.dequantize_per_tensor",
     "summary": "PT2E dequantize_per_tensor (scalar qparams)",
     "description": "Corresponds to `quantized_decomposed::dequantize_per_tensor` (the default /\n    scalar-qparams overload, whose schema overload_name is empty) in\n    PT2E-exported graphs.\n\n    Dequantizes an integer tensor back to floating point:\n    ```\n    output = (input - zero_point) * scale\n    ```\n\n    The `dtype` argument encodes the *input* element type as a `torch.dtype`\n    integer code and is used only for range-clamping metadata.  `out_dtype`,\n    when not None, specifies the output element type; otherwise output is\n    `float32`.  Output shape is identical to the input shape.",
@@ -105968,6 +106051,24 @@
       { "name": "result", "type": "AnyTorchTensorType" }
     ],
     "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $axis `,` $quant_min `,`\n        $quant_max `,` $dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($axis)) `,`\n        qualified(type($quant_min)) `,` qualified(type($quant_max)) `,`\n        qualified(type($dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.quantize_per_channel_group",
+    "summary": "PT2E quantize_per_channel_group",
+    "description": "Quantizes a floating-point tensor with per-channel-group affine\n    quantization.\n\n    The input tensor is quantized in groups along the last dimension.\n    `scales` and `zero_points` have shape `[num_channels, num_groups]`\n    where `num_groups = input.shape[-1] / group_size`.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scales", "type": "AnyTorchTensorType" },
+      { "name": "zero_points", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" },
+      { "name": "group_size", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $quant_min `,`\n        $quant_max `,` $dtype `,` $group_size attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($group_size))\n    `->` qualified(type($result))"
   },
   {
     "name": "torch.quantized_decomposed.quantize_per_tensor",
@@ -106524,7 +106625,8 @@
     ],
     "traits": [
       { "type": "FirstAttrDerivedResultType" }
-    ]
+    ],
+    "assemblyFormat": "operands `values` `(` $values `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.const_shape",
@@ -107753,7 +107855,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` $inputs `)` attr-dict `:` functional-type($inputs, results)"
+    "assemblyFormat": "$callee `(` $inputs `)` prop-dict attr-dict `:` functional-type($inputs, results)"
   },
   {
     "name": "toy.mul",
@@ -126491,7 +126593,7 @@
   {
     "name": "ttnn.indexer_score_dsa",
     "summary": "DeepSeek Sparse Attention lightning-indexer scorer.",
-    "description": "Computes DSA (Deepseek Sparse Attention) lightning-indexer\n      scores. Corresponds to `ttnn.experimental.indexer_score_dsa`\n      (`ttnn::experimental::indexer_score_dsa`).\n\n      For every query position `s` and key position `t`:\n      ```\n      score[b, s, t] = sum_h relu(q[b, h, s, :] . k[b, t, :]) * weights[b, h, s]\n      ```\n      Causality is controlled by `chunk_start_idx`: key `t` is visible to query\n      `s` iff `t <= chunk_start_idx + s`. Masked (future) positions are set to\n      `-inf`.\n\n      Shapes use `B` (batch, must be 1), `Hi` (indexer heads), `Sq` (queries),\n      `T` (keys), and `D` (indexer head dim).\n\n      Args:\n          query (AnyRankedTensor): `[B x Hi x Sq x D]`.\n          key (AnyRankedTensor): `[B x 1 x T x D]`.\n          weights (AnyRankedTensor): `[B x Hi x Sq x 1]` per-head gate scales.\n          chunk_start_idx (uint): Causal offset of the first query within the\n              full key sequence. Defaults to `0`.\n          cluster_axis (optional uint): Mesh axis carrying the query sequence\n              shard. On a mesh, the op offsets each device's causal window by\n              `rank * Sq`, where `rank` is that device's index along this axis.\n              Unset leaves the op on a flat row-major enumeration over all of\n              the query's devices, which is only correct when the query\n              sequence is sharded across every device.\n\n      Returns:\n          AnyRankedTensor: `[B x 1 x Sq x T]` scores.\n\n      Note: this op is only supported on Blackhole.",
+    "description": "Computes DSA (Deepseek Sparse Attention) lightning-indexer\n      scores. Corresponds to `ttnn.experimental.indexer_score_dsa`\n      (`ttnn::experimental::indexer_score_dsa`).\n\n      For every query position `s` and key position `t`:\n      ```\n      score[b, s, t] = sum_h relu(q[b, h, s, :] . k[b, t, :]) * weights[b, 0, s, h]\n      ```\n      Causality is controlled by `chunk_start_idx`: key `t` is visible to query\n      `s` iff `t <= chunk_start_idx + s`. Masked (future) positions are set to\n      `-inf`.\n\n      Shapes use `B` (batch, must be 1), `Hi` (indexer heads), `Sq` (queries),\n      `T` (keys), and `D` (indexer head dim).\n\n      Args:\n          query (AnyRankedTensor): `[B x Hi x Sq x D]`.\n          key (AnyRankedTensor): `[B x 1 x T x D]`.\n          weights (AnyRankedTensor): `[B x 1 x Sq x Hi]` per-head gate scales,\n              in the head-minor order the weights projection produces natively.\n          chunk_start_idx (uint): Causal offset of the first query within the\n              full key sequence. Defaults to `0`.\n          cluster_axis (optional uint): Mesh axis carrying the query sequence\n              shard. On a mesh, the op offsets each device's causal window by\n              `rank * Sq`, where `rank` is that device's index along this axis.\n              Unset leaves the op on a flat row-major enumeration over all of\n              the query's devices, which is only correct when the query\n              sequence is sharded across every device.\n\n      Returns:\n          AnyRankedTensor: `[B x 1 x Sq x T]` scores.\n\n      Note: this op is only supported on Blackhole.",
     "operands": [
       { "name": "query", "type": "AnyRankedTensor" },
       { "name": "key", "type": "AnyRankedTensor" },
