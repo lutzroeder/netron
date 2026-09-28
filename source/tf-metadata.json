@@ -27620,7 +27620,7 @@
   {
     "name": "MatrixSolve",
     "summary": "Solves systems of linear equations.",
-    "description": "`Matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. `Rhs` is a tensor of shape `[..., M, K]`. The `output` is\na tensor shape `[..., M, K]`.  If `adjoint` is `False` then each output matrix\nsatisfies `matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `True` then each output matrix satisfies\n`adjoint(matrix[..., :, :]) * output[..., :, :] = rhs[..., :, :]`.",
+    "description": "`Matrix` is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. `Rhs` is a tensor of shape `[..., M, K]`. The `output` is\na tensor shape `[..., M, K]`.  If `adjoint` is `False` then each output matrix\nsatisfies `matrix[..., :, :] * output[..., :, :] = rhs[..., :, :]`.\nIf `adjoint` is `True` then each output matrix satisfies\n`adjoint(matrix[..., :, :]) * output[..., :, :] = rhs[..., :, :]`.\n\nIf a matrix is not invertible there is no guarantee what the op does. It\nmay detect the condition and raise an exception or it may simply return a\ngarbage result. In particular, under XLA compilation (e.g.\n`tf.function(jit_compile=True)`) the condition is not detected and the\nresult is implementation-defined.",
     "attributes": [
       {
         "name": "adjoint",
