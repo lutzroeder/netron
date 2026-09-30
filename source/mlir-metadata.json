@@ -6506,7 +6506,7 @@
     "summary": "Switch operation",
     "description": "The `cf.switch` terminator operation represents a switch on a signless integer\n    value. If the flag matches one of the specified cases, then the\n    corresponding destination is jumped to. If the flag does not match any of\n    the cases, the default destination is jumped to. The count and types of\n    operands must align with the arguments in the corresponding target blocks.\n\n    Example:\n\n    ```mlir\n    cf.switch %flag : i32, [\n      default: ^bb1(%a : i32),\n      42: ^bb1(%b : i32),\n      43: ^bb3(%c : i32)\n    ]\n    ```",
     "operands": [
-      { "name": "flag", "type": "AnyInteger" },
+      { "name": "flag", "type": "AnySignlessInteger" },
       { "name": "defaultOperands", "type": "Variadic<AnyType>" },
       { "name": "caseOperands", "type": "VariadicOfVariadic<AnyType, case_operand_segments>" }
     ],
@@ -49472,7 +49472,7 @@
   {
     "name": "scf.parallel",
     "summary": "parallel for operation",
-    "description": "The `scf.parallel` operation represents a loop nest taking 4 groups of SSA\n    values as operands that represent the lower bounds, upper bounds, steps and\n    initial values, respectively. The operation defines a variadic number of\n    SSA values for its induction variables. It has one region capturing the\n    loop body. The induction variables are represented as an argument of this\n    region. These SSA values always have type index, which is the size of the\n    machine word. The steps are values of type index, required to be positive.\n    The lower and upper bounds specify a half-open range: the range includes\n    the lower bound but does not include the upper bound. The initial values\n    have the same types as results of `scf.parallel`. If there are no results,\n    the keyword `init` can be omitted.\n\n    Semantically we require that the iteration space can be iterated in any\n    order, and the loop body can be executed in parallel. If there are data\n    races, the behavior is undefined.\n\n    The parallel loop operation supports reduction of values produced by\n    individual iterations into a single result. This is modeled using the\n    `scf.reduce` terminator operation (see `scf.reduce` for details). The i-th\n    result of an `scf.parallel` operation is associated with the i-th initial\n    value operand, the i-th operand of the `scf.reduce` operation (the value to\n    be reduced) and the i-th region of the `scf.reduce` operation (the reduction\n    function). Consequently, we require that the number of results of an\n    `scf.parallel` op matches the number of initial values and the the number of\n    reductions in the `scf.reduce` terminator.\n\n    The body region must contain exactly one block that terminates with a\n    `scf.reduce` operation. If an `scf.parallel` op has no reductions, the\n    terminator has no operands and no regions. The `scf.parallel` parser will\n    automatically insert the terminator for ops that have no reductions if it is\n    absent.\n\n    Example:\n\n    ```mlir\n    %init = arith.constant 0.0 : f32\n    %r:2 = scf.parallel (%iv) = (%lb) to (%ub) step (%step) init (%init, %init)\n        -> f32, f32 {\n      %elem_to_reduce1 = load %buffer1[%iv] : memref<100xf32>\n      %elem_to_reduce2 = load %buffer2[%iv] : memref<100xf32>\n      scf.reduce(%elem_to_reduce1, %elem_to_reduce2 : f32, f32) {\n        ^bb0(%lhs : f32, %rhs: f32):\n          %res = arith.addf %lhs, %rhs : f32\n          scf.reduce.return %res : f32\n      }, {\n        ^bb0(%lhs : f32, %rhs: f32):\n          %res = arith.mulf %lhs, %rhs : f32\n          scf.reduce.return %res : f32\n      }\n    }\n    ```",
+    "description": "The `scf.parallel` operation represents a loop nest taking 4 groups of SSA\n    values as operands that represent the lower bounds, upper bounds, steps and\n    initial values, respectively. The operation defines a variadic number of\n    SSA values for its induction variables. It has one region capturing the\n    loop body. The induction variables are represented as an argument of this\n    region. These SSA values always have type index, which is the size of the\n    machine word. The steps are values of type index, required to be positive.\n    The lower and upper bounds specify a half-open range: the range includes\n    the lower bound but does not include the upper bound. Lower bounds, upper\n    bounds and steps are interpreted as signed integers by default, or as\n    unsigned integers if the `unsignedCmp` unit attribute is present. The\n    initial values have the same types as results of `scf.parallel`. If there\n    are no results, the keyword `init` can be omitted.\n\n    More precisely, the iteration space of each dimension is governed by the\n    following two rules, where arithmetic is performed with arbitrary\n    precision:\n\n    1. The trip count `n` is `max(0, ceil((UB - LB) / Step))` and the induction\n       variable takes the values `LB + j*Step` for `j = 0, ..., n - 1`.\n    2. No-overflow condition: `LB + n*Step` must be representable in the type of\n       the induction variable. Otherwise the behavior is undefined. Leaving this\n       case undefined lets the loop be lowered to a plain increment-and-compare\n       on a single induction register without having to account for wraparound.\n\n    Semantically we require that the iteration space can be iterated in any\n    order, and the loop body can be executed in parallel. If there are data\n    races, the behavior is undefined.\n\n    The parallel loop operation supports reduction of values produced by\n    individual iterations into a single result. This is modeled using the\n    `scf.reduce` terminator operation (see `scf.reduce` for details). The i-th\n    result of an `scf.parallel` operation is associated with the i-th initial\n    value operand, the i-th operand of the `scf.reduce` operation (the value to\n    be reduced) and the i-th region of the `scf.reduce` operation (the reduction\n    function). Consequently, we require that the number of results of an\n    `scf.parallel` op matches the number of initial values and the the number of\n    reductions in the `scf.reduce` terminator.\n\n    The body region must contain exactly one block that terminates with a\n    `scf.reduce` operation. If an `scf.parallel` op has no reductions, the\n    terminator has no operands and no regions. The `scf.parallel` parser will\n    automatically insert the terminator for ops that have no reductions if it is\n    absent.\n\n    Example:\n\n    ```mlir\n    %init = arith.constant 0.0 : f32\n    %r:2 = scf.parallel (%iv) = (%lb) to (%ub) step (%step) init (%init, %init)\n        -> f32, f32 {\n      %elem_to_reduce1 = load %buffer1[%iv] : memref<100xf32>\n      %elem_to_reduce2 = load %buffer2[%iv] : memref<100xf32>\n      scf.reduce(%elem_to_reduce1, %elem_to_reduce2 : f32, f32) {\n        ^bb0(%lhs : f32, %rhs: f32):\n          %res = arith.addf %lhs, %rhs : f32\n          scf.reduce.return %res : f32\n      }, {\n        ^bb0(%lhs : f32, %rhs: f32):\n          %res = arith.mulf %lhs, %rhs : f32\n          scf.reduce.return %res : f32\n      }\n    }\n    ```",
     "operands": [
       { "name": "lowerBound", "type": "Variadic<Index>" },
       { "name": "upperBound", "type": "Variadic<Index>" },
@@ -49481,6 +49481,9 @@
     ],
     "results": [
       { "name": "results", "type": "Variadic<AnyType>" }
+    ],
+    "attributes": [
+      { "name": "unsignedCmp", "type": "UnitAttr" }
     ],
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
@@ -69519,7 +69522,7 @@
       { "name": "input_indices", "type": "OptionalAttr<TypedArrayAttrBase<I32Attr>>" },
       { "name": "output_index", "type": "OptionalAttr<I32Attr>" }
     ],
-    "assemblyFormat": "`(` $ctx (`,` $dyn_sizes^ )? `)` attr-dict `:` type($result)"
+    "assemblyFormat": "`(` $ctx (`,` $dyn_sizes^ )? `)` prop-dict attr-dict `:` type($result)"
   },
   {
     "name": "tf_framework.assert",
@@ -69590,7 +69593,7 @@
       { "name": "index64Bit", "type": "BoolAttr" },
       { "name": "cpuCodegen", "type": "BoolAttr" }
     ],
-    "assemblyFormat": "($ctx^ `,`)? $code attr-dict"
+    "assemblyFormat": "($ctx^ `,`)? $code prop-dict attr-dict"
   },
   {
     "name": "tf_framework.jit_compile_yield",
@@ -112253,6 +112256,11 @@
     "assemblyFormat": "attr-dict"
   },
   {
+    "name": "transform.apply_patterns.linalg.erase_unused_operands_and_results",
+    "description": "Collects patterns that deduplicate operands and remove dead results of\n    `linalg.generic` ops.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
     "name": "transform.apply_patterns.linalg.extract_slice_sinking",
     "description": "Patterns to sink extract slice across other operations.",
     "assemblyFormat": "attr-dict"
@@ -116243,16 +116251,19 @@
   {
     "name": "triton_xla.block_barrier",
     "summary": "A block-level barrier for inter-GPU synchronization.",
-    "description": "This operation implements a block-level barrier between multiple GPUs.\n    It takes a pointer of pointers to signal buffers (one from each\n    participating GPU), the rank of the current device, and a signal value to\n    write/wait for. The signal values on consequent calls to this operation must\n    increase monotonically for the same signal buffers pointer. A block on one\n    GPU synchronizes with blocks on other GPUs with the same block id.\n\n    *NOTE* Block orchestration order is not guaranteed across GPUs,\n    so there is a chance of a deadlock should the number of blocks be greater\n    than the number of SMs on a GPU. That is to say that if BlockN is launched\n    on GPU0 and BlockM on GPU1 and they both wait for each other to finish,\n    and there is no place to schedule more blocks on either GPU, then we\n    will have a deadlock. In general, the user of this operation should avoid\n    this by not oversubscribing the number of available SMs on a GPU. There is\n    also a secondary restriction that the number of threads per block must\n    exceed the number of participating GPUs. In the nominal case, where we are\n    within a single NV Link domain, this should not be an issue since the number\n    of participating GPUs would usually be much smaller than the number of\n    threads per block.\n\n    The synchronization logic is as follows:\n    1. Each GPU (identified by `device_rank`) writes the `signal` value to an\n       index `blockId * world_size + device_rank` in *every* buffer provided in\n       `$signal_buffers`.\n    2. After writing, GPU `r` polls its own buffer (`$signal_buffers[r]`).\n    3. It waits until the values at locations corresponding to all other ranks\n       (i.e., `blockId * world_size + [0..world_size)` are greater than or equal\n       to the `signal` value.\n    4. When the wait is over, all GPUs working on the same `blockId` have\n       successfully synchronized.\n\n    This operation ensures that GPUs in the same synchronization group do not\n    get more than one \"wave\" (or chunk) of data processing ahead of each other.\n    For clarity, a wave here is a set of work items that are processed together.\n    A single thread block for instance can process multiple waves. In such a\n    scenario, any given GPU can be at most 1 wave ahead of the other GPUs for\n    the same block id.\n\n    Internally, this operation uses TTXLA_Atomic(Write|SpinWait)Op on signal\n    buffers to synchronize all participating GPUs.",
+    "description": "This operation implements a block-level barrier between multiple GPUs.\n    It takes a pointer of pointers to signal buffers (one from each\n    participating GPU), the rank of the current device, and a signal value to\n    write/wait for. The signal values on consequent calls to this operation must\n    increase monotonically for the same signal buffers pointer.\n\n    Each GPU `r`'s signal buffer (`$signal_buffers[r]`) is logically a 2D array\n    of `i32` flags with shape `[num_blocks][world_size]`, flattened as\n    `block_idx * world_size + slot_idx`.\n\n    This barrier supports three synchronization modes via `$barrier_mode`:\n\n    ### 1. `symmetric` (default; `$signal_stride == 0`, `$signal_slot` omitted)\n    Used when block `block_idx` on every GPU produces and consumes data for the\n    same `block_idx`:\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `block_idx * world_size + r` in every peer GPU's\n      signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its\n      own buffer `$signal_buffers[r]` until all `world_size` slots at\n      `block_idx * world_size + [0..world_size)` reach `>= $signal_value`.\n\n    ### 2. `consumer_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used when `world_size` blocks on the same GPU (spaced by `$signal_stride` in\n    block ID) each produce `$signal_slot` (`0 <= $signal_slot < world_size`)\n    of a tile that will be consumed by a single target block on every peer GPU:\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` be the base\n      block index within the stride, and\n      `target_block = base_block + r * $signal_stride` be the\n      consumer block ID on every GPU that reads the tile produced on\n      `r`.\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `target_block * world_size + $signal_slot` in\n      every peer GPU's signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its\n      own buffer `$signal_buffers[r]` until all `world_size` producer\n      slots at `block_idx * world_size + [0..world_size)` reach\n      `>= $signal_value`.\n\n    ### 3. `producer_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used when block `block_idx` on every GPU produces data at its own\n    `block_idx`, and consumer block `block_idx` on GPU `r` waits for data\n    produced by `target_block` across all peer GPUs:\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` and\n      `target_block = base_block + r * $signal_stride`.\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `block_idx * world_size + r` in every peer GPU's\n      signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its own\n      buffer `$signal_buffers[r]` until all `world_size` slots at\n      `target_block * world_size + [0..world_size)` reach `>= $signal_value`.\n\n    *NOTE* Block orchestration order is not guaranteed across GPUs,\n    so there is a chance of a deadlock should the number of blocks be greater\n    than the number of SMs on a GPU. That is to say that if BlockN is launched\n    on GPU0 and BlockM on GPU1 and they both wait for each other to finish,\n    and there is no place to schedule more blocks on either GPU, then we\n    will have a deadlock. In general, the user of this operation should avoid\n    this by not oversubscribing the number of available SMs on a GPU. There is\n    also a secondary restriction that the number of threads per block must\n    exceed the number of participating GPUs. In the nominal case, where we are\n    within a single NV Link domain, this should not be an issue since the number\n    of participating GPUs would usually be much smaller than the number of\n    threads per block.\n\n    This operation ensures that GPUs in the same synchronization group do not\n    get more than one \"wave\" (or chunk) of data processing ahead of each other.\n    For clarity, a wave here is a set of work items that are processed together.\n    A single thread block for instance can process multiple waves. In such a\n    scenario, any given GPU can be at most 1 wave ahead of the other GPUs for\n    the same block id.\n\n    Internally, this operation uses TTXLA_Atomic(Write|SpinWait)Op on signal\n    buffers to synchronize all participating GPUs.",
     "operands": [
       { "name": "signal_buffers", "type": "TT_PtrOf<[I64]>" },
       { "name": "device_rank", "type": "I32" },
-      { "name": "signal_value", "type": "I32" }
+      { "name": "signal_value", "type": "I32" },
+      { "name": "signal_slot", "type": "Optional<I32>" }
     ],
     "attributes": [
-      { "name": "world_size", "type": "I32Attr" }
+      { "name": "world_size", "type": "I32Attr" },
+      { "name": "signal_stride", "type": "DefaultValuedOptionalAttr<I32Attr, 0>" },
+      { "name": "barrier_mode", "type": "DefaultValuedAttr<TTXLA_BarrierModeAttr{symmetric|consumer_symmetric|producer_symmetric}, ::mlir::triton::xla::BarrierMode::kSymmetric>" }
     ],
-    "assemblyFormat": "$signal_buffers `,` $device_rank `,` $signal_value `,` attr-dict `:`\n    functional-type(operands, results)"
+    "assemblyFormat": "$signal_buffers `,` $device_rank `,` $signal_value (`,` $signal_slot^)? prop-dict attr-dict `:`\n    functional-type(operands, results)"
   },
   {
     "name": "triton_xla.extract",
@@ -116294,7 +116305,7 @@
       { "name": "argument_index", "type": "I32Attr" },
       { "name": "world_size", "type": "I32Attr" }
     ],
-    "assemblyFormat": "$address `,` $peer_id `,` $metadata `,` attr-dict `:`\n    functional-type(operands, results)"
+    "assemblyFormat": "$address `,` $peer_id `,` $metadata prop-dict attr-dict `:`\n    functional-type(operands, results)"
   },
   {
     "name": "triton_xla.get_rank",
@@ -116373,7 +116384,7 @@
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
     ],
-    "assemblyFormat": "$src attr-dict `:` type($src) `->` type($result)"
+    "assemblyFormat": "$src prop-dict attr-dict `:` type($src) `->` type($result)"
   },
   {
     "name": "trtrt.compiled_func",
@@ -140168,7 +140179,7 @@
   {
     "name": "xten_nn.resize",
     "summary": "Performs resizing to an image.",
-    "description": "Performs resizing to input image. Some constrains and information:\n      - It does not perform 'antialias' for linear mode (ONNX's antialias==0)\n      - It performs the resize in all dimensions (ONNX's axes==None)\n      - No sampling is perfomed outside the tensor (ONNX's exclude_outside==0)\n      - The input is always stretched to meet the new required dimensions (ONNX's keep_aspect_ratio_policy==stretch)\n      - Scales\n        - 1D vector with one value per dimension (4 for 2D resize, 5 for 3D resize)\n      - Cordinate Transformation Mode:\n        - 0: half_pixel\n        - 1: pytorch_half_pixel\n        - 2: asymmetric\n        - 3: align_corners\n      - Mode:\n        - 0: Nearest\n        - 1: Linear\n      - Nearest mode:\n        - 0: floor\n        - 1: round_prefer_ceil\n        - 2: round_prefer_floor",
+    "description": "Performs resizing to input image. Some constrains and information:\n      - It does not perform 'antialias' for linear mode (ONNX's antialias==0)\n      - It performs the resize in all dimensions (ONNX's axes==None)\n      - No sampling is perfomed outside the tensor (ONNX's exclude_outside==0)\n      - The input is always stretched to meet the new required dimensions (ONNX's keep_aspect_ratio_policy==stretch)\n      - Scales\n        - 1D vector with one value per dimension (4 for 2D resize, 5 for 3D resize)\n      - Cordinate Transformation Mode:\n        - 0: half_pixel\n        - 1: pytorch_half_pixel\n        - 2: asymmetric\n        - 3: align_corners\n      - Mode:\n        - 0: Nearest\n        - 1: Linear\n        - 2: Cubic\n      - Nearest mode:\n        - 0: floor\n        - 1: round_prefer_ceil\n        - 2: round_prefer_floor",
     "operands": [
       { "name": "X", "type": "TensorRankOf<[XTenNN_AnyIntegerOrFloat], [4, 5]>" }
     ],
@@ -140277,7 +140288,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$lhs (`scale` $lhs_scale^)? `,` $rhs (`scale` $rhs_scale^)? attr-dict\n      `:` type($lhs) (`,` type($lhs_scale)^)? `*` type($rhs) (`,` type($rhs_scale)^)? `->` type($result)"
+    "assemblyFormat": "$lhs (`scale` $lhs_scale^)? `,` $rhs (`scale` $rhs_scale^)? prop-dict attr-dict\n      `:` type($lhs) (`,` type($lhs_scale)^)? `*` type($rhs) (`,` type($rhs_scale)^)? `->` type($result)"
   },
   {
     "name": "xtile.entry_func",
@@ -140390,7 +140401,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "`(` $inputs `)` `inits` `(` $inits `)`\n    `dimension` `=` $dimension\n    attr-dict\n    `:` `(` type($inputs) `)` `,` `(` type($inits) `)` `->` `(` type($outputs) `)` `,` `(` type($carries) `)`\n    $body"
+    "assemblyFormat": "`(` $inputs `)` `inits` `(` $inits `)`\n    `dimension` `=` $dimension\n    prop-dict attr-dict\n    `:` `(` type($inputs) `)` `,` `(` type($inits) `)` `->` `(` type($outputs) `)` `,` `(` type($carries) `)`\n    $body"
   },
   {
     "name": "xtile.select_buffer",

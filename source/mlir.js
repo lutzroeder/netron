@@ -20025,6 +20025,9 @@ _.SCFDialect = class extends _.Dialect {
 
     parseParallelOp(parser, result) {
         const indexType = new _.IndexType();
+        if (parser.parseOptionalKeyword('unsigned')) {
+            result.addAttribute('unsignedCmp', true);
+        }
         const ivs = parser.parseArgumentList('paren');
         parser.parseEqual();
         const lower = parser.parseOperandList('paren');
