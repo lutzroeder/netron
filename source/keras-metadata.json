@@ -4134,6 +4134,10 @@
       {
         "description": "`None`.",
         "name": "Default"
+      },
+      {
+        "name": "seed",
+        "description": "Random seed for dropout."
       }
     ],
     "inputs": [
