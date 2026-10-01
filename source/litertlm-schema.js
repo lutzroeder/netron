@@ -165,7 +165,8 @@ litert.lm.schema.AnySectionDataType = {
     EmbeddingMetadataProto: 8, '8': 'EmbeddingMetadataProto',
     ExecutorMetadataProto: 9, '9': 'ExecutorMetadataProto',
     TtsMetadataProto: 10, '10': 'TtsMetadataProto',
-    AsrMetadataProto: 11, '11': 'AsrMetadataProto'
+    AsrMetadataProto: 11, '11': 'AsrMetadataProto',
+    ImageGenMetadataProto: 12, '12': 'ImageGenMetadataProto'
 };
 
 litert.lm.schema.SectionObject = class SectionObject {
