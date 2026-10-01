@@ -1,0 +1,3 @@
+digraph neighborhood {
+    input -> selected -> output;
+}
