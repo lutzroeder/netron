@@ -1081,7 +1081,7 @@ gguf.Context = class {
     }
 
     get structured() {
-        return this._schema !== null && this._tensors.size > 0;
+        return this._tensors.size > 0 && Array.from(this._blockTypes.values()).some((block) => block.type);
     }
 
     build() {

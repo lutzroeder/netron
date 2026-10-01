@@ -4123,7 +4123,8 @@
         { "name": "ffn_gate", "type": "MUL_MAT" },
         { "name": "ffn_down", "type": "MUL_MAT" },
         { "name": "ffn_up", "type": "MUL_MAT" },
-        { "name": "ffn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_ffw_norm"] }
+        { "name": "ffn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_ffw_norm"] },
+        { "name": "attn_qkv" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -4497,6 +4498,96 @@
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "hrm_text",
+    "graph": {
+      "input": [
+        { "name": "token_embd" },
+        { "name": "hrm.z_l_init" }
+      ],
+      "blocks": [
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_gate" },
+        { "name": "attn_output" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" }
+      ],
+      "output": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "glm5-next",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "hc_attn_fn" },
+        { "name": "hc_attn_base" },
+        { "name": "hc_attn_scale" },
+        { "name": "hc_ffn_fn" },
+        { "name": "hc_ffn_base" },
+        { "name": "hc_ffn_scale" },
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "ssm_conv1d_q" },
+        { "name": "ssm_conv1d_k" },
+        { "name": "ssm_conv1d_v" },
+        { "name": "ssm_f_a" },
+        { "name": "ssm_f_b" },
+        { "name": "ssm_beta" },
+        { "name": "ssm_a" },
+        { "name": "ssm_g_a" },
+        { "name": "ssm_g_b" },
+        { "name": "ssm_dt" },
+        { "name": "ssm_norm" },
+        { "name": "attn_q_a" },
+        { "name": "attn_q_b" },
+        { "name": "attn_kv_a_mqa" },
+        { "name": "attn_kv_b" },
+        { "name": "attn_k_b" },
+        { "name": "attn_v_b" },
+        { "name": "attn_q_a_norm" },
+        { "name": "attn_kv_a_norm" },
+        { "name": "indexer.k_norm" },
+        { "name": "indexer.proj" },
+        { "name": "indexer.attn_k" },
+        { "name": "indexer.attn_q_b" },
+        { "name": "indexer_compressor_gate" },
+        { "name": "indexer_compressor_ape" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "ffn_gate_inp" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_gate_shexp" },
+        { "name": "ffn_down_shexp" },
+        { "name": "ffn_up_shexp" },
+        { "name": "exp_probs_b" },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.embed_tokens" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_head" },
+        { "name": "nextn.shared_head_norm" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" }
       ]
     }
   }
