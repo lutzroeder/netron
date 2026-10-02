@@ -2207,7 +2207,7 @@
   {
     "name": "amdg.scaled_upcast_fp4",
     "summary": "Upcast fp4 and then multiply scale",
-    "description": "Upcast fp4 (e2m1) values packed as i8 values and multiply with the given\n    E8M0 scale encoded as BF16. This maps to `v_cvt_scalef32_*` intrinsics\n    on the AMD CDNA4 architecture.\n\n    The lower 4 bits of the i8s represent the first fp4 element, and the upper\n    4 bits the second fp4 element.\n\n    The `axis` attribute specifies the axis along which the fp4 elements are\n    packed.",
+    "description": "Upcast fp4 (e2m1) values packed as i8 values and multiply with the given\n    E8M0 scale encoded as BF16. This maps to `v_cvt_scalef32_*` intrinsics\n    on the AMD CDNA4 architecture.\n\n    The lower 4 bits of the i8s represent the first fp4 element, and the upper\n    4 bits the second fp4 element.\n\n    The `axis` attribute specifies the axis along which the fp4 elements are\n    packed.\n\n    The result encoding is always a layout constraint: the conversion consumes\n    register-consecutive groups along `axis`, so layout conversion will not\n    rewrite this op.",
     "operands": [
       { "name": "input", "type": "RankedTensorOf<[I8]>" },
       { "name": "scale", "type": "RankedTensorOf<[BF16, I8]>" }
@@ -2223,7 +2223,7 @@
   {
     "name": "amdg.scaled_upcast_fp8",
     "summary": "Upcast Fp8 and then multiply scale",
-    "description": "Upcast fp8 (e4m3/e5m2) values and multiply with the given E8M0 scale\n    encoded as BF16. This maps to `v_cvt_scalef32_*` intrinsics\n    on the AMD CDNA4 architecture.",
+    "description": "Upcast fp8 (e4m3/e5m2) values and multiply with the given E8M0 scale\n    encoded as BF16. This maps to `v_cvt_scalef32_*` intrinsics\n    on the AMD CDNA4 architecture.\n\n    The result encoding is always a layout constraint: the conversion consumes\n    register-consecutive groups, so layout conversion will not rewrite this op.",
     "operands": [
       { "name": "input", "type": "RankedTensorOf<[AnyTypeOf<[F8E4M3FN, F8E5M2]>]>" },
       { "name": "scale", "type": "RankedTensorOf<[AnyTypeOf<[BF16, I8]>]>" }
@@ -22005,7 +22005,7 @@
   {
     "name": "linalg.pack",
     "summary": "linalg.pack operation",
-    "description": "The \"pack\" operation converts a source tensor of rank `n` into a result\n    tensor of rank `n + k` with a tiled and packed layout (maybe with padding)\n    and optionally transposes the tiled source tensor dimensions.\n\n    `inner_tiles` (mandatory) specifies `k` tile sizes. These tile sizes\n    correspond to the least significant (\"inner\") result tensor dimension sizes,\n    in the same order. Tile sizes can be static or dynamic.\n\n    `inner_dims_pos` (mandatory) specifies `k` source tensor dimensions that are\n    being tiled, where `0 <= k <= n`.\n     - `inner_dims_pos[i]` specifies the source tensor dimension tiled by\n    `inner_tiles[i]` where `0 <= i < k`. All the values in `inner_dims_pos` are\n    within [0, n).\n     - The tiled dimensions (of size `inner_tiles`) are added to the end of the\n     result tensor in the order in which they appear, i.e.\n     `shape(result)[rank(source) + i] = inner_tiles[i]` for `0 <= i < k`.\n     - The following relationship for the tiled dimensions holds:\n     `shape(result)[inner_dims_pos[i]] = shape(source)[inner_dims_pos[i]] / inner_tiles[i]`,\n     where (⌈/⌉ indicates CeilDiv).\n\n\n    Example: If `inner_tiles = [16, 32]`, the result tensor has a shape of\n    `...x16x32`. If `inner_dims_pos = [0, 1]`, the 0th source dimension is tiled\n    by 16 and the 1st source dimension is tiled by 32. Other source dimensions\n    (if any) are not tiled. If `inner_dims_pos = [1, 0]`, the 1st dimension is\n    tiled by 16 and the 0th dimension is tiled by 32.\n\n    Example:\n    ```mlir\n    // NC to NCnc\n    %0 = linalg.pack %source inner_dims_pos = [0, 1] inner_tiles = [8, 32]\n        into %dest : tensor<128x256xf32> -> tensor<16x8 x 8x32 xf32>\n    //                                             \\  /   \\  /\n    //                                 Outer Dims: 16x8   Inner Dims: 8x32\n\n    // CHW to CHWhw\n    %0 = linalg.pack %source inner_dims_pos = [2, 1] inner_tiles = [4, 2]\n        into %dest : tensor<3x20x24xf32> -> tensor<3x10x6 x 4x2 xf32>\n    //                                              \\  /    \\ /\n    //                                 Outer Dims: 3x10x6  Inner Dims: 4x2\n\n    // HCW to HCWhw\n    %0 = linalg.pack %source inner_dims_pos = [2, 0] inner_tiles = [4, 2]\n        into %dest : tensor<18x3x32xf32> -> tensor<9x3x8 x 4x2 xf32>\n    //                                              \\  /   \\ /\n    //                                 Outer Dims: 9x3x8  Inner Dims: 4x2\n    ```\n\n    `outer_dims_perm` (optional) specifies a permutation for the outer\n    dimensions. If specified, it must have `n` elements.\n\n    Example:\n    ```mlir\n    // CK to KCck\n    %0 = linalg.pack %source outer_dims_perm = [1, 0] inner_dims_pos = [0, 1]\n        inner_tiles = [8, 32] into %dest\n        : tensor<128x256xf32> -> tensor<8x16 x 8x32 xf32>\n    //                                  \\  /\n    //            compare with \"NC to NCnc\": outer dims are transposed\n    ```\n\n    `padding_value` specifies a padding value at the boundary on non-perfectly\n    divisible dimensions. Padding is optional:\n    - If absent, it is assumed that for all inner tiles,\n      `shape(source)[inner_dims_pos[i]] % inner_tiles[i] == 0`, i.e. all inner\n      tiles divide perfectly the corresponding outer dimension in the result\n      tensor. It is UB if the tile does not perfectly divide the dimension.\n    - If present, it will pad along high dimensions (high-padding) to make the\n      tile complete. Note that it is not allowed to have artificial padding that\n      is not strictly required by linalg.pack (i.e., padding past what is needed\n      to complete the last tile along each packed dimension). It is UB if extra\n      padding is requested.\n    It is not possible to verify the requirements statically with dynamic\n    shapes, so they are treated as UB.\n\n    Example:\n    ```mlir\n    %0 = linalg.pack %arg0 padding_value(%pad : f32) outer_dims_perm = [2, 1, 0]\n        inner_dims_pos = [1] inner_tiles = [2] into %arg1\n        : tensor<200x127x256xf32> -> tensor<256x64x200x2xf32>\n    //                 \\\n    //                padded and tiled dim\n    //\n    // Source dimension 1 is tiled. 64 does not divide 127 evenly, so 1 padded\n    // element is added at the end.\n    //\n    // Note: Only tiled dimensions can be padded.\n    ```\n\n    Invalid example that has artificial padding:\n    ```mlir\n    %0 = linalg.pack %src padding_value(%cst : f32) inner_dims_pos = [0]\n        inner_tiles = [8] into %dest\n        : tensor<9xf32> -> tensor<3x8xf32>\n    //                             \\\n    //            expect tensor<2x8xf32> because CeilDiv(9, 8) = 2\n    ```",
+    "description": "The \"pack\" operation converts a source of rank `n` into a result of rank\n    `n + k` with a tiled and packed layout (maybe with padding) and\n    optionally transposes the tiled source dimensions.\n\n    While both tensors and memrefs are supported as `source` and `dest` (the\n    types have to be consistent), the memref forms are mainly intended for\n    bufferization and scalar lowering. Most transformations for\n    `linalg.pack` assume tensor semantics and reject ops with memref\n    semantics. See #225650 for the reasoning. In the memref form there is\n    no separate result: `dest` plays the role of `result` in the rest of\n    this description.\n\n    `inner_tiles` (mandatory) specifies `k` tile sizes. These tile sizes\n    correspond to the least significant (\"inner\") result dimension sizes,\n    in the same order. Tile sizes can be static or dynamic.\n\n    `inner_dims_pos` (mandatory) specifies `k` source dimensions that are\n    being tiled, where `0 <= k <= n`.\n     - `inner_dims_pos[i]` specifies the source dimension tiled by\n    `inner_tiles[i]` where `0 <= i < k`. All the values in `inner_dims_pos` are\n    within [0, n).\n     - The tiled dimensions (of size `inner_tiles`) are added to the end of the\n     result in the order in which they appear, i.e.\n     `shape(result)[rank(source) + i] = inner_tiles[i]` for `0 <= i < k`.\n     - The following relationship for the tiled dimensions holds:\n     `shape(result)[inner_dims_pos[i]] = shape(source)[inner_dims_pos[i]] / inner_tiles[i]`,\n     where (⌈/⌉ indicates CeilDiv).\n\n\n    Example: If `inner_tiles = [16, 32]`, the result has a shape of\n    `...x16x32`. If `inner_dims_pos = [0, 1]`, the 0th source dimension is tiled\n    by 16 and the 1st source dimension is tiled by 32. Other source dimensions\n    (if any) are not tiled. If `inner_dims_pos = [1, 0]`, the 1st dimension is\n    tiled by 16 and the 0th dimension is tiled by 32.\n\n    Example:\n    ```mlir\n    // NC to NCnc\n    %0 = linalg.pack %source inner_dims_pos = [0, 1] inner_tiles = [8, 32]\n        into %dest : tensor<128x256xf32> -> tensor<16x8 x 8x32 xf32>\n    //                                             \\  /   \\  /\n    //                                 Outer Dims: 16x8   Inner Dims: 8x32\n\n    // CHW to CHWhw\n    %0 = linalg.pack %source inner_dims_pos = [2, 1] inner_tiles = [4, 2]\n        into %dest : tensor<3x20x24xf32> -> tensor<3x10x6 x 4x2 xf32>\n    //                                              \\  /    \\ /\n    //                                 Outer Dims: 3x10x6  Inner Dims: 4x2\n\n    // HCW to HCWhw\n    %0 = linalg.pack %source inner_dims_pos = [2, 0] inner_tiles = [4, 2]\n        into %dest : tensor<18x3x32xf32> -> tensor<9x3x8 x 4x2 xf32>\n    //                                              \\  /   \\ /\n    //                                 Outer Dims: 9x3x8  Inner Dims: 4x2\n    ```\n\n    `outer_dims_perm` (optional) specifies a permutation for the outer\n    dimensions. If specified, it must have `n` elements.\n\n    Example:\n    ```mlir\n    // CK to KCck\n    %0 = linalg.pack %source outer_dims_perm = [1, 0] inner_dims_pos = [0, 1]\n        inner_tiles = [8, 32] into %dest\n        : tensor<128x256xf32> -> tensor<8x16 x 8x32 xf32>\n    //                                  \\  /\n    //            compare with \"NC to NCnc\": outer dims are transposed\n    ```\n\n    `padding_value` specifies a padding value at the boundary on non-perfectly\n    divisible dimensions. Padding is optional:\n    - If absent, it is assumed that for all inner tiles,\n      `shape(source)[inner_dims_pos[i]] % inner_tiles[i] == 0`, i.e. all inner\n      tiles divide perfectly the corresponding outer dimension in the\n      result. It is UB if the tile does not perfectly divide the dimension.\n    - If present, it will pad along high dimensions (high-padding) to make the\n      tile complete. Note that it is not allowed to have artificial padding that\n      is not strictly required by linalg.pack (i.e., padding past what is needed\n      to complete the last tile along each packed dimension). It is UB if extra\n      padding is requested.\n    It is not possible to verify the requirements statically with dynamic\n    shapes, so they are treated as UB.\n\n    Example:\n    ```mlir\n    %0 = linalg.pack %arg0 padding_value(%pad : f32) outer_dims_perm = [2, 1, 0]\n        inner_dims_pos = [1] inner_tiles = [2] into %arg1\n        : tensor<200x127x256xf32> -> tensor<256x64x200x2xf32>\n    //                 \\\n    //                padded and tiled dim\n    //\n    // Source dimension 1 is tiled. 64 does not divide 127 evenly, so 1 padded\n    // element is added at the end.\n    //\n    // Note: Only tiled dimensions can be padded.\n    ```\n\n    Invalid example that has artificial padding:\n    ```mlir\n    %0 = linalg.pack %src padding_value(%cst : f32) inner_dims_pos = [0]\n        inner_tiles = [8] into %dest\n        : tensor<9xf32> -> tensor<3x8xf32>\n    //                             \\\n    //            expect tensor<2x8xf32> because CeilDiv(9, 8) = 2\n    ```",
     "operands": [
       { "name": "source", "type": "TensorOrMemRef<[AnyType]>" },
       { "name": "dest", "type": "TensorOrMemRef<[AnyType]>" },
@@ -22541,7 +22541,7 @@
   {
     "name": "linalg.unpack",
     "summary": "linalg.unpack operation",
-    "description": "The \"unpack\" operation converts a source tensor of rank `n` with a tiled and\n    packed layout to a result tensor of rank `n - k`.\n\n    `inner_tiles` (mandatory) specifies `k` tile sizes. These tile sizes\n    correspond to the least significant (\"inner\") source tensor dimension sizes.\n    The behavior of this op is undefined if:\n    - `inner_tiles` do not exactly match with the corresponding source tensor\n      dimension sizes.\n    - Or, `inner_tiles[i]` does not divide the size of dimension\n      `inner_dims_pos[i]` (assuming that `outer_dims_perm` is not specified)\n      evenly.\n\n    `inner_dims_pos` (mandatory) specifies `k` result tensor (i.e. unpacked\n    tensor) dimensions that were tiled with the `inner_tiles` to create the\n    packed source tensor. The source tensor (i.e. packed tensor) dimensions can\n    be unpacked given `inner_dims_pos` as follows.\n    - For `0 <= i < k` the following relationship holds:\n    `shape(result)[inner_dims_pos[i]] <= shape(source)[n-k+i] * shape(source)[inner_dims_pos[i]]`.\n    - For `0 <= j < n-k` and `j` not in `inner_dims_pos` the following relationship holds:\n    `shape(result)[j] = shape(source)[j]`.\n\n    `outer_dims_perm` (optional) specifies a permutation for the outer\n    dimensions. If specified, it must have `n - k` elements. If specified, this\n    permutation is applied before combining any dimensions.\n\n    Note, the unpack operation may drop any padding introduced by the pack\n    operation and hence the following holds\n    `NumElementsOf(source) >= NumElementsOf(result)`.\n\n    Examples:\n\n    ```mlir\n    // NCnc to NC:\n    %0 = linalg.unpack %source inner_dims_pos = [0, 1] inner_tiles = [8, 32]\n        into %dest : tensor<16x8 x 8x32 xf32> -> tensor<128x256xf32>\n    //                      \\  /   \\  /\n    //          Outer Dims: 16x8  Inner Dims: 8x32\n\n    // CK to KCck:\n    %0 = linalg.unpack %source outer_dims_perm = [1, 0] inner_dims_pos = [0, 1]\n        inner_tiles = [8, 32]\n        into %dest : tensor<8x16 x 8x32 xf32> -> tensor<128x256xf32>\n    //                      \\  /   \\  /\n    //          Outer Dims: 8x16  Inner Dims: 8x32\n\n    // CHW to CHWhw:\n    %0 = linalg.unpack %source inner_dims_pos = [2, 1] inner_tiles = [4, 2]\n        into %dest : tensor<3x10x6 x 4x2 xf32> -> tensor<3x20x24xf32>\n    //                       \\  /    \\ /\n    //          Outer Dims: 3x10x6  Inner Dims: 4x2\n\n    // HCW to HCWhw\n    %0 = linalg.unpack %source inner_dims_pos = [2, 0] inner_tiles = [4, 2]\n        into %dest : tensor<9x3x8 x 4x2 xf32> -> tensor<18x3x32xf32>\n    //                       \\  /   \\ /\n    //          Outer Dims: 9x3x8   Inner Dims: 4x2\n    ```",
+    "description": "The \"unpack\" operation converts a source of rank `n` with a tiled and\n    packed layout to a result of rank `n - k`.\n\n    While both tensors and memrefs are supported as `source` and `dest` (the\n    types have to be consistent), the memref forms are mainly intended for\n    bufferization and scalar lowering. Most transformations for\n    `linalg.unpack` assume tensor semantics and reject ops with memref\n    semantics. See #225650 for the reasoning. In the memref form there is\n    no separate result: `dest` plays the role of `result` in the rest of\n    this description.\n\n    `inner_tiles` (mandatory) specifies `k` tile sizes. These tile sizes\n    correspond to the least significant (\"inner\") source dimension sizes.\n    The behavior of this op is undefined if:\n    - `inner_tiles` do not exactly match with the corresponding source\n      dimension sizes.\n    - Or, `inner_tiles[i]` does not divide the size of dimension\n      `inner_dims_pos[i]` (assuming that `outer_dims_perm` is not specified)\n      evenly.\n\n    `inner_dims_pos` (mandatory) specifies `k` result (i.e. unpacked)\n    dimensions that were tiled with the `inner_tiles` to create the\n    packed source. The source (i.e. packed) dimensions can\n    be unpacked given `inner_dims_pos` as follows.\n    - For `0 <= i < k` the following relationship holds:\n    `shape(result)[inner_dims_pos[i]] <= shape(source)[n-k+i] * shape(source)[inner_dims_pos[i]]`.\n    - For `0 <= j < n-k` and `j` not in `inner_dims_pos` the following relationship holds:\n    `shape(result)[j] = shape(source)[j]`.\n\n    `outer_dims_perm` (optional) specifies a permutation for the outer\n    dimensions. If specified, it must have `n - k` elements. If specified, this\n    permutation is applied before combining any dimensions.\n\n    Note, the unpack operation may drop any padding introduced by the pack\n    operation and hence the following holds\n    `NumElementsOf(source) >= NumElementsOf(result)`.\n\n    Examples:\n\n    ```mlir\n    // NCnc to NC:\n    %0 = linalg.unpack %source inner_dims_pos = [0, 1] inner_tiles = [8, 32]\n        into %dest : tensor<16x8 x 8x32 xf32> -> tensor<128x256xf32>\n    //                      \\  /   \\  /\n    //          Outer Dims: 16x8  Inner Dims: 8x32\n\n    // CK to KCck:\n    %0 = linalg.unpack %source outer_dims_perm = [1, 0] inner_dims_pos = [0, 1]\n        inner_tiles = [8, 32]\n        into %dest : tensor<8x16 x 8x32 xf32> -> tensor<128x256xf32>\n    //                      \\  /   \\  /\n    //          Outer Dims: 8x16  Inner Dims: 8x32\n\n    // CHW to CHWhw:\n    %0 = linalg.unpack %source inner_dims_pos = [2, 1] inner_tiles = [4, 2]\n        into %dest : tensor<3x10x6 x 4x2 xf32> -> tensor<3x20x24xf32>\n    //                       \\  /    \\ /\n    //          Outer Dims: 3x10x6  Inner Dims: 4x2\n\n    // HCW to HCWhw\n    %0 = linalg.unpack %source inner_dims_pos = [2, 0] inner_tiles = [4, 2]\n        into %dest : tensor<9x3x8 x 4x2 xf32> -> tensor<18x3x32xf32>\n    //                       \\  /   \\ /\n    //          Outer Dims: 9x3x8   Inner Dims: 4x2\n    ```",
     "operands": [
       { "name": "source", "type": "TensorOrMemRef<[AnyType]>" },
       { "name": "dest", "type": "TensorOrMemRef<[AnyType]>" },
@@ -118310,14 +118310,11 @@
   {
     "name": "tti.experimental_gsan_init",
     "summary": "Initialize GSan thread",
-    "attributes": [
-      { "name": "acquireStreamClock", "type": "BoolAttr" }
-    ],
-    "assemblyFormat": "$acquireStreamClock attr-dict"
+    "assemblyFormat": "attr-dict"
   },
   {
     "name": "tti.experimental_gsan_kernel_exit",
-    "summary": "Publish a completed GSan thread clock to its launch stream",
+    "summary": "Publish a completed GSan thread clock to its launch",
     "assemblyFormat": "attr-dict"
   },
   {
@@ -124761,7 +124758,7 @@
   {
     "name": "ttng.async_tma_copy_global_to_local",
     "summary": "copy data based on descriptor from global memory to local memory asynchronously",
-    "description": "This operation copies data from global memory to local memory\n    asynchronously. This is analogous to tt.load except the data is copied to\n    local memory pointed to by the memory descriptor instead of to a distributed\n    tensor. The copied data depends on the global memory descriptor pointed to\n    by `desc`.\n\n    The tensor mode is determined by the descriptor type:\n    - tt.tensordesc: TILED mode - Regular tiled tensor memory access\n      - See: https://docs.nvidia.com/cuda/parallel-thread-execution/#tensor-tiled-mode\n    - ttng.tensordesc_im2col: IM2COL mode - Im2col mode for convolution-friendly access patterns\n      - In IM2COL mode, 'coord' is the coordinate in the input tensor\n        - For example, for a 4D tensor (NHWC), 'coord' is [batch_idx, channel_idx, h, w]\n      - In IM2COL mode, additional `offsets` must be provided (uint16 values)\n        - For 3D tensors (NWC): 1 offset (offset_w)\n        - For 4D tensors (NHWC): 2 offsets (offset_w, offset_h)\n        - For 5D tensors (NDHWC): 3 offsets (offset_w, offset_h, offset_d)\n        - General rule: number of offsets = coord.size() - 2\n      - See: https://docs.nvidia.com/cuda/parallel-thread-execution/#tensor-im2col-mode",
+    "description": "This operation copies data from global memory to local memory\n    asynchronously. This is analogous to tt.load except the data is copied to\n    local memory pointed to by the memory descriptor instead of to a distributed\n    tensor. The copied data depends on the global memory descriptor pointed to\n    by `desc`.\n\n    The optional `cachePolicy` attribute accepts a generic `tt.cache_policy`\n    or an NVIDIA `ttng.cache_policy` with only an L2 eviction policy. Generic\n    first/last eviction policies apply to all lines (fraction 1.0). An absent\n    policy emits no cache hint. Explicit detailed L2 policies, including\n    `evict_normal`, are preserved. Cache modifiers, L1 policies, L2 prefetch\n    sizes, and volatile accesses are not supported. Hints do not change memory\n    effects or synchronization.\n\n    The tensor mode is determined by the descriptor type:\n    - tt.tensordesc: TILED mode - Regular tiled tensor memory access\n      - See: https://docs.nvidia.com/cuda/parallel-thread-execution/#tensor-tiled-mode\n    - ttng.tensordesc_im2col: IM2COL mode - Im2col mode for convolution-friendly access patterns\n      - In IM2COL mode, 'coord' is the coordinate in the input tensor\n        - For example, for a 4D tensor (NHWC), 'coord' is [batch_idx, channel_idx, h, w]\n      - In IM2COL mode, additional `offsets` must be provided (uint16 values)\n        - For 3D tensors (NWC): 1 offset (offset_w)\n        - For 4D tensors (NHWC): 2 offsets (offset_w, offset_h)\n        - For 5D tensors (NDHWC): 3 offsets (offset_w, offset_h, offset_d)\n        - General rule: number of offsets = coord.size() - 2\n      - See: https://docs.nvidia.com/cuda/parallel-thread-execution/#tensor-im2col-mode",
     "operands": [
       { "name": "desc", "type": "TT_AnyTensorDescType" },
       { "name": "coord", "type": "Variadic<I32>" },
@@ -124772,30 +124769,32 @@
     ],
     "attributes": [
       { "name": "multicast", "type": "UnitAttr" },
-      { "name": "cache", "type": "DefaultValuedAttr<TT_CacheModifierAttr{none|ca|cg|wb|cs|wt|cv}, triton::CacheModifier::NONE>" },
-      { "name": "evict", "type": "DefaultValuedAttr<TT_EvictionPolicyAttr{evict_normal|evict_first|evict_last}, triton::EvictionPolicy::NORMAL>" },
+      { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" },
       { "name": "isVolatile", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$desc `[` $coord `]` (`offsets` `=` `[` $offsets^ `]`)? $result `,` $barrier `,` $pred\n    oilist(`cacheModifier` `=` $cache | `evictionPolicy` `=` $evict)\n    attr-dict `:` qualified(type($desc)) `,` qualified(type($barrier)) `->` qualified(type($result))"
+    "assemblyFormat": "$desc `[` $coord `]` (`offsets` `=` `[` $offsets^ `]`)? $result `,` $barrier `,` $pred\n    attr-dict `:` qualified(type($desc)) `,` qualified(type($barrier)) `->` qualified(type($result))"
   },
   {
     "name": "ttng.async_tma_copy_local_to_global",
     "summary": "copy data based on descriptor from local memory to global memory asynchronously",
-    "description": "This operation copies data from local memory to global memory\n    asynchronously. This is analogous to tt.store except the data is copied from\n    local memory pointed to by the memory descriptor instead of from a\n    distributed tensor. The copied data depends on the global memory descriptor\n    pointed to by `desc`.",
+    "description": "This operation copies data from local memory to global memory\n    asynchronously. This is analogous to tt.store except the data is copied from\n    local memory pointed to by the memory descriptor instead of from a\n    distributed tensor. The copied data depends on the global memory descriptor\n    pointed to by `desc`.\n\n    The optional `cachePolicy` attribute has the same L2-only policy contract\n    as `async_tma_copy_global_to_local`. An absent policy emits no hint;\n    explicit detailed policies, including `evict_normal`, are preserved.",
     "operands": [
       { "name": "desc", "type": "TT_TensorDescType" },
       { "name": "coord", "type": "Variadic<I32>" },
       { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$desc `[` $coord `]` $src\n    attr-dict `:` qualified(type($desc)) `,` qualified(type($src))"
   },
   {
     "name": "ttng.async_tma_gather",
     "summary": "gather data based on descriptor from global memory to local memory asynchronously",
-    "description": "This operation gathers multiple rows of data from a global memory matrix to\n    local memory asynchronously. This is similar to\n    async_tma_copy_global_to_local except that each row is indexed independently.",
+    "description": "This operation gathers multiple rows of data from a global memory matrix to\n    local memory asynchronously. This is similar to\n    async_tma_copy_global_to_local except that each row is indexed independently.\n\n    The optional `cachePolicy` attribute has the same L2-only policy contract\n    as `async_tma_copy_global_to_local`. An absent policy emits no hint;\n    explicit detailed policies, including `evict_normal`, are preserved.",
     "operands": [
       { "name": "desc", "type": "TT_TensorDescType" },
       { "name": "x_offsets", "type": "RankedTensorOf<[I32]>" },
@@ -124805,7 +124804,8 @@
       { "name": "pred", "type": "I1" }
     ],
     "attributes": [
-      { "name": "multicast", "type": "UnitAttr" }
+      { "name": "multicast", "type": "UnitAttr" },
+      { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$desc `[` $x_offsets `,` $y_offset `]` $result `,` $barrier `,` $pred\n    attr-dict `:` type(operands)"
   },
@@ -124826,12 +124826,15 @@
   {
     "name": "ttng.async_tma_scatter",
     "summary": "scatter data from local memory into global memory based on a descriptor asynchronously",
-    "description": "The `ttng.async_tma_scatter` operation scatters multiple separately-indexed\n    rows of data from local memory into global memory asynchronously. The\n    operation scatters a 2D tensor in shared memory, laid out using the core\n    tensor tiles nvmma_shared layout, into separately indexed rows in global\n    memory at a given `y` offset.",
+    "description": "The `ttng.async_tma_scatter` operation scatters multiple separately-indexed\n    rows of data from local memory into global memory asynchronously. The\n    operation scatters a 2D tensor in shared memory, laid out using the core\n    tensor tiles nvmma_shared layout, into separately indexed rows in global\n    memory at a given `y` offset.\n\n    The optional `cachePolicy` attribute has the same L2-only policy contract\n    as `async_tma_copy_global_to_local`. An absent policy emits no hint;\n    explicit detailed policies, including `evict_normal`, are preserved.",
     "operands": [
       { "name": "desc", "type": "TT_TensorDescType" },
       { "name": "x_offsets", "type": "RankedTensorOf<[I32]>" },
       { "name": "y_offset", "type": "I32" },
       { "name": "src", "type": "TTG_MemDescType" }
+    ],
+    "attributes": [
+      { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" }
     ],
     "assemblyFormat": "$desc `[` $x_offsets `,` $y_offset `]` $src\n    attr-dict `:` type(operands)"
   },
@@ -126691,6 +126694,23 @@
     ]
   },
   {
+    "name": "ttnn.layernorm_bw",
+    "summary": "Layer normalization backward (ttml).",
+    "description": "Training-oriented fused layer normalization backward pass, backed by\n      `ttml::metal::layernorm_bw`. Given the original input, affine scale,\n      forward mean and reciprocal standard deviation, and upstream gradient,\n      it returns the input, gamma, and beta gradients.\n\n      The backing kernel requires rank-4 tensors: `input` and `dL_dout` are\n      `(B, N, S, C)`, `gamma` is `(1, 1, 1, C)`, and `mean`/`rstd` are\n      `(B, N, S, 1)`. All inputs and outputs must be bfloat16, tiled, and\n      interleaved in DRAM; the workarounds pass enforces these requirements.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "gamma", "type": "AnyRankedTensor" },
+      { "name": "mean", "type": "AnyRankedTensor" },
+      { "name": "rstd", "type": "AnyRankedTensor" },
+      { "name": "dL_dout", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "dx", "type": "AnyRankedTensor" },
+      { "name": "dgamma", "type": "AnyRankedTensor" },
+      { "name": "dbeta", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
     "name": "ttnn.layernorm_fw",
     "summary": "Layer normalization forward (ttml).",
     "description": "Training-oriented fused layer normalization forward pass, backed by the\n      ttml metal op `ttml::metal::layernorm_fw`. Normalizes `input` over its last\n      dimension and applies the affine transform\n      `output = (input - mean) * rstd * weight + bias`, where\n      `rstd = 1 / sqrt(var + epsilon)` and `mean`/`var` are the biased statistics\n      of the last dimension.\n\n      When `return_mean_rstd` is set the per-row `mean` and `rstd` are also\n      returned so the backward pass can reuse them. Both are produced together,\n      so they are either both present or both absent.\n\n      The backing kernel only accepts rank-4 tensors: `input` is `(B, N, S, C)`,\n      `weight` and `bias` are `(1, 1, 1, C)`, and `mean`/`rstd` are\n      `(B, N, S, 1)`. It also requires every tensor to be bfloat16, tiled and\n      interleaved in DRAM; those are satisfied by the workarounds pass rather\n      than the verifier, since the layout is not yet final when the op is\n      created.",
@@ -128188,6 +128208,21 @@
       { "name": "dimension", "type": "SI32Attr" },
       { "name": "numericStable", "type": "DefaultValuedAttr<BoolAttr, false>" },
       { "name": "compute_config", "type": "OptionalAttr<TTNN_DeviceComputeKernelConfig>" }
+    ]
+  },
+  {
+    "name": "ttnn.softmax_backward",
+    "summary": "Softmax backward (ttml).",
+    "description": "Computes the softmax gradient\n\n        grad_input = softmax_output *\n                     (grad - sum(softmax_output * grad, dim, keepdim=true))\n\n      using `ttml::metal::softmax_backward`. Operands and result must have the\n      same shape and element type (bfloat16 or float32), use TILE layout, and\n      `dimension` must select the last dimension.",
+    "operands": [
+      { "name": "softmax_output", "type": "AnyRankedTensor" },
+      { "name": "grad", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "dimension", "type": "SI32Attr" }
     ]
   },
   {
