@@ -650,6 +650,16 @@ const update = async () => {
             await exec(`tools/${target} ${commands}`);
         }
     }
+    for (const file of ['keras-metadata.json', 'onnx-metadata.json', 'sklearn-metadata.json', 'tf-metadata.json']) {
+        // eslint-disable-next-line no-await-in-loop
+        const modified = await exec(`git diff --name-only -- source/${file}`, 'utf-8');
+        if (modified.stdout.trim()) {
+            // eslint-disable-next-line no-await-in-loop
+            await exec(`git add source/${file}`);
+            // eslint-disable-next-line no-await-in-loop
+            await exec(`git commit --quiet -m "Update ${file}"`);
+        }
+    }
 };
 
 const pull = async () => {
