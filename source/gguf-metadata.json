@@ -4389,7 +4389,11 @@
         { "name": "ffn_up_shexp", "type": "MUL_MAT" },
         { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
         { "name": "ffn_down_shexp", "type": "MUL_MAT" },
-        { "name": "ple", "type": "PLE", "category": "Transform", "tensors": ["ple_key", "ple_value", "ple_norm_key", "ple_norm_query", "ple_norm_conv", "ple_conv1d"] }
+        { "name": "ple", "type": "PLE", "category": "Transform", "tensors": ["ple_key", "ple_value", "ple_norm_key", "ple_norm_query", "ple_norm_conv", "ple_conv1d"] },
+        { "name": "nextn.eh_proj", "type": "MUL_MAT" },
+        { "name": "nextn.enorm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "nextn.hnorm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "nextn.shared_head_norm", "type": "HYPER_CONNECTION", "tensors": ["nextn.hc_head_norm", "nextn.hc_head_down", "nextn.hc_head_up"] }
       ],
       "output": [
         { "name": "output_hc", "type": "HYPER_CONNECTION", "tensors": ["output_hc_norm", "output_hc_down", "output_hc_up"] },
