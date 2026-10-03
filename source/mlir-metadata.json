@@ -14900,7 +14900,7 @@
   {
     "name": "gpu.all_reduce",
     "summary": "Reduce values among workgroup.",
-    "description": "The `all_reduce` op reduces the value of every work item across a local\n    workgroup. The result is equal for all work items of a workgroup.\n\n    For example, both\n\n    ```mlir\n    %1 = gpu.all_reduce add %0 {} : (f32) -> (f32)\n    %2 = gpu.all_reduce %0 {\n    ^bb(%lhs : f32, %rhs : f32):\n      %sum = arith.addf %lhs, %rhs : f32\n      \"gpu.yield\"(%sum) : (f32) -> ()\n    } : (f32) -> (f32)\n    ```\n\n    compute the sum of each work item's %0 value. The first version specifies\n    the accumulation as operation, whereas the second version specifies the\n    accumulation as code region. The reduction operation must be one of:\n    *  Integer types: `add`, `mul`, `minui`, `minsi`, `maxui`, `maxsi`, `and`,\n       `or`, `xor`\n    *  Floating point types: `add`, `mul`, `minnumf`, `maxnumf`, `minimumf`,\n       `maximumf`\n\n    If `uniform` flag is set either none or all work items of a workgroup\n    need to execute this op in convergence.",
+    "description": "The `all_reduce` op reduces the value of every work item across a local\n    workgroup. The result is equal for all work items of a workgroup.\n\n    For example, both\n\n    ```mlir\n    %1 = gpu.all_reduce add %0 {} : (f32) -> (f32)\n    %2 = gpu.all_reduce %0 {\n    ^bb(%lhs : f32, %rhs : f32):\n      %sum = arith.addf %lhs, %rhs : f32\n      \"gpu.yield\"(%sum) : (f32) -> ()\n    } : (f32) -> (f32)\n    ```\n\n    compute the sum of each work item's %0 value. The first version specifies\n    the accumulation as operation, whereas the second version specifies the\n    accumulation as code region. The reduction operation must be one of:\n    *  Integer types: `add`, `mul`, `minui`, `minsi`, `maxui`, `maxsi`, `and`,\n       `or`, `xor`\n    *  Floating point types: `add`, `mul`, `minnumf`, `maxnumf`, `minimumf`,\n       `maximumf`, `minimumnumf`, `maximumnumf`\n\n    If `uniform` flag is set either none or all work items of a workgroup\n    need to execute this op in convergence.",
     "operands": [
       { "name": "value", "type": "AnyIntegerOrFloat" }
     ],
@@ -14908,7 +14908,7 @@
       { "name": "result", "type": "AnyIntegerOrFloat" }
     ],
     "attributes": [
-      { "name": "op", "type": "OptionalAttr<GPU_AllReduceOperationAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|minimumf|maximumf}>" },
+      { "name": "op", "type": "OptionalAttr<GPU_AllReduceOperationAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|minimumf|maximumf|minimumnumf|maximumnumf}>" },
       { "name": "uniform", "type": "UnitAttr" }
     ],
     "regions": [
@@ -15900,7 +15900,7 @@
   {
     "name": "gpu.subgroup_reduce",
     "summary": "Reduce values among subgroup.",
-    "description": "The `subgroup_reduce` op reduces the values of lanes (work items) across a\n    subgroup.\n\n    The subgroup is divided into clusters starting at lane index 0. Within each\n    cluster, there are `size` lanes, and the lane index advances by `stride`.\n    A reduction is done for each cluster in parallel: every lane in the cluster\n    is reduced, and the result is equal for all lanes in the cluster. If `size`\n    is omitted, there is a single cluster covering the entire subgroup. If\n    `stride` is omitted, the stride is 1 (the cluster's lanes are contiguous).\n\n    When the reduced value is of a vector type, each vector element is reduced\n    independently. Only 1-d vector types are allowed.\n\n    Example:\n\n    ```mlir\n    %1 = gpu.subgroup_reduce add %a : (f32) -> f32\n    %2 = gpu.subgroup_reduce add %b : (vector<4xf16>) -> vector<4xf16>\n    %3 = gpu.subgroup_reduce add %c cluster(size = 4) : (f32) -> f32\n    %3 = gpu.subgroup_reduce add %c cluster(size = 4, stride = 2) : (f32) -> f32\n    ```\n\n    If `uniform` flag is set either none or all lanes of a subgroup need to execute\n    this op in convergence.\n\n    The reduction operation must be one of:\n    *  Integer types: `add`, `mul`, `minui`, `minsi`, `maxui`, `maxsi`, `and`,\n       `or`, `xor`\n    *  Floating point types: `add`, `mul`, `minnumf`, `maxnumf`, `minimumf`,\n       `maximumf`",
+    "description": "The `subgroup_reduce` op reduces the values of lanes (work items) across a\n    subgroup.\n\n    The subgroup is divided into clusters starting at lane index 0. Within each\n    cluster, there are `size` lanes, and the lane index advances by `stride`.\n    A reduction is done for each cluster in parallel: every lane in the cluster\n    is reduced, and the result is equal for all lanes in the cluster. If `size`\n    is omitted, there is a single cluster covering the entire subgroup. If\n    `stride` is omitted, the stride is 1 (the cluster's lanes are contiguous).\n\n    When the reduced value is of a vector type, each vector element is reduced\n    independently. Only 1-d vector types are allowed.\n\n    Example:\n\n    ```mlir\n    %1 = gpu.subgroup_reduce add %a : (f32) -> f32\n    %2 = gpu.subgroup_reduce add %b : (vector<4xf16>) -> vector<4xf16>\n    %3 = gpu.subgroup_reduce add %c cluster(size = 4) : (f32) -> f32\n    %3 = gpu.subgroup_reduce add %c cluster(size = 4, stride = 2) : (f32) -> f32\n    ```\n\n    If `uniform` flag is set either none or all lanes of a subgroup need to execute\n    this op in convergence.\n\n    The reduction operation must be one of:\n    *  Integer types: `add`, `mul`, `minui`, `minsi`, `maxui`, `maxsi`, `and`,\n       `or`, `xor`\n    *  Floating point types: `add`, `mul`, `minnumf`, `maxnumf`, `minimumf`,\n       `maximumf`, `minimumnumf`, `maximumnumf`",
     "operands": [
       { "name": "value", "type": "AnyIntegerOrFloatOr1DVector" }
     ],
@@ -15908,7 +15908,7 @@
       { "name": "result", "type": "AnyIntegerOrFloatOr1DVector" }
     ],
     "attributes": [
-      { "name": "op", "type": "GPU_AllReduceOperationAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|minimumf|maximumf}" },
+      { "name": "op", "type": "GPU_AllReduceOperationAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|minimumf|maximumf|minimumnumf|maximumnumf}" },
       { "name": "uniform", "type": "UnitAttr" },
       { "name": "cluster_size", "type": "OptionalAttr<I32Attr>" },
       { "name": "cluster_stride", "type": "DefaultValuedAttr<I32Attr, 1>" }
@@ -17964,7 +17964,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "`(` $inputs `)` oilist(`after` $control_inputs) attr-dict\n    `:` functional-type($inputs, $outputs)"
+    "assemblyFormat": "`(` $inputs `)` oilist(`after` $control_inputs) prop-dict attr-dict\n    `:` functional-type($inputs, $outputs)"
   },
   {
     "name": "ifrt.Call",
@@ -17989,7 +17989,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$callee `(` $inputs `)` oilist(`after` $control_inputs)\n    `on` `devices` $devices attr-dict `:` functional-type($inputs, $outputs)"
+    "assemblyFormat": "$callee `(` $inputs `)` oilist(`after` $control_inputs)\n    `on` `devices` $devices prop-dict attr-dict `:` functional-type($inputs, $outputs)"
   },
   {
     "name": "ifrt.CallLoadedExecutable",
@@ -18013,7 +18013,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$callee `(` $inputs `)` oilist(`after` $control_inputs) attr-dict\n    `:` functional-type($inputs, $outputs)"
+    "assemblyFormat": "$callee `(` $inputs `)` oilist(`after` $control_inputs) prop-dict attr-dict\n    `:` functional-type($inputs, $outputs)"
   },
   {
     "name": "ifrt.CopyArrays",
@@ -18034,7 +18034,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "`(` $inputs `)` oilist(`after` $control_inputs) attr-dict\n    `:` functional-type($inputs, $outputs)"
+    "assemblyFormat": "`(` $inputs `)` oilist(`after` $control_inputs) prop-dict attr-dict\n    `:` functional-type($inputs, $outputs)"
   },
   {
     "name": "ifrt.Disassemble",
@@ -18081,7 +18081,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "`(` $inputs `)` `mappings` `=` $mappings oilist(`after` $control_inputs)\n    attr-dict `:` functional-type($inputs, $outputs)"
+    "assemblyFormat": "`(` $inputs `)` `mappings` `=` $mappings oilist(`after` $control_inputs)\n    prop-dict attr-dict `:` functional-type($inputs, $outputs)"
   },
   {
     "name": "ifrt.Reshard",
@@ -18101,7 +18101,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "`(` $inputs `)` oilist(`after` $control_inputs) attr-dict\n    `:` functional-type($inputs, $outputs)"
+    "assemblyFormat": "`(` $inputs `)` oilist(`after` $control_inputs) prop-dict attr-dict\n    `:` functional-type($inputs, $outputs)"
   },
   {
     "name": "index.add",
@@ -29872,6 +29872,21 @@
     "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
   },
   {
+    "name": "mhlo.exp2",
+    "summary": "Exp2 operation",
+    "description": "Performs element-wise base-2 exponential operation on `operand` tensor\n    and produces a `result` tensor.",
+    "operands": [
+      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "attributes": [
+      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr<MHLO_ResultAccuracyAttr, ::mlir::mhlo::ResultAccuracyMode::DEFAULT>" }
+    ],
+    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+  },
+  {
     "name": "mhlo.exponential",
     "summary": "Exp operation",
     "description": "Performs element-wise exponential operation on `operand` tensor and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#exponential\n\n    Example:\n    ```mlir\n    %result = mhlo.exponential %operand : tensor<2x2xf64>\n    ```",
@@ -30076,6 +30091,21 @@
     "name": "mhlo.log_plus_one",
     "summary": "Log1p operation",
     "description": "Performs element-wise logarithm plus one operation on `operand` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#log_plus_one\n\n    Example:\n    ```mlir\n    %result = mhlo.log_plus_one %operand : tensor<6xf32>\n    ```",
+    "operands": [
+      { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "attributes": [
+      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr<MHLO_ResultAccuracyAttr, ::mlir::mhlo::ResultAccuracyMode::DEFAULT>" }
+    ],
+    "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+  },
+  {
+    "name": "mhlo.log2",
+    "summary": "Log2 operation",
+    "description": "Performs element-wise base-2 logarithm operation on `operand` tensor and\n    produces a `result` tensor.",
     "operands": [
       { "name": "operand", "type": "MHLO_FpComplexOrQuantizedIntTensor" }
     ],
@@ -80756,7 +80786,8 @@
       { "name": "training", "type": "BoolAttr" },
       { "name": "file_path", "type": "StrAttr" },
       { "name": "write_vector_predictions", "type": "DefaultValuedOptionalAttr<BoolAttr, false>" },
-      { "name": "sample_rate", "type": "DefaultValuedOptionalAttr<F32Attr, 1.0f>" }
+      { "name": "sample_rate", "type": "DefaultValuedOptionalAttr<F32Attr, 1.0f>" },
+      { "name": "date", "type": "DefaultValuedOptionalAttr<StrAttr, \"\">" }
     ]
   },
   {
@@ -106363,6 +106394,22 @@
     "assemblyFormat": "operands `axis` `(` $axis `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "tosa.argmin",
+    "summary": "Perform argmin on the input.",
+    "description": "This returns the index with the smallest value across the given axis of the\n    input tensor. If multiple locations have equal values, returns the first\n    match along the search axis.\n\n    This operation is not pure. Undefined behaviour may occur if the min index\n    is out of bounds for the output data type.",
+    "operands": [
+      { "name": "input", "type": "Tosa_TensorAtLeast1D" }
+    ],
+    "results": [
+      { "name": "output", "type": "Tosa_Tensor" }
+    ],
+    "attributes": [
+      { "name": "axis", "type": "I32Attr" },
+      { "name": "nan_mode", "type": "DefaultValuedAttr<Tosa_NanPropagationModeAttr{PROPAGATE|IGNORE}, ::mlir::tosa::NanPropagationMode::PROPAGATE>" }
+    ],
+    "assemblyFormat": "operands `axis` `(` $axis `)` oilist(`nan_mode` `` $nan_mode) attr-dict `:` functional-type(operands, results)"
+  },
+  {
     "name": "tosa.arithmetic_right_shift",
     "summary": "Elementwise Arithmetic Right Shift.",
     "description": "Elementwise arithmetic right shift of input1 by the amount specified in\n    input2. Axis of size 1 will be broadcast, as necessary. Rank of input tensors\n    must match.\n\n    This operation is not pure. Undefined behaviour may occur if the specified\n    shift is out of range.",
@@ -107066,30 +107113,30 @@
   {
     "name": "tosa.matmul",
     "summary": "Matrix multiplication operator.",
-    "description": "Performs two dimensional matrix multiplications.\n\n    This operation is not pure. Undefined behaviour may occur if the accumulated\n    result overflows.",
+    "description": "Performs matrix multiplications over the two innermost dimensions while\n    treating any leading dimensions as broadcastable batch dimensions. `A` has\n    shape `[A0, ..., A(n-1), H, C]`. `B` has shape\n    `[B0, ..., B(m-1), C, W]`. `[A0, ..., A(n-1)]` and\n    `[B0, ..., B(m-1)]` must be compatible as leading batch dimensions.\n\n    Right-align these two dimension lists and treat any missing leading\n    dimensions as size 1, producing common batch dimensions\n    `[D0, ..., D(k-1)]` where `k = max(n, m)` and each `Di` is the larger of\n    the two aligned dimension sizes. `output` has shape\n    `[D0, ..., D(k-1), H, W]`.\n\n    This operation is not pure. Undefined behaviour may occur if the accumulated\n    result overflows.",
     "operands": [
-      { "name": "a", "type": "Tosa_Tensor3D" },
-      { "name": "b", "type": "Tosa_Tensor3D" },
+      { "name": "a", "type": "Tosa_TensorAtLeast2D" },
+      { "name": "b", "type": "Tosa_TensorAtLeast2D" },
       { "name": "a_zp", "type": "Tosa_ScalarIntOrFloatTensor" },
       { "name": "b_zp", "type": "Tosa_ScalarIntOrFloatTensor" }
     ],
     "results": [
-      { "name": "output", "type": "Tosa_Tensor3D" }
+      { "name": "output", "type": "Tosa_TensorAtLeast2D" }
     ],
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tosa.matmul_t",
     "summary": "Matrix multiplication with transposed B operator.",
-    "description": "Performs two dimensional matrix multiplications. `A` matrix is of shape\n    `N x H x C`. `B` matrix is of shape `D x W x C`. This is effectively a\n    matrix multiply of `A` by the transposed `B` matrix. If the batched\n    dimension of input `B` is of size 1, the `B` matrix is broadcast.",
+    "description": "Performs matrix multiplications over the two innermost dimensions while\n    implicitly transposing the last two dimensions of `B`. Any leading\n    dimensions are broadcastable batch dimensions. `A` has shape\n    `[A0, ..., A(n-1), H, C]`. `B` has shape\n    `[B0, ..., B(m-1), W, C]` before swapping those last two dimensions to\n    `[B0, ..., B(m-1), C, W]`. `[A0, ..., A(n-1)]` and\n    `[B0, ..., B(m-1)]` must be compatible as leading batch dimensions.\n\n    Right-align these two dimension lists and treat any missing leading\n    dimensions as size 1, producing common batch dimensions\n    `[D0, ..., D(k-1)]` where `k = max(n, m)` and each `Di` is the larger of\n    the two aligned dimension sizes. `output` has shape\n    `[D0, ..., D(k-1), H, W]`.\n\n    This operation is not pure. Undefined behaviour may occur if the accumulated\n    result overflows.",
     "operands": [
-      { "name": "a", "type": "Tosa_Tensor3D" },
-      { "name": "b", "type": "Tosa_Tensor3D" },
+      { "name": "a", "type": "Tosa_TensorAtLeast2D" },
+      { "name": "b", "type": "Tosa_TensorAtLeast2D" },
       { "name": "a_zp", "type": "Tosa_ScalarIntOrFloatTensor" },
       { "name": "b_zp", "type": "Tosa_ScalarIntOrFloatTensor" }
     ],
     "results": [
-      { "name": "output", "type": "Tosa_Tensor3D" }
+      { "name": "output", "type": "Tosa_TensorAtLeast2D" }
     ],
     "assemblyFormat": "operands attr-dict `:` functional-type(operands, results)"
   },
@@ -132003,7 +132050,7 @@
     "regions": [
       { "name": "body", "type": "Vifrt_AnyRegion" }
     ],
-    "assemblyFormat": "custom<FunctionBody>($sym_name, $body, $function_type) attr-dict"
+    "assemblyFormat": "custom<FunctionBody>($sym_name, $body, $function_type) prop-dict attr-dict"
   },
   {
     "name": "vifrt.LoadedExecutableV1",
