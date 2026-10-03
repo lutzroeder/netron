@@ -975,7 +975,7 @@ const test = async (pattern) => {
     let currentFile = null;
     const fileErrors = new Map(); // file -> [error lines]
     const allFiles = new Set();
-    await new Promise((resolve, reject) => {
+    const code = await new Promise((resolve, reject) => {
         const cmd = 'node';
         const args = ['--max-old-space-size=8192', './test/models.js', 'continue', pattern];
         const proc = child_process.spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -1181,11 +1181,11 @@ const test = async (pattern) => {
             }
         }
     }
-    const totalValid = validFiles.size;
-    const filesWithErrors = new Set();
+    const total = validFiles.size;
+    const failed = new Set();
     for (const [, fileCounts] of filesByError) {
         for (const file of fileCounts.keys()) {
-            filesWithErrors.add(file);
+            failed.add(file);
         }
     }
     writeLine('');
@@ -1214,14 +1214,17 @@ const test = async (pattern) => {
         }
         writeLine('');
     }
-    if (totalValid > 0) {
-        const succeeded = totalValid - filesWithErrors.size;
-        const percentage = (succeeded * 100.0) / totalValid;
-        writeLine(`  ${succeeded} / ${totalValid} =  ${percentage.toPrecision(6)}%  - skipped ${invalidFiles.size} files`);
+    if (total > 0) {
+        const succeeded = total - failed.size;
+        const percentage = (succeeded * 100.0) / total;
+        writeLine(`  ${succeeded} / ${total} =  ${percentage.toPrecision(6)}%  - skipped ${invalidFiles.size} files`);
     } else {
         writeLine('  No valid files processed');
     }
     writeLine('');
+    if (code !== 0 || total === 0 || failed.size > 0) {
+        process.exit(1);
+    }
 };
 
 const main = async () => {

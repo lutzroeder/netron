@@ -650,10 +650,30 @@ const update = async () => {
             await exec(`tools/${target} ${commands}`);
         }
     }
-    for (const file of ['keras-metadata.json', 'onnx-metadata.json', 'sklearn-metadata.json', 'tf-metadata.json']) {
+    const mlir = async () => {
+        const modified = await exec('git diff --name-only -- source/mlir.js tools/mlir tools/mlir-script.js tools/tablegen.js', 'utf-8');
+        if (modified.stdout.trim()) {
+            return false;
+        }
+        try {
+            await exec(process.platform === 'win32' ? 'bash tools/mlir test' : 'tools/mlir test');
+            return true;
+        } catch {
+            return false;
+        }
+    };
+    const metadata = new Map([
+        ['keras-metadata.json', null],
+        ['mlir-metadata.json', mlir],
+        ['onnx-metadata.json', null],
+        ['sklearn-metadata.json', null],
+        ['tf-metadata.json', null]
+    ]);
+    for (const [file, validate] of metadata) {
         // eslint-disable-next-line no-await-in-loop
         const modified = await exec(`git diff --name-only -- source/${file}`, 'utf-8');
-        if (modified.stdout.trim()) {
+        // eslint-disable-next-line no-await-in-loop
+        if (modified.stdout.trim() && (!validate || await validate())) {
             // eslint-disable-next-line no-await-in-loop
             await exec(`git add source/${file}`);
             // eslint-disable-next-line no-await-in-loop
