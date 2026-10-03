@@ -697,7 +697,7 @@ onnx.TensorShape = class {
         if (!this._dimensions || this._dimensions.length === 0) {
             return '';
         }
-        return `[${this._dimensions.map((dim) => dim || Number.isInteger(dim) ? dim.toString() : '?').join(',')}]`;
+        return `[${this._dimensions.map((dim) => dim || Number.isInteger(dim) || typeof dim === 'bigint' ? dim.toString() : '?').join(',')}]`;
     }
 };
 
@@ -929,11 +929,11 @@ onnx.Context = class {
         const denotation = type.denotation || '';
         if (type.tensor_type) {
             const tensor_type = type.tensor_type;
-            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
+            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ?? null) : [];
             return this.createTensorType(tensor_type.elem_type, shape, null, denotation);
         } else if (type.sparse_tensor_type) {
             type = type.sparse_tensor_type;
-            const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value || null) : [];
+            const shape = type.shape && type.shape.dim ? type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ?? null) : [];
             return this.createTensorType(type.elem_type, shape, 'sparse', denotation);
         } else if (type.map_type) {
             const keyType = this.createDataType(type.map_type.key_type);
@@ -2467,7 +2467,7 @@ onnx.TextReader = class {
         if (!type.tensor_type || !type.tensor_type.elem_type) {
             this._throw('Expected tensor type.');
         }
-        if (!type.tensor_type.shape || !type.tensor_type.shape.dim || !type.tensor_type.shape.dim.every((dim) => dim.dim_value)) {
+        if (!type.tensor_type.shape || !type.tensor_type.shape.dim || !type.tensor_type.shape.dim.every((dim) => dim.dim_value !== undefined)) {
             this._throw('Expected numeric tensor shape.');
         }
         const elem_type = type.tensor_type.elem_type;
