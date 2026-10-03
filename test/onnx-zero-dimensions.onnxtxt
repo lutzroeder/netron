@@ -1,0 +1,6 @@
+<
+  ir_version: 8,
+  opset_import: [ "" : 18 ]
+>
+zero_dimensions (float[0,3] zero = {}, float[2,3] positive, float[?,3] unknown, float[batch,3] symbolic, float scalar) => (float[0,3] zero, float[2,3] positive, float[?,3] unknown, float[batch,3] symbolic, float scalar) {
+}

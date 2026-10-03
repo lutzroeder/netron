@@ -1,0 +1,19 @@
+ir_version: 8
+opset_import { version: 18 }
+graph {
+  name: "zero_dimensions"
+  input { name: "zero" type { tensor_type { elem_type: 1 shape { dim { dim_value: 0 } dim { dim_value: 3 } } } } }
+  input { name: "positive" type { tensor_type { elem_type: 1 shape { dim { dim_value: 2 } dim { dim_value: 3 } } } } }
+  input { name: "unknown" type { tensor_type { elem_type: 1 shape { dim {} dim { dim_value: 3 } } } } }
+  input { name: "symbolic" type { tensor_type { elem_type: 1 shape { dim { dim_param: "batch" } dim { dim_value: 3 } } } } }
+  input { name: "scalar" type { tensor_type { elem_type: 1 shape {} } } }
+  input { name: "sparse_zero" type { sparse_tensor_type { elem_type: 1 shape { dim { dim_value: 0 } dim { dim_value: 3 } } } } }
+  initializer { name: "empty_initializer" data_type: 1 dims: 0 dims: 3 }
+  output { name: "zero" type { tensor_type { elem_type: 1 shape { dim { dim_value: 0 } dim { dim_value: 3 } } } } }
+  output { name: "positive" type { tensor_type { elem_type: 1 shape { dim { dim_value: 2 } dim { dim_value: 3 } } } } }
+  output { name: "unknown" type { tensor_type { elem_type: 1 shape { dim {} dim { dim_value: 3 } } } } }
+  output { name: "symbolic" type { tensor_type { elem_type: 1 shape { dim { dim_param: "batch" } dim { dim_value: 3 } } } } }
+  output { name: "scalar" type { tensor_type { elem_type: 1 shape {} } } }
+  output { name: "sparse_zero" type { sparse_tensor_type { elem_type: 1 shape { dim { dim_value: 0 } dim { dim_value: 3 } } } } }
+  output { name: "empty_initializer" type { tensor_type { elem_type: 1 shape { dim { dim_value: 0 } dim { dim_value: 3 } } } } }
+}

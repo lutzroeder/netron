@@ -4375,6 +4375,32 @@
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
+    "target":   "test/onnx-zero-dimensions.pbtxt",
+    "format":   "ONNX v8",
+    "assert":   [
+      "model.modules[0].outputs[0].value[0].type == 'float32[0,3]'",
+      "model.modules[0].outputs[1].value[0].type == 'float32[2,3]'",
+      "model.modules[0].outputs[2].value[0].type == 'float32[?,3]'",
+      "model.modules[0].outputs[3].value[0].type == 'float32[batch,3]'",
+      "model.modules[0].outputs[4].value[0].type == 'float32'",
+      "model.modules[0].outputs[5].value[0].type == 'float32[0,3]'",
+      "model.modules[0].outputs[6].value[0].type == 'float32[0,3]'"
+    ],
+    "tags":     "validation"
+  },
+  {
+    "target":   "test/onnx-zero-dimensions.onnxtxt",
+    "format":   "ONNX Text v8",
+    "assert":   [
+      "model.modules[0].outputs[0].value[0].type == 'float32[0,3]'",
+      "model.modules[0].outputs[1].value[0].type == 'float32[2,3]'",
+      "model.modules[0].outputs[2].value[0].type == 'float32[?,3]'",
+      "model.modules[0].outputs[3].value[0].type == 'float32[batch,3]'",
+      "model.modules[0].outputs[4].value[0].type == 'float32'"
+    ],
+    "tags":     "validation"
+  },
+  {
     "type":     "onnx",
     "target":   "aten_sum_dim_onnx_inlined.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/12811469/aten_sum_dim_onnx.txt.zip[aten_sum_dim_onnx_inlined.onnx]",
