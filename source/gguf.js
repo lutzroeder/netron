@@ -118,7 +118,12 @@ gguf.Graph = class {
         const addOp = (type, inputValues, outputValue) => {
             addNode({ name: '', type, weights: new Map(), metadata: new Map(), layers: [] }, inputValues, outputValue);
         };
+        const head = new Map();
         for (const layer of graph.layers) {
+            if (graph.type === 'clef' && /^(decision\.|dec\.|token_types$|output$)/.test(layer.name || '')) {
+                head.set(layer.name, layer);
+                continue;
+            }
             if (Array.isArray(layer.layers) && layer.layers.length > 0) {
                 const map = new Map();
                 for (const item of layer.layers) {
@@ -322,17 +327,21 @@ gguf.Graph = class {
                     const r3 = newValue();
                     addOp('ADD', [f1, cur], r3);
                     prevValue = r3;
-                } else if (has('attn_norm') && has('attention') && has('ffn_norm') && hasFfn) {
-                    // Pre-norm transformer (llama, qwen, gemma, etc.)
+                } else if (has('attention') && has('ffn_norm') && hasFfn) {
+                    // Pre-norm transformer (llama, qwen, gemma, etc.), the first
+                    // modern-bert block has no attn_norm
                     const inp = prevValue || newValue();
                     let cur = inp;
                     const attnInput = applyComponent('attn_res_score', cur);
-                    const n1 = newValue();
-                    addNode(use('attn_norm'), [attnInput], n1);
+                    let n1 = attnInput;
+                    if (has('attn_norm')) {
+                        n1 = newValue();
+                        addNode(use('attn_norm'), [attnInput], n1);
+                    }
                     let a1 = newValue();
                     buildAttention(n1, a1);
                     a1 = applyComponent('attn_output', a1);
-                    const attnResidual = get('attn_norm').residual === 'normalized' ? n1 : cur;
+                    const attnResidual = get('attn_norm')?.residual === 'normalized' ? n1 : cur;
                     let preAdd1 = a1;
                     if (has('ssm')) {
                         const s1 = newValue();
@@ -596,6 +605,53 @@ gguf.Graph = class {
                 }
                 this.nodes.push(node);
             }
+        }
+        if (head.size > 0) {
+            // Clef decision head (clef.cpp build_head): option and question
+            // vectors read the prompt through cross-attention, then are scored.
+            const apply = (layer, inputs) => {
+                const output = newValue();
+                addNode(layer, inputs, output);
+                return output;
+            };
+            const add = (inputs) => {
+                const output = newValue();
+                addOp('ADD', inputs, output);
+                return output;
+            };
+            const block = (layer, input, memory) => {
+                const get = (name) => layer.layers.find((item) => item.name === name);
+                let cur = input;
+                if (get('attention')) {
+                    cur = add([cur, apply(get('attention'), [apply(get('attn_norm'), [cur])])]);
+                }
+                cur = add([cur, apply(get('cross_attention'), [apply(get('cross_attn_norm'), [cur]), memory])]);
+                return add([cur, apply(get('ffn_down'), [apply(get('ffn_up'), [apply(get('ffn_norm'), [cur])])])]);
+            };
+            const blocks = Array.from(head.values()).filter((layer) => layer.name.startsWith('dec.blk.'));
+            const hidden = apply(head.get('decision.hidden_norm'), [prevValue]);
+            const memory = apply(head.get('decision.proj_memory'), [hidden]);
+            const lexical = apply(head.get('output'), []);
+            let options = add([
+                apply(head.get('decision.proj_option_context'), [hidden]),
+                apply(head.get('decision.proj_option_lexical'), [lexical]),
+                apply(head.get('decision.proj_option_question'), [hidden])
+            ]);
+            for (const layer of blocks.filter((layer) => !layer.layers.some((item) => item.name === 'attention'))) {
+                options = block(layer, options, memory);
+            }
+            let fields = add([
+                apply(head.get('decision.proj_question'), [hidden]),
+                apply(head.get('decision.option_summary_norm'), [options]),
+                apply(head.get('decision.proj_global'), [hidden]),
+                apply(head.get('token_types'), [])
+            ]);
+            for (const layer of blocks.filter((layer) => layer.layers.some((item) => item.name === 'attention'))) {
+                fields = block(layer, fields, memory);
+            }
+            const features = newValue();
+            addOp('CONCAT', [apply(head.get('decision.field_norm'), [fields]), apply(head.get('decision.option_norm'), [options])], features);
+            prevValue = apply(head.get('decision.scales'), [apply(head.get('decision.scorer_out'), [apply(head.get('decision.scorer'), [features])])]);
         }
     }
 };

@@ -2198,6 +2198,15 @@
   },
   {
     "type":     "gguf",
+    "target":   "Clef-Flash-Q4_K_M.gguf",
+    "source":   "https://github.com/user-attachments/files/33039169/Clef-Flash-Q4_K_M.gguf.zip[Clef-Flash-Q4_K_M.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'MAMBA2'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "deepseek-ocr-Q4_K_M.gguf",
     "source":   "https://github.com/user-attachments/files/27738911/deepseek-ocr-Q4_K_M.gguf.zip[deepseek-ocr-Q4_K_M.gguf]",
     "format":   "GGUF v3",
@@ -2270,10 +2279,29 @@
   },
   {
     "type":     "gguf",
+    "target":   "Kev-0.8B-Q8_0.gguf",
+    "source":   "https://github.com/user-attachments/files/33039170/Kev-0.8B-Q8_0.gguf.zip[Kev-0.8B-Q8_0.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].inputs.length == 10",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
     "target":   "Kimi-K3-UD-Q8_K_XL-00001-of-00034.gguf",
     "source":   "https://github.com/user-attachments/files/31109277/Kimi-K3-UD-Q8_K_XL-00001-of-00034.gguf.zip[Kimi-K3-UD-Q8_K_XL-00001-of-00034.gguf]",
     "format":   "GGUF v3",
     "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'KDA'",
+    "link":     "https://github.com/lutzroeder/netron/issues/1209"
+  },
+  {
+    "type":     "gguf",
+    "target":   "Laya-Q8_0.gguf",
+    "source":   "https://github.com/user-attachments/files/33039171/Laya-Q8_0.gguf.zip[Laya-Q8_0.gguf]",
+    "format":   "GGUF v3",
+    "tags":     "quantization",
+    "assert":   "model.modules[0].nodes[3].type.name == 'MULTI_HEAD_ATTENTION'",
     "link":     "https://github.com/lutzroeder/netron/issues/1209"
   },
   {
