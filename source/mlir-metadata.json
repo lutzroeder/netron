@@ -66934,6 +66934,14 @@
     "assemblyFormat": "oilist( `private` `(` $arg0 `:` type($arg0) `)`\n          | `reduction` custom<CustomOptionalOperand>($optOperand)\n          | `nowait` $nowait\n    ) attr-dict"
   },
   {
+    "name": "test.oilist_optional_attr",
+    "attributes": [
+      { "name": "keyword", "type": "UnitAttr" },
+      { "name": "nested", "type": "OptionalAttr<CompoundAttrNested>" }
+    ],
+    "assemblyFormat": "oilist( `keyword` $keyword\n          | `nested` $nested) attr-dict"
+  },
+  {
     "name": "test.oilist_variadic_with_parens",
     "operands": [
       { "name": "arg0", "type": "Variadic<AnyType>" },
@@ -117730,10 +117738,11 @@
   },
   {
     "name": "ttg.barrier",
-    "summary": "Synchronizes execution and reads/writes to the selected address spaces for all threads in the CTA.",
-    "description": "The `barrier` op synchronises the execution and all operations between the selected address spaces for all\n    threads in the CTA. It is used to coordinate communication between threads in the CTA.\n\n    This operation waits until all threads in the CTA have reached a `barrier` (for synchronization) and operations\n    between the selected address spaces made by these threads prior to the op are visible to all threads in the CTA.\n\n    Data hazards between threads accessing the same memory can be avoided by synchronising the\n    specified scope in-between these accesses with a `barrier`.\n\n    A `barrier` operation only provides synchronization and memory guarantees on the selected address spaces in the CTA.\n\n    The mandatory `addrspace` attribute is a bitmask describing which address spaces will be visible when the `barrier` completes:\n\n    * `none`         control-only synchronization (no memory ordering).\n    * `local`        shared-memory operations are complete and visible CTA-wide.\n    * `global_read`  global memory reads are complete and visible CTA-wide.\n    * `global_write` global memory writes are complete and visible CTA-wide.\n    * `tensor_read`  tensor memory read operations are complete and visible CTA-wide.\n    * `tensor_write` tensor memory write operations are complete and visible CTA-wide.\n    * `all`          convenience alias for `[\"local\", \"global_read\", \"global_write\", \"tensor_read\", \"tensor_write\"]`.\n\n    Multiple address spaces can be combined (e.g. `local|tensor_write`). `none` cannot be combined with other address spaces.\n\n    Example:\n\n    ```mlir\n    ttg.barrier local\n    ttg.barrier local|global_read|global_write\n    ```",
+    "summary": "Synchronizes execution and memory accesses within a CTA or warp.",
+    "description": "At the default CTA scope, the `barrier` op synchronises the execution and all operations between the selected address spaces for all\n    threads in the CTA. It is used to coordinate communication between threads in the CTA.\n\n    This operation waits until all threads in the CTA have reached a `barrier` (for synchronization) and operations\n    between the selected address spaces made by these threads prior to the op are visible to all threads in the CTA.\n\n    Data hazards between threads accessing the same memory can be avoided by synchronising the\n    specified scope in-between these accesses with a `barrier`.\n\n    A `barrier` operation only provides synchronization and memory guarantees on the selected address spaces in the CTA.\n\n    Warp scope currently supports only the `local` address space. It synchronizes\n    all lanes of each participating warp and orders their shared memory accesses.\n\n    The mandatory `addrspace` attribute is a bitmask describing which address spaces will be visible when the `barrier` completes:\n\n    * `none`         control-only synchronization (no memory ordering).\n    * `local`        shared-memory operations are complete and visible within the selected scope.\n    * `global_read`  global memory reads are complete and visible CTA-wide.\n    * `global_write` global memory writes are complete and visible CTA-wide.\n    * `tensor_read`  tensor memory read operations are complete and visible CTA-wide.\n    * `tensor_write` tensor memory write operations are complete and visible CTA-wide.\n    * `all`          convenience alias for `[\"local\", \"global_read\", \"global_write\", \"tensor_read\", \"tensor_write\"]`.\n\n    Multiple address spaces can be combined (e.g. `local|tensor_write`). `none` cannot be combined with other address spaces.\n\n    Example:\n\n    ```mlir\n    ttg.barrier local\n    ttg.barrier local|global_read|global_write\n    ttg.barrier warp local\n    ```",
     "attributes": [
-      { "name": "addrSpace", "type": "TTG_AddrSpace{none|local|global_read|global_write|tensor_read|tensor_write|all}" }
+      { "name": "addrSpace", "type": "TTG_AddrSpace{none|local|global_read|global_write|tensor_read|tensor_write|all}" },
+      { "name": "scope", "type": "DefaultValuedAttr<TTG_BarrierScope{cta|warp}, ::mlir::triton::gpu::BarrierScope::CTA>" }
     ],
     "hasCustomAssemblyFormat": true
   },
@@ -124768,7 +124777,7 @@
   {
     "name": "ttng.arrive_barrier",
     "summary": "perform the arrive operation on an mbarrier",
-    "description": "The `ttng.arrive_barrier` operation performs the \"arrive\" operation on an\n    mbarrier object in shared memory. The operation requires a `count` attribute\n    of at least 1 and decreases the pending arrival count of the mbarrier by\n    the specified count.\n\n    When `multicastCTA` is non-zero, the arrive is multicast across the cluster.\n    Each bit set in the mask identifies a CTA ID dimension to multicast\n    along. CTA IDs `a` and `b` belong to the same equivalence class iff\n    `a & ~multicastCTA == b & ~multicastCTA`; all CTAs in a class multicast to each\n    other. Multicast requires `numCTAs > 1`, `0 < multicastCTA <= numCTAs - 1`,\n    and the barrier must have the identity CGA layout `[[1], [2], ...]`. The\n    default value of `multicastCTA` is 0 (no multicast).\n\n    The operation accepts an optional predicate and `fromCTA` attribute. The\n    latter is a CTA-ID basis-selection mask: set bits are preserved and unset\n    bits are zeroed when selecting the CTA that routes the arrival to each\n    per-CTA barrier. A non-identity `fromCTA` cannot be combined with\n    multicast.\n\n    Example:\n\n    ```mlir\n    ttng.arrive_barrier %barrier, 2 : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1, %pred : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1 {multicastCTA = 1 : i32} : !ttg.memdesc<2xi64, #shared, #smem, mutable>\n    ```",
+    "description": "The `ttng.arrive_barrier` operation performs the \"arrive\" operation on an\n    mbarrier object in shared memory. The operation requires a `count` attribute\n    of at least 1 and decreases the pending arrival count of the mbarrier by\n    the specified count.\n\n    The compiler-owned `per_warp` flag selects an arrival from each of the\n    execution region's warps. The compiler may set this flag before final count\n    scaling. Before lowering, the count must be divisible by the warp count;\n    it remains the total decrement per source CTA and target barrier. Membar\n    inserts the required warp synchronization before each warp contributes its\n    equal share to every routed target.\n\n    When `multicastCTA` is non-zero, the arrive is multicast across the cluster.\n    Each bit set in the mask identifies a CTA ID dimension to multicast\n    along. CTA IDs `a` and `b` belong to the same equivalence class iff\n    `a & ~multicastCTA == b & ~multicastCTA`; all CTAs in a class multicast to each\n    other. Multicast requires `numCTAs > 1`, `0 < multicastCTA <= numCTAs - 1`,\n    and the barrier must have the identity CGA layout `[[1], [2], ...]`. The\n    default value of `multicastCTA` is 0 (no multicast).\n\n    The operation accepts an optional predicate and `fromCTA` attribute. The\n    latter is a CTA-ID basis-selection mask: set bits are preserved and unset\n    bits are zeroed when selecting the CTA that routes the arrival to each\n    per-CTA barrier. A non-identity `fromCTA` cannot be combined with\n    multicast.\n\n    Example:\n\n    ```mlir\n    ttng.arrive_barrier %barrier, 2 : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1, %pred : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1 {multicastCTA = 1 : i32} : !ttg.memdesc<2xi64, #shared, #smem, mutable>\n    ```",
     "operands": [
       { "name": "alloc", "type": "TTG_MemDescType" },
       { "name": "pred", "type": "Optional<I1>" }
@@ -124776,7 +124785,8 @@
     "attributes": [
       { "name": "count", "type": "I32Attr" },
       { "name": "fromCTA", "type": "OptionalAttr<I32Attr>" },
-      { "name": "multicastCTA", "type": "DefaultValuedOptionalAttr<I32Attr, 0>" }
+      { "name": "multicastCTA", "type": "DefaultValuedOptionalAttr<I32Attr, 0>" },
+      { "name": "per_warp", "type": "UnitAttr" }
     ],
     "assemblyFormat": "$alloc `,` $count (`,` $pred^)? attr-dict `:` qualified(type($alloc))"
   },
@@ -124898,14 +124908,15 @@
   {
     "name": "ttng.barrier_expect",
     "summary": "Signal a barrier of an expected number of bytes to be copied.",
-    "description": "This signals the barrier that `size` bytes are expected to be copied. The\n    associated barrier wait will block until the expected number of bytes has\n    been copied. The optional `fromCTA` attribute is a CTA-ID\n    basis-selection mask: set bits are preserved and unset bits are zeroed\n    when selecting the CTA that routes the arrival to each per-CTA barrier.",
+    "description": "This signals the barrier that `size` bytes are expected to be copied. The\n    associated barrier wait will block until the expected number of bytes has\n    been copied. The optional `fromCTA` attribute is a CTA-ID\n    basis-selection mask: set bits are preserved and unset bits are zeroed\n    when selecting the CTA that routes the arrival to each per-CTA barrier.\n\n    The compiler-owned `per_warp` flag distributes each contributing CTA's\n    expectation across its execution region's warps. Each warp publishes its\n    prior effects and contributes one arrival and an equal share of the\n    expected bytes. The barrier's initialization count must be scaled to match;\n    `size` remains the byte count per contributing CTA and target barrier.",
     "operands": [
       { "name": "alloc", "type": "TTG_MemDescType" },
       { "name": "pred", "type": "I1" }
     ],
     "attributes": [
       { "name": "size", "type": "I32Attr" },
-      { "name": "fromCTA", "type": "OptionalAttr<I32Attr>" }
+      { "name": "fromCTA", "type": "OptionalAttr<I32Attr>" },
+      { "name": "per_warp", "type": "UnitAttr" }
     ],
     "assemblyFormat": "$alloc `,` $size attr-dict `,` $pred `:` qualified(type($alloc))"
   },

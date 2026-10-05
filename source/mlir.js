@@ -26595,6 +26595,9 @@ _.triton.gpu.TritonGPUDialect = class extends _.Dialect {
             return true;
         }
         if (op === 'ttg.barrier') {
+            if (parser.parseOptionalKeyword('warp')) {
+                result.addAttribute('scope', new _.TypedAttr('warp'));
+            }
             const flags = [];
             flags.push(parser.parseKeyword());
             while (parser.parseOptionalVerticalBar()) {
