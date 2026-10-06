@@ -592,6 +592,9 @@ gguf.Graph = class {
                 if (perLayerOutputs.per_layer_token_embd && perLayerOutputs.per_layer_proj_norm && !perLayerInputValue) {
                     perLayerInputValue = newValue();
                     addOp('ADD', [perLayerOutputs.per_layer_proj_norm, perLayerOutputs.per_layer_token_embd], perLayerInputValue);
+                } else if (layer.name === 'per_layer_proj_norm' && !perLayerOutputs.per_layer_token_embd) {
+                    // gemma-embedding2 has no per-layer token embeddings
+                    perLayerInputValue = out;
                 }
             } else {
                 const node = new gguf.Node(layer);
