@@ -264,7 +264,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "The container name for the `SparseTensorsMap` created by this op.",
+        "description": "The container name for the `SparseTensorsMap` created by this op.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -341,7 +341,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "The container name for the `SparseTensorsMap` created by this op.",
+        "description": "The container name for the `SparseTensorsMap` created by this op.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -3341,7 +3341,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this barrier is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this barrier is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -3804,7 +3804,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "Controls the scope of sharing of this batch.",
+        "description": "Controls the scope of sharing of this batch.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -9494,7 +9494,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -10228,7 +10228,7 @@
       {
         "name": "dilations",
         "type": "int64[]",
-        "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+        "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1. Without oneDNN, CPU kernels do not support\ndilation rates larger than 1.",
         "default": [
           1,
           1,
@@ -10342,7 +10342,7 @@
       {
         "name": "dilations",
         "type": "int64[]",
-        "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+        "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1. Without oneDNN, CPU kernels do not support\ndilation rates larger than 1.",
         "default": [
           1,
           1,
@@ -10461,7 +10461,7 @@
       {
         "name": "dilations",
         "type": "int64[]",
-        "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+        "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1. Without oneDNN, CPU kernels do not support\ndilation rates larger than 1.",
         "default": [
           1,
           1,
@@ -18183,7 +18183,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "The name of `container` should start with `'.'` or `letter` or `digit`,\nwith ['-', '.', '/'] or `letter` or `digit` follows several times.",
+        "description": "A non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -18687,7 +18687,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -18732,7 +18732,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -19429,7 +19429,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -19478,7 +19478,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -21906,7 +21906,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -21949,7 +21949,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -22450,7 +22450,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -22477,7 +22477,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -24215,7 +24215,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -26928,7 +26928,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container. Otherwise,\na default container is used.",
+        "description": "If non-empty, this queue is placed in the given container. Otherwise,\na default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29164,7 +29164,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this resource is placed in the given container.\nOtherwise, a default container is used."
+        "description": "If non-empty, this resource is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits."
       },
       {
         "name": "output_types",
@@ -29368,7 +29368,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29438,7 +29438,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29511,7 +29511,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29554,7 +29554,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29604,7 +29604,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29653,7 +29653,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this table is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -29713,7 +29713,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this variable is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this variable is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -30992,7 +30992,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container. Otherwise,\na default container is used.",
+        "description": "If non-empty, this queue is placed in the given container. Otherwise,\na default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -31537,7 +31537,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -31583,7 +31583,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -33767,7 +33767,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -33813,7 +33813,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -39307,7 +39307,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -39370,7 +39370,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this queue is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -42738,7 +42738,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -51980,7 +51980,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this accumulator is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -55177,7 +55177,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this queue is placed in the given container. Otherwise,\na default container is used.",
+        "description": "If non-empty, this queue is placed in the given container. Otherwise,\na default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -57033,6 +57033,7 @@
       {
         "name": "container",
         "type": "string",
+        "description": "The name of `container` specifies the container in which the resource is placed.\nIf empty, the default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -57054,7 +57055,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "The name of `container` should start with `'.'` or `letter` or `digit`,\nwith ['-', '.', '/'] or `letter` or `digit` follows several times.",
+        "description": "A non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -58211,7 +58212,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -58242,7 +58243,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -58984,7 +58985,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "The container name for the `SparseTensorsMap` read by this op.",
+        "description": "The container name for the `SparseTensorsMap` read by this op.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -61515,7 +61516,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -61547,7 +61548,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -61621,7 +61622,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "The name of `container` should start with `'.'` or `letter` or `digit`,\nwith ['-', '.', '/'] or `letter` or `digit` follows several times.",
+        "description": "A non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -64132,7 +64133,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "the container this variable is placed in.",
+        "description": "the container this variable is placed in.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -64268,7 +64269,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this variable is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this variable is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -64417,7 +64418,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
@@ -64444,7 +64445,7 @@
       {
         "name": "container",
         "type": "string",
-        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.",
+        "description": "If non-empty, this reader is placed in the given container.\nOtherwise, a default container is used.\nA non-empty `container` name must start with `'.'`, a letter, or a digit, and may contain only `'-'`, `'.'`, `'/'`, letters, and digits.",
         "default": ""
       },
       {
