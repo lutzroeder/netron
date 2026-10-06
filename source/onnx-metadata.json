@@ -8410,6 +8410,72 @@
     ]
   },
   {
+    "name": "BranchwiseRMSNorm",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Applies RMS normalization independently to each branch. X may use grouped shape\n(..., C, H), or flattened shape (..., C * H) when num_branches is specified.\nThe optional scale may have shape (C * H), (C, H), or (H). Arithmetic is\nperformed in float32 and the result is converted to T.\n",
+    "attributes": [
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999747378752e-06,
+        "description": "Epsilon added before reciprocal square root."
+      },
+      {
+        "name": "num_branches",
+        "type": "int64",
+        "required": false,
+        "description": "Number of branches for flattened input. Omit or set to zero for grouped input."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Grouped (..., C, H) or flattened (..., C * H) input."
+      },
+      {
+        "name": "scale",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional scale with shape (C * H), (C, H), or (H)."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "RMS-normalized output with the same shape as X."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output to floating-point tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain scale to floating-point tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "CDist",
     "module": "com.microsoft",
     "version": 1,
@@ -19710,6 +19776,239 @@
     ]
   },
   {
+    "name": "DynamicSparseAttention",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Model-neutral sparse grouped-query attention with a contiguous main KV cache.\n\n`selected_indices` and `selected_counts` are produced by an external selector. The operator never computes selection\nscores or TopK indices. The first `selected_counts[q]` entries in each selected-index row are valid; remaining entries\nmust be -1. Valid entries must be unique, non-negative request-local positions in the selected source.\n\n`attention_mode=\"selected_only\"` attends only to selected entries. `attention_mode=\"local_plus_selected\"` jointly\nnormalizes causally valid main-cache entries in `local_window_size` and selected auxiliary entries. An optional\nper-query-head sink can participate in either mode; it contributes to the shared softmax denominator but has no value\nvector. A row with no entries and no sink produces zero output.\n\nSupported mode/source combinations:\n\n- `selected_only` + `main`: Qwen4-Exp QSA-compatible execution.\n- `local_plus_selected` + `auxiliary`: DeepSeek V4 CSA-compatible execution and requires `local_window_size > 0`.\n\nThe main cache uses BNSH layout and ordinary contiguous append semantics. Selection changes reads, not cache writes.\nAuxiliary K/V use BNSH layout and are read-only. When `auxiliary_kv_shared=1`, auxiliary_value may be omitted and\nauxiliary_key is used as both K and V. DeepSeek-style post-attention inverse/conjugate RoPE and output projection remain\nthe exporter's responsibility.\n",
+    "attributes": [
+      {
+        "name": "attention_mode",
+        "type": "string",
+        "required": false,
+        "default": "selected_only",
+        "description": "One of 'selected_only' or 'local_plus_selected'."
+      },
+      {
+        "name": "auxiliary_kv_shared",
+        "type": "int64",
+        "required": false,
+        "description": "Use auxiliary_key as both key and value when auxiliary_value is omitted."
+      },
+      {
+        "name": "do_rotary",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to apply rotary embedding to Q and newly appended K."
+      },
+      {
+        "name": "is_causal",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Must be 1. DynamicSparseAttention version 1 supports causal attention only."
+      },
+      {
+        "name": "kv_num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of main and auxiliary KV heads."
+      },
+      {
+        "name": "local_window_size",
+        "type": "int64",
+        "required": false,
+        "default": -1,
+        "description": "Number of causally visible main-cache entries in local_plus_selected mode."
+      },
+      {
+        "name": "num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of query heads."
+      },
+      {
+        "name": "qk_norm_epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999974752427e-07,
+        "description": "Epsilon for optional per-head Q/K RMS normalization."
+      },
+      {
+        "name": "rotary_interleaved",
+        "type": "int64",
+        "required": false,
+        "description": "Whether rotary pairs use interleaved layout."
+      },
+      {
+        "name": "rotary_offset",
+        "type": "int64",
+        "required": false,
+        "description": "First head channel covered by rotary embedding. Must be nonnegative, a multiple of 8, and leave room for the rotary dimensions within head_size."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Scaling factor applied to QK. Defaults to 1/sqrt(head_size)."
+      },
+      {
+        "name": "selected_kv_source",
+        "type": "string",
+        "required": false,
+        "default": "main",
+        "description": "Source addressed by selected indices: 'main' or 'auxiliary'."
+      },
+      {
+        "name": "smooth_softmax",
+        "type": "int64",
+        "required": false,
+        "description": "Add a zero-valued sink logit when no explicit head_sink is supplied."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Query [batch, sequence, num_heads * head_size]. When key and value are omitted, each row contains Q, K, then V concatenated with total width (num_heads + 2 * kv_num_heads) * head_size."
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "option": "optional",
+        "description": "Current main key [batch, sequence, kv_num_heads * head_size]."
+      },
+      {
+        "name": "value",
+        "type": "T",
+        "option": "optional",
+        "description": "Current main value [batch, sequence, kv_num_heads * head_size]."
+      },
+      {
+        "name": "past_key",
+        "type": "T",
+        "option": "optional",
+        "description": "Main key cache in BNSH layout."
+      },
+      {
+        "name": "past_value",
+        "type": "T",
+        "option": "optional",
+        "description": "Main value cache in BNSH layout."
+      },
+      {
+        "name": "auxiliary_key",
+        "type": "T",
+        "option": "optional",
+        "description": "Read-only auxiliary key sequence in BNSH layout."
+      },
+      {
+        "name": "auxiliary_value",
+        "type": "T",
+        "option": "optional",
+        "description": "Read-only auxiliary value sequence in BNSH layout."
+      },
+      {
+        "name": "selected_indices",
+        "type": "M",
+        "description": "Selected request-local source positions [batch * sequence, max_selected]."
+      },
+      {
+        "name": "selected_counts",
+        "type": "M",
+        "description": "Number of valid entries per selected-index row [batch * sequence]."
+      },
+      {
+        "name": "seqlens_k",
+        "type": "M",
+        "description": "Total logical main sequence length minus one for each batch entry."
+      },
+      {
+        "name": "total_sequence_length",
+        "type": "M",
+        "description": "Maximum total main sequence length, as a scalar or one-element tensor."
+      },
+      {
+        "name": "cos_cache",
+        "type": "T",
+        "option": "optional",
+        "description": "Rotary cosine cache [max_sequence_length, rotary_dim / 2]."
+      },
+      {
+        "name": "sin_cache",
+        "type": "T",
+        "option": "optional",
+        "description": "Rotary sine cache [max_sequence_length, rotary_dim / 2]."
+      },
+      {
+        "name": "position_ids",
+        "type": "tensor(int64)",
+        "option": "optional",
+        "description": "Optional rotary positions [batch, sequence]."
+      },
+      {
+        "name": "q_norm_weight",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional Q RMSNorm weight [head_size]."
+      },
+      {
+        "name": "k_norm_weight",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional K RMSNorm weight [head_size]."
+      },
+      {
+        "name": "head_sink",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional sink logit [num_heads]. Participates in the shared softmax denominator in both attention modes."
+      }
+    ],
+    "min_input": 11,
+    "max_input": 17,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Attention output [batch, sequence, num_heads * head_size]."
+      },
+      {
+        "name": "present_key",
+        "type": "T",
+        "option": "optional",
+        "description": "Updated main key cache in BNSH layout."
+      },
+      {
+        "name": "present_value",
+        "type": "T",
+        "option": "optional",
+        "description": "Updated main value cache in BNSH layout."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 3,
+    "inputs_range": "11 - 17",
+    "outputs_range": "1 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain all floating-point inputs and outputs to one element type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain selection and sequence metadata to int32.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "DynamicTimeWarping",
     "module": "com.microsoft",
     "version": 1,
@@ -23699,7 +23998,7 @@
     "name": "GatedDeltaNet",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Packed (token-major) gated delta network / linear attention with an explicit recurrent state.\nImplemented by CUDA and native WebGPU execution providers. WebGPU supports float and float16\nwith scalar decay, `head_size_qk <= 256`, and compact state updates.\n\nLayout. Query, key and value are token-major, so head counts are derived from the shapes\nrather than from attributes:\n\n  query [total_tokens, num_heads_q, head_size_qk]\n  key   [total_tokens, num_heads_k, head_size_qk]\n  value [total_tokens, num_heads_v, head_size_v]\n\nThe leading token axis may instead be spelled as an explicit `[batch_size, sequence_length]`\npair, making query/key/value (and the output) rank 4 and decay/beta rank 3. The memory layout\nis identical; the rank-4 spelling exists so an exporter can round-trip a `[B, S, H*D]`\nactivation with static Reshape targets instead of Shape-derived ones. Ragged packing\n(`cu_seqlens`) requires the rank-3 spelling.\n\n`num_heads_q` must equal `num_heads_k`, and `num_heads_v` must be a positive multiple of\n`num_heads_q` (inverse grouped-query attention: each query/key head is shared by\n`num_heads_v / num_heads_q` value heads). Decay, beta, the state and the output are all at\n`num_heads_v`.\n\nSequence packing. When `cu_seqlens` is provided it is a device int32 tensor of length\n`batch_size + 1` holding the exclusive prefix sums of the per-request token counts, so\nrequests may have different lengths. When it is absent the packing is uniform and the batch\nsize is taken from `initial_state`, which is then required.\n\nState. `initial_state` and `final_state` are V-major, `[batch_size, num_heads_v, head_size_v,\nhead_size_qk]`, and always float regardless of the query/key/value type: the recurrence\nboundary is where reduced precision hurts most. The two may be the same allocation; the\nimplementation reads the whole incoming state before writing any of it.\n\nCompact state updates. When `state_update_capacity` C is greater than zero, `capture_count`\nis required with shape `[batch_size]`. For request b, the first `capture_count[b]` local token\ntransitions (clamped on device to `[0, min(C, sequence_length)]`) are emitted in one `state_update`\nfloat tensor `[batch_size, C * (num_heads_v + num_heads_k * head_size_qk + num_heads_v * head_size_v)]`.\nEach row is struct-of-arrays: all decay values, then all keys, then all deltas. Entries at positions\ngreater than or equal to `min(capture_count[b], C, sequence_length)` are unspecified; consumers must\nread only the captured prefix. The key retains its shared `num_heads_k` representation. For scalar\ndecay the decoded factors replay one transition as `S *= decay; S += outer(key, delta)`.\nPer-key-dimension decay is not supported when compact updates are enabled. `capture_count` is\nforbidden when C is zero.\n\nThe optional CPU input `state_update_active` has shape `[1]`. When zero, transition capture is\ndisabled, `capture_count` is ignored, `state_update` is zero-filled, and the planner may use an\nengine that cannot emit compact updates. Omitting it preserves the conservative behavior of\ntreating capture as active.\n\nRecurrence, per value head, with S the [head_size_qk x head_size_v] state:\n\n  S_t = exp(g_t) S_{t-1} + k_t (beta_t (v_t - exp(g_t) S_{t-1}^T k_t))^T\n  o_t = scale * S_t^T q_t\n\n`update_rule` selects which terms are present: 'linear' drops both the decay and the delta\nretrieval, 'gated' keeps only the decay, 'delta' keeps only the retrieval, and 'gated_delta'\nkeeps both.\n\nThe delta family ('delta' and 'gated_delta') requires L2-normalized keys. Without them the\nper-chunk system (I + M) is arbitrarily ill-conditioned and the recurrence diverges. Either\nnormalize upstream or set `qk_l2_norm=1` to have the operator do it.\n\nFused activations. `gate_activation='qwen'` computes the effective decay in float32 from the\nraw projection carried by `decay`:\n\n  g = -exp(a_log) * Softplus(decay + dt_bias)\n\n`beta_activation='sigmoid'` applies a sigmoid to `beta`, and `qk_l2_norm=1` L2-normalizes each\nquery and key head vector. Folding these in avoids materializing the intermediates and keeps\nthe gate arithmetic in float32 independent of the input type.\n\n",
+    "description": "Packed (token-major) gated delta network / linear attention with an explicit recurrent state.\nImplemented by CUDA and native WebGPU execution providers. WebGPU supports float and float16\nwith scalar decay, `head_size_qk <= 256`, and compact state updates.\n\nLayout. Query, key and value are token-major, so head counts are derived from the shapes\nrather than from attributes:\n\n  query [total_tokens, num_heads_q, head_size_qk]\n  key   [total_tokens, num_heads_k, head_size_qk]\n  value [total_tokens, num_heads_v, head_size_v]\n\nAlternatively, key and value may be omitted and query contains packed QKV with shape\n`[total_tokens, 2 * num_heads_q * head_size_qk + num_heads_v * head_size_v]`.\n`initial_state` is required for packed QKV to determine the head counts and head sizes.\n\nThe leading token axis may instead be spelled as an explicit `[batch_size, sequence_length]`\npair, making query/key/value (and the output) rank 4 and decay/beta rank 3. The memory layout\nis identical; the rank-4 spelling exists so an exporter can round-trip a `[B, S, H*D]`\nactivation with static Reshape targets instead of Shape-derived ones. Ragged packing\n(`cu_seqlens`) requires the rank-3 spelling.\n\n`num_heads_q` must equal `num_heads_k`, and `num_heads_v` must be a positive multiple of\n`num_heads_q` (inverse grouped-query attention: each query/key head is shared by\n`num_heads_v / num_heads_q` value heads). Decay, beta, the state and the output are all at\n`num_heads_v`.\n\nSequence packing. When `cu_seqlens` is provided it is a device int32 tensor of length\n`batch_size + 1` holding the exclusive prefix sums of the per-request token counts, so\nrequests may have different lengths. When it is absent the packing is uniform and the batch\nsize is taken from `initial_state`, which is then required.\n\nState. `initial_state` and `final_state` are V-major, `[batch_size, num_heads_v, head_size_v,\nhead_size_qk]`, and always float regardless of the query/key/value type: the recurrence\nboundary is where reduced precision hurts most. The two may be the same allocation; the\nimplementation reads the whole incoming state before writing any of it.\n\nCompact state updates. When `state_update_capacity` C is greater than zero, `capture_count`\nis required with shape `[batch_size]`. For request b, the first `capture_count[b]` local token\ntransitions (clamped on device to `[0, min(C, sequence_length)]`) are emitted in one `state_update`\nfloat tensor `[batch_size, C * (num_heads_v + num_heads_k * head_size_qk + num_heads_v * head_size_v)]`.\nEach row is struct-of-arrays: all decay values, then all keys, then all deltas. Entries at positions\ngreater than or equal to `min(capture_count[b], C, sequence_length)` are unspecified; consumers must\nread only the captured prefix. The key retains its shared `num_heads_k` representation. For scalar\ndecay the decoded factors replay one transition as `S *= decay; S += outer(key, delta)`.\nPer-key-dimension decay is not supported when compact updates are enabled. `capture_count` is\nforbidden when C is zero.\n\nThe optional CPU input `state_update_active` has shape `[1]`. When zero, transition capture is\ndisabled, `capture_count` is ignored, `state_update` is zero-filled, and the planner may use an\nengine that cannot emit compact updates. Omitting it preserves the conservative behavior of\ntreating capture as active.\n\nRecurrence, per value head, with S the [head_size_qk x head_size_v] state:\n\n  S_t = exp(g_t) S_{t-1} + k_t (beta_t (v_t - exp(g_t) S_{t-1}^T k_t))^T\n  o_t = scale * S_t^T q_t\n\n`update_rule` selects which terms are present: 'linear' drops both the decay and the delta\nretrieval, 'gated' keeps only the decay, 'delta' keeps only the retrieval, and 'gated_delta'\nkeeps both.\n\nThe delta family ('delta' and 'gated_delta') requires L2-normalized keys. Without them the\nper-chunk system (I + M) is arbitrarily ill-conditioned and the recurrence diverges. Either\nnormalize upstream or set `qk_l2_norm=1` to have the operator do it.\n\nFused activations. `gate_activation='qwen'` computes the effective decay in float32 from the\nraw projection carried by `decay`:\n\n  g = -exp(a_log) * Softplus(decay + dt_bias)\n\n`beta_activation='sigmoid'` applies a sigmoid to `beta`, and `qk_l2_norm=1` L2-normalizes each\nquery and key head vector. Folding these in avoids materializing the intermediates and keeps\nthe gate arithmetic in float32 independent of the input type.\n\n",
     "attributes": [
       {
         "name": "beta_activation",
@@ -23752,16 +24051,18 @@
       {
         "name": "query",
         "type": "T",
-        "description": "Query, shape (total_tokens, num_heads_q, head_size_qk)"
+        "description": "Query or packed QKV, shaped as described above."
       },
       {
         "name": "key",
         "type": "T",
+        "option": "optional",
         "description": "Key, shape (total_tokens, num_heads_k, head_size_qk)"
       },
       {
         "name": "value",
         "type": "T",
+        "option": "optional",
         "description": "Value, shape (total_tokens, num_heads_v, head_size_v)"
       },
       {
@@ -23786,7 +24087,7 @@
         "name": "initial_state",
         "type": "TS",
         "option": "optional",
-        "description": "Recurrent state, shape (batch_size, num_heads_v, head_size_v, head_size_qk), V-major. May alias final_state."
+        "description": "Recurrent state, shape (batch_size, num_heads_v, head_size_v, head_size_qk), V-major. Required for packed QKV. May alias final_state."
       },
       {
         "name": "a_log",
@@ -23813,7 +24114,7 @@
         "description": "CPU int32 control with shape (1). Zero disables transition capture, ignores capture_count, and produces a zero-filled state_update. Omission is conservative."
       }
     ],
-    "min_input": 3,
+    "min_input": 1,
     "max_input": 11,
     "outputs": [
       {
@@ -23836,7 +24137,7 @@
     ],
     "min_output": 1,
     "max_output": 3,
-    "inputs_range": "3 - 11",
+    "inputs_range": "1 - 11",
     "outputs_range": "1 - 3",
     "type_constraints": [
       {
@@ -24272,7 +24573,7 @@
     "name": "GatherBlockQuantized",
     "module": "com.microsoft",
     "version": 1,
-    "description": "GatherBlockQuantized is a Gather with data quantized. It is similar to Gather (https://github.com/onnx/onnx/blob/main/docs/Operators.md#gather) with differences:\n  1. Input `data` is a constant. It is quantized block-wise along attribute `quantize_axis` with block size specified by attribute `block_size`.\n     `block_size` must be a power of 2 and not smaller than 16, like 16, 32, 64, 128, ...\n     For an FP8 or FP4 `data` type (see point 6 below), `block_size` may also be 0, meaning the entire `quantize_axis`\n     dimension forms a single block (i.e. one scale per row).\n  2. Input `data`'s scale and zero point are specified by input `scales` and `zero_points`. `scales` and `zero_points` are also constants.\n     If `zero_points` is not provided, the default value is 0 for int4/uint4, or 2^(bits-1) for uint8.\n     `zero_points` must not be provided when `data` is an FP8 or FP4 type: FP8/FP4 quantization is symmetric.\n  3. During the op execution, `data` and `indices` are first used to generate the quantized output. Then, `scales` and `zero_points` are used\n     to dequantize the output.\n  4. The `output` and `scales` have the same type. The `data` and `zero_points` have the same type.\n  5. For uint8 data, the `gather_axis` must be 0. The supported `bits` values for uint8 data are 2, 4, and 8;\n     for `bits` < 8 the values are packed along the last dimension (low-order bits first).\n  6. `data` may also be an FP8 type (float8e4m3fn, float8e4m3fnuz, float8e5m2 or float8e5m2fnuz) or an FP4 type\n     (float4e2m1), rather than an integer block-quantized type. In that case `bits` is ignored, there is\n     no `zero_points` input, and dequantization is simply `output[...] = float(data[...]) * scales[block_index(...)]`.\n     On any axis other than `quantize_axis`, the corresponding `scales` dimension must either equal `data`'s\n     dimension, or be 1, in which case the scale is broadcast along that axis (e.g. a single scale shared by\n     every row, as with a per-tensor scale applied to an entire embedding table).\n",
+    "description": "GatherBlockQuantized is a Gather with data quantized. It is similar to Gather (https://github.com/onnx/onnx/blob/main/docs/Operators.md#gather) with differences:\n  1. Input `data` is a constant. It is quantized block-wise along attribute `quantize_axis` with block size specified by attribute `block_size`.\n     `block_size` must be a power of 2 and not smaller than 16, like 16, 32, 64, 128, ...\n     For an FP8 or FP4 `data` type (see point 6 below), `block_size` may also be 0, meaning the entire `quantize_axis`\n     dimension forms a single block (i.e. one scale per row).\n  2. Input `data`'s scale and zero point are specified by input `scales` and `zero_points`. `scales` and `zero_points` are also constants.\n     If `zero_points` is not provided, the default value is 0 for int4/uint4, or 2^(bits-1) for uint8.\n     `zero_points` must not be provided when `data` is an FP8 or FP4 type: FP8/FP4 quantization is symmetric.\n  3. During the op execution, `data` and `indices` are first used to generate the quantized output. Then, `scales` and `zero_points` are used\n     to dequantize the output.\n  4. The `output` and `scales` have the same type. The `data` and `zero_points` have the same type.\n  5. For uint8 data, the `gather_axis` must be 0. The supported `bits` values for uint8 data are 2, 4, and 8;\n     for `bits` < 8 the values are packed along the last dimension (low-order bits first), and `gather_axis`\n     and `quantize_axis` must differ.\n  6. `data` may also be an FP8 type (float8e4m3fn, float8e4m3fnuz, float8e5m2 or float8e5m2fnuz) or an FP4 type\n     (float4e2m1), rather than an integer block-quantized type. In that case `bits` is ignored, there is\n     no `zero_points` input, and dequantization is simply `output[...] = float(data[...]) * scales[block_index(...)]`.\n     On any axis other than `quantize_axis`, the corresponding `scales` dimension must either equal `data`'s\n     dimension, or be 1, in which case the scale is broadcast along that axis (e.g. a single scale shared by\n     every row, as with a per-tensor scale applied to an entire embedding table).\n",
     "attributes": [
       {
         "name": "bits",
@@ -28826,6 +29127,139 @@
       {
         "summary": "hardmax_axis",
         "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    \"Hardmax\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    axis=0,\n)\ny = hardmax(x, axis=0)\nexpect(node, inputs=[x], outputs=[y], name=\"test_hardmax_axis_0\")\n\nnode = onnx.helper.make_node(\n    \"Hardmax\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    axis=1,\n)\ny = hardmax(x, axis=1)\nexpect(node, inputs=[x], outputs=[y], name=\"test_hardmax_axis_1\")\n\nnode = onnx.helper.make_node(\n    \"Hardmax\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    axis=2,\n)\ny = hardmax(x, axis=2)\nexpect(node, inputs=[x], outputs=[y], name=\"test_hardmax_axis_2\")\n\nnode = onnx.helper.make_node(\n    \"Hardmax\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    axis=-1,\n)\ny = hardmax(x, axis=-1)\nexpect(node, inputs=[x], outputs=[y], name=\"test_hardmax_negative_axis\")\n\n# default axis is -1\nnode = onnx.helper.make_node(\n    \"Hardmax\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nexpect(node, inputs=[x], outputs=[y], name=\"test_hardmax_default_axis\")"
+      }
+    ]
+  },
+  {
+    "name": "HyperConnectionPostMix",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Mixes existing streams and injects one branch output:\nY[..., k, h] = sum_c(stream_mix[..., c, k] * streams[..., c, h])\n               + post_mix[..., k, h] * block_output[..., h].\nstream_mix is optional and defaults to the identity. post_mix has shape\n(..., C), (..., C, 1), or (..., C, H). No activation is applied.\n",
+    "attributes": [
+      {
+        "name": "num_branches",
+        "type": "int64",
+        "required": false,
+        "description": "Number of branches for flattened streams. Omit or set to zero for grouped streams."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "streams",
+        "type": "T",
+        "description": "Grouped (..., C, H) or flattened (..., C * H) streams."
+      },
+      {
+        "name": "block_output",
+        "type": "T",
+        "description": "Feature tensor with shape (..., H)."
+      },
+      {
+        "name": "post_mix",
+        "type": "M",
+        "description": "Branch or feature injection gates."
+      },
+      {
+        "name": "stream_mix",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional stream matrix with shape (..., C, C)."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Mixed streams with the same shape as streams."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "3 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain streams, block output, and output to floating-point tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain mixing weights to floating-point tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "HyperConnectionPreMix",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Reduces C streams to one feature tensor without applying an activation:\nY[..., h] = reduction_scale * sum_c(X[..., c, h] * pre_mix[..., c, h]).\npre_mix may have shape (..., C), (..., C, 1), (..., C, H), or (..., C * H)\nfor flattened X. X may be grouped (..., C, H), or flattened (..., C * H)\nwhen num_branches is specified.\n",
+    "attributes": [
+      {
+        "name": "num_branches",
+        "type": "int64",
+        "required": false,
+        "description": "Number of branches for flattened streams. Omit or set to zero for grouped streams."
+      },
+      {
+        "name": "reduction_scale",
+        "type": "float32",
+        "required": false,
+        "default": 1.0,
+        "description": "Multiplier applied to the branch reduction."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "streams",
+        "type": "T",
+        "description": "Grouped (..., C, H) or flattened (..., C * H) streams."
+      },
+      {
+        "name": "pre_mix",
+        "type": "M",
+        "description": "Branch or feature gates with shape (..., C), (..., C, 1), (..., C, H), or (..., C * H) for flattened streams."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Reduced feature tensor with shape (..., H)."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain streams and output to floating-point tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain mixing weights to floating-point tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
       }
     ]
   },
@@ -46396,6 +46830,239 @@
     "category": "Attention"
   },
   {
+    "name": "PackedSparseAttentionIndexer",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Packed/variable-length counterpart of SparseAttentionIndexer, for continuous-batching engines\n(such as an OgaEngine-style PagedAttention model) that flatten every request's tokens into one\n[total_tokens, ...] axis instead of a dense [batch_size, sequence_length, ...] axis. It selects, for\nevery packed query token, the sparse-attention candidates that a following SparsePagedAttention (or\nsimilar) operator is allowed to read.\n\nUnlike SparseAttentionIndexer, this operator:\n  * takes packed query/key tensors plus cumulative_sequence_lengths (request boundaries) and\n    past_sequence_lengths (per-request past length) instead of a dense batch and a dense mask;\n  * derives ordinary causal visibility purely from that packed metadata -- there is no mask input;\n  * uses a single generic set of state slots (past_key_state / past_kv_buffer / past_gate_buffer /\n    past_state_lengths) for both policy_mode values, each with a shape that is fixed across calls\n    (state never grows and is never concatenated); a step that would overflow the fixed capacity is\n    rejected as a deterministic no-op on state rather than truncated or allowed to corrupt memory;\n  * additionally emits selected_counts, the exact number of active (non -1) entries per query, so\n    that no downstream consumer needs to scan selected_indices for its query's true count.\n\nBoth policy_mode values keep the semantics of SparseAttentionIndexer, applied independently to each\nrequest's own packed token range and fixed-capacity state slice:\n\n  policy_mode = \"qsa\" (\"query sparse attention\" token indexer)\n    Processes each request's new tokens sequentially: appends raw indexer keys to the generic\n    pending buffer, and whenever it reaches compress_ratio tokens, mean-pools it, applies RMSNorm\n    and key_norm_weight, applies the leading/split-half rotary convention at the block's first\n    logical token position, and appends the prepared (already normalized and rotated) key to\n    key_state. Queries are scored against every causally visible complete block with\n    sum_h ReLU(q_h . k), the token_budget / compress_ratio highest scoring blocks are kept, and\n    their token indices are emitted (request-local logical positions, i.e. the same numbering as\n    past_sequence_lengths + local offset) followed by the causally visible tokens of the trailing\n    incomplete block. QSA positions are the request-local logical cache positions derived from\n    past_sequence_lengths and cumulative_sequence_lengths; position_ids must be omitted.\n\n  policy_mode = \"csa\" (\"compressed sparse attention\" block indexer)\n    Applies the same window-plan arithmetic as SparseAttentionIndexer (overlap/leftover/new window\n    count) independently per request, using that request's own buffer_length and new token count;\n    every newly closed window is compressed with the softmax-gated Ca/Cb pooling, normalized,\n    rotated and appended to key_state. Queries are scored against every causally visible compressed\n    entry with sum_h w_h * ReLU(q_h . k) and the index_topk highest scoring entry indices are\n    emitted.\n\nCommon contract:\n  * selected_indices is int32 with a fixed capacity that only depends on attributes:\n    token_budget + compress_ratio - 1 for \"qsa\" (values are request-local token positions into the\n    main key/value cache, directly consumable by SparsePagedAttention configured with\n    attention_mode=\"selected_only\", selected_kv_source=\"main\") and index_topk for \"csa\" (values are\n    compressed-entry indices into key_state, directly consumable by SparsePagedAttention configured\n    with attention_mode=\"local_plus_selected\", selected_kv_source=\"auxiliary\"; key_state is\n    layout-compatible with a [batch_size, capacity, 1, head_size] auxiliary cache when K = V).\n    Unused entries are -1 and selected_counts holds the exact number of used entries.\n  * query_norm_weight and key_norm_weight are the effective RMSNorm multipliers, exactly as in\n    SparseAttentionIndexer.\n  * Accumulation, pooling, softmax, normalization and scoring are performed in float32 and the\n    result is rounded once to the tensor element type.\n  * Ties in the top-k selection are broken by the smaller entry index, and the emitted entries are\n    ordered by decreasing score, so the result is deterministic.\n  * cos_cache / sin_cache may be shared across the batch ([max_position, rotary_width]) or\n    request-specific ([batch_size, max_position, rotary_width]).\n  * cumulative_sequence_lengths, past_sequence_lengths and past_state_lengths are read directly by\n    the device kernel; a zero-token request row (a repeated cumulative offset) is valid and simply\n    contributes no query rows for that request.\n\nOgaEngine integration note: this operator only defines the ORT contrib op; wiring\npast_key_state / past_kv_buffer / past_gate_buffer / past_state_lengths as Engine-managed,\nper-request fixed-size state (analogous to a paged auxiliary cache) is expected to happen in the\nOgaEngine / Model Builder integration, which is out of scope for this operator definition.\n",
+    "attributes": [
+      {
+        "name": "compress_ratio",
+        "type": "int64",
+        "required": true,
+        "description": "Number of consecutive tokens folded into one compressed/pooled entry. Must be > 0 and 2 * compress_ratio - 1 must not exceed INT_MAX."
+      },
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999974752427e-07,
+        "description": "Epsilon of the RMS normalization applied to queries and compressed keys. Default is 1e-6."
+      },
+      {
+        "name": "head_weight_scale",
+        "type": "float32",
+        "required": false,
+        "description": "Only for policy_mode 'csa': scale applied to head_weights. Default is 1/sqrt(num_heads). Must be omitted when policy_mode is 'qsa'."
+      },
+      {
+        "name": "index_topk",
+        "type": "int64",
+        "required": false,
+        "description": "Only for policy_mode 'csa': number of compressed entries selected per query. Must be > 0. Must be omitted when policy_mode is 'qsa'."
+      },
+      {
+        "name": "policy_mode",
+        "type": "string",
+        "required": true,
+        "description": "Indexer policy. Must be exactly 'qsa' (token indexer) or 'csa' (compressed block indexer)."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Scale applied to the per-head ReLU scores. Default is 1/sqrt(head_size)."
+      },
+      {
+        "name": "state_capacity",
+        "type": "int64",
+        "required": true,
+        "description": "Fixed capacity (number of entries) of past_key_state / present_key_state. Must be > 0."
+      },
+      {
+        "name": "state_update_capacity",
+        "type": "int64",
+        "required": false,
+        "description": "Only for policy_mode 'qsa': maximum number of leading token transitions captured per request. Must be in [0, 8]. Default is 0."
+      },
+      {
+        "name": "token_budget",
+        "type": "int64",
+        "required": false,
+        "description": "Only for policy_mode 'qsa': maximum number of tokens selected from complete blocks. Must be > 0 and divisible by compress_ratio. Must be omitted when policy_mode is 'csa'."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Packed indexer queries with shape (total_tokens, num_heads * head_size), before normalization, logical reshape, and rotary embedding. For policy_mode 'qsa', key may be omitted and query then contains row-wise concatenated query and key projections with shape (total_tokens, (num_heads + 1) * head_size)."
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "option": "optional",
+        "description": "Packed indexer key projection of the new tokens. Shape is (total_tokens, head_size) for policy_mode 'qsa' and (total_tokens, 2 * head_size) for policy_mode 'csa', where the first head_size channels are the Ca series and the last head_size channels the Cb series. May be omitted for policy_mode 'qsa' when query contains the packed query/key projection."
+      },
+      {
+        "name": "query_norm_weight",
+        "type": "T",
+        "description": "Effective RMSNorm multiplier of the queries, with shape (head_size)."
+      },
+      {
+        "name": "key_norm_weight",
+        "type": "T",
+        "description": "Effective RMSNorm multiplier of the compressed keys, with shape (head_size)."
+      },
+      {
+        "name": "cos_cache",
+        "type": "T",
+        "description": "Cosine rotary table indexed by absolute key position, shared across the batch with shape (max_rotary_sequence_length, rotary_width) or request-specific with shape (batch_size, max_rotary_sequence_length, rotary_width)."
+      },
+      {
+        "name": "sin_cache",
+        "type": "T",
+        "description": "Sine rotary table with the same shape as cos_cache."
+      },
+      {
+        "name": "cumulative_sequence_lengths",
+        "type": "M",
+        "description": "Device-resident packed request boundaries with shape (batch_size + 1); cumulative_sequence_lengths[0] must be 0 and cumulative_sequence_lengths[batch_size] must equal total_tokens. Request b owns rows [cumulative_sequence_lengths[b], cumulative_sequence_lengths[b + 1]) of query/key (a repeated offset is a valid zero-token row)."
+      },
+      {
+        "name": "past_sequence_lengths",
+        "type": "M",
+        "description": "Device-resident number of tokens already processed for each request before this call, with shape (batch_size). Used to derive request-local logical query positions for policy_mode 'qsa' and to validate state consistency."
+      },
+      {
+        "name": "gate",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': gate projection of the new tokens with shape (total_tokens, 2 * head_size)."
+      },
+      {
+        "name": "position_bias",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': per-slot gate bias with shape (compress_ratio, 2 * head_size)."
+      },
+      {
+        "name": "head_weights",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': per-head score weights with shape (total_tokens, num_heads)."
+      },
+      {
+        "name": "position_ids",
+        "type": "I",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': absolute position of every packed query, with shape (total_tokens)."
+      },
+      {
+        "name": "past_key_state",
+        "type": "T",
+        "description": "Generic fixed-capacity state: policy_mode 'qsa' stores prepared complete-block keys; policy_mode 'csa' stores compressed keys. Shape is (batch_size, state_capacity, head_size) and never changes across calls."
+      },
+      {
+        "name": "past_kv_buffer",
+        "type": "T",
+        "description": "Generic fixed-capacity pending-token buffer. Shape is (batch_size, 2 * compress_ratio - 1, head_size) for policy_mode 'qsa' (which only ever uses up to compress_ratio - 1 of these entries) and (batch_size, 2 * compress_ratio - 1, 2 * head_size) for policy_mode 'csa'."
+      },
+      {
+        "name": "past_gate_buffer",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': buffered gate projections with the same shape as past_kv_buffer."
+      },
+      {
+        "name": "past_state_lengths",
+        "type": "M",
+        "description": "Generic per-request state length with shape (batch_size, 2). Column 0 is the key_state entry count (policy_mode 'qsa': complete-block count; 'csa': compressed-entry count); column 1 is the pending-buffer length (policy_mode 'qsa': incomplete-block length in [0, compress_ratio); 'csa': buffer length in [0, 2 * compress_ratio))."
+      },
+      {
+        "name": "state_update_capture_count",
+        "type": "M",
+        "option": "optional",
+        "description": "Only for policy_mode 'qsa': number of leading token transitions to capture for each request, with shape (batch_size). Values are clamped to the request length and state_update_capacity. Required when state_update_capacity is positive."
+      },
+      {
+        "name": "state_update_active",
+        "type": "M",
+        "option": "optional",
+        "description": "Only for policy_mode 'qsa': optional capture gate with shape (1). A zero value disables capture."
+      }
+    ],
+    "min_input": 16,
+    "max_input": 18,
+    "outputs": [
+      {
+        "name": "selected_indices",
+        "type": "M",
+        "description": "Selected entries with shape (total_tokens, capacity). capacity is token_budget + compress_ratio - 1 for policy_mode 'qsa' (request-local token positions into the main key/value cache) and index_topk for policy_mode 'csa' (compressed entry indices into key_state). Unused entries are -1."
+      },
+      {
+        "name": "selected_counts",
+        "type": "M",
+        "description": "Exact number of used (non -1) entries of selected_indices for every query, with shape (total_tokens)."
+      },
+      {
+        "name": "present_key_state",
+        "type": "T",
+        "description": "Updated generic key state, with the same fixed shape as past_key_state."
+      },
+      {
+        "name": "present_kv_buffer",
+        "type": "T",
+        "description": "Updated generic pending-token buffer, with the same fixed shape as past_kv_buffer."
+      },
+      {
+        "name": "present_gate_buffer",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': updated gate buffer with the same fixed shape as past_gate_buffer."
+      },
+      {
+        "name": "present_state_lengths",
+        "type": "M",
+        "description": "Updated generic per-request state length, with the same fixed shape as past_state_lengths."
+      },
+      {
+        "name": "state_update",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'qsa': compact transition payloads with shape (batch_size, state_update_capacity, head_size). A token that completes a compression block stores the prepared block representative; any other captured token stores its raw key. Inactive and unused slots are zero."
+      }
+    ],
+    "min_output": 6,
+    "max_output": 7,
+    "inputs_range": "16 - 18",
+    "outputs_range": "6 - 7",
+    "type_constraints": [
+      {
+        "description": "Constrain floating point tensors to float, float16 and bfloat16.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain position ids to 64-bit integer tensors.",
+        "type_param_str": "I",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain packed metadata, generic state lengths and selected indices/counts to 32-bit integer tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "Pad",
     "module": "ai.onnx",
     "version": 1,
@@ -50394,7 +51061,7 @@
     "name": "QMoE",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Quantized mixture of experts (MoE).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. QMoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs and optional router_weights must contain\n      one corresponding row per token in either form.\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      The formula of linear dequantization of the quantized weights using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      If block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
+    "description": "Quantized mixture of experts (MoE).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. QMoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs and optional router_weights must contain\n      one corresponding row per token in either form.\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      For integer quantization, the formula of linear dequantization using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      For integer quantization, if block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      For quant_type='fp8', weights instead use row-major float8e4m3fn tensors shaped [num_experts, N, K].\n      A positive block_size selects square block scaling with float32, float16, or bfloat16 fc*_scales tensors shaped\n      [num_experts, ceil(N / block_size), ceil(K / block_size)]:\n        dequantized_weight[e, n, k] = float(weight[e, n, k]) * scale[e, n / block_size, k / block_size]\n      Partial edge blocks are allowed. No zero points or activation scales are used.\n      Without a positive block_size, FP8 uses the legacy per-expert fc*_global_scale inputs instead.\n      Block-scaled FP8 does not use global scales. Activations retain the input type (weight-only quantization).\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
     "attributes": [
       {
         "name": "accuracy_level",
@@ -50426,7 +51093,7 @@
         "name": "block_size",
         "type": "int64",
         "required": false,
-        "description": "Size of each quantization block along the K (input feature) dimension. Must be power of two and \u2265 16 (e.g., 16, 32, 64, 128). Both hidden_size and inter_size must be divisible by the block size. The FP4 modes always use blocking: MXFP4 ('fp4'/'wfp4afp8') is normalized to block_size 32 and NVFP4 ('nvfp4') to block_size 16, even when block_size is omitted. For integer quantization ('int'), omitting block_size means there is no blocking and a whole column shares one scaling factor. "
+        "description": "For integer quantization, size of each quantization block along the K (input feature) dimension. Must be power of two and \u2265 16 (e.g., 16, 32, 64, 128). Both hidden_size and inter_size must be divisible by the block size. The FP4 modes always use blocking: MXFP4 ('fp4'/'wfp4afp8') is normalized to block_size 32 and NVFP4 ('nvfp4') to block_size 16, even when block_size is omitted. For FP8 ('fp8'), a positive value instead specifies square blocks along both N and K, with floating-point scales shaped [E, ceil(N/block_size), ceil(K/block_size)]; partial blocks are allowed. Without a positive value, FP8 uses per-expert global scales. For integer quantization ('int'), omitting block_size means there is no blocking and a whole column shares one scaling factor. "
       },
       {
         "name": "expert_weight_bits",
@@ -50471,7 +51138,7 @@
         "type": "string",
         "required": false,
         "default": "int",
-        "description": "Quantization type: 'int' for integer quantization (default), 'fp4' for MXFP4 quantization, 'nvfp4' for NVFP4 quantization, 'fp8' for FP8 e4m3 weight-only quantization, or 'wfp4afp8' for MXFP4 weight with FP8 activation. When quant_type is 'fp4' or 'nvfp4', weights are stored in E2M1 FP4 format (2 values per byte), fc*_scales inputs contain the FP4 block scales, and fc*_global_scale inputs must be provided. 'fp4' uses Float8E8M0 block scales with block_size 32; 'nvfp4' uses Float8E4M3FN block scales with block_size 16."
+        "description": "Quantization type: 'int' for integer quantization (default), 'fp4' for MXFP4 quantization, 'nvfp4' for NVFP4 quantization, 'fp8' for FP8 e4m3 weight-only quantization, or 'wfp4afp8' for MXFP4 weight with FP8 activation. When quant_type is 'fp4' or 'nvfp4', weights are stored in E2M1 FP4 format (2 values per byte), fc*_scales inputs contain the FP4 block scales, and fc*_global_scale inputs must be provided. 'fp4' uses Float8E8M0 block scales with block_size 32; 'nvfp4' uses Float8E4M3FN block scales with block_size 16. 'fp8' uses float8e4m3fn weights and, when block_size > 0, float32, float16, or bfloat16 square-block scales in fc*_scales instead of fc*_global_scale."
       },
       {
         "name": "swiglu_fusion",
@@ -50519,7 +51186,7 @@
         "name": "fc1_scales",
         "type": "T2",
         "option": "optional",
-        "description": "Optional weight scales. For quant_type='int', this is a 2D tensor with shape (num_experts, fusion_size * inter_size), or a 3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size / block_size) when block_size is provided. For quant_type='fp4' or 'wfp4afp8', this is a float8e8m0 MXFP block-scale tensor with shape (num_experts, fusion_size * inter_size, hidden_size / 32). For quant_type='nvfp4', this is a float8e4m3fn NVFP4 block-scale tensor with shape (num_experts, fusion_size * inter_size, hidden_size / 16). Not used for quant_type='fp8'."
+        "description": "Optional weight scales. For quant_type='int', this is a 2D tensor with shape (num_experts, fusion_size * inter_size), or a 3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size / block_size) when block_size is provided. For quant_type='fp4' or 'wfp4afp8', this is a float8e8m0 MXFP block-scale tensor with shape (num_experts, fusion_size * inter_size, hidden_size / 32). For quant_type='nvfp4', this is a float8e4m3fn NVFP4 block-scale tensor with shape (num_experts, fusion_size * inter_size, hidden_size / 16). For quant_type='fp8' and block_size > 0, required float32, float16, or bfloat16 scales with shape (num_experts, ceil(fusion_size * inter_size / block_size), ceil(hidden_size / block_size))."
       },
       {
         "name": "fc1_experts_bias",
@@ -50536,7 +51203,7 @@
         "name": "fc2_scales",
         "type": "T2",
         "option": "optional",
-        "description": "Optional weight scales. For quant_type='int', this is a 2D tensor with shape (num_experts, hidden_size), or a 3D tensor with shape (num_experts, hidden_size, inter_size / block_size) when block_size is provided. For quant_type='fp4' or 'wfp4afp8', this is a float8e8m0 MXFP block-scale tensor with shape (num_experts, hidden_size, inter_size / 32). For quant_type='nvfp4', this is a float8e4m3fn NVFP4 block-scale tensor with shape (num_experts, hidden_size, inter_size / 16). Not used for quant_type='fp8'."
+        "description": "Optional weight scales. For quant_type='int', this is a 2D tensor with shape (num_experts, hidden_size), or a 3D tensor with shape (num_experts, hidden_size, inter_size / block_size) when block_size is provided. For quant_type='fp4' or 'wfp4afp8', this is a float8e8m0 MXFP block-scale tensor with shape (num_experts, hidden_size, inter_size / 32). For quant_type='nvfp4', this is a float8e4m3fn NVFP4 block-scale tensor with shape (num_experts, hidden_size, inter_size / 16). For quant_type='fp8' and block_size > 0, required float32, float16, or bfloat16 scales with shape (num_experts, ceil(hidden_size / block_size), ceil(inter_size / block_size))."
       },
       {
         "name": "fc2_experts_bias",
@@ -50554,7 +51221,7 @@
         "name": "fc3_scales",
         "type": "T2",
         "option": "optional",
-        "description": "Optional weight scales. For quant_type='int', this is a 2D tensor with shape (num_experts, inter_size), or a 3D tensor with shape (num_experts, inter_size, hidden_size / block_size) when block_size is provided. For quant_type='fp4' or 'wfp4afp8', this is a float8e8m0 MXFP block-scale tensor with shape (num_experts, inter_size, hidden_size / 32). Not used for quant_type='fp8'."
+        "description": "Optional weight scales. For quant_type='int', this is a 2D tensor with shape (num_experts, inter_size), or a 3D tensor with shape (num_experts, inter_size, hidden_size / block_size) when block_size is provided. For quant_type='fp4' or 'wfp4afp8', this is a float8e8m0 MXFP block-scale tensor with shape (num_experts, inter_size, hidden_size / 32). For quant_type='fp8' and block_size > 0, required when FC3 is present, with floating-point scales shaped (num_experts, ceil(inter_size / block_size), ceil(hidden_size / block_size))."
       },
       {
         "name": "fc3_experts_bias",
@@ -50590,13 +51257,13 @@
         "name": "fc1_global_scale",
         "type": "T4",
         "option": "optional",
-        "description": "1D optional tensor with shape (num_experts,). Per-expert global weight scale for FC1. Required when quant_type is 'fp4', 'nvfp4', 'fp8', or 'wfp4afp8'."
+        "description": "1D optional tensor with shape (num_experts,). Per-expert global weight scale for FC1. Required when quant_type is 'fp4', 'nvfp4', or 'wfp4afp8', or 'fp8' with block_size <= 0. Not used for block-scaled FP8."
       },
       {
         "name": "fc2_global_scale",
         "type": "T4",
         "option": "optional",
-        "description": "1D optional tensor with shape (num_experts,). Per-expert global weight scale for FC2. Required when quant_type is 'fp4', 'nvfp4', 'fp8', or 'wfp4afp8'."
+        "description": "1D optional tensor with shape (num_experts,). Per-expert global weight scale for FC2. Required when quant_type is 'fp4', 'nvfp4', or 'wfp4afp8', or 'fp8' with block_size <= 0. Not used for block-scaled FP8."
       },
       {
         "name": "fc1_act_scale",
@@ -50654,7 +51321,7 @@
         ]
       },
       {
-        "description": "Constrain scale types. Float tensors are used for integer quantization scales. Float8e8m0 tensors are used for MXFP4 block scales; float8e4m3fn tensors are used for NVFP4 block scales.",
+        "description": "Constrain scale types. Float tensors are used for integer quantization and FP8 square-block scales. Float8e8m0 tensors are used for MXFP4 block scales; float8e4m3fn tensors are used for NVFP4 block scales.",
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(float)",
@@ -62401,6 +63068,66 @@
     ]
   },
   {
+    "name": "ScaledSiLU",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Computes SiLU after scaling, with explicit T rounding:\nZ_T = cast_T(effective_scale * X), S_T = cast_T(sigmoid(Z_T)), and\nY = cast_T(Z_T * S_T). effective_scale is the scalar input when present,\notherwise it is the alpha attribute.\n",
+    "attributes": [
+      {
+        "name": "alpha",
+        "type": "float32",
+        "required": false,
+        "default": 1.0,
+        "description": "Scale used when the optional scale input is absent."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input tensor."
+      },
+      {
+        "name": "scale",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional scalar scale that overrides alpha."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output with the same shape as X."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output to floating-point tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain the optional scale to floating-point tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "ScaledTanh",
     "module": "ai.onnx",
     "version": 1,
@@ -68902,6 +69629,489 @@
       }
     ],
     "category": "Attention"
+  },
+  {
+    "name": "SparseAttentionIndexer",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Selects, for every query token, the sparse-attention candidates that the following attention\noperator is allowed to read. It covers the two indexer flavours used by recent sparse-attention\ndecoders, chosen with the policy_mode attribute:\n\n  policy_mode = \"qsa\" (\"query sparse attention\" token indexer)\n    Groups the tokens that are visible to a query into complete blocks of compress_ratio tokens,\n    mean-pools the indexer keys of every block, normalizes and rotates the pooled key, scores it\n    against the query heads with sum_h ReLU(q_h . k), keeps the token_budget / compress_ratio\n    highest scoring blocks and emits the token indices of those blocks followed by the visible\n    tokens of the trailing incomplete block.\n\n  policy_mode = \"csa\" (\"compressed sparse attention\" block indexer)\n    Compresses every compress_ratio consecutive tokens into one entry with a softmax-gated pooling\n    over a window of 2 * compress_ratio slots (the previous window contributes its \"Ca\" half and\n    the current window its \"Cb\" half), normalizes and rotates the entry, appends it to the\n    compressed-key state, scores the queries against every compressed entry with\n    sum_h w_h * ReLU(q_h . k), masks the entries a query may not attend to and emits the index_topk\n    highest scoring entry indices. If a channel's softmax denominator is non-positive or non-finite\n    (for example, all logits are -inf or any logit is +inf), its pooled value is zero.\n\nCommon contract:\n  * selected_indices is int32 with a fixed capacity that only depends on attributes:\n    token_budget + compress_ratio - 1 for \"qsa\" and index_topk for \"csa\". Unused entries are -1,\n    so no output size depends on the data and no device-to-host synchronization is required.\n  * All state is explicit in the graph. Nothing is cached inside the operator.\n  * Rotary embeddings reuse the precomputed cos_cache / sin_cache tables, which are indexed by\n    absolute key position. \"qsa\" applies the half-rotation of the model's (M)RoPE to the leading\n    rotary_dim = cos_cache.shape[2] channels. \"csa\" applies its trailing rotary to the last\n    2 * cos_cache.shape[2] channels, with each cos/sin entry covering two consecutive channels.\n  * query_norm_weight and key_norm_weight are the effective RMSNorm multipliers. Models that store a zero-centered gamma\n    (the normalized value is multiplied by 1 + gamma) must fold the addition into this initializer.\n  * Accumulation, pooling, softmax, normalization and scoring are performed in float32 and the\n    result is rounded once to the tensor element type.\n  * Ties in the top-k selection are broken by the smaller entry index, and the emitted entries are\n    ordered by decreasing score, so the result is deterministic.\n\nState layout for policy_mode = \"csa\": the two slices of past_proj_buffer hold the key and gate\nprojections that have not been folded into a compressed entry yet. When their length is >=\ncompress_ratio, the first compress_ratio tokens are the previous complete window (the \"Ca\" operand\nof the next window) and the remainder is the current incomplete window; when it is < compress_ratio\nthere is no previous complete window and the whole buffer is the incomplete window. The length is\ntherefore always in [0, 2 * compress_ratio), and the number of compressed entries emitted by a call\nis known from the input shapes alone. position_bias is re-applied to the buffered gates, so the gate\nprojection plane stores the raw projection.\n",
+    "attributes": [
+      {
+        "name": "compress_ratio",
+        "type": "int64",
+        "required": true,
+        "description": "Number of consecutive tokens folded into one compressed block. Must be > 0."
+      },
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999974752427e-07,
+        "description": "Epsilon of the RMS normalization applied to queries and compressed keys. Default is 1e-6."
+      },
+      {
+        "name": "head_weight_scale",
+        "type": "float32",
+        "required": false,
+        "description": "Only for policy_mode 'csa': scale applied to head_weights. Default is 1/sqrt(num_heads). Must be omitted when policy_mode is 'qsa'."
+      },
+      {
+        "name": "index_topk",
+        "type": "int64",
+        "required": false,
+        "description": "Only for policy_mode 'csa': number of compressed entries selected per query. Must be > 0. Must be omitted when policy_mode is 'qsa'."
+      },
+      {
+        "name": "policy_mode",
+        "type": "string",
+        "required": true,
+        "description": "Indexer policy. Must be exactly 'qsa' (token indexer) or 'csa' (compressed block indexer)."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Scale applied to the per-head ReLU scores. Default is 1/sqrt(head_size)."
+      },
+      {
+        "name": "token_budget",
+        "type": "int64",
+        "required": false,
+        "description": "Only for policy_mode 'qsa': maximum number of tokens selected from complete blocks. Must be > 0 and divisible by compress_ratio. Must be omitted when policy_mode is 'csa'."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Indexer queries with shape (batch_size, sequence_length, num_heads * head_size), before normalization, logical reshape, and rotary embedding. For policy_mode 'qsa', when key is omitted, this input instead packs query followed by key along the last dimension and has shape (batch_size, sequence_length, (num_heads + 1) * head_size)."
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "option": "optional",
+        "description": "Indexer key projection of the new tokens. Shape is (batch_size, sequence_length, head_size) for policy_mode 'qsa' and (batch_size, sequence_length, 2 * head_size) for policy_mode 'csa', where the first head_size channels are the Ca series and the last head_size channels the Cb series. May be omitted for policy_mode 'qsa' when query contains packed QK."
+      },
+      {
+        "name": "query_norm_weight",
+        "type": "T",
+        "description": "Effective RMSNorm multiplier of the queries, with shape (head_size)."
+      },
+      {
+        "name": "key_norm_weight",
+        "type": "T",
+        "description": "Effective RMSNorm multiplier of the compressed keys, with shape (head_size)."
+      },
+      {
+        "name": "cos_cache",
+        "type": "T",
+        "description": "Cosine rotary table indexed by absolute key position, shared across the batch with shape (max_rotary_sequence_length, rotary_width) or request-specific with shape (batch_size, max_rotary_sequence_length, rotary_width)."
+      },
+      {
+        "name": "sin_cache",
+        "type": "T",
+        "description": "Sine rotary table with the same shape as cos_cache."
+      },
+      {
+        "name": "mask",
+        "type": "TB",
+        "option": "optional",
+        "description": "Only for policy_mode 'qsa': INT64 padding mask with shape (batch_size, total_sequence_length). Nonzero entries are visible subject to causal masking. total_sequence_length is past_sequence_length + sequence_length. When omitted, every position through past_sequence_length plus the current query index is visible."
+      },
+      {
+        "name": "past_key",
+        "type": "T",
+        "description": "Cached indexer keys. For policy_mode 'qsa', these are raw keys; for 'csa', they are compressed keys. Shape is (batch_size, past_sequence_length, head_size), or (batch_size, max_cache_length, head_size) when a valid past_sequence_length is provided."
+      },
+      {
+        "name": "gate",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': gate projection of the new tokens with shape (batch_size, sequence_length, 2 * head_size)."
+      },
+      {
+        "name": "position_bias",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': per-slot gate bias with shape (compress_ratio, 2 * head_size)."
+      },
+      {
+        "name": "head_weights",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': per-head score weights with shape (batch_size, sequence_length, num_heads)."
+      },
+      {
+        "name": "position_ids",
+        "type": "I",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': absolute position of every query with shape (batch_size, sequence_length)."
+      },
+      {
+        "name": "past_sequence_length",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional one-element CPU tensor containing the number of valid rows in past_key. For policy_mode 'csa', the value is the number of compressed keys. When provided, past_key and present_key have the same max-capacity shape and may share their buffer."
+      },
+      {
+        "name": "past_proj_buffer",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': buffered key and gate projections packed along dimension 0, with shape (2, batch_size, buffer_length, 2 * head_size). Slice 0 contains keys and slice 1 contains gates. buffer_length is in [0, 2 * compress_ratio)."
+      }
+    ],
+    "min_input": 8,
+    "max_input": 14,
+    "outputs": [
+      {
+        "name": "selected_indices",
+        "type": "M",
+        "description": "Selected entries with shape (batch_size, sequence_length, capacity). capacity is token_budget + compress_ratio - 1 for policy_mode 'qsa', where the values are token indices into the key cache, and index_topk for policy_mode 'csa', where the values are compressed entry indices. Unused entries are -1."
+      },
+      {
+        "name": "present_key",
+        "type": "T",
+        "description": "Updated raw key cache for policy_mode 'qsa' or compressed-key cache for 'csa'. Without past_sequence_length its sequence dimension grows by the entries emitted by this call. When past_sequence_length is provided, its shape matches the max-capacity past_key and the two tensors may share a buffer."
+      },
+      {
+        "name": "present_proj_buffer",
+        "type": "T",
+        "option": "optional",
+        "description": "Only for policy_mode 'csa': updated packed key/gate projection buffer with shape (2, batch_size, present_buffer_length, 2 * head_size)."
+      }
+    ],
+    "min_output": 2,
+    "max_output": 3,
+    "inputs_range": "8 - 14",
+    "outputs_range": "2 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain floating point tensors to float, float16 and bfloat16.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain the mask to 64-bit integer tensors.",
+        "type_param_str": "TB",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain position ids to 64-bit integer tensors.",
+        "type_param_str": "I",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain indices and cache lengths to 32-bit integer tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "SparsePagedAttention",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Selected-index attention over the PagedAttention main K/V cache.\n\nSelection is supplied by an external indexer. selected_only attends selected entries;\nlocal_plus_selected combines a main-cache local window and selected entries in one softmax.\nSelected indices are request-local logical positions in the main cache or in a contiguous\nauxiliary cache, according to selected_kv_source.\n",
+    "attributes": [
+      {
+        "name": "attention_mode",
+        "type": "string",
+        "required": false,
+        "default": "selected_only",
+        "description": "'selected_only' or 'local_plus_selected'."
+      },
+      {
+        "name": "auxiliary_cache_layout",
+        "type": "string",
+        "required": false,
+        "default": "contiguous",
+        "description": "Version 1 supports only 'contiguous'."
+      },
+      {
+        "name": "auxiliary_kv_shared",
+        "type": "int64",
+        "required": false,
+        "description": "When 1, auxiliary_key supplies both K and V."
+      },
+      {
+        "name": "do_rotary",
+        "type": "int64",
+        "required": false,
+        "description": "Apply rotary embedding to current Q/K."
+      },
+      {
+        "name": "is_causal",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Apply causal filtering to main-cache reads."
+      },
+      {
+        "name": "k_quant_type",
+        "type": "string",
+        "required": false,
+        "default": "NONE",
+        "description": "Main key-cache quantization: NONE, PER_TENSOR, or PER_CHANNEL."
+      },
+      {
+        "name": "kv_num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of main K/V heads."
+      },
+      {
+        "name": "local_window_size",
+        "type": "int64",
+        "required": false,
+        "default": -1,
+        "description": "Left main-cache window size; -1 means all visible tokens."
+      },
+      {
+        "name": "num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of query heads."
+      },
+      {
+        "name": "qk_norm_epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999974752427e-07,
+        "description": "QK RMSNorm epsilon."
+      },
+      {
+        "name": "rotary_interleaved",
+        "type": "int64",
+        "required": false,
+        "description": "Use interleaved rotary embedding."
+      },
+      {
+        "name": "rotary_offset",
+        "type": "int64",
+        "required": false,
+        "description": "First head channel covered by rotary embedding."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Attention scale; defaults to 1/sqrt(head_size)."
+      },
+      {
+        "name": "selected_kv_source",
+        "type": "string",
+        "required": false,
+        "default": "main",
+        "description": "'main' or 'auxiliary'."
+      },
+      {
+        "name": "softcap",
+        "type": "float32",
+        "required": false,
+        "description": "Optional tanh softcap for attention logits."
+      },
+      {
+        "name": "v_quant_type",
+        "type": "string",
+        "required": false,
+        "default": "NONE",
+        "description": "Main value-cache quantization: NONE, PER_TENSOR, or PER_CHANNEL."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Query or packed QKV, shaped as for PagedAttention."
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "option": "optional",
+        "description": "Current key."
+      },
+      {
+        "name": "value",
+        "type": "T",
+        "option": "optional",
+        "description": "Current value."
+      },
+      {
+        "name": "key_cache",
+        "type": "T_CACHE",
+        "description": "Paged main key cache."
+      },
+      {
+        "name": "value_cache",
+        "type": "T_CACHE",
+        "description": "Paged main value cache."
+      },
+      {
+        "name": "cumulative_sequence_length",
+        "type": "S",
+        "description": "Packed query offsets."
+      },
+      {
+        "name": "past_seqlens",
+        "type": "S",
+        "description": "Past main-cache lengths."
+      },
+      {
+        "name": "block_table",
+        "type": "S",
+        "description": "Logical-to-physical main-cache block table."
+      },
+      {
+        "name": "slot_mapping",
+        "type": "S",
+        "option": "optional",
+        "description": "Optional main-cache write slots; -1 suppresses a write."
+      },
+      {
+        "name": "selected_indices",
+        "type": "S",
+        "description": "Request-local positions, shape (token_count, max_selected_entries); unused entries are -1."
+      },
+      {
+        "name": "selected_counts",
+        "type": "S",
+        "description": "Selected entry count per query token."
+      },
+      {
+        "name": "auxiliary_key",
+        "type": "T",
+        "option": "optional",
+        "description": "Shape (batch_size, capacity, kv_num_heads_or_one, head_size)."
+      },
+      {
+        "name": "auxiliary_value",
+        "type": "T",
+        "option": "optional",
+        "description": "Same shape as auxiliary_key."
+      },
+      {
+        "name": "auxiliary_lengths",
+        "type": "S",
+        "option": "optional",
+        "description": "Valid auxiliary length per request."
+      },
+      {
+        "name": "cos_cache",
+        "type": "T",
+        "option": "optional",
+        "description": "Rotary cosine cache."
+      },
+      {
+        "name": "sin_cache",
+        "type": "T",
+        "option": "optional",
+        "description": "Rotary sine cache."
+      },
+      {
+        "name": "head_sink",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional softmax sink logit per query head."
+      },
+      {
+        "name": "q_norm_weight",
+        "type": "T",
+        "option": "optional",
+        "description": "QK-Norm query weight."
+      },
+      {
+        "name": "k_norm_weight",
+        "type": "T",
+        "option": "optional",
+        "description": "QK-Norm key weight."
+      },
+      {
+        "name": "k_scale",
+        "type": "T_KV_SCALE",
+        "option": "optional",
+        "description": "Main key-cache quantization scale."
+      },
+      {
+        "name": "v_scale",
+        "type": "T_KV_SCALE",
+        "option": "optional",
+        "description": "Main value-cache quantization scale."
+      },
+      {
+        "name": "attention_metadata",
+        "type": "S",
+        "option": "optional",
+        "description": "CPU tensor [max_query_len, max_local_main_len, max_selected_entries, max_auxiliary_len, max_combined_attention_len]."
+      }
+    ],
+    "min_input": 11,
+    "max_input": 22,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Shape (token_count, num_heads * head_size)."
+      },
+      {
+        "name": "key_cache_out",
+        "type": "T_CACHE",
+        "option": "optional",
+        "description": "In-place alias of key_cache."
+      },
+      {
+        "name": "value_cache_out",
+        "type": "T_CACHE",
+        "option": "optional",
+        "description": "In-place alias of value_cache."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 3,
+    "inputs_range": "11 - 22",
+    "outputs_range": "1 - 3",
+    "type_constraints": [
+      {
+        "description": "Activation type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Main cache storage type.",
+        "type_param_str": "T_CACHE",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(int8)"
+        ]
+      },
+      {
+        "description": "Main cache scale type.",
+        "type_param_str": "T_KV_SCALE",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "Index and length type.",
+        "type_param_str": "S",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
   },
   {
     "name": "SparseToDenseMatMul",
@@ -75698,6 +76908,150 @@
       {
         "description": "Constrain cumulative_sequence_length and capture_count to device int32 tensors.",
         "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "VarlenNGramHashMapping",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Computes Engram n-gram hash ids from pre-compressed tokenizer ids over a packed, token-major batch\nof variable-length sequences.\n\ninput_ids has shape (total_tokens) and hash_ids has shape (total_tokens, (max_ngram_size - 1) *\nn_head_per_ngram). cumulative_sequence_length is a device-resident int32 tensor of shape\n(batch_size + 1); request i occupies [cumulative_sequence_length[i], cumulative_sequence_length[i +\n1]) of the packed buffer. Every request contributes at least one token.\n\nFor n in [2, max_ngram_size], the op creates causal shifts of each request's own tokens, padding\npositions before that request's start with pad_id (or its own past_ids history, see below), and\ncomputes mix = shifted_0 * multipliers[0] xor ... xor shifted_(n-1) * multipliers[n-1]. For every\nhead of that n-gram order it emits mix modulo the corresponding head vocabulary size. The n-gram\nwindow never reads tokens belonging to a different packed request; it is clamped at each request's\nown boundary exactly like VarlenCausalConvWithState clamps its causal convolution.\n\nAn n-gram window reaches max_ngram_size - 1 positions before the current token. To keep the op\ncausal across invocations (chunked prefill or autoregressive decode) for every concurrent request in\nthe packed batch, the optional past_ids input carries those preceding ids per request and\npresent_ids returns the ids to pass to the next call. Both have shape (batch_size, max_ngram_size -\n1) and are right-aligned, so the last slot is the most recent id, and are indexed by request\n(batch_size), not by position in the packed buffer. Positions before the start of a request's whole\nsequence use pad_id, or eos_token_id when provided. Running NGramHashMapping once per sequence and running this op once over those\nsequences packed together (optionally split into packed chunks with present_ids threaded into\npast_ids) produce identical hash ids.\n\nOptional inputs add Qwen4-Exp-style n-gram embedding support:\n\n- eos_token_id, when provided together with reset_on_eos != 0, causes causal history to reset at EOS\n  boundaries. Missing history is also filled with eos_token_id.\n- segment_ids, when provided, additionally resets causal history when adjacent tokens within one\n  packed request have different segment ids. Thread present_segment_ids into past_segment_ids on\n  subsequent calls to preserve boundaries across chunked prefill and decode calls.\n- head_offsets, when provided, adds a fixed per-output-head offset after the modulo. Addition wraps\n  in the input id type on overflow.\n- capture_count enables compact prefix state capture when state_update_capacity is positive. For\n  each request, state_update contains the trailing state after each captured prefix token.\n",
+    "attributes": [
+      {
+        "name": "max_ngram_size",
+        "type": "int64",
+        "required": true,
+        "description": "Maximum n-gram order. Must be at least 2."
+      },
+      {
+        "name": "n_head_per_ngram",
+        "type": "int64",
+        "required": true,
+        "description": "Number of hash heads emitted for each n-gram order."
+      },
+      {
+        "name": "pad_id",
+        "type": "int64",
+        "required": true,
+        "description": "Compressed tokenizer id used to pad causal shifts before the beginning of a request's sequence."
+      },
+      {
+        "name": "reset_on_eos",
+        "type": "int64",
+        "required": false,
+        "description": "When non-zero and eos_token_id is provided, reset causal n-gram history at EOS boundaries. Default is 0."
+      },
+      {
+        "name": "state_update_capacity",
+        "type": "int64",
+        "required": false,
+        "description": "Static number of compact contiguous-prefix states to expose per request. Valid range is [0, 8]. capture_count is required exactly when this is positive."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_ids",
+        "type": "M",
+        "description": "Token-major packed compressed tokenizer ids with shape (total_tokens)."
+      },
+      {
+        "name": "multipliers",
+        "type": "M",
+        "description": "Per-shift hash multipliers with at least max_ngram_size elements. Conventionally odd, but any value is accepted."
+      },
+      {
+        "name": "vocab_sizes",
+        "type": "M",
+        "description": "Per-output-head vocabulary sizes, conventionally prime, with shape ((max_ngram_size - 1) * n_head_per_ngram). Every entry must be strictly positive. The CPU implementation rejects a non-positive entry; GPU implementations guard the modulo to avoid a device-side division by zero and emit a hash id of 0 for that head."
+      },
+      {
+        "name": "cumulative_sequence_length",
+        "type": "S",
+        "description": "Device tensor with shape (batch_size + 1) giving the half-open packed token range of each request."
+      },
+      {
+        "name": "past_ids",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional compressed tokenizer ids for the max_ngram_size - 1 positions that precede this call, with shape (batch_size, max_ngram_size - 1). Right-aligned, so the last slot is the most recent id, and indexed by request rather than by packed position. If omitted the history is pad_id, or eos_token_id when provided."
+      },
+      {
+        "name": "head_offsets",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional per-output-head additive offset with shape ((max_ngram_size - 1) * n_head_per_ngram), added after the modulo with wrapping arithmetic in the input id type."
+      },
+      {
+        "name": "eos_token_id",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional scalar end-of-sequence token id. When provided it replaces pad_id for missing history and enables reset_on_eos."
+      },
+      {
+        "name": "segment_ids",
+        "type": "tensor(int32)",
+        "option": "optional",
+        "description": "Optional token-major segment ids with shape (total_tokens), used to reset causal history at segment boundaries within each packed request."
+      },
+      {
+        "name": "past_segment_ids",
+        "type": "S",
+        "option": "optional",
+        "description": "Optional segment ids corresponding to past_ids, with shape (batch_size, max_ngram_size - 1). Thread present_segment_ids from the previous call into this input to preserve segment boundaries across calls."
+      },
+      {
+        "name": "capture_count",
+        "type": "S",
+        "option": "optional",
+        "description": "Optional device int32 tensor with shape (batch_size). For each request, captures that many local prefix states, clamped to the request length and state_update_capacity. Required exactly when state_update_capacity is positive."
+      }
+    ],
+    "min_input": 4,
+    "max_input": 10,
+    "outputs": [
+      {
+        "name": "hash_ids",
+        "type": "M",
+        "description": "Token-major packed hash ids with shape (total_tokens, (max_ngram_size - 1) * n_head_per_ngram)."
+      },
+      {
+        "name": "present_ids",
+        "type": "M",
+        "option": "optional",
+        "description": "Trailing max_ngram_size - 1 ids of past_ids followed by each request's own tokens, with shape (batch_size, max_ngram_size - 1). Feed this back as past_ids on the next call."
+      },
+      {
+        "name": "present_segment_ids",
+        "type": "S",
+        "option": "optional",
+        "description": "Trailing max_ngram_size - 1 segment ids corresponding to present_ids, with shape (batch_size, max_ngram_size - 1). Feed this back as past_segment_ids on the next call."
+      },
+      {
+        "name": "state_update",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional trailing id states after each captured prefix token, with shape (batch_size, state_update_capacity, max_ngram_size - 1). Unused slots are pad_id."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 4,
+    "inputs_range": "4 - 10",
+    "outputs_range": "1 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain ids, multipliers, vocabulary sizes, and output ids to integer tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain cumulative_sequence_length and segment ids to device int32 tensors.",
+        "type_param_str": "S",
         "allowed_type_strs": [
           "tensor(int32)"
         ]
