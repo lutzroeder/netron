@@ -22554,24 +22554,26 @@ _.llvm.LLVMDialect = class extends _.Dialect {
             }
             result.addAttribute('ordering', new _.TypedAttr(ordering, null));
         }
-        if (parser.parseOptionalKeyword('invariant')) {
-            result.addAttribute('invariant', new _.UnitAttr());
-        }
-        if (parser.parseOptionalKeyword('invariant_group')) {
-            result.addAttribute('invariantGroup', new _.UnitAttr());
-        }
-        if (parser.parseOptionalKeyword('dereferenceable')) {
-            parser.parseLess();
-            parser.parseKeyword('bytes');
-            parser.parseEqual();
-            const dereferenceable = { bytes: parser.parseInteger(), mayBeNull: false };
-            if (parser.parseOptionalComma()) {
-                parser.parseKeyword('mayBeNull');
+        for (;;) {
+            if (!result.attributes.has('invariant') && parser.parseOptionalKeyword('invariant')) {
+                result.addAttribute('invariant', new _.UnitAttr());
+            } else if (!result.attributes.has('invariantGroup') && parser.parseOptionalKeyword('invariant_group')) {
+                result.addAttribute('invariantGroup', new _.UnitAttr());
+            } else if (!result.attributes.has('dereferenceable') && parser.parseOptionalKeyword('dereferenceable')) {
+                parser.parseLess();
+                parser.parseKeyword('bytes');
                 parser.parseEqual();
-                dereferenceable.mayBeNull = parser.parseOptionalKeyword(['false', 'true']) === 'true';
+                const dereferenceable = { bytes: parser.parseInteger(), mayBeNull: false };
+                if (parser.parseOptionalComma()) {
+                    parser.parseKeyword('mayBeNull');
+                    parser.parseEqual();
+                    dereferenceable.mayBeNull = parser.parseOptionalKeyword(['false', 'true']) === 'true';
+                }
+                parser.parseGreater();
+                result.addAttribute('dereferenceable', dereferenceable);
+            } else {
+                break;
             }
-            parser.parseGreater();
-            result.addAttribute('dereferenceable', dereferenceable);
         }
         result.propertiesAttr = this.parsePropertiesFromKeyValueList(parser, result.name.getRegisteredInfo());
         parser.parseOptionalAttrDict(result.attributes);

@@ -27065,7 +27065,7 @@
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "tbaa", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAATagAttr>>" }
     ],
-    "assemblyFormat": "(`volatile` $volatile_^)? $addr\n    (`atomic` (`syncscope` `(` $syncscope^ `)`)? $ordering^)?\n    (`invariant` $invariant^)?\n    (`invariant_group` $invariantGroup^)?\n    (`dereferenceable` `` $dereferenceable^)?\n    prop-dict\n    attr-dict `:` qualified(type($addr)) `->` type($res)"
+    "assemblyFormat": "(`volatile` $volatile_^)? $addr\n    (`atomic` (`syncscope` `(` $syncscope^ `)`)? $ordering^)?\n    oilist(\n      `invariant` $invariant |\n      `invariant_group` $invariantGroup |\n      `dereferenceable` `` $dereferenceable\n    )\n    prop-dict\n    attr-dict `:` qualified(type($addr)) `->` type($res)"
   },
   {
     "name": "llvm.lshr",
@@ -27465,7 +27465,7 @@
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "tbaa", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAATagAttr>>" }
     ],
-    "assemblyFormat": "(`volatile` $volatile_^)? $value `,` $addr\n    (`atomic` (`syncscope` `(` $syncscope^ `)`)? $ordering^)?\n    (`invariant_group` $invariantGroup^)?\n    prop-dict\n    attr-dict `:` type($value) `,` qualified(type($addr))"
+    "assemblyFormat": "(`volatile` $volatile_^)? $value `,` $addr\n    (`atomic` (`syncscope` `(` $syncscope^ `)`)? $ordering^)?\n    oilist(`invariant_group` $invariantGroup)\n    prop-dict\n    attr-dict `:` type($value) `,` qualified(type($addr))"
   },
   {
     "name": "llvm.sub",
