@@ -13887,6 +13887,7 @@ _.HALDialect = class extends _.IREEDialect {
             if (sym) {
                 result.addAttribute('sym_name', sym.value || sym);
             }
+            result.propertiesAttr = this.parsePropertiesFromKeyValueList(parser, result.name.getRegisteredInfo());
             if (parser.parseOptionalKeyword('attributes')) {
                 parser.parseOptionalAttrDict(result.attributes);
             }

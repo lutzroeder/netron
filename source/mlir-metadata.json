@@ -14078,7 +14078,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$callee\n    `(` $arguments `)` attr-dict `:`\n    custom<ShapedFunctionType>(ref($arguments),\n                               type($arguments), $argument_dims,\n                               type($results), $result_dims,\n                               $tied_operands)",
+    "assemblyFormat": "$callee\n    `(` $arguments `)` prop-dict attr-dict `:`\n    custom<ShapedFunctionType>(ref($arguments),\n                               type($arguments), $argument_dims,\n                               type($results), $result_dims,\n                               $tied_operands)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -17196,7 +17196,7 @@
       { "type": "IsolatedFromAbove" },
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$export_name\n    (`[` $workload^ `]`)? ``\n    `(` $arguments `)` `:`\n    custom<ShapedFunctionType>(ref($arguments),\n                               type($arguments), $argument_dims,\n                               type($results), $result_dims,\n                               $tied_operands)\n    `count` `` custom<WorkgroupCountRegion>($workgroup_count)\n    `layout` `(` $layout `)`\n    `objects` `(` `{` custom<TargetConditionObjects>($targets,\n                                                     $target_ordinals,\n                                                     $target_objects,\n                                                     $target_regions) `}` `)`\n    attr-dict-with-keyword",
+    "assemblyFormat": "$export_name\n    (`[` $workload^ `]`)? ``\n    `(` $arguments `)` `:`\n    custom<ShapedFunctionType>(ref($arguments),\n                               type($arguments), $argument_dims,\n                               type($results), $result_dims,\n                               $tied_operands)\n    `count` `` custom<WorkgroupCountRegion>($workgroup_count)\n    `layout` `(` $layout `)`\n    `objects` `(` `{` custom<TargetConditionObjects>($targets,\n                                                     $target_ordinals,\n                                                     $target_objects,\n                                                     $target_regions) `}` `)`\n    prop-dict attr-dict-with-keyword",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -17308,7 +17308,7 @@
       { "name": "data", "type": "Util_AnySerializableAttr" },
       { "name": "mime_type", "type": "OptionalAttr<StrAttr>" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    attr-dict-with-keyword",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    prop-dict attr-dict-with-keyword",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -17426,7 +17426,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    (`ordinal` `(` $ordinal^ `)`)?\n    `layout` `(` qualified($layout) `)`\n    (`condition` `` custom<ExportConditionRegion>($condition)^)?\n    (`fallback` `(` $condition_fallback^ `)`)?\n    (`count` `` custom<WorkgroupCountRegion>($workgroup_count)^)?\n    attr-dict-with-keyword",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    (`ordinal` `(` $ordinal^ `)`)?\n    `layout` `(` qualified($layout) `)`\n    (`condition` `` custom<ExportConditionRegion>($condition)^)?\n    (`fallback` `(` $condition_fallback^ `)`)?\n    (`count` `` custom<WorkgroupCountRegion>($workgroup_count)^)?\n    prop-dict attr-dict-with-keyword",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -17489,7 +17489,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    attr-dict-with-keyword\n    $body",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    prop-dict attr-dict-with-keyword\n    $body",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -18874,7 +18874,7 @@
   {
     "name": "iree_codegen.inner_tiled",
     "summary": "Generic operation on tiled operands based on an intrinsic.",
-    "description": "Each operand's shape is viewed as `outer_dims x inner_tile`:\n    - The outer dims are those described by the operand's indexing map; they\n      are iterated by an outer loop nest specified by `iterator_types` and\n      `indexing_maps`, with the same conventions as `vector.contract`.\n    - The remaining trailing dims form the operand's inner tile. At each\n      outer iteration point, the output inner tiles are updated from the\n      input inner tiles by the intrinsic named by `kind`.\n\n    Operands may be tensors, memrefs or vectors. Inner-tile dims are generally\n    static, the only exception being scalable vectors dimensions which\n    correspond to dynamic tensor dimensions.\n\n    ### Attributes\n\n    - `kind` (`InnerTileDescAttrInterface`): names the intrinsic. It fixes\n      the number of inputs/outputs and, together with `semantics`, the\n      canonical inner-tile vector type of each operand.\n    - `semantics` (`InnerTiledSemanticsAttrInterface`): controls how strictly\n      operand inner tiles are checked against `kind`. Different `semantics`\n      attributes from different dialects may adopt different conventions, but\n      there are generally two main modes:\n      * `opaque = true`: only the element type and total element count of\n        each inner tile must match the canonical vector type. Shape and\n        rank are otherwise free. Scalable vectors and dynamic tensor dims\n        are not allowed in this mode.\n      * Default / `opaque = false`: after dropping non-scalable unit dims, the\n        operand inner-tile shape must match the (permuted) canonical shape\n        one-to-one. Scalable vector dimensions are supported and must correspond\n        to dynamic tensor dimensions. Every other tensor dimension must be static.\n    - `indexing_maps`: one projected-permutation `AffineMap` per operand\n      (inputs first, then outputs), all sharing the same number of dims\n      (equal to `iterator_types.size()`) and no symbols.\n    - `iterator_types`: one of `parallel` / `reduction` for each outer\n      iterator dim.\n    - `permutations` (optional): If present, there is one entry per operand,\n      each a permutation vector\n      `p` of length equal to that operand's inner rank, giving the\n      relationship between the canonical inner-tile shape `C` (from\n      `kind`/`semantics`) and the operand's actual inner-tile shape `S`:\n      `S[i] == C[p[i]]`.\n\n    ### Examples\n\n    Subgroup-level (undistributed) MMA on tensors using the AMD MFMA\n    intrinsic `MFMA_F32_32x32x8_F16`, whose canonical per-operand inner\n    tiles are LHS = `32x8` (M, K), RHS = `8x32` (K, N) and ACC = `32x32`\n    (M, N). In practice the RHS is typically stored with its inner dims\n    swapped (the matmul is really an MMT at the tile level); this is\n    expressed by the `[1, 0]` entry in `permutations` on the RHS operand,\n    which makes its inner-tile shape `canonical[1] x canonical[0]` =\n    `N x K` = `32 x 8`.\n\n    ```mlir\n    %0 = iree_codegen.inner_tiled ins(%lhs, %rhs) outs(%acc) {\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (m, n)>\n        ],\n        iterator_types = [\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<reduction>\n        ],\n        kind         = #iree_gpu.mma_layout<MFMA_F32_32x32x8_F16>,\n        semantics    = #iree_gpu.mma_semantics<distributed = false, opaque = false>,\n        permutations = [array<i64: 0, 1>, array<i64: 1, 0>, array<i64: 0, 1>]\n      } : tensor<?x?x32x8xf16>, tensor<?x?x32x8xf16>\n          into tensor<?x?x32x32xf32>\n    ```\n\n    After distribution across the 64 lanes of a wave, the per-operand\n    inner tiles become the canonical *per-lane* shares of the intrinsic:\n    `256 / 64 = 4` f16 elements per lane for LHS and RHS, `1024 / 64 = 16`\n    f32 elements per lane for ACC.\n\n    ```mlir\n    %0 = iree_codegen.inner_tiled ins(%lhs, %rhs) outs(%acc) {\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (m, n)>\n        ],\n        iterator_types = [\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<reduction>\n        ],\n        kind      = #iree_gpu.mma_layout<MFMA_F32_32x32x8_F16>,\n        semantics = #iree_gpu.mma_semantics<distributed = true, opaque = false>\n      } : tensor<?x?x4xf16>, tensor<?x?x4xf16>\n          into tensor<?x?x16xf32>\n    ```",
+    "description": "Each operand's shape is viewed as `outer_dims x inner_tile`:\n    - The outer dims are those described by the operand's indexing map; they\n      are iterated by an outer loop nest specified by `iterator_types` and\n      `indexing_maps`, with the same conventions as `vector.contract`.\n    - The remaining trailing dims form the operand's inner tile. At each\n      outer iteration point, the output inner tiles are updated from the\n      input inner tiles by the intrinsic named by `kind`.\n\n    Operands may be tensors, memrefs or vectors. Inner-tile dims are generally\n    static, the only exception being scalable vectors dimensions which\n    correspond to dynamic tensor dimensions.\n\n    ### Attributes\n\n    - `kind` (`InnerTileDescAttrInterface`): names the intrinsic. It fixes\n      the number of inputs/outputs and, together with `semantics`, the\n      canonical inner-tile vector type of each operand.\n    - `semantics` (`InnerTiledSemanticsAttrInterface`): controls how strictly\n      operand inner tiles are checked against `kind`. Different `semantics`\n      attributes from different dialects may adopt different conventions, but\n      there are generally two main modes:\n      * `opaque = true`: only the element type and total element count of\n        each inner tile must match the canonical vector type. Shape and\n        rank are otherwise free. Scalable vectors and dynamic tensor dims\n        are not allowed in this mode.\n      * Default / `opaque = false`: after dropping non-scalable unit dims, the\n        operand inner-tile shape must match the (permuted) canonical shape\n        one-to-one. Scalable vector dimensions are supported and must correspond\n        to dynamic tensor dimensions. Every other tensor dimension must be static.\n    - `indexing_maps`: one projected-permutation `AffineMap` per operand\n      (inputs first, then outputs), all sharing the same number of dims\n      (equal to `iterator_types.size()`) and no symbols.\n    - `iterator_types`: one of `parallel` / `reduction` for each outer\n      iterator dim.\n    - `permutations` (optional): If present, there is one entry per operand,\n      each a permutation vector\n      `p` of length equal to that operand's inner rank, giving the\n      relationship between the canonical inner-tile shape `C` (from\n      `kind`/`semantics`) and the operand's actual inner-tile shape `S`:\n      `S[i] == C[p[i]]`.\n\n    ### Examples\n\n    Subgroup-level (undistributed) MMA on tensors using the AMD MFMA\n    intrinsic `MFMA_F32_32x32x8_F16`, whose canonical per-operand inner\n    tiles are LHS = `32x8` (M, K), RHS = `8x32` (K, N) and ACC = `32x32`\n    (M, N). In practice the RHS is typically stored with its inner dims\n    swapped (the matmul is really an MMT at the tile level); this is\n    expressed by the `[1, 0]` entry in `permutations` on the RHS operand,\n    which makes its inner-tile shape `canonical[1] x canonical[0]` =\n    `N x K` = `32 x 8`.\n\n    ```mlir\n    %0 = iree_codegen.inner_tiled ins(%lhs, %rhs) outs(%acc) <\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (m, n)>\n        ],\n        iterator_types = [\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<reduction>\n        ],\n        kind         = #iree_gpu.mma_layout<MFMA_F32_32x32x8_F16>,\n        semantics    = #iree_gpu.mma_semantics<distributed = false, opaque = false>,\n        permutations = [array<i64: 0, 1>, array<i64: 1, 0>, array<i64: 0, 1>]\n      > : tensor<?x?x32x8xf16>, tensor<?x?x32x8xf16>\n          into tensor<?x?x32x32xf32>\n    ```\n\n    After distribution across the 64 lanes of a wave, the per-operand\n    inner tiles become the canonical *per-lane* shares of the intrinsic:\n    `256 / 64 = 4` f16 elements per lane for LHS and RHS, `1024 / 64 = 16`\n    f32 elements per lane for ACC.\n\n    ```mlir\n    %0 = iree_codegen.inner_tiled ins(%lhs, %rhs) outs(%acc) <\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (m, n)>\n        ],\n        iterator_types = [\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<parallel>,\n          #linalg.iterator_type<reduction>\n        ],\n        kind      = #iree_gpu.mma_layout<MFMA_F32_32x32x8_F16>,\n        semantics = #iree_gpu.mma_semantics<distributed = true, opaque = false>\n      > : tensor<?x?x4xf16>, tensor<?x?x4xf16>\n          into tensor<?x?x16xf32>\n    ```",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyRankedTensorOrVector>" },
       { "name": "outputs", "type": "Variadic<AnyRankedTensorOrVector>" }
@@ -18893,7 +18893,7 @@
       { "type": "AttrSizedOperandSegments" },
       { "type": "InferTypeOpInterface" }
     ],
-    "assemblyFormat": "`ins` `(` $inputs `)` `outs` `(` $outputs `)` attr-dict\n    `:` type($inputs) `into` type($outputs)"
+    "assemblyFormat": "`ins` `(` $inputs `)` `outs` `(` $outputs `)` prop-dict attr-dict\n    `:` type($inputs) `into` type($outputs)"
   },
   {
     "name": "iree_codegen.knob",
@@ -19291,7 +19291,7 @@
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
     ],
-    "assemblyFormat": "attr-dict\n    `ins` `(` $query `,` $key `,` $value `,` $scale (`,` $mask^)?  `:` type($query) `,` type($key) `,` type($value) `,` type($scale) (`,` type($mask)^ )?`)`\n    `outs` `(` $output `:` type($output) `)`\n    $region\n    (`->` type($results)^)?",
+    "assemblyFormat": "prop-dict attr-dict\n    `ins` `(` $query `,` $key `,` $value `,` $scale (`,` $mask^)?  `:` type($query) `,` type($key) `,` type($value) `,` type($scale) (`,` type($mask)^ )?`)`\n    `outs` `(` $output `:` type($output) `)`\n    $region\n    (`->` type($results)^)?",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -19321,7 +19321,7 @@
   {
     "name": "iree_linalg_ext.dequantize_affine",
     "summary": "Affine (uniform) dequantization of an integer tensor.",
-    "description": "Dequantizes `input` elementwise, producing a real valued `output`:\n\n    ```\n    output[out_map(d)] = (extend(input[in_map(d)])\n                            - extend(zero_point[zp_map(d)]))\n                           * scale[scale_map(d)]\n    ```\n\n    See `iree_linalg_ext.quantize_affine` for the meaning of `indexing_maps` and\n    of the signedness attributes; here `input_unsigned` refers to the quantized\n    operand, which is the input rather than the output.\n\n    As in `quantize_affine`, the multiplication is performed in the element type of\n    `scale`. Distinct floating-point formats of the same bit width cannot be mixed.\n\n    `zero_point` must be a point on the quantized grid: its values must be\n    representable in the element type of `input`, even when its own element\n    type is wider (PT2E emits `i64` zero points for `i8` data).\n\n    It is what makes the subtraction width depend only on the storage\n    type, `PowerOf2Ceil(storage_width + 1)`, so `i8` data subtracts in `i16`\n    whatever the zero point's own element type.\n\n    `quant_min`/`quant_max` optionally describe the inclusive range of the\n    quantized input values. They do not clamp the input or change the\n    dequantization arithmetic. This preserves information that the storage\n    type alone cannot express: an i8 tensor with range `[-8, 7]` uses a\n    four-bit quantization grid, which a consumer can use to pack the values\n    into i4 storage.\n\n    Example:\n\n    ```mlir\n    %dq = iree_linalg_ext.dequantize_affine\n        {indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         input_unsigned}\n        ins(%q, %scale, %zp : tensor<128x64xi8>, tensor<128xf32>, tensor<128xi32>)\n        outs(%init : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```",
+    "description": "Dequantizes `input` elementwise, producing a real valued `output`:\n\n    ```\n    output[out_map(d)] = (extend(input[in_map(d)])\n                            - extend(zero_point[zp_map(d)]))\n                           * scale[scale_map(d)]\n    ```\n\n    See `iree_linalg_ext.quantize_affine` for the meaning of `indexing_maps` and\n    of the signedness attributes; here `input_unsigned` refers to the quantized\n    operand, which is the input rather than the output.\n\n    As in `quantize_affine`, the multiplication is performed in the element type of\n    `scale`. Distinct floating-point formats of the same bit width cannot be mixed.\n\n    `zero_point` must be a point on the quantized grid: its values must be\n    representable in the element type of `input`, even when its own element\n    type is wider (PT2E emits `i64` zero points for `i8` data).\n\n    It is what makes the subtraction width depend only on the storage\n    type, `PowerOf2Ceil(storage_width + 1)`, so `i8` data subtracts in `i16`\n    whatever the zero point's own element type.\n\n    `quant_min`/`quant_max` optionally describe the inclusive range of the\n    quantized input values. They do not clamp the input or change the\n    dequantization arithmetic. This preserves information that the storage\n    type alone cannot express: an i8 tensor with range `[-8, 7]` uses a\n    four-bit quantization grid, which a consumer can use to pack the values\n    into i4 storage.\n\n    Example:\n\n    ```mlir\n    %dq = iree_linalg_ext.dequantize_affine\n        <indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         input_unsigned>\n        ins(%q, %scale, %zp : tensor<128x64xi8>, tensor<128xf32>, tensor<128xi32>)\n        outs(%init : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```",
     "operands": [
       { "name": "input", "type": "AnyRankedShapedType" },
       { "name": "scale", "type": "AnyRankedShapedOrScalarType" },
@@ -19338,7 +19338,7 @@
       { "name": "input_unsigned", "type": "UnitAttr" },
       { "name": "zp_unsigned", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "attr-dict\n    `ins` `(` $input `,` $scale (`,` $zero_point^)? `:`\n              type($input) `,` type($scale) (`,` type($zero_point)^)? `)`\n    `outs` `(` $output `:` type($output) `)`\n    (`->` type($result)^)?",
+    "assemblyFormat": "prop-dict attr-dict\n    `ins` `(` $input `,` $scale (`,` $zero_point^)? `:`\n              type($input) `,` type($scale) (`,` type($zero_point)^)? `)`\n    `outs` `(` $output `:` type($output) `)`\n    (`->` type($result)^)?",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -19550,7 +19550,7 @@
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
     ],
-    "assemblyFormat": "attr-dict\n    `ins` `(` $query `,` $key `,` $value `,` $scale (`,` $mask^)?  `:` type($query) `,` type($key) `,` type($value) `,` type($scale) (`,` type($mask)^ )?`)`\n    `outs` `(` $output `,` $max `,` $sum `:` type($output) `,` type($max) `,` type($sum) `)`\n    $region\n    (`->` type($results)^)?",
+    "assemblyFormat": "prop-dict attr-dict\n    `ins` `(` $query `,` $key `,` $value `,` $scale (`,` $mask^)?  `:` type($query) `,` type($key) `,` type($value) `,` type($scale) (`,` type($mask)^ )?`)`\n    `outs` `(` $output `,` $max `,` $sum `:` type($output) `,` type($max) `,` type($sum) `)`\n    $region\n    (`->` type($results)^)?",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -19580,7 +19580,7 @@
   {
     "name": "iree_linalg_ext.quantize_affine",
     "summary": "Affine (uniform) quantization of a real valued tensor.",
-    "description": "Quantizes `input` elementwise, producing an integer `output`:\n\n    ```\n    output[out_map(d)] = clamp(round(input[in_map(d)] / scale[scale_map(d)])\n                                 + extend(zero_point[zp_map(d)]),\n                               quant_min, quant_max)\n    ```\n\n    `round` breaks ties to even, matching ONNX `QuantizeLinear`, the PT2E\n    `quantize_per_tensor` family and StableHLO `uniform_quantize`. The\n    arithmetic is performed in the element type of `scale`, so an f32 scale\n    over an f16 input gives f32 arithmetic. Distinct floating-point formats of\n    the same bit width, such as f16 and bf16, cannot be mixed.\n\n    The `scale` and `zero_point` maps are independent projected permutations\n    whose number of results is the granularity of that parameter:\n\n    - per-tensor:  `affine_map<(d0, d1) -> ()>`\n    - per-channel: `affine_map<(d0, d1) -> (d0)>`\n    - per-block:   `affine_map<(d0, d1, d2) -> (d0, d1)>` over an input whose\n                   blocked dimension has been expanded, e.g. `MxKxi4` reshaped\n                   to `Mx(K/B)xBxi4`.\n\n    `zero_point` is optional; when absent the quantization is symmetric.\n\n    `quant_min`/`quant_max` are the inclusive clamp bounds in the storage value\n    space, following the PT2E `quantize_per_tensor` convention. They are\n    required because the representable range is frequently not the full range\n    of the storage type (narrow-range `[-127, 127]` weights, sub-byte values\n    packed into a wider storage type).\n\n    MLIR integers are signless, so `storage_unsigned` and `zp_unsigned` declare\n    how `output` and `zero_point` are interpreted. Because the signedness lives\n    in those attributes, the integer element types themselves have to be\n    signless: `si8` and `ui8` are rejected in favor of `i8`.\n\n    Example:\n\n    ```mlir\n    %q = iree_linalg_ext.quantize_affine\n        {indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         quant_min = -128 : i64, quant_max = 127 : i64}\n        ins(%x, %scale, %zp : tensor<128x64xf32>, tensor<128xf32>, tensor<128xi8>)\n        outs(%init : tensor<128x64xi8>) -> tensor<128x64xi8>\n    ```",
+    "description": "Quantizes `input` elementwise, producing an integer `output`:\n\n    ```\n    output[out_map(d)] = clamp(round(input[in_map(d)] / scale[scale_map(d)])\n                                 + extend(zero_point[zp_map(d)]),\n                               quant_min, quant_max)\n    ```\n\n    `round` breaks ties to even, matching ONNX `QuantizeLinear`, the PT2E\n    `quantize_per_tensor` family and StableHLO `uniform_quantize`. The\n    arithmetic is performed in the element type of `scale`, so an f32 scale\n    over an f16 input gives f32 arithmetic. Distinct floating-point formats of\n    the same bit width, such as f16 and bf16, cannot be mixed.\n\n    The `scale` and `zero_point` maps are independent projected permutations\n    whose number of results is the granularity of that parameter:\n\n    - per-tensor:  `affine_map<(d0, d1) -> ()>`\n    - per-channel: `affine_map<(d0, d1) -> (d0)>`\n    - per-block:   `affine_map<(d0, d1, d2) -> (d0, d1)>` over an input whose\n                   blocked dimension has been expanded, e.g. `MxKxi4` reshaped\n                   to `Mx(K/B)xBxi4`.\n\n    `zero_point` is optional; when absent the quantization is symmetric.\n\n    `quant_min`/`quant_max` are the inclusive clamp bounds in the storage value\n    space, following the PT2E `quantize_per_tensor` convention. They are\n    required because the representable range is frequently not the full range\n    of the storage type (narrow-range `[-127, 127]` weights, sub-byte values\n    packed into a wider storage type).\n\n    MLIR integers are signless, so `storage_unsigned` and `zp_unsigned` declare\n    how `output` and `zero_point` are interpreted. Because the signedness lives\n    in those attributes, the integer element types themselves have to be\n    signless: `si8` and `ui8` are rejected in favor of `i8`.\n\n    Example:\n\n    ```mlir\n    %q = iree_linalg_ext.quantize_affine\n        <indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         quant_min = -128, quant_max = 127>\n        ins(%x, %scale, %zp : tensor<128x64xf32>, tensor<128xf32>, tensor<128xi8>)\n        outs(%init : tensor<128x64xi8>) -> tensor<128x64xi8>\n    ```",
     "operands": [
       { "name": "input", "type": "AnyRankedShapedType" },
       { "name": "scale", "type": "AnyRankedShapedOrScalarType" },
@@ -19597,7 +19597,7 @@
       { "name": "storage_unsigned", "type": "UnitAttr" },
       { "name": "zp_unsigned", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "attr-dict\n    `ins` `(` $input `,` $scale (`,` $zero_point^)? `:`\n              type($input) `,` type($scale) (`,` type($zero_point)^)? `)`\n    `outs` `(` $output `:` type($output) `)`\n    (`->` type($result)^)?",
+    "assemblyFormat": "prop-dict attr-dict\n    `ins` `(` $input `,` $scale (`,` $zero_point^)? `:`\n              type($input) `,` type($scale) (`,` type($zero_point)^)? `)`\n    `outs` `(` $output `:` type($output) `)`\n    (`->` type($result)^)?",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -20069,7 +20069,7 @@
     "traits": [
       { "type": "AllTypesMatch<['input', 'output']>" }
     ],
-    "assemblyFormat": "$input `to` `layout` `(` $layout `)` attr-dict `:` type($input)"
+    "assemblyFormat": "$input `to` `layout` `(` $layout `)` prop-dict attr-dict `:` type($input)"
   },
   {
     "name": "iree_vector_ext.to_simd",
@@ -20116,7 +20116,7 @@
       { "type": "AttrSizedOperandSegments" },
       { "type": "TypesMatchWith<'base', 'padding', 'getElementTypeOrSelf($_self)'>" }
     ],
-    "assemblyFormat": "$base `[` $offsets `]` (`[` $index_vecs^ `:` type($index_vecs) `]`)? `,` $padding (`,` $mask^)? attr-dict `:` type($base) `,` type($vector) (`,` type($mask)^)?"
+    "assemblyFormat": "$base `[` $offsets `]` (`[` $index_vecs^ `:` type($index_vecs) `]`)? `,` $padding (`,` $mask^)? prop-dict attr-dict `:` type($base) `,` type($vector) (`,` type($mask)^)?"
   },
   {
     "name": "iree_vector_ext.transfer_scatter",
@@ -20138,7 +20138,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$vector `into` $base `[` $offsets `]`\n    (`[` $index_vecs^ `:` type($index_vecs) `]`)?\n    (`,` $mask^)?\n    attr-dict `:` type($vector) `,` type($base)\n    (`,` type($mask)^)?\n    (`->` type($result)^)?"
+    "assemblyFormat": "$vector `into` $base `[` $offsets `]`\n    (`[` $index_vecs^ `:` type($index_vecs) `]`)?\n    (`,` $mask^)?\n    prop-dict attr-dict `:` type($vector) `,` type($base)\n    (`,` type($mask)^)?\n    (`->` type($result)^)?"
   },
   {
     "name": "iree_vector_ext.yield",
@@ -61189,7 +61189,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "(`on` `(` $affinity^ `)`)?\n    $callee ``\n    custom<DispatchOperands>($resource_operands,\n                             $resource_operand_offsets,\n                             $resource_operand_ends,\n                             $resource_operand_lengths) attr-dict `:`\n    custom<ShapedFunctionType>(ref($resource_operands),\n                               type($resource_operands), $resource_operand_sizes,\n                               type($results), $result_sizes,\n                               $tied_operands)",
+    "assemblyFormat": "(`on` `(` $affinity^ `)`)?\n    $callee ``\n    custom<DispatchOperands>($resource_operands,\n                             $resource_operand_offsets,\n                             $resource_operand_ends,\n                             $resource_operand_lengths) prop-dict attr-dict `:`\n    custom<ShapedFunctionType>(ref($resource_operands),\n                               type($resource_operands), $resource_operand_sizes,\n                               type($results), $result_sizes,\n                               $tied_operands)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -61788,7 +61788,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$callee ``\n    custom<CmdCallOperands>($resource_operands,\n                            $resource_operand_offsets,\n                            $resource_operand_lengths,\n                            $resource_operand_accesses) attr-dict `:`\n    custom<ShapedFunctionType>(ref($resource_operands),\n                               type($resource_operands),\n                               $resource_operand_sizes,\n                               type($results),\n                               $result_sizes,\n                               $tied_operands)",
+    "assemblyFormat": "$callee ``\n    custom<CmdCallOperands>($resource_operands,\n                            $resource_operand_offsets,\n                            $resource_operand_lengths,\n                            $resource_operand_accesses) prop-dict attr-dict `:`\n    custom<ShapedFunctionType>(ref($resource_operands),\n                               type($resource_operands),\n                               $resource_operand_sizes,\n                               type($results),\n                               $result_sizes,\n                               $tied_operands)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -62536,7 +62536,7 @@
     "attributes": [
       { "name": "affinity", "type": "OptionalAttr<Stream_AffinityAttr>" }
     ],
-    "assemblyFormat": "$operand\n    attr-dict `:` type($operand)",
+    "assemblyFormat": "$operand\n    prop-dict attr-dict `:` type($operand)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -112030,11 +112030,12 @@
   },
   {
     "name": "transform.apply_conversion_patterns.gpu.gpu_to_rocdl",
-    "description": "Collects patterns that convert GPU dialect ops to ROCDL dialect ops. These\n    patterns require an \"LLVMTypeConverter\".",
+    "description": "Collects patterns that convert GPU dialect ops to ROCDL dialect ops. These\n    patterns require an \"LLVMTypeConverter\".\n\n    `arch` names the target the way Clang does: a GPU name with optional\n    target-ID modifiers (\"gfx942\", \"gfx942:xnack+\", \"gfx9-4-generic\"), a triple\n    (\"amdgpu9.42-amd-amdhsa\"), or a full target ID\n    (\"amdgpu9.0a-amd-amdhsa--gfx90a:sramecc+:xnack-\").\n\n    `wavesize` pins the wavefront size on targets that run at either; omitting\n    it uses the architecture's own default.",
     "attributes": [
-      { "name": "chipset", "type": "StrAttr" }
+      { "name": "arch", "type": "StrAttr" },
+      { "name": "wavesize", "type": "OptionalAttr<I32Attr>" }
     ],
-    "assemblyFormat": "`chipset` `=` $chipset attr-dict"
+    "assemblyFormat": "prop-dict attr-dict"
   },
   {
     "name": "transform.apply_conversion_patterns.gpu.gpu_wmma_to_nvvm",
@@ -112168,11 +112169,11 @@
   },
   {
     "name": "transform.apply_patterns.gpu.gpu_shuffle_to_amdgpu",
-    "description": "Collects patterns that are tryin to promote `gpu.shuffle`s to specialized\n    AMDGPU intrinsics.",
+    "description": "Collects patterns that are tryin to promote `gpu.shuffle`s to specialized\n    AMDGPU intrinsics.\n\n    `arch` names the target the way Clang does: a GPU name with optional\n    target-ID modifiers (\"gfx950\", \"gfx950:xnack+\"), a triple\n    (\"amdgpu9.50-amd-amdhsa\"), or a full target ID. Omitting it collects only\n    the patterns that hold on every target.",
     "attributes": [
-      { "name": "chipset", "type": "OptionalAttr<StrAttr>" }
+      { "name": "arch", "type": "OptionalAttr<StrAttr>" }
     ],
-    "assemblyFormat": "(`chipset` `=` $chipset^)? attr-dict"
+    "assemblyFormat": "prop-dict attr-dict"
   },
   {
     "name": "transform.apply_patterns.gpu.unroll_vectors_subgroup_mma",
@@ -128210,6 +128211,18 @@
     ]
   },
   {
+    "name": "ttnn.silu_bw",
+    "summary": "SiLU backward pass (ttml).",
+    "description": "Training-oriented backward pass of the SiLU activation, backed by the\n      ttml metal op `ttml::metal::silu_bw`. Given the input `input` and\n      upstream gradient `grad_output`, the op computes\n\n        grad_input = grad_output * sigmoid(input) *\n                     (1 + input * (1 - sigmoid(input)))\n\n      The backing kernel requires both operands to be rank 4 bfloat16 tensors\n      with the same shape, in tiled, interleaved DRAM device memory. The result\n      has the shape of `input` and is also allocated in DRAM.",
+    "operands": [
+      { "name": "input", "type": "AnyRankedTensor" },
+      { "name": "grad_output", "type": "AnyRankedTensor" }
+    ],
+    "results": [
+      { "name": "grad_input", "type": "AnyRankedTensor" }
+    ]
+  },
+  {
     "name": "ttnn.sin",
     "summary": "Eltwise sine.",
     "description": "Eltwise sine operation.",
@@ -128726,7 +128739,7 @@
     "attributes": [
       { "name": "alignment", "type": "OptionalAttr<IndexAttr>" }
     ],
-    "assemblyFormat": "`uninitialized`\n    attr-dict\n    `:`\n    type($result) `` `{` $storage_size `}`",
+    "assemblyFormat": "`uninitialized`\n    prop-dict attr-dict\n    `:`\n    type($result) `` `{` $storage_size `}`",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -128761,7 +128774,7 @@
       { "name": "alignment", "type": "OptionalAttr<IndexAttr>" },
       { "name": "mime_type", "type": "OptionalAttr<StrAttr>" }
     ],
-    "assemblyFormat": "($name^)? attr-dict `:` type($result) `=` $value",
+    "assemblyFormat": "($name^)? prop-dict attr-dict `:` type($result) `=` $value",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -128869,7 +128882,7 @@
     "traits": [
       { "type": "AllTypesMatch<['source', 'result']>" }
     ],
-    "assemblyFormat": "$source `[` $source_offset `]` attr-dict `:`\n    type($source) `` `{` $source_size `}` `->`\n    type($result) `` `{` $result_size `}`",
+    "assemblyFormat": "$source `[` $source_offset `]` prop-dict attr-dict `:`\n    type($source) `` `{` $source_size `}` `->`\n    type($result) `` `{` $result_size `}`",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -128936,7 +128949,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` $operands `)`\n    attr-dict `:`\n    custom<OperandTypeList>(type($operands))\n    `->`\n    custom<TiedFunctionResultList>(ref($operands),\n                                   ref(type($operands)),\n                                   type($results),\n                                   $tied_operands)",
+    "assemblyFormat": "$callee `(` $operands `)`\n    prop-dict attr-dict `:`\n    custom<OperandTypeList>(type($operands))\n    `->`\n    custom<TiedFunctionResultList>(ref($operands),\n                                   ref(type($operands)),\n                                   type($results),\n                                   $tied_operands)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -129019,7 +129032,7 @@
       { "name": "initial_value", "type": "OptionalAttr<TypedAttrInterface>" },
       { "name": "inlining_policy", "type": "OptionalAttr<Util_InliningPolicyAttrInterface>" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    prop-dict attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -129232,7 +129245,7 @@
     "traits": [
       { "type": "SameOperandsAndResultType" }
     ],
-    "assemblyFormat": "$operand `:` type($operand) `as` $semantic_type attr-dict",
+    "assemblyFormat": "$operand `:` type($operand) `as` $semantic_type prop-dict attr-dict",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -132804,7 +132817,7 @@
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" }
     ],
-    "assemblyFormat": "$callee `(` operands `)` attr-dict `:` functional-type(operands, results)",
+    "assemblyFormat": "$callee `(` operands `)` prop-dict attr-dict `:` functional-type(operands, results)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -132844,7 +132857,7 @@
     "successors": [
       { "name": "dest", "type": "AnySuccessor" }
     ],
-    "assemblyFormat": "$callee `(` $operands `)` attr-dict `:` `(` type($operands) `)`\n    `->` $dest custom<ResultTypeList>($result_types)",
+    "assemblyFormat": "$callee `(` $operands `)` prop-dict attr-dict `:` `(` type($operands) `)`\n    `->` $dest custom<ResultTypeList>($result_types)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -132863,7 +132876,7 @@
     "successors": [
       { "name": "dest", "type": "AnySuccessor" }
     ],
-    "assemblyFormat": "$callee `(` $arguments `)` attr-dict `:` `(` type($arguments) `)`\n    `->` $dest custom<ResultTypeList>($result_types)",
+    "assemblyFormat": "$callee `(` $arguments `)` prop-dict attr-dict `:` `(` type($arguments) `)`\n    `->` $dest custom<ResultTypeList>($result_types)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -134847,7 +134860,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    prop-dict attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -134866,7 +134879,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    prop-dict attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -134885,7 +134898,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    prop-dict attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -134904,7 +134917,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    prop-dict attr-dict\n    custom<TypeOrAttr>($type, $initial_value)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -135072,7 +135085,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    attr-dict\n    `:` $type",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    (`mutable` $is_mutable^)?\n    $sym_name\n    prop-dict attr-dict\n    `:` $type",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -135752,7 +135765,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    attr-dict-with-keyword\n    regions",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility)\n    $sym_name\n    prop-dict attr-dict-with-keyword\n    regions",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -136099,7 +136112,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility) $sym_name attr-dict $value",
+    "assemblyFormat": "custom<SymbolVisibility>($sym_visibility) $sym_name prop-dict attr-dict $value",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -136115,7 +136128,7 @@
       { "name": "alignment", "type": "OptionalAttr<I64Attr>" },
       { "name": "mime_type", "type": "OptionalAttr<StrAttr>" }
     ],
-    "assemblyFormat": "($name^)? attr-dict `:` type($result) `=` $value",
+    "assemblyFormat": "($name^)? prop-dict attr-dict `:` type($result) `=` $value",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -136135,7 +136148,7 @@
       { "name": "data_alignment", "type": "OptionalAttr<I64Attr>" },
       { "name": "mime_type", "type": "OptionalAttr<StrAttr>" }
     ],
-    "assemblyFormat": "$table_type attr-dict `:` type($table_result) `,` type($data_result) `=` $data_array",
+    "assemblyFormat": "$table_type prop-dict attr-dict `:` type($table_result) `,` type($data_result) `=` $data_array",
     "hasCustomAssemblyFormat": true
   },
   {
