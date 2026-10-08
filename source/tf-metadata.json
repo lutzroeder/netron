@@ -23927,7 +23927,7 @@
     "inputs": [
       {
         "name": "iterator",
-        "description": "An resource from an dataset iterator.",
+        "description": "A resource from a dataset iterator.",
         "type": 20
       }
     ],
