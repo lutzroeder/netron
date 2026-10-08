@@ -19,7 +19,7 @@ Netron has experimental support for MLIR, JAX, GGUF, RKNN, ncnn, MNN, PaddlePadd
 
 **Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.deb` or `.rpm` file.
 
-**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install -s winget netron`.
+**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install LutzRoeder.Netron`.
 
 **Python**: `pip install netron`, then run `netron [FILE]` or `netron.start('[FILE]')`.
 
