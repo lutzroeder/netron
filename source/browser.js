@@ -803,9 +803,9 @@ browser.FileStream = class {
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._start + this._position;
-            const length = Math.min(0x10000000, this._start + this._length - this._offset);
-            if (!this._buffer || length !== this._buffer.length) {
-                this._buffer = new Uint8Array(length);
+            const size = Math.min(Math.max(length, 0x10000), this._start + this._length - this._offset);
+            if (!this._buffer || size !== this._buffer.length) {
+                this._buffer = new Uint8Array(size);
             }
             this._read(this._buffer, this._offset);
         }
