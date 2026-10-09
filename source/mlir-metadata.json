@@ -14,7 +14,7 @@
   {
     "name": "acc.atomic.read",
     "summary": "performs an atomic read",
-    "description": "This operation performs an atomic read.\n\n    The operand `x` is the address from where the value is atomically read.\n    The operand `v` is the address where the value is stored after reading.",
+    "description": "This operation performs an atomic read.\n\n    The operand `x` is the address from where the value is atomically read.\n    The operand `v` is the address where the value is stored after reading.\n\n    The operation declares its memory effects per operand: it reads the\n    location designated by `x` and writes the location designated by `v`. It\n    declares no other effect, which models relaxed ordering: the access to the\n    location is atomic, but the operation creates no ordering relationship with\n    accesses to any other location, so those may be moved across it. OpenACC\n    leaves the ordering of the `atomic` construct unspecified - unlike OpenMP\n    it has no memory-ordering clause - so relaxed is the weakest reading\n    consistent with the specification and the one that permits the most\n    optimization.",
     "operands": [
       { "name": "x", "type": "OpenACC_PointerLikeType" },
       { "name": "v", "type": "OpenACC_PointerLikeType" },
@@ -41,7 +41,7 @@
   {
     "name": "acc.atomic.write",
     "summary": "performs an atomic write",
-    "description": "This operation performs an atomic write.\n\n    The operand `x` is the address to where the `expr` is atomically\n    written w.r.t. multiple threads. The evaluation of `expr` need not be\n    atomic w.r.t. the write to address. In general, the type(x) must\n    dereference to type(expr).",
+    "description": "This operation performs an atomic write.\n\n    The operand `x` is the address to where the `expr` is atomically\n    written w.r.t. multiple threads. The evaluation of `expr` need not be\n    atomic w.r.t. the write to address. In general, the type(x) must\n    dereference to type(expr).\n\n    The operation declares its memory effects per operand: it writes the\n    location designated by `x`. `expr` is a value rather than a location, so\n    it carries no effect. No other effect is declared, which models relaxed\n    ordering: the access to the location is atomic, but the operation creates\n    no ordering relationship with accesses to any other location, so those may\n    be moved across it. OpenACC leaves the ordering of the `atomic` construct\n    unspecified, so relaxed is the weakest reading consistent with the\n    specification and the one that permits the most optimization.",
     "operands": [
       { "name": "x", "type": "OpenACC_PointerLikeType" },
       { "name": "expr", "type": "AnyType" },
@@ -900,8 +900,8 @@
   },
   {
     "name": "acc.on_device",
-    "summary": "acc_on_device intrinsic operation",
-    "description": "Represents a call to the OpenACC `acc_on_device` runtime function.\n    Returns whether the current thread is executing on the given device type.\n\n    Example:\n\n    ```mlir\n    %host = arith.constant 1 : i32\n    %on_host = acc.on_device %host : i32 -> i1\n    ```",
+    "summary": "call to the acc_on_device runtime function",
+    "description": "Represents a call to the OpenACC `acc_on_device` runtime function\n    (OpenACC 3.4, section 3.2.15). The result indicates whether execution is\n    on the given device type.\n\n    The call is evaluated at compile time only when device specialization\n    runs and the call is inside the code being specialized. On that path, a\n    compile-time constant device type folds to a constant result. Otherwise\n    the call remains a runtime call. The device type must be one of the\n    defined accelerator types.\n\n    Example:\n\n    ```mlir\n    %host = arith.constant 1 : i32\n    %on_host = acc.on_device %host : i32 -> i1\n    ```",
     "operands": [
       { "name": "deviceType", "type": "IntOrIndex" }
     ],
@@ -6859,7 +6859,7 @@
     "attributes": [
       { "name": "broadcast_dimensions", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "comparison_direction", "type": "CHLO_ComparisonDirectionAttr{EQ|NE|GE|GT|LE|LT}" },
-      { "name": "compare_type", "type": "OptionalAttr<CHLO_ComparisonTypeAttr{NOTYPE|FLOAT|TOTALORDER|SIGNED|UNSIGNED}>" }
+      { "name": "compare_type", "type": "OptionalAttr<CHLO_ComparisonTypeAttr{NOTYPE|FLOAT|TOTALORDER|SIGNED|UNSIGNED|WEAKORDER}>" }
     ],
     "assemblyFormat": "$lhs `,` $rhs attr-dict `:`\n    `(` type($lhs) `,` type($rhs) `)` `->` type(results)"
   },
@@ -29374,7 +29374,7 @@
     ],
     "attributes": [
       { "name": "comparison_direction", "type": "MHLO_ComparisonDirectionAttr{EQ|NE|GE|GT|LE|LT}" },
-      { "name": "compare_type", "type": "OptionalAttr<MHLO_ComparisonTypeAttr{NOTYPE|FLOAT|TOTALORDER|SIGNED|UNSIGNED}>" }
+      { "name": "compare_type", "type": "OptionalAttr<MHLO_ComparisonTypeAttr{NOTYPE|FLOAT|TOTALORDER|SIGNED|UNSIGNED|WEAKORDER}>" }
     ],
     "assemblyFormat": "$comparison_direction `,` $lhs `,` $rhs (`,` $compare_type^)?\n      attr-dict `:` functional-type(operands, results)"
   },
@@ -53340,6 +53340,24 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "spirv.CL.fclamp",
+    "summary": "Clamp x between min and max values.",
+    "description": "Returns min(max(x, minval), maxval). The resulting value is poison if\n    minval > maxval.\n\n    Result Type, x, minval and maxval must be floating-point or\n    vector(2,3,4,8,16) of floating-point values.\n\n    All of the operands, including the Result Type operand, must be of the\n    same type.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.CL.fclamp %x, %min, %max : f32\n    %1 = spirv.CL.fclamp %x, %min, %max : vector<3xf16>\n    ```",
+    "operands": [
+      { "name": "x", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Float>" },
+      { "name": "y", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Float>" },
+      { "name": "z", "type": "SPIRV_ScalarOrVectorOf<operandType>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Float>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "spirv.CL.fdim",
     "summary": "Compute the positive difference between x and y.",
     "description": "Returns x - y if x > y, otherwise it returns +0.0.\n\n    Result Type, x and y must be floating-point or vector(2,3,4,8,16) of\n    floating-point values.\n\n    All of the operands, including the Result Type operand, must be of the\n    same type.\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.CL.fdim %0, %1 : f32\n    %3 = spirv.CL.fdim %0, %1 : vector<3xf16>\n    ```",
@@ -53687,6 +53705,24 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "spirv.CL.s_clamp",
+    "summary": "Clamp x between min and max values.",
+    "description": "Returns min(max(x, minval), maxval), where x, minval and maxval are\n    interpreted as signed integers. The resulting value is poison if\n    minval > maxval.\n\n    Result Type, x, minval and maxval must be integer or vector(2,3,4,8,16)\n    of integer values.\n\n    All of the operands, including the Result Type operand, must be of the\n    same type.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.CL.s_clamp %x, %min, %max : i32\n    %1 = spirv.CL.s_clamp %x, %min, %max : vector<3xi16>\n    ```",
+    "operands": [
+      { "name": "x", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
+      { "name": "y", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
+      { "name": "z", "type": "SPIRV_ScalarOrVectorOf<operandType>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "spirv.CL.s_max",
     "summary": "Return maximum of two signed integer operands",
     "description": "Returns y if x < y, otherwise it returns x, where x and y are treated as signed integers.\n\n    Result Type,x and y must be integer or vector(2,3,4,8,16) of integer values.\n\n    All of the operands, including the Result Type operand, must be of the same type.\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.CL.s_max %0, %1 : i32\n    %3 = spirv.CL.s_max %0, %1 : vector<3xi16>\n    ```",
@@ -53814,6 +53850,24 @@
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "$operand `:` type($operand) attr-dict",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "spirv.CL.u_clamp",
+    "summary": "Clamp x between min and max values.",
+    "description": "Returns min(max(x, minval), maxval), where x, minval and maxval are\n    interpreted as unsigned integers. The resulting value is poison if\n    minval > maxval.\n\n    Result Type, x, minval and maxval must be integer or vector(2,3,4,8,16)\n    of integer values.\n\n    All of the operands, including the Result Type operand, must be of the\n    same type.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.CL.u_clamp %x, %min, %max : i32\n    %1 = spirv.CL.u_clamp %x, %min, %max : vector<3xi16>\n    ```",
+    "operands": [
+      { "name": "x", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
+      { "name": "y", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
+      { "name": "z", "type": "SPIRV_ScalarOrVectorOf<operandType>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "operands attr-dict `:` type($result)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -59494,7 +59548,7 @@
     ],
     "attributes": [
       { "name": "comparison_direction", "type": "StableHLO_ComparisonDirectionAttr{EQ|NE|GE|GT|LE|LT}" },
-      { "name": "compare_type", "type": "OptionalAttr<StableHLO_ComparisonTypeAttr{NOTYPE|FLOAT|TOTALORDER|SIGNED|UNSIGNED}>" }
+      { "name": "compare_type", "type": "OptionalAttr<StableHLO_ComparisonTypeAttr{NOTYPE|FLOAT|TOTALORDER|SIGNED|UNSIGNED|WEAKORDER}>" }
     ],
     "assemblyFormat": "$comparison_direction `,` $lhs `,` $rhs (`,` $compare_type^)?\n      attr-dict `:` functional-type(operands, results)"
   },
@@ -85401,7 +85455,7 @@
   },
   {
     "name": "tfr.build_list",
-    "description": "The `build_list` operation builds a tensor list from a list of tensors, or\n   an tfr.attr from a list of scalars.\n\n    Example:\n\n    ```mlir\n    %3 = tfr.build_list(%2, %1, %0) :\n      (tfr.tensor, tfr.tensor, tfr.tensor) -> tfr.tensor_list\n    %3 = tfr.build_list(%2, %1, %0) : (i32, i32, i32) -> tfr.attr\n    ```",
+    "description": "The `build_list` operation builds a tensor list from a list of tensors, or\n   a tfr.attr from a list of scalars.\n\n    Example:\n\n    ```mlir\n    %3 = tfr.build_list(%2, %1, %0) :\n      (tfr.tensor, tfr.tensor, tfr.tensor) -> tfr.tensor_list\n    %3 = tfr.build_list(%2, %1, %0) : (i32, i32, i32) -> tfr.attr\n    ```",
     "operands": [
       { "name": "tensors", "type": "Variadic<TFR_allowedBuiltListType>" }
     ],
@@ -106021,6 +106075,34 @@
     "assemblyFormat": "$ranks `,` $dtypes attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "torch.quantized_decomposed.choose_qparams_per_token",
+    "summary": "PT2E choose_qparams_per_token (symmetric)",
+    "description": "Computes per-token symmetric quantization parameters (scale and zero_point)\n    for an N-dimensional floating-point input tensor.\n\n    For an input of shape (M1, M2, ..., Mn, K), each token (the K elements\n    along the last dimension) produces one scale and zero_point = 0.\n    The output `scale` and `zero_point` tensors have shape (M1, ..., Mn, 1).\n\n    `dtype` specifies the target quantized dtype (e.g. torch.int8) and\n    determines the qmax bound used for scale computation.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($dtype))\n    `->` qualified(type($scale)) `,` qualified(type($zero_point))"
+  },
+  {
+    "name": "torch.quantized_decomposed.choose_qparams_per_token_asymmetric",
+    "summary": "PT2E choose_qparams_per_token_asymmetric",
+    "description": "Computes per-token asymmetric quantization parameters (scale and zero_point)\n    for an N-dimensional floating-point input tensor.\n\n    For an input of shape (M1, M2, ..., Mn, K), each token (the K elements\n    along the last dimension) produces one scale and one zero_point.\n    The output `scale` and `zero_point` tensors have shape (M1, ..., Mn, 1).\n\n    `dtype` specifies the target quantized dtype (e.g. torch.int8) and\n    determines the qmin/qmax bounds used for scale/ZP computation.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($dtype))\n    `->` qualified(type($scale)) `,` qualified(type($zero_point))"
+  },
+  {
     "name": "torch.quantized_decomposed.dequantize_per_channel",
     "summary": "PT2E dequantize_per_channel",
     "description": "Dequantizes an integer tensor with one scale and optional zero point per\n    channel. A None `zero_points` operand denotes symmetric quantization.",
@@ -106077,6 +106159,24 @@
     "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,` $dtype `,` $out_dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($out_dtype))\n    `->` qualified(type($result))"
   },
   {
+    "name": "torch.quantized_decomposed.dequantize_per_token",
+    "summary": "PT2E dequantize_per_token",
+    "description": "Dequantizes an integer tensor with per-token affine quantization.\n\n    For an N-dimensional input tensor with shape (M1, M2, ..., Mn, K), each\n    token (the K elements along the last dimension) is dequantized with its\n    own scale and zero_point. `scales` and `zero_points` have shape\n    (M1, M2, ..., Mn, 1).",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scales", "type": "AnyTorchTensorType" },
+      { "name": "zero_points", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" },
+      { "name": "out_dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $quant_min `,`\n        $quant_max `,` $dtype `,` $out_dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($out_dtype))\n    `->` qualified(type($result))"
+  },
+  {
     "name": "torch.quantized_decomposed.quantize_per_channel",
     "summary": "PT2E quantize_per_channel",
     "description": "Quantizes a floating-point tensor with one affine scale and zero point per\n    channel. `axis` identifies the input dimension indexed by the one\n    dimensional `scales` and `zero_points` tensors.",
@@ -106128,6 +106228,23 @@
       { "name": "result", "type": "AnyTorchTensorType" }
     ],
     "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,` $dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.quantize_per_token",
+    "summary": "PT2E quantize_per_token",
+    "description": "Quantizes a floating-point tensor with per-token affine quantization.\n\n    For an N-dimensional input tensor with shape (M1, M2, ..., Mn, K), each\n    token (the K elements along the last dimension) is quantized with its own\n    scale and zero_point. `scales` and `zero_points` have shape\n    (M1, M2, ..., Mn, 1).",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scales", "type": "AnyTorchTensorType" },
+      { "name": "zero_points", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scales `,` $zero_points `,` $quant_min `,`\n        $quant_max `,` $dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scales)) `,`\n        qualified(type($zero_points)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype))\n    `->` qualified(type($result))"
   },
   {
     "name": "torch.quantized.linear",
@@ -129444,7 +129561,7 @@
   {
     "name": "vector.broadcast",
     "summary": "broadcast operation",
-    "description": "Broadcasts the scalar or k-D vector value in the source operand\n    to a n-D result vector such that the broadcast makes sense, i.e.,\n    the source operand is duplicated to match the given rank and sizes\n    in the result vector. The legality rules are:\n    * the source operand must have the same element type as the result type\n    * a k-D vector <s_1 x .. x s_k x type> can be broadcast to\n      a n-D vector <t_1 x .. x t_n x type> if\n       * k <= n, and\n       * the sizes in the trailing dimensions n-k < i <= n with j=i+k-n\n          match exactly as s_j = t_i or s_j = 1:\n       ```\n           t_1 x   ..  t_n-k x t_n-k+1 x .. x t_i x .. x t_n\n                               s_1     x .. x s_j x .. x s_k\n               <duplication>         <potential stretch>\n       ```\n       * in addition, any scalable unit dimension, `[1]`, must match exactly.\n\n    The source operand is duplicated over all the missing leading dimensions\n    and stretched over the trailing dimensions where the source has a non-equal\n    dimension of 1 (stretching a trailing dimension is also referred to as\n    \"dim-1\" broadcasting). These rules imply that any scalar broadcast (k=0) to\n    any shaped vector with the same element type is always legal.\n\n    Example:\n\n    ```mlir\n    %0 = arith.constant 0.0 : f32\n    %1 = vector.broadcast %0 : f32 to vector<16xf32>\n    %2 = vector.broadcast %1 : vector<16xf32> to vector<4x16xf32>\n    ```",
+    "description": "Broadcasts the scalar or k-D vector value in the source operand\n    to a n-D result vector such that the broadcast makes sense, i.e.,\n    the source operand is duplicated to match the given rank and sizes\n    in the result vector. The legality rules are:\n    * the source operand must have the same element type as the result type\n    * a K-D vector <s_1 x .. x s_K x type> can be broadcast to\n      a N-D vector <t_1 x .. x t_N x type> if\n       * K <= N, and\n       * the sizes in the trailing dimensions N-K < i <= N with j=i+K-N\n          match exactly as s_j = t_i or s_j = 1:\n       ```\n           t_1 x   ..  t_N-K x t_N-K+1 x .. x t_i x .. x t_N\n                               s_1     x .. x s_j x .. x s_K\n               <duplication>         <potential stretch>\n       ```\n       * in addition, any scalable unit dimension, `[1]`, must match exactly.\n\n    The source operand is duplicated over all the missing leading dimensions\n    and stretched over the trailing dimensions where the source has a non-equal\n    dimension of 1 (stretching a trailing dimension is also referred to as\n    \"dim-1\" broadcasting). These rules imply that any scalar broadcast (K=0) to\n    any shaped vector with the same element type is always legal.\n\n    Example:\n\n    ```mlir\n    %0 = arith.constant 0.0 : f32\n    %1 = vector.broadcast %0 : f32 to vector<16xf32>\n    %2 = vector.broadcast %1 : vector<16xf32> to vector<4x16xf32>\n    ```\n\n    For every element in the result vector, the corresponding coordinate in\n    source dimension `j` can be computed from its linear offset `off` in the\n    result vector as follows:\n    ```\n                            / 0, if source_dim(j) == 1\n    source_coord[j](off) = |\n                            \\ floor(off / result_stride(N - K + j)) % source_dim(j), otherwise\n\n    ```\n    where `j = 1 .. K` and `result_stride(N - K + j)` is the result stride\n    corresponding to source dimension `j`.",
     "operands": [
       { "name": "source", "type": "AnyType" }
     ],
