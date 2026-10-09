@@ -237,12 +237,23 @@ executorch_flatbuffer.KernelCall = class KernelCall {
     }
 };
 
+executorch_flatbuffer.DelegateScratch = class DelegateScratch {
+
+    static decode(reader, position) {
+        const $ = new executorch_flatbuffer.DelegateScratch();
+        $.allocation = reader.table(position, 4, executorch_flatbuffer.AllocationDetails);
+        $.size = reader.uint64_(position, 6, 0n);
+        return $;
+    }
+};
+
 executorch_flatbuffer.DelegateCall = class DelegateCall {
 
     static decode(reader, position) {
         const $ = new executorch_flatbuffer.DelegateCall();
         $.delegate_index = reader.int32_(position, 4, 0);
         $.args = reader.array(position, 6, Int32Array);
+        $.scratch = reader.tables(position, 8, executorch_flatbuffer.DelegateScratch);
         return $;
     }
 };
