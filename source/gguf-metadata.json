@@ -2001,14 +2001,16 @@
         { "name": "ffn_gate", "type": "MUL_MAT" },
         { "name": "ffn_up", "type": "MUL_MAT" },
         { "name": "ffn_down", "type": "MUL_MAT" },
-        { "name": "shortconv.conv", "type": "CONV_1D", "category": "Layer" },
-        { "name": "shortconv.in_proj", "type": "MUL_MAT" },
-        { "name": "shortconv.out_proj", "type": "MUL_MAT" },
+        { "name": "ssm", "type": "CONV_1D", "category": "Layer", "tensors": ["shortconv.in_proj", "shortconv.conv", "shortconv.out_proj"] },
         { "name": "attn_qkv" }
       ],
       "output": [
         { "name": "token_embd_norm", "type": "RMS_NORM", "category": "Normalization" },
-        { "name": "output", "type": "MUL_MAT" }
+        { "name": "output", "type": "MUL_MAT" },
+        { "name": "token_types", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "cls", "type": "MUL_MAT" },
+        { "name": "cls.norm", "type": "LAYER_NORM", "category": "Normalization" },
+        { "name": "cls.output", "type": "MUL_MAT" }
       ]
     }
   },
