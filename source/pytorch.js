@@ -1998,6 +1998,8 @@ pytorch.Utility = class {
             case 'torch':
             case 'torch.cuda':
                 return obj.__class__.__name__.endsWith('Tensor');
+            case 'torch.nested._internal.nested_tensor':
+                return obj.__class__.__name__ === 'NestedTensor';
             case 'torch.nn.parameter':
                 return obj.__class__.__name__ === 'Parameter';
             default:
@@ -2011,6 +2013,8 @@ pytorch.Utility = class {
             case 'torch':
             case 'torch.cuda':
                 return obj.__class__.__name__.endsWith('Tensor') ? obj : null;
+            case 'torch.nested._internal.nested_tensor':
+                return obj.__class__.__name__ === 'NestedTensor' ? obj : null;
             case 'torch.nn.parameter':
                 if (obj.__class__.__name__ === 'Parameter') {
                     const data = obj.data;

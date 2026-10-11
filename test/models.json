@@ -6737,6 +6737,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "pytorch-nested-tensor-njt.pt",
+    "source":   "https://github.com/user-attachments/files/33295886/pytorch-nested-tensor-njt.pt.zip[pytorch-nested-tensor-njt.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "quant_3d.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5877566/quant_3d.pt.zip[quant_3d.pt]",
     "format":   "TorchScript v1.6",

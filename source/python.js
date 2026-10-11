@@ -9395,6 +9395,17 @@ python.Execution = class {
         this.registerFunction('torch._utils._rebuild_meta_tensor_no_storage', (dtype, size, stride, requires_grad) => {
             return torch.empty_strided(size, stride, dtype, null, 'meta', false, requires_grad);
         });
+        this.registerFunction('torch._utils._rebuild_nested_tensor', (buffer, sizes, strides, storage_offsets) => {
+            return torch._nested_view_from_buffer(buffer, sizes, strides, storage_offsets);
+        });
+        this.registerFunction('torch._nested_view_from_buffer', (buffer) => {
+            const tensor = buffer.clone();
+            tensor.__nested__ = true;
+            return tensor;
+        });
+        this.registerFunction('torch.nested._internal.nested_tensor._rebuild_njt', (constructor_kwargs) => {
+            return new torch.nested._internal.nested_tensor.NestedTensor(constructor_kwargs.get('values'), constructor_kwargs.get('offsets'), constructor_kwargs.get('lengths'));
+        });
         this.registerFunction('torch._utils._rebuild_tensor', (storage, storage_offset, size, stride) => {
             if (Array.isArray(storage) && storage.length === 5 && storage[0] === 'storage') {
                 const [, storage_type, , ,size] = storage;
@@ -21332,6 +21343,16 @@ python.Execution = class {
                 const t = new torch.Tensor(null, size, dtype, layout, device, requires_grad);
                 t.__setstate__([null, storage_offset, size, stride]);
                 return t;
+            }
+        });
+        this.registerType('torch.nested._internal.nested_tensor.NestedTensor', class extends torch.Tensor {
+            constructor(values, offsets, lengths) {
+                super(values._storage, values._shape, values._dtype, values._layout, values._device, values.requires_grad);
+                this._storage_offset = values._storage_offset;
+                this._stride = values._stride;
+                this._offsets = offsets;
+                this._lengths = lengths;
+                this.__nested__ = true;
             }
         });
         this.registerType('torch.nn.parameter.Parameter', class extends torch.Tensor {
