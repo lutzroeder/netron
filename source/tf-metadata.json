@@ -14665,6 +14665,7 @@
       {
         "name": "axis",
         "type": "int64",
+        "description": "The index of the input dimension along which the dequantization ranges\nvary, for per-channel dequantization. When `axis` is -1 (the default),\ndequantization is per-tensor and `min_range`/`max_range` must be scalars.\nOtherwise `min_range` and `max_range` must be 1-D tensors with as many\nelements as the input's `axis` dimension. Negative values other than -1\nare invalid.",
         "default": -1
       },
       {
@@ -34400,6 +34401,7 @@
       {
         "name": "axis",
         "type": "int64",
+        "description": "The index of the input dimension along which the quantization ranges\nvary, for per-channel quantization. When `axis` is -1 (the default),\nquantization is per-tensor and `min_range`/`max_range` must be scalars.\nOtherwise `min_range` and `max_range` must be 1-D tensors with as many\nelements as the input's `axis` dimension. Negative values other than -1\nare invalid.",
         "default": -1
       },
       {
