@@ -3,28 +3,28 @@
     "name": "_c10d_functional::_wrap_tensor_autograd(Tensor input) -> Tensor"
   },
   {
-    "name": "_c10d_functional::all_gather_into_tensor(Tensor input, int group_size, Any group_name) -> Tensor"
+    "name": "_c10d_functional::all_gather_into_tensor(Tensor input, int group_size, Any group_name, Dict(str, Any)? config=None) -> Tensor"
   },
   {
-    "name": "_c10d_functional::all_gather_into_tensor_coalesced(Tensor[] inputs, int group_size, Any group_name) -> Tensor[]"
+    "name": "_c10d_functional::all_gather_into_tensor_coalesced(Tensor[] inputs, int group_size, Any group_name, Dict(str, Any)? config=None) -> Tensor[]"
   },
   {
-    "name": "_c10d_functional::all_gather_into_tensor_out(Tensor input, int group_size, Any group_name, *, Tensor(a!) out) -> Tensor(a!)"
+    "name": "_c10d_functional::all_gather_into_tensor_out(Tensor input, int group_size, Any group_name, Dict(str, Any)? config=None, *, Tensor(a!) out) -> Tensor(a!)"
   },
   {
-    "name": "_c10d_functional::all_reduce(Tensor input, Any reduce_op, Any group_name) -> Tensor"
+    "name": "_c10d_functional::all_reduce(Tensor input, Any reduce_op, Any group_name, Dict(str, Any)? config=None) -> Tensor"
   },
   {
-    "name": "_c10d_functional::all_reduce_(Tensor(a!) input, Any reduce_op, Any group_name) -> Tensor(a!)"
+    "name": "_c10d_functional::all_reduce_(Tensor(a!) input, Any reduce_op, Any group_name, Dict(str, Any)? config=None) -> Tensor(a!)"
   },
   {
-    "name": "_c10d_functional::all_reduce_coalesced(Tensor[] inputs, Any reduce_op, Any group_name) -> Tensor[]"
+    "name": "_c10d_functional::all_reduce_coalesced(Tensor[] inputs, Any reduce_op, Any group_name, Dict(str, Any)? config=None) -> Tensor[]"
   },
   {
-    "name": "_c10d_functional::all_reduce_coalesced_(Tensor[](a!) inputs, Any reduce_op, Any group_name) -> Tensor[](a!)"
+    "name": "_c10d_functional::all_reduce_coalesced_(Tensor[](a!) inputs, Any reduce_op, Any group_name, Dict(str, Any)? config=None) -> Tensor[](a!)"
   },
   {
-    "name": "_c10d_functional::all_to_all_single(Tensor input, SymInt[] output_split_sizes, SymInt[] input_split_sizes, Any group_name) -> Tensor"
+    "name": "_c10d_functional::all_to_all_single(Tensor input, SymInt[] output_split_sizes, SymInt[] input_split_sizes, Any group_name, Dict(str, Any)? config=None) -> Tensor"
   },
   {
     "name": "_c10d_functional::batch_p2p_ops(str[] op_list, int[] peer_list, int[] tag_list, Tensor[] tensors, str group_name) -> Tensor[]"
@@ -42,10 +42,10 @@
     "name": "_c10d_functional::isend(Tensor tensor, int dst, int tag, str group_name) -> Tensor"
   },
   {
-    "name": "_c10d_functional::reduce_scatter_tensor(Tensor input, str reduce_op, int group_size, Any group_name) -> Tensor"
+    "name": "_c10d_functional::reduce_scatter_tensor(Tensor input, str reduce_op, int group_size, Any group_name, Dict(str, Any)? config=None) -> Tensor"
   },
   {
-    "name": "_c10d_functional::reduce_scatter_tensor_coalesced(Tensor[] inputs, str reduce_op, int group_size, Any group_name) -> Tensor[]"
+    "name": "_c10d_functional::reduce_scatter_tensor_coalesced(Tensor[] inputs, str reduce_op, int group_size, Any group_name, Dict(str, Any)? config=None) -> Tensor[]"
   },
   {
     "name": "_c10d_functional::reduce_scatter_tensor_out(Tensor input, str reduce_op, int group_size, Any group_name, *, Tensor(a!) out) -> Tensor(a!)"
