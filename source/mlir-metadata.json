@@ -857,7 +857,7 @@
     "attributes": [
       { "name": "varType", "type": "TypeAttr" },
       { "name": "descKind", "type": "DefaultValuedAttr<OpenACC_DataDescKindAttr{none|cfi|memref|openacc; separator=','}, mlir::acc::DataDescKind::none>" },
-      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach; separator=','}, mlir::acc::MapFlags::none>" },
+      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach|no_device_descriptor; separator=','}, mlir::acc::MapFlags::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "elementSize", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" },
       { "name": "exitLoc", "type": "OptionalAttr<LocationAttr>" }
@@ -1871,7 +1871,7 @@
   {
     "name": "amdg.async_wait",
     "summary": "Wait until there are less than or equal to the given number of outstanding async intrinsics",
-    "description": "Similar to ttg.async_wait but instead of waiting on oustanding ttg.async_commit_groups\n    this op waits on the number of outstanding async instructions/intrinsics as required for the\n    lowering to LLVM on the AMD backend.",
+    "description": "Similar to ttg.async_wait but instead of waiting on outstanding\n    ttg.async_commit_groups this op waits on the number of outstanding async\n    instructions/intrinsics as required for the lowering to LLVM on the AMD\n    backend.",
     "operands": [
       { "name": "asyncToken", "type": "Variadic<TTG_AsyncToken>" }
     ],
@@ -1972,7 +1972,7 @@
   {
     "name": "amdg.buffer_load_to_local",
     "summary": "Load from a scalar base pointer and a tensor offset to shared memory",
-    "description": "AMD Buffer load operation. Similar to amdg.buffer_load op but directly wirtes to shared memory instead of into registers.\n      Contiguity is the maximum number of elements that can be loaded in a single vector with the given layout and mask.\n      This allows to use buffer_load_to_local even if the alignment cannot be proven based on IR.",
+    "description": "AMD Buffer load operation. Similar to amdg.buffer_load op but directly\n      writes to shared memory instead of into registers.\n      Contiguity is the maximum number of elements that can be loaded in a single vector with the given layout and mask.\n      This allows to use buffer_load_to_local even if the alignment cannot be proven based on IR.",
     "operands": [
       { "name": "dest", "type": "TTG_MemDescType" },
       { "name": "ptr", "type": "TT_Ptr" },
@@ -2022,7 +2022,7 @@
   {
     "name": "amdg.cluster_barrier_arrive",
     "summary": "Arrive at a cluster barrier",
-    "description": "Signals that the cluster has arrived at a barrier, used to synchronizing CTAs within a cluster.\n\n    See ClusterBarrierWaitOp for how to wait on the arrived cluster barrier.",
+    "description": "Signals that the cluster has arrived at a barrier, used to synchronize\n    CTAs within a cluster.\n\n    See ClusterBarrierWaitOp for how to wait on the arrived cluster barrier.",
     "assemblyFormat": "attr-dict"
   },
   {
@@ -16841,6 +16841,32 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "hal.command_buffer.flush_buffer",
+    "summary": "Makes prior writes available to external consumers.",
+    "description": "Makes prior writes to the target buffer range available to external\n    consumers.",
+    "operands": [
+      { "name": "command_buffer", "type": "HAL_CommandBuffer" },
+      { "name": "target_buffer", "type": "AnyTypeOf<[Index, HAL_BufferType]>" },
+      { "name": "target_offset", "type": "HAL_DeviceSize" },
+      { "name": "length", "type": "HAL_DeviceSize" }
+    ],
+    "assemblyFormat": "`<` $command_buffer `:` type($command_buffer) `>`\n    `target` `(` $target_buffer `:` type($target_buffer) `)`\n    `` `[` $target_offset `,` $length `]`\n    attr-dict-with-keyword",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "hal.command_buffer.invalidate_buffer",
+    "summary": "Makes external writes visible to subsequent consumers.",
+    "description": "Makes external writes to the target buffer range visible to subsequent\n    consumers.",
+    "operands": [
+      { "name": "command_buffer", "type": "HAL_CommandBuffer" },
+      { "name": "target_buffer", "type": "AnyTypeOf<[Index, HAL_BufferType]>" },
+      { "name": "target_offset", "type": "HAL_DeviceSize" },
+      { "name": "length", "type": "HAL_DeviceSize" }
+    ],
+    "assemblyFormat": "`<` $command_buffer `:` type($command_buffer) `>`\n    `target` `(` $target_buffer `:` type($target_buffer) `)`\n    `` `[` $target_offset `,` $length `]`\n    attr-dict-with-keyword",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "hal.command_buffer.push_descriptor_set",
     "hasCustomAssemblyFormat": 1
   },
@@ -22738,6 +22764,7 @@
       { "name": "syncscope", "type": "OptionalAttr<StrAttr>" },
       { "name": "alignment", "type": "OptionalAttr<I64Attr>" },
       { "name": "volatile_", "type": "UnitAttr" },
+      { "name": "ignore_denormal_mode", "type": "UnitAttr" },
       { "name": "access_groups", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AccessGroupAttr>>" },
       { "name": "alias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
@@ -22746,7 +22773,7 @@
     "traits": [
       { "type": "TypesMatchWith<'val', 'res', '$_self'>" }
     ],
-    "assemblyFormat": "(`volatile` $volatile_^)? $bin_op $ptr `,` $val\n    (`syncscope` `(` $syncscope^ `)`)? $ordering\n    prop-dict\n    attr-dict `:`\n    qualified(type($ptr)) `,` type($val)"
+    "assemblyFormat": "(`volatile` $volatile_^)? (`ignore_denormal_mode` $ignore_denormal_mode^)?\n    $bin_op $ptr `,` $val\n    (`syncscope` `(` $syncscope^ `)`)? $ordering\n    prop-dict\n    attr-dict `:`\n    qualified(type($ptr)) `,` type($val)"
   },
   {
     "name": "llvm.bitcast",
@@ -27044,7 +27071,7 @@
   },
   {
     "name": "llvm.load",
-    "description": "The `load` operation is used to read from memory. A load may be marked as\n    atomic, volatile, and/or nontemporal, and takes a number of optional\n    attributes that specify aliasing information.\n\n    An atomic load only supports a limited set of pointer, integer, and\n    floating point types, and requires an explicit alignment.\n\n    Examples:\n    ```mlir\n    // A volatile load of a float variable.\n    %0 = llvm.load volatile %ptr : !llvm.ptr -> f32\n\n    // A nontemporal load of a float variable.\n    %0 = llvm.load %ptr <nontemporal> : !llvm.ptr -> f32\n\n    // An atomic load of an integer variable.\n    %0 = llvm.load %ptr atomic monotonic <alignment = 8>\n        : !llvm.ptr -> i64\n    ```\n\n    See the following link for more details:\n    https://llvm.org/docs/LangRef.html#load-instruction",
+    "description": "The `load` operation is used to read from memory. A load may be marked as\n    atomic, volatile, and/or nontemporal, and takes a number of optional\n    attributes that specify aliasing information.\n\n    An atomic load only supports a limited set of pointer, integer, and\n    floating point types, and requires an explicit alignment.\n\n    Examples:\n    ```mlir\n    // A volatile load of a float variable.\n    %0 = llvm.load volatile %ptr : !llvm.ptr -> f32\n\n    // A nontemporal load of a float variable.\n    %0 = llvm.load %ptr <nontemporal> : !llvm.ptr -> f32\n\n    // A load of a value that is neither undef nor poison.\n    %0 = llvm.load %ptr noundef : !llvm.ptr -> i32\n\n    // A load of an integer known to lie in [0, 10).\n    %0 = llvm.load %ptr range<i32, 0, 10> : !llvm.ptr -> i32\n\n    // An atomic load of an integer variable.\n    %0 = llvm.load %ptr atomic monotonic <alignment = 8>\n        : !llvm.ptr -> i64\n    ```\n\n    See the following link for more details:\n    https://llvm.org/docs/LangRef.html#load-instruction",
     "operands": [
       { "name": "addr", "type": "LLVM_AnyPointer" }
     ],
@@ -27060,12 +27087,14 @@
       { "name": "ordering", "type": "DefaultValuedAttr<AtomicOrdering{not_atomic|unordered|monotonic|acquire|release|acq_rel|seq_cst}, AtomicOrdering::not_atomic>" },
       { "name": "syncscope", "type": "OptionalAttr<StrAttr>" },
       { "name": "dereferenceable", "type": "OptionalAttr<LLVM_DereferenceableAttr>" },
+      { "name": "noundef", "type": "UnitAttr" },
+      { "name": "range", "type": "OptionalAttr<LLVM_ConstantRangeAttr>" },
       { "name": "access_groups", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AccessGroupAttr>>" },
       { "name": "alias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "tbaa", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAATagAttr>>" }
     ],
-    "assemblyFormat": "(`volatile` $volatile_^)? $addr\n    (`atomic` (`syncscope` `(` $syncscope^ `)`)? $ordering^)?\n    oilist(\n      `invariant` $invariant |\n      `invariant_group` $invariantGroup |\n      `dereferenceable` `` $dereferenceable\n    )\n    prop-dict\n    attr-dict `:` qualified(type($addr)) `->` type($res)"
+    "assemblyFormat": "(`volatile` $volatile_^)? $addr\n    (`atomic` (`syncscope` `(` $syncscope^ `)`)? $ordering^)?\n    oilist(\n      `invariant` $invariant |\n      `invariant_group` $invariantGroup |\n      `dereferenceable` `` $dereferenceable |\n      `noundef` $noundef |\n      `range` `` $range\n    )\n    prop-dict\n    attr-dict `:` qualified(type($addr)) `->` type($res)"
   },
   {
     "name": "llvm.lshr",
@@ -36845,7 +36874,7 @@
   {
     "name": "omp.iterator",
     "summary": "OpenMP iterator modifier",
-    "description": "The result of `omp.iterator` is an abstract handle of type\n    `!omp.iterated<T>`, representing the list of yielded values. This handle\n    can be directly consumed by OpenMP clauses that accept iterator modifiers,\n    such as `affinity`, `map`, `to`, `from`, or `depend`.\n\n    Example:\n      %it = omp.iterator(%i, %j) =\n        (%lb_i to %ub_i step %st_i, %lb_j to %ub_j step %st_j) {\n        %addr = ...\n        omp.yield(%addr)\n      } -> !omp.iterated<ptr>",
+    "description": "The result of `omp.iterator` is an abstract handle of type\n    `!omp.iterated<T>`, representing the list of yielded values. This handle\n    can be directly consumed by OpenMP clauses that accept iterator modifiers,\n    such as `affinity`, `map`, `to`, `from`, or `depend`.\n\n    The region may contain multiple blocks. Exactly one of them is terminated\n    by `omp.yield`; every other block branches to a block of the region.\n\n    Example:\n      %it = omp.iterator(%i, %j) =\n        (%lb_i to %ub_i step %st_i, %lb_j to %ub_j step %st_j) {\n        %addr = ...\n        omp.yield(%addr)\n      } -> !omp.iterated<ptr>",
     "operands": [
       { "name": "loop_lower_bounds", "type": "Variadic<IntLikeType>" },
       { "name": "loop_upper_bounds", "type": "Variadic<IntLikeType>" },
@@ -36858,7 +36887,7 @@
       { "name": "loop_inclusive", "type": "UnitAttr" }
     ],
     "regions": [
-      { "name": "region", "type": "SizedRegion<1>" }
+      { "name": "region", "type": "MinSizedRegion<1>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
@@ -53228,6 +53257,22 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "spirv.CL.ctz",
+    "summary": "Count trailing zeros in operand",
+    "description": "Returns the number of least-significant 0-bits in x. If x is 0, the\n    result is the bit width of x, or of the component type of x if x is a\n    vector.\n\n    Result Type and x must be integer or vector(2,3,4,8,16) of\n    integer values.\n\n    All of the operands, including the Result Type operand, must be of the\n    same type.\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.CL.ctz %0 : i32\n    %3 = spirv.CL.ctz %1 : vector<3xi16>\n    ```",
+    "operands": [
+      { "name": "operand", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$operand `:` type($operand) attr-dict",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "spirv.CL.erf",
     "summary": "Error function of x encountered in integrating the normal distribution.",
     "description": "Result Type and x must be floating-point or vector(2,3,4,8,16) of\n    floating-point values.\n\n    All of the operands, including the Result Type operand, must be of the\n    same type.\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.CL.erf %0 : f32\n    %3 = spirv.CL.erf %1 : vector<3xf16>\n    ```",
@@ -53474,6 +53519,19 @@
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "operands attr-dict `:` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "spirv.CL.ilogb",
+    "summary": "Return the exponent as an integer value.",
+    "description": "Result is the unbiased binary exponent of x, as a signed integer value.\n\n    The operand x must be a scalar or vector whose component type is\n    floating-point.\n\n    Result Type must be a scalar or vector whose component type is a 32-bit\n    integer. The number of components in x and Result Type must be the same.\n    Results are computed per component.\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.CL.ilogb %0 : f32 -> i32\n    %3 = spirv.CL.ilogb %1 : vector<3xf32> -> vector<3xi32>\n    ```",
+    "operands": [
+      { "name": "x", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Float>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<AnyI32>" }
+    ],
+    "assemblyFormat": "attr-dict $x `:` type($x) `->` type($result)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -53770,6 +53828,24 @@
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "$operand `:` type($operand) attr-dict",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "spirv.CL.sincos",
+    "summary": "Compute sine and cosine of x radians.",
+    "description": "The computed sine is the return value and the computed cosine is written\n    to the memory that cosval points to.\n\n    The operand x must be a scalar or vector whose component type is\n    floating-point.\n\n    The cosval operand must be a pointer to a value of the same type as x,\n    in the CrossWorkgroup, Workgroup, Function, or Generic storage class.\n\n    Result Type must be the same type as the type of x. Results are computed\n    per component.\n\n    #### Example:\n\n    ```mlir\n    %sin = spirv.CL.sincos %x, %cosval : f32, !spirv.ptr<f32, Function> -> f32\n    %sin = spirv.CL.sincos %x, %cosval : vector<3xf32>,\n             !spirv.ptr<vector<3xf32>, Function> -> vector<3xf32>\n    ```",
+    "operands": [
+      { "name": "x", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Float>" },
+      { "name": "cosval", "type": "SPIRV_AnyPtr" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Float>" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['x', 'result']>" },
+      { "type": "TypesMatchWith<'cosval', 'x', '[object Object],[object Object]'>" }
+    ],
+    "assemblyFormat": "attr-dict $x `,` $cosval `:` type($x) `,` type($cosval) `->` type($result)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -57380,6 +57456,32 @@
       { "type": "TypesMatchWith<'result', 'image', '::llvm::cast<spirv::SampledImageType>($_self).getImageType()'>" }
     ],
     "assemblyFormat": "$image `,` $sampler attr-dict `:` type($image) `,` type($sampler)\n    `->` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "spirv.SatConvertSToU",
+    "summary": "Convert a signed integer to unsigned integer. Converted values outside\n    the representable range of Result Type are clamped to the nearest\n    representable value of Result Type.",
+    "description": "Result Type must be a scalar or vector of integer type.\n\n    Signed Value must be a scalar or vector of integer type.  It must have\n    the same number of components as Result Type.\n\n    <!-- End of AutoGen section -->\n\n    #### Example:\n\n    ```mlir\n    %1 = spirv.SatConvertSToU %0 : i32 to i8\n    %3 = spirv.SatConvertSToU %2 : vector<3xi32> to vector<3xi32>\n    ```",
+    "operands": [
+      { "name": "operand", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "assemblyFormat": "$operand attr-dict `:` type($operand) `to` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "spirv.SatConvertUToS",
+    "summary": "Convert an unsigned integer to signed integer. Converted values outside\n    the representable range of Result Type are clamped to the nearest\n    representable value of Result Type.",
+    "description": "Result Type must be a scalar or vector of integer type.\n\n    Unsigned Value must be a scalar or vector of integer type.  It must have\n    the same number of components as Result Type.\n\n    <!-- End of AutoGen section -->\n\n    #### Example:\n\n    ```mlir\n    %1 = spirv.SatConvertUToS %0 : i32 to i8\n    %3 = spirv.SatConvertUToS %2 : vector<3xi32> to vector<3xi32>\n    ```",
+    "operands": [
+      { "name": "operand", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "results": [
+      { "name": "result", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+    ],
+    "assemblyFormat": "$operand attr-dict `:` type($operand) `to` type($result)",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -91825,7 +91927,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "attr-dict\n    `ins` `(` $inputs `:` type($inputs) `)`\n    `outs` `(` $outputs `:` type($outputs) `)`\n    (`->` type($result)^)?"
+    "assemblyFormat": "prop-dict\n    attr-dict\n    `ins` `(` $inputs `:` type($inputs) `)`\n    `outs` `(` $outputs `:` type($outputs) `)`\n    (`->` type($result)^)?"
   },
   {
     "name": "tm_tensor.scan",
@@ -91871,7 +91973,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "attr-dict `unique_indices` `(` $unique_indices `)`\n    (`ins` `(` $inputs^ `:` type($inputs) `)`)?\n    `outs` `(` $outputs `:` type($outputs) `)`\n    $region (`->` type($results)^)?"
+    "assemblyFormat": "prop-dict\n    attr-dict `unique_indices` `(` $unique_indices `)`\n    (`ins` `(` $inputs^ `:` type($inputs) `)`)?\n    `outs` `(` $outputs `:` type($outputs) `)`\n    $region (`->` type($results)^)?"
   },
   {
     "name": "tm_tensor.sort",
@@ -105201,12 +105303,13 @@
     "summary": "Constructs a torch.ClassType",
     "description": "Declares a class type. Class types are the types used to describe\n    TorchScript `torch.nn.Module`'s. The terminology \"class type\" is for\n    consistency with TorchScript (a better name in our context might be\n    \"nn module subtype\"). The `syn_name` of this op is the same string\n    as in the `!torch.nn.Module<\"...\">` type.\n\n    Example:\n\n    ```mlir\n    // A simple empty torch.class_type, with corresponding torch.nn_module.\n    torch.class_type @empty {}\n    %submodule = torch.nn_module {} : !torch.nn.Module<\"empty\">\n\n    // A class type with many members.\n    torch.class_type @test {\n      torch.attr \"b\" : !torch.bool\n      torch.attr \"i\" : !torch.int\n      torch.attr \"f\" : !torch.float\n      torch.attr \"t\" : !torch.tensor\n      torch.attr \"submodule\" : !torch.nn.Module<\"empty\">\n      torch.method \"method\", @f\n    }\n    torch.nn_module {\n      // These must match the order and names in the `torch.class_type`.\n      torch.slot \"b\", %bool_true : !torch.bool\n      torch.slot \"i\", %int3 : !torch.int\n      torch.slot \"f\", %float : !torch.float\n      torch.slot \"t\", %t : !torch.tensor\n      torch.slot \"submodule\", %submodule : !torch.nn.Module<\"empty\">\n    } : !torch.nn.Module<\"test\">\n    ```",
     "attributes": [
-      { "name": "sym_name", "type": "SymbolNameAttr" }
+      { "name": "sym_name", "type": "SymbolNameAttr" },
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [
       { "name": "region", "type": "SizedRegion<1>" }
     ],
-    "assemblyFormat": "$sym_name $region attr-dict"
+    "assemblyFormat": "($sym_visibility^)? $sym_name $region attr-dict"
   },
   {
     "name": "torch.class_type_terminator",
@@ -112195,6 +112298,20 @@
     "assemblyFormat": "attr-dict"
   },
   {
+    "name": "transform.apply_conversion_patterns.vector.linearize",
+    "description": "Collects patterns for ND vector (n >= 2) vector linearization.\n    \n    These patterns require the type converter built by the corresponding\n    linearize type converter op.\n\n    The patterns can be customized as follows:\n    - `shuffle_like_ops`: Linearizes ND vector ops into 1D vector shuffles.\n    - `target_vector_bitwidth`: If set, ops whose inner-most vector dimension\n      is at least this many bits wide are not linearized.",
+    "attributes": [
+      { "name": "shuffle_like_ops", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "target_vector_bitwidth", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" }
+    ],
+    "assemblyFormat": "oilist (`shuffle_like_ops` `=` $shuffle_like_ops\n          | `target_vector_bitwidth` `=` $target_vector_bitwidth)\n    attr-dict"
+  },
+  {
+    "name": "transform.apply_conversion_patterns.vector.linearize_type_converter",
+    "description": "Builds a type converter that controls which ND (n >= 2) vector types are\n    linearized into 1D forms, and materializes conversions.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
     "name": "transform.apply_conversion_patterns.vector.vector_to_llvm",
     "description": "Collects patterns that convert vector dialect ops to LLVM dialect ops. These\n    patterns require an \"LLVMTypeConverter\".\n\n    The patterns can be customized as follows:\n    - `reassociate_fp_reductions`: Allows LLVM to reassociate floating-point\n      reductions for speed.\n    - `force_32bit_vector_indices`: Allows the compiler to assume that vector\n      indices fit in 32-bit if that yields faster code.",
     "attributes": [
@@ -112202,7 +112319,7 @@
       { "name": "force_32bit_vector_indices", "type": "DefaultValuedAttr<BoolAttr, true>" },
       { "name": "use_vector_alignment", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "oilist(`reassociate_fp_reductions` `=` $reassociate_fp_reductions | `force_32bit_vector_indices` `=` $force_32bit_vector_indices | `use_vector_alignment` `=` $use_vector_alignment) attr-dict"
+    "assemblyFormat": "oilist (`reassociate_fp_reductions` `=` $reassociate_fp_reductions\n          | `force_32bit_vector_indices` `=` $force_32bit_vector_indices\n          | `use_vector_alignment` `=` $use_vector_alignment)\n    attr-dict"
   },
   {
     "name": "transform.apply_cse",
@@ -116298,12 +116415,15 @@
   {
     "name": "transform.xegpu.set_anchor_layout",
     "summary": "Set anchor layout of an op.",
-    "description": "Sets the `xegpu.layout` anchor layout for XeGPU ops that support it. The\n    target operand value can be set by the `index` argument (currently only\n    applicable to a DPAS op). The layout is defined by the `sg_layout`,\n    `sg_data` and optional `inst_data` and `order` attributes. If `slice_dims`\n    is provided, the `xegpu.layout` attribute is wrapped in an\n    `xegpu.slice<..., dims=slice_dims>` attribute. Emits a silenceable failure\n    if the target op does not support anchor layouts.",
+    "description": "Sets the `xegpu.layout` anchor layout for XeGPU ops that support it. The\n    target operand value can be set by the `index` argument (currently only\n    applicable to a DPAS op). The layout is defined by the `sg_layout`,\n    `sg_data` and optional `inst_data` and `order` attributes. If `slice_dims`\n    is provided, the `xegpu.layout` attribute is wrapped in an\n    `xegpu.slice<..., dims=slice_dims>` attribute. Emits a silenceable failure\n    if the target op does not support anchor layouts.\n\n    Each of `sg_layout`, `sg_data` and `inst_data` can either be provided as a\n    mix of static integers and single-value handles/params, or as a single\n    packed handle (using the `*(%handle)` syntax) that is associated with a\n    variadic number of values. In the packed case the handle must be either a\n    transform param with multiple integer attributes, or mapped to multiple\n    payload ops each defining a single constant index result.",
     "operands": [
       { "name": "target", "type": "TransformHandleTypeInterface" },
       { "name": "sg_layout", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" },
       { "name": "sg_data", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" },
-      { "name": "inst_data", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" }
+      { "name": "inst_data", "type": "Variadic<TransformAnyParamTypeOrAnyHandle>" },
+      { "name": "packed_sg_layout", "type": "Optional<TransformAnyParamTypeOrAnyHandle>" },
+      { "name": "packed_sg_data", "type": "Optional<TransformAnyParamTypeOrAnyHandle>" },
+      { "name": "packed_inst_data", "type": "Optional<TransformAnyParamTypeOrAnyHandle>" }
     ],
     "attributes": [
       { "name": "index", "type": "DefaultValuedOptionalAttr<I64Attr, 0>" },
@@ -116316,7 +116436,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "$target (`index` `=` $index^)?\n    `sg_layout` `=` custom<DynamicIndexList>($sg_layout, $static_sg_layout)\n    `sg_data` `=` custom<DynamicIndexList>($sg_data, $static_sg_data)\n    (`inst_data` `=` custom<DynamicIndexList>($inst_data, $static_inst_data)^)?\n    (`order` `=` $order^)?\n    (`slice_dims` `=` $slice_dims^)? attr-dict `:` qualified(type(operands))"
+    "assemblyFormat": "$target (`index` `=` $index^)?\n    `sg_layout` `=` custom<PackedOrDynamicIndexList>($packed_sg_layout, $sg_layout, $static_sg_layout)\n    `sg_data` `=` custom<PackedOrDynamicIndexList>($packed_sg_data, $sg_data, $static_sg_data)\n    (`inst_data` `=` custom<PackedOrDynamicIndexList>($packed_inst_data, $inst_data, $static_inst_data)^)?\n    (`order` `=` $order^)?\n    (`slice_dims` `=` $slice_dims^)? attr-dict `:` qualified(type(operands))"
   },
   {
     "name": "transform.xegpu.set_desc_layout",
@@ -116424,7 +116544,7 @@
   {
     "name": "triton_xla.block_barrier",
     "summary": "A block-level barrier for inter-GPU synchronization.",
-    "description": "This operation implements a block-level barrier between multiple GPUs.\n    It takes a pointer of pointers to signal buffers (one from each\n    participating GPU), the rank of the current device, and a signal value to\n    write/wait for. The signal values on consequent calls to this operation must\n    increase monotonically for the same signal buffers pointer.\n\n    Each GPU `r`'s signal buffer (`$signal_buffers[r]`) is logically a 2D array\n    of `i32` flags with shape `[num_blocks][world_size]`, flattened as\n    `block_idx * world_size + slot_idx`.\n\n    This barrier supports three synchronization modes via `$barrier_mode`:\n\n    ### 1. `symmetric` (default; `$signal_stride == 0`, `$signal_slot` omitted)\n    Used when block `block_idx` on every GPU produces and consumes data for the\n    same `block_idx`:\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `block_idx * world_size + r` in every peer GPU's\n      signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its\n      own buffer `$signal_buffers[r]` until all `world_size` slots at\n      `block_idx * world_size + [0..world_size)` reach `>= $signal_value`.\n\n    ### 2. `consumer_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used when `world_size` blocks on the same GPU (spaced by `$signal_stride` in\n    block ID) each produce `$signal_slot` (`0 <= $signal_slot < world_size`)\n    of a tile that will be consumed by a single target block on every peer GPU:\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` be the base\n      block index within the stride, and\n      `target_block = base_block + r * $signal_stride` be the\n      consumer block ID on every GPU that reads the tile produced on\n      `r`.\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `target_block * world_size + $signal_slot` in\n      every peer GPU's signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its\n      own buffer `$signal_buffers[r]` until all `world_size` producer\n      slots at `block_idx * world_size + [0..world_size)` reach\n      `>= $signal_value`.\n\n    ### 3. `producer_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used when block `block_idx` on every GPU produces data at its own\n    `block_idx`, and consumer block `block_idx` on GPU `r` waits for data\n    produced by `target_block` across all peer GPUs:\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` and\n      `target_block = base_block + r * $signal_stride`.\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `block_idx * world_size + r` in every peer GPU's\n      signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its own\n      buffer `$signal_buffers[r]` until all `world_size` slots at\n      `target_block * world_size + [0..world_size)` reach `>= $signal_value`.\n\n    *NOTE* Block orchestration order is not guaranteed across GPUs,\n    so there is a chance of a deadlock should the number of blocks be greater\n    than the number of SMs on a GPU. That is to say that if BlockN is launched\n    on GPU0 and BlockM on GPU1 and they both wait for each other to finish,\n    and there is no place to schedule more blocks on either GPU, then we\n    will have a deadlock. In general, the user of this operation should avoid\n    this by not oversubscribing the number of available SMs on a GPU. There is\n    also a secondary restriction that the number of threads per block must\n    exceed the number of participating GPUs. In the nominal case, where we are\n    within a single NV Link domain, this should not be an issue since the number\n    of participating GPUs would usually be much smaller than the number of\n    threads per block.\n\n    This operation ensures that GPUs in the same synchronization group do not\n    get more than one \"wave\" (or chunk) of data processing ahead of each other.\n    For clarity, a wave here is a set of work items that are processed together.\n    A single thread block for instance can process multiple waves. In such a\n    scenario, any given GPU can be at most 1 wave ahead of the other GPUs for\n    the same block id.\n\n    Internally, this operation uses TTXLA_Atomic(Write|SpinWait)Op on signal\n    buffers to synchronize all participating GPUs.",
+    "description": "This operation implements a block-level barrier between multiple GPUs.\n    It takes a pointer of pointers to signal buffers (one from each\n    participating GPU), the rank of the current device, and a signal value to\n    write/wait for. The signal values on consequent calls to this operation must\n    increase monotonically for the same signal buffers pointer.\n\n    Each GPU `r`'s signal buffer (`$signal_buffers[r]`) is logically a 2D array\n    of `i32` flags with shape `[num_blocks][world_size]`, flattened as\n    `block_idx * world_size + slot_idx`.\n\n    This barrier supports four synchronization modes via `$barrier_mode`:\n\n    ### 1. `symmetric` (default; `$signal_stride == 0`, `$signal_slot` omitted)\n    Used when block `block_idx` on every GPU produces and consumes data for the\n    same `block_idx`:\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `block_idx * world_size + r` in every peer GPU's\n      signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its\n      own buffer `$signal_buffers[r]` until all `world_size` slots at\n      `block_idx * world_size + [0..world_size)` reach `>= $signal_value`.\n\n    ### 2. `consumer_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used when `world_size` blocks on the same GPU (spaced by `$signal_stride` in\n    block ID) each produce `$signal_slot` (`0 <= $signal_slot < world_size`)\n    of a tile that will be consumed by a single target block on every peer GPU:\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` be the base\n      block index within the stride, and\n      `target_block = base_block + r * $signal_stride` be the\n      consumer block ID on every GPU that reads the tile produced on\n      `r`.\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `target_block * world_size + $signal_slot` in\n      every peer GPU's signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its\n      own buffer `$signal_buffers[r]` until all `world_size` producer\n      slots at `block_idx * world_size + [0..world_size)` reach\n      `>= $signal_value`.\n\n    ### 3. `producer_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used when block `block_idx` on every GPU produces data at its own\n    `block_idx`, and consumer block `block_idx` on GPU `r` waits for data\n    produced by `target_block` across all peer GPUs:\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` and\n      `target_block = base_block + r * $signal_stride`.\n    - **Signal (Write)**: Block `block_idx` on GPU `r` atomically writes\n      `$signal_value` to index `block_idx * world_size + r` in every peer GPU's\n      signal buffer (`$signal_buffers[0..world_size)`).\n    - **Wait (Read)**: Block `block_idx` on GPU `r` spin-waits on its own\n      buffer `$signal_buffers[r]` until all `world_size` slots at\n      `target_block * world_size + [0..world_size)` reach `>= $signal_value`.\n\n    ### 4. `pairwise_symmetric` (`$signal_stride > 0`, `$signal_slot` provided)\n    Used for 1-to-1 pairwise synchronization where block `block_idx` on GPU `r`\n    communicates exclusively with block `target_block` on peer GPU\n    `$signal_slot` (`p = $signal_slot`):\n    - Let `base_block = block_idx - $signal_slot * $signal_stride` and\n      `target_block = base_block + r * $signal_stride`.\n    - **Signal (Write)**: Thread 0 of block `block_idx` on GPU `r` updates its\n      local invocation counter at `$signal_buffers[r][block_idx * world_size + r]`\n      and atomically writes `$signal_value` to index\n      `target_block * world_size + r` in peer GPU `$signal_slot`'s signal\n      buffer (`$signal_buffers[$signal_slot]`).\n    - **Wait (Read)**: Thread 0 of block `block_idx` on GPU `r` spin-waits on\n      its own buffer `$signal_buffers[r]` at index\n      `block_idx * world_size + $signal_slot` until it reaches\n      `>= $signal_value`.\n\n    *NOTE* Block orchestration order is not guaranteed across GPUs,\n    so there is a chance of a deadlock should the number of blocks be greater\n    than the number of SMs on a GPU. That is to say that if BlockN is launched\n    on GPU0 and BlockM on GPU1 and they both wait for each other to finish,\n    and there is no place to schedule more blocks on either GPU, then we\n    will have a deadlock. In general, the user of this operation should avoid\n    this by not oversubscribing the number of available SMs on a GPU. There is\n    also a secondary restriction that the number of threads per block must\n    exceed the number of participating GPUs. In the nominal case, where we are\n    within a single NV Link domain, this should not be an issue since the number\n    of participating GPUs would usually be much smaller than the number of\n    threads per block.\n\n    This operation ensures that GPUs in the same synchronization group do not\n    get more than one \"wave\" (or chunk) of data processing ahead of each other.\n    For clarity, a wave here is a set of work items that are processed together.\n    A single thread block for instance can process multiple waves. In such a\n    scenario, any given GPU can be at most 1 wave ahead of the other GPUs for\n    the same block id.\n\n    Internally, this operation uses TTXLA_Atomic(Write|SpinWait)Op on signal\n    buffers to synchronize all participating GPUs.",
     "operands": [
       { "name": "signal_buffers", "type": "TT_PtrOf<[I64]>" },
       { "name": "device_rank", "type": "I32" },
@@ -116434,7 +116554,7 @@
     "attributes": [
       { "name": "world_size", "type": "I32Attr" },
       { "name": "signal_stride", "type": "DefaultValuedOptionalAttr<I32Attr, 0>" },
-      { "name": "barrier_mode", "type": "DefaultValuedAttr<TTXLA_BarrierModeAttr{symmetric|consumer_symmetric|producer_symmetric}, ::mlir::triton::xla::BarrierMode::kSymmetric>" }
+      { "name": "barrier_mode", "type": "DefaultValuedAttr<TTXLA_BarrierModeAttr{symmetric|consumer_symmetric|producer_symmetric|pairwise_symmetric}, ::mlir::triton::xla::BarrierMode::kSymmetric>" }
     ],
     "assemblyFormat": "$signal_buffers `,` $device_rank `,` $signal_value (`,` $signal_slot^)? prop-dict attr-dict `:`\n    functional-type(operands, results)"
   },
@@ -129600,7 +129720,7 @@
   {
     "name": "vector.contract",
     "summary": "vector contraction operation",
-    "description": "Computes the sum of products of vector elements along contracting\n    dimension pairs from 2 vectors of rank M and N respectively, adds this\n    intermediate result to the accumulator argument of rank K, and returns a\n    vector result of rank K (where K = num_lhs_free_dims + num_rhs_free_dims +\n    num_batch_dims (see dimension type descriptions below)). For K = 0 (no\n    free or batch dimensions), the accumulator and output are a scalar.\n\n    If operands and the result have types of different bitwidths, operands are\n    promoted to have the same bitwidth as the result before performing the\n    contraction. For integer types, only signless integer types are supported,\n    and the promotion happens via sign extension.\n\n    An iterator type attribute list must be specified, where each element of\n    the list represents an iterator with one of the following types:\n\n    *   \"reduction\": reduction dimensions are present in the lhs and rhs\n        arguments but not in the output (and accumulator\n        argument). These are the dimensions along which the vector\n        contraction op computes the sum of products, and\n        contracting dimension pair dimension sizes must match\n        between lhs/rhs.\n\n    *   \"parallel\": Batch dimensions are iterator type \"parallel\", and\n        are non-contracting dimensions present in the lhs, rhs and\n        output. The lhs/rhs co-iterate along the batch dimensions,\n        which should be expressed in their indexing maps.\n\n        Free dimensions are iterator type \"parallel\", and are\n        non-contraction, non-batch dimensions accessed by either the\n        lhs or rhs (but not both). The lhs and rhs free dimensions\n        are unrelated to each other and do not co-iterate, which\n        should be expressed in their indexing maps.\n\n    An indexing map attribute list must be specified with an entry for lhs, rhs\n    and acc arguments. An indexing map attribute specifies a mapping from each\n    iterator in the iterator type list, to each dimension of an N-D vector.\n\n    An optional kind attribute may be used to specify the combining function\n    between the intermediate result and accumulator argument of rank K. This\n    attribute can take the values `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`\n    /`minimumf`/`maximumf` for floats. The default is `add`.\n\n    Example:\n\n    ```mlir\n    // Simple DOT product (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"]\n    }\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n\n    // 2D vector contraction with one contracting dimension (matmul, K = 2).\n    #contraction_accesses = [\n      affine_map<(i, j, k) -> (i, k)>,\n      affine_map<(i, j, k) -> (k, j)>,\n      affine_map<(i, j, k) -> (i, j)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n    }\n\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<4x3xf32>, vector<3x7xf32> into vector<4x7xf32>\n\n    // 4D to 3D vector contraction with two contracting dimensions and\n    // one batch dimension (K = 3).\n    #contraction_accesses = [\n      affine_map<(b0, f0, f1, c0, c1) -> (c0, b0, c1, f0)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, c1, c0, f1)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, f0, f1)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"parallel\",\n                        \"reduction\", \"reduction\"]\n    }\n\n    %4 = vector.contract #contraction_trait %0, %1, %2\n        : vector<7x8x16x15xf32>, vector<8x16x7x5xf32> into vector<8x15x5xf32>\n\n    // Vector contraction with mixed typed. lhs/rhs have different element\n    // types than accumulator/result.\n    %5 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf16>, vector<10xf16> into f32\n\n    // Contract with max (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"],\n      kind = #vector.kind<maxnumf>\n    }\n    %6 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n    ```",
+    "description": "Computes the sum of products of vector elements along contracting\n    dimension pairs from 2 vectors of rank M and N respectively, adds this\n    intermediate result to the accumulator argument of rank K, and returns a\n    vector result of rank K (where K = num_lhs_free_dims + num_rhs_free_dims +\n    num_batch_dims (see dimension type descriptions below)). For K = 0 (no\n    free or batch dimensions), the accumulator and output are a scalar.\n\n    If operands and the result have types of different bitwidths, operands are\n    promoted to have the same bitwidth as the result before performing the\n    contraction. For integer types, only signless integer types are supported,\n    and the promotion happens via sign extension.\n\n    An iterator type attribute list must be specified, where each element of\n    the list represents an iterator with one of the following types:\n\n    *   \"reduction\": reduction dimensions are present in the lhs and rhs\n        arguments but not in the output (and accumulator\n        argument). These are the dimensions along which the vector\n        contraction op computes the sum of products, and\n        contracting dimension pair dimension sizes must match\n        between lhs/rhs.\n\n    *   \"parallel\": Batch dimensions are iterator type \"parallel\", and\n        are non-contracting dimensions present in the lhs, rhs and\n        output. The lhs/rhs co-iterate along the batch dimensions,\n        which should be expressed in their indexing maps.\n\n        Free dimensions are iterator type \"parallel\", and are\n        non-contraction, non-batch dimensions accessed by either the\n        lhs or rhs (but not both). The lhs and rhs free dimensions\n        are unrelated to each other and do not co-iterate, which\n        should be expressed in their indexing maps.\n\n    Depending on its iterator type and on the operands it indexes, a dimension\n    is one of the following kinds:\n\n    | Iterator type | In output | In lhs and rhs | Kind                     |\n    | ------------- | --------- | -------------- | ------------------------ |\n    | \"parallel\"    | yes       | both           | batch                    |\n    | \"parallel\"    | yes       | lhs only       | free (M-like)            |\n    | \"parallel\"    | yes       | rhs only       | free (N-like)            |\n    | \"reduction\"   | no        | both           | contracting              |\n    | \"reduction\"   | no        | one of them    | reduction on one operand |\n\n    The M-like and N-like terms follow\n    [`linalg.contract`](https://mlir.llvm.org/docs/Dialects/Linalg/#linalgcontract-linalgcontractop)\n    terminology.\n\n    An indexing map attribute list must be specified with an entry for lhs, rhs\n    and acc arguments. An indexing map attribute specifies a mapping from each\n    iterator in the iterator type list, to each dimension of an N-D vector.\n\n    An optional kind attribute may be used to specify the combining function\n    between the intermediate result and accumulator argument of rank K. This\n    attribute can take the values `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`\n    /`minimumf`/`maximumf` for floats. The default is `add`.\n\n    Example:\n\n    ```mlir\n    // Simple DOT product (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"]\n    }\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n\n    // 2D vector contraction with one contracting dimension (matmul, K = 2).\n    #contraction_accesses = [\n      affine_map<(i, j, k) -> (i, k)>,\n      affine_map<(i, j, k) -> (k, j)>,\n      affine_map<(i, j, k) -> (i, j)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n    }\n\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<4x3xf32>, vector<3x7xf32> into vector<4x7xf32>\n\n    // 4D to 3D vector contraction with two contracting dimensions and\n    // one batch dimension (K = 3).\n    #contraction_accesses = [\n      affine_map<(b0, f0, f1, c0, c1) -> (c0, b0, c1, f0)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, c1, c0, f1)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, f0, f1)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"parallel\",\n                        \"reduction\", \"reduction\"]\n    }\n\n    %4 = vector.contract #contraction_trait %0, %1, %2\n        : vector<7x8x16x15xf32>, vector<8x16x7x5xf32> into vector<8x15x5xf32>\n\n    // Vector contraction with mixed typed. lhs/rhs have different element\n    // types than accumulator/result.\n    %5 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf16>, vector<10xf16> into f32\n\n    // Contract with max (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"],\n      kind = #vector.kind<maxnumf>\n    }\n    %6 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n    ```",
     "operands": [
       { "name": "lhs", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
       { "name": "rhs", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
