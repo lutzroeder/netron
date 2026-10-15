@@ -8920,8 +8920,10 @@ _.DialectContext = class {
             case 'dxgml':
             case 'dxgml_pattern':
             case 'gim':
+            case 'ndpu':
             case 'nir':
             case 'nn':
+            case 'nvt':
             case 'torq_hl':
             case 'xir':
             case 'xth':
@@ -22560,6 +22562,10 @@ _.llvm.LLVMDialect = class extends _.Dialect {
                 result.addAttribute('invariant', new _.UnitAttr());
             } else if (!result.attributes.has('invariantGroup') && parser.parseOptionalKeyword('invariant_group')) {
                 result.addAttribute('invariantGroup', new _.UnitAttr());
+            } else if (!result.attributes.has('noundef') && parser.parseOptionalKeyword('noundef')) {
+                result.addAttribute('noundef', new _.UnitAttr());
+            } else if (!result.attributes.has('range') && parser.parseOptionalKeyword('range')) {
+                result.addAttribute('range', this.parseLLVMConstantRangeAttr(parser));
             } else if (!result.attributes.has('dereferenceable') && parser.parseOptionalKeyword('dereferenceable')) {
                 parser.parseLess();
                 parser.parseKeyword('bytes');

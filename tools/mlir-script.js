@@ -162,6 +162,7 @@ const schema = async () => {
         'mlir/include/mlir/Dialect/LLVMIR/ROCDLOps.td',
         'mlir/include/mlir/Dialect/LLVMIR/XeVMOps.td',
         'mlir/include/mlir/Dialect/Math/IR/MathOps.td',
+        'mlir/include/mlir/Dialect/Math/TransformOps/MathTransformOps.td',
         'mlir/include/mlir/Dialect/MemRef/IR/MemRefOps.td',
         'mlir/include/mlir/Dialect/MemRef/TransformOps/MemRefTransformOps.td',
         'mlir/include/mlir/Dialect/MLProgram/IR/MLProgramOps.td',
