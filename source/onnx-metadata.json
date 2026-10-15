@@ -41992,7 +41992,7 @@
         "type": "string",
         "required": false,
         "default": "relu",
-        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. Default is relu"
+        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. CUDA also supports relu2 (squared ReLU). Default is relu"
       },
       {
         "name": "k",
@@ -51087,7 +51087,7 @@
         "type": "string",
         "required": false,
         "default": "relu",
-        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. Default is relu"
+        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. CUDA also supports relu2 (squared ReLU). Default is relu"
       },
       {
         "name": "block_size",
