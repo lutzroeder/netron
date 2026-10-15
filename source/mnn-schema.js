@@ -2712,7 +2712,6 @@ MNN.AttentionParam = class AttentionParam {
         $.kv_shared_layer_index = reader.int32_(position, 10, -1);
         $.mhq_quant = reader.tables(position, 12, MNN.TensorQuantInfo);
         $.output_c4 = reader.bool_(position, 14, false);
-        $.attnScale = reader.float32_(position, 16, 0);
         return $;
     }
 
@@ -2724,7 +2723,6 @@ MNN.AttentionParam = class AttentionParam {
         $.kv_shared_layer_index = reader.value(json.kv_shared_layer_index, -1);
         $.mhq_quant = reader.objects(json.mhq_quant, MNN.TensorQuantInfo);
         $.output_c4 = reader.value(json.output_c4, false);
-        $.attnScale = reader.value(json.attnScale, 0);
         return $;
     }
 };
