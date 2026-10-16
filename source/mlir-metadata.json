@@ -857,7 +857,7 @@
     "attributes": [
       { "name": "varType", "type": "TypeAttr" },
       { "name": "descKind", "type": "DefaultValuedAttr<OpenACC_DataDescKindAttr{none|cfi|memref|openacc; separator=','}, mlir::acc::DataDescKind::none>" },
-      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach|no_device_descriptor; separator=','}, mlir::acc::MapFlags::none>" },
+      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|return_param|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach|no_device_descriptor; separator=','}, mlir::acc::MapFlags::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "elementSize", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" },
       { "name": "exitLoc", "type": "OptionalAttr<LocationAttr>" }
@@ -1841,7 +1841,7 @@
   {
     "name": "amdg.async_tdm_scatter",
     "summary": "Scatter data from local memory to non-contiguous global memory rows asynchronously",
-    "description": "This operation scatters data from local memory to non-contiguous rows in global\n    memory using TDM scatter mode.\n    Unlike the regular async_tdm_copy_local_to_global which copies to contiguous memory,\n    this operation uses dst_row_indices to specify which rows in global memory to write to.\n\n    The descriptor must be 2D. The dst_row_indices specify which rows in global memory\n    to write to. The element type of dst_row_indices determines the index size:\n    - I16: 16-bit indices, up to 16 rows per instruction\n    - I32: 32-bit indices, up to 8 rows per instruction\n    If more rows are needed, multiple TDM instructions will be issued.\n\n    The descriptor must be positioned beforehand by amdg.update_tensor_descriptor\n    (global offset / column via add_offsets, bounds); this op only supplies the\n    per-instruction row slices (dst_row_indices) and the LDS source.",
+    "description": "This operation scatters data from local memory to non-contiguous rows in global\n    memory using TDM scatter mode.\n    Unlike the regular async_tdm_copy_local_to_global which copies to contiguous memory,\n    this operation uses dst_row_indices to specify which rows in global memory to write to.\n\n    The descriptor must be 2D. The dst_row_indices specify which rows in global memory\n    to write to. The element type of dst_row_indices determines the index size:\n    - I16: 16-bit indices, up to 16 rows per instruction\n    - I32: 32-bit indices, up to 8 rows per instruction\n    If more rows are needed, multiple TDM instructions will be issued.\n\n    The descriptor must be positioned beforehand by amdg.update_tensor_descriptor\n    (global offset / column via add_offsets, bounds); this op only supplies the\n    per-instruction row slices (dst_row_indices) and the LDS source.\n\n    The dst_row_indices must be broadcast across the lanes of a warp (every lane holds\n    all indices of the warp), since the TDM instruction reads them from SGPRs. Different\n    warps may handle different rows. Each CTA only writes the part of the source held in\n    its own LDS, so the dst_row_indices must be distributed across CTAs the same way as\n    the source rows (the block bases of both layouts must have the same dim0 components).\n    If the source is split across CTAs along columns, those CTAs write to the same rows\n    and must hold the same indices.",
     "operands": [
       { "name": "desc", "type": "TT_TensorDescType" },
       { "name": "dst_row_indices", "type": "TensorOf<[I16, I32]>" },
@@ -2178,10 +2178,10 @@
     "description": "Divide FP16, BF16, or FP32 values by an E8M0 scale and convert them to\n    packed e2m1 values. The result packs two consecutive fp4 values per i8\n    along `axis`: the element at even position provides the low nibble and the\n    following element the high nibble, so the result extent along `axis` is\n    half the input extent (the inverse of `scaled_upcast_fp4`).\n\n    The `axis` attribute identifies the dimension along which the fp4 elements\n    are packed and along which scales are shared. The scale must be compact\n    along `axis`: one raw E8M0 i8 payload covers multiple consecutive packed\n    bytes along that axis (unlike :func:`scaled_upcast_fp4`, expanded scales\n    with one scale per output element are not supported). Each scale block along\n    `axis` must cover a multiple of 8 fp4 values.\n\n    This will be hardware accelerated on architectures supporting\n    `v_cvt_scalef32_pk_*` instructions (e.g. CDNA4 and CDNA5).",
     "operands": [
       { "name": "input", "type": "RankedTensorOf<[F16, BF16, F32]>" },
-      { "name": "scale", "type": "RankedTensorOf<[I8]>" }
+      { "name": "scale", "type": "RankedTensorOf<[I8, F8E8M0FNU]>" }
     ],
     "results": [
-      { "name": "output", "type": "RankedTensorOf<[I8]>" }
+      { "name": "output", "type": "RankedTensorOf<[I8, TT_FP4E2M1x2]>" }
     ],
     "attributes": [
       { "name": "axis", "type": "I32Attr" }
@@ -2194,7 +2194,7 @@
     "description": "Divide FP16, BF16, or FP32 values by an E8M0 scale and convert them to\n    fp8 (e4m3) or bf8 (e5m2) values. This is the elementwise inverse of\n    `scaled_upcast_fp8`: input and result share the same shape and encoding,\n    and each fp8 result occupies its own byte (no packing).\n\n    The `axis` attribute identifies the dimension along which scales are\n    shared. The scale must be compact along `axis`: one raw E8M0 i8 payload\n    covers multiple consecutive output elements along that axis (unlike\n    :func:`scaled_upcast_fp8`, expanded scales with one scale per output element\n    are not supported). Each scale block along `axis` must cover a multiple of 8\n    output elements.\n\n    This will be hardware accelerated on architectures supporting\n    `v_cvt_scalef32_pk_{fp8,bf8}_*` instructions (e.g. CDNA4 and CDNA5).",
     "operands": [
       { "name": "input", "type": "RankedTensorOf<[F16, BF16, F32]>" },
-      { "name": "scale", "type": "RankedTensorOf<[I8]>" }
+      { "name": "scale", "type": "RankedTensorOf<[I8, F8E8M0FNU]>" }
     ],
     "results": [
       { "name": "output", "type": "RankedTensorOf<[AnyTypeOf<[F8E4M3FN, F8E5M2]>]>" }
@@ -2209,8 +2209,8 @@
     "summary": "Upcast fp4 and then multiply scale",
     "description": "Upcast fp4 (e2m1) values packed as i8 values and multiply with the given\n    E8M0 scale encoded as BF16. This maps to `v_cvt_scalef32_*` intrinsics\n    on the AMD CDNA4 architecture.\n\n    The lower 4 bits of the i8s represent the first fp4 element, and the upper\n    4 bits the second fp4 element.\n\n    The `axis` attribute specifies the axis along which the fp4 elements are\n    packed.\n\n    The result encoding is always a layout constraint: the conversion consumes\n    register-consecutive groups along `axis`, so layout conversion will not\n    rewrite this op.",
     "operands": [
-      { "name": "input", "type": "RankedTensorOf<[I8]>" },
-      { "name": "scale", "type": "RankedTensorOf<[BF16, I8]>" }
+      { "name": "input", "type": "RankedTensorOf<[I8, TT_FP4E2M1x2]>" },
+      { "name": "scale", "type": "RankedTensorOf<[BF16, I8, F8E8M0FNU]>" }
     ],
     "results": [
       { "name": "output", "type": "RankedTensorOf<[AnyTypeOf<[F16, BF16]>]>" }
@@ -2226,7 +2226,7 @@
     "description": "Upcast fp8 (e4m3/e5m2) values and multiply with the given E8M0 scale\n    encoded as BF16. This maps to `v_cvt_scalef32_*` intrinsics\n    on the AMD CDNA4 architecture.\n\n    The result encoding is always a layout constraint: the conversion consumes\n    register-consecutive groups, so layout conversion will not rewrite this op.",
     "operands": [
       { "name": "input", "type": "RankedTensorOf<[AnyTypeOf<[F8E4M3FN, F8E5M2]>]>" },
-      { "name": "scale", "type": "RankedTensorOf<[AnyTypeOf<[BF16, I8]>]>" }
+      { "name": "scale", "type": "RankedTensorOf<[AnyTypeOf<[BF16, I8, F8E8M0FNU]>]>" }
     ],
     "results": [
       { "name": "output", "type": "RankedTensorOf<[AnyTypeOf<[F16, BF16]>]>" }
@@ -60043,6 +60043,21 @@
     "assemblyFormat": "$lhs `,` $rhs `,` `config` `=` $einsum_config attr-dict `:` functional-type(operands, results)"
   },
   {
+    "name": "stablehlo.exp2",
+    "summary": "Exp2 operation",
+    "description": "Performs element-wise base-2 exponential operation on `operand` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#exp2\n\n    Example:\n    ```mlir\n    %result = stablehlo.exp2 %operand : tensor<2x2xf64>\n    ```",
+    "operands": [
+      { "name": "operand", "type": "HLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "HLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "attributes": [
+      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr<StableHLO_ResultAccuracyAttr, ::mlir::stablehlo::ResultAccuracyMode::DEFAULT>" }
+    ],
+    "assemblyFormat": "$operand attr-dict `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+  },
+  {
     "name": "stablehlo.exponential",
     "summary": "Exp operation",
     "description": "Performs element-wise exponential operation on `operand` tensor and produces\n    a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#exponential\n\n    Example:\n    ```mlir\n    %result = stablehlo.exponential %operand : tensor<2x2xf64>\n    ```",
@@ -60233,6 +60248,21 @@
     "name": "stablehlo.log_plus_one",
     "summary": "Log1p operation",
     "description": "Performs element-wise logarithm plus one operation on `operand` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#log_plus_one\n\n    Example:\n    ```mlir\n    %result = stablehlo.log_plus_one %operand : tensor<5xf64>\n    ```",
+    "operands": [
+      { "name": "operand", "type": "HLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "HLO_FpComplexOrQuantizedIntTensor" }
+    ],
+    "attributes": [
+      { "name": "result_accuracy", "type": "DefaultValuedOptionalAttr<StableHLO_ResultAccuracyAttr, ::mlir::stablehlo::ResultAccuracyMode::DEFAULT>" }
+    ],
+    "assemblyFormat": "$operand attr-dict `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+  },
+  {
+    "name": "stablehlo.log2",
+    "summary": "Log2 operation",
+    "description": "Performs element-wise base-2 logarithm operation on `operand` tensor and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#log2\n\n    Example:\n    ```mlir\n    %result = stablehlo.log2 %operand : tensor<2x2xf64>\n    ```",
     "operands": [
       { "name": "operand", "type": "HLO_FpComplexOrQuantizedIntTensor" }
     ],
@@ -112944,6 +112974,16 @@
     "assemblyFormat": "oilist (\n        `max_transfer_rank` `=` $max_transfer_rank\n      | `full_unroll` `=` $full_unroll\n    ) attr-dict"
   },
   {
+    "name": "transform.apply_patterns.vector.unroll_contract",
+    "description": "Apply unroll patterns for `vector.contract` using the given shapes as the\n    target shape. If no `vector.contract` Op is present in the target block, no\n    unrolling takes place.\n\n    This op assumes that the target `vector.contract` Op models a matrix\n    multiplication. Generalising this Op to other cases is left as a TODO.",
+    "attributes": [
+      { "name": "m", "type": "I64Attr" },
+      { "name": "n", "type": "I64Attr" },
+      { "name": "k", "type": "I64Attr" }
+    ],
+    "assemblyFormat": "`[` $m `,` $n `,` $k `]` attr-dict"
+  },
+  {
     "name": "transform.apply_patterns.vector.unroll_from_elements",
     "description": "Indicates that vector from_elements operations should be unrolled\n    along the outermost dimension.",
     "assemblyFormat": "attr-dict"
@@ -112971,6 +113011,11 @@
   {
     "name": "transform.apply_patterns.x86.vector_contract_bf16_to_fma",
     "description": "Collect patterns to lower a BF16 type vector.contract operation\n        to a FMA via emulation lowering using BF16 packed operations.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "transform.apply_patterns.x86.vector_contract_multi_level_unroll_for_amx",
+    "description": "Collect patterns that tile and unroll contractions in order to prepare them\n    for the AMX nanokernel lowerings.",
     "assemblyFormat": "attr-dict"
   },
   {
@@ -117291,8 +117336,8 @@
     "summary": "dot_scaled",
     "description": "$d = matrix_multiply(scale($a, $a_scale), scale($b, $b_scale)) + $c.\n        Where scale(x, s) is a function that applies the scale per block following microscaling spec.",
     "operands": [
-      { "name": "a", "type": "RankedTensorOf<[TT_Float, I8]>" },
-      { "name": "b", "type": "RankedTensorOf<[TT_Float, I8]>" },
+      { "name": "a", "type": "RankedTensorOf<[TT_Float, I8, TT_FP4E2M1x2]>" },
+      { "name": "b", "type": "RankedTensorOf<[TT_Float, I8, TT_FP4E2M1x2]>" },
       { "name": "c", "type": "TT_FloatTensor" },
       { "name": "a_scale", "type": "Optional<RankedTensorOf<[ TT_Float, I8 ]>>" },
       { "name": "b_scale", "type": "Optional<RankedTensorOf<[ TT_Float, I8 ]>>" }
@@ -118032,7 +118077,7 @@
     "summary": "Upcast fp4 (e2m1) to fp",
     "description": "Upcast fp4 (e2m1) represented packed as i8s to fp.\n\n    The lower 4 bits of the i8s represent the first fp4 element, and the upper 4 bits\n    the second fp4 element.\n\n    The `axis` attribute specifies the axis along which the fp4 elements are packed.",
     "operands": [
-      { "name": "src", "type": "RankedTensorOf<[I8]>" }
+      { "name": "src", "type": "RankedTensorOf<[I8, TT_FP4E2M1x2]>" }
     ],
     "results": [
       { "name": "result", "type": "TT_FloatTensor" }
@@ -131176,6 +131221,18 @@
     ]
   },
   {
+    "name": "vhlo.exp2_v1",
+    "operands": [
+      { "name": "operand", "type": "VHLO_AnyType" }
+    ],
+    "results": [
+      { "name": "result", "type": "VHLO_AnyType" }
+    ],
+    "attributes": [
+      { "name": "result_accuracy", "type": "VHLO_AnyAttr" }
+    ]
+  },
+  {
     "name": "vhlo.exponential_minus_one_v1",
     "operands": [
       { "name": "operand", "type": "VHLO_AnyType" }
@@ -131402,6 +131459,18 @@
   },
   {
     "name": "vhlo.log_v2",
+    "operands": [
+      { "name": "operand", "type": "VHLO_AnyType" }
+    ],
+    "results": [
+      { "name": "result", "type": "VHLO_AnyType" }
+    ],
+    "attributes": [
+      { "name": "result_accuracy", "type": "VHLO_AnyAttr" }
+    ]
+  },
+  {
+    "name": "vhlo.log2_v1",
     "operands": [
       { "name": "operand", "type": "VHLO_AnyType" }
     ],

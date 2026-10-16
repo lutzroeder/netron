@@ -26421,6 +26421,9 @@ _.triton.TritonDialect = class extends _.Dialect {
         if (mnemonic === 'tensordesc') {
             return _.triton.TensorDescType.parse(parser);
         }
+        if (mnemonic === 'fp4e2m1x2') {
+            return new _.Type(`!${dialect}.${mnemonic}`);
+        }
         parser.emitError(parser.getNameLoc(), `Unknown '${dialect}' type '${mnemonic}'`);
         return null;
     }
