@@ -46861,6 +46861,19 @@
         "description": "Only for policy_mode 'csa': number of compressed entries selected per query. Must be > 0. Must be omitted when policy_mode is 'qsa'."
       },
       {
+        "name": "indexshare_state_policy",
+        "type": "string",
+        "required": false,
+        "default": "default",
+        "description": "Reuse state policy: default holds QSA and advances CSA; hold or advance overrides it."
+      },
+      {
+        "name": "max_output_entries",
+        "type": "int64",
+        "required": false,
+        "description": "Fixed padded output width for the optional IndexShare interface."
+      },
+      {
         "name": "policy_mode",
         "type": "string",
         "required": true,
@@ -46989,10 +47002,34 @@
         "type": "M",
         "option": "optional",
         "description": "Only for policy_mode 'qsa': optional capture gate with shape (1). A zero value disables capture."
+      },
+      {
+        "name": "indexshare_mode",
+        "type": "M",
+        "option": "optional",
+        "description": "CPU scalar [1]: 0 refresh, 1 reuse."
+      },
+      {
+        "name": "merged_indices",
+        "type": "M",
+        "option": "optional",
+        "description": "Packed merged selection [N,max_output_entries]."
+      },
+      {
+        "name": "merged_counts",
+        "type": "M",
+        "option": "optional",
+        "description": "Merged counts [N]."
+      },
+      {
+        "name": "merged_status",
+        "type": "M",
+        "option": "optional",
+        "description": "Merged device status [N]."
       }
     ],
     "min_input": 16,
-    "max_input": 18,
+    "max_input": 22,
     "outputs": [
       {
         "name": "selected_indices",
@@ -47030,12 +47067,18 @@
         "type": "T",
         "option": "optional",
         "description": "Only for policy_mode 'qsa': compact transition payloads with shape (batch_size, state_update_capacity, head_size). A token that completes a compression block stores the prepared block representative; any other captured token stores its raw key. Inactive and unused slots are zero."
+      },
+      {
+        "name": "indexshare_status",
+        "type": "M",
+        "option": "optional",
+        "description": "Selection status [N], forwarded on reuse and zero on refresh."
       }
     ],
     "min_output": 6,
-    "max_output": 7,
-    "inputs_range": "16 - 18",
-    "outputs_range": "6 - 7",
+    "max_output": 8,
+    "inputs_range": "16 - 22",
+    "outputs_range": "6 - 8",
     "type_constraints": [
       {
         "description": "Constrain floating point tensors to float, float16 and bfloat16.",
@@ -47056,6 +47099,98 @@
       {
         "description": "Constrain packed metadata, generic state lengths and selected indices/counts to 32-bit integer tensors.",
         "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "PackedSparseAttentionIndexerMerge",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Stable union of a mapped base selection and either [range_start, range_end) or an additional selection prefix. Valid prefixes contain nonnegative indices. Padding is ignored. Outputs preserve first-occurrence order and are padded with -1. Status is 0 for success, 1 for invalid device metadata, or 2 for capacity overflow; failures return count 0 and all -1. The caller supplies a common index namespace and guarantees causal visibility.",
+    "attributes": [
+      {
+        "name": "max_output_entries",
+        "type": "int64",
+        "required": true,
+        "description": "Fixed output width, in [1, 2^30]."
+      },
+      {
+        "name": "policy_mode",
+        "type": "string",
+        "required": true,
+        "description": "append_range or append_indices."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "base_indices",
+        "type": "T",
+        "description": "Cached selections, shape (R, C)."
+      },
+      {
+        "name": "base_counts",
+        "type": "T",
+        "description": "Valid base-prefix lengths, shape (R)."
+      },
+      {
+        "name": "base_row_indices",
+        "type": "T",
+        "description": "Output-query to cached-row mapping, shape (N)."
+      },
+      {
+        "name": "range_starts",
+        "type": "T",
+        "option": "optional",
+        "description": "Inclusive nonnegative starts, shape (N)."
+      },
+      {
+        "name": "range_ends",
+        "type": "T",
+        "option": "optional",
+        "description": "Exclusive ends not less than starts, shape (N)."
+      },
+      {
+        "name": "additional_indices",
+        "type": "T",
+        "option": "optional",
+        "description": "Required for append_indices: selections of shape (N, A); absent for append_range."
+      },
+      {
+        "name": "additional_counts",
+        "type": "T",
+        "option": "optional",
+        "description": "Required for append_indices: valid prefix lengths of shape (N); absent for append_range."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 7,
+    "outputs": [
+      {
+        "name": "selected_indices",
+        "type": "T",
+        "description": "Merged indices, shape (N, max_output_entries)."
+      },
+      {
+        "name": "selected_counts",
+        "type": "T",
+        "description": "Merged prefix lengths, shape (N)."
+      },
+      {
+        "name": "status",
+        "type": "T",
+        "description": "Per-query device validation status, shape (N)."
+      }
+    ],
+    "min_output": 3,
+    "max_output": 3,
+    "inputs_range": "3 - 7",
+    "type_constraints": [
+      {
+        "description": "Integer selection tensors.",
+        "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(int32)"
         ]
@@ -51061,7 +51196,7 @@
     "name": "QMoE",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Quantized mixture of experts (MoE).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. QMoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs and optional router_weights must contain\n      one corresponding row per token in either form.\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      For integer quantization, the formula of linear dequantization using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      For integer quantization, if block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      For quant_type='fp8', weights instead use row-major float8e4m3fn tensors shaped [num_experts, N, K].\n      A positive block_size selects square block scaling with float32, float16, or bfloat16 fc*_scales tensors shaped\n      [num_experts, ceil(N / block_size), ceil(K / block_size)]:\n        dequantized_weight[e, n, k] = float(weight[e, n, k]) * scale[e, n / block_size, k / block_size]\n      Partial edge blocks are allowed. No zero points or activation scales are accepted.\n      Without a positive block_size, FP8 uses the legacy per-expert fc*_global_scale inputs instead.\n      Block-scaled FP8 does not use global scales. Activations retain the input type (weight-only quantization).\n      The WebGPU block-FP8 kernel supports block_size=128 with float32 scales and rejects projections\n      that exceed 32-bit shader addressing or the device's per-dimension dispatch limit.\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
+    "description": "Quantized mixture of experts (MoE).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. QMoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs and optional router_weights must contain\n      one corresponding row per token in either form.\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      For integer quantization, the formula of linear dequantization using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      For integer quantization, if block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      For quant_type='fp8', weights instead use row-major float8e4m3fn tensors shaped [num_experts, N, K].\n      A positive block_size selects square block scaling with float32, float16, or bfloat16 fc*_scales tensors shaped\n      [num_experts, ceil(N / block_size), ceil(K / block_size)]:\n        dequantized_weight[e, n, k] = float(weight[e, n, k]) * scale[e, n / block_size, k / block_size]\n      Partial edge blocks are allowed. No zero points or activation scales are accepted.\n      Without a positive block_size, FP8 uses the legacy per-expert fc*_global_scale inputs instead.\n      Block-scaled FP8 does not use global scales. Activations retain the input type (weight-only quantization).\n      On CUDA SM80-or-newer GPUs, SiLU/SwiGLU block-scaled FP8 uses fused weight-only GEMV/GEMM by default.\n      These kernels decode and scale FP8 tiles on chip without materializing full FP16/BF16 weight buffers.\n      Set ORT_ENABLE_FP8_FUSED=0 before session creation to select the compact dense-dequant fallback.\n      Other activation types and unsupported routing sizes retain the fallback.\n      The WebGPU block-FP8 kernel supports block_size=128 with float32 scales and rejects projections\n      that exceed 32-bit shader addressing or the device's per-dimension dispatch limit.\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
     "attributes": [
       {
         "name": "accuracy_level",
@@ -51163,7 +51298,7 @@
         "type": "int64",
         "required": false,
         "default": -1,
-        "description": "Only meaningful when quant_type='int'. Tri-state control over the layout of the int4/int8 fc1/fc2 weight initializers. The concrete prepacked layouts selected by -1 and 1 are determined by the execution provider. 0: the initializers are raw, un-prepacked [E, N, K/pack] tensors as produced by quantize_matmul_{4,8}bits. Defaults to -1."
+        "description": "Expert-weight layout selector with quantization-specific meanings. For quant_type='int', -1 and 1 select execution-provider-specific prepacked int4/int8 fc1/fc2 layouts. 0 selects raw [E,N,K/pack] tensors as produced by quantize_matmul_{4,8}bits. For quant_type='nvfp4' on CUDA, -1 (default) and 0 select legacy N-packed [E,K,N/2] bytes; 1 selects K-packed row-major [E,N,K/2] bytes while retaining logical [E,K,N/2] dimensions. NVFP4 block scales and global scales retain their original layouts and values. Ignored for other quantization types. Supported values are -1, 0, and 1; defaults to -1."
       }
     ],
     "inputs": [
