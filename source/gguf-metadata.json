@@ -1391,7 +1391,9 @@
           "type": "MUL_MAT_ID",
           "tensors": ["ffn_up.{N}", "ffn_up_exps"]
         },
-        { "name": "attn_qkv" }
+        { "name": "attn_qkv" },
+        { "name": "ffn_norm_ada_down" },
+        { "name": "ffn_norm_ada_up" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -3814,7 +3816,11 @@
           "name": "ffn_down_exps",
           "type": "MUL_MAT_ID",
           "tensors": ["ffn_down.{N}", "ffn_down_exps"]
-        }
+        },
+        { "name": "nextn.eh_proj" },
+        { "name": "nextn.enorm" },
+        { "name": "nextn.hnorm" },
+        { "name": "nextn.shared_head_norm" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
@@ -4711,6 +4717,108 @@
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "vllm-decision2",
+    "graph": {
+      "input": [
+        { "name": "token_embd" },
+        { "name": "decision.option_norm" },
+        { "name": "decision.query_norm" },
+        { "name": "decision.key" },
+        { "name": "decision.query" },
+        { "name": "decision.option_mlp" },
+        { "name": "decision.query_mlp" },
+        { "name": "decision.scorer_out" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_q" },
+        { "name": "attn_q_norm" },
+        { "name": "attn_k" },
+        { "name": "attn_k_norm" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" }
+      ],
+      "output": [
+        { "name": "output_norm" }
+      ]
+    }
+  },
+  {
+    "name": "maion-coder",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_qkv" },
+        { "name": "attn_q" },
+        { "name": "attn_q_norm" },
+        { "name": "attn_k" },
+        { "name": "attn_k_norm" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "post_attention_norm" },
+        { "name": "ffn_norm" },
+        { "name": "post_ffw_norm" },
+        { "name": "ffn_gate" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "ffn_gate_inp" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_latent_down" },
+        { "name": "ffn_latent_up" }
+      ],
+      "output": [
+        { "name": "output_norm" },
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "muse-spark",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_q" },
+        { "name": "attn_q_norm" },
+        { "name": "attn_k" },
+        { "name": "attn_k_norm" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "attn_gate" },
+        { "name": "attn_resid_alpha" },
+        { "name": "attn_resid_beta" },
+        { "name": "ffn_norm" },
+        { "name": "post_ffw_norm" },
+        { "name": "ffn_resid_alpha" },
+        { "name": "ffn_resid_beta" },
+        { "name": "ffn_gate_inp" },
+        { "name": "exp_probs_b" },
+        { "name": "ffn_latent_down" },
+        { "name": "ffn_pre_exp_norm" },
+        { "name": "ffn_gate_exps" },
+        { "name": "ffn_up_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_post_exp_norm" },
+        { "name": "ffn_latent_up" }
+      ],
+      "output": [
+        { "name": "output" },
+        { "name": "output_norm" }
       ]
     }
   }
