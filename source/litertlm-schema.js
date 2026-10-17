@@ -164,8 +164,8 @@ litert.lm.schema.AnySectionDataType = {
     TFLiteWeights: 7, '7': 'TFLiteWeights',
     EmbeddingMetadataProto: 8, '8': 'EmbeddingMetadataProto',
     ExecutorMetadataProto: 9, '9': 'ExecutorMetadataProto',
-    TtsMetadataProto: 10, '10': 'TtsMetadataProto',
-    AsrMetadataProto: 11, '11': 'AsrMetadataProto',
+    Text2SpeechMetadataProto: 10, '10': 'Text2SpeechMetadataProto',
+    Speech2TextMetadataProto: 11, '11': 'Speech2TextMetadataProto',
     Text2ImageMetadataProto: 12, '12': 'Text2ImageMetadataProto'
 };
 
