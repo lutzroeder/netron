@@ -6430,10 +6430,11 @@
   {
     "name": "builtin.module",
     "summary": "A top level container operation",
-    "description": "A `module` represents a top-level container operation. It contains a single\n    [graph region](../LangRef.md#control-flow-and-ssacfg-regions) containing a single block\n    which can contain any operations and does not have a terminator. Operations\n    within this region cannot implicitly capture values defined outside the module,\n    i.e. Modules are [IsolatedFromAbove](../Traits#isolatedfromabove). Modules have\n    an optional [symbol name](../SymbolsAndSymbolTables.md) which can be used to refer\n    to them in operations.\n\n    Example:\n\n    ```mlir\n    module {\n      func.func @foo()\n    }\n    ```",
+    "description": "A `module` represents a top-level container operation. It contains a single\n    [graph region](../LangRef.md#control-flow-and-ssacfg-regions) containing a single block\n    which can contain any operations and does not have a terminator. Operations\n    within this region cannot implicitly capture values defined outside the module,\n    i.e. Modules are [IsolatedFromAbove](../Traits#isolatedfromabove). Modules have\n    an optional [symbol name](../SymbolsAndSymbolTables.md) which can be used to refer\n    to them in operations.\n\n    Example:\n\n    ```mlir\n    module {\n      func.func @foo()\n    }\n    ```\n\n    A module may have an inherent `dlti` attribute implementing\n    `DLTIQueryInterface`, for example\n    `module <{dlti = #dlti.map<\"chip\" = \"sm_90\">}> {}`.\n    When the DLTI dialect is loaded, the module implements\n    `DLTIQueryOpInterface` and provides values for scoped DLTI queries.",
     "attributes": [
       { "name": "sym_name", "type": "OptionalAttr<SymbolNameAttr>" },
-      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
+      { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
+      { "name": "dlti", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [ImplementsDLTIQueryInterface]>>" }
     ],
     "regions": [
       { "name": "bodyRegion", "type": "SizedRegion<1>" }
@@ -14859,14 +14860,15 @@
   {
     "name": "func.func",
     "summary": "An operation with a name containing a single `SSACFG` region",
-    "description": "Operations within the function cannot implicitly capture values defined\n    outside of the function, i.e. Functions are `IsolatedFromAbove`. All\n    external references must use function arguments or attributes that establish\n    a symbolic connection (e.g. symbols referenced by name via a string\n    attribute like SymbolRefAttr). An external function declaration (used when\n    referring to a function declared in some other module) has no body. While\n    the MLIR textual form provides a nice inline syntax for function arguments,\n    they are internally represented as “block arguments” to the first block in\n    the region.\n\n    Only dialect attribute names may be specified in the attribute dictionaries\n    for function arguments, results, or the function itself.\n\n    Example:\n\n    ```mlir\n    // External function definitions.\n    func.func private @abort()\n    func.func private @scribble(i32, i64, memref<? x 128 x f32, #layout_map0>) -> f64\n\n    // A function that returns its argument twice:\n    func.func @count(%x: i64) -> (i64, i64)\n      attributes {fruit = \"banana\"} {\n      return %x, %x: i64, i64\n    }\n\n    // A function with an argument attribute\n    func.func private @example_fn_arg(%x: i32 {swift.self = unit})\n\n    // A function with a result attribute\n    func.func private @example_fn_result() -> (f64 {dialectName.attrName = 0 : i64})\n\n    // A function with an attribute\n    func.func private @example_fn_attr() attributes {dialectName.attrName = false}\n    ```",
+    "description": "Operations within the function cannot implicitly capture values defined\n    outside of the function, i.e. Functions are `IsolatedFromAbove`. All\n    external references must use function arguments or attributes that establish\n    a symbolic connection (e.g. symbols referenced by name via a string\n    attribute like SymbolRefAttr). An external function declaration (used when\n    referring to a function declared in some other module) has no body. While\n    the MLIR textual form provides a nice inline syntax for function arguments,\n    they are internally represented as “block arguments” to the first block in\n    the region.\n\n    Only dialect attribute names may be specified in the attribute dictionaries\n    for function arguments, results, or the function itself. The function may\n    also have an inherent `dlti` attribute implementing `DLTIQueryInterface`.\n    Its values are available to scoped DLTI queries on the function and nested\n    operations, unless a closer scope answers the same key.\n\n    Example:\n\n    ```mlir\n    // External function definitions.\n    func.func private @abort()\n    func.func private @scribble(i32, i64, memref<? x 128 x f32, #layout_map0>) -> f64\n\n    // A function that returns its argument twice:\n    func.func @count(%x: i64) -> (i64, i64)\n      attributes {fruit = \"banana\"} {\n      return %x, %x: i64, i64\n    }\n\n    // A function with an argument attribute\n    func.func private @example_fn_arg(%x: i32 {swift.self = unit})\n\n    // A function with a result attribute\n    func.func private @example_fn_result() -> (f64 {dialectName.attrName = 0 : i64})\n\n    // A function with an attribute\n    func.func private @example_fn_attr() attributes {dialectName.attrName = false}\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
-      { "name": "no_inline", "type": "UnitAttr" }
+      { "name": "no_inline", "type": "UnitAttr" },
+      { "name": "dlti", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [ImplementsDLTIQueryInterface]>>" }
     ],
     "regions": [
       { "name": "body", "type": "AnyRegion" }
@@ -15420,12 +15422,13 @@
   {
     "name": "gpu.module",
     "summary": "A top level compilation unit containing code to be run on a GPU.",
-    "description": "GPU module contains code that is intended to be run on a GPU. A host device\n    can launch this code through a gpu.launc_func that creates a fully\n    qualified symbol through the gpu.module's symbol and a gpu.func symbol\n    contained in the gpu.module.\n\n    The module's top-level scope is modeled by a single region with a single\n    block. GPU modules are required to have a name that is used for symbol\n    resolution by the gpu.launch_func operation.\n\n    Using an op with a region to define a GPU module enables \"embedding\" GPU\n    modules with SIMT execution models in other dialects in a clean manner and\n    allows filtering of code regions to execute passes on only code intended to\n    or not intended to be run on the separate device.\n\n    Modules can contain zero or more target attributes. These attributes encode\n    how to transform modules into binary strings and are used by the\n    `gpu-module-to-binary` pass to transform modules into GPU binaries.\n\n    Modules can contain an optional `OffloadingTranslationAttr` attribute. This\n    attribute will be used during the `gpu-module-to-binary` pass to specify the\n    `OffloadingTranslationAttr` used when creating the `gpu.binary` operation.\n\n    ```\n    gpu.module @symbol_name {\n      gpu.func {}\n        ...\n    }\n    // Module with offloading handler and target attributes.\n    gpu.module @symbol_name2 <#gpu.select_object<1>> [\n        #nvvm.target,\n        #rocdl.target<chip = \"gfx90a\">] {\n      gpu.func {}\n        ...\n    }\n    ```",
+    "description": "GPU module contains code that is intended to be run on a GPU. A host device\n    can launch this code through a gpu.launc_func that creates a fully\n    qualified symbol through the gpu.module's symbol and a gpu.func symbol\n    contained in the gpu.module.\n\n    The module's top-level scope is modeled by a single region with a single\n    block. GPU modules are required to have a name that is used for symbol\n    resolution by the gpu.launch_func operation.\n\n    Using an op with a region to define a GPU module enables \"embedding\" GPU\n    modules with SIMT execution models in other dialects in a clean manner and\n    allows filtering of code regions to execute passes on only code intended to\n    or not intended to be run on the separate device.\n\n    Modules can contain zero or more target attributes. These attributes encode\n    how to transform modules into binary strings and are used by the\n    `gpu-module-to-binary` pass to transform modules into GPU binaries.\n\n    Modules can contain an optional `OffloadingTranslationAttr` attribute. This\n    attribute will be used during the `gpu-module-to-binary` pass to specify the\n    `OffloadingTranslationAttr` used when creating the `gpu.binary` operation.\n\n    A GPU module may also have an inherent `dlti` attribute implementing\n    `DLTIQueryInterface`. It provides values for scoped DLTI queries on the\n    module and its nested operations. In custom assembly, write it as\n    `dlti = #dlti.map<...>` before the optional attribute dictionary.\n\n    ```\n    gpu.module @symbol_name {\n      gpu.func {}\n        ...\n    }\n    // Module with offloading handler and target attributes.\n    gpu.module @symbol_name2 <#gpu.select_object<1>> [\n        #nvvm.target,\n        #rocdl.target<chip = \"gfx90a\">] {\n      gpu.func {}\n        ...\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" },
       { "name": "targets", "type": "OptionalAttr<ConfinedAttr<TypedArrayAttrBase<ConfinedAttr<AnyAttr, [PromisedAttrInterface<GPUTargetAttrInterface>]>>, [ArrayMinCount<1>]>>" },
-      { "name": "offloadingHandler", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [HasOffloadingTranslationAttrTrait]>>" }
+      { "name": "offloadingHandler", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [HasOffloadingTranslationAttrTrait]>>" },
+      { "name": "dlti", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [ImplementsDLTIQueryInterface]>>" }
     ],
     "regions": [
       { "name": "bodyRegion", "type": "SizedRegion<1>" }
@@ -15433,7 +15436,7 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ],
-    "assemblyFormat": "($sym_visibility^)? $sym_name\n    (`<` $offloadingHandler^ `>`)?\n    ($targets^)? attr-dict-with-keyword $bodyRegion"
+    "assemblyFormat": "($sym_visibility^)? $sym_name\n    (`<` $offloadingHandler^ `>`)?\n    ($targets^)? (`dlti` `=` $dlti^)? attr-dict-with-keyword $bodyRegion"
   },
   {
     "name": "gpu.num_subgroups",
@@ -67602,6 +67605,9 @@
   {
     "name": "test.op_with_data_layout",
     "summary": "An op that uses DataLayout implementation from the Target dialect",
+    "attributes": [
+      { "name": "dlti", "type": "OptionalAttr<ConfinedAttr<AnyAttr, [ImplementsDLTIQueryInterface]>>" }
+    ],
     "regions": [
       { "name": "regions", "type": "VariadicRegion<AnyRegion>" }
     ],
@@ -113176,8 +113182,8 @@
   },
   {
     "name": "transform.dlti.query",
-    "summary": "Return attribute (as param) associated to key via DTLI",
-    "description": "This op queries data layout and target information associated to payload\n    IR by way of the DLTI dialect.\n\n    A lookup is performed for the given `keys` at `target` op - or its closest\n    interface-implementing ancestor - by way of the `DLTIQueryInterface`, which\n    returns an attribute for a key. Each key should be either a (quoted) string\n    or a type. If more than one key is provided, the lookup continues\n    recursively, now on the returned attributes, with the condition that these\n    implement the above interface. For example if the payload IR is\n\n    ```\n    module attributes {#dlti.map = #dlti.map<#dlti.dl_entry<\"A\",\n                                     #dlti.map<#dlti.dl_entry<\"B\", 42: int>>>} {\n      func.func private @f()\n    }\n    ```\n    and we have that `%func` is a Tranform handle to op `@f`, then\n    `transform.dlti.query [\"A\", \"B\"] at %func` returns 42 as a param and\n    `transform.dlti.query [\"A\"] at %func` returns the `#dlti.map` attribute\n    containing just the key \"B\" and its value. Using `[\"B\"]` or `[\"A\",\"C\"]` as\n    `keys` will yield an error.\n\n    #### Return modes\n\n    When successful, the result, `associated_attr`, associates one attribute as\n    a param for each op in `target`'s payload.\n\n    If the lookup fails - as no DLTI attributes/interfaces are found or entries\n    with the right names are missing - a silenceable failure is returned.",
+    "summary": "Return attribute (as param) associated to key via DLTI",
+    "description": "This op queries data layout and target information associated to payload\n    IR by way of the DLTI dialect.\n\n    A lookup of the first key is performed at `target` or its ancestors by way\n    of `DLTIQueryOpInterface`. Ancestors that do not implement the interface or\n    cannot answer that key are skipped. Each key should be either a (quoted)\n    string or a type. If more than one key is provided, the lookup continues\n    recursively on the returned attributes by way of `DLTIQueryInterface`.\n    Operation ancestor lookup is not restarted for these later keys. For\n    example if the payload IR is\n\n    ```\n    module attributes {dlti = #dlti.map<\"A\" = #dlti.map<\"B\" = 42 : i32>>} {\n      func.func private @f()\n    }\n    ```\n    and we have that `%func` is a Transform handle to op `@f`, then\n    `transform.dlti.query [\"A\", \"B\"] at %func` returns 42 as a param and\n    `transform.dlti.query [\"A\"] at %func` returns the `#dlti.map` attribute\n    containing just the key \"B\" and its value. Using `[\"B\"]` or `[\"A\",\"C\"]` as\n    `keys` will yield an error.\n\n    #### Return modes\n\n    When successful, the result, `associated_attr`, associates one attribute as\n    a param for each op in `target`'s payload.\n\n    If the lookup fails - as no DLTI attributes/interfaces are found or entries\n    with the right names are missing - a silenceable failure is returned.",
     "operands": [
       { "name": "target", "type": "TransformHandleTypeInterface" }
     ],
