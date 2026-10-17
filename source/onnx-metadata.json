@@ -24166,6 +24166,61 @@
     ]
   },
   {
+    "name": "GatedDeltaNetStateReplay",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Replay one request's captured GatedDeltaNet transitions into an inactive recurrent-state row.\nThe WebGPU implementation uses FP32 backing tensors and CPU metadata; it does not recompute\nnormalization, gates, beta, or retrieval. It waits for checked GPU completion before returning.\n\n`metadata` is int64 [11], ordered as:\n  source_offset, destination_offset, decay_offset, key_offset, delta_offset,\n  Hv, Dv, Dk, Hk, capacity, kept_count.\nOffsets are FP32-element offsets into the full backing tensors, not storage-binding byte offsets.\nAll offsets are nonnegative; dimensions and capacity are positive; 1 <= kept_count <= capacity.\nThe caller must ensure that all kept transitions were actually captured.\n\nThe source_state selected by source_offset must be the state snapshot from immediately before\nthe captured GatedDeltaNet transitions began. Using the producer's final state or another\nsame-shaped snapshot is invalid because captured delta is state-dependent.\nThe capsule geometry (Hv, Dv, Dk, Hk) and capacity must match the producer that generated it.\ncapacity is the original capsule capture/layout capacity. kept_count only selects the leading\ntransitions to replay; kept_count must NOT be substituted for capacity when deriving the\ndecay/key/delta section offsets.\n\nState rows have layout [Hv, Dv, Dk]. The capsule contains decay [capacity, Hv],\nkey [capacity, Hk, Dk], and delta [capacity, Hv, Dv] starting at their respective offsets.\nFor every state element (h,v,i):\n  hk = floor(h * Hk / Hv)\n  s = source[h,v,i]\n  for t = 0 .. kept_count-1:\n    s *= decay[t,h]\n    s += key[t,hk,i] * delta[t,h,v]\n  destination[h,v,i] = s\nUnused capsule tail entries are not read. All other destination elements are preserved.\n\nThe output must be explicitly prebound to the same full allocation as destination_backing.\nDestination backing must be distinct from source and capsule backing. This first implementation\nsupports one descriptor, uint32 shader indexing and no graph capture.\nSource and capsule may share read-only backing; storage bindings are deduplicated only when\ntheir BufferViews have the same Program binding owner, not merely equal raw buffer handles.\n",
+    "inputs": [
+      {
+        "name": "source_backing",
+        "type": "T",
+        "description": "Full rank-1 FP32 backing tensor containing the state snapshot from immediately before capture."
+      },
+      {
+        "name": "capsule_backing",
+        "type": "T",
+        "description": "Full rank-1 FP32 compact-update backing tensor."
+      },
+      {
+        "name": "destination_backing",
+        "type": "T",
+        "description": "Full rank-1 FP32 inactive destination-state backing tensor."
+      },
+      {
+        "name": "metadata",
+        "type": "TI",
+        "description": "CPU int64 [11] containing offsets, geometry, capacity and kept_count."
+      }
+    ],
+    "min_input": 4,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "destination_out",
+        "type": "T",
+        "description": "Same backing allocation and shape as destination_backing."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "State and capsule tensors are FP32.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "CPU replay metadata is int64.",
+        "type_param_str": "TI",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "GatedRMSNorm",
     "module": "com.microsoft",
     "version": 1,
