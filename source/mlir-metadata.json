@@ -57095,6 +57095,32 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "spirv.LifetimeStart",
+    "summary": "Declare that an object was not defined before this instruction.",
+    "description": "Pointer is a pointer to the object whose lifetime is starting. Its type\n    must be an OpTypePointer with Storage Class Function.\n\n    Size is an unsigned 32-bit integer. Size must be 0 if Pointer is a\n    pointer to a non-void type or the Addresses capability is not declared.\n    If Size is non-zero, it is the number of bytes of memory whose lifetime\n    is starting.\n\n    <!-- End of AutoGen section -->\n\n    Only zero sizes are currently supported because SPIR-V dialect pointers\n    cannot point to void.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.Variable : !spirv.ptr<f32, Function>\n    spirv.LifetimeStart %0, 0 : !spirv.ptr<f32, Function>\n    ```",
+    "operands": [
+      { "name": "pointer", "type": "SPIRV_AnyPtr" }
+    ],
+    "attributes": [
+      { "name": "size", "type": "ConfinedAttr<I32Attr, [IntIsOneOf<[0]>]>" }
+    ],
+    "assemblyFormat": "$pointer `,` $size attr-dict `:` type($pointer)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "spirv.LifetimeStop",
+    "summary": "Declare that an object is dead after this instruction.",
+    "description": "Pointer is a pointer to the object whose lifetime is ending. Its type\n    must be an OpTypePointer with Storage Class Function.\n\n    Size is an unsigned 32-bit integer. Size must be 0 if Pointer is a\n    pointer to a non-void type or the Addresses capability is not declared.\n    If Size is non-zero, it is the number of bytes of memory whose lifetime\n    is ending.\n\n    <!-- End of AutoGen section -->\n\n    Only zero sizes are currently supported because SPIR-V dialect pointers\n    cannot point to void.\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.Variable : !spirv.ptr<f32, Function>\n    spirv.LifetimeStop %0, 0 : !spirv.ptr<f32, Function>\n    ```",
+    "operands": [
+      { "name": "pointer", "type": "SPIRV_AnyPtr" }
+    ],
+    "attributes": [
+      { "name": "size", "type": "ConfinedAttr<I32Attr, [IntIsOneOf<[0]>]>" }
+    ],
+    "assemblyFormat": "$pointer `,` $size attr-dict `:` type($pointer)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "spirv.Load",
     "summary": "Load through a pointer.",
     "description": "Result Type is the type of the loaded object. It must be a type with\n    fixed size; i.e., it cannot be, nor include, any OpTypeRuntimeArray\n    types.\n\n    Pointer is the pointer to load through.  Its type must be an\n    OpTypePointer whose Type operand is the same as Result Type.\n\n    If present, any Memory Operands must begin with a memory operand\n    literal. If not present, it is the same as specifying the memory operand\n    None.\n\n    <!-- End of AutoGen section -->\n\n    ```\n    memory-access ::= `\"None\"` | `\"Volatile\"` | `\"Aligned\", ` integer-literal\n                    | `\"NonTemporal\"`\n\n    load-op ::= ssa-id ` = spirv.Load ` storage-class ssa-use\n                (`[` memory-access `]`)? ` : ` spirv-element-type\n    ```\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.Variable : !spirv.ptr<f32, Function>\n    %1 = spirv.Load \"Function\" %0 : f32\n    %2 = spirv.Load \"Function\" %0 [\"Volatile\"] : f32\n    %3 = spirv.Load \"Function\" %0 [\"Aligned\", 4] : f32\n    ```",
@@ -107591,7 +107617,7 @@
     "name": "tosa.pad",
     "category": "Transform",
     "summary": "Pads a tensor with value specified.",
-    "description": "Pads a tensor along the borders of each dimension with a supplied value.\n    Returns a new tensor with the padding included. The pad_const value includes\n    the zero point if the tensor uses a zero point.\n\n    Example:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<4x9xf32>\n    ```\n\n    Example 2:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[-1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<?x9xf32>\n    ```",
+    "description": "Pads a tensor along the borders of each dimension with a supplied value.\n    Returns a new tensor with the padding included. The pad_const value includes\n    the zero point if the tensor uses a zero point.\n\n    Example:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<4x9xf32>\n    ```",
     "operands": [
       { "name": "input1", "type": "Tosa_TensorAtLeast1D" },
       { "name": "padding", "type": "Tosa_Shape" },
