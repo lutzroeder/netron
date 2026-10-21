@@ -21217,6 +21217,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomDirective('CaptureType', this.parseCaptureType.bind(this));
         this.registerCustomDirective('MembersIndex', this.parseMembersIndex.bind(this));
         this.registerCustomDirective('PrivateReductionRegion', this.parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('LinearPrivateReductionRegion', this.parseLinearPrivateReductionRegion.bind(this));
         this.registerCustomDirective('PrivateRegion', this.parsePrivateRegion.bind(this));
         this.registerCustomDirective('InReductionPrivateRegion', this.parseInReductionPrivateRegion.bind(this));
         this.registerCustomDirective('InReductionPrivateReductionRegion', this.parseInReductionPrivateReductionRegion.bind(this));
@@ -21647,6 +21648,10 @@ _.OpenMPDialect = class extends _.Dialect {
         if (!vars) {
             return;
         }
+        if (clauseConfig.linear) {
+            this.parseLinearBlockArgClause(parser, entryBlockArgs, vars, types, clauseConfig);
+            return;
+        }
         parser.parseLParen();
         const syms = [];
         const byrefFlags = [];
@@ -21702,6 +21707,42 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
+    parseLinearBlockArgClause(parser, entryBlockArgs, vars, types, clauseConfig) {
+        const syms = [];
+        const modifiers = [];
+        parser.parseLParen();
+        do {
+            const modifier = parser.parseOptionalKeyword(['val', 'ref', 'uval']);
+            if (modifier) {
+                parser.parseLParen();
+            }
+            syms.push(parser.parseOptionalSymbolName());
+            vars.push(parser.parseOperand());
+            parser.parseArrow();
+            entryBlockArgs.push(parser.parseOperand());
+            parser.parseColon();
+            types.push(parser.parseType());
+            parser.parseEqual();
+            clauseConfig.linear.stepVars.push(parser.parseOperand());
+            parser.parseColon();
+            clauseConfig.linear.stepTypes.push(parser.parseType());
+            if (modifier) {
+                parser.parseRParen();
+            }
+            modifiers.push(modifier || null);
+        } while (parser.parseOptionalComma());
+        parser.parseRParen();
+        clauseConfig.syms.value = syms;
+        if (modifiers.some((modifier) => modifier !== null)) {
+            clauseConfig.linear.modifiers.value = modifiers;
+        }
+        if (parser.parseOptionalKeyword('linear_var_types')) {
+            parser.parseLParen();
+            clauseConfig.linear.varTypes.value = parser.parseAttribute();
+            parser.parseRParen();
+        }
+    }
+
     // Common helper: parses block arg clauses then the region.
     // clauseArgs is an array of { keyword, vars, types, config } objects.
     parseBlockArgRegion(parser, op, regionName, clauseArgs) {
@@ -21740,6 +21781,12 @@ _.OpenMPDialect = class extends _.Dialect {
             }
             if (cfg.mapIndices && cfg.mapIndices.value && cfg.mapIndices.attrName) {
                 op.addAttribute(cfg.mapIndices.attrName, cfg.mapIndices.value);
+            }
+            if (cfg.linear && cfg.linear.modifiers.value && cfg.linear.modifiers.attrName) {
+                op.addAttribute(cfg.linear.modifiers.attrName, cfg.linear.modifiers.value);
+            }
+            if (cfg.linear && cfg.linear.varTypes.value && cfg.linear.varTypes.attrName) {
+                op.addAttribute(cfg.linear.varTypes.attrName, cfg.linear.varTypes.value);
             }
         }
     }
@@ -21860,6 +21907,14 @@ _.OpenMPDialect = class extends _.Dialect {
 
     parsePrivateReductionRegion(parser, op, regionName, privateVars, privateTypes, privateSymsAttr, privateNeedsBarrierAttr, reductionModAttr, reductionVars, reductionTypes, reductionByrefAttr, reductionSymsAttr) {
         this.parseBlockArgRegion(parser, op, regionName, [
+            { keyword: 'private', vars: privateVars, types: privateTypes, config: { syms: { attrName: privateSymsAttr }, needsBarrier: { attrName: privateNeedsBarrierAttr } } },
+            { keyword: 'reduction', vars: reductionVars, types: reductionTypes, config: { syms: { attrName: reductionSymsAttr }, byref: { attrName: reductionByrefAttr }, modifier: { attrName: reductionModAttr } } },
+        ]);
+    }
+
+    parseLinearPrivateReductionRegion(parser, op, regionName, linearVars, linearTypes, linearStepVars, linearStepTypes, linearVarTypesAttr, linearModifiersAttr, linearSymsAttr, privateVars, privateTypes, privateSymsAttr, privateNeedsBarrierAttr, reductionModAttr, reductionVars, reductionTypes, reductionByrefAttr, reductionSymsAttr) {
+        this.parseBlockArgRegion(parser, op, regionName, [
+            { keyword: 'linear', vars: linearVars, types: linearTypes, config: { syms: { attrName: linearSymsAttr }, linear: { stepVars: linearStepVars, stepTypes: linearStepTypes, varTypes: { attrName: linearVarTypesAttr }, modifiers: { attrName: linearModifiersAttr } } } },
             { keyword: 'private', vars: privateVars, types: privateTypes, config: { syms: { attrName: privateSymsAttr }, needsBarrier: { attrName: privateNeedsBarrierAttr } } },
             { keyword: 'reduction', vars: reductionVars, types: reductionTypes, config: { syms: { attrName: reductionSymsAttr }, byref: { attrName: reductionByrefAttr }, modifier: { attrName: reductionModAttr } } },
         ]);
@@ -25777,6 +25832,15 @@ _.test.TestDialect = class extends _.Dialect {
             const negative = parser.parseOptionalMinus();
             const value = parser.parseInteger();
             result.addAttribute('prop', { label, value: negative ? -value : value });
+            parser.parseOptionalAttrDict(result.attributes);
+            return true;
+        }
+        if (op === 'test.with_versioned_properties') {
+            result.compatibility = true;
+            const value1 = parser.parseInteger();
+            parser.parseVerticalBar();
+            const value2 = parser.parseInteger();
+            result.addAttribute('prop', { value1, value2 });
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
