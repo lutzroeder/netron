@@ -95,6 +95,66 @@ litert.lm.proto.PromptTemplates.prototype.user = null;
 litert.lm.proto.PromptTemplates.prototype.model = null;
 litert.lm.proto.PromptTemplates.prototype.system = null;
 
+litert.lm.proto.ToolCallConfig = class ToolCallConfig {
+
+    get syntax_config() {
+        litert.lm.proto.ToolCallConfig.syntax_configSet = litert.lm.proto.ToolCallConfig.syntax_configSet || new Set(["regex_syntax"]);
+        return Object.keys(this).find((key) => litert.lm.proto.ToolCallConfig.syntax_configSet.has(key) && this[key] !== null);
+    }
+
+    static decode(reader, length) {
+        const message = new litert.lm.proto.ToolCallConfig();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.fence_start = reader.string();
+                    break;
+                case 2:
+                    message.fence_end = reader.string();
+                    break;
+                case 3:
+                    message.regex_syntax = litert.lm.proto.ToolCallConfig.RegexSyntax.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+litert.lm.proto.ToolCallConfig.prototype.fence_start = "";
+litert.lm.proto.ToolCallConfig.prototype.fence_end = "";
+
+litert.lm.proto.ToolCallConfig.RegexSyntax = class RegexSyntax {
+
+    static decode(reader, length) {
+        const message = new litert.lm.proto.ToolCallConfig.RegexSyntax();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.tool_call_regex = reader.string();
+                    break;
+                case 2:
+                    message.argument_regex = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+litert.lm.proto.ToolCallConfig.RegexSyntax.prototype.tool_call_regex = "";
+litert.lm.proto.ToolCallConfig.RegexSyntax.prototype.argument_regex = "";
+
 litert.lm.proto.LlmMetadata = class LlmMetadata {
 
     constructor() {
@@ -150,6 +210,9 @@ litert.lm.proto.LlmMetadata = class LlmMetadata {
                 case 14:
                     message.min_runtime_version = reader.string();
                     break;
+                case 15:
+                    message.tool_call_config = litert.lm.proto.ToolCallConfig.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -171,6 +234,7 @@ litert.lm.proto.LlmMetadata.prototype.supports_thinking = false;
 litert.lm.proto.LlmMetadata.prototype.supports_function_calling = false;
 litert.lm.proto.LlmMetadata.prototype.pad_token = null;
 litert.lm.proto.LlmMetadata.prototype.min_runtime_version = "";
+litert.lm.proto.LlmMetadata.prototype.tool_call_config = null;
 
 litert.lm.proto.LlmMetadata.TfLiteModelType = {
     "TF_LITE_MODEL_TYPE_UNSPECIFIED": 0,
