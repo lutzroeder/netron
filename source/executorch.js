@@ -187,25 +187,36 @@ executorch.Node = class {
             const outputs = new Set(schema && Array.isArray(schema.returns) ? schema.returns.map((arg) => alias(arg)).filter((alias) => alias !== null) : []);
             const inputs = new Map();
             this.type = { name, identifier, category };
-            let i = 0;
             const args = instr_args.args;
-            for (; i < schema.arguments.length; i++) {
+            let parameters = schema.arguments;
+            let offset = args.length - schema.returns.length;
+            if (args.length !== schema.arguments.length + schema.returns.length) {
+                // Program was exported with a different operator signature, map arguments by position
+                const tensors = schema.arguments.filter((arg) => outputs.has(alias(arg)));
+                const count = Math.max(0, args.length - schema.returns.length - tensors.length);
+                parameters = schema.arguments.filter((arg) => !outputs.has(alias(arg))).slice(0, count);
+                while (parameters.length < count) {
+                    parameters.push({ name: parameters.length.toString() });
+                }
+                parameters = parameters.concat(tensors);
+                offset = Math.max(0, args.length - schema.returns.length);
+            }
+            for (let i = 0; i < parameters.length && i < offset; i++) {
                 const index = args[i];
-                const arg = schema && i < schema.arguments.length ? schema.arguments[i] : null;
-                const output = arg ? alias(schema.arguments[i]) : null;
+                const arg = parameters[i];
+                const output = alias(arg);
                 if (output && outputs.has(output)) {
                     inputs.set(output, index);
                     continue;
                 }
-                const name = arg ? arg.name : i.toString();
                 const value = values.map(index);
-                const argument = new executorch.Argument(name, value.value, value.type);
+                const argument = new executorch.Argument(arg.name, value.value, value.type);
                 this.inputs.push(argument);
             }
-            for (let j = 0; j < schema.returns.length; j++) {
+            for (let j = 0; j < schema.returns.length && offset + j < args.length; j++) {
                 const ret = schema.returns[j];
                 const output = alias(ret);
-                let index = args[i++];
+                let index = args[offset + j];
                 index = output && inputs.has(output) ? inputs.get(output) : index;
                 const name = ret.name;
                 const value = values.map(index, true);

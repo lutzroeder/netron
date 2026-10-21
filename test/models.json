@@ -2173,6 +2173,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1175"
   },
   {
+    "type":     "executorch",
+    "target":   "TEST_MODEL_int8x8.pte",
+    "source":   "https://github.com/user-attachments/files/33765059/TEST_MODEL_int8x8.zip[TEST_MODEL_int8x8.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
     "type":     "flax",
     "target":   "flax_model.msgpack",
     "source":   "https://github.com/lutzroeder/netron/files/8567810/flax_model.msgpack.zip[flax_model.msgpack]",
