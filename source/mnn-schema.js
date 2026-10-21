@@ -2635,6 +2635,7 @@ MNN.OpType = {
     RoPE: 306, '306': 'RoPE',
     FusedLinear: 307, '307': 'FusedLinear',
     GatedRMSNorm: 308, '308': 'GatedRMSNorm',
+    IndexedLinear: 309, '309': 'IndexedLinear',
     Extra: 512, '512': 'Extra',
     ConvInt8: 513, '513': 'ConvInt8',
     Int8ToFloat: 514, '514': 'Int8ToFloat',
@@ -2779,6 +2780,25 @@ MNN.RoPEParam = class RoPEParam {
         $.head_dim = reader.value(json.head_dim, 0);
         $.q_norm = reader.object(json.q_norm, MNN.LayerNorm);
         $.k_norm = reader.object(json.k_norm, MNN.LayerNorm);
+        return $;
+    }
+};
+
+MNN.IndexedLinearParam = class IndexedLinearParam {
+
+    static decode(reader, position) {
+        const $ = new MNN.IndexedLinearParam();
+        $.linears = reader.tables(position, 4, MNN.Convolution2D);
+        $.inputMode = reader.int32_(position, 6, 0);
+        $.fusedActivation = reader.int32_(position, 8, -1);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new MNN.IndexedLinearParam();
+        $.linears = reader.objects(json.linears, MNN.Convolution2D);
+        $.inputMode = reader.value(json.inputMode, 0);
+        $.fusedActivation = reader.value(json.fusedActivation, -1);
         return $;
     }
 };
@@ -3083,6 +3103,7 @@ MNN.OpParameter = class {
             case 101: return MNN.ShapeParam.decode(reader, position);
             case 102: return MNN.RoPEParam.decode(reader, position);
             case 103: return MNN.FusedLinearParam.decode(reader, position);
+            case 104: return MNN.IndexedLinearParam.decode(reader, position);
             default: return undefined;
         }
     }
@@ -3192,6 +3213,7 @@ MNN.OpParameter = class {
             case 'ShapeParam': return MNN.ShapeParam.decodeText(reader, json);
             case 'RoPEParam': return MNN.RoPEParam.decodeText(reader, json);
             case 'FusedLinearParam': return MNN.FusedLinearParam.decodeText(reader, json);
+            case 'IndexedLinearParam': return MNN.IndexedLinearParam.decodeText(reader, json);
             default: return undefined;
         }
     }
