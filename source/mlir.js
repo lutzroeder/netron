@@ -6748,6 +6748,9 @@ _.EncodingReader = class {
 _.BytecodeDialect = class {
 
     load(reader, ctx) {
+        if (this.dialect) {
+            return true;
+        }
         this.dialect = ctx.getOrLoadDialect(this.name);
         if (!this.dialect) {
             throw new mlir.Error(`Dialect '${this.name}' is unknown.`);
@@ -6756,8 +6759,8 @@ _.BytecodeDialect = class {
         if (this.versionBuffer) {
             const encReader = new _.EncodingReader(this.versionBuffer, reader.loc);
             const versionReader = reader.withEncodingReader(encReader);
-            const loadedVersion = this.interface.readVersion(versionReader);
-            if (!loadedVersion) {
+            this.loadedVersion = this.interface.readVersion(versionReader);
+            if (!this.loadedVersion) {
                 return false;
             }
         }
@@ -6861,7 +6864,7 @@ _.DialectReader = class extends _.DialectBytecodeReader {
         let value = 0n;
         for (let i = 0; i < numWords; i++) {
             const word = this.reader.parseSignedVarInt();
-            value |= (word << BigInt(i * 64));
+            value |= (BigInt.asUintN(64, word) << BigInt(i * 64));
         }
         return value;
     }
@@ -6872,6 +6875,21 @@ _.DialectReader = class extends _.DialectBytecodeReader {
             throw new mlir.Error(`Unsupported float type '${type.name}'.`);
         }
         const bits = this.readAPIntWithKnownWidth(bitWidth);
+        if (bitWidth > 64) {
+            // 15-bit exponent, f80 has an explicit integer bit
+            const precision = bitWidth === 80 ? 63 : 112;
+            const width = bitWidth === 80 ? 64n : 112n;
+            const sign = (bits >> (width + 15n)) & 1n ? -1 : 1;
+            const exponent = Number((bits >> width) & 0x7fffn);
+            let significand = Number(bits & ((1n << BigInt(precision)) - 1n)) / 2 ** precision;
+            if (exponent === 0x7fff) {
+                return significand === 0 ? sign * Infinity : NaN;
+            }
+            if (bitWidth === 80 ? (bits >> 63n) & 1n : exponent !== 0) {
+                significand += 1;
+            }
+            return sign * significand * 2 ** (Math.max(exponent, 1) - 16383);
+        }
         if (bitWidth <= 32) {
             this._floatView.setUint32(0, Number(bits), true);
         } else {
@@ -6882,8 +6900,28 @@ _.DialectReader = class extends _.DialectBytecodeReader {
             case 'f32': return this._floatView.getFloat32(0, true);
             case 'f64': return this._floatView.getFloat64(0, true);
             case 'bf16': return this._floatView.getBfloat16(0, true);
+            case 'tf32': this._floatView.setUint32(0, Number(bits) * 8192, true); return this._floatView.getFloat32(0, true);
+            case 'f4E2M1FN': return this._floatView.getFloat4e2m1(0);
+            case 'f6E2M3FN': return this._floatView.getFloat6e2m3(0);
+            case 'f6E3M2FN': return this._floatView.getFloat6e3m2(0);
+            case 'f8E3M4': return this._floatView.getFloat8e3m4(0);
+            case 'f8E4M3': return this._floatView.getFloat8e4m3(0, false, false);
+            case 'f8E4M3FN': return this._floatView.getFloat8e4m3(0, true, false);
+            case 'f8E4M3FNUZ': return this._floatView.getFloat8e4m3(0, true, true);
+            case 'f8E4M3B11FNUZ': return this._floatView.getFloat8e4m3(0, true, true, 11);
+            case 'f8E5M2': return this._floatView.getFloat8e5m2(0, false, false);
+            case 'f8E5M2FNUZ': return this._floatView.getFloat8e5m2(0, true, true);
+            case 'f8E8M0FNU': return this._floatView.getFloat8e8m0fnu(0);
             default: throw new mlir.Error(`Unsupported float type '${type.name}'.`);
         }
+    }
+
+    getDialectVersion(dialectName) {
+        const dialect = this.dialectsMap.get(dialectName);
+        if (!dialect || !dialect.load(this, this.attrTypeReader.fileLoc.context)) {
+            return null;
+        }
+        return dialect.loadedVersion || null;
     }
 
     withEncodingReader(encodingReader) {
@@ -7149,6 +7187,9 @@ _.PropertiesSectionReader = class {
             return;
         }
         const propReader = dialectReader.withEncodingReader(new _.EncodingReader(propData));
+        if (opName.dialect.readProperties(propReader, opState)) {
+            return;
+        }
         // Reference: https://github.com/llvm/llvm-project/blob/main/mlir/lib/Bytecode/Reader/BytecodeReader.cpp
         // Generated readProperties reads attributes in alphabetical order by name.
         // Optional attributes (OptionalAttr, UnitAttr) use readOptionalAttribute (varint with flag).
@@ -9030,6 +9071,10 @@ _.Dialect = class {
 
     readAttribute(/* reader */) {
         throw new mlir.Error(`Dialect '${this._name}' does not support bytecode attributes.`);
+    }
+
+    readProperties(/* reader, state */) {
+        return false;
     }
 
     parseResource(/* entry */) {
@@ -19443,6 +19488,29 @@ _.BuiltinDialect = class extends _.Dialect {
         return super.parseOperation(parser, result);
     }
 
+    readVersion(reader) {
+        return { version: reader.readVarInt() };
+    }
+
+    readProperties(reader, state) {
+        if (state.name.getStringRef() === 'builtin.module') {
+            const properties = new Map();
+            properties.set('sym_name', reader.readOptionalAttribute());
+            properties.set('sym_visibility', reader.readOptionalAttribute());
+            const version = reader.getDialectVersion('builtin');
+            if (version && version.version >= 1) {
+                properties.set('dlti', reader.readOptionalAttribute());
+            }
+            for (const [name, value] of properties) {
+                if (value) {
+                    state.addAttribute(name, value);
+                }
+            }
+            return true;
+        }
+        return super.readProperties(reader, state);
+    }
+
     readType(reader) {
         const typeCode = reader.readVarInt();
         switch (typeCode) {
@@ -19544,6 +19612,19 @@ _.BuiltinDialect = class extends _.Dialect {
                 const elementType = reader.readType();
                 return new _.VectorType(shape, elementType);
             }
+            case 21: return new _.FloatType('tf32');
+            case 22: return new _.FloatType('f8E5M2');
+            case 23: return new _.FloatType('f8E4M3');
+            case 24: return new _.FloatType('f8E4M3FN');
+            case 25: return new _.FloatType('f8E5M2FNUZ');
+            case 26: return new _.FloatType('f8E4M3FNUZ');
+            case 27: return new _.FloatType('f8E4M3B11FNUZ');
+            case 28: return new _.FloatType('f8E3M4');
+            case 29: return new _.FloatType('f4E2M1FN');
+            case 30: return new _.FloatType('f6E2M3FN');
+            case 31: return new _.FloatType('f6E3M2FN');
+            case 32: return new _.FloatType('f8E8M0FNU');
+            case 33: return new _.TokenType();
             default:
                 throw new mlir.Error(`Unsupported built-in type code '${typeCode}'.`);
         }
@@ -19623,7 +19704,7 @@ _.BuiltinDialect = class extends _.Dialect {
                     value = 0n;
                     for (let i = 0; i < numWords; i++) {
                         const word = reader.readSignedVarInt();
-                        value |= (word << BigInt(i * 64));
+                        value |= (BigInt.asUintN(64, word) << BigInt(i * 64));
                     }
                 }
                 return new _.IntegerAttr(type, value);
@@ -19634,12 +19715,12 @@ _.BuiltinDialect = class extends _.Dialect {
                 return new _.FloatAttr(type, value);
             }
             case 10: { // CallSiteLoc
-                const caller = reader.readAttribute();
                 const callee = reader.readAttribute();
+                const caller = reader.readAttribute();
                 return new _.CallSiteLoc(callee, caller);
             }
             case 11: { // FileLineColLoc
-                const filename = reader.readString();
+                const filename = reader.readAttribute().value;
                 const line = reader.readVarInt();
                 const col = reader.readVarInt();
                 return new _.FileLineColLoc(null, filename, line, col);
@@ -19653,12 +19734,12 @@ _.BuiltinDialect = class extends _.Dialect {
                 return new _.FusedLoc(locations, null);
             }
             case 13: { // FusedLocWithMetadata
-                const metadata = reader.readAttribute();
                 const count = reader.readVarInt();
                 const locations = [];
                 for (let i = 0; i < count; i++) {
                     locations.push(reader.readAttribute());
                 }
+                const metadata = reader.readAttribute();
                 return new _.FusedLoc(locations, metadata);
             }
             case 14: { // NameLoc
@@ -19690,7 +19771,7 @@ _.BuiltinDialect = class extends _.Dialect {
             case 19: { // DenseStringElementsAttr
                 const type = reader.readType();
                 const isSplat = reader.readVarInt() !== 0;
-                const count = reader.readVarInt();
+                const count = isSplat ? 1 : Number(type.getNumElements());
                 const strings = [];
                 for (let i = 0; i < count; i++) {
                     strings.push(reader.readString());
@@ -19708,7 +19789,7 @@ _.BuiltinDialect = class extends _.Dialect {
                 return { name: 'distinct', value: referencedAttr };
             }
             case 22: { // FileLineColRange
-                const filename = reader.readString();
+                const filename = reader.readAttribute().value;
                 const numLocs = reader.readVarInt();
                 const locs = [];
                 for (let i = 0; i < numLocs; i++) {
@@ -20398,6 +20479,41 @@ _.FuncDialect = class extends _.Dialect {
         }
         return super.parseOperation(parser, result);
     }
+
+    readVersion(reader) {
+        return { version: reader.readVarInt() };
+    }
+
+    readProperties(reader, state) {
+        if (state.name.getStringRef() === 'func.func') {
+            // Bytecode written before no_inline has five properties
+            const position = reader.reader.position;
+            let count = 0;
+            for (; !reader.reader.empty(); count++) {
+                reader.reader.parseVarInt();
+            }
+            reader.reader.seek(position);
+            const properties = new Map();
+            properties.set('arg_attrs', reader.readOptionalAttribute());
+            properties.set('function_type', reader.readAttribute());
+            if (count > 5) {
+                properties.set('no_inline', reader.readOptionalAttribute());
+            }
+            properties.set('res_attrs', reader.readOptionalAttribute());
+            properties.set('sym_name', reader.readAttribute());
+            properties.set('sym_visibility', reader.readOptionalAttribute());
+            if (reader.getDialectVersion('func')) {
+                properties.set('dlti', reader.readOptionalAttribute());
+            }
+            for (const [name, value] of properties) {
+                if (value) {
+                    state.addAttribute(name, value);
+                }
+            }
+            return true;
+        }
+        return super.readProperties(reader, state);
+    }
 };
 
 _.GpuDialect = class extends _.Dialect {
@@ -20443,6 +20559,30 @@ _.GpuDialect = class extends _.Dialect {
                 clusterTypeArg3.push(dimType);
             }
         }
+    }
+
+    readVersion(reader) {
+        return { version: reader.readVarInt() };
+    }
+
+    readProperties(reader, state) {
+        if (state.name.getStringRef() === 'gpu.module') {
+            const properties = new Map();
+            properties.set('offloadingHandler', reader.readOptionalAttribute());
+            properties.set('sym_name', reader.readAttribute());
+            properties.set('sym_visibility', reader.readOptionalAttribute());
+            properties.set('targets', reader.readOptionalAttribute());
+            if (reader.getDialectVersion('gpu')) {
+                properties.set('dlti', reader.readOptionalAttribute());
+            }
+            for (const [name, value] of properties) {
+                if (value) {
+                    state.addAttribute(name, value);
+                }
+            }
+            return true;
+        }
+        return super.readProperties(reader, state);
     }
 
     parseOperation(parser, result) {
@@ -21217,6 +21357,7 @@ _.OpenMPDialect = class extends _.Dialect {
         this.registerCustomDirective('CaptureType', this.parseCaptureType.bind(this));
         this.registerCustomDirective('MembersIndex', this.parseMembersIndex.bind(this));
         this.registerCustomDirective('PrivateReductionRegion', this.parsePrivateReductionRegion.bind(this));
+        this.registerCustomDirective('LinearPrivateReductionRegion', this.parseLinearPrivateReductionRegion.bind(this));
         this.registerCustomDirective('PrivateRegion', this.parsePrivateRegion.bind(this));
         this.registerCustomDirective('InReductionPrivateRegion', this.parseInReductionPrivateRegion.bind(this));
         this.registerCustomDirective('InReductionPrivateReductionRegion', this.parseInReductionPrivateReductionRegion.bind(this));
@@ -21647,6 +21788,10 @@ _.OpenMPDialect = class extends _.Dialect {
         if (!vars) {
             return;
         }
+        if (clauseConfig.linear) {
+            this.parseLinearBlockArgClause(parser, entryBlockArgs, vars, types, clauseConfig);
+            return;
+        }
         parser.parseLParen();
         const syms = [];
         const byrefFlags = [];
@@ -21702,6 +21847,42 @@ _.OpenMPDialect = class extends _.Dialect {
         }
     }
 
+    parseLinearBlockArgClause(parser, entryBlockArgs, vars, types, clauseConfig) {
+        const syms = [];
+        const modifiers = [];
+        parser.parseLParen();
+        do {
+            const modifier = parser.parseOptionalKeyword(['val', 'ref', 'uval']);
+            if (modifier) {
+                parser.parseLParen();
+            }
+            syms.push(parser.parseOptionalSymbolName());
+            vars.push(parser.parseOperand());
+            parser.parseArrow();
+            entryBlockArgs.push(parser.parseOperand());
+            parser.parseColon();
+            types.push(parser.parseType());
+            parser.parseEqual();
+            clauseConfig.linear.stepVars.push(parser.parseOperand());
+            parser.parseColon();
+            clauseConfig.linear.stepTypes.push(parser.parseType());
+            if (modifier) {
+                parser.parseRParen();
+            }
+            modifiers.push(modifier || null);
+        } while (parser.parseOptionalComma());
+        parser.parseRParen();
+        clauseConfig.syms.value = syms;
+        if (modifiers.some((modifier) => modifier !== null)) {
+            clauseConfig.linear.modifiers.value = modifiers;
+        }
+        if (parser.parseOptionalKeyword('linear_var_types')) {
+            parser.parseLParen();
+            clauseConfig.linear.varTypes.value = parser.parseAttribute();
+            parser.parseRParen();
+        }
+    }
+
     // Common helper: parses block arg clauses then the region.
     // clauseArgs is an array of { keyword, vars, types, config } objects.
     parseBlockArgRegion(parser, op, regionName, clauseArgs) {
@@ -21740,6 +21921,12 @@ _.OpenMPDialect = class extends _.Dialect {
             }
             if (cfg.mapIndices && cfg.mapIndices.value && cfg.mapIndices.attrName) {
                 op.addAttribute(cfg.mapIndices.attrName, cfg.mapIndices.value);
+            }
+            if (cfg.linear && cfg.linear.modifiers.value && cfg.linear.modifiers.attrName) {
+                op.addAttribute(cfg.linear.modifiers.attrName, cfg.linear.modifiers.value);
+            }
+            if (cfg.linear && cfg.linear.varTypes.value && cfg.linear.varTypes.attrName) {
+                op.addAttribute(cfg.linear.varTypes.attrName, cfg.linear.varTypes.value);
             }
         }
     }
@@ -21860,6 +22047,14 @@ _.OpenMPDialect = class extends _.Dialect {
 
     parsePrivateReductionRegion(parser, op, regionName, privateVars, privateTypes, privateSymsAttr, privateNeedsBarrierAttr, reductionModAttr, reductionVars, reductionTypes, reductionByrefAttr, reductionSymsAttr) {
         this.parseBlockArgRegion(parser, op, regionName, [
+            { keyword: 'private', vars: privateVars, types: privateTypes, config: { syms: { attrName: privateSymsAttr }, needsBarrier: { attrName: privateNeedsBarrierAttr } } },
+            { keyword: 'reduction', vars: reductionVars, types: reductionTypes, config: { syms: { attrName: reductionSymsAttr }, byref: { attrName: reductionByrefAttr }, modifier: { attrName: reductionModAttr } } },
+        ]);
+    }
+
+    parseLinearPrivateReductionRegion(parser, op, regionName, linearVars, linearTypes, linearStepVars, linearStepTypes, linearVarTypesAttr, linearModifiersAttr, linearSymsAttr, privateVars, privateTypes, privateSymsAttr, privateNeedsBarrierAttr, reductionModAttr, reductionVars, reductionTypes, reductionByrefAttr, reductionSymsAttr) {
+        this.parseBlockArgRegion(parser, op, regionName, [
+            { keyword: 'linear', vars: linearVars, types: linearTypes, config: { syms: { attrName: linearSymsAttr }, linear: { stepVars: linearStepVars, stepTypes: linearStepTypes, varTypes: { attrName: linearVarTypesAttr }, modifiers: { attrName: linearModifiersAttr } } } },
             { keyword: 'private', vars: privateVars, types: privateTypes, config: { syms: { attrName: privateSymsAttr }, needsBarrier: { attrName: privateNeedsBarrierAttr } } },
             { keyword: 'reduction', vars: reductionVars, types: reductionTypes, config: { syms: { attrName: reductionSymsAttr }, byref: { attrName: reductionByrefAttr }, modifier: { attrName: reductionModAttr } } },
         ]);
@@ -24223,9 +24418,9 @@ _.TFRTDialect = class extends _.Dialect {
                         parser.resolveOperands(unresolvedOperands, type.inputs, result.operands);
                     }
                     if (type.results) {
-                        type.results.forEach((resultType) => {
+                        for (const resultType of type.results) {
                             result.addTypes([resultType]);
-                        });
+                        }
                     }
                 }
             } else {
@@ -25780,6 +25975,15 @@ _.test.TestDialect = class extends _.Dialect {
             parser.parseOptionalAttrDict(result.attributes);
             return true;
         }
+        if (op === 'test.with_versioned_properties') {
+            result.compatibility = true;
+            const value1 = parser.parseInteger();
+            parser.parseVerticalBar();
+            const value2 = parser.parseInteger();
+            result.addAttribute('prop', { value1, value2 });
+            parser.parseOptionalAttrDict(result.attributes);
+            return true;
+        }
         // Test operation with default-valued properties and UnitProp
         if (op === 'test.with_default_valued_properties') {
             result.compatibility = true;
@@ -27236,9 +27440,9 @@ _.TFRTTestDialect = class extends _.Dialect {
             if (parser.parseOptionalColon()) {
                 const type = parser.parseType();
                 if (type && type.results) {
-                    type.results.forEach((resultType) => {
+                    for (const resultType of type.results) {
                         result.addTypes([resultType]);
-                    });
+                    }
                 }
             }
             parser.parseOptionalRegion(result.addRegion());

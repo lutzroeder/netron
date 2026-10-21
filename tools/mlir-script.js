@@ -971,7 +971,7 @@ const schema = async () => {
 };
 
 const test = async (pattern) => {
-    pattern = pattern || './**/*.mlir';
+    pattern = pattern || './**/*.{mlir,mlirbc}';
     const errorTotals = new Map();
     let currentFile = null;
     const fileErrors = new Map(); // file -> [error lines]
@@ -1020,6 +1020,32 @@ const test = async (pattern) => {
         'third_party/source/mlir/iree/compiler/src/iree/compiler/Dialect/LinalgExt/IR/test/invalid.mlir',
         'third_party/source/mlir/iree/samples/compiler_plugins/simple_io_sample/test/print.mlir',
         'third_party/source/mlir/lltz/mlir/dialect/irdl/michelson.irdl.mlir',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-attr_type_offset_section-large_offset.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-attr_type_offset_section-trailing_data.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-attr_type_section-index.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-attr_type_section-trailing_data.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-dialect_section-dialect_string.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-dialect_section-opname_dialect.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-dialect_section-opname_string.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-attr.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-forwardref.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-loc.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-operands.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-opname.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-results.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-ir_section-successors.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-string_section-count.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-string_section-large_string.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-string_section-no_string.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-string_section-trailing_data.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-structure-producer.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-structure-section-duplicate.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-structure-section-id-unknown.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-structure-section-length.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-structure-section-missing.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/invalid/invalid-structure-version.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/versioning/versioned-attr-1.12.mlirbc',
+        'third_party/source/mlir/llvm-project/mlir/test/Bytecode/versioning/versioned-attr-2.0.mlirbc',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Affine/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Arith/invalid.mlir',
         'third_party/source/mlir/llvm-project/mlir/test/Dialect/Bufferization/invalid.mlir',
