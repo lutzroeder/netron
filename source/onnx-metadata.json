@@ -14040,6 +14040,62 @@
     "category": "Layer"
   },
   {
+    "name": "ConvStateReplay",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Reconstruct rolling convolution history after retaining a prefix of captured inputs, without\nperforming convolution arithmetic. The WebGPU-only implementation copies FP16 or FP32 payload\nbits exactly, including signed zero and NaN payloads, and waits for checked GPU completion.\n\nInputs 0-2 are full rank-1 backing allocations of the same element type.\nCPU int64 metadata [8] is ordered as:\n  source_offset_bytes, destination_offset_bytes, capture_offset_bytes,\n  batch_size, channels, history_width, capacity, kept_count.\nOffsets are logical byte offsets into the full backing tensors, aligned to the element size\n(two bytes for FP16, four for FP32), not WebGPU storage-binding offsets.\nAll fields are nonnegative; channels must be positive; 0 <= kept_count <= capacity.\nZero batch size, history width, or capture capacity is valid. Zero state size is a no-op.\nGeometry, backing byte extents and metadata must fit the implementation's uint32 indexing range.\n\nThe source view is the incoming snapshot immediately before capture, with layout\n[batch_size, channels, history_width]. Captured inputs have layout [batch_size, capacity, channels].\ncapacity is the original capture stride, not kept_count. All retained inputs must have been captured.\nFor each batch b, channel c and position p, with W = history_width and k = kept_count:\n  destination[b,c,p] = source[b,c,p+k]                 if p+k < W\n                     = capture[b,p+k-W,c]            otherwise.\nFor k >= W only the last W inputs of the retained prefix are used; unused capture tails are not read.\n\nThe output must be explicitly prebound to the same full allocation as destination_backing.\nDestination backing must be distinct from source and capture backing, even for disjoint logical views.\nOnly the designated destination view is modified; neighboring elements and all source/capture data\nare preserved. One descriptor is supported per invocation; graph capture is not supported.\n",
+    "inputs": [
+      {
+        "name": "source_backing",
+        "type": "T",
+        "description": "Full backing tensor containing the incoming convolution history."
+      },
+      {
+        "name": "capture_backing",
+        "type": "T",
+        "description": "Full backing tensor containing captured token-major inputs."
+      },
+      {
+        "name": "destination_backing",
+        "type": "T",
+        "description": "Full inactive destination-state backing tensor."
+      },
+      {
+        "name": "metadata",
+        "type": "TI",
+        "description": "CPU int64 [8]: byte offsets, batch, channels, history, capacity, kept_count."
+      }
+    ],
+    "min_input": 4,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "destination_out",
+        "type": "T",
+        "description": "Same backing allocation and shape as destination_backing."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "State and captured inputs are FP16 or FP32.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "CPU replay metadata is int64.",
+        "type_param_str": "TI",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "ConvTranspose",
     "module": "ai.onnx",
     "version": 1,
@@ -16611,6 +16667,69 @@
     "name": "DepthToSpace",
     "module": "com.ms.internal.nhwc",
     "version": 13,
+    "description": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions. By default, `mode` = `DCR`.\nIn the DCR mode, elements along the depth dimension from the input tensor are rearranged in the\nfollowing order: depth, column, and then row. The output y is computed from the input x as below:\n\n```\nb, c, h, w = x.shape\ntmp = np.reshape(x, [b, blocksize, blocksize, c // (blocksize**2), h, w])\ntmp = np.transpose(tmp, [0, 3, 4, 1, 5, 2])\ny = np.reshape(tmp, [b, c // (blocksize**2), h * blocksize, w * blocksize])\n```\n\nIn the CRD mode, elements along the depth dimension from the input tensor are rearranged in the\nfollowing order: column, row, and the depth. The output y is computed from the input x as below:\n\n```\nb, c, h, w = x.shape\ntmp = np.reshape(x, [b, c // (blocksize ** 2), blocksize, blocksize, h, w])\ntmp = np.transpose(tmp, [0, 1, 4, 2, 5, 3])\ny = np.reshape(tmp, [b, c // (blocksize ** 2), h * blocksize, w * blocksize])\n```\n",
+    "attributes": [
+      {
+        "name": "blocksize",
+        "type": "int64",
+        "required": true,
+        "description": "Blocks of [blocksize, blocksize] are moved."
+      },
+      {
+        "name": "mode",
+        "type": "string",
+        "required": false,
+        "default": "DCR",
+        "description": "DCR (default) for depth-column-row order re-arrangement. Use CRD for column-row-depth order."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T",
+        "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Output tensor of [N, C/(blocksize * blocksize), H * blocksize, W * blocksize]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all tensor types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "DepthToSpace",
+    "module": "com.ms.internal.nhwc",
+    "version": 28,
     "description": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions. By default, `mode` = `DCR`.\nIn the DCR mode, elements along the depth dimension from the input tensor are rearranged in the\nfollowing order: depth, column, and then row. The output y is computed from the input x as below:\n\n```\nb, c, h, w = x.shape\ntmp = np.reshape(x, [b, blocksize, blocksize, c // (blocksize**2), h, w])\ntmp = np.transpose(tmp, [0, 3, 4, 1, 5, 2])\ny = np.reshape(tmp, [b, c // (blocksize**2), h * blocksize, w * blocksize])\n```\n\nIn the CRD mode, elements along the depth dimension from the input tensor are rearranged in the\nfollowing order: column, row, and the depth. The output y is computed from the input x as below:\n\n```\nb, c, h, w = x.shape\ntmp = np.reshape(x, [b, c // (blocksize ** 2), blocksize, blocksize, h, w])\ntmp = np.transpose(tmp, [0, 1, 4, 2, 5, 3])\ny = np.reshape(tmp, [b, c // (blocksize ** 2), h * blocksize, w * blocksize])\n```\n",
     "attributes": [
       {
@@ -28348,6 +28467,12 @@
         "description": "Whether to use rotary position embedding. Default value is 0."
       },
       {
+        "name": "k_norm_epsilon",
+        "type": "float32",
+        "required": false,
+        "description": "Epsilon for per-head K RMS normalization. Overrides qk_norm_epsilon for K when provided. Must be finite and positive."
+      },
+      {
         "name": "k_quant_type",
         "type": "string",
         "required": false,
@@ -28378,6 +28503,12 @@
         "type": "int64",
         "required": true,
         "description": "Number of attention heads for q"
+      },
+      {
+        "name": "q_norm_epsilon",
+        "type": "float32",
+        "required": false,
+        "description": "Epsilon for per-head Q RMS normalization. Overrides qk_norm_epsilon for Q when provided. Must be finite and positive."
       },
       {
         "name": "qk_norm_epsilon",
@@ -46888,7 +47019,7 @@
     "name": "PackedSparseAttentionIndexer",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Packed/variable-length counterpart of SparseAttentionIndexer, for continuous-batching engines\n(such as an OgaEngine-style PagedAttention model) that flatten every request's tokens into one\n[total_tokens, ...] axis instead of a dense [batch_size, sequence_length, ...] axis. It selects, for\nevery packed query token, the sparse-attention candidates that a following SparsePagedAttention (or\nsimilar) operator is allowed to read.\n\nUnlike SparseAttentionIndexer, this operator:\n  * takes packed query/key tensors plus cumulative_sequence_lengths (request boundaries) and\n    past_sequence_lengths (per-request past length) instead of a dense batch and a dense mask;\n  * derives ordinary causal visibility purely from that packed metadata -- there is no mask input;\n  * uses a single generic set of state slots (past_key_state / past_kv_buffer / past_gate_buffer /\n    past_state_lengths) for both policy_mode values, each with a shape that is fixed across calls\n    (state never grows and is never concatenated); a step that would overflow the fixed capacity is\n    rejected as a deterministic no-op on state rather than truncated or allowed to corrupt memory;\n  * additionally emits selected_counts, the exact number of active (non -1) entries per query, so\n    that no downstream consumer needs to scan selected_indices for its query's true count.\n\nBoth policy_mode values keep the semantics of SparseAttentionIndexer, applied independently to each\nrequest's own packed token range and fixed-capacity state slice:\n\n  policy_mode = \"qsa\" (\"query sparse attention\" token indexer)\n    Processes each request's new tokens sequentially: appends raw indexer keys to the generic\n    pending buffer, and whenever it reaches compress_ratio tokens, mean-pools it, applies RMSNorm\n    and key_norm_weight, applies the leading/split-half rotary convention at the block's first\n    logical token position, and appends the prepared (already normalized and rotated) key to\n    key_state. Queries are scored against every causally visible complete block with\n    sum_h ReLU(q_h . k), the token_budget / compress_ratio highest scoring blocks are kept, and\n    their token indices are emitted (request-local logical positions, i.e. the same numbering as\n    past_sequence_lengths + local offset) followed by the causally visible tokens of the trailing\n    incomplete block. QSA positions are the request-local logical cache positions derived from\n    past_sequence_lengths and cumulative_sequence_lengths; position_ids must be omitted.\n\n  policy_mode = \"csa\" (\"compressed sparse attention\" block indexer)\n    Applies the same window-plan arithmetic as SparseAttentionIndexer (overlap/leftover/new window\n    count) independently per request, using that request's own buffer_length and new token count;\n    every newly closed window is compressed with the softmax-gated Ca/Cb pooling, normalized,\n    rotated and appended to key_state. Queries are scored against every causally visible compressed\n    entry with sum_h w_h * ReLU(q_h . k) and the index_topk highest scoring entry indices are\n    emitted.\n\nCommon contract:\n  * selected_indices is int32 with a fixed capacity that only depends on attributes:\n    token_budget + compress_ratio - 1 for \"qsa\" (values are request-local token positions into the\n    main key/value cache, directly consumable by SparsePagedAttention configured with\n    attention_mode=\"selected_only\", selected_kv_source=\"main\") and index_topk for \"csa\" (values are\n    compressed-entry indices into key_state, directly consumable by SparsePagedAttention configured\n    with attention_mode=\"local_plus_selected\", selected_kv_source=\"auxiliary\"; key_state is\n    layout-compatible with a [batch_size, capacity, 1, head_size] auxiliary cache when K = V).\n    Unused entries are -1 and selected_counts holds the exact number of used entries.\n  * query_norm_weight and key_norm_weight are the effective RMSNorm multipliers, exactly as in\n    SparseAttentionIndexer.\n  * Accumulation, pooling, softmax, normalization and scoring are performed in float32 and the\n    result is rounded once to the tensor element type.\n  * Ties in the top-k selection are broken by the smaller entry index, and the emitted entries are\n    ordered by decreasing score, so the result is deterministic.\n  * cos_cache / sin_cache may be shared across the batch ([max_position, rotary_width]) or\n    request-specific ([batch_size, max_position, rotary_width]).\n  * cumulative_sequence_lengths, past_sequence_lengths and past_state_lengths are read directly by\n    the device kernel; a zero-token request row (a repeated cumulative offset) is valid and simply\n    contributes no query rows for that request.\n\nOgaEngine integration note: this operator only defines the ORT contrib op; wiring\npast_key_state / past_kv_buffer / past_gate_buffer / past_state_lengths as Engine-managed,\nper-request fixed-size state (analogous to a paged auxiliary cache) is expected to happen in the\nOgaEngine / Model Builder integration, which is out of scope for this operator definition.\n",
+    "description": "Packed/variable-length counterpart of SparseAttentionIndexer, for continuous-batching engines\n(such as an OgaEngine-style PagedAttention model) that flatten every request's tokens into one\n[total_tokens, ...] axis instead of a dense [batch_size, sequence_length, ...] axis. It selects, for\nevery packed query token, the sparse-attention candidates that a following SparsePagedAttention (or\nsimilar) operator is allowed to read.\n\nUnlike SparseAttentionIndexer, this operator:\n  * takes packed query/key tensors plus cumulative_sequence_lengths (request boundaries) and\n    past_sequence_lengths (per-request past length) instead of a dense batch and a dense mask;\n  * derives ordinary causal visibility purely from that packed metadata -- there is no mask input;\n  * uses a single generic set of state slots (past_key_state / past_kv_buffer / past_gate_buffer /\n    past_state_lengths) for both policy_mode values, each with a shape that is fixed across calls\n    (state never grows and is never concatenated); a step that would overflow the fixed capacity is\n    rejected as a deterministic no-op on state rather than truncated or allowed to corrupt memory\n    (the optional state_status output reports which requests were rejected and why);\n  * additionally emits selected_counts, the exact number of active (non -1) entries per query, so\n    that no downstream consumer needs to scan selected_indices for its query's true count.\n\nBoth policy_mode values keep the semantics of SparseAttentionIndexer, applied independently to each\nrequest's own packed token range and fixed-capacity state slice:\n\n  policy_mode = \"qsa\" (\"query sparse attention\" token indexer)\n    Processes each request's new tokens sequentially: appends raw indexer keys to the generic\n    pending buffer, and whenever it reaches compress_ratio tokens, mean-pools it, applies RMSNorm\n    and key_norm_weight, applies the leading/split-half rotary convention at the block's first\n    logical token position, and appends the prepared (already normalized and rotated) key to\n    key_state. Queries are scored against every causally visible complete block with\n    sum_h ReLU(q_h . k), the token_budget / compress_ratio highest scoring blocks are kept, and\n    their token indices are emitted (request-local logical positions, i.e. the same numbering as\n    past_sequence_lengths + local offset) followed by the causally visible tokens of the trailing\n    incomplete block. QSA positions are the request-local logical cache positions derived from\n    past_sequence_lengths and cumulative_sequence_lengths; position_ids must be omitted.\n\n  policy_mode = \"csa\" (\"compressed sparse attention\" block indexer)\n    Applies the same window-plan arithmetic as SparseAttentionIndexer (overlap/leftover/new window\n    count) independently per request, using that request's own buffer_length and new token count;\n    every newly closed window is compressed with the softmax-gated Ca/Cb pooling, normalized,\n    rotated and appended to key_state. Queries are scored against every causally visible compressed\n    entry with sum_h w_h * ReLU(q_h . k) and the index_topk highest scoring entry indices are\n    emitted.\n\nCommon contract:\n  * selected_indices is int32 with a fixed capacity that only depends on attributes:\n    token_budget + compress_ratio - 1 for \"qsa\" (values are request-local token positions into the\n    main key/value cache, directly consumable by SparsePagedAttention configured with\n    attention_mode=\"selected_only\", selected_kv_source=\"main\") and index_topk for \"csa\" (values are\n    compressed-entry indices into key_state, directly consumable by SparsePagedAttention configured\n    with attention_mode=\"local_plus_selected\", selected_kv_source=\"auxiliary\"; key_state is\n    layout-compatible with a [batch_size, capacity, 1, head_size] auxiliary cache when K = V).\n    Unused entries are -1 and selected_counts holds the exact number of used entries.\n  * query_norm_weight and key_norm_weight are the effective RMSNorm multipliers, exactly as in\n    SparseAttentionIndexer.\n  * Accumulation, pooling, softmax, normalization and scoring are performed in float32 and the\n    result is rounded once to the tensor element type.\n  * Ties in the top-k selection are broken by the smaller entry index, and the emitted entries are\n    ordered by decreasing score, so the result is deterministic.\n  * cos_cache / sin_cache may be shared across the batch ([max_position, rotary_width]) or\n    request-specific ([batch_size, max_position, rotary_width]).\n  * cumulative_sequence_lengths, past_sequence_lengths and past_state_lengths are read directly by\n    the device kernel; a zero-token request row (a repeated cumulative offset) is valid and simply\n    contributes no query rows for that request.\n\nOgaEngine integration note: this operator only defines the ORT contrib op; wiring\npast_key_state / past_kv_buffer / past_gate_buffer / past_state_lengths as Engine-managed,\nper-request fixed-size state (analogous to a paged auxiliary cache) is expected to happen in the\nOgaEngine / Model Builder integration, which is out of scope for this operator definition.\n",
     "attributes": [
       {
         "name": "compress_ratio",
@@ -47128,12 +47259,18 @@
         "type": "M",
         "option": "optional",
         "description": "Selection status [N], forwarded on reuse and zero on refresh."
+      },
+      {
+        "name": "state_status",
+        "type": "M",
+        "option": "optional",
+        "description": "Device-side per-request state update status with shape (batch_size). 0: the request's state update was applied (or intentionally held by IndexShare reuse); 1: invalid device metadata (cumulative_sequence_lengths, past_sequence_lengths or past_state_lengths are inconsistent); 2: the update would exceed state_capacity. A non-zero request leaves its state payloads unchanged, clamps out-of-range past_state_lengths into present_state_lengths, and emits an empty selection (selected_counts is 0 and selected_indices is -1). Intended for CUDA graph replay, where the host checks it after the replay instead of synchronizing inside the operator. Currently supported by the CUDA provider only."
       }
     ],
     "min_output": 6,
-    "max_output": 8,
+    "max_output": 9,
     "inputs_range": "16 - 22",
-    "outputs_range": "6 - 8",
+    "outputs_range": "6 - 9",
     "type_constraints": [
       {
         "description": "Constrain floating point tensors to float, float16 and bfloat16.",
@@ -48578,12 +48715,12 @@
       {
         "name": "past_seqlens",
         "type": "S",
-        "description": "A tensor with shape (batch_size). It specifies the past lengths of cached sequence in the KV cache."
+        "description": "A tensor with shape (batch_size). It specifies the past lengths of cached sequences. CUDA sanitizes malformed values on device: an invalid value suppresses that sequence's cache writes and produces zero output. A backend requiring exact host lengths may instead return INVALID_ARGUMENT when attention_metadata is absent."
       },
       {
         "name": "block_table",
         "type": "S",
-        "description": "2D tensor with shape (batch_size, max_blocks_per_sequence) that maps each sequence in the batch to itscorresponding blocks in the KV cache."
+        "description": "2D tensor with shape (batch_size, max_blocks_per_sequence) that maps each sequence in the batch to itscorresponding blocks in the KV cache. -1 denotes an unmapped page. CUDA converts values below -1 or greater than or equal to num_blocks to the unmapped sentinel before resolving cache addresses; mapped pages remain attendable."
       },
       {
         "name": "cos_cache",
@@ -69649,6 +69786,69 @@
         "type": "int64",
         "required": true,
         "description": "Blocks of [blocksize, blocksize] are moved."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T",
+        "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Output tensor of [N, C * blocksize * blocksize, H/blocksize, W/blocksize]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all tensor types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "SpaceToDepth",
+    "module": "com.ms.internal.nhwc",
+    "version": 28,
+    "description": "SpaceToDepth rearranges blocks of spatial data into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the height and width dimensions\nare moved to the depth dimension. `mode` determines whether blocks are ordered depth-column-row\n(`DCR`, the default) or column-row-depth (`CRD`).",
+    "attributes": [
+      {
+        "name": "blocksize",
+        "type": "int64",
+        "required": true,
+        "description": "Blocks of [blocksize, blocksize] are moved."
+      },
+      {
+        "name": "mode",
+        "type": "string",
+        "required": false,
+        "default": "DCR",
+        "description": "DCR (default) for depth-column-row order re-arrangement. Use CRD for column-row-depth order."
       }
     ],
     "inputs": [
