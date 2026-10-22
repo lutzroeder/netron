@@ -961,8 +961,14 @@ dagre.layout = (nodes, edges, layout, state) => {
                 while (sourceSet.length) {
                     const entry = sourceSet.pop();
                     results.push(entry);
-                    entry.in.reverse().forEach(handleIn(entry));
-                    entry.out.forEach(handleOut(entry));
+                    const inHandler = handleIn(entry);
+                    for (const uEntry of entry.in.reverse()) {
+                        inHandler(uEntry);
+                    }
+                    const outHandler = handleOut(entry);
+                    for (const wEntry of entry.out) {
+                        outHandler(wEntry);
+                    }
                 }
                 return results.filter((entry) => !entry.merged).map((entry) => {
                     const value = {
@@ -1550,8 +1556,8 @@ dagre.layout = (nodes, edges, layout, state) => {
         const layers = buildLayerMatrix(g);
         for (const layer of layers) {
             let orderShift = 0;
-            layer.forEach((v, i) => {
-                const label = g.node(v).label;
+            for (let i = 0; i < layer.length; i++) {
+                const label = g.node(layer[i]).label;
                 label.order = i + orderShift;
                 if (label.selfEdges) {
                     for (const selfEdge of label.selfEdges) {
@@ -1566,7 +1572,7 @@ dagre.layout = (nodes, edges, layout, state) => {
                     }
                     delete label.selfEdges;
                 }
-            });
+            }
         }
     };
 
@@ -1868,14 +1874,14 @@ dagre.layout = (nodes, edges, layout, state) => {
                 }
             };
             if (layering.length > 0) {
-                /* eslint-disable no-loop-func */
                 let [north] = layering;
                 for (let i = 1; i < layering.length; i++) {
                     const south = layering[i];
                     let prevNorthPos = -1;
                     let nextNorthPos = 0;
                     let southPos = 0;
-                    south.forEach((v, southLookahead) => {
+                    for (let southLookahead = 0; southLookahead < south.length; southLookahead++) {
+                        const v = south[southLookahead];
                         if (g.node(v).label.dummy === 'border') {
                             const predecessors = g.predecessors(v);
                             if (predecessors.size > 0) {
@@ -1886,10 +1892,9 @@ dagre.layout = (nodes, edges, layout, state) => {
                             }
                         }
                         scan(south, southPos, south.length, nextNorthPos, north.length);
-                    });
+                    }
                     north = south;
                 }
-                /* eslint-enable no-loop-func */
             }
             return conflicts;
         };

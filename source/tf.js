@@ -1380,7 +1380,7 @@ tf.TensorBundle = class {
                 break;
             }
             case 2: {
-                entries.forEach((buffer, name) => {
+                for (const [name, buffer] of entries) {
                     if (name !== '') {
                         const reader = protobuf.BinaryReader.open(buffer);
                         const entry = tf.proto.tensorflow.BundleEntryProto.decode(reader);
@@ -1396,7 +1396,7 @@ tf.TensorBundle = class {
                         }
                         this.tensors.push(new tf.Tensor(tensor, name, null));
                     }
-                });
+                }
                 break;
             }
             default: {

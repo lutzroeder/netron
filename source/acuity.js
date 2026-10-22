@@ -380,13 +380,13 @@ acuity.Inference = class {
             axis_list.sort((a, b) => {
                 return b - a;
             });
-            axis_list.forEach((i) => {
+            for (const i of axis_list) {
                 newShape[i] = 1;
-            });
+            }
             if (!params.keep_dims) {
-                axis_list.forEach((i) => {
+                for (const i of axis_list) {
                     newShape.splice(i, 1);
-                });
+                }
                 if (!newShape.length) {
                     newShape.splice(0, 0, 0);
                 }
