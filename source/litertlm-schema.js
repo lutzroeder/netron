@@ -166,7 +166,8 @@ litert.lm.schema.AnySectionDataType = {
     ExecutorMetadataProto: 9, '9': 'ExecutorMetadataProto',
     Text2SpeechMetadataProto: 10, '10': 'Text2SpeechMetadataProto',
     Speech2TextMetadataProto: 11, '11': 'Speech2TextMetadataProto',
-    Text2ImageMetadataProto: 12, '12': 'Text2ImageMetadataProto'
+    Text2ImageMetadataProto: 12, '12': 'Text2ImageMetadataProto',
+    Any2AnyMetadataProto: 13, '13': 'Any2AnyMetadataProto'
 };
 
 litert.lm.schema.SectionObject = class SectionObject {
