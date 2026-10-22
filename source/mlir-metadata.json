@@ -43478,7 +43478,7 @@
   {
     "name": "rocdl.asyncmark",
     "summary": "Mark the end of a group of asynchronous operations",
-    "description": "This operation, in conjunction with `rocdl.wait.asyncmark`, forms the\n      compiler-provided framework for tracking explicitly asynchronous\n      memory operations, such as copies to LDS that use async intrinsics\n      and gfx1250's tensor loads.\n\n      Details of its behavior can be found in\n      [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.rst).\n\n      See `rocdl.wait.asyncmark`'s documentation for a usage example.\n\n      Example:\n      ```mlir\n      // Mark the end of an async operation group.\n      rocdl.asyncmark\n      ```\n\n      Available on gfx9 and later.",
+    "description": "This operation, in conjunction with `rocdl.wait.asyncmark`, forms the\n      compiler-provided framework for tracking explicitly asynchronous\n      memory operations, such as copies to LDS that use async intrinsics\n      and gfx1250's tensor loads.\n\n      Details of its behavior can be found in\n      [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.md).\n\n      See `rocdl.wait.asyncmark`'s documentation for a usage example.\n\n      Example:\n      ```mlir\n      // Mark the end of an async operation group.\n      rocdl.asyncmark\n      ```\n\n      Available on gfx9 and later.",
     "assemblyFormat": "attr-dict"
   },
   {
@@ -48619,7 +48619,7 @@
   {
     "name": "rocdl.wait.asyncmark",
     "summary": "Wait until N or fewer async operation groups are unexecuted",
-    "description": "This operation, along with `rocdl.asyncmark`, forms the compiler-provided\n      framework for explicitly tracking asynchronous operations.\n\n      At the point where a wait.asyncmark operation is executed, all async operations\n      that were parts of any async group (established by asyncmark in program order)\n      other than the `count` previously-added ones will have finished executing.\n\n      For more detail, including on how this mechanism composes with function calls,\n      see [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.rst).\n\n      Available on gfx9 and later.\n\n      Example:\n      ```mlir\n      // Wait until at most N async groups remain outstanding.\n      rocdl.wait.asyncmark 1\n      ```\n\n      Usage example:\n      ```mlir\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.wait.asyncmark 1 // First group of loads completes after this\n      ```",
+    "description": "This operation, along with `rocdl.asyncmark`, forms the compiler-provided\n      framework for explicitly tracking asynchronous operations.\n\n      At the point where a wait.asyncmark operation is executed, all async operations\n      that were parts of any async group (established by asyncmark in program order)\n      other than the `count` previously-added ones will have finished executing.\n\n      For more detail, including on how this mechanism composes with function calls,\n      see [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.md).\n\n      Available on gfx9 and later.\n\n      Example:\n      ```mlir\n      // Wait until at most N async groups remain outstanding.\n      rocdl.wait.asyncmark 1\n      ```\n\n      Usage example:\n      ```mlir\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.wait.asyncmark 1 // First group of loads completes after this\n      ```",
     "attributes": [
       { "name": "count", "type": "I16Attr" }
     ],
@@ -60147,6 +60147,20 @@
       { "name": "result", "type": "HLO_FpOrQuantizedIntTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
+  },
+  {
+    "name": "stablehlo.fma",
+    "summary": "Fma operation",
+    "description": "Performs element-wise single-rounded IEEE-754 fused multiply-add of `a`,\n    `b`, and `c` tensors and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#fma\n\n    Example:\n    ```mlir\n    %result = stablehlo.fma %a, %b, %c : tensor<3xf32>\n    ```",
+    "operands": [
+      { "name": "a", "type": "HLO_FpTensor" },
+      { "name": "b", "type": "HLO_FpTensor" },
+      { "name": "c", "type": "HLO_FpTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "HLO_FpTensor" }
+    ],
+    "assemblyFormat": "$a `,` $b `,` $c attr-dict\n      `:` custom<SameOperandsAndResultType>(type($a), type($b), type($c), type($result))"
   },
   {
     "name": "stablehlo.gather",
@@ -106771,7 +106785,7 @@
   {
     "name": "tosa.avg_pool2d_adaptive",
     "summary": "Performs average pooling on the input with shape operands.",
-    "description": "This performs an average pooling over the given input tensor. A sliding\n    window of size given by <kernel size> is passed over the input tensor, with\n    the mean value being placed in the output tensor. When calculating the\n    average, only the number of valid input tensor values, but not padding, are\n    used to calculate the divisor. Compared to avg_pool2d, the kernel/stride/\n    pad values are provided as inputs.",
+    "description": "This performs an average pooling over the given input tensor. A sliding\n    window of size given by <kernel size> is passed over the input tensor, with\n    the mean value being placed in the output tensor. When calculating the\n    average, only the number of valid input tensor values, but not padding, are\n    used to calculate the divisor. Compared to avg_pool2d, the kernel/stride/\n    pad values are provided as inputs.\n\n    This operation is not pure. Undefined behaviour may occur if the accumulated\n    result overflows.",
     "operands": [
       { "name": "input", "type": "Tosa_Tensor4D" },
       { "name": "input_zp", "type": "Tosa_ScalarIntOrFloatTensor" },
@@ -131343,6 +131357,17 @@
     "name": "vhlo.floor_v1",
     "operands": [
       { "name": "operand", "type": "VHLO_AnyType" }
+    ],
+    "results": [
+      { "name": "result", "type": "VHLO_AnyType" }
+    ]
+  },
+  {
+    "name": "vhlo.fma_v1",
+    "operands": [
+      { "name": "a", "type": "VHLO_AnyType" },
+      { "name": "b", "type": "VHLO_AnyType" },
+      { "name": "c", "type": "VHLO_AnyType" }
     ],
     "results": [
       { "name": "result", "type": "VHLO_AnyType" }

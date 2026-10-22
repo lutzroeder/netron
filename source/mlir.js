@@ -28405,7 +28405,7 @@ _.SdyDialect = class extends _.Dialect {
         this.registerCustomDirective('StrippedTensorShardingPerValueAttr', this.parseStrippedTensorShardingPerValueAttr.bind(this));
         this.registerCustomDirective('SingleBlockRegionNoBlockId', this.parseSingleBlockRegionNoBlockId.bind(this));
         this.registerCustomAttribute('Sdy_ListOfAxisRefLists', this.parseListOfAxisRefLists.bind(this));
-        this.registerCustomAttribute('Sdy_ManualAxes', this.parseManualAxes.bind(this));
+        this.registerCustomAttribute('Sdy_ManualAxes', this.parseAxisRefListWrap.bind(this));
         this.registerCustomAttribute('Sdy_AllToAllParamList', this.parseAllToAllParamList.bind(this));
         this.registerCustomAttribute('Sdy_TensorSharding', this.parseTensorShardingAttrWrap.bind(this));
         this.registerCustomAttribute('Sdy_AxisRefList', this.parseAxisRefListWrap.bind(this));
@@ -28588,17 +28588,6 @@ _.SdyDialect = class extends _.Dialect {
             parser.parseOptionalComma();
         }
         return { value: lists };
-    }
-
-    parseManualAxes(parser) {
-        const axes = [];
-        parser.parseLBrace();
-        while (!parser.parseOptionalRBrace()) {
-            const axis = parser.parseString();
-            axes.push(axis);
-            parser.parseOptionalComma();
-        }
-        return { value: axes };
     }
 
     parseAllToAllParamList(parser) {
