@@ -2152,6 +2152,13 @@
   },
   {
     "type":     "executorch",
+    "target":   "resnet8_cortex_m.pte",
+    "source":   "https://github.com/user-attachments/files/33774324/resnet8_cortex_m.pte.zip[resnet8_cortex_m.pte]",
+    "format":   "ExecuTorch v0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "executorch",
     "target":   "stories260k_hybrid_llama_qnn.pte",
     "source":   "https://github.com/user-attachments/files/23569374/stories260k_hybrid_llama_qnn.pte.zip[stories260k_hybrid_llama_qnn.pte]",
     "format":   "ExecuTorch v0",

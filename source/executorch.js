@@ -138,6 +138,44 @@ executorch.Graph = class {
             const node = new executorch.Node(target, plan, chain, instruction, values);
             this.nodes.push(node);
         }
+        // A view removed by memory planning is a tensor no instruction writes,
+        // it reads the tensor last written to the same memory with the same size.
+        const written = new Set(this.nodes.flatMap((node) => node.outputs.flatMap((argument) => argument.value)));
+        const inputs = new Set(this.inputs.flatMap((argument) => argument.value));
+        const memory = new Map();
+        const key = (value) => {
+            const val = value && /^\d+$/.test(value.name) ? plan.values[parseInt(value.name, 10)].val : null;
+            if (val instanceof executorch_flatbuffer.Tensor && val.allocation_info && val.data_buffer_idx === 0) {
+                const allocation = val.allocation_info;
+                const size = Array.from(val.sizes).reduce((a, b) => a * b, 1);
+                return `${allocation.memory_id}:${allocation.memory_offset_high}:${allocation.memory_offset_low}:${val.scalar_type}:${size}`;
+            }
+            return null;
+        };
+        const alias = (argument) => {
+            if (Array.isArray(argument.value)) {
+                argument.value = argument.value.map((value) => {
+                    const id = written.has(value) || inputs.has(value) ? null : key(value);
+                    return id && memory.has(id) ? memory.get(id) : value;
+                });
+            }
+        };
+        for (const node of this.nodes) {
+            for (const argument of node.inputs) {
+                alias(argument);
+            }
+            for (const argument of node.outputs) {
+                for (const value of argument.value) {
+                    const id = key(value);
+                    if (id) {
+                        memory.set(id, value);
+                    }
+                }
+            }
+        }
+        for (const argument of this.outputs) {
+            alias(argument);
+        }
     }
 };
 
