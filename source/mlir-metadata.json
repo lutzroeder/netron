@@ -19679,8 +19679,8 @@
     "summary": "Sorts a tensor a specified dimension.",
     "description": "Based on XLA operation semantics, sorts the given `operands` at the given\n    `dimension` with the given `comparator`.\n\n    See https://www.tensorflow.org/xla/operation_semantics#sort.",
     "operands": [
-      { "name": "inputs", "type": "Variadic<AnyType>" },
-      { "name": "outputs", "type": "Variadic<AnyShaped>" }
+      { "name": "inputs", "type": "Variadic<AnyRankedTensorOrMemRef>" },
+      { "name": "outputs", "type": "Variadic<AnyRankedTensorOrMemRef>" }
     ],
     "results": [
       { "name": "results", "type": "Variadic<AnyRankedTensor>" }
@@ -29976,6 +29976,20 @@
     "assemblyFormat": "$operand attr-dict\n      `:` custom<SameOperandsAndResultType>(type($operand), type($result))"
   },
   {
+    "name": "mhlo.fma",
+    "summary": "Fma operation",
+    "description": "Performs element-wise single-rounded IEEE-754 fused multiply-add of `a`,\n    `b`, and `c` tensors and produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#fma\n\n    Example:\n    ```mlir\n    %result = mhlo.fma %a, %b, %c : tensor<3xf32>\n    ```",
+    "operands": [
+      { "name": "a", "type": "MHLO_FpTensor" },
+      { "name": "b", "type": "MHLO_FpTensor" },
+      { "name": "c", "type": "MHLO_FpTensor" }
+    ],
+    "results": [
+      { "name": "result", "type": "MHLO_FpTensor" }
+    ],
+    "assemblyFormat": "$a `,` $b `,` $c attr-dict\n      `:` custom<SameOperandsAndResultType>(type($a), type($b), type($c), type($result))"
+  },
+  {
     "name": "mhlo.fusion",
     "summary": "Fusion operation",
     "description": "This operation is private to the XLA compiler, so it is does not yet have\n    a specification.\n\n    Informally, this operation consists of a group of basic ops (represented as\n    a region attached to it). It serves as a hint to the backend that it is\n    beneficial to emit the contained ops into a single loop nest or kernel.",
@@ -35641,6 +35655,40 @@
       { "type": "SameOperandsAndResultType" }
     ],
     "assemblyFormat": "$src oilist(`ftz` `=` $ftz) attr-dict `:` type($src)"
+  },
+  {
+    "name": "nvvm.sparse.compress",
+    "summary": "Compress dense vector to structured sparse vector",
+    "description": "Compresses elements from a dense vector `data` into a structured sparse\n    vector `compressed_data` using the 2:4 sparsity pattern: 2 out of every\n    4 elements of `data` are selected. The indices of the selected elements\n    are returned in `metadata`.\n\n    The element size (8 or 16 bits) is given by the element type of `data`\n    and `compressed_data`. `data` must occupy `2 * repFactor` 32-bit\n    registers, where the repeat factor `repFactor` is a power of two from 1\n    to 64.\n\n    Arguments:\n    - `spDesc`: Sparsity descriptor specifying the selection operation and the\n      element data type.\n    - `data`: Dense vector containing the elements to be compressed.\n    - `idxSize`: Size in bits of each metadata index (2 or 4).\n\n    Results:\n    - `metadata`: Indices of the selected elements, stored in\n      `ceil(repFactor * idxSize / elemSize)` 32-bit registers. A single\n      register may be either `i32` or `vector<1xi32>`.\n    - `compressed_data`: Selected elements; half as many as in `data`.\n\n    Examples:\n    ```mlir\n    // 8-bit elements, 2-bit indices, repeat factor of 1.\n    %metadata, %compressed_data = nvvm.sparse.compress %spdesc, %data\n        idx_size = 2\n        : i32, vector<8xi8> -> i32, vector<4xi8>\n\n    // 16-bit elements, 4-bit indices, repeat factor of 8.\n    %metadata, %compressed_data = nvvm.sparse.compress %spdesc, %data\n        idx_size = 4\n        : i32, vector<32xi16> -> vector<2xi32>, vector<16xi16>\n    ```\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-spcompress)",
+    "operands": [
+      { "name": "spDesc", "type": "I32" },
+      { "name": "data", "type": "FixedVectorOfRankAndType<[1], [I8, I16]>" }
+    ],
+    "results": [
+      { "name": "metadata", "type": "AnyTypeOf<[I32, FixedVectorOfRankAndLengthAndType<[1], [1, 2, 4, 8, 16, 32], [I32]>]>" },
+      { "name": "compressed_data", "type": "FixedVectorOfRankAndType<[1], [I8, I16]>" }
+    ],
+    "attributes": [
+      { "name": "idxSize", "type": "ConfinedAttr<I32Attr, [IntIsOneOf<[2, 4]>]>" }
+    ],
+    "assemblyFormat": "$spDesc `,` $data `idx_size` `=` $idxSize attr-dict\n    `:` type(operands) `->` type($metadata) `,` type($compressed_data)"
+  },
+  {
+    "name": "nvvm.sparse.decompress",
+    "summary": "Decompress structured sparse vector to dense vector",
+    "description": "Decompresses elements from a structured sparse vector `compressed_data`\n    into a dense vector `data`, using the indices stored in `metadata`. Dense\n    positions not selected by `metadata` are set to zero.\n\n    `data` consists of `repFactor` groups of `numTgt` elements, and\n    `compressed_data` holds `numSrc` elements for each group, i.e. the\n    sparsity factor is `numSrc:numTgt`. Both `numSrc` and the repeat factor\n    `repFactor` are derived from the vector lengths. The element size\n    `elemSize` (8 or 16 bits) is given by the element type of `data` and\n    `compressed_data`.\n\n    The following conditions must hold:\n    - `numSrc:numTgt` is one of 1:2, 1:4, 1:8, 1:16, 2:4, 2:8, 2:16, 4:8, or\n      4:16.\n    - `repFactor` is a power of two from 1 to 64.\n    - `numTgt * elemSize * repFactor` is between 32 and 4096.\n    - `numSrc * elemSize` is at most 32.\n    - `idxSize` is 2 only if `numTgt` is at most 4.\n    - `metadata` occupies `ceil(numSrc * idxSize * repFactor / 32)` 32-bit\n      registers. A single register may be either `i32` or `vector<1xi32>`.\n\n    Arguments:\n    - `metadata`: Indices of the selected elements.\n    - `compressed_data`: Compressed vector containing the selected elements.\n    - `idxSize`: Size in bits of each metadata index (2 or 4).\n    - `numTgt`: Size of each group in `data` (2, 4, 8, or 16).\n\n    Results:\n    - `data`: Dense vector containing the decompressed elements.\n\n    Examples:\n    ```mlir\n    // 2:4 sparsity, 8-bit elements, 2-bit indices, repeat factor of 1.\n    %res = nvvm.sparse.decompress %metadata, %compdata idx_size = 2 num_tgt = 4\n        : i32, vector<2xi8> -> vector<4xi8>\n\n    // 2:4 sparsity, 16-bit elements, 4-bit indices, repeat factor of 64.\n    %res = nvvm.sparse.decompress %metadata, %compdata idx_size = 4 num_tgt = 4\n        : vector<16xi32>, vector<128xi16> -> vector<256xi16>\n    ```\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-spdecompress)",
+    "operands": [
+      { "name": "metadata", "type": "AnyTypeOf<[I32, FixedVectorOfRankAndLengthAndType<[1], [1, 2, 4, 8, 16, 32], [I32]>]>" },
+      { "name": "compressed_data", "type": "FixedVectorOfRankAndType<[1], [I8, I16]>" }
+    ],
+    "results": [
+      { "name": "data", "type": "FixedVectorOfRankAndType<[1], [I8, I16]>" }
+    ],
+    "attributes": [
+      { "name": "idxSize", "type": "ConfinedAttr<I32Attr, [IntIsOneOf<[2, 4]>]>" },
+      { "name": "numTgt", "type": "ConfinedAttr<I32Attr, [IntIsOneOf<[2, 4, 8, 16]>]>" }
+    ],
+    "assemblyFormat": "$metadata `,` $compressed_data\n    `idx_size` `=` $idxSize `num_tgt` `=` $numTgt attr-dict\n    `:` type($metadata) `,` type($compressed_data) `->` type($data)"
   },
   {
     "name": "nvvm.sqrt",
@@ -63650,7 +63698,7 @@
   {
     "name": "tensor.pad",
     "summary": "tensor pad operation",
-    "description": "`tensor.pad` is an operation that pads the `source` tensor\n    with given `low` and `high` padding config.\n\n    The PadOp operation supports the following arguments:\n\n    * source: the \"base\" tensor on which to pad.\n    * low: A list contains the padding along the start of each\n           dimension, i.e., how many padded values are prepended\n           to the beginning of the tensor in each dimension.\n    * high: A list contains the padding along the end of each\n            dimension, i.e., how many padded values are appended\n            to the end of the tensor in each dimension.\n    * nofold: indicates that the operation should not be folded when source and\n              result types are equal.\n\n    The result tensor dimensions are `low[i]` + `dim[i]` + `high[i]` for each\n    dimension `i`. The number of elements of `low` and `high` must match the\n    rank of the input tensor. They can be either a constant or a dynamic value.\n\n    The region of the `tensor.pad` operation returns the value to use\n    for the padding. The arguments of the region represent the index\n    of the source being accessed. There should be as many arguments as\n    the rank of the `source` tensor. The value `yield`-ed by the\n    region is used as the value of the view at the given position.\n\n    If `nofold` is set, the padding operation will not be folded away even\n    if the source type and the padded type have the same static shape. This can\n    be used, e.g., for packing or promotion to faster memory.\n\n    Example 1: add 3 zeros to the beginning and 5 zeros to the end of a 1D\n    tensor.\n\n    ```mlir\n      %arg0 = ... : tensor<10xi32>\n      %c0_i32 = arith.constant 0 : i32\n      %padded = tensor.pad %arg0 low[3] high[5] {\n      ^bb0(%arg1: index):\n        tensor.yield %c0_i32 : i32\n      } : tensor<10xi32> to tensor<18xi32>\n    ```\n\n    Example 2: add 1 value to the beginning of dimension 0, 2 values to the end\n    of dimension 0, 2 values to the start of dimension 1, and 3 values to the\n    end of dimension 1.\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %0 low[1, 2] high[2, 3] {\n      ^bb0(%arg0 : index, %arg1 : index):\n        tensor.yield %pad_value : f32\n      } : tensor<?x?xf32> to tensor<?x?xf32>\n    ```\n\n    Example 3:\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %arg0 low[2, %arg1, 3, 3] high[3, 3, %arg1, 2] {\n      ^bb0(%arg2: index, %arg3: index, %arg4: index, %arg5: index):\n          tensor.yield %pad_value : f32\n      } : tensor<1x2x2x?xf32> to tensor<6x?x?x?xf32>\n    ```\n\n    Example 4:\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %arg0 low[0, 0] high[%ub0, %ub1] {\n      ^bb0(%arg1: index, %arg2: index):\n        tensor.yield %pad_value : f32\n      } : tensor<2x3xf32> to tensor<?x?xf32>\n    ```\n\n    Example 5: Force a padded value to be always exist with `nofold`, even\n    though the padding config specifies that no new elements will be added to\n    the tensor.\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %arg0 nofold low[0, 0] high[0, 0] {\n      ^bb0(%arg1: index, %arg2: index):\n        tensor.yield %pad_value : f32\n      } : tensor<2x3xf32> to tensor<2x3xf32>\n    ```",
+    "description": "`tensor.pad` is an operation that pads the `source` tensor\n    with given `low` and `high` padding config.\n\n    The PadOp operation supports the following arguments:\n\n    * source: the \"base\" tensor on which to pad.\n    * low: A list contains the padding along the start of each\n           dimension, i.e., how many padded values are prepended\n           to the beginning of the tensor in each dimension.\n    * high: A list contains the padding along the end of each\n            dimension, i.e., how many padded values are appended\n            to the end of the tensor in each dimension.\n    * nofold: indicates that the operation should not be folded when source and\n              result types are equal.\n\n    The result tensor dimensions are `low[i]` + `dim[i]` + `high[i]` for each\n    dimension `i`. The number of elements of `low` and `high` must match the\n    rank of the input tensor. They can be either a constant or a dynamic value.\n    The padding amounts must be non-negative. A negative constant is rejected\n    by the verifier. A negative dynamic value is undefined behavior: the\n    verifier does not look through the defining op of an SSA value.\n\n    The region of the `tensor.pad` operation returns the value to use\n    for the padding. The arguments of the region represent the index\n    of the source being accessed. There should be as many arguments as\n    the rank of the `source` tensor. The value `yield`-ed by the\n    region is used as the value of the view at the given position.\n\n    If `nofold` is set, the padding operation will not be folded away even\n    if the source type and the padded type have the same static shape. This can\n    be used, e.g., for packing or promotion to faster memory.\n\n    Example 1: add 3 zeros to the beginning and 5 zeros to the end of a 1D\n    tensor.\n\n    ```mlir\n      %arg0 = ... : tensor<10xi32>\n      %c0_i32 = arith.constant 0 : i32\n      %padded = tensor.pad %arg0 low[3] high[5] {\n      ^bb0(%arg1: index):\n        tensor.yield %c0_i32 : i32\n      } : tensor<10xi32> to tensor<18xi32>\n    ```\n\n    Example 2: add 1 value to the beginning of dimension 0, 2 values to the end\n    of dimension 0, 2 values to the start of dimension 1, and 3 values to the\n    end of dimension 1.\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %0 low[1, 2] high[2, 3] {\n      ^bb0(%arg0 : index, %arg1 : index):\n        tensor.yield %pad_value : f32\n      } : tensor<?x?xf32> to tensor<?x?xf32>\n    ```\n\n    Example 3:\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %arg0 low[2, %arg1, 3, 3] high[3, 3, %arg1, 2] {\n      ^bb0(%arg2: index, %arg3: index, %arg4: index, %arg5: index):\n          tensor.yield %pad_value : f32\n      } : tensor<1x2x2x?xf32> to tensor<6x?x?x?xf32>\n    ```\n\n    Example 4:\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %arg0 low[0, 0] high[%ub0, %ub1] {\n      ^bb0(%arg1: index, %arg2: index):\n        tensor.yield %pad_value : f32\n      } : tensor<2x3xf32> to tensor<?x?xf32>\n    ```\n\n    Example 5: Force a padded value to be always exist with `nofold`, even\n    though the padding config specifies that no new elements will be added to\n    the tensor.\n\n    ```mlir\n      %pad_value = ... : f32\n      %0 = tensor.pad %arg0 nofold low[0, 0] high[0, 0] {\n      ^bb0(%arg1: index, %arg2: index):\n        tensor.yield %pad_value : f32\n      } : tensor<2x3xf32> to tensor<2x3xf32>\n    ```",
     "operands": [
       { "name": "source", "type": "AnyRankedTensor" },
       { "name": "low", "type": "Variadic<Index>" },
@@ -64984,6 +65032,9 @@
     "name": "test.br",
     "operands": [
       { "name": "targetOperands", "type": "Variadic<AnyType>" }
+    ],
+    "attributes": [
+      { "name": "fold_to_last", "type": "UnitAttr" }
     ],
     "successors": [
       { "name": "target", "type": "AnySuccessor" }
@@ -66384,6 +66435,17 @@
       { "name": "region", "type": "AnyRegion" }
     ],
     "assemblyFormat": "attr-dict-with-keyword $region"
+  },
+  {
+    "name": "test.greedy_cfg_rewrite",
+    "description": "Exercises reachability changes while the greedy driver is processing its\n    worklist. The matching test pattern performs the CFG change selected by\n    `mode`, then erases the op:\n\n      observe:           emit a remark; used to observe whether a block is\n                         processed\n      append_unreachable: append a disconnected block holding an observer\n      append_reachable:  append a block holding an observer and branch to it\n                         on `cond`\n      insert_entry:      insert a new entry block, disconnecting the old one\n      move_entry:        move the last block to the front\n      move_entry_away:   insert a block after the entry and move the entry to\n                         the end\n      erase_entry:       erase the entry block; its successor becomes the entry\n      redirect:          retarget the block's branch to the last block\n      double_redirect:   retarget the block's branch to the last block and\n                         replace the entry's branch with a return; for a\n                         conditional branch, keep only the false destination\n      reconnect:         replace the block's branch with a conditional branch\n                         on `cond` to its destination and to the next block\n      disconnect_parent: retarget the entry branch of the parent region\n      move_parent:       move the grandparent operation into a new block\n      move_erase:        retarget the block's branch, then move its old\n                         destination to another region and erase it\n      merge:             merge the branch destination into the block\n      merge_disconnect:  merge, then fold the merged conditional branch\n      redirect_retarget: retarget the block's branch to its destination's\n                         destination, and the destination's branch to an\n                         appended block holding an observer\n\n    Modes that operate on the block's branch expect an unconditional branch\n    without operands as the terminator, except that `double_redirect` also\n    accepts a conditional branch without successor operands.",
+    "operands": [
+      { "name": "cond", "type": "Optional<I1>" }
+    ],
+    "attributes": [
+      { "name": "mode", "type": "EnumProp<TestGreedyCfgRewriteMode{observe|append_unreachable|append_reachable|insert_entry|move_entry|move_entry_away|erase_entry|redirect|double_redirect|reconnect|disconnect_parent|move_parent|move_erase|merge|merge_disconnect|redirect_retarget}>" }
+    ],
+    "assemblyFormat": "$mode ($cond^)? attr-dict"
   },
   {
     "name": "test.has_str_value",
@@ -107593,7 +107655,7 @@
   {
     "name": "tosa.mul",
     "summary": "Multiplication operator.",
-    "description": "Elementwise multiplication (Hadamard product) of input1 and input2.\n    Axis of size 1 will be broadcast, as necessary. Rank of input tensors must\n    match.\n\n    This operation is not pure. Undefined behaviour may occur if the specifed\n    shift is out of range or the result overflows.",
+    "description": "Elementwise multiplication (Hadamard product) of input1 and input2.\n    Axis of size 1 will be broadcast, as necessary. Rank of input tensors must\n    match.\n\n    For int32_t input data, shift must be in the range [0, 63]. For all other\n    input data types, shift must be 0.\n\n    This operation is not pure. Undefined behaviour may occur if the specified\n    shift is out of range or the result overflows.",
     "operands": [
       { "name": "input1", "type": "Tosa_Tensor" },
       { "name": "input2", "type": "Tosa_Tensor" },
@@ -107635,7 +107697,7 @@
     "name": "tosa.pad",
     "category": "Transform",
     "summary": "Pads a tensor with value specified.",
-    "description": "Pads a tensor along the borders of each dimension with a supplied value.\n    Returns a new tensor with the padding included. The pad_const value includes\n    the zero point if the tensor uses a zero point.\n\n    Example:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<4x9xf32>\n    ```",
+    "description": "Pads a tensor along the borders of each dimension with a supplied value.\n    Returns a new tensor with the padding included. The pad_const value includes\n    the zero point if the tensor uses a zero point.\n\n    The padding amounts must be non-negative. The TOSA specification requires\n    a negative padding to be diagnosed (`ERROR_IF`).\n\n    Example:\n\n    ```mlir\n    %pad_const = \"tosa.const\"() <{values = dense<3.14> : tensor<1xf32>}> : () -> tensor<1xf32>\n    %padding = tosa.const_shape values(dense<[1, 2, 3, 4]> : tensor<4xindex>) : () -> !tosa.shape<4>\n    tosa.pad %arg0, %padding, %pad_const : (tensor<1x2xf32>, !tosa.shape<4>, tensor<1xf32>) -> tensor<4x9xf32>\n    ```",
     "operands": [
       { "name": "input1", "type": "Tosa_TensorAtLeast1D" },
       { "name": "padding", "type": "Tosa_Shape" },

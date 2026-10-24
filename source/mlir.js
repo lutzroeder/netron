@@ -9026,6 +9026,7 @@ _.Dialect = class {
         this.registerCustomAttribute('DefaultValuedAttr', this.parseDefaultValuedAttr.bind(this));
         this.registerCustomAttribute('DefaultValuedEnumAttr', this.parseDefaultValuedAttr.bind(this));
         this.registerCustomAttribute('DefaultValuedProp', this.parseDefaultValuedAttr.bind(this));
+        this.registerCustomAttribute('EnumProp', this.parseEnumProp.bind(this));
         this.registerCustomAttribute('ConfinedAttr', this.parseConfinedAttr.bind(this));
         this.registerCustomAttribute('IntValidAlignment', this.parseConfinedAttr.bind(this));
         this.registerCustomAttribute('TypeAttrOf', this.parseTypeAttrOf.bind(this));
@@ -10693,6 +10694,11 @@ _.Dialect = class {
     parseUnitAttr(parser) {
         parser.parseOptionalKeyword('unit');
         return new _.UnitAttr();
+    }
+
+    parseEnumProp(parser, type) {
+        const [innerType] = type.args;
+        return this.parseCustomAttributeWithFallback(parser, innerType);
     }
 
     parseEnumAttr(parser, type) {
@@ -19051,14 +19057,8 @@ _.ptr.PtrDialect = class extends _.Dialect {
 
     constructor(operations) {
         super(operations, 'ptr');
-        this.registerCustomAttribute('EnumProp', this.parseEnumProp.bind(this));
         this.registerCustomAttribute('Ptr_PtrDiffFlags', (parser, type) => this.parseEnumFlags(parser, type, '|', true));
         this.registerCustomType('Ptr_PtrType', this.parsePtrType.bind(this));
-    }
-
-    parseEnumProp(parser, type) {
-        const [innerType] = type.args;
-        return this.parseCustomAttributeWithFallback(parser, innerType);
     }
 
     parsePtrType(parser) {
