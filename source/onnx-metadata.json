@@ -28728,6 +28728,101 @@
     "category": "Attention"
   },
   {
+    "name": "GroupedMatMul",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "GroupedMatMul multiplies each row of a token matrix by one or more selected\ngroup (expert) weight matrices. Given `input` of shape `[M, K]`, `weights` of\nshape `[G, K, N]`, and `group_indices` of shape `[M, S]`, where `S` is the number\nof selections per token, the output has shape `[M, S, N]` and is defined by:\n\n```\noutput[m, i] = input[m] @ weights[group_indices[m, i]]\n```\n\nIf `bias` is present, `bias[group_indices[m, i]]` is added to each corresponding\nresult. Every value in `group_indices` must be in the range `[0, G)`.\nValues outside this range, including negative indices, are invalid input;\nthe behavior is undefined for such inputs. In particular, negative indices\ndo not select groups by counting backwards from `G`.\n\nThis operator is represented as a context-dependent function, which also provides\nits reference implementation. Its decomposition uses Gather, Expand, and MatMul\nto define the result, while runtimes are expected to use a fused\ngrouped-matrix-multiplication implementation to avoid materializing the expanded\nintermediate tensors, including selected weights of shape `[M * S, K, N]`.\n\nWeight-only quantized experts are intended to be expressed by applying\nDequantizeLinear to quantized weights (with the appropriate scales and zero\npoints) and passing the result to GroupedMatMul. Runtimes may fuse this\ncomposition to avoid materializing the dequantized `[G, K, N]` weights.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T",
+        "description": "Token matrix with shape [M, K]."
+      },
+      {
+        "name": "weights",
+        "type": "T",
+        "description": "Stack of G group weight matrices with shape [G, K, N]."
+      },
+      {
+        "name": "group_indices",
+        "type": "Tind",
+        "description": "Group index for each token and selection, with shape [M, S]. Values outside [0, G) are invalid input."
+      },
+      {
+        "name": "bias",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional per-group bias with shape [G, N]."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Per-group matrix multiplication results with shape [M, S, N]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "3 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain input, weights, bias, and output to floating-point tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain group indices to int32 or int64 tensors.",
+        "type_param_str": "Tind",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "additional_types",
+        "code": "for dtype in (np.float16, np.float64):\n    for index_dtype in (np.int32, np.int64):\n        node = onnx.helper.make_node(\n            \"GroupedMatMul\",\n            inputs=[\"input\", \"weights\", \"group_indices\", \"bias\"],\n            outputs=[\"output\"],\n        )\n        input = np.array([[1, 2], [3, 4]], dtype=dtype)\n        weights = np.array([[[1, 0], [0, 1]], [[0, 1], [1, 0]]], dtype=dtype)\n        group_indices = np.array([[0, 1], [1, 0]], dtype=index_dtype)\n        bias = np.array([[0.5, 1], [1.5, 2]], dtype=dtype)\n        output = grouped_matmul(input, weights, group_indices, bias)\n\n        expect(\n            node,\n            inputs=[input, weights, group_indices, bias],\n            outputs=[output],\n            name=f\"test_groupedmatmul_{np.dtype(dtype).name}_{np.dtype(index_dtype).name}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
+      },
+      {
+        "summary": "groupedmatmul",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n)\ninput = np.array(\n    [[1, 0, -1], [0, 1, 2], [1, 1, 0], [0, 0, 1]], dtype=np.float32\n)\nweights = np.array(\n    [[[1, 0], [0, 1], [-1, 0]], [[0, 1], [1, 0], [0, 1]]],\n    dtype=np.float32,\n)\ngroup_indices = np.array([[0], [1], [0], [1]], dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "single_group",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n)\ninput = np.array([[1, 2], [3, 4], [5, 6]], dtype=np.float32)\nweights = np.array([[[1, 2, 3], [4, 5, 6]]], dtype=np.float32)\ngroup_indices = np.zeros((3, 1), dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_single_group\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "with_bias",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\", \"bias\"],\n    outputs=[\"output\"],\n)\ninput = np.array([[1, 0], [0, 1]], dtype=np.float32)\nweights = np.array(\n    [[[1, 0], [0, 1]], [[0, 1], [1, 0]], [[1, 1], [0, 0]]],\n    dtype=np.float32,\n)\ngroup_indices = np.array([[0, 1], [2, 0]], dtype=np.int64)\nbias = np.array([[0.1, 0.2], [0.3, 0.0], [0.5, 0.5]], dtype=np.float32)\noutput = grouped_matmul(input, weights, group_indices, bias)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices, bias],\n    outputs=[output],\n    name=\"test_groupedmatmul_with_bias\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "with_unused_group",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n)\ninput = np.array([[1, 2], [3, 4], [5, 6], [7, 8]], dtype=np.float32)\nweights = np.arange(12, dtype=np.float32).reshape(3, 2, 2)\ngroup_indices = np.array([[0], [0], [2], [2]], dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_with_unused_group\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "without_bias_explicit_empty_input",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\", \"\"],\n    outputs=[\"output\"],\n)\ninput = np.array(\n    [[1, 0, -1], [0, 1, 2], [1, 1, 0], [0, 0, 1]], dtype=np.float32\n)\nweights = np.array(\n    [[[1, 0], [0, 1], [-1, 0]], [[0, 1], [1, 0], [0, 1]]],\n    dtype=np.float32,\n)\ngroup_indices = np.array([[0], [1], [0], [1]], dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_without_bias_explicit_empty_input\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "zero_selections",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n)\ninput = np.arange(6, dtype=np.float32).reshape(2, 3)\nweights = np.arange(24, dtype=np.float32).reshape(2, 3, 4)\ngroup_indices = np.empty((2, 0), dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_zero_selections\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "zero_tokens",
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n)\ninput = np.empty((0, 3), dtype=np.float32)\nweights = np.arange(24, dtype=np.float32).reshape(2, 3, 4)\ngroup_indices = np.empty((0, 2), dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_zero_tokens\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      }
+    ]
+  },
+  {
     "name": "HammingWindow",
     "module": "ai.onnx",
     "version": 17,
@@ -53813,6 +53908,134 @@
     "category": "Activation"
   },
   {
+    "name": "RMSNormRotary",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "CUDA BF16 ONNX-arithmetic RMS normalization followed by non-interleaved partial RoPE. Input is [B,S,heads,stride]; a contiguous last-axis slice is normalized with FP32 scale. Normalization rounds to BF16 before rotation. Output is flattened [B,S,heads*width]. Width 256 and more than one row use one kernel for FP32 decode rotary or prefill; other shapes and BF16 decode rotary reuse existing CUDA kernels. Prefill mode uses reciprocal-multiply normalization and BF16 rotary intermediates; decode uses division normalization and the selected rotary arithmetic.",
+    "attributes": [
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999974752427e-07,
+        "description": "Finite nonnegative RMS epsilon."
+      },
+      {
+        "name": "flatten_batch",
+        "type": "int64",
+        "required": false,
+        "description": "One flattens B*S to sequence and outputs [1,B*S,heads*width]."
+      },
+      {
+        "name": "input_start",
+        "type": "int64",
+        "required": false,
+        "description": "Nonnegative start of normalized last-axis slice."
+      },
+      {
+        "name": "input_width",
+        "type": "int64",
+        "required": false,
+        "description": "Normalized width; zero uses the full last dimension."
+      },
+      {
+        "name": "rotary_embedding_dim",
+        "type": "int64",
+        "required": true,
+        "description": "Positive even rotary width, no larger than normalized width."
+      },
+      {
+        "name": "use_fp32_arithmetic",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Decode rotary FP32 (1) or BF16 intermediates (0)."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "BF16 input [B,S,heads,stride]."
+      },
+      {
+        "name": "scale",
+        "type": "F",
+        "description": "FP32 RMS scale [width]."
+      },
+      {
+        "name": "position_ids",
+        "type": "I",
+        "description": "One base position or [B,S] positions."
+      },
+      {
+        "name": "cosine",
+        "type": "T",
+        "description": "BF16 cache [cache_rows,rotary_embedding_dim/2]."
+      },
+      {
+        "name": "sine",
+        "type": "T",
+        "description": "Same shape/type as cosine."
+      },
+      {
+        "name": "prefill_numerics",
+        "type": "TI",
+        "option": "optional",
+        "description": "Optional CPU int32 scalar 0/1."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 6,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Normalized and rotated [B,S,heads*width]."
+      },
+      {
+        "name": "normalized_fp32",
+        "type": "F",
+        "option": "optional",
+        "description": "Optional BF16-rounded normalized values widened to FP32, before rotation, [B,S,heads,width]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 2,
+    "inputs_range": "5 - 6",
+    "outputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "BF16 data.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "FP32 scale and optional normalized output.",
+        "type_param_str": "F",
+        "allowed_type_strs": [
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "Position indices.",
+        "type_param_str": "I",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Numerical control.",
+        "type_param_str": "TI",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "RMSNormalization",
     "module": "ai.onnx",
     "version": 23,
@@ -66490,7 +66713,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -66551,7 +66774,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -66626,7 +66849,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -66705,7 +66928,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -66786,7 +67009,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -66868,7 +67091,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -66951,7 +67174,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
@@ -67036,7 +67259,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
+        "code": "x = np.array(\n    [\n        [1, 2, 3],\n        [4, 5, 6],\n    ]\n).astype(np.float32)\ntest_shape(\"_example\", x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape(\"\", x)  # preserve names of original test cases\n\ntest_shape(\"_start_1\", x, start=1)\n\ntest_shape(\"_end_1\", x, end=1)\n\ntest_shape(\"_start_negative_1\", x, start=-1)\n\ntest_shape(\"_end_negative_1\", x, end=-1)\n\ntest_shape(\"_start_1_end_negative_1\", x, start=1, end=-1)\n\ntest_shape(\"_start_1_end_2\", x, start=1, end=2)\n\ntest_shape(\"_clip_start\", x, start=-10)\n\ntest_shape(\"_clip_end\", x, end=10)\n\ntest_shape(\"_clip_end_negative\", x, end=-4)\n\ntest_shape(\"_start_greater_than_end\", x, start=2, end=1)"
       }
     ]
   },
