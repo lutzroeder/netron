@@ -266,6 +266,12 @@ gguf.Graph = class {
                     addNode(use('nextn.eh_proj'), [concat], out);
                     prevValue = out;
                 }
+                // Engram (deepseek41.cpp:848-851): per-layer n-gram rows mixed into the layer input
+                if (has('engram') && prevValue) {
+                    const out = newValue();
+                    addNode(use('engram'), perLayerInputValue ? [prevValue, perLayerInputValue] : [prevValue], out);
+                    prevValue = out;
+                }
                 if (graph.type === 'qwen4exp' && has('hc_attn') && has('hc_ffn')) {
                     let residual = prevValue || newValue();
                     if (has('ple')) {
@@ -586,7 +592,7 @@ gguf.Graph = class {
                 node.outputs.push(new gguf.Argument('output', [out]));
                 this.nodes.push(node);
                 perLayerOutputs[layer.name] = out;
-                if (graph.type === 'qwen4exp' && layer.name === 'per_layer_token_embd') {
+                if ((graph.type === 'qwen4exp' || graph.type === 'deepseek41') && layer.name === 'per_layer_token_embd') {
                     perLayerInputValue = out;
                 }
                 if (perLayerOutputs.per_layer_token_embd && perLayerOutputs.per_layer_proj_norm && !perLayerInputValue) {

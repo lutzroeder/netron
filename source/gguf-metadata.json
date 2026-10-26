@@ -4387,10 +4387,10 @@
         { "name": "per_layer_token_embd", "type": "EMBEDDING", "category": "Transform" }
       ],
       "blocks": [
-        { "name": "hc_attn", "type": "HYPER_CONNECTION", "tensors": ["hc_attn_norm", "hc_attn_down", "hc_attn_up", "hc_attn_inject"] },
+        { "name": "hc_attn", "type": "HYPER_CONNECTION", "tensors": ["hc_attn_norm", "hc_attn_down", "hc_attn_up", "hc_attn_inject", "hc_attn_down_inject"] },
         { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_q_norm", "attn_k", "attn_k_norm", "attn_v", "attn_output", "indexer.q_proj", "indexer.k_proj", "indexer.q_norm", "indexer.k_norm"] },
-        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
-        { "name": "hc_ffn", "type": "HYPER_CONNECTION", "tensors": ["hc_ffn_norm", "hc_ffn_down", "hc_ffn_up", "hc_ffn_inject"] },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "attn_qkv_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_beta_alpha", "ssm_out"] },
+        { "name": "hc_ffn", "type": "HYPER_CONNECTION", "tensors": ["hc_ffn_norm", "hc_ffn_down", "hc_ffn_up", "hc_ffn_inject", "hc_ffn_down_inject"] },
         { "name": "ffn_gate_inp", "type": "MUL_MAT", "tensors": ["ffn_gate_inp", "ffn_gate_inp_shexp"] },
         { "name": "ffn_gate_exps", "type": "MUL_MAT_ID" },
         { "name": "ffn_up_exps", "type": "MUL_MAT_ID" },
@@ -4960,6 +4960,34 @@
         { "name": "ffn_up_shexp", "type": "MUL_MAT" },
         { "name": "ffn_down_shexp", "type": "MUL_MAT" },
         { "name": "attn_qkv" }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "deepseek41",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "per_layer_token_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "engram", "type": "ENGRAM", "category": "Transform", "tensors": ["engram_kv", "engram_gate"] },
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["attn_norm", "attn_q_a_norm", "attn_kv_a_norm"] },
+        { "name": "attention", "type": "MULTI_LATENT_ATTENTION", "category": "Attention", "tensors": ["attn_q_a", "attn_q_b", "attn_kv", "attn_output_a", "attn_output_b", "attn_sinks", "indexer.proj", "indexer.attn_q_b", "indexer.attn_k", "indexer.k_norm", "hc_attn_fn", "hc_attn_base", "hc_attn_scale", "attn_compressor_kv", "attn_compressor_gate", "attn_compressor_norm"], "position_encoding": "rope" },
+        { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["ffn_norm", "hc_ffn_fn", "hc_ffn_base", "hc_ffn_scale"] },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT" },
+        { "name": "exp_probs_b", "type": "ADD" },
+        { "name": "ffn_gate_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_down_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_down_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_up_shexp", "type": "MUL_MAT" },
+        { "name": "exp_probs_b_vl" }
       ],
       "output": [
         { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
