@@ -1912,6 +1912,31 @@
     "assemblyFormat": "$sem `,` $scope `,` $cmp `,` $val `,` $ptr `[` $offsets `]`\n        (`stride` `=` $stride^)?\n        attr-dict `:` qualified(type($ptr)) `->` type($result)"
   },
   {
+    "name": "amdg.buffer_atomic_load",
+    "summary": "Atomically load from a buffer",
+    "description": "The buffer counterpart of `tt.atomic_load`: each element is loaded\n      atomically, as a relaxed or acquire load at `scope`. Addressing and\n      bounds follow `amdg.buffer_load` (`ptr` is a scalar pointer or a buffer\n      descriptor; `offsets` and `soffset` count elements). Masked-off and\n      out-of-bounds elements read zero. The load is never removed, merged or\n      hoisted, so it can poll a flag.",
+    "operands": [
+      { "name": "ptr", "type": "TTAMDG_BufferBase" },
+      { "name": "offsets", "type": "I32Tensor" },
+      { "name": "mask", "type": "Optional<TT_BoolTensor>" },
+      { "name": "soffset", "type": "Optional<TTAMDG_ScalarOffset>" }
+    ],
+    "results": [
+      { "name": "result", "type": "TT_Tensor" }
+    ],
+    "attributes": [
+      { "name": "sem", "type": "TT_MemSemanticAttr{relaxed|acquire|release|acq_rel}" },
+      { "name": "scope", "type": "TT_MemSyncScopeAttr{gpu|cta|sys}" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" },
+      { "type": "TypesMatchWith<'result', 'ptr', '$_self'>" },
+      { "type": "TypesMatchWith<'result', 'offsets', 'getI32SameShape($_self)'>" },
+      { "type": "TypesMatchWith<'result', 'mask', 'getI1SameShape($_self)'>" }
+    ],
+    "assemblyFormat": "$sem `,` $scope `,` $ptr `[` $offsets `]` (`,` $mask^)? (`soffset` `=` $soffset^ `:` type($soffset))?\n      attr-dict `:` qualified(type($ptr)) `->` type($result)"
+  },
+  {
     "name": "amdg.buffer_atomic_rmw",
     "summary": "Atomic RMW op which reads, modifies, and writes to a scalar base pointer and a tensor offset",
     "description": "AMD Buffer atomic RMW operation. Buffer atomics are similar to normal atomics, but access global memory via a\n        scalar base pointer and a tensor of offsets instead of a tensor of pointers.\n        Similar to other buffer ops, the `mask` is a boolean vector that determines if a given element should be processed with\n        the atomic RMW op. Elements with `mask[i] == 0` are dropped (i.e., the atomic is not executed).\n        Similar to TT_AtomicRMWOp: Buffer atomic RMW ops load data at $ptr, do $rmw_op with $val, and store result to $ptr with\n        the specified memory semantics and scope. Atomic RMW ops return the pre-op value if used, otherwise the value is implicitly dropped.\n        Stride is the distance between the beginning of contiguous memory chunks. When performing a RMW, the `stride` is\n        the address difference between the first elements of each row in bytes. Compiler tries to obtain the `stride`\n        when it converts to the buffer ops because it is important for optimizing the cache memory access.",
@@ -1943,22 +1968,47 @@
     "assemblyFormat": "$atomic_rmw_op `,` $sem `,` $scope `,` $value `,` $ptr `[` $offsets `]` (`,` $mask^)?\n        (`stride` `=` $stride^)?\n        attr-dict `:` qualified(type($ptr)) `->` type($result)"
   },
   {
+    "name": "amdg.buffer_atomic_store",
+    "summary": "Atomically store to a buffer",
+    "description": "The buffer counterpart of `tt.atomic_store`: each element is stored\n      atomically, as a relaxed or release store at `scope`. Addressing and\n      bounds follow `amdg.buffer_store`; masked-off and out-of-bounds elements\n      are dropped.",
+    "operands": [
+      { "name": "value", "type": "TT_Tensor" },
+      { "name": "ptr", "type": "TTAMDG_BufferBase" },
+      { "name": "offsets", "type": "I32Tensor" },
+      { "name": "mask", "type": "Optional<TT_BoolTensor>" },
+      { "name": "soffset", "type": "Optional<TTAMDG_ScalarOffset>" }
+    ],
+    "attributes": [
+      { "name": "sem", "type": "TT_MemSemanticAttr{relaxed|acquire|release|acq_rel}" },
+      { "name": "scope", "type": "TT_MemSyncScopeAttr{gpu|cta|sys}" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" },
+      { "type": "TypesMatchWith<'value', 'ptr', '$_self'>" },
+      { "type": "TypesMatchWith<'value', 'offsets', 'getI32SameShape($_self)'>" },
+      { "type": "TypesMatchWith<'value', 'mask', 'getI1SameShape($_self)'>" }
+    ],
+    "assemblyFormat": "$sem `,` $scope `,` $value `,` $ptr `[` $offsets `]` (`,` $mask^)? (`soffset` `=` $soffset^ `:` type($soffset))?\n      attr-dict `:` qualified(type($ptr)) `->` type($value)"
+  },
+  {
     "name": "amdg.buffer_load",
     "summary": "Load from a scalar base pointer and a tensor offset",
-    "description": "AMD Buffer load operation. Buffer store is similar to\n      a normal store but it accesses global memory via a scalar base pointer\n      and a tensor of offsets instead of a tensor of pointers. The other fields\n      are similar to a normal load, i.e., the `mask` is a boolean vector that\n      determines if a given element should be read from memory, and `other` is the\n      element that should be returned on lane `i` when `mask[i] == 0`.\n      Stride is the distance between the beginning of contiguous memory chunks.\n      When performing a load of a block, the `stride` is the address difference between\n      the first elements of each row in bytes. Compiler tries to obtain the `stride`\n      when it converts to the buffer ops because it is important for optimizing\n      the cache memory access.\n      Contiguity is the maximum number of elements that can be loaded in a single vector\n      with the given layout and mask.\n      This allows to use buffer_load even if the alignment cannot be proven based on IR.",
+    "description": "AMD Buffer load operation. Buffer store is similar to\n      a normal store but it accesses global memory via a scalar base pointer\n      and a tensor of offsets instead of a tensor of pointers. The other fields\n      are similar to a normal load, i.e., the `mask` is a boolean vector that\n      determines if a given element should be read from memory, and `other` is the\n      element that should be returned on lane `i` when `mask[i] == 0`.\n      Stride is the distance between the beginning of contiguous memory chunks.\n      When performing a load of a block, the `stride` is the address difference between\n      the first elements of each row in bytes. Compiler tries to obtain the `stride`\n      when it converts to the buffer ops because it is important for optimizing\n      the cache memory access.\n      Contiguity is the maximum number of elements that can be loaded in a single vector\n      with the given layout and mask.\n      This allows to use buffer_load even if the alignment cannot be proven based on IR.\n\n      `ptr` and `soffset` are described in BufferOpInterface.\n      `scope` makes the loaded data visible at that scope (it is not atomic\n      and orders nothing).",
     "operands": [
-      { "name": "ptr", "type": "TT_Ptr" },
+      { "name": "ptr", "type": "TTAMDG_BufferBase" },
       { "name": "offsets", "type": "I32Tensor" },
       { "name": "stride", "type": "Optional<I32>" },
       { "name": "mask", "type": "Optional<TT_BoolTensor>" },
-      { "name": "other", "type": "Optional<TT_Tensor>" }
+      { "name": "other", "type": "Optional<TT_Tensor>" },
+      { "name": "soffset", "type": "Optional<TTAMDG_ScalarOffset>" }
     ],
     "results": [
       { "name": "result", "type": "TT_Tensor" }
     ],
     "attributes": [
       { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" },
-      { "name": "contiguity", "type": "DefaultValuedAttr<I32Attr, 1>" }
+      { "name": "contiguity", "type": "DefaultValuedAttr<I32Attr, 1>" },
+      { "name": "scope", "type": "OptionalAttr<TT_MemSyncScopeAttr{gpu|cta|sys}>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" },
@@ -1967,49 +2017,53 @@
       { "type": "TypesMatchWith<'result', 'mask', 'getI1SameShape($_self)'>" },
       { "type": "TypesMatchWith<'result', 'other', '$_self'>" }
     ],
-    "assemblyFormat": "$ptr `[` $offsets `]` (`,` $mask^)? (`,` $other^)?\n      (`stride` `=` $stride^)?\n      attr-dict `:` qualified(type($ptr)) `->` type($result)"
+    "assemblyFormat": "$ptr `[` $offsets `]` (`,` $mask^)? (`,` $other^)?\n      (`stride` `=` $stride^)? (`soffset` `=` $soffset^ `:` type($soffset))?\n      attr-dict `:` qualified(type($ptr)) `->` type($result)"
   },
   {
     "name": "amdg.buffer_load_to_local",
     "summary": "Load from a scalar base pointer and a tensor offset to shared memory",
-    "description": "AMD Buffer load operation. Similar to amdg.buffer_load op but directly\n      writes to shared memory instead of into registers.\n      Contiguity is the maximum number of elements that can be loaded in a single vector with the given layout and mask.\n      This allows to use buffer_load_to_local even if the alignment cannot be proven based on IR.",
+    "description": "AMD Buffer load operation. Similar to amdg.buffer_load op but directly\n      writes to shared memory instead of into registers.\n      Contiguity is the maximum number of elements that can be loaded in a single vector with the given layout and mask.\n      This allows to use buffer_load_to_local even if the alignment cannot be proven based on IR.\n\n      `ptr` and `soffset` are described in BufferOpInterface; an\n      out-of-bounds element writes zero to `dest`. `scope` makes the loaded\n      data visible at that scope.",
     "operands": [
       { "name": "dest", "type": "TTG_MemDescType" },
-      { "name": "ptr", "type": "TT_Ptr" },
+      { "name": "ptr", "type": "TTAMDG_BufferBase" },
       { "name": "offsets", "type": "I32Tensor" },
       { "name": "mask", "type": "Optional<TT_BoolTensor>" },
       { "name": "other", "type": "Optional<TT_Tensor>" },
-      { "name": "stride", "type": "Optional<I32>" }
+      { "name": "stride", "type": "Optional<I32>" },
+      { "name": "soffset", "type": "Optional<I32>" }
     ],
     "results": [
       { "name": "token", "type": "TTG_AsyncToken" }
     ],
     "attributes": [
       { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" },
-      { "name": "contiguity", "type": "DefaultValuedAttr<I32Attr, 1>" }
+      { "name": "contiguity", "type": "DefaultValuedAttr<I32Attr, 1>" },
+      { "name": "scope", "type": "OptionalAttr<TT_MemSyncScopeAttr{gpu|cta|sys}>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" },
       { "type": "TypesMatchWith<'dest', 'ptr', '$_self'>" },
       { "type": "TypesMatchWith<'offsets', 'mask', 'getI1SameShape($_self)'>" },
-      { "type": "TypesMatchWith<'offsets', 'other', 'cast<TensorType>($_self).clone(getPointeeType($ptr.getType()))'>" }
+      { "type": "TypesMatchWith<'offsets', 'other', 'cast<TensorType>($_self).clone(::mlir::triton::amdgpu::getBufferElementType($ptr.getType()))'>" }
     ],
-    "assemblyFormat": "$ptr `[` $offsets `]` (`mask` `=` $mask^)? (`other` `=` $other^)? (`stride` `=` $stride^)?\n      oilist(`cachePolicy` `=` $cachePolicy) `into` $dest\n      attr-dict `:` qualified(type($ptr)) `[` type($offsets) `]` type($other) `->` type($dest)"
+    "assemblyFormat": "$ptr `[` $offsets `]` (`mask` `=` $mask^)? (`other` `=` $other^)? (`stride` `=` $stride^)?\n      (`soffset` `=` $soffset^)?\n      oilist(`cachePolicy` `=` $cachePolicy) `into` $dest\n      attr-dict `:` qualified(type($ptr)) `[` type($offsets) `]` type($other) `->` type($dest)"
   },
   {
     "name": "amdg.buffer_store",
     "summary": "Store into scalar base pointer and a tensor offset",
-    "description": "AMD Buffer store operation. Buffer store is similar to\n      normal store but it accesses global memory via a scalar base pointer\n      and a tensor of offsets instead of a tensor of pointers. The other fields\n      are similar to a normal store , i.e., the `mask` is a boolean vector that\n      determines if a given element should be written to memory, and `value` is the\n      tensor of elements that should be written on lane `i` when `mask[i] == 1`.\n      Stride is the distance between the beginning of contiguous memory chunks.\n      When performing a block store, the `stride` is the address difference between\n      the first elements of each row in bytes. Compiler tries to obtain the `stride`\n      when it converts to the buffer ops because it is important for optimizing\n      the cache memory access.\n      Contiguity is the maximum number of elements that can be loaded in a single vector\n      with the given layout and mask.\n      This allows to use buffer_store even if the alignment cannot be proven based on IR.",
+    "description": "AMD Buffer store operation. Buffer store is similar to\n      normal store but it accesses global memory via a scalar base pointer\n      and a tensor of offsets instead of a tensor of pointers. The other fields\n      are similar to a normal store , i.e., the `mask` is a boolean vector that\n      determines if a given element should be written to memory, and `value` is the\n      tensor of elements that should be written on lane `i` when `mask[i] == 1`.\n      Stride is the distance between the beginning of contiguous memory chunks.\n      When performing a block store, the `stride` is the address difference between\n      the first elements of each row in bytes. Compiler tries to obtain the `stride`\n      when it converts to the buffer ops because it is important for optimizing\n      the cache memory access.\n      Contiguity is the maximum number of elements that can be loaded in a single vector\n      with the given layout and mask.\n      This allows to use buffer_store even if the alignment cannot be proven based on IR.\n\n      `ptr` and `soffset` are described in BufferOpInterface; an\n      out-of-bounds element is dropped. `scope` makes the stored data available at\n      that scope (it is not atomic and orders nothing).",
     "operands": [
       { "name": "value", "type": "TT_Tensor" },
-      { "name": "ptr", "type": "TT_Ptr" },
+      { "name": "ptr", "type": "TTAMDG_BufferBase" },
       { "name": "offsets", "type": "I32Tensor" },
       { "name": "stride", "type": "Optional<I32>" },
-      { "name": "mask", "type": "Optional<TT_BoolTensor>" }
+      { "name": "mask", "type": "Optional<TT_BoolTensor>" },
+      { "name": "soffset", "type": "Optional<TTAMDG_ScalarOffset>" }
     ],
     "attributes": [
       { "name": "cachePolicy", "type": "OptionalAttr<AnyAttr>" },
-      { "name": "contiguity", "type": "DefaultValuedAttr<I32Attr, 1>" }
+      { "name": "contiguity", "type": "DefaultValuedAttr<I32Attr, 1>" },
+      { "name": "scope", "type": "OptionalAttr<TT_MemSyncScopeAttr{gpu|cta|sys}>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" },
@@ -2017,7 +2071,7 @@
       { "type": "TypesMatchWith<'value', 'offsets', 'getI32SameShape($_self)'>" },
       { "type": "TypesMatchWith<'value', 'mask', 'getI1SameShape($_self)'>" }
     ],
-    "assemblyFormat": "$value `,` $ptr `[` $offsets `]` (`,` $mask^)?\n      (`stride` `=` $stride^)?\n      attr-dict `:` qualified(type($ptr)) `->` type($value)"
+    "assemblyFormat": "$value `,` $ptr `[` $offsets `]` (`,` $mask^)?\n      (`stride` `=` $stride^)? (`soffset` `=` $soffset^ `:` type($soffset))?\n      attr-dict `:` qualified(type($ptr)) `->` type($value)"
   },
   {
     "name": "amdg.cluster_barrier_arrive",
@@ -2125,6 +2179,22 @@
       { "name": "result", "type": "TT_Tensor" }
     ],
     "assemblyFormat": "$src (`token` $token^)? attr-dict `:` qualified(type($src)) `->` type($result)"
+  },
+  {
+    "name": "amdg.make_buffer_desc",
+    "summary": "Build a buffer resource descriptor",
+    "description": "Builds a buffer resource descriptor (V#) from the hardware fields the\n    program controls. All operands are scalars, so the descriptor is uniform\n    and lives in SGPRs.\n\n    - `base`: the global base address.\n    - `num_records`: the number of bytes accessible from `base`, read as an\n      unsigned 32-bit value.\n\n    The hardware checks each access, or each 4-byte piece of an access wider\n    than 4 bytes, against `num_records`: in bytes from `base`, it is in bounds\n    only if `soffset + offset + size <= num_records`.\n    Out-of-bounds loads return zero and stores are dropped.\n\n    The remaining descriptor bits (stride, data format, swizzling, thread-ID\n    addressing, out-of-bounds mode) are set by the compiler for the target;\n    the stride is zero, so accesses are raw (unstructured).",
+    "operands": [
+      { "name": "base", "type": "TT_Ptr" },
+      { "name": "num_records", "type": "I32" }
+    ],
+    "results": [
+      { "name": "result", "type": "TritonAMDGPU_BufferDescType" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'base', 'result', '[object Object],[object Object]'>" }
+    ],
+    "assemblyFormat": "$base `,` $num_records attr-dict `:` qualified(type($base)) `->` qualified(type($result))"
   },
   {
     "name": "amdg.masked_load",
@@ -113111,6 +113181,11 @@
     "assemblyFormat": "attr-dict"
   },
   {
+    "name": "transform.apply_patterns.x86.prepare_vector_contract_loops",
+    "description": "Collect patterns that prepare vector contraction loops for x86 lowering.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
     "name": "transform.apply_patterns.x86.shuffle_vector_fma_ops",
     "description": "Collect patterns to shuffle FMAs with x86 operations as operands \n    such that FMAs are grouped with respect to odd/even packed index.",
     "assemblyFormat": "attr-dict"
@@ -118483,6 +118558,57 @@
       { "type": "AllTypesMatch<['iv', 'ub', 'step']>" }
     ],
     "assemblyFormat": "$iv `,` $ub `,` $step `maxStage` $maxStage `stage` $stage attr-dict `:` type($iv) `->` type($result)"
+  },
+  {
+    "name": "ttg.thread_handoff",
+    "summary": "distribute a scalar at the boundary of a thread region",
+    "description": "The source scalar is available in `source` and is copied to `destination`.\n    Lane and warp coordinates are relative to the enclosing warp-specialized\n    partition; CTA coordinates are relative to the cluster.\n    The destination may only widen the source domain. Lane transfers execute\n    with every lane of the destination warps participating. Cross-warp transfers\n    execute with all lanes and warps in each participating CTA. Cross-CTA\n    transfers broadcast from CTA zero to the full enclosing domain.\n    This operation may synchronize and must not be speculated or eliminated.",
+    "operands": [
+      { "name": "src", "type": "AnyTypeOf<[TT_Int, TT_Float, TT_Ptr]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTypeOf<[TT_Int, TT_Float, TT_Ptr]>" }
+    ],
+    "attributes": [
+      { "name": "source", "type": "ThreadDomainAttr" },
+      { "name": "destination", "type": "ThreadDomainAttr" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$src $source `->` $destination attr-dict `:` type($src)"
+  },
+  {
+    "name": "ttg.thread_predicate",
+    "summary": "select the threads in a compiler-generated execution domain",
+    "description": "This operation marks entry into a restricted thread region and executes in\n    the enclosing domain before its branch. Its conservative effects let\n    synchronization analysis finish pending waits before entering the region.\n    It must not be speculated, merged, or eliminated before that analysis.",
+    "results": [
+      { "name": "result", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "domain", "type": "ThreadDomainAttr" }
+    ],
+    "assemblyFormat": "$domain attr-dict"
+  },
+  {
+    "name": "ttg.thread_scope",
+    "summary": "preserve a compiler-generated single-thread scope during lowering",
+    "description": "The body executes unconditionally within an enclosing guard that selects\n    the canonical thread of each participating CTA. Entry/exit synchronization\n    remains outside the guard.\n    This wrapper survives control-flow lowering so memory operations can query\n    their enclosing scope, and is inlined after memory operations are lowered.",
+    "results": [
+      { "name": "results", "type": "Variadic<AnyType>" }
+    ],
+    "regions": [
+      { "name": "body", "type": "MinSizedRegion<1>" }
+    ],
+    "assemblyFormat": "(`->` `(` type($results)^ `)`)? $body attr-dict"
+  },
+  {
+    "name": "ttg.thread_yield",
+    "summary": "yield results from a single-thread scope",
+    "operands": [
+      { "name": "values", "type": "Variadic<AnyType>" }
+    ],
+    "assemblyFormat": "($values^)? attr-dict (`:` type($values)^)?"
   },
   {
     "name": "ttg.warp_id",
@@ -139159,7 +139285,7 @@
   {
     "name": "xegpu.dpas",
     "summary": "It performs mma computation",
-    "description": "DPAS performs matrix multiplication on matrix A of `mxk`\n    size, B of `kxn` size, and accumulate on matrix C of `mxn` to the same size\n    matrix.\n\n    The operands can be 2D, 3D, or 4D vectors. When the vectors have more than 2\n    dimensions, the leading dimensions are treated as **batch dimensions** that\n    must match across all operands (lhs, rhs, acc, and result). The batch\n    dimensions represent independent matrix multiplications that are executed in\n    parallel. For example:\n    - 2D: `A: vector<8x16xf16>`, `B: vector<16x16xf16>` -> `C: vector<8x16xf32>`\n    - 3D: `A: vector<4x8x16xf16>`, `B: vector<4x16x16xf16>` -> `C: vector<4x8x16xf32>`\n      (4 independent 8x16 matrix multiplications)\n    - 4D: `A: vector<2x4x8x16xf16>`, `B: vector<2x4x16x16xf16>` -> `C: vector<2x4x8x16xf32>`\n      (2x4=8 independent 8x16 matrix multiplications)\n\n    The last 2 dimensions are always the core matrix multiplication dimensions\n    (M, K for lhs; K, N for rhs; M, N for result).\n\n    In lane level code, each lane from a subgroup holds a data fragment for A, B, C and the result,\n    which are represented as 1D vectors. Please refer to [OpenCL Intel extentions]\n    (https://registry.khronos.org/OpenCL/extensions/intel/cl_intel_subgroup_matrix_multiply_accumulate.html)\n    for more details about the fragment distribution.\n\n    This operation serves as an anchor through which users assign a layout attribute\n    to govern computation distribution.\n\n    Arguments:\n\n    - `lhs`: A vector value representing the left-hand-side matrix tile (A) participating in the\n      matrix multiply. Can be 1D, 2D, 3D, or 4D where leading dimensions are batch dimensions.\n\n    - `rhs`: A vector value representing the right-hand-side matrix tile (B). Can be 1D, 2D, 3D, or 4D\n      where leading dimensions are batch dimensions.\n\n    - `acc`: [optional] A vector value representing the accumulator matrix tile (C). When present, the\n      result is computed as `lhs * rhs + acc`; otherwise, the accumulator is implicitly assumed to be zero.\n      Must have the same batch dimensions as lhs and rhs.\n\n    - `layout_a`, `layout_b`, `layout_cd`: [optional] Attributes that identify this\n      operation as anchor for operands A, B, and the accumulator/result, enabling users to assign layouts\n      that govern distribution at the subgroup and/or lane level. Only valid at workgroup and subgroup\n      level.\n\n    Example 1 (Workgroup level, 2D):\n\n    ```mlir\n      %d = xegpu.dpas %a, %b, %c <{\n          layout_a = #xegpu.layout<sg_layout = [4, 8], sg_data = [16, 128]>,\n          layout_b = #xegpu.layout<sg_layout = [4, 8], sg_data = [128, 16]>,\n          layout_cd = #xegpu.layout<sg_layout = [4, 8], sg_data = [16, 16]>}>\n          : vector<64x128xf16>, vector<128x128xf16>, vector<64x128xf32>\n            -> vector<64x128xf32>\n    ```\n\n    Example 2 (Lane level, 1D):\n\n    ```mlir\n      %d = xegpu.dpas %a, %b, %c\n            :  vector<8xf16>, vector<16xf16>, vector<8xf32> -> vector<8xf32>\n    ```\n\n    Example 3 (Workgroup level, 3D with batch):\n\n    ```mlir\n      // 4 independent 8x16 matrix multiplications\n      %d = xegpu.dpas %a, %b, %c\n          : vector<4x8x16xf16>, vector<4x16x16xf16>, vector<4x8x16xf32> -> vector<4x8x16xf32>\n    ```",
+    "description": "DPAS performs matrix multiplication on matrix A of `mxk`\n    size, B of `kxn` size, and accumulate on matrix C of `mxn` to the same size\n    matrix.\n\n    The operands can be 2D, 3D, or 4D vectors. When the vectors have more than 2\n    dimensions, the leading dimensions are treated as **batch dimensions** that\n    must match across all operands (lhs, rhs, acc, and result). The batch\n    dimensions represent independent matrix multiplications that are executed in\n    parallel. For example:\n    - 2D: `A: vector<8x16xf16>`, `B: vector<16x16xf16>` -> `C: vector<8x16xf32>`\n    - 3D: `A: vector<4x8x16xf16>`, `B: vector<4x16x16xf16>` -> `C: vector<4x8x16xf32>`\n      (4 independent 8x16 matrix multiplications)\n    - 4D: `A: vector<2x4x8x16xf16>`, `B: vector<2x4x16x16xf16>` -> `C: vector<2x4x8x16xf32>`\n      (2x4=8 independent 8x16 matrix multiplications)\n\n    The last 2 dimensions are always the core matrix multiplication dimensions\n    (M, K for lhs; K, N for rhs; M, N for result).\n\n    In lane level code, each lane from a subgroup holds a data fragment for A, B, C and the result,\n    which are represented as 1D vectors. Please refer to [OpenCL Intel extensions]\n    (https://registry.khronos.org/OpenCL/extensions/intel/cl_intel_subgroup_matrix_multiply_accumulate.html)\n    for more details about the fragment distribution.\n\n    This operation serves as an anchor through which users assign a layout attribute\n    to govern computation distribution.\n\n    Arguments:\n\n    - `lhs`: A vector value representing the left-hand-side matrix tile (A) participating in the\n      matrix multiply. Can be 1D, 2D, 3D, or 4D where leading dimensions are batch dimensions.\n\n    - `rhs`: A vector value representing the right-hand-side matrix tile (B). Can be 1D, 2D, 3D, or 4D\n      where leading dimensions are batch dimensions.\n\n    - `acc`: [optional] A vector value representing the accumulator matrix tile (C). When present, the\n      result is computed as `lhs * rhs + acc`; otherwise, the accumulator is implicitly assumed to be zero.\n      Must have the same batch dimensions as lhs and rhs.\n\n    - `layout_a`, `layout_b`, `layout_cd`: [optional] Attributes that identify this\n      operation as anchor for operands A, B, and the accumulator/result, enabling users to assign layouts\n      that govern distribution at the subgroup and/or lane level. Only valid at workgroup and subgroup\n      level.\n\n    Example 1 (Workgroup level, 2D):\n\n    ```mlir\n      %d = xegpu.dpas %a, %b, %c <{\n          layout_a = #xegpu.layout<sg_layout = [4, 8], sg_data = [16, 128]>,\n          layout_b = #xegpu.layout<sg_layout = [4, 8], sg_data = [128, 16]>,\n          layout_cd = #xegpu.layout<sg_layout = [4, 8], sg_data = [16, 16]>}>\n          : vector<64x128xf16>, vector<128x128xf16>, vector<64x128xf32>\n            -> vector<64x128xf32>\n    ```\n\n    Example 2 (Lane level, 1D):\n\n    ```mlir\n      %d = xegpu.dpas %a, %b, %c\n            :  vector<8xf16>, vector<16xf16>, vector<8xf32> -> vector<8xf32>\n    ```\n\n    Example 3 (Workgroup level, 3D with batch):\n\n    ```mlir\n      // 4 independent 8x16 matrix multiplications\n      %d = xegpu.dpas %a, %b, %c\n          : vector<4x8x16xf16>, vector<4x16x16xf16>, vector<4x8x16xf32> -> vector<4x8x16xf32>\n    ```",
     "operands": [
       { "name": "lhs", "type": "XeGPU_DpasOprType" },
       { "name": "rhs", "type": "XeGPU_DpasOprType" },
