@@ -10448,11 +10448,42 @@
         "description": "Spacing between kernel taps along the causal (last spatial) axis. The receptive field spans (k_1 - 1) * dilation positions before the current one, and past_state / present_state hold that many positions. Must be >= 1. Default is 1 (undilated)."
       },
       {
+        "name": "input_channel_offset",
+        "type": "int64",
+        "required": false,
+        "description": "Starting channel of the channels-last input slice (CUDA only)."
+      },
+      {
+        "name": "input_channels",
+        "type": "int64",
+        "required": false,
+        "description": "CUDA channels-last input channel slice width; 0 selects all channels. Nondefault extended attributes require rank-3 input and state_window=0."
+      },
+      {
         "name": "ndim",
         "type": "int64",
         "required": false,
         "default": 1,
         "description": "Spatial dimensionality: 1, 2, or 3. Default is 1."
+      },
+      {
+        "name": "state_channels_last",
+        "type": "int64",
+        "required": false,
+        "default": -1,
+        "description": "State layout override (CUDA only): -1 follows channels_last, 0 uses [B,C,state_length], 1 uses [B,state_length,C]."
+      },
+      {
+        "name": "state_length",
+        "type": "int64",
+        "required": false,
+        "description": "Carry history length (CUDA only); 0 uses (kernel_size-1)*dilation. An explicit length must cover the receptive field; convolution reads its trailing history."
+      },
+      {
+        "name": "state_update_capacity",
+        "type": "int64",
+        "required": false,
+        "description": "Compact speculative state-update capture capacity (CUDA extended path only, 0..8); when > 0, output 2 has shape (batch_size, state_update_capacity, channels) and records the first min(sequence_length, state_update_capacity) projected input rows and any remaining rows are zero."
       },
       {
         "name": "state_window",
@@ -10465,7 +10496,7 @@
       {
         "name": "input",
         "type": "T",
-        "description": "Input tensor with shape (batch_size, channels, ...) in the default channels-first layout. Spatial dims: 1D: (L,); 2D: (H, W); 3D: (D, H, W). When channels_last = 1 the shape is (batch_size, sequence_length, d_1, ..., d_n) instead."
+        "description": "Input tensor with shape (batch_size, channels, ...) in the default channels-first layout. Spatial dims: 1D: (L,); 2D: (H, W); 3D: (D, H, W). When channels_last = 1 the shape is (batch_size, sequence_length, d_1, ..., d_n) instead. Extended channel selection uses rank-3 (batch_size, sequence_length, input_width)."
       },
       {
         "name": "weight",
@@ -10482,7 +10513,7 @@
         "name": "past_state",
         "type": "T",
         "option": "optional",
-        "description": "Carry state from previous step. For ndim=1: (batch_size, channels, state_length), or (W, batch_size, channels, state_length) when state_window = W > 0, in which case only slot W-1 is read, where state_length = (k_1 - 1) * dilation. When channels_last = 1 each slot is (batch_size, state_length, d_1, ..., d_n) instead. If not provided, padding is zero."
+        "description": "Carry state from previous step. For ndim=1: (batch_size, channels, state_length), or (W, batch_size, channels, state_length) when state_window = W > 0, in which case only slot W-1 is read, where state_length = (k_1 - 1) * dilation. When channels_last = 1 each slot is (batch_size, state_length, d_1, ..., d_n) instead. The state_length and state_channels_last attributes may override the length and layout for the CUDA extended path. If not provided, padding is zero."
       }
     ],
     "min_input": 2,
@@ -10491,17 +10522,24 @@
       {
         "name": "output",
         "type": "T",
-        "description": "Convolution output with same shape as input."
+        "description": "Convolution output with same shape as input, except the final dimension is input_channels when extended channel selection is enabled."
       },
       {
         "name": "present_state",
         "type": "T",
-        "description": "Updated carry state. For ndim=1: (batch_size, channels, state_length), or (W, batch_size, channels, state_length) when state_window = W > 0, and (batch_size, state_length, d_1, ..., d_n) per slot when channels_last = 1. Slot W-1 contains the last state_length values from the virtual input along the causal axis; slot j contains the same for the prefix ending at position (seq_len - W + j)."
+        "description": "Updated carry state. For ndim=1: (batch_size, channels, state_length), or (W, batch_size, channels, state_length) when state_window = W > 0, and (batch_size, state_length, d_1, ..., d_n) per slot when channels_last = 1. Slot W-1 contains the last state_length values from the virtual input along the causal axis; slot j contains the same for the prefix ending at position (seq_len - W + j). Extended attributes override the state length and layout as for past_state."
+      },
+      {
+        "name": "state_update",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional compact state-update capture with shape (batch_size, state_update_capacity, channels) when state_update_capacity > 0. CUDA extended path only; requires rank-3 channels-last input and state_window=0."
       }
     ],
     "min_output": 2,
-    "max_output": 2,
+    "max_output": 3,
     "inputs_range": "2 - 4",
+    "outputs_range": "2 - 3",
     "type_constraints": [
       {
         "description": "Constrain input and output types to float tensors.",
@@ -19898,7 +19936,7 @@
     "name": "DynamicSparseAttention",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Model-neutral sparse grouped-query attention with a contiguous main KV cache.\n\n`selected_indices` and `selected_counts` are produced by an external selector. The operator never computes selection\nscores or TopK indices. The first `selected_counts[q]` entries in each selected-index row are valid; remaining entries\nmust be -1. Valid entries must be unique, non-negative request-local positions in the selected source.\n\n`attention_mode=\"selected_only\"` attends only to selected entries. `attention_mode=\"local_plus_selected\"` jointly\nnormalizes causally valid main-cache entries in `local_window_size` and selected auxiliary entries. An optional\nper-query-head sink can participate in either mode; it contributes to the shared softmax denominator but has no value\nvector. A row with no entries and no sink produces zero output.\n\nSupported mode/source combinations:\n\n- `selected_only` + `main`: Qwen4-Exp QSA-compatible execution.\n- `local_plus_selected` + `auxiliary`: DeepSeek V4 CSA-compatible execution and requires `local_window_size > 0`.\n\nThe main cache uses BNSH layout and ordinary contiguous append semantics. Selection changes reads, not cache writes.\nAuxiliary K/V use BNSH layout and are read-only. When `auxiliary_kv_shared=1`, auxiliary_value may be omitted and\nauxiliary_key is used as both K and V. DeepSeek-style post-attention inverse/conjugate RoPE and output projection remain\nthe exporter's responsibility.\n",
+    "description": "Model-neutral sparse grouped-query attention with a contiguous main KV cache.\n\n`selected_indices` and `selected_counts` are produced by an external selector. The operator never computes selection\nscores or TopK indices. The first `selected_counts[q]` entries in each selected-index row are valid; remaining entries\nmust be -1. Valid entries must be unique, non-negative request-local positions in the selected source.\n\n`attention_mode=\"selected_only\"` attends only to selected entries. `attention_mode=\"local_plus_selected\"` jointly\nnormalizes causally valid main-cache entries in `local_window_size` and selected auxiliary entries. An optional\nper-query-head sink can participate in either mode; it contributes to the shared softmax denominator but has no value\nvector. A row with no entries and no sink produces zero output.\n\nSupported mode/source combinations:\n\n- `selected_only` + `main`: Qwen4-Exp QSA-compatible execution.\n- `local_plus_selected` + `auxiliary`: DeepSeek V4 CSA-compatible execution and requires `local_window_size > 0`.\n\nThe main cache uses BNSH layout and ordinary contiguous append semantics. Selection changes reads, not cache writes.\nAuxiliary K/V use BNSH layout and are read-only. When `auxiliary_kv_shared=1`, auxiliary_value may be omitted and\nauxiliary_key is used as both K and V. DeepSeek-style post-attention inverse/conjugate RoPE and output projection remain\nthe exporter's responsibility.\n\nMain caches may instead use INT8 with positive finite float32 key_scale and value_scale vectors, one scale per\nKV-head channel. The cache is symmetric signed int8 without a zero point, like the 8-bit KV cache of GroupQueryAttention\nand PagedAttention; tensor(uint8) is reserved for packed 4-bit caches in those operators and is not accepted here.\nNewly appended keys (after optional normalization and RoPE) and values are divided by their scales,\nrounded to nearest with ties to even, and saturated to [-128, 127]. Attention reads the quantized representation,\nincluding newly appended rows. Auxiliary caches remain floating point. Invalid scale values produce validation_status=10\nwhen validation is requested; CUDA strict validation also reports them as an error.\n",
     "attributes": [
       {
         "name": "attention_mode",
@@ -20004,15 +20042,15 @@
       },
       {
         "name": "past_key",
-        "type": "T",
+        "type": "TCache",
         "option": "optional",
-        "description": "Main key cache in BNSH layout."
+        "description": "Main key cache in BNSH layout, same type as query or INT8."
       },
       {
         "name": "past_value",
-        "type": "T",
+        "type": "TCache",
         "option": "optional",
-        "description": "Main value cache in BNSH layout."
+        "description": "Main value cache in BNSH layout, same type as past_key."
       },
       {
         "name": "auxiliary_key",
@@ -20081,10 +20119,28 @@
         "type": "T",
         "option": "optional",
         "description": "Optional sink logit [num_heads]. Participates in the shared softmax denominator in both attention modes."
+      },
+      {
+        "name": "committed_length",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional per-request committed token count ([1] or [batch]) for cursor validation. When supplied, validation_status is 9 if seqlens_k, sequence_length, or cache_capacity is inconsistent, and CUDA strict validation fails with a cursor-specific error. CUDA only."
+      },
+      {
+        "name": "key_scale",
+        "type": "S",
+        "option": "optional",
+        "description": "Positive finite per-channel INT8 key-cache scales [kv_num_heads * head_size]."
+      },
+      {
+        "name": "value_scale",
+        "type": "S",
+        "option": "optional",
+        "description": "Positive finite per-channel INT8 value-cache scales [kv_num_heads * head_size]."
       }
     ],
     "min_input": 11,
-    "max_input": 17,
+    "max_input": 20,
     "outputs": [
       {
         "name": "output",
@@ -20093,21 +20149,27 @@
       },
       {
         "name": "present_key",
-        "type": "T",
+        "type": "TCache",
         "option": "optional",
         "description": "Updated main key cache in BNSH layout."
       },
       {
         "name": "present_value",
-        "type": "T",
+        "type": "TCache",
         "option": "optional",
         "description": "Updated main value cache in BNSH layout."
+      },
+      {
+        "name": "validation_status",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional CUDA-only int32 status: 0 when valid, otherwise a validation code (1-8: selection, sequence-length or rotary-position errors; 9: inconsistent committed_length cursor; 10: invalid INT8 cache scale)."
       }
     ],
     "min_output": 1,
-    "max_output": 3,
-    "inputs_range": "11 - 17",
-    "outputs_range": "1 - 3",
+    "max_output": 4,
+    "inputs_range": "11 - 20",
+    "outputs_range": "1 - 4",
     "type_constraints": [
       {
         "description": "Constrain all floating-point inputs and outputs to one element type.",
@@ -20116,6 +20178,23 @@
           "tensor(float)",
           "tensor(float16)",
           "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Cache type must match T unless INT8 per-channel scales are supplied.",
+        "type_param_str": "TCache",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(int8)"
+        ]
+      },
+      {
+        "description": "INT8 cache scales use float32.",
+        "type_param_str": "S",
+        "allowed_type_strs": [
+          "tensor(float)"
         ]
       },
       {
@@ -24072,7 +24151,7 @@
     "name": "GatedAdd",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Adds one tensor to another tensor scaled by a per-row gate:\n\n  output = X + round_to_T(Y * gate)\n\nX and Y have shape (..., C), and gate has shape (..., 1). The gate is broadcast\nover C. For reduced-precision types, the product is rounded to T before the add,\nmatching separate ONNX Mul and Add operators.\n",
+    "description": "Adds one tensor to another tensor scaled by a per-row gate. X and Y have shape (..., C). The\nleading dimensions of gate must match the leading dimensions of X (there is no broadcasting over\nthem); the optional gate_weight input selects how the per-row gate is obtained.\n\nPlain mode (gate_weight is not provided): gate has shape (..., 1) and is used directly as the\ngate, broadcast over C. No sigmoid is applied.\n\n  output = X + round_to_T(Y * gate)\n\nFor reduced-precision types, the product is rounded to T before the add, matching separate ONNX\nMul and Add operators. This mode supports float, float16 and bfloat16, subject to execution provider kernel support.\n\nProjected mode (gate_weight is provided): gate holds an activation with shape (..., K) and\ngate_weight has shape (K, 1). For every row, the gate is computed by projecting the activation\nwith gate_weight and applying a sigmoid:\n\n  p      = round_to_bfloat16(sum_k(gate[..., k] * gate_weight[k]))\n  s      = round_to_bfloat16(sigmoid(p))\n  output = round_to_bfloat16(X + round_to_bfloat16(Y * s))\n\nThe dot product, the sigmoid and the multiplication and addition are evaluated in FP32 (the\nsigmoid is always computed in FP32, and the order of the FP32 accumulation over K is not\nspecified); the result is rounded to bfloat16 after the projection, after the sigmoid, after the\nmultiplication and after the addition. This mode is only implemented by the CUDA execution\nprovider for bfloat16 tensors. Other execution providers and types return NOT_IMPLEMENTED when\ngate_weight is provided.\n",
     "inputs": [
       {
         "name": "X",
@@ -24082,16 +24161,22 @@
       {
         "name": "Y",
         "type": "T",
-        "description": "Input scaled by gate, with the same shape as X."
+        "description": "Input scaled by the gate, with the same shape as X."
       },
       {
         "name": "gate",
         "type": "T",
-        "description": "Per-row gate with shape (..., 1)."
+        "description": "In plain mode, the per-row gate with shape (..., 1). When gate_weight is provided, the activation with shape (..., K) that is projected with gate_weight and passed through a sigmoid to produce the per-row gate. Its leading dimensions must match X."
+      },
+      {
+        "name": "gate_weight",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional projection weight with shape (K, 1), where K is the last dimension of gate. When present, the gate is sigmoid(gate . gate_weight) computed per row in FP32 (projected mode). Only supported by the CUDA execution provider with bfloat16."
       }
     ],
     "min_input": 3,
-    "max_input": 3,
+    "max_input": 4,
     "outputs": [
       {
         "name": "output",
@@ -24101,6 +24186,7 @@
     ],
     "min_output": 1,
     "max_output": 1,
+    "inputs_range": "3 - 4",
     "type_constraints": [
       {
         "description": "Constrain input and output types to float tensors.",
@@ -24117,7 +24203,7 @@
     "name": "GatedDeltaNet",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Packed (token-major) gated delta network / linear attention with an explicit recurrent state.\nImplemented by CUDA and native WebGPU execution providers. WebGPU supports float and float16\nwith scalar decay, `head_size_qk <= 256`, and compact state updates.\n\nLayout. Query, key and value are token-major, so head counts are derived from the shapes\nrather than from attributes:\n\n  query [total_tokens, num_heads_q, head_size_qk]\n  key   [total_tokens, num_heads_k, head_size_qk]\n  value [total_tokens, num_heads_v, head_size_v]\n\nAlternatively, key and value may be omitted and query contains packed QKV with shape\n`[total_tokens, 2 * num_heads_q * head_size_qk + num_heads_v * head_size_v]`.\n`initial_state` is required for packed QKV to determine the head counts and head sizes.\n\nThe leading token axis may instead be spelled as an explicit `[batch_size, sequence_length]`\npair, making query/key/value (and the output) rank 4 and decay/beta rank 3. The memory layout\nis identical; the rank-4 spelling exists so an exporter can round-trip a `[B, S, H*D]`\nactivation with static Reshape targets instead of Shape-derived ones. Ragged packing\n(`cu_seqlens`) requires the rank-3 spelling.\n\n`num_heads_q` must equal `num_heads_k`, and `num_heads_v` must be a positive multiple of\n`num_heads_q` (inverse grouped-query attention: each query/key head is shared by\n`num_heads_v / num_heads_q` value heads). Decay, beta, the state and the output are all at\n`num_heads_v`.\n\nSequence packing. When `cu_seqlens` is provided it is a device int32 tensor of length\n`batch_size + 1` holding the exclusive prefix sums of the per-request token counts, so\nrequests may have different lengths. When it is absent the packing is uniform and the batch\nsize is taken from `initial_state`, which is then required.\n\nState. `initial_state` and `final_state` are V-major, `[batch_size, num_heads_v, head_size_v,\nhead_size_qk]`, and always float regardless of the query/key/value type: the recurrence\nboundary is where reduced precision hurts most. The two may be the same allocation; the\nimplementation reads the whole incoming state before writing any of it.\n\nCompact state updates. When `state_update_capacity` C is greater than zero, `capture_count`\nis required with shape `[batch_size]`. For request b, the first `capture_count[b]` local token\ntransitions (clamped on device to `[0, min(C, sequence_length)]`) are emitted in one `state_update`\nfloat tensor `[batch_size, C * (num_heads_v + num_heads_k * head_size_qk + num_heads_v * head_size_v)]`.\nEach row is struct-of-arrays: all decay values, then all keys, then all deltas. Entries at positions\ngreater than or equal to `min(capture_count[b], C, sequence_length)` are unspecified; consumers must\nread only the captured prefix. The key retains its shared `num_heads_k` representation. For scalar\ndecay the decoded factors replay one transition as `S *= decay; S += outer(key, delta)`.\nPer-key-dimension decay is not supported when compact updates are enabled. `capture_count` is\nforbidden when C is zero.\n\nThe optional CPU input `state_update_active` has shape `[1]`. When zero, transition capture is\ndisabled, `capture_count` is ignored, `state_update` is zero-filled, and the planner may use an\nengine that cannot emit compact updates. Omitting it preserves the conservative behavior of\ntreating capture as active.\n\nRecurrence, per value head, with S the [head_size_qk x head_size_v] state:\n\n  S_t = exp(g_t) S_{t-1} + k_t (beta_t (v_t - exp(g_t) S_{t-1}^T k_t))^T\n  o_t = scale * S_t^T q_t\n\n`update_rule` selects which terms are present: 'linear' drops both the decay and the delta\nretrieval, 'gated' keeps only the decay, 'delta' keeps only the retrieval, and 'gated_delta'\nkeeps both.\n\nThe delta family ('delta' and 'gated_delta') requires L2-normalized keys. Without them the\nper-chunk system (I + M) is arbitrarily ill-conditioned and the recurrence diverges. Either\nnormalize upstream or set `qk_l2_norm=1` to have the operator do it.\n\nFused activations. `gate_activation='qwen'` computes the effective decay in float32 from the\nraw projection carried by `decay`:\n\n  g = -exp(a_log) * Softplus(decay + dt_bias)\n\n`beta_activation='sigmoid'` applies a sigmoid to `beta`, and `qk_l2_norm=1` L2-normalizes each\nquery and key head vector. Folding these in avoids materializing the intermediates and keeps\nthe gate arithmetic in float32 independent of the input type.\n\n",
+    "description": "Packed (token-major) gated delta network / linear attention with an explicit recurrent state.\nImplemented by CUDA and native WebGPU execution providers. WebGPU supports float and float16\nwith scalar decay, `head_size_qk <= 256`, and compact state updates.\n\nLayout. Query, key and value are token-major, so head counts are derived from the shapes\nrather than from attributes:\n\n  query [total_tokens, num_heads_q, head_size_qk]\n  key   [total_tokens, num_heads_k, head_size_qk]\n  value [total_tokens, num_heads_v, head_size_v]\n\nAlternatively, key and value may be omitted and query contains packed QKV with shape\n`[total_tokens, 2 * num_heads_q * head_size_qk + num_heads_v * head_size_v]`.\n`initial_state` is required for packed QKV to determine the head counts and head sizes.\n\nThe leading token axis may instead be spelled as an explicit `[batch_size, sequence_length]`\npair, making query/key/value (and the output) rank 4 and decay/beta rank 3. The memory layout\nis identical; the rank-4 spelling exists so an exporter can round-trip a `[B, S, H*D]`\nactivation with static Reshape targets instead of Shape-derived ones. Ragged packing\n(`cu_seqlens`) requires the rank-3 spelling.\n\n`num_heads_q` must equal `num_heads_k`, and `num_heads_v` must be a positive multiple of\n`num_heads_q` (inverse grouped-query attention: each query/key head is shared by\n`num_heads_v / num_heads_q` value heads). Decay, beta, the state and the output are all at\n`num_heads_v`.\n\nSequence packing. When `cu_seqlens` is provided it is a device int32 tensor of length\n`batch_size + 1` holding the exclusive prefix sums of the per-request token counts, so\nrequests may have different lengths. When it is absent the packing is uniform and the batch\nsize is taken from `initial_state`, which is then required.\n\nState. `initial_state` and `final_state` are V-major, `[batch_size, num_heads_v, head_size_v,\nhead_size_qk]`, and always float regardless of the query/key/value type: the recurrence\nboundary is where reduced precision hurts most. The two may be the same allocation; the\nimplementation reads the whole incoming state before writing any of it.\n\nCompact state updates. When `state_update_capacity` C is greater than zero, `capture_count`\nis required with shape `[batch_size]`. For request b, the first `capture_count[b]` local token\ntransitions (clamped on device to `[0, min(C, sequence_length)]`) are emitted in one `state_update`\nfloat tensor `[batch_size, C * (num_heads_v + num_heads_k * head_size_qk + num_heads_v * head_size_v)]`.\nEach row is struct-of-arrays: all decay values, then all keys, then all deltas. Entries at positions\ngreater than or equal to `min(capture_count[b], C, sequence_length)` are unspecified; consumers must\nread only the captured prefix. The key retains its shared `num_heads_k` representation. For scalar\ndecay the decoded factors replay one transition as `S *= decay; S += outer(key, delta)`.\nPer-key-dimension decay is not supported when compact updates are enabled. `capture_count` is\nforbidden when C is zero.\n\nThe optional CPU input `state_update_active` has shape `[1]`. When zero, transition capture is\ndisabled, `capture_count` is ignored, `state_update` is zero-filled, and the planner may use an\nengine that cannot emit compact updates. Omitting it preserves the conservative behavior of\ntreating capture as active.\n\nRecurrence, per value head, with S the [head_size_qk x head_size_v] state:\n\n  S_t = exp(g_t) S_{t-1} + k_t (beta_t (v_t - exp(g_t) S_{t-1}^T k_t))^T\n  o_t = scale * S_t^T q_t\n\n`update_rule` selects which terms are present: 'linear' drops both the decay and the delta\nretrieval, 'gated' keeps only the decay, 'delta' keeps only the retrieval, and 'gated_delta'\nkeeps both.\n\nThe delta family ('delta' and 'gated_delta') requires L2-normalized keys. Without them the\nper-chunk system (I + M) is arbitrarily ill-conditioned and the recurrence diverges. Either\nnormalize upstream or set `qk_l2_norm=1` to have the operator do it.\n\nFused activations. `gate_activation='softplus'` computes the effective decay in float32 from the\nraw projection carried by `decay`:\n\n  g = -exp(a_log) * Softplus(decay + dt_bias)\n\n`beta_activation='sigmoid'` applies a sigmoid to `beta`, and `qk_l2_norm=1` L2-normalizes each\nquery and key head vector. Folding these in avoids materializing the intermediates and keeps\nthe gate arithmetic in float32 independent of the input type.\nDecay and beta may be float or the query element type (both use the same type). CUDA widens\nFP16/BF16 gate inputs to float before any gate arithmetic, avoiding standalone lossless casts.\nState, a_log, and dt_bias remain float. WebGPU currently accepts float decay and beta only.\n\n",
     "attributes": [
       {
         "name": "beta_activation",
@@ -24138,7 +24224,7 @@
         "type": "string",
         "required": false,
         "default": "none",
-        "description": "'none' (default) treats `decay` as the effective log-space decay. 'qwen' computes -exp(a_log) * Softplus(decay + dt_bias) in float32."
+        "description": "'none' (default) treats `decay` as the effective log-space decay. 'softplus' computes -exp(a_log) * Softplus(decay + dt_bias) in float32. 'qwen' is accepted as a legacy alias of 'softplus' with identical behavior."
       },
       {
         "name": "qk_l2_norm",
@@ -24192,15 +24278,15 @@
       },
       {
         "name": "decay",
-        "type": "TS",
+        "type": "TG",
         "option": "optional",
-        "description": "Log-space decay, shape (total_tokens, num_heads_v) for a scalar per-head decay or (total_tokens, num_heads_v, head_size_qk) for a per-key-dimension decay."
+        "description": "Log-space decay, shape (total_tokens, num_heads_v) for a scalar per-head decay or (total_tokens, num_heads_v, head_size_qk) for a per-key-dimension decay. Float or the query element type; converted to float before gate arithmetic."
       },
       {
         "name": "beta",
-        "type": "TS",
+        "type": "TG",
         "option": "optional",
-        "description": "Update rate, shape (total_tokens, num_heads_v)"
+        "description": "Update rate, shape (total_tokens, num_heads_v). Same element type as decay."
       },
       {
         "name": "initial_state",
@@ -24212,13 +24298,13 @@
         "name": "a_log",
         "type": "TS",
         "option": "optional",
-        "description": "Per-head A_log, shape (num_heads_v). Requires gate_activation=qwen."
+        "description": "Per-head A_log, shape (num_heads_v). Requires gate_activation=softplus."
       },
       {
         "name": "dt_bias",
         "type": "TS",
         "option": "optional",
-        "description": "Per-head gate bias, shape (num_heads_v). Requires gate_activation=qwen."
+        "description": "Per-head gate bias, shape (num_heads_v). Requires gate_activation=softplus."
       },
       {
         "name": "capture_count",
@@ -24269,10 +24355,19 @@
         ]
       },
       {
-        "description": "State, gate, beta and compact state-update tensors are always float.",
+        "description": "State, gate parameters and compact state-update tensors are always float.",
         "type_param_str": "TS",
         "allowed_type_strs": [
           "tensor(float)"
+        ]
+      },
+      {
+        "description": "Decay and beta are float or match the query element type. Gate arithmetic is float.",
+        "type_param_str": "TG",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
         ]
       },
       {
@@ -38609,7 +38704,7 @@
     "name": "MatMulNBits",
     "module": "com.microsoft",
     "version": 1,
-    "description": "MatMulNBits performs a matrix multiplication where the right-hand-side matrix (weights) is quantized to N bits.\n\nIt is a fusion of two operations:\n1. Linear dequantization of the quantized weights using scale and (optionally) zero-point with formula:\n   dequantized_weight = (quantized_weight - zero_point) * scale\n2. Matrix multiplication between the input matrix A and the dequantized weight matrix.\n\nThe weight matrix is a 2D constant matrix with the input feature count and output feature count specified by attributes 'K' and 'N'.\nIt is quantized block-wise along the K dimension with a block size specified by the 'block_size' attribute.\nThe block size must be a power of 2 and not smaller than 16 (e.g., 16, 32, 64, 128). Each block has its own scale and zero-point.\nThe quantization is performed using a bit-width specified by the 'bits' attribute, which can take values from 2 to 8.\n\nThe quantized weights are stored in a bit-packed format along the K dimension, with each block being represented by a blob of uint8.\nFor example, for 4 bits, the first 4 bits are stored in the lower 4 bits of a byte, and the second 4 bits are stored in the higher 4 bits of a byte.\n",
+    "description": "MatMulNBits performs a matrix multiplication where the right-hand-side matrix (weights) is quantized to N bits.\n\nIt is a fusion of two operations:\n1. Linear dequantization of the quantized weights using scale and (optionally) zero-point with formula:\n   dequantized_weight = (quantized_weight - zero_point) * scale\n2. Matrix multiplication between the input matrix A and the dequantized weight matrix.\n\nThe logical weight matrix is 2D, with the input feature count and output feature count specified by attributes 'K' and 'N'.\nIt is quantized block-wise along the K dimension with a block size specified by the 'block_size' attribute.\nThe block size must be a power of 2 and not smaller than 16 (e.g., 16, 32, 64, 128). Each block has its own scale and zero-point.\nThe quantization is performed using a bit-width specified by the 'bits' attribute, which can take values from 2 to 8.\n\nThe quantized weights are stored in a bit-packed format along the K dimension, with each block being represented by a blob of uint8.\nFor example, for 4 bits, the first 4 bits are stored in the lower 4 bits of a byte, and the second 4 bits are stored in the higher 4 bits of a byte.\n\nWhen weight_prepacked is 0, B may represent an omitted projection by replacing one or more dimensions of its\npacked shape (N, k_blocks, blob_size) with 0. All remaining dimensions must retain their normal values.\nIn this case, Y is filled with zeros (or the broadcast bias, if provided). Its shape is still determined by A, K and N.\nThe contents of A, scales, zero_points and g_idx are not used; the quantization parameters may also be empty.\nThis permits zero-sized defaults for optional weights, with dynamic input dimensions allowing nonempty overrides.\nEmpty packed weights are currently supported by the CPU and WebGPU execution providers.\n",
     "attributes": [
       {
         "name": "K",
@@ -38658,7 +38753,7 @@
       {
         "name": "B",
         "type": "T2",
-        "description": "Packed uint8 tensor of shape (N, k_blocks, blob_size), where k_blocks = ceil(K / block_size) and blob_size = (block_size * bits / 8). The quantized weights are stored in a bit-packed format along the K dimension, packed within each block_size."
+        "description": "Packed uint8 tensor of shape (N, k_blocks, blob_size), where k_blocks = ceil(K / block_size) and blob_size = (block_size * bits / 8). With weight_prepacked=0, one or more dimensions may be 0 to omit the projection as described above. The quantized weights are stored in a bit-packed format along the K dimension, packed within each block_size."
       },
       {
         "name": "scales",
@@ -47237,7 +47332,7 @@
     "name": "PackedSparseAttentionIndexer",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Packed/variable-length counterpart of SparseAttentionIndexer, for continuous-batching engines\n(such as an OgaEngine-style PagedAttention model) that flatten every request's tokens into one\n[total_tokens, ...] axis instead of a dense [batch_size, sequence_length, ...] axis. It selects, for\nevery packed query token, the sparse-attention candidates that a following SparsePagedAttention (or\nsimilar) operator is allowed to read.\n\nUnlike SparseAttentionIndexer, this operator:\n  * takes packed query/key tensors plus cumulative_sequence_lengths (request boundaries) and\n    past_sequence_lengths (per-request past length) instead of a dense batch and a dense mask;\n  * derives ordinary causal visibility purely from that packed metadata -- there is no mask input;\n  * uses a single generic set of state slots (past_key_state / past_kv_buffer / past_gate_buffer /\n    past_state_lengths) for both policy_mode values, each with a shape that is fixed across calls\n    (state never grows and is never concatenated); a step that would overflow the fixed capacity is\n    rejected as a deterministic no-op on state rather than truncated or allowed to corrupt memory\n    (the optional state_status output reports which requests were rejected and why);\n  * additionally emits selected_counts, the exact number of active (non -1) entries per query, so\n    that no downstream consumer needs to scan selected_indices for its query's true count.\n\nBoth policy_mode values keep the semantics of SparseAttentionIndexer, applied independently to each\nrequest's own packed token range and fixed-capacity state slice:\n\n  policy_mode = \"qsa\" (\"query sparse attention\" token indexer)\n    Processes each request's new tokens sequentially: appends raw indexer keys to the generic\n    pending buffer, and whenever it reaches compress_ratio tokens, mean-pools it, applies RMSNorm\n    and key_norm_weight, applies the leading/split-half rotary convention at the block's first\n    logical token position, and appends the prepared (already normalized and rotated) key to\n    key_state. Queries are scored against every causally visible complete block with\n    sum_h ReLU(q_h . k), the token_budget / compress_ratio highest scoring blocks are kept, and\n    their token indices are emitted (request-local logical positions, i.e. the same numbering as\n    past_sequence_lengths + local offset) followed by the causally visible tokens of the trailing\n    incomplete block. QSA positions are the request-local logical cache positions derived from\n    past_sequence_lengths and cumulative_sequence_lengths; position_ids must be omitted.\n\n  policy_mode = \"csa\" (\"compressed sparse attention\" block indexer)\n    Applies the same window-plan arithmetic as SparseAttentionIndexer (overlap/leftover/new window\n    count) independently per request, using that request's own buffer_length and new token count;\n    every newly closed window is compressed with the softmax-gated Ca/Cb pooling, normalized,\n    rotated and appended to key_state. Queries are scored against every causally visible compressed\n    entry with sum_h w_h * ReLU(q_h . k) and the index_topk highest scoring entry indices are\n    emitted.\n\nCommon contract:\n  * selected_indices is int32 with a fixed capacity that only depends on attributes:\n    token_budget + compress_ratio - 1 for \"qsa\" (values are request-local token positions into the\n    main key/value cache, directly consumable by SparsePagedAttention configured with\n    attention_mode=\"selected_only\", selected_kv_source=\"main\") and index_topk for \"csa\" (values are\n    compressed-entry indices into key_state, directly consumable by SparsePagedAttention configured\n    with attention_mode=\"local_plus_selected\", selected_kv_source=\"auxiliary\"; key_state is\n    layout-compatible with a [batch_size, capacity, 1, head_size] auxiliary cache when K = V).\n    Unused entries are -1 and selected_counts holds the exact number of used entries.\n  * query_norm_weight and key_norm_weight are the effective RMSNorm multipliers, exactly as in\n    SparseAttentionIndexer.\n  * Accumulation, pooling, softmax, normalization and scoring are performed in float32 and the\n    result is rounded once to the tensor element type.\n  * Ties in the top-k selection are broken by the smaller entry index, and the emitted entries are\n    ordered by decreasing score, so the result is deterministic.\n  * cos_cache / sin_cache may be shared across the batch ([max_position, rotary_width]) or\n    request-specific ([batch_size, max_position, rotary_width]).\n  * cumulative_sequence_lengths, past_sequence_lengths and past_state_lengths are read directly by\n    the device kernel; a zero-token request row (a repeated cumulative offset) is valid and simply\n    contributes no query rows for that request.\n\nOgaEngine integration note: this operator only defines the ORT contrib op; wiring\npast_key_state / past_kv_buffer / past_gate_buffer / past_state_lengths as Engine-managed,\nper-request fixed-size state (analogous to a paged auxiliary cache) is expected to happen in the\nOgaEngine / Model Builder integration, which is out of scope for this operator definition.\n",
+    "description": "Packed/variable-length counterpart of SparseAttentionIndexer, for continuous-batching engines\n(such as an OgaEngine-style PagedAttention model) that flatten every request's tokens into one\n[total_tokens, ...] axis instead of a dense [batch_size, sequence_length, ...] axis. It selects, for\nevery packed query token, the sparse-attention candidates that a following SparsePagedAttention (or\nsimilar) operator is allowed to read.\n\nUnlike SparseAttentionIndexer, this operator:\n  * takes packed query/key tensors plus cumulative_sequence_lengths (request boundaries) and\n    past_sequence_lengths (per-request past length) instead of a dense batch and a dense mask;\n  * derives ordinary causal visibility purely from that packed metadata -- there is no mask input;\n  * uses a single generic set of state slots (past_key_state / past_kv_buffer / past_gate_buffer /\n    past_state_lengths) for both policy_mode values, each with a shape that is fixed across calls\n    (state never grows and is never concatenated); a step that would overflow the fixed capacity is\n    rejected as a deterministic no-op on state rather than truncated or allowed to corrupt memory\n    (the optional state_status output reports which requests were rejected and why);\n  * additionally emits selected_counts, the exact number of active (non -1) entries per query, so\n    that no downstream consumer needs to scan selected_indices for its query's true count.\n\nBoth policy_mode values keep the semantics of SparseAttentionIndexer, applied independently to each\nrequest's own packed token range and fixed-capacity state slice:\n\n  policy_mode = \"qsa\" (\"query sparse attention\" token indexer)\n    Processes each request's new tokens sequentially: appends raw indexer keys to the generic\n    pending buffer, and whenever it reaches compress_ratio tokens, mean-pools it, applies RMSNorm\n    and key_norm_weight, applies the leading/split-half rotary convention at the block's first\n    logical token position, and appends the prepared (already normalized and rotated) key to\n    key_state. Queries are scored against every causally visible complete block with\n    sum_h ReLU(q_h . k), the token_budget / compress_ratio highest scoring blocks are kept, and\n    their token indices are emitted (request-local logical positions, i.e. the same numbering as\n    past_sequence_lengths + local offset) followed by the causally visible tokens of the trailing\n    incomplete block. There is no position_ids input: QSA positions are the request-local logical\n    cache positions derived from past_sequence_lengths and cumulative_sequence_lengths.\n\n  policy_mode = \"csa\" (\"compressed sparse attention\" block indexer)\n    Applies the same window-plan arithmetic as SparseAttentionIndexer (overlap/leftover/new window\n    count) independently per request, using that request's own buffer_length and new token count;\n    every newly closed window is compressed with the softmax-gated Ca/Cb pooling, normalized,\n    rotated and appended to key_state. Queries are scored against every causally visible compressed\n    entry with sum_h w_h * ReLU(q_h . k) and the index_topk highest scoring entry indices are\n    emitted.\n\nCommon contract:\n  * selected_indices is int32 with a fixed capacity that only depends on attributes:\n    token_budget + compress_ratio - 1 for \"qsa\" (values are request-local token positions into the\n    main key/value cache, directly consumable by SparsePagedAttention configured with\n    attention_mode=\"selected_only\", selected_kv_source=\"main\") and index_topk for \"csa\" (values are\n    compressed-entry indices into key_state, directly consumable by SparsePagedAttention configured\n    with attention_mode=\"local_plus_selected\", selected_kv_source=\"auxiliary\"; key_state is\n    layout-compatible with a [batch_size, capacity, 1, head_size] auxiliary cache when K = V).\n    Unused entries are -1 and selected_counts holds the exact number of used entries.\n  * query_norm_weight and key_norm_weight are the effective RMSNorm multipliers, exactly as in\n    SparseAttentionIndexer.\n  * Accumulation, pooling, softmax, normalization and scoring are performed in float32 and the\n    result is rounded once to the tensor element type.\n  * Ties in the top-k selection are broken by the smaller entry index, and the emitted entries are\n    ordered by decreasing score, so the result is deterministic.\n  * cos_cache / sin_cache may be shared across the batch ([max_position, rotary_width]) or\n    request-specific ([batch_size, max_position, rotary_width]).\n  * cumulative_sequence_lengths, past_sequence_lengths and past_state_lengths are read directly by\n    the device kernel; a zero-token request row (a repeated cumulative offset) is valid and simply\n    contributes no query rows for that request.\n\nOgaEngine integration note: this operator only defines the ORT contrib op; wiring\npast_key_state / past_kv_buffer / past_gate_buffer / past_state_lengths as Engine-managed,\nper-request fixed-size state (analogous to a paged auxiliary cache) is expected to happen in the\nOgaEngine / Model Builder integration, which is out of scope for this operator definition.\n",
     "attributes": [
       {
         "name": "compress_ratio",
@@ -47376,8 +47471,8 @@
       },
       {
         "name": "past_key_state",
-        "type": "T",
-        "description": "Generic fixed-capacity state: policy_mode 'qsa' stores prepared complete-block keys; policy_mode 'csa' stores compressed keys. Shape is (batch_size, state_capacity, head_size) and never changes across calls."
+        "type": "T_KEY",
+        "description": "Generic fixed-capacity state: policy_mode 'qsa' stores prepared complete-block keys; policy_mode 'csa' stores compressed keys. Shape is (batch_size, state_capacity, head_size) and never changes across calls. CUDA QSA also supports FLOAT key state with BFLOAT16 query/key tensors. WebGPU requires key state and activations to have the same type."
       },
       {
         "name": "past_kv_buffer",
@@ -47447,7 +47542,7 @@
       },
       {
         "name": "present_key_state",
-        "type": "T",
+        "type": "T_KEY",
         "description": "Updated generic key state, with the same fixed shape as past_key_state."
       },
       {
@@ -47493,6 +47588,15 @@
       {
         "description": "Constrain floating point tensors to float, float16 and bfloat16.",
         "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain the generic key-state tensor to float, float16 and bfloat16.",
+        "type_param_str": "T_KEY",
         "allowed_type_strs": [
           "tensor(float)",
           "tensor(float16)",
@@ -70940,6 +71044,95 @@
           "tensor(int32)",
           "tensor(uint64)",
           "tensor(uint32)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "SpeculativePrefixCommit",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Commits the accepted prefix of a speculative verification step for each request in the batch and publishes a result-ring record for the host. Acceptance compares the verifier predictions with the draft tokens in input_ids. The operator is stateful: the control state and committed context are read from ctl and ctx_commit and the updated state is written to updated_ctl and updated_ctx_commit, which are required outputs. An output may alias its input (same device buffer) or be disjoint from it; partial overlap is not supported. Callers that keep the state in persistent device buffers must bind the outputs to those buffers, otherwise the updated state is lost. Callers must serialize access to the state buffers. The result ring is described by ptrs and holds ptrs[1] records of eight int64 words for each batch item, laid out consecutively per batch item starting at ptrs[0]; it must be a device-accessible, 8-byte aligned allocation. Each record is published by writing its sequence word last, after a system-scope fence. A request whose ctl[3] muted flag is set (for example during prefill) does not commit state or touch the ring, and may use any number of rows. Invalid device metadata sets error bits in ctl[5] (4: invalid row count or state, 16: invalid result ring) and mutes the request. The status words are OR-ed together and a non-zero value sets bit 2 of ctl[5].",
+    "attributes": [
+      {
+        "name": "head_rows",
+        "type": "int64",
+        "required": false,
+        "default": 8,
+        "description": "Number of verifier rows, 3 through 8. Non-muted requests must provide exactly this many rows. Default is 8."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "next_tokens",
+        "type": "I64",
+        "description": "Verifier predictions with shape [batch, rows], or [rows] for batch one."
+      },
+      {
+        "name": "input_ids",
+        "type": "I64",
+        "description": "Verifier input IDs; the draft tokens are input_ids[b, 1:rows]. The number of elements must be a multiple of the batch size and at least batch * rows."
+      },
+      {
+        "name": "status",
+        "type": "I32",
+        "description": "Verifier status words, shared by all batch items."
+      },
+      {
+        "name": "ctl",
+        "type": "I64",
+        "description": "Control state, 16 int64 words per batch item: [0] pending token, [1] length, [3] muted flag, [4] ring sequence number, [5] error flags, [6] accepted count, [7] cache length. Other words are preserved."
+      },
+      {
+        "name": "ctx_commit",
+        "type": "I64",
+        "description": "Committed context, two int64 words per batch item."
+      },
+      {
+        "name": "prefixes",
+        "type": "I64",
+        "description": "Context pairs per batch item: pair k (words 2k and 2k+1) is committed when k tokens are accepted. At least 2 * head_rows words per batch item."
+      },
+      {
+        "name": "ptrs",
+        "type": "I64",
+        "description": "Result ring address and number of records per batch item (must be positive)."
+      }
+    ],
+    "min_input": 7,
+    "max_input": 7,
+    "outputs": [
+      {
+        "name": "head_c",
+        "type": "I32",
+        "description": "Cache length before the commit [batch]; zero for muted or invalid requests."
+      },
+      {
+        "name": "updated_ctl",
+        "type": "I64",
+        "description": "Updated control state, same shape as ctl. May alias ctl."
+      },
+      {
+        "name": "updated_ctx_commit",
+        "type": "I64",
+        "description": "Updated committed context, same shape as ctx_commit. May alias ctx_commit."
+      }
+    ],
+    "min_output": 3,
+    "max_output": 3,
+    "type_constraints": [
+      {
+        "description": "Token, control and pointer words.",
+        "type_param_str": "I64",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Status words and cache lengths.",
+        "type_param_str": "I32",
+        "allowed_type_strs": [
+          "tensor(int32)"
         ]
       }
     ]
