@@ -15170,7 +15170,7 @@
   {
     "name": "Div",
     "summary": "Returns x / y element-wise.",
-    "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nFor signed integer types, dividing the minimum representable value by `-1`\n(e.g. `int_min / -1`) overflows the signed integer range and wraps around to\nthe minimum signed integer value in two's complement arithmetic rather than\nraising an exception.",
     "attributes": [
       {
         "name": "T",
@@ -19681,7 +19681,7 @@
   {
     "name": "FloorDiv",
     "summary": "Returns x // y element-wise.",
-    "description": "*NOTE*: `FloorDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "description": "*NOTE*: `FloorDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nFor signed integer types, dividing the minimum representable value by `-1`\n(e.g. `int_min / -1`) overflows the signed integer range and wraps around to\nthe minimum signed integer value in two's complement arithmetic rather than\nraising an exception.",
     "attributes": [
       {
         "name": "T",
@@ -62100,7 +62100,7 @@
   {
     "name": "TruncateDiv",
     "summary": "Returns x / y element-wise, rounded towards zero.",
-    "description": "Truncation designates that negative numbers will round fractional quantities\ntoward zero. I.e. -7 / 5 = -1. This matches C semantics but it is different\nthan Python semantics. See `FloorDiv` for a division function that matches\nPython Semantics.\n\n*NOTE*: `TruncateDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "description": "Truncation designates that negative numbers will round fractional quantities\ntoward zero. I.e. -7 / 5 = -1. This matches C semantics but it is different\nthan Python semantics. See `FloorDiv` for a division function that matches\nPython Semantics.\n\n*NOTE*: `TruncateDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nFor signed integer types, dividing the minimum representable value by `-1`\n(e.g. `int_min / -1`) overflows the signed integer range and wraps around to\nthe minimum signed integer value in two's complement arithmetic rather than\nraising an exception.",
     "attributes": [
       {
         "name": "T",
