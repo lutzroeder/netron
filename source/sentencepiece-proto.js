@@ -88,9 +88,6 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case 36:
                     message.required_chars = reader.string();
                     break;
-                case 55:
-                    message.exclude_pua_codepoints = reader.bool();
-                    break;
                 case 35:
                     message.byte_fallback = reader.bool();
                     break;
@@ -133,7 +130,7 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case 54:
                     message.seed_sentencepieces_file = reader.string();
                     break;
-                case 56:
+                case 55:
                     message.auto_character_coverage = reader.bool();
                     break;
                 case 5:
@@ -246,9 +243,6 @@ sentencepiece.TrainerSpec = class TrainerSpec {
                 case "required_chars":
                     message.required_chars = reader.string();
                     break;
-                case "exclude_pua_codepoints":
-                    message.exclude_pua_codepoints = reader.bool();
-                    break;
                 case "byte_fallback":
                     message.byte_fallback = reader.bool();
                     break;
@@ -348,7 +342,6 @@ sentencepiece.TrainerSpec.prototype.allow_whitespace_only_pieces = false;
 sentencepiece.TrainerSpec.prototype.split_digits = false;
 sentencepiece.TrainerSpec.prototype.pretokenization_delimiter = "";
 sentencepiece.TrainerSpec.prototype.required_chars = "";
-sentencepiece.TrainerSpec.prototype.exclude_pua_codepoints = false;
 sentencepiece.TrainerSpec.prototype.byte_fallback = false;
 sentencepiece.TrainerSpec.prototype.vocabulary_output_piece_score = true;
 sentencepiece.TrainerSpec.prototype.hard_vocab_limit = true;
