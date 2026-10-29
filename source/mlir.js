@@ -26638,6 +26638,22 @@ _.triton.TritonDialect = class extends _.Dialect {
             parser.parseFunctionOp(result, false);
             return true;
         }
+        if (op === 'tt.reshape') {
+            // allow_reorder was removed upstream but is still used by XLA
+            result.compatibility = true;
+            const src = parser.parseOperand();
+            for (const keyword of ['allow_reorder', 'efficient_layout']) {
+                if (parser.parseOptionalKeyword(keyword)) {
+                    result.addAttribute(keyword, new _.UnitAttr());
+                }
+            }
+            parser.parseOptionalAttrDict(result.attributes);
+            parser.parseColon();
+            parser.resolveOperand(src, parser.parseType(), result.operands);
+            parser.parseArrow();
+            result.addTypes([parser.parseType()]);
+            return true;
+        }
         return super.parseOperation(parser, result);
     }
 

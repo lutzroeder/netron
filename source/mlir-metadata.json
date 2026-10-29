@@ -1834,7 +1834,7 @@
       { "name": "retToken", "type": "TTG_AsyncToken" }
     ],
     "attributes": [
-      { "name": "count", "type": "I32Attr" }
+      { "name": "count", "type": "ConfinedAttr<I32Attr, [IntNonNegative]>" }
     ],
     "assemblyFormat": "($asyncToken^)? attr-dict"
   },
@@ -1864,7 +1864,7 @@
       { "name": "retToken", "type": "TTG_AsyncToken" }
     ],
     "attributes": [
-      { "name": "num", "type": "I32Attr" }
+      { "name": "num", "type": "ConfinedAttr<I32Attr, [IntNonNegative]>" }
     ],
     "assemblyFormat": "$asyncToken attr-dict"
   },
@@ -19505,6 +19505,44 @@
     "hasCustomAssemblyFormat": true
   },
   {
+    "name": "iree_linalg_ext.group_matmul",
+    "summary": "Performs a grouped matrix multiplication.",
+    "description": "Multiplies each row of the [N, K] `input` matrix by one of the E\n    [K, M] matrices in `expert_weights`, producing an [N, M] result.\n\n    The [E] `expert_offsets` tensor specifies absolute, exclusive end\n    row indices for consecutive expert groups. Its values must be\n    nonnegative and nondecreasing. Expert 0 starts at row 0; each later\n    expert starts at the preceding expert's end. Equal consecutive\n    offsets represent an empty expert.\n\n    For local input row r, let g = row_base + r. Expert e applies when:\n\n    ```\n    start[e] <= g < expert_offsets[e]\n    ```\n\n    where start[0] = 0 and start[e] = expert_offsets[e - 1] for e > 0.\n    For example, offsets [2, 2, 5] assign global rows 0–1 to expert 0,\n    no rows to expert 1, and rows 2–4 to expert 2.\n\n    `row_base` identifies the global row corresponding to local row 0.\n    Tiling adjusts `row_base` while leaving `expert_offsets` unchanged.\n    The offsets need not end at the current input slice's boundary.\n\n    For each assigned row, the matrix product replaces the corresponding\n    destination row; it is not added to the existing destination values.\n    Rows outside all expert intervals retain their destination values.\n\n    The expert count E must be static. The row count N, reduction dimension K,\n    and column count M may be dynamic.",
+    "operands": [
+      { "name": "input", "type": "TensorRankOf<[AnyFloat], [2]>" },
+      { "name": "expert_weights", "type": "TensorRankOf<[AnyFloat], [3]>" },
+      { "name": "expert_offsets", "type": "TensorRankOf<[AnySignlessIntegerOrIndex], [1]>" },
+      { "name": "row_base", "type": "Index" },
+      { "name": "output", "type": "TensorRankOf<[AnyFloat], [2]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "TensorRankOf<[AnyFloat], [2]>" }
+    ],
+    "assemblyFormat": "attr-dict `ins` `(` $input `,` $expert_weights `,` $expert_offsets `,`\n      $row_base `:` type($input) `,` type($expert_weights) `,`\n      type($expert_offsets) `,` type($row_base) `)`\n      `outs` `(` $output `:` type($output) `)` `->` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "iree_linalg_ext.group_mmt4d",
+    "summary": "Performs a grouped matrix-matrix-transpose multiplication of a packed 4D input by 5D weights.",
+    "description": "Used for data tiling of `group_matmul`, largely analogous to `mmt4d`.\n\n    Expert offsets and destination values follow the same rules as\n    `group_matmul`: offsets are absolute, exclusive row ends; empty\n    experts are permitted; assigned rows are overwritten with their\n    matrix products; and uncovered rows retain their destination values.\n\n    For an input element at index [m, k, mi, ki], the global row used\n    to choose the expert is:\n\n    ```\n    g = row_base + m * row_stride + mi\n    ```\n\n    `row_stride` is the distance in logical rows between the starts\n    of consecutive outer row blocks. Tiling adjusts `row_base` while\n    preserving `row_stride` and `expert_offsets`.\n\n    If `transposed` is true, the output layout is [N, M, Ni, Mi]\n    instead of [M, N, Mi, Ni]. This does not change expert selection.",
+    "operands": [
+      { "name": "input", "type": "TensorRankOf<[AnyFloat], [4]>" },
+      { "name": "expert_weights", "type": "TensorRankOf<[AnyFloat], [5]>" },
+      { "name": "expert_offsets", "type": "TensorRankOf<[AnySignlessIntegerOrIndex], [1]>" },
+      { "name": "row_base", "type": "Index" },
+      { "name": "row_stride", "type": "Index" },
+      { "name": "output", "type": "TensorRankOf<[AnyFloat], [4]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "TensorRankOf<[AnyFloat], [4]>" }
+    ],
+    "attributes": [
+      { "name": "transposed", "type": "DefaultValuedAttr<BoolAttr, false>" }
+    ],
+    "assemblyFormat": "prop-dict attr-dict `ins` `(` $input `,` $expert_weights `,` $expert_offsets `,`\n      $row_base `,` $row_stride `:` type($input) `,` type($expert_weights) `,`\n      type($expert_offsets) `,` type($row_base) `,` type($row_stride) `)`\n      `outs` `(` $output `:` type($output) `)` `->` type($result)",
+    "hasCustomAssemblyFormat": true
+  },
+  {
     "name": "iree_linalg_ext.im2col",
     "summary": "Im2col operation for convolutions.",
     "description": "Transforms a convolution input tensor into a GEMM-compatible layout. Each\n    output position `(batch, m, k)` maps to a specific input element determined\n    by the convolution metadata (strides, dilations, kernel_size).\n\n    #### Attributes\n\n    **Convolution metadata** — derived from the original convolution:\n    - `strides`: source-coordinate stride per `m_pos` dimension.\n    - `dilations`: source-coordinate dilation per `m_pos` dimension.\n    - `kernel_size`: filter/window extent per `m_pos` dimension.\n\n    Spatial `m_pos` dimensions use the original convolution window metadata.\n    `m_pos` dimensions without a real filter window, such as convolution batch\n    dimensions, use synthetic unit metadata (`stride = dilation = kernel = 1`).\n\n    **Dimension mapping** — describes which input dimensions are GEMM batch,\n    M, or K dimensions:\n    - `batch_pos`: input dimensions that are GEMM batch/pass-through dims.\n      For convolution lowering, this is used for depth/group-like dimensions,\n      not convolution batch dimensions that only index the image/output.\n    - `m_pos`: input dimensions that form GEMM M coordinates. For convolution\n      lowering, this includes convolution batch dimensions and output image\n      dimensions.\n    - `k_pos`: input dimensions that form direct GEMM K coordinates, such as\n      input channel dimensions.\n\n    **Indexing**:\n    - `offsets`: one offset per output dimension in canonical\n      `[Batch..., M..., K...]` order. Updated by tiling to reflect the tile\n      position; `output_sizes` remain unchanged.\n    - `output_sizes`: nested list of delinearization sizes per output dimension.\n      Each entry describes how to delinearize that output dimension back to\n      spatial/channel coordinates. For example:\n      `output_sizes = [[2], [32], [32], [1, 3, 3, 640]]` with empty\n      `batch_pos` means M dims delinearize into [N=2], [OH=32], [OW=32], and K\n      delinearizes into [unit N window=1, KH=3, KW=3, C=640].\n\n    **Layout permutations**:\n    - `input_k_perm`: permutation that maps the delinearized K output dimension\n      coordinates (window offsets from M dims, synthetic unit coordinates, and\n      channel indices) to their corresponding input dimension positions. Used\n      when the filter layout differs from the input layout (e.g., input=HWC,\n      filter=CHW requires `input_k_perm = [2, 0, 1]`). The identity permutation\n      means the layouts are already aligned.\n    - `output_perm`: permutation of the canonical `[Batch, M, K]` order to the\n      actual output tensor layout. For example, `output_perm = [2, 0, 1]` means\n      the result is in `KxBxM` layout.\n\n    **Padding** (optional):\n    - `input_pad_low` / `input_pad_high`: per-input-dimension padding amounts,\n      representing absorbed input padding (e.g., from a folded tensor.pad).\n      Source coordinates are computed in the padded coordinate space; reads\n      outside the unpadded input bounds produce `pad_value`.\n    - `output_pad_low` / `output_pad_high`: per-output-dimension padding\n      amounts in actual output tensor dim order, representing how many\n      positions at the start/end of each output dimension are outside the\n      valid region. Valid region for output dim d is\n      `[output_pad_low[d], tensor_dim[d] - output_pad_high[d])`.\n      Updated during tiling to reflect tile-local padding amounts.\n    - `pad_value`: the value for out-of-bounds positions. Can be present\n      without `input_pad_low`/`input_pad_high` when only output padding exists\n      (e.g., from GEMM alignment). When absent, there is no padding.\n\n    #### Semantics\n\n    For each output position, the op computes input coordinates, where `i`\n    indexes over `m_pos` dimensions and `j` indexes over `k_pos` dimensions:\n    ```\n      m_input_coord[i] = m_coord[i] * stride[i] + window_offset[i] * dilation[i]\n      channel_coord[j] = k_coord[j]\n    ```\n    where `m_coord` and `window_offset`/`k_coord` come from delinearizing the\n    M and K output indices using `output_sizes`. For a convolution batch M dim,\n    the synthetic unit metadata makes `window_offset = 0`, so the input\n    coordinate is the M coordinate directly.\n\n    #### Examples\n\n    Basic im2col (NHWC conv, 3x3 kernel):\n    ```mlir\n      %im2col = iree_linalg_ext.im2col\n          strides = [1, 1, 1] dilations = [1, 1, 1] kernel_size = [1, 3, 3]\n          offsets = [0, 0, 0, 0]\n          output_sizes = [[2], [32], [32], [1, 3, 3, 640]]\n          batch_pos = [] m_pos = [0, 1, 2] k_pos = [3]\n          input_k_perm = [0, 1, 2, 3] output_perm = [0, 1, 2, 3]\n          ins(%in : tensor<2x34x34x640xf32>)\n          outs(%out : tensor<2x32x32x5760xf32>) -> tensor<2x32x32x5760xf32>\n    ```\n\n    With input padding (same padding absorbed from tensor.pad):\n    ```mlir\n      %im2col = iree_linalg_ext.im2col\n          strides = [1, 1, 1] dilations = [1, 1, 1] kernel_size = [1, 3, 3]\n          offsets = [0, 0, 0, 0]\n          output_sizes = [[2], [34], [34], [1, 3, 3, 640]]\n          batch_pos = [] m_pos = [0, 1, 2] k_pos = [3]\n          input_k_perm = [0, 1, 2, 3] output_perm = [0, 1, 2, 3]\n          input_pad_low = [0, 1, 1, 0] input_pad_high = [0, 1, 1, 0]\n          pad_value(%cst : f32)\n          ins(%in : tensor<2x34x34x640xf32>)\n          outs(%out : tensor<2x34x34x5760xf32>) -> tensor<2x34x34x5760xf32>\n    ```\n\n    With output-only padding (GEMM alignment, no input padding):\n    ```mlir\n      // K valid = 1*3*3*640 = 5760; output has 5768 (8 extra K positions\n      // filled with pad_value for GEMM alignment).\n      %im2col = iree_linalg_ext.im2col\n          strides = [1, 1, 1] dilations = [1, 1, 1] kernel_size = [1, 3, 3]\n          offsets = [0, 0, 0, 0]\n          output_sizes = [[2], [32], [32], [1, 3, 3, 640]]\n          batch_pos = [] m_pos = [0, 1, 2] k_pos = [3]\n          input_k_perm = [0, 1, 2, 3] output_perm = [0, 1, 2, 3]\n          output_pad_low = [0, 0, 0, 0] output_pad_high = [0, 0, 0, 8]\n          pad_value(%cst : f32)\n          ins(%in : tensor<2x34x34x640xf32>)\n          outs(%out : tensor<2x32x32x5768xf32>) -> tensor<2x32x32x5768xf32>\n    ```",
@@ -26425,6 +26463,16 @@
     "results": [
       { "name": "res", "type": "LLVM_Type" }
     ]
+  },
+  {
+    "name": "llvm.intr.vector.repeat",
+    "operands": [
+      { "name": "vec", "type": "LLVM_AnyVector" }
+    ],
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ],
+    "assemblyFormat": "`(` operands `)` attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "llvm.intr.vp.add",
@@ -72995,7 +73043,7 @@
   {
     "name": "tf.Div",
     "summary": "Returns x / y element-wise.",
-    "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nFor signed integer types, dividing the minimum representable value by `-1`\n(e.g. `int_min / -1`) overflows the signed integer range and wraps around to\nthe minimum signed integer value in two's complement arithmetic rather than\nraising an exception.",
     "operands": [
       { "name": "x", "type": "TensorOf<[TF_Bfloat16, TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64, TF_Int16, TF_Int32, TF_Int64, TF_Int8, TF_Uint16, TF_Uint32, TF_Uint64, TF_Uint8]>" },
       { "name": "y", "type": "TensorOf<[TF_Bfloat16, TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64, TF_Int16, TF_Int32, TF_Int64, TF_Int8, TF_Uint16, TF_Uint32, TF_Uint64, TF_Uint8]>" }
@@ -73566,7 +73614,7 @@
   {
     "name": "tf.FloorDiv",
     "summary": "Returns x // y element-wise.",
-    "description": "*NOTE*: `FloorDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "description": "*NOTE*: `FloorDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nFor signed integer types, dividing the minimum representable value by `-1`\n(e.g. `int_min / -1`) overflows the signed integer range and wraps around to\nthe minimum signed integer value in two's complement arithmetic rather than\nraising an exception.",
     "operands": [
       { "name": "x", "type": "TensorOf<[TF_Bfloat16, TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64, TF_Int16, TF_Int32, TF_Int64, TF_Int8, TF_Uint16, TF_Uint32, TF_Uint64, TF_Uint8]>" },
       { "name": "y", "type": "TensorOf<[TF_Bfloat16, TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64, TF_Int16, TF_Int32, TF_Int64, TF_Int8, TF_Uint16, TF_Uint32, TF_Uint64, TF_Uint8]>" }
@@ -80602,7 +80650,7 @@
   {
     "name": "tf.TruncateDiv",
     "summary": "Returns x / y element-wise, rounded towards zero.",
-    "description": "Truncation designates that negative numbers will round fractional quantities\ntoward zero. I.e. -7 / 5 = -1. This matches C semantics but it is different\nthan Python semantics. See `FloorDiv` for a division function that matches\nPython Semantics.\n\n*NOTE*: `TruncateDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "description": "Truncation designates that negative numbers will round fractional quantities\ntoward zero. I.e. -7 / 5 = -1. This matches C semantics but it is different\nthan Python semantics. See `FloorDiv` for a division function that matches\nPython Semantics.\n\n*NOTE*: `TruncateDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nFor signed integer types, dividing the minimum representable value by `-1`\n(e.g. `int_min / -1`) overflows the signed integer range and wraps around to\nthe minimum signed integer value in two's complement arithmetic rather than\nraising an exception.",
     "operands": [
       { "name": "x", "type": "TensorOf<[TF_Bfloat16, TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64, TF_Int16, TF_Int32, TF_Int64, TF_Int8, TF_Uint16, TF_Uint32, TF_Uint64, TF_Uint8]>" },
       { "name": "y", "type": "TensorOf<[TF_Bfloat16, TF_Complex128, TF_Complex64, TF_Float16, TF_Float32, TF_Float64, TF_Int16, TF_Int32, TF_Int64, TF_Int8, TF_Uint16, TF_Uint32, TF_Uint64, TF_Uint8]>" }
@@ -106684,6 +106732,43 @@
     "assemblyFormat": "`(` $value `)` attr-dict `:` qualified(type($result))"
   },
   {
+    "name": "torch.torchao.dequantize_affine",
+    "summary": "torchao dequantize_affine",
+    "description": "Dequantizes a tensor quantized in blocks of shape `block_size`, each with\n    one `scale` and `zero_point` value. A None `zero_point` denotes symmetric\n    quantization. `quant_min` and `quant_max` describe the range of `input`\n    and do not clamp.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "block_size", "type": "AnyTorchListOfTorchIntType" },
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchOptionalTensorType" },
+      { "name": "input_dtype", "type": "Torch_IntType" },
+      { "name": "quant_min", "type": "AnyTorchOptionalScalarType" },
+      { "name": "quant_max", "type": "AnyTorchOptionalScalarType" },
+      { "name": "output_dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $block_size `,` $scale `,` $zero_point `,` $input_dtype `,`\n        $quant_min `,` $quant_max `,` $output_dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($block_size)) `,`\n        qualified(type($scale)) `,` qualified(type($zero_point)) `,`\n        qualified(type($input_dtype)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($output_dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.torchao.quantize_affine",
+    "summary": "torchao quantize_affine",
+    "description": "Quantizes a floating-point tensor with affine quantization in blocks. All\n    elements of a block of shape `block_size` share one `scale` and\n    `zero_point` value. A None `quant_min` or `quant_max` is the bound of\n    `output_dtype`.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "block_size", "type": "AnyTorchListOfTorchIntType" },
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchOptionalTensorType" },
+      { "name": "output_dtype", "type": "Torch_IntType" },
+      { "name": "quant_min", "type": "AnyTorchOptionalScalarType" },
+      { "name": "quant_max", "type": "AnyTorchOptionalScalarType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $block_size `,` $scale `,` $zero_point `,` $output_dtype `,`\n        $quant_min `,` $quant_max attr-dict\n    `:` qualified(type($input)) `,` qualified(type($block_size)) `,`\n        qualified(type($scale)) `,` qualified(type($zero_point)) `,`\n        qualified(type($output_dtype)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max))\n    `->` qualified(type($result))"
+  },
+  {
     "name": "torch.torchvision.deform_conv2d",
     "summary": "Generated op for `torchvision::deform_conv2d : (Tensor, Tensor, Tensor, Tensor, Tensor, int, int, int, int, int, int, int, int, bool) -> (Tensor)`",
     "operands": [
@@ -112828,11 +112913,8 @@
   },
   {
     "name": "transform.apply_patterns.math.polynomial_approximation",
-    "description": "Enables polynomial approximations for math functions.\n    Optionally, allows usage of x86 AVX2 intrinsics.",
-    "attributes": [
-      { "name": "enable_avx2", "type": "UnitAttr" }
-    ],
-    "assemblyFormat": "(`enable_avx2` $enable_avx2^)? attr-dict"
+    "description": "Enables polynomial approximations for math functions.",
+    "assemblyFormat": "attr-dict"
   },
   {
     "name": "transform.apply_patterns.memref.alloc_to_alloca",
@@ -113173,6 +113255,11 @@
   {
     "name": "transform.apply_patterns.vector.unroll_to_elements",
     "description": "Indicates that vector to_elements operations should be unrolled\n    along the outermost dimension.",
+    "assemblyFormat": "attr-dict"
+  },
+  {
+    "name": "transform.apply_patterns.x86.math_rsqrt_approximation",
+    "description": "Collect patterns that approximate vectorized f32 `math.rsqrt` operations\n    using the AVX `vrsqrtps` instruction (`x86.avx.rsqrt`) followed by one\n    Newton-Raphson step. The inner vector dimension must be a multiple of 8.",
     "assemblyFormat": "attr-dict"
   },
   {
@@ -117926,8 +118013,8 @@
   },
   {
     "name": "tt.reshape",
-    "summary": "reinterpret a tensor to a different shape. It may change elements order if the attribute is set.",
-    "description": "reinterpret a tensor to a different shape.\n\n        If allow_reorder is set the compiler is free to change the order of\n        elements to generate more efficient code.\n\n        If efficient_layout is set, this is a hint that the destination layout should be kept for performance reason.\n        The compiler is still free to change it for better performance.",
+    "summary": "reinterpret a tensor to a different shape.",
+    "description": "reinterpret a tensor to a different shape.\n\n        If efficient_layout is set, this is a hint that the destination layout should be kept for performance reason.\n        The compiler is still free to change it for better performance.",
     "operands": [
       { "name": "src", "type": "TT_Tensor" }
     ],
@@ -117935,10 +118022,9 @@
       { "name": "result", "type": "TT_Tensor" }
     ],
     "attributes": [
-      { "name": "allow_reorder", "type": "UnitAttr" },
       { "name": "efficient_layout", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "$src (`allow_reorder` $allow_reorder^)? (`efficient_layout` $efficient_layout^)? attr-dict `:` type($src) `->` type($result)"
+    "assemblyFormat": "$src (`efficient_layout` $efficient_layout^)? attr-dict `:` type($src) `->` type($result)"
   },
   {
     "name": "tt.return",
@@ -130322,7 +130408,7 @@
   {
     "name": "vector.multi_reduction",
     "summary": "Multi-dimensional reduction operation",
-    "description": "Reduces an n-D vector into an (n-k)-D vector (or a scalar when k == n)\n    using the given operation: `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`/`minimumf`\n    /`maximumf` for floats.\n    Takes an initial accumulator operand.\n\n    Example:\n\n    ```mlir\n    %1 = vector.multi_reduction <add>, %0, %acc0 [1, 3] :\n      vector<4x8x16x32xf32> to vector<4x16xf32>\n    %2 = vector.multi_reduction <add>, %1, %acc1 [0, 1] :\n      vector<4x16xf32> to f32\n    ```",
+    "description": "Reduces an n-D vector into an (n-k)-D vector (or a scalar when k == n)\n    using the given operation: `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`/`minimumf`\n    /`maximumf` for floats.\n    Takes an initial accumulator operand.\n\n    The optional `fastmath` attribute holds `arith` fast-math flags, which have\n    the meaning given in the LLVM Language Reference (\"Fast-Math Flags\"). Every\n    combining operation of the reduction, including the one with the\n    accumulator, behaves like the matching `arith` op with these flags. For\n    example, with `nnan` on a `maximumf` reduction, the combining operations\n    assume that no operand or result is a NaN. The flags only affect the\n    floating-point kinds.\n\n    Example:\n\n    ```mlir\n    %1 = vector.multi_reduction <add>, %0, %acc0 [1, 3] :\n      vector<4x8x16x32xf32> to vector<4x16xf32>\n    %2 = vector.multi_reduction <add>, %1, %acc1 [0, 1] :\n      vector<4x16xf32> to f32\n    %3 = vector.multi_reduction <maximumf>, %0, %acc0 fastmath<nnan,nsz> [1, 3] :\n      vector<4x8x16x32xf32> to vector<4x16xf32>\n    ```",
     "operands": [
       { "name": "source", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
       { "name": "acc", "type": "AnyType" }
@@ -130332,12 +130418,13 @@
     ],
     "attributes": [
       { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}" },
-      { "name": "reduction_dims", "type": "DenseI64ArrayAttr" }
+      { "name": "reduction_dims", "type": "DenseI64ArrayAttr" },
+      { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['dest', 'acc']>" }
     ],
-    "assemblyFormat": "$kind `,` $source `,` $acc attr-dict $reduction_dims `:` type($source) `to` type($dest)"
+    "assemblyFormat": "$kind `,` $source `,` $acc (`fastmath` `` $fastmath^)? attr-dict $reduction_dims `:` type($source) `to` type($dest)"
   },
   {
     "name": "vector.outerproduct",
