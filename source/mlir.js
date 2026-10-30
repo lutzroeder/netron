@@ -683,6 +683,13 @@ mlir.Tensor = class {
                     bitWidth = elementType.getIntOrFloatBitWidth();
                 }
                 const itemsize = Math.ceil(bitWidth / 8);
+                const index = dims.indexOf('?');
+                const size = dims.reduce((a, b) => b === '?' ? a : a * Number(b), itemsize);
+                if (index !== -1 && index === dims.lastIndexOf('?') && size > 0 && values.length % size === 0) {
+                    const shape = dims.slice();
+                    shape[index] = BigInt(values.length / size);
+                    this.type = new mlir.TensorType(elementType, new mlir.TensorShape(shape), type.layout);
+                }
                 if (numElements > 1 && values.length < numElements * itemsize) {
                     this.stride = new Array(dims.length).fill(0);
                 }
