@@ -642,6 +642,7 @@ fb_xnnpack.XNodeUnion = class {
             case 46: return fb_xnnpack.XNNCopy.decode(reader, position);
             case 47: return fb_xnnpack.XNNCos.decode(reader, position);
             case 48: return fb_xnnpack.XNNApproxGelu.decode(reader, position);
+            case 49: return fb_xnnpack.XNNDepthToSpace2d.decode(reader, position);
             default: return undefined;
         }
     }
@@ -850,6 +851,18 @@ fb_xnnpack.XNNStaticReshape = class XNNStaticReshape {
         $.input_id = reader.uint32_(position, 8, 0);
         $.output_id = reader.uint32_(position, 10, 0);
         $.flags = reader.uint32_(position, 12, 0);
+        return $;
+    }
+};
+
+fb_xnnpack.XNNDepthToSpace2d = class XNNDepthToSpace2d {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack.XNNDepthToSpace2d();
+        $.block_size = reader.uint32_(position, 4, 0);
+        $.input_id = reader.uint32_(position, 6, 0);
+        $.output_id = reader.uint32_(position, 8, 0);
+        $.flags = reader.uint32_(position, 10, 0);
         return $;
     }
 };
