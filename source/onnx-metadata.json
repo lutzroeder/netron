@@ -73292,6 +73292,75 @@
     ]
   },
   {
+    "name": "SwiGLU",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Clamped SwiGLU, the gated activation of a feed-forward or MoE expert block:\n  G = clamp(gate, max=limit)\n  L = clamp(up, min=-limit, max=limit)\n  output = G * Sigmoid(activation_alpha * G) * (L + activation_beta)\nwith the arithmetic done in float regardless of T, widened to double for the product when `activation_alpha * G` is below -87 so that a negative tail is not lost to float exp underflow. A `limit` of zero or less disables both clamps.\n\nThe result is rounded to T once, after the multiply by (L + activation_beta). With `round_activation` set, G * Sigmoid(activation_alpha * G) is first rounded to T, as a QuickGelu node followed by a Mul in T would, which keeps a fused QuickGelu + Mul bit-identical to the graph it replaces.\n\nThis uses the same activation_alpha / activation_beta formula and positive-limit clamping rule as MoE and QMoE. The no-clamp sentinel differs: here any `limit` of zero or less disables clamping, while MoE/QMoE use infinity when `swiglu_limit` is omitted and clamp finite values, including an explicit zero.\nWith `up` supplied and the default `limit` and `activation_beta`, it equals the ONNX SwiGLU operator (opset 28) with `alpha` = `activation_alpha`.\n\n`up` is optional. When it is omitted, `gate` carries both halves of one `[.., 2 * inter]` projection -- gate first, then up -- and the split is done internally, so a fused sibling GEMM needs no `Split` node.",
+    "attributes": [
+      {
+        "name": "activation_alpha",
+        "type": "float32",
+        "required": false,
+        "default": 1.0,
+        "description": "Multiplier inside the sigmoid."
+      },
+      {
+        "name": "activation_beta",
+        "type": "float32",
+        "required": false,
+        "description": "Value added to the linear half. A zero value leaves it unchanged, including a negative zero."
+      },
+      {
+        "name": "limit",
+        "type": "float32",
+        "required": false,
+        "description": "Clamp applied to both halves; zero or less disables it."
+      },
+      {
+        "name": "round_activation",
+        "type": "int64",
+        "required": false,
+        "description": "If non-zero, round G * Sigmoid(activation_alpha * G) to T before multiplying by (L + activation_beta). Zero rounds only the final result."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "gate",
+        "type": "T",
+        "description": "Gate half of the projection, or both halves concatenated."
+      },
+      {
+        "name": "up",
+        "type": "T",
+        "option": "optional",
+        "description": "Up half of the projection, same shape as gate."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Activated tensor, shaped like one half of the projection."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Constrain the activation type to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(float)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "Swish",
     "module": "ai.onnx",
     "version": 24,
