@@ -4994,5 +4994,91 @@
         { "name": "output", "type": "MUL_MAT" }
       ]
     }
+  },
+  {
+    "name": "lfm3",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "rope_freqs", "type": "ROPE_FREQS", "category": "Attention" }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["attn_norm", "attn_q_norm", "attn_k_norm"] },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_gate", "attn_output"], "position_encoding": "rope", "has_qk_norm": true },
+        { "name": "ssm", "type": "CONV_1D", "category": "Layer", "tensors": ["shortconv.in_proj", "shortconv.conv", "shortconv.out_proj"] },
+        { "name": "attn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_attention_norm"] },
+        { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_gate", "type": "MUL_MAT" },
+        { "name": "ffn_up", "type": "MUL_MAT" },
+        { "name": "ffn_down", "type": "MUL_MAT" },
+        { "name": "ffn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_ffw_norm"] }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "mistral-large4",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "rope_freqs", "type": "ROPE_FREQS", "category": "Attention" }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "attention", "type": "MULTI_LATENT_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_kv_a_mqa", "attn_kv_b", "attn_k_b", "attn_v_b", "attn_kv_a_norm", "attn_ssmax", "attn_output", "indexer.q_norm", "indexer.k_norm", "indexer.proj", "indexer.attn_k", "indexer.attn_q_b", "indexer.ssmax"], "position_encoding": "rope" },
+        { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT" },
+        { "name": "ffn_gate", "type": "MUL_MAT" },
+        { "name": "ffn_down", "type": "MUL_MAT" },
+        { "name": "ffn_up", "type": "MUL_MAT" },
+        {
+          "name": "ffn_gate_exps",
+          "type": "MUL_MAT_ID",
+          "tensors": ["ffn_gate.{N}", "ffn_gate_exps"]
+        },
+        {
+          "name": "ffn_down_exps",
+          "type": "MUL_MAT_ID",
+          "tensors": ["ffn_down.{N}", "ffn_down_exps"]
+        },
+        {
+          "name": "ffn_up_exps",
+          "type": "MUL_MAT_ID",
+          "tensors": ["ffn_up.{N}", "ffn_up_exps"]
+        },
+        { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_down_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_up_shexp", "type": "MUL_MAT" }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "limite",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "value_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "mudd", "type": "DENSE_CONNECTION", "tensors": ["mudd_down", "mudd_up"] },
+        { "name": "attn_ve_gate", "type": "MUL_MAT" },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_xsa_alpha", "attn_gate", "attn_output"], "position_encoding": "rope", "has_qk_norm": true },
+        { "name": "attn_resid_scale", "type": "MUL" },
+        { "name": "ffn_gate", "type": "MUL_MAT" },
+        { "name": "ffn_up", "type": "MUL_MAT" },
+        { "name": "ffn_down", "type": "MUL_MAT" },
+        { "name": "ffn_resid_scale", "type": "MUL" }
+      ],
+      "output": [
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
   }
 ]

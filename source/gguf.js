@@ -550,6 +550,24 @@ gguf.Graph = class {
                     const r2 = newValue();
                     addOp('ADD', [preAdd2, r1], r2);
                     prevValue = r2;
+                } else if (has('attention') && hasFfn && !has('attn_norm') && !has('ffn_norm')) {
+                    // Parameterless norms with scaled residuals and dense connections (limite.cpp)
+                    const inp = prevValue || newValue();
+                    const cur = applyComponent('mudd', inp);
+                    const inputs = [cur];
+                    if (has('attn_ve_gate') && perLayerInputValue) {
+                        const g = newValue();
+                        addNode(use('attn_ve_gate'), [cur, perLayerInputValue], g);
+                        inputs.push(g);
+                    }
+                    const a1 = newValue();
+                    addNode(use('attention'), inputs, a1);
+                    const r1 = newValue();
+                    addOp('ADD', [applyComponent('attn_resid_scale', cur), a1], r1);
+                    const f1 = buildFfn(r1);
+                    const r2 = newValue();
+                    addOp('ADD', [applyComponent('ffn_resid_scale', r1), f1], r2);
+                    prevValue = applyLayerOutScale(r2);
                 } else {
                     // Fallback: unrecognized block shape, render components without
                     // fabricating sequential data-flow edges.
@@ -576,7 +594,7 @@ gguf.Graph = class {
                 ropeFreqsValue = newValue();
                 node.outputs.push(new gguf.Argument('output', [ropeFreqsValue]));
                 this.nodes.push(node);
-            } else if (layer.name === 'per_layer_token_embd' || layer.name === 'per_layer_model_proj' || layer.name === 'per_layer_proj_norm') {
+            } else if (layer.name === 'per_layer_token_embd' || layer.name === 'per_layer_model_proj' || layer.name === 'per_layer_proj_norm' || layer.name === 'value_embd') {
                 // Gemma 3n / 4 per-layer-embedding precomputation (gemma4.cpp:431-451):
                 //   per_layer_proj  = per_layer_model_proj * token_embd_output
                 //   per_layer_proj  = norm(per_layer_proj, per_layer_proj_norm)
@@ -592,7 +610,7 @@ gguf.Graph = class {
                 node.outputs.push(new gguf.Argument('output', [out]));
                 this.nodes.push(node);
                 perLayerOutputs[layer.name] = out;
-                if ((graph.type === 'qwen4exp' || graph.type === 'deepseek41') && layer.name === 'per_layer_token_embd') {
+                if (((graph.type === 'qwen4exp' || graph.type === 'deepseek41') && layer.name === 'per_layer_token_embd') || layer.name === 'value_embd') {
                     perLayerInputValue = out;
                 }
                 if (perLayerOutputs.per_layer_token_embd && perLayerOutputs.per_layer_proj_norm && !perLayerInputValue) {
