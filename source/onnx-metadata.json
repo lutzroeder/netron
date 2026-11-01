@@ -63276,6 +63276,84 @@
     ]
   },
   {
+    "name": "RouterGateUpProj",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Fused first projection of a MoE layer with a shared expert. One GEMM Y = X * W, with N = router_size + 2 * inter, is split into the router logits Y[.., :router_size] and the gate/up halves of the shared expert Y[.., router_size:], gate first then up. The output router is Y[.., :router_size] rounded to T; the output activated is activation(gate, up), computed on the T-rounded gate and up values. With activation = 'swiglu' it uses the SwiGLU operator's `limit`, `activation_alpha` and `activation_beta`, so the op equals MatMul + Split + SwiGLU.\nFor up to 8 rows the CUDA kernel is a single deterministic tensor-core GEMV; other shapes use a GEMM and an elementwise kernel.",
+    "attributes": [
+      {
+        "name": "activation",
+        "type": "string",
+        "required": false,
+        "default": "swiglu",
+        "description": "Gated activation applied to the gate and up halves. Only 'swiglu' is defined."
+      },
+      {
+        "name": "activation_alpha",
+        "type": "float32",
+        "required": false,
+        "default": 1.0,
+        "description": "SwiGLU multiplier inside the sigmoid."
+      },
+      {
+        "name": "activation_beta",
+        "type": "float32",
+        "required": false,
+        "description": "SwiGLU value added to the linear half."
+      },
+      {
+        "name": "limit",
+        "type": "float32",
+        "required": false,
+        "description": "SwiGLU clamp applied to both halves; zero or less disables it."
+      },
+      {
+        "name": "router_size",
+        "type": "int64",
+        "required": true,
+        "description": "Number of leading columns of W that form the router logits."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Activation with shape (.., K)."
+      },
+      {
+        "name": "W",
+        "type": "T",
+        "description": "Weight with shape (K, router_size + 2 * inter)."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "router",
+        "type": "T",
+        "description": "Router logits with shape (.., router_size)."
+      },
+      {
+        "name": "activated",
+        "type": "T",
+        "description": "Gated shared-expert activation with shape (.., inter)."
+      }
+    ],
+    "min_output": 2,
+    "max_output": 2,
+    "type_constraints": [
+      {
+        "description": "Constrain the data type to 16-bit floats.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "STFT",
     "module": "ai.onnx",
     "version": 17,
