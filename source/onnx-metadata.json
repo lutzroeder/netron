@@ -28546,7 +28546,7 @@
     "name": "GroupQueryAttention",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Group Query Self/Cross Attention with KV Cache Quantization Support.\n\nThis operator implements grouped-query attention with past state (KV cache) support.\nIt also supports optional float8, int8 or int4 quantization for the KV cache to reduce memory footprint.\n\n**Cache Format:**\nThe past and present KV cache tensors are expected in a BNSH format: `(batch_size, num_heads, cache_sequence_length, head_size)`, where `cache_sequence_length` is the length of the cached key/value sequences, or the maximum sequence length when past and present buffer sharing is used.\n\n**Windowed KV Cache (`sliding_window_cache` attribute):**\nWhen `sliding_window_cache` is 1, the past/present buffers are window-sized instead of full-length and the operator evicts internally. Let `C` be the cache capacity (dimension 2 of `past_key`, which is also the sequence dimension of `present_key`), `W` be `local_window_size`, and `T` be the absolute number of tokens processed so far by this batch entry, i.e. `seqlens_k[b] + 1`. The scalar `total_sequence_length` input is only the batch maximum of `T`; the layout below is per batch entry, so a ragged batch gets a different resident range per entry. `C` must be at least `W`.\n\nAfter a step, rows `[0, L)` of `present_key` and `present_value` hold the `L` most recent positions in increasing position order, so row `i` holds absolute position `T - L + i`. The retained positions are always physically contiguous and start at row 0; the layout never wraps around, so a ring-buffer layout cannot be exposed through these outputs. Rows `[L, C)` are unspecified. The resident count `L` is a function of `T` alone:\n\n```\nG = C - W + 1\nL(T) = T                            if T <= C\nL(T) = T - G * ceil((T - C) / G)    otherwise\n```\n\nHence `min(T, W) <= L(T) <= min(T, C)`: the whole window stays resident, and eviction reclaims `G` positions at once rather than one position per step, so consumers must not assume that the cache is kept full at `min(T, C)`.\n\n  Because `L` depends only on `T`, the resulting layout is independent of how the tokens were split into steps: a multi-token step of `S` tokens (speculative decoding, chunked prefill) leaves exactly the layout that the same tokens would produce one at a time. Any `S >= 1` is accepted, including `S > C`; a step that would evict positions it still has to read is staged internally, so the capacity does not have to cover the step. When past context is present, the existing operator restriction still applies: `sequence_length > 1` requires `batch_size == 1`.\n\n  An execution provider may accept only part of the `C >= W` range. A configuration with `C < W` (equivalently, `W > C`) is invalid and is rejected with `INVALID_ARGUMENT`. The CUDA implementation requires `C == W`, so there `G` is 1 and `L(T)` is `min(T, C)`; a larger capacity is rejected. The CPU implementation accepts any `C >= W`, and slack above the window amortizes compaction over `G` steps.\n\nTo drop the last `k` tokens, for example after rejecting speculative draft tokens, re-run with the smaller `total_sequence_length` and `seqlens_k` and leave the buffer untouched. That is exact when `L(T - k) == L(T) - k`, which callers can evaluate with the formula above. Otherwise the shorter layout needs positions that have already been evicted, and the window has to be re-materialized.\n\n**Quantization:**\nWhen quantization is enabled, `past_key` and `past_value` inputs can be of type `float8e4m3fn`, `uint8` or `int8`. The corresponding `k_scale` and `v_scale` tensors must be provided.\nThe operator will output `present_key` and `present_value` in same format as the `past_key` and `past_value`.\n\nFor 4-bit quantization, the data type is uint8 where each byte contains two 4-bit values. The bit width of quantized KV cache can be set using `kv_cache_bit_width` attribute.\n\nThe shapes of the k_scale, v_scale tensors shall be broadcastable to present_key shape.\n\n**Quantization Modes (`k_quant_type`, `v_quant_type` attributes):**\n- **\"NONE\"**: No quantization.\n- **\"PER_TENSOR\"**: A single scale for the entire tensor. Scale example shape: `[1]`.\n- **\"PER_CHANNEL\"**: A scale for each channel. Scale example shape: `[1, num_heads_k, 1, head_size]`.\n",
+    "description": "Group Query Self/Cross Attention with KV Cache Quantization Support.\n\nThis operator implements grouped-query attention with past state (KV cache) support.\nIt also supports optional float8, int8 or int4 quantization for the KV cache to reduce memory footprint.\n\n**Cache Format:**\nThe past and present KV cache tensors are expected in a BNSH format: `(batch_size, num_heads, cache_sequence_length, head_size)`, where `cache_sequence_length` is the length of the cached key/value sequences, or the maximum sequence length when past and present buffer sharing is used.\n\n**Right-padded query chunks (`query_seqlens` input):**\nThe optional `query_seqlens` input supports chunked prefill with a fixed query shape. Let `S` be `sequence_length`, the padded chunk length. For batch entry `b`, let `T = seqlens_k[b] + 1` be the number of tokens in the KV cache after this step, `Q = query_seqlens[b]` the number of valid (non-padded) tokens in the chunk, and `P = T - Q` the number of tokens that were cached before it. Rows `[0, Q)` of `query`, `key` and `value` are valid tokens and rows `[Q, S)` are right padding.\n\nOnly the valid rows are appended to the cache, at positions `[P, T)`. Query row `s` is at absolute position `P + s`: causal attention, `local_window_size` and rotary embedding (when `position_ids` is not given) use that position. Output rows `[Q, S)` are unspecified, and so are cache rows at or beyond `T`. For every valid row the result equals that of the same call with an unpadded chunk of `Q` tokens retaining `query_seqlens` and the same `total_sequence_length`, so a caller can run every chunk of a prompt with one fixed `S`. With a quantized CUDA cache and `P = 0, Q > 1`, attention reads the original floating-point new K/V; omitting `query_seqlens` while retaining a capacity-valued bound can instead select legacy quantized-cache reads. For `P = 0, Q = 1`, both padded and unpadded calls read floating-point new K/V only when `total_sequence_length = 1`; a larger bound preserves quantized-cache reads.\n\nThe scalar `total_sequence_length` is only an upper bound of `T` in this case (for example the cache capacity). It is not used to tell a first prompt from a later chunk and it does not determine `P`.\n\nRequirements: `causal=1`; new key/value with `kv_sequence_length == sequence_length`; `past_key` and `past_value` present; `1 <= Q <= min(S, T)` and `T <= total_sequence_length` for every batch entry (the existing rule that `total_sequence_length >= sequence_length` for a cache that is not windowed still applies, but a growing cache is not required to have `total_sequence_length == past_sequence_length + sequence_length`); `sequence_length > 1` requires `batch_size == 1`; and `Q == 1` when `sequence_length == 1`. A cache that is not windowed must also hold the `P` cached tokens in `past_key` (`P` is at most the sequence dimension of `past_key`) and have room for the whole padded chunk, `P + S <= C`, where `C` is the sequence dimension of `present_key`. A windowed cache has no such requirement because it is staged internally. An execution provider that can read the values reports a violation with `INVALID_ARGUMENT`; the CUDA execution provider reads them on the device, clamps `Q` into `[1, min(S, T)]` and leaves the result unspecified. When `query_seqlens` is omitted, `Q = min(S, T)` and the behavior is unchanged.\n\n**Windowed KV Cache (`sliding_window_cache` attribute):**\nWhen `sliding_window_cache` is 1, the past/present buffers are window-sized instead of full-length and the operator evicts internally. Let `C` be the cache capacity (dimension 2 of `past_key`, which is also the sequence dimension of `present_key`), `W` be `local_window_size`, and `T` be the absolute number of tokens processed so far by this batch entry, i.e. `seqlens_k[b] + 1`. The scalar `total_sequence_length` input is only the batch maximum of `T` (or only an upper bound of `T` when `query_seqlens` is given); the layout below is per batch entry, so a ragged batch gets a different resident range per entry. `C` must be at least `W`.\n\nAfter a step, rows `[0, L)` of `present_key` and `present_value` hold the `L` most recent positions in increasing position order, so row `i` holds absolute position `T - L + i`. The retained positions are always physically contiguous and start at row 0; the layout never wraps around, so a ring-buffer layout cannot be exposed through these outputs. Rows `[L, C)` are unspecified. The resident count `L` is a function of `T` alone:\n\n```\nG = C - W + 1\nL(T) = T                            if T <= C\nL(T) = T - G * ceil((T - C) / G)    otherwise\n```\n\nHence `min(T, W) <= L(T) <= min(T, C)`: the whole window stays resident, and eviction reclaims `G` positions at once rather than one position per step, so consumers must not assume that the cache is kept full at `min(T, C)`.\n\n  Because `L` depends only on `T`, the resulting layout is independent of how the tokens were split into steps: a multi-token step of `S` tokens (speculative decoding, chunked prefill) leaves exactly the layout that the same tokens would produce one at a time. A right-padded chunk (`query_seqlens`) leaves the layout of its `Q` valid tokens only, because padding rows never enter the cache. Any `S >= 1` is accepted, including `S > C`; a step that would evict positions it still has to read is staged internally, so the capacity does not have to cover the step. When past context is present, the existing operator restriction still applies: `sequence_length > 1` requires `batch_size == 1`.\n\n  An execution provider may accept only part of the `C >= W` range. A configuration with `C < W` (equivalently, `W > C`) is invalid and is rejected with `INVALID_ARGUMENT`. The CUDA implementation requires `C == W`, so there `G` is 1 and `L(T)` is `min(T, C)`; a larger capacity is rejected. The CPU implementation accepts any `C >= W`, and slack above the window amortizes compaction over `G` steps.\n\nTo drop the last `k` tokens, for example after rejecting speculative draft tokens, re-run with the smaller `total_sequence_length` and `seqlens_k` and leave the buffer untouched. That is exact when `L(T - k) == L(T) - k`, which callers can evaluate with the formula above. Otherwise the shorter layout needs positions that have already been evicted, and the window has to be re-materialized.\n\n**Quantization:**\nWhen quantization is enabled, `past_key` and `past_value` inputs can be of type `float8e4m3fn`, `uint8` or `int8`. The corresponding `k_scale` and `v_scale` tensors must be provided.\nThe operator will output `present_key` and `present_value` in same format as the `past_key` and `past_value`.\n\nFor 4-bit quantization, the data type is uint8 where each byte contains two 4-bit values. The bit width of quantized KV cache can be set using `kv_cache_bit_width` attribute.\n\nThe shapes of the k_scale, v_scale tensors shall be broadcastable to present_key shape.\n\n**Quantization Modes (`k_quant_type`, `v_quant_type` attributes):**\n- **\"NONE\"**: No quantization.\n- **\"PER_TENSOR\"**: A single scale for the entire tensor. Scale example shape: `[1]`.\n- **\"PER_CHANNEL\"**: A scale for each channel. Scale example shape: `[1, num_heads_k, 1, head_size]`.\n",
     "attributes": [
       {
         "name": "causal",
@@ -28695,7 +28695,7 @@
       {
         "name": "total_sequence_length",
         "type": "M",
-        "description": "Scalar tensor equivalent to the maximum total sequence length (past + new) of the batch. Used for checking inputs and determining prompt vs token generation case."
+        "description": "Scalar tensor equivalent to the maximum total sequence length (past + new) of the batch. Used for checking inputs and determining prompt vs token generation case. When query_seqlens is provided this is only an upper bound of seqlens_k + 1 (for example the KV cache capacity): it is not used to determine the prompt case or the past length."
       },
       {
         "name": "cos_cache",
@@ -28750,10 +28750,16 @@
         "type": "T",
         "option": "optional",
         "description": "Optional 1D tensor of shape (head_size). See q_norm_weight. Must be provided together with q_norm_weight."
+      },
+      {
+        "name": "query_seqlens",
+        "type": "M",
+        "option": "optional",
+        "description": "Optional 1D tensor of shape (batch_size) with the number of valid, non-padded tokens in the query/key/value chunk of each batch entry. The chunk is right-padded: rows [0, query_seqlens[b]) are valid and rows [query_seqlens[b], sequence_length) are padding. Unlike seqlens_k this is a count, not a count minus one. After the step the cache holds seqlens_k[b] + 1 tokens, so entry b had seqlens_k[b] + 1 - query_seqlens[b] tokens before it. Requires 1 <= query_seqlens[b] <= min(sequence_length, seqlens_k[b] + 1). When omitted, query_seqlens[b] = min(sequence_length, seqlens_k[b] + 1), which is the behavior without this input. See the Right-padded query chunks section of the operator description for the full contract. Currently honored by the CPU and CUDA execution providers; other EPs must reject the node when this input is set."
       }
     ],
     "min_input": 7,
-    "max_input": 16,
+    "max_input": 17,
     "outputs": [
       {
         "name": "output",
@@ -28781,7 +28787,7 @@
     ],
     "min_output": 1,
     "max_output": 4,
-    "inputs_range": "7 - 16",
+    "inputs_range": "7 - 17",
     "outputs_range": "1 - 4",
     "type_constraints": [
       {
@@ -38968,6 +38974,125 @@
     ]
   },
   {
+    "name": "MatMulNBitsQLoRA",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Computes MatMulNBits(X,W,scales) + MatMulNBits(MatMulNBits(X,lora_A,lora_A_scales),lora_B,lora_B_scales). Each projection follows MatMulNBits block quantization and bit packing, with implicit zero points 2^(bits-1) for the base and 2^(lora_bits-1) for the adapters. No bias or explicit zero points are applied. The adapter rank R may be any positive integer and need not be a multiple of lora_block_size. Partial final blocks are padded; only the logical K or R elements participate in each projection. An empty lora_B returns the base projection. An empty lora_A produces a zero down projection; a nonempty lora_B is still evaluated, including its NaN/Inf behavior. Intermediate projections and block scales use the activation type before the final addition. Adapters remain replaceable. Execution providers may support a subset of the defined types, quantization settings, and ranks.",
+    "attributes": [
+      {
+        "name": "K",
+        "type": "int64",
+        "required": true,
+        "description": "Positive input feature dimension of the base and down-projection weight matrices."
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "required": true,
+        "description": "Positive output feature dimension of the base and up-projection weight matrices."
+      },
+      {
+        "name": "accuracy_level",
+        "type": "int64",
+        "required": false,
+        "description": "Accuracy policy following MatMulNBits: 0 (unset), 1 (fp32), 2 (fp16), 3 (bf16), or 4 (int8). Applies to the base and eligible adapter down projections; the up projection uses level 0."
+      },
+      {
+        "name": "bits",
+        "type": "int64",
+        "required": false,
+        "default": 4,
+        "description": "Base weight bit width, following MatMulNBits (2, 4, or 8)."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "default": 32,
+        "description": "Base quantization block size along K, following MatMulNBits: a power of two, at least 16."
+      },
+      {
+        "name": "lora_bits",
+        "type": "int64",
+        "required": false,
+        "default": 8,
+        "description": "Adapter weight bit width, following MatMulNBits (2, 4, or 8)."
+      },
+      {
+        "name": "lora_block_size",
+        "type": "int64",
+        "required": false,
+        "default": 32,
+        "description": "Adapter quantization block size along K for lora_A and R for lora_B: a power of two, at least 16."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input of rank at least one, with last dimension K, following MatMulNBits."
+      },
+      {
+        "name": "W",
+        "type": "TQ",
+        "description": "Packed base weights [N,ceil(K/block_size),block_size*bits/8]."
+      },
+      {
+        "name": "scales",
+        "type": "T",
+        "description": "Base block scales [N,ceil(K/block_size)]; may be flattened."
+      },
+      {
+        "name": "lora_A",
+        "type": "TQ",
+        "description": "Packed down weights [R_A,ceil(K/lora_block_size),lora_block_size*lora_bits/8], R_A=R or 0."
+      },
+      {
+        "name": "lora_A_scales",
+        "type": "T",
+        "description": "Down block scales [R,ceil(K/lora_block_size)]; retained when the adapter is empty."
+      },
+      {
+        "name": "lora_B",
+        "type": "TQ",
+        "description": "Packed up weights [N,R_blocks,lora_block_size*lora_bits/8], R_blocks=ceil(R/lora_block_size) or 0."
+      },
+      {
+        "name": "lora_B_scales",
+        "type": "T",
+        "description": "Up block scales [N,ceil(R/lora_block_size)]; retained when the adapter is empty."
+      }
+    ],
+    "min_input": 7,
+    "max_input": 7,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Input shape with the last dimension replaced by N."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Activations and block scales share the same floating-point type (FP16 or FP32).",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "Packed quantized weights.",
+        "type_param_str": "TQ",
+        "allowed_type_strs": [
+          "tensor(uint8)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "MatMulNBitsQkv",
     "module": "com.microsoft",
     "version": 1,
@@ -42471,7 +42596,7 @@
     "name": "MoE",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Mixture of experts. Examples: Switch transformer(https://arxiv.org/pdf/2101.03961.pdf) use top 1,\n      GLaM(https://arxiv.org/abs/2112.06905) activates top 2 FFN, Vision MOE(https://arxiv.org/pdf/2106.05974.pdf)\n      usually uses top 32 experts and Mixtral(https://huggingface.co/blog/mixtral).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. MoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs must contain one corresponding row per\n      token in either form.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      ",
+    "description": "Mixture of experts. Examples: Switch transformer(https://arxiv.org/pdf/2101.03961.pdf) use top 1,\n      GLaM(https://arxiv.org/abs/2112.06905) activates top 2 FFN, Vision MOE(https://arxiv.org/pdf/2106.05974.pdf)\n      usually uses top 32 experts and Mixtral(https://huggingface.co/blog/mixtral).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. MoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs must contain one corresponding row per\n      token in either form.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      CUDA also supports GEGLU: geglu = GELU(g, approximate='tanh') * l.\n      GEGLU requires fused FC1 projections: swiglu_fusion=1 stores [g0,l0,g1,l1,...],\n      and swiglu_fusion=2 stores [g | l]. Separate FC3 inputs are not supported.\n      activation_alpha, activation_beta and swiglu_limit do not affect GEGLU.\n      ",
     "attributes": [
       {
         "name": "activation_alpha",
@@ -42491,7 +42616,7 @@
         "type": "string",
         "required": false,
         "default": "relu",
-        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. CUDA also supports relu2 (squared ReLU). Default is relu"
+        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. CUDA also supports relu2 (squared ReLU) and geglu (GELU-tanh(gate) * up). GEGLU requires fused FC1 gate/up weights, swiglu_fusion=1 or 2, and no FC3 inputs. Default is relu"
       },
       {
         "name": "k",
@@ -42510,13 +42635,13 @@
         "name": "swiglu_fusion",
         "type": "int64",
         "required": false,
-        "description": "0: not fused, 1: fused and interleaved. 2: fused and not interleaved."
+        "description": "Gate/up layout for swiglu or geglu. 0: not fused (swiglu only), 1: fused and interleaved, 2: fused and not interleaved ([gate | up] for geglu)."
       },
       {
         "name": "swiglu_limit",
         "type": "float32",
         "required": false,
-        "description": "The limit used to clamp in SwiGLU. No clamp when limit is not provided."
+        "description": "The limit used to clamp in SwiGLU. No clamp when limit is not provided. Does not affect GEGLU."
       },
       {
         "name": "use_sparse_mixer",
@@ -42539,7 +42664,7 @@
       {
         "name": "fc1_experts_weights",
         "type": "T",
-        "description": "3D input tensor with shape (num_experts, fusion_size * inter_size, hidden_size), where fusion_size is 2 for fused swiglu, and 1 otherwise"
+        "description": "3D input tensor with shape (num_experts, fusion_size * inter_size, hidden_size), where fusion_size is 2 for fused swiglu or geglu, and 1 otherwise"
       },
       {
         "name": "fc1_experts_bias",
@@ -51718,7 +51843,7 @@
     "name": "QMoE",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Quantized mixture of experts (MoE).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. QMoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs and optional router_weights must contain\n      one corresponding row per token in either form.\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      For integer quantization, the formula of linear dequantization using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      For integer quantization, if block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      For quant_type='fp8', weights instead use row-major float8e4m3fn tensors shaped [num_experts, N, K].\n      A positive block_size selects square block scaling with float32, float16, or bfloat16 fc*_scales tensors shaped\n      [num_experts, ceil(N / block_size), ceil(K / block_size)]:\n        dequantized_weight[e, n, k] = float(weight[e, n, k]) * scale[e, n / block_size, k / block_size]\n      Partial edge blocks are allowed. No zero points or activation scales are accepted.\n      Without a positive block_size, FP8 uses the legacy per-expert fc*_global_scale inputs instead.\n      Block-scaled FP8 does not use global scales. Activations retain the input type (weight-only quantization).\n      On CUDA SM80-or-newer GPUs, SiLU/SwiGLU block-scaled FP8 uses fused weight-only GEMV/GEMM by default.\n      These kernels decode and scale FP8 tiles on chip without materializing full FP16/BF16 weight buffers.\n      Set ORT_ENABLE_FP8_FUSED=0 before session creation to select the compact dense-dequant fallback.\n      Other activation types and unsupported routing sizes retain the fallback.\n      The WebGPU block-FP8 kernel supports block_size=128 with float32 scales and rejects projections\n      that exceed 32-bit shader addressing or the device's per-dimension dispatch limit.\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      \n  The raw INT3 profile extends version 1; execution support is provider-specific.\n  For INT3, the requirements below supersede the legacy format descriptions above.\n  Effective widths are 2, 3, 4, or 8. Models without INT3 retain the legacy format contracts.\n  With INT3, use quant_type='int' (the default), and explicitly set activation_type='swiglu', weights_prepacked=0, swiglu_fusion=1,\n  and block_size=32, 64, or 128. Effective FC3 must equal FC1 after independent inheritance.\n  H comes from input and I from half the FC1 row count; both must be divisible by block_size.\n  Weights are uint8 [E,N,ceil(K*bits/8)], row-local LSB-first bitstreams, without per-block padding.\n  Scales are required [E,N,K/block_size], matching FP16/BF16 activations.\n  INT3 codes dequantize as (u-4)*scale; scales must be finite and nonnegative.\n  Optional INT3 zero points are uint8 [E,N,ceil(3*(K/block_size)/8)]. Each unpacked 3-bit\n  zero-point code must equal 4 (binary 100), the unsigned offset representing logical zero;\n  this does not mean each packed byte is 4. Omission implies the same zero point 4.\n  Unused high padding bits must be zero. INT2/4/8 projections retain their zero-point semantics.\n  FC1 rows are interleaved gate/up; FC2 is [E,H,ceil(I*fc2_bits/8)].\n  Separate FC3, global scales, and activation scales are not accepted by the INT3 profile.\n",
+    "description": "Quantized mixture of experts (MoE).\n      A 2D input is the packed token-major form used by continuous-batching engines: tokens from\n      different requests are concatenated along dimension 0 without padding. QMoE is token-local,\n      so request boundaries do not affect the result and no cumulative sequence-length input is\n      required. A 3D input is the dense convenience form and is processed as batch_size *\n      sequence_length independent token rows. router_probs and optional router_weights must contain\n      one corresponding row per token in either form.\n\n      The quantized weights are stored in column major order per expert.\n      The quantization block size can be specified. If not provided, column wise quantization is used.\n\n      For integer quantization, the formula of linear dequantization using scale and (optionally) zero-point is:\n        dequantized_weight = (quantized_weight - zero_point) * scale\n      When zero_point is not provided, the default value is 2^(bits-1): 2 for 2 bits, 8 for 4 bits, 128 for 8 bits.\n\n      For integer quantization, if block_size is provided, both hidden_size and inter_size must be divisible by the block size, and\n      the dequantization is performed per block of size block_size along the K (input feature) dimension.\n\n      For quant_type='fp8', weights instead use row-major float8e4m3fn tensors shaped [num_experts, N, K].\n      A positive block_size selects square block scaling with float32, float16, or bfloat16 fc*_scales tensors shaped\n      [num_experts, ceil(N / block_size), ceil(K / block_size)]:\n        dequantized_weight[e, n, k] = float(weight[e, n, k]) * scale[e, n / block_size, k / block_size]\n      Partial edge blocks are allowed. No zero points or activation scales are accepted.\n      Without a positive block_size, FP8 uses the legacy per-expert fc*_global_scale inputs instead.\n      Block-scaled FP8 does not use global scales. Activations retain the input type (weight-only quantization).\n      On CUDA SM80-or-newer GPUs, SiLU/SwiGLU block-scaled FP8 uses fused weight-only GEMV/GEMM by default.\n      These kernels decode and scale FP8 tiles on chip without materializing full FP16/BF16 weight buffers.\n      Set ORT_ENABLE_FP8_FUSED=0 before session creation to select the compact dense-dequant fallback.\n      Other activation types and unsupported routing sizes retain the fallback.\n      The WebGPU block-FP8 kernel supports block_size=128 with float32 scales and rejects projections\n      that exceed 32-bit shader addressing or the device's per-dimension dispatch limit.\n\n      Packed byte dimensions are computed as logical_element_count * effective_expert_weight_bits / 8.\n      Weight rows must be byte-aligned. Zero-point rows are padded to a whole byte when necessary.\n\n      fc1_expert_weight_bits, fc2_expert_weight_bits, and fc3_expert_weight_bits optionally override\n      expert_weight_bits for the corresponding projection. An omitted override inherits expert_weight_bits.\n      When SwiGLU is fused, FC3 is stored in FC1 and fc3_expert_weight_bits must be omitted or equal to\n      fc1_expert_weight_bits after inheritance.\n\n      The SwiGLU (Swish-Gated Linear Unit) activation function is like:\n         g = xW + b\n         l = xV + c\n         G = clamp(g, max=limit)\n         L = clamp(l, min=-limit, max=limit)\n         swiglu = G * sigmoid(alpha * G) * (L + beta)\n      where x is the input, W and V are weight matrices, b and c are bias vectors, and alpha, beta and limit are constant float parameters.\n      When swiglu_fusion=0, two GEMMs are not fused, and they are FC1 and FC3 in the inputs.\n      When swiglu_fusion=1, two GEMMs are fused so that g and l are computed in a single GEMM (FC1), and g and l are interleaved on each row of size 2 * inter_size.\n      When swiglu_fusion=2, two GEMMs are fused, and g and l are concatenated on each row.\n      CUDA also supports GEGLU with quant_type='int': geglu = GELU(g, approximate='tanh') * l.\n      GEGLU requires fused FC1 projections: swiglu_fusion=1 stores [g0,l0,g1,l1,...],\n      and swiglu_fusion=2 stores [g | l]. Separate FC3 weights are not supported.\n      activation_alpha, activation_beta and swiglu_limit do not affect GEGLU.\n      \n  The raw INT3 profile extends version 1; execution support is provider-specific.\n  For INT3, the requirements below supersede the legacy format descriptions above.\n  Effective widths are 2, 3, 4, or 8. Models without INT3 retain the legacy format contracts.\n  With INT3, use quant_type='int' (the default), and explicitly set activation_type='swiglu', weights_prepacked=0, swiglu_fusion=1,\n  and block_size=32, 64, or 128. Effective FC3 must equal FC1 after independent inheritance.\n  H comes from input and I from half the FC1 row count; both must be divisible by block_size.\n  Weights are uint8 [E,N,ceil(K*bits/8)], row-local LSB-first bitstreams, without per-block padding.\n  Scales are required [E,N,K/block_size], matching FP16/BF16 activations.\n  INT3 codes dequantize as (u-4)*scale; scales must be finite and nonnegative.\n  Optional INT3 zero points are uint8 [E,N,ceil(3*(K/block_size)/8)]. Each unpacked 3-bit\n  zero-point code must equal 4 (binary 100), the unsigned offset representing logical zero;\n  this does not mean each packed byte is 4. Omission implies the same zero point 4.\n  Unused high padding bits must be zero. INT2/4/8 projections retain their zero-point semantics.\n  FC1 rows are interleaved gate/up; FC2 is [E,H,ceil(I*fc2_bits/8)].\n  Separate FC3, global scales, and activation scales are not accepted by the INT3 profile.\n",
     "attributes": [
       {
         "name": "accuracy_level",
@@ -51744,7 +51869,7 @@
         "type": "string",
         "required": false,
         "default": "relu",
-        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. CUDA also supports relu2 (squared ReLU). Default is relu"
+        "description": "Activation function to use. Choose from relu, gelu, silu, swiglu and identity. CUDA also supports relu2 (squared ReLU) and geglu (GELU-tanh(gate) * up). GEGLU requires quant_type='int', fused FC1 gate/up weights, swiglu_fusion=1 or 2, and no separate FC3 weights. Default is relu"
       },
       {
         "name": "block_size",
@@ -51801,13 +51926,13 @@
         "name": "swiglu_fusion",
         "type": "int64",
         "required": false,
-        "description": "0: not fused, 1: fused and interleaved. 2: fused and not interleaved."
+        "description": "Gate/up layout for swiglu or geglu. 0: not fused (swiglu only), 1: fused and interleaved, 2: fused and not interleaved ([gate | up] for geglu)."
       },
       {
         "name": "swiglu_limit",
         "type": "float32",
         "required": false,
-        "description": "The limit used to clamp inputs in SwiGLU. It is infinite when limit is not provided."
+        "description": "The limit used to clamp inputs in SwiGLU. It is infinite when limit is not provided. Does not affect GEGLU."
       },
       {
         "name": "use_sparse_mixer",
@@ -51837,7 +51962,7 @@
       {
         "name": "fc1_experts_weights",
         "type": "T1",
-        "description": "3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size * effective_fc1_bits / 8). The last dimension must be byte-aligned. The fusion_size is 2 for fused swiglu, or 1 otherwise. effective_fc1_bits is fc1_expert_weight_bits when provided, otherwise expert_weight_bits."
+        "description": "3D tensor with shape (num_experts, fusion_size * inter_size, hidden_size * effective_fc1_bits / 8). The last dimension must be byte-aligned. The fusion_size is 2 for fused swiglu or geglu, or 1 otherwise. effective_fc1_bits is fc1_expert_weight_bits when provided, otherwise expert_weight_bits."
       },
       {
         "name": "fc1_scales",
