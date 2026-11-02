@@ -40168,7 +40168,7 @@
   {
     "name": "Reciprocal",
     "summary": "Computes the reciprocal of x element-wise.",
-    "description": "I.e., \\\\(y = 1 / x\\\\).",
+    "description": "I.e., \\\\(y = 1 / x\\\\).\n\nCPU kernels support only floating-point and complex types. GPU kernels also\nsupport `int64`. There are no CPU or GPU kernels for `int8`, `int16`, or `int32`.",
     "attributes": [
       {
         "name": "T",
