@@ -346,6 +346,9 @@ export class Target {
                                 if (size < 8192 && tensor.type &&
                                     tensor.type.dataType !== '?' &&
                                     tensor.type.dataType !== 'string' &&
+                                    tensor.type.dataType !== 'int65' &&
+                                    tensor.type.dataType !== 'int104' &&
+                                    tensor.type.dataType !== 'int112' &&
                                     tensor.type.dataType !== 'int128' &&
                                     tensor.type.dataType !== 'complex<int32>') {
                                     let data_type = '?';

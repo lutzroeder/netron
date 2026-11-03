@@ -33810,7 +33810,7 @@
   {
     "name": "nvvm.convert.f32x2.to.bf16x2",
     "summary": "Convert two F32 values to packed bf16x2.",
-    "description": "Converts two F32 values to packedbf16x2format with \n    the specified rounding mode. The `src_hi` and `src_lo` parameters \n    correspond to operands `a` and `b` in the PTX ISA, respectively.\n    \n    The `random_bits` parameter is required for stochastic rounding and \n    provides the [random bits](https://docs.nvidia.com/cuda/parallel-thread-execution/#cvt-rs-rbits-layout-bf16) to be used for the conversion.\n\n    The `relu` attribute clamps negative results to 0.\n\n    The `sat` attribute determines saturation behavior.\n    \n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "Converts two F32 values to packedbf16x2format with \n    the specified rounding mode. The `src_hi` and `src_lo` parameters \n    correspond to operands `a` and `b` in the PTX ISA, respectively.\n    \n    The `random_bits` parameter is required for stochastic rounding and \n    provides the [random bits](https://docs.nvidia.com/cuda/parallel-thread-execution/#cvt-rs-rbits-layout-bf16) to be used for the conversion.\n\n    The `relu` attribute clamps negative results to 0.\n\n    The `sat` attribute determines saturation behavior.\n\n    The `pzo` attribute, when set, lowers to the '.pzo' variant of the cvt\n    instruction. `pzo` is not supported with the RS rounding mode.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
       { "name": "src_hi", "type": "F32" },
       { "name": "src_lo", "type": "F32" },
@@ -33822,14 +33822,15 @@
     "attributes": [
       { "name": "rnd", "type": "DefaultValuedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, FPRoundingMode::NONE>" },
       { "name": "sat", "type": "DefaultValuedAttr<SaturationModeAttr{none|satfinite|sat}, SaturationMode::NONE>" },
-      { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" }
+      { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src_hi `,` $src_lo oilist(\n      `random_bits` `=` $random_bits | `rnd` `=` $rnd\n      | `sat` `=` $sat | `relu` `=` $relu\n    )\n    attr-dict `:` type($dst)"
+    "assemblyFormat": "$src_hi `,` $src_lo oilist(\n      `random_bits` `=` $random_bits | `rnd` `=` $rnd\n      | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    )\n    attr-dict `:` type($dst)"
   },
   {
     "name": "nvvm.convert.f32x2.to.f16x2",
     "summary": "Convert two F32 values to packed f16x2.",
-    "description": "Converts two F32 values to packedf16x2format with \n    the specified rounding mode. The `src_hi` and `src_lo` parameters \n    correspond to operands `a` and `b` in the PTX ISA, respectively.\n    \n    The `random_bits` parameter is required for stochastic rounding and \n    provides the [random bits](https://docs.nvidia.com/cuda/parallel-thread-execution/#cvt-rs-rbits-layout-f16) to be used for the conversion.\n\n    The `relu` attribute clamps negative results to 0.\n\n    The `sat` attribute determines saturation behavior.\n    \n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "Converts two F32 values to packedf16x2format with \n    the specified rounding mode. The `src_hi` and `src_lo` parameters \n    correspond to operands `a` and `b` in the PTX ISA, respectively.\n    \n    The `random_bits` parameter is required for stochastic rounding and \n    provides the [random bits](https://docs.nvidia.com/cuda/parallel-thread-execution/#cvt-rs-rbits-layout-f16) to be used for the conversion.\n\n    The `relu` attribute clamps negative results to 0.\n\n    The `sat` attribute determines saturation behavior.\n\n    The `pzo` attribute, when set, lowers to the '.pzo' variant of the cvt\n    instruction. `pzo` is not supported with the RS rounding mode.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
       { "name": "src_hi", "type": "F32" },
       { "name": "src_lo", "type": "F32" },
@@ -33841,9 +33842,10 @@
     "attributes": [
       { "name": "rnd", "type": "DefaultValuedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, FPRoundingMode::NONE>" },
       { "name": "sat", "type": "DefaultValuedAttr<SaturationModeAttr{none|satfinite|sat}, SaturationMode::NONE>" },
-      { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" }
+      { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" },
+      { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src_hi `,` $src_lo oilist(\n      `random_bits` `=` $random_bits | `rnd` `=` $rnd\n      | `sat` `=` $sat | `relu` `=` $relu\n    )\n    attr-dict `:` type($dst)"
+    "assemblyFormat": "$src_hi `,` $src_lo oilist(\n      `random_bits` `=` $random_bits | `rnd` `=` $rnd\n      | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    )\n    attr-dict `:` type($dst)"
   },
   {
     "name": "nvvm.convert.f32x2.to.f4x2",
@@ -37399,7 +37401,7 @@
   {
     "name": "omp.single",
     "summary": "single directive",
-    "description": "The single construct specifies that the associated structured block is\n    executed by only one of the threads in the team (not necessarily the\n    master thread), in the context of its implicit task. The other threads\n    in the team, which do not execute the block, wait at an implicit barrier\n    at the end of the single construct.The `allocate_vars` and `allocator_vars` parameters are parallel lists that\n    pair each allocated private value with the allocator used to obtain its\n    storage. When present, `allocate_alignments` has one entry per allocate\n    variable; zero means omitted alignment, and nonzero entries must be powers\n    of two.\n    `allocate_private_indices` maps each allocate variable to the corresponding\n    position in the operation's private variables.If `copyprivate` variables and functions are specified, then each thread\n    variable is updated with the variable value of the thread that executed\n    the single region, using the specified copy functions.The optional `nowait` attribute, when present, eliminates the implicit\n    barrier at the end of the construct, so the parent operation can make\n    progress even if the child operation has not completed yet.The optional `private_assume_bounded_recipe_effects` unit attribute asserts\n    that all regions of every referenced privatisation recipe may only read the\n    original variable and allocate, write or free private storage.\n    Lastprivate copy-back is represented by explicit nested operations.\n\n    These effects apply only to storage directly designated by the original\n    variables and their corresponding private block arguments. Recipes may not\n    access other storage, including globals or pointees reached by loading\n    pointers from these variables. Without the attribute, referenced\n    privatisation recipes are assumed to have arbitrary memory effects.",
+    "description": "The single construct specifies that the associated structured block is\n    executed by only one of the threads in the team (not necessarily the\n    master thread), in the context of its implicit task. The other threads\n    in the team, which do not execute the block, wait at an implicit barrier\n    at the end of the single construct.The `allocate_vars` and `allocator_vars` parameters are parallel lists that\n    pair each allocated private value with the allocator used to obtain its\n    storage. When present, `allocate_alignments` has one entry per allocate\n    variable; zero means omitted alignment, and nonzero entries must be powers\n    of two.\n    `allocate_private_indices` maps each allocate variable to the corresponding\n    position in the operation's private variables.If `copyprivate` variables and functions are specified, then each thread\n    variable is updated with the variable value of the thread that executed\n    the single region, using the specified copy functions.\n\n    The optional `copyprivate_assume_bounded_recipe_effects` unit attribute\n    asserts that referenced copyprivatisation recipes may only read or write\n    `copyprivate` variables associated with the clause.\n    These effects apply only to storage directly designated by the `copyprivate`\n    variables. Recipes may not access other storage, including globals or\n    pointees reached by loading pointers from these variables. Without the\n    attribute, referenced copy functions are assumed to have arbitrary memory\n    effects.The optional `nowait` attribute, when present, eliminates the implicit\n    barrier at the end of the construct, so the parent operation can make\n    progress even if the child operation has not completed yet.The optional `private_assume_bounded_recipe_effects` unit attribute asserts\n    that all regions of every referenced privatisation recipe may only read the\n    original variable and allocate, write or free private storage.\n    Lastprivate copy-back is represented by explicit nested operations.\n\n    These effects apply only to storage directly designated by the original\n    variables and their corresponding private block arguments. Recipes may not\n    access other storage, including globals or pointees reached by loading\n    pointers from these variables. Without the attribute, referenced\n    privatisation recipes are assumed to have arbitrary memory effects.",
     "operands": [
       { "name": "allocate_vars", "type": "Variadic<AnyType>" },
       { "name": "allocator_vars", "type": "Variadic<AnyType>" },
@@ -37410,14 +37412,16 @@
       { "name": "allocate_alignments", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "allocate_private_indices", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "copyprivate_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
+      { "name": "copyprivate_assume_bounded_recipe_effects", "type": "UnitAttr" },
       { "name": "nowait", "type": "UnitAttr" },
       { "name": "private_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
-      { "name": "private_needs_barrier", "type": "UnitAttr" }
+      { "name": "private_needs_barrier", "type": "UnitAttr" },
+      { "name": "private_assume_bounded_recipe_effects", "type": "UnitAttr" }
     ],
     "regions": [
       { "name": "region", "type": "AnyRegion" }
     ],
-    "assemblyFormat": "oilist(`allocate` `(`\n      custom<AllocateAndAllocator>($allocate_vars, type($allocate_vars),\n                                   $allocator_vars, type($allocator_vars)) `)`\n      (`allocate_alignments` `(` $allocate_alignments^ `)`)?\n      (`allocate_private_indices` `(` $allocate_private_indices^ `)`)?|`copyprivate` `(`\n      custom<Copyprivate>($copyprivate_vars, type($copyprivate_vars),\n                          $copyprivate_syms) `)`|`nowait` $nowait)custom<PrivateRegion>($region, $private_vars, type($private_vars),\n        $private_syms, $private_needs_barrier) attr-dict"
+    "assemblyFormat": "oilist(`allocate` `(`\n      custom<AllocateAndAllocator>($allocate_vars, type($allocate_vars),\n                                   $allocator_vars, type($allocator_vars)) `)`\n      (`allocate_alignments` `(` $allocate_alignments^ `)`)?\n      (`allocate_private_indices` `(` $allocate_private_indices^ `)`)?|`copyprivate` `(`\n      custom<Copyprivate>($copyprivate_vars, type($copyprivate_vars),\n                          $copyprivate_syms) `)`|`nowait` $nowait)custom<PrivateRegion>($region, $private_vars, type($private_vars),\n        $private_syms, $private_needs_barrier) prop-dict attr-dict"
   },
   {
     "name": "omp.target",
@@ -69266,6 +69270,24 @@
     ]
   },
   {
+    "name": "test.type_changing_region_branch",
+    "operands": [
+      { "name": "inputs", "type": "Variadic<AnyType>" }
+    ],
+    "results": [
+      { "name": "outputs", "type": "Variadic<AnyType>" }
+    ],
+    "regions": [
+      { "name": "branches", "type": "VariadicRegion<SizedRegion<1>>" }
+    ]
+  },
+  {
+    "name": "test.type_changing_yield",
+    "operands": [
+      { "name": "values", "type": "Variadic<AnyType>" }
+    ]
+  },
+  {
     "name": "test.type_producer",
     "results": [
       { "name": "result", "type": "AnyType" }
@@ -83570,7 +83592,7 @@
     "description": "Performs a batched matrix multiplication on the inputs. Follows the\nconventions of TensorFlow BatchMatMulV2, with support for unknown dimensions\nin the batch dimensions and broadcasting.\n\n    Inputs:\n      `inputs[0]`: required: input LHS\n      `inputs[1]`: required: input RHS\n      `adjoint_lhs`: optional: Transpose LHS (default false)\n      `adjoint_rhs`: optional: Transpose RHS (default false)",
     "operands": [
       { "name": "x", "type": "TFL_TensorOf<[F32, F16, QI8, QI16, I8]>" },
-      { "name": "y", "type": "TFL_TensorOf<[F32, F16, QI8, QI16, I8]>" }
+      { "name": "y", "type": "TFL_TensorOf<[F32, F16, QI8, QI16, I8, TFL_BlockwiseQuantType]>" }
     ],
     "results": [
       { "name": "output", "type": "TFL_TensorOf<[F32, F16, QI8, QI16, I32]>" }
@@ -106500,6 +106522,40 @@
     "assemblyFormat": "$input `,` $dtype attr-dict\n    `:` qualified(type($input)) `,` qualified(type($dtype))\n    `->` qualified(type($scale)) `,` qualified(type($zero_point))"
   },
   {
+    "name": "torch.quantized_decomposed.choose_qparams_symmetric.tensor",
+    "summary": "PT2E choose_qparams_symmetric.tensor (symmetric per-tensor calibration)",
+    "description": "Corresponds to `quantized_decomposed::choose_qparams_symmetric.tensor` in\n    PT2E-exported dynamic-quantization graphs.\n\n    Computes per-tensor symmetric quantization parameters at runtime:\n    ```\n    scale = max(max(-min(min_val,0),max(max_val,0)) / (qrange / 2), eps)\n    zero_point = 128 if uint8/quint8, else 0\n    ```\n    Returns scale as a 1-element float tensor and zero_point as a 1-element\n    int64 tensor whose value is always zero.  `dtype` encodes the target\n    quantized dtype as a torch.dtype integer code.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "eps", "type": "Torch_FloatType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $quant_min `,` $quant_max `,` $eps `,` $dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($eps)) `,`\n        qualified(type($dtype))\n    `->` qualified(type($scale)) `,` qualified(type($zero_point))"
+  },
+  {
+    "name": "torch.quantized_decomposed.choose_qparams.tensor",
+    "summary": "PT2E choose_qparams.tensor (asymmetric per-tensor calibration)",
+    "description": "Corresponds to `quantized_decomposed::choose_qparams.tensor` in\n    PT2E-exported dynamic-quantization graphs.\n\n    Computes per-tensor affine quantization parameters (scale and zero_point)\n    from a floating-point activation tensor at runtime:\n    ```\n    scale = max((max(max_val,0) - min(min_val,0)) / quant_range, eps)\n    zp = clamp(qmin - round(min(min_val,0) / scale), quant_min, quant_max)\n    ```\n    Returns scale as a 1-element float tensor and zero_point as a 1-element\n    int64 tensor.  `dtype` encodes the target quantized dtype as a torch.dtype\n    integer code (used for validation only; does not affect output types).",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "eps", "type": "Torch_FloatType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $quant_min `,` $quant_max `,` $eps `,` $dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($eps)) `,`\n        qualified(type($dtype))\n    `->` qualified(type($scale)) `,` qualified(type($zero_point))"
+  },
+  {
     "name": "torch.quantized_decomposed.dequantize_per_channel",
     "summary": "PT2E dequantize_per_channel",
     "description": "Dequantizes a quantized tensor with one scale and optional zero point per\n    channel. A None `zero_points` operand denotes symmetric quantization.\n    `scales` and `zero_points` are as in `quantize_per_channel`.",
@@ -106554,6 +106610,42 @@
       { "name": "result", "type": "AnyTorchTensorType" }
     ],
     "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,` $dtype `,` $out_dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($out_dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.dequantize_per_tensor.tensor",
+    "summary": "PT2E dequantize_per_tensor.tensor (tensor scale/zero_point, scalar qbounds)",
+    "description": "Corresponds to `quantized_decomposed::dequantize_per_tensor.tensor` in\n    PT2E-exported graphs.  Identical semantics to\n    `quantized_decomposed.dequantize_per_tensor` but `scale` and `zero_point`\n    are 0-d scalar tensors instead of Python scalars.  `quant_min` and\n    `quant_max` remain plain integers.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" },
+      { "name": "out_dtype", "type": "AnyTorchOptionalIntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,`\n        $dtype `,` $out_dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($out_dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.dequantize_per_tensor.tensor2",
+    "summary": "PT2E dequantize_per_tensor.tensor2 (all qparams as tensors)",
+    "description": "Corresponds to `quantized_decomposed::dequantize_per_tensor.tensor2` in\n    PT2E-exported graphs.  Identical semantics to\n    `quantized_decomposed.dequantize_per_tensor` but `scale`, `zero_point`,\n    `quant_min` and `quant_max` are all 0-d scalar tensors.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "AnyTorchTensorType" },
+      { "name": "quant_max", "type": "AnyTorchTensorType" },
+      { "name": "dtype", "type": "Torch_IntType" },
+      { "name": "out_dtype", "type": "AnyTorchOptionalIntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,`\n        $dtype `,` $out_dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype)) `,`\n        qualified(type($out_dtype))\n    `->` qualified(type($result))"
   },
   {
     "name": "torch.quantized_decomposed.dequantize_per_token",
@@ -106619,6 +106711,40 @@
       { "name": "zero_point", "type": "Torch_IntType" },
       { "name": "quant_min", "type": "Torch_IntType" },
       { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,` $dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.quantize_per_tensor.tensor",
+    "summary": "PT2E quantize_per_tensor.tensor (tensor scale/zero_point, scalar qbounds)",
+    "description": "Corresponds to `quantized_decomposed::quantize_per_tensor.tensor` in\n    PT2E-exported graphs.  Identical semantics to\n    `quantized_decomposed.quantize_per_tensor` but `scale` and `zero_point`\n    are 0-d scalar tensors instead of Python scalars.  `quant_min` and\n    `quant_max` remain plain integers.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "Torch_IntType" },
+      { "name": "quant_max", "type": "Torch_IntType" },
+      { "name": "dtype", "type": "Torch_IntType" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTorchTensorType" }
+    ],
+    "assemblyFormat": "$input `,` $scale `,` $zero_point `,` $quant_min `,` $quant_max `,` $dtype\n    attr-dict\n    `:` qualified(type($input)) `,` qualified(type($scale)) `,`\n        qualified(type($zero_point)) `,` qualified(type($quant_min)) `,`\n        qualified(type($quant_max)) `,` qualified(type($dtype))\n    `->` qualified(type($result))"
+  },
+  {
+    "name": "torch.quantized_decomposed.quantize_per_tensor.tensor2",
+    "summary": "PT2E quantize_per_tensor.tensor2 (all qparams as tensors)",
+    "description": "Corresponds to `quantized_decomposed::quantize_per_tensor.tensor2` in\n    PT2E-exported graphs.  Identical semantics to\n    `quantized_decomposed.quantize_per_tensor` but `scale`, `zero_point`,\n    `quant_min` and `quant_max` are all 0-d scalar tensors.",
+    "operands": [
+      { "name": "input", "type": "AnyTorchTensorType" },
+      { "name": "scale", "type": "AnyTorchTensorType" },
+      { "name": "zero_point", "type": "AnyTorchTensorType" },
+      { "name": "quant_min", "type": "AnyTorchTensorType" },
+      { "name": "quant_max", "type": "AnyTorchTensorType" },
       { "name": "dtype", "type": "Torch_IntType" }
     ],
     "results": [
