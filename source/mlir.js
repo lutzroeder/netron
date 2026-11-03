@@ -21803,15 +21803,12 @@ _.OpenMPDialect = class extends _.Dialect {
         const syms = [];
         const byrefFlags = [];
         const mapIndices = [];
-        // Optional reduction modifier: mod : <keyword> ,
-        if (clauseConfig.modifier && parser.parseOptionalKeyword('mod')) {
-            parser.parseColon();
-            const modValue = parser.parseKeyword();
-            parser.parseComma();
-            clauseConfig.modifier.value = modValue;
-        }
+        const modifiers = [];
         if (!parser.parseOptionalRParen()) {
             do {
+                if (clauseConfig.modifier) {
+                    modifiers.push(parser.parseOptionalKeyword(['task', 'inscan', 'defaultmod']) || 'defaultmod');
+                }
                 if (clauseConfig.byref) {
                     byrefFlags.push(Boolean(parser.parseOptionalKeyword('byref')));
                 }
@@ -21848,6 +21845,9 @@ _.OpenMPDialect = class extends _.Dialect {
         }
         if (clauseConfig.byref && byrefFlags.length > 0) {
             clauseConfig.byref.value = byrefFlags;
+        }
+        if (clauseConfig.modifier && modifiers.some((value) => value !== 'defaultmod')) {
+            clauseConfig.modifier.value = modifiers;
         }
         if (clauseConfig.mapIndices && mapIndices.length > 0 && mapIndices.some((v) => v !== -1)) {
             clauseConfig.mapIndices.value = mapIndices;
