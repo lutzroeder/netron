@@ -140,6 +140,7 @@ jax_export.serialization.AbstractValue = class AbstractValue {
         $.shape = reader.strings_(position, 6);
         $.dtype = reader.int8_(position, 8, 0);
         $.memory_space = reader.int8_(position, 10, 0);
+        $.weak_type = reader.bool_(position, 12, false);
         return $;
     }
 };
