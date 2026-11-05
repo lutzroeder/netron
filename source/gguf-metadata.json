@@ -3399,13 +3399,12 @@
           "type": "MUL_MAT_ID",
           "tensors": ["ffn_down.{N}", "ffn_down_exps"]
         },
-        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output", "attn_qkv"] },
-        { "name": "attn_gate", "type": "MUL_MAT" },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"] },
         { "name": "ffn_up_shexp", "type": "MUL_MAT" },
         { "name": "ffn_down_shexp", "type": "MUL_MAT" },
         { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
         { "name": "ffn_gate_up_exps", "type": "MUL_MAT_ID" },
-        { "name": "ssm", "type": "MAMBA2", "tensors": ["ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
         { "name": "nextn.eh_proj", "type": "MUL_MAT" },
         { "name": "nextn.embed_tokens", "type": "EMBEDDING", "category": "Transform" },
         { "name": "nextn.enorm", "type": "RMS_NORM", "category": "Normalization" },
@@ -5077,6 +5076,74 @@
         { "name": "ffn_resid_scale", "type": "MUL" }
       ],
       "output": [
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "clover_moe",
+    "family": "delta-hybrid",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["attn_norm", "attn_q_norm", "attn_k_norm"] },
+        { "name": "attn_post_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["post_attention_norm"] },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT", "tensors": ["ffn_gate_inp", "ffn_gate_inp_shexp"] },
+        {
+          "name": "ffn_gate_exps",
+          "type": "MUL_MAT_ID",
+          "tensors": ["ffn_gate.{N}", "ffn_gate_exps"]
+        },
+        {
+          "name": "ffn_up_exps",
+          "type": "MUL_MAT_ID",
+          "tensors": ["ffn_up.{N}", "ffn_up_exps"]
+        },
+        {
+          "name": "ffn_down_exps",
+          "type": "MUL_MAT_ID",
+          "tensors": ["ffn_down.{N}", "ffn_down_exps"]
+        },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"] },
+        { "name": "ffn_up_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_down_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_gate_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
+        { "name": "output", "type": "MUL_MAT" }
+      ]
+    }
+  },
+  {
+    "name": "metis16",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "stream_embd", "type": "HYPER_CONNECTION" },
+        { "name": "depth_mem", "type": "DEPTH_MEMORY", "tensors": ["depth_mem_state_write", "depth_mem_meta_write", "depth_mem_entry_bias", "depth_mem_query", "depth_mem_key", "depth_mem_value", "depth_mem_out", "depth_mem_route_state", "depth_mem_route_retr", "depth_mem_route_diff", "depth_mem_route_hist", "depth_mem_route", "depth_mem_stream_gate", "cont_hidden_state", "cont_hidden_retr", "cont_hidden_diff", "cont_hidden_route", "cont_hidden", "cont_output"] }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["attn_norm", "hc_attn_mix", "hc_attn_read", "hc_attn_write"] },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_qkv", "attn_output", "attn_pass_lora_down", "attn_pass_lora_up", "attn_pass_gate"] },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["ssm_in", "ssm_conv1d", "ssm_dt", "ssm_a", "ssm_d", "ssm_norm", "ssm_out"] },
+        { "name": "ffn_norm", "type": "RMS_NORM", "category": "Normalization", "tensors": ["ffn_norm", "hc_ffn_mix", "hc_ffn_read", "hc_ffn_write"] },
+        { "name": "ffn_latent_down", "type": "MUL_MAT" },
+        { "name": "ffn_gate_inp", "type": "MUL_MAT", "tensors": ["ffn_gate_inp", "ffn_exp_embd"] },
+        { "name": "exp_probs_b", "type": "ADD" },
+        { "name": "ffn_gate_up_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_down_exps", "type": "MUL_MAT_ID" },
+        { "name": "ffn_gate_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_up_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_down_shexp", "type": "MUL_MAT" },
+        { "name": "ffn_latent_up", "type": "MUL_MAT" }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "RMS_NORM", "category": "Normalization" },
         { "name": "output", "type": "MUL_MAT" }
       ]
     }
