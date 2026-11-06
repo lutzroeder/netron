@@ -25588,6 +25588,14 @@
         "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
       },
       {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
+      },
+      {
         "summary": "transposeA",
         "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_transposeA\")"
       },
@@ -25714,6 +25722,14 @@
         "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
       },
       {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
+      },
+      {
         "summary": "transposeA",
         "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_transposeA\")"
       },
@@ -25832,6 +25848,14 @@
       {
         "summary": "default_zero_bias",
         "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
+      },
+      {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
       },
       {
         "summary": "transposeA",
@@ -25956,6 +25980,14 @@
       {
         "summary": "default_zero_bias",
         "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
+      },
+      {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
       },
       {
         "summary": "transposeA",
@@ -26084,6 +26116,14 @@
         "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
       },
       {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
+      },
+      {
         "summary": "transposeA",
         "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_transposeA\")"
       },
@@ -26209,6 +26249,149 @@
       {
         "summary": "default_zero_bias",
         "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
+      },
+      {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
+      },
+      {
+        "summary": "transposeA",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], transA=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transA=1)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_transposeA\")"
+      },
+      {
+        "summary": "transposeB",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], transB=1\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, transB=1)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_transposeB\")"
+      }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "Gemm",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "Generalized matrix multiplication: `Y = alpha * A' * B' + beta * C`.\nA has rank at least 1 and B has rank 2. A' is A with its last two axes swapped\nwhen transA is non-zero; for rank-1 A, transA has no effect.\nB' is B transposed when transB is non-zero.\nIf A' has shape (..., K) and B' has shape (K, N), Y has shape (..., N):\neach vector along A's contraction axis is multiplied by the same matrix B'.\nThe leading dimensions of A' are preserved, including when there are none.\nC must be unidirectionally broadcastable to Y. If C is omitted, it is treated\nas scalar zero. When beta is zero, C does not contribute to the result.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A' * B'); for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+    "attributes": [
+      {
+        "name": "alpha",
+        "type": "float32",
+        "required": false,
+        "default": 1.0,
+        "description": "Scalar multiplier for the product of input tensors A * B."
+      },
+      {
+        "name": "beta",
+        "type": "float32",
+        "required": false,
+        "default": 1.0,
+        "description": "Scalar multiplier for input tensor C."
+      },
+      {
+        "name": "transA",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to swap the last two axes of A. Has no effect on rank-1 A."
+      },
+      {
+        "name": "transB",
+        "type": "int64",
+        "required": false,
+        "description": "Whether B should be transposed"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T",
+        "description": "Input tensor A. Rank >= 1 tensor. After applying transA, its shape is (..., K)."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Input tensor B. The shape of B should be (K, N) if transB is 0, or (N, K) if transB is non-zero."
+      },
+      {
+        "name": "C",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional input tensor C. If not specified, the computation is done as if C is a scalar 0. The shape of C must be unidirectionally broadcastable to the output shape (..., N)."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor of shape (..., N)."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "2 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float/int tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "all_attributes",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    alpha=0.25,\n    beta=0.35,\n    transA=1,\n    transB=1,\n)\na = np.random.ranf([4, 3]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.random.ranf([1, 5]).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.35\n)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_all_attributes\")"
+      },
+      {
+        "summary": "alpha",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], alpha=0.5\n)\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, alpha=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_alpha\")"
+      },
+      {
+        "summary": "beta",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"], beta=0.5\n)\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c, beta=0.5)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_beta\")"
+      },
+      {
+        "summary": "default_matrix_bias",
+        "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(\n    node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_matrix_bias\"\n)"
+      },
+      {
+        "summary": "default_no_bias",
+        "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\"], outputs=[\"y\"])\na = np.random.ranf([2, 10]).astype(np.float32)\nb = np.random.ranf([10, 3]).astype(np.float32)\ny = gemm_reference_implementation(a, b)\nexpect(node, inputs=[a, b], outputs=[y], name=\"test_gemm_default_no_bias\")"
+      },
+      {
+        "summary": "default_scalar_bias",
+        "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([2, 3]).astype(np.float32)\nb = np.random.ranf([3, 4]).astype(np.float32)\nc = np.array(3.14).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(\n    node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_scalar_bias\"\n)"
+      },
+      {
+        "summary": "default_single_elem_vector_bias",
+        "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 7]).astype(np.float32)\nb = np.random.ranf([7, 3]).astype(np.float32)\nc = np.random.ranf([1]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_default_single_elem_vector_bias\",\n)"
+      },
+      {
+        "summary": "default_vector_bias",
+        "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([2, 7]).astype(np.float32)\nb = np.random.ranf([7, 4]).astype(np.float32)\nc = np.random.ranf([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(\n    node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_vector_bias\"\n)"
+      },
+      {
+        "summary": "default_zero_bias",
+        "code": "node = onnx.helper.make_node(\"Gemm\", inputs=[\"a\", \"b\", \"c\"], outputs=[\"y\"])\na = np.random.ranf([3, 5]).astype(np.float32)\nb = np.random.ranf([5, 4]).astype(np.float32)\nc = np.zeros([1, 4]).astype(np.float32)\ny = gemm_reference_implementation(a, b, c)\nexpect(node, inputs=[a, b, c], outputs=[y], name=\"test_gemm_default_zero_bias\")"
+      },
+      {
+        "summary": "high_rank_transpose",
+        "code": "node = onnx.helper.make_node(\n    \"Gemm\",\n    inputs=[\"a\", \"b\", \"c\"],\n    outputs=[\"y\"],\n    transA=1,\n    transB=1,\n    alpha=0.25,\n    beta=0.5,\n)\na = np.random.ranf((2, 5, 3)).astype(np.float32)\nb = np.random.ranf((7, 5)).astype(np.float32)\nc = np.random.ranf((2, 1, 7)).astype(np.float32)\ny = gemm_reference_implementation(\n    a, b, c, transA=1, transB=1, alpha=0.25, beta=0.5\n)\nexpect(\n    node,\n    inputs=[a, b, c],\n    outputs=[y],\n    name=\"test_gemm_high_rank_transpose\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "for shape, suffix in [\n    ((5,), \"vector\"),\n    ((2, 3, 5), \"rank3\"),\n    ((2, 3, 4, 5), \"rank4\"),\n    ((0, 3, 5), \"empty_batch\"),\n    ((2, 3, 0), \"empty_features\"),\n]:\n    for has_bias in (False, True):\n        node = onnx.helper.make_node(\n            \"Gemm\",\n            inputs=[\"a\", \"b\", \"c\"] if has_bias else [\"a\", \"b\"],\n            outputs=[\"y\"],\n            transB=1,\n        )\n        a = np.random.ranf(shape).astype(np.float32)\n        b = np.random.ranf((7, shape[-1])).astype(np.float32)\n        c = np.random.ranf((7,)).astype(np.float32)\n        y = gemm_reference_implementation(\n            a, b, c if has_bias else None, transB=1\n        )\n        expect(\n            node,\n            inputs=[a, b, c] if has_bias else [a, b],\n            outputs=[y],\n            name=f\"test_gemm_linear_{suffix}_{'bias' if has_bias else 'no_bias'}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
       },
       {
         "summary": "transposeA",
@@ -28546,7 +28729,7 @@
     "name": "GroupQueryAttention",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Group Query Self/Cross Attention with KV Cache Quantization Support.\n\nThis operator implements grouped-query attention with past state (KV cache) support.\nIt also supports optional float8, int8 or int4 quantization for the KV cache to reduce memory footprint.\n\n**Cache Format:**\nThe past and present KV cache tensors are expected in a BNSH format: `(batch_size, num_heads, cache_sequence_length, head_size)`, where `cache_sequence_length` is the length of the cached key/value sequences, or the maximum sequence length when past and present buffer sharing is used.\n\n**Right-padded query chunks (`query_seqlens` input):**\nThe optional `query_seqlens` input supports chunked prefill with a fixed query shape. Let `S` be `sequence_length`, the padded chunk length. For batch entry `b`, let `T = seqlens_k[b] + 1` be the number of tokens in the KV cache after this step, `Q = query_seqlens[b]` the number of valid (non-padded) tokens in the chunk, and `P = T - Q` the number of tokens that were cached before it. Rows `[0, Q)` of `query`, `key` and `value` are valid tokens and rows `[Q, S)` are right padding.\n\nOnly the valid rows are appended to the cache, at positions `[P, T)`. Query row `s` is at absolute position `P + s`: causal attention, `local_window_size` and rotary embedding (when `position_ids` is not given) use that position. Output rows `[Q, S)` are unspecified, and so are cache rows at or beyond `T`. For every valid row the result equals that of the same call with an unpadded chunk of `Q` tokens retaining `query_seqlens` and the same `total_sequence_length`, so a caller can run every chunk of a prompt with one fixed `S`. With a quantized CUDA cache and `P = 0, Q > 1`, attention reads the original floating-point new K/V; omitting `query_seqlens` while retaining a capacity-valued bound can instead select legacy quantized-cache reads. For `P = 0, Q = 1`, both padded and unpadded calls read floating-point new K/V only when `total_sequence_length = 1`; a larger bound preserves quantized-cache reads.\n\nThe scalar `total_sequence_length` is only an upper bound of `T` in this case (for example the cache capacity). It is not used to tell a first prompt from a later chunk and it does not determine `P`.\n\nRequirements: `causal=1`; new key/value with `kv_sequence_length == sequence_length`; `past_key` and `past_value` present; `1 <= Q <= min(S, T)` and `T <= total_sequence_length` for every batch entry (the existing rule that `total_sequence_length >= sequence_length` for a cache that is not windowed still applies, but a growing cache is not required to have `total_sequence_length == past_sequence_length + sequence_length`); `sequence_length > 1` requires `batch_size == 1`; and `Q == 1` when `sequence_length == 1`. A cache that is not windowed must also hold the `P` cached tokens in `past_key` (`P` is at most the sequence dimension of `past_key`) and have room for the whole padded chunk, `P + S <= C`, where `C` is the sequence dimension of `present_key`. A windowed cache has no such requirement because it is staged internally. An execution provider that can read the values reports a violation with `INVALID_ARGUMENT`; the CUDA execution provider reads them on the device, clamps `Q` into `[1, min(S, T)]` and leaves the result unspecified. When `query_seqlens` is omitted, `Q = min(S, T)` and the behavior is unchanged.\n\n**Windowed KV Cache (`sliding_window_cache` attribute):**\nWhen `sliding_window_cache` is 1, the past/present buffers are window-sized instead of full-length and the operator evicts internally. Let `C` be the cache capacity (dimension 2 of `past_key`, which is also the sequence dimension of `present_key`), `W` be `local_window_size`, and `T` be the absolute number of tokens processed so far by this batch entry, i.e. `seqlens_k[b] + 1`. The scalar `total_sequence_length` input is only the batch maximum of `T` (or only an upper bound of `T` when `query_seqlens` is given); the layout below is per batch entry, so a ragged batch gets a different resident range per entry. `C` must be at least `W`.\n\nAfter a step, rows `[0, L)` of `present_key` and `present_value` hold the `L` most recent positions in increasing position order, so row `i` holds absolute position `T - L + i`. The retained positions are always physically contiguous and start at row 0; the layout never wraps around, so a ring-buffer layout cannot be exposed through these outputs. Rows `[L, C)` are unspecified. The resident count `L` is a function of `T` alone:\n\n```\nG = C - W + 1\nL(T) = T                            if T <= C\nL(T) = T - G * ceil((T - C) / G)    otherwise\n```\n\nHence `min(T, W) <= L(T) <= min(T, C)`: the whole window stays resident, and eviction reclaims `G` positions at once rather than one position per step, so consumers must not assume that the cache is kept full at `min(T, C)`.\n\n  Because `L` depends only on `T`, the resulting layout is independent of how the tokens were split into steps: a multi-token step of `S` tokens (speculative decoding, chunked prefill) leaves exactly the layout that the same tokens would produce one at a time. A right-padded chunk (`query_seqlens`) leaves the layout of its `Q` valid tokens only, because padding rows never enter the cache. Any `S >= 1` is accepted, including `S > C`; a step that would evict positions it still has to read is staged internally, so the capacity does not have to cover the step. When past context is present, the existing operator restriction still applies: `sequence_length > 1` requires `batch_size == 1`.\n\n  An execution provider may accept only part of the `C >= W` range. A configuration with `C < W` (equivalently, `W > C`) is invalid and is rejected with `INVALID_ARGUMENT`. The CUDA implementation requires `C == W`, so there `G` is 1 and `L(T)` is `min(T, C)`; a larger capacity is rejected. The CPU implementation accepts any `C >= W`, and slack above the window amortizes compaction over `G` steps.\n\nTo drop the last `k` tokens, for example after rejecting speculative draft tokens, re-run with the smaller `total_sequence_length` and `seqlens_k` and leave the buffer untouched. That is exact when `L(T - k) == L(T) - k`, which callers can evaluate with the formula above. Otherwise the shorter layout needs positions that have already been evicted, and the window has to be re-materialized.\n\n**Quantization:**\nWhen quantization is enabled, `past_key` and `past_value` inputs can be of type `float8e4m3fn`, `uint8` or `int8`. The corresponding `k_scale` and `v_scale` tensors must be provided.\nThe operator will output `present_key` and `present_value` in same format as the `past_key` and `past_value`.\n\nFor 4-bit quantization, the data type is uint8 where each byte contains two 4-bit values. The bit width of quantized KV cache can be set using `kv_cache_bit_width` attribute.\n\nThe shapes of the k_scale, v_scale tensors shall be broadcastable to present_key shape.\n\n**Quantization Modes (`k_quant_type`, `v_quant_type` attributes):**\n- **\"NONE\"**: No quantization.\n- **\"PER_TENSOR\"**: A single scale for the entire tensor. Scale example shape: `[1]`.\n- **\"PER_CHANNEL\"**: A scale for each channel. Scale example shape: `[1, num_heads_k, 1, head_size]`.\n",
+    "description": "Group Query Self/Cross Attention with KV Cache Quantization Support.\n\nThis operator implements grouped-query attention with past state (KV cache) support.\nIt also supports optional float8, int8 or int4 quantization for the KV cache to reduce memory footprint.\n\n**Cache Format:**\nThe past and present KV cache tensors are expected in a BNSH format: `(batch_size, num_heads, cache_sequence_length, head_size)`, where `cache_sequence_length` is the length of the cached key/value sequences, or the maximum sequence length when past and present buffer sharing is used.\n\n**Right-padded query chunks (`query_seqlens` input):**\nThe optional `query_seqlens` input supports chunked prefill with a fixed query shape. Let `S` be `sequence_length`, the padded chunk length. For batch entry `b`, let `T = seqlens_k[b] + 1` be the number of tokens in the KV cache after this step, `Q = query_seqlens[b]` the number of valid (non-padded) tokens in the chunk, and `P = T - Q` the number of tokens that were cached before it. Rows `[0, Q)` of `query`, `key` and `value` are valid tokens and rows `[Q, S)` are right padding.\n\nOnly the valid rows are appended to the cache, at positions `[P, T)`. Query row `s` is at absolute position `P + s`: causal attention, `local_window_size` and rotary embedding (when `position_ids` is not given) use that position. Output rows `[Q, S)` are unspecified, and so are cache rows at or beyond `T`. For every valid row the result equals that of the same call with an unpadded chunk of `Q` tokens retaining `query_seqlens` and the same `total_sequence_length`, so a caller can run every chunk of a prompt with one fixed `S`. With a quantized CUDA cache and `P = 0, Q > 1`, attention reads the original floating-point new K/V; omitting `query_seqlens` while retaining a capacity-valued bound can instead select legacy quantized-cache reads. For `P = 0, Q = 1`, both padded and unpadded calls read floating-point new K/V only when `total_sequence_length = 1`; a larger bound preserves quantized-cache reads.\n\nThe scalar `total_sequence_length` is only an upper bound of the absolute `T` in this case. It is not used to tell a first prompt from a later chunk and it does not determine `P`. A windowed cache may have a capacity smaller than `T`, so its capacity is not necessarily a valid upper bound.\n\nRequirements: `causal=1`; new key/value with `kv_sequence_length == sequence_length`; `past_key` and `past_value` present; `T >= 1`, `0 <= Q <= min(S, T)` and `T <= total_sequence_length` for every batch entry (the existing rule that `total_sequence_length >= sequence_length` for a cache that is not windowed still applies, but a growing cache is not required to have `total_sequence_length == past_sequence_length + sequence_length`). Batched multi-token chunks are supported. `Q = 0` marks an idle entry with an already-populated cache: keep its `seqlens_k` unchanged and ignore all its output rows. The input is honored also when `sequence_length == 1`, where `Q` is 0 or 1. A cache that is not windowed must also hold the `P` cached tokens in `past_key` (`P` is at most the sequence dimension of `past_key`) and have room for the whole padded chunk, `P + S <= C`, where `C` is the sequence dimension of `present_key`. A windowed cache has no such requirement because it is staged internally. An execution provider that can read the values reports a violation with `INVALID_ARGUMENT`; the CUDA execution provider reads them on the device, clamps `Q` into `[0, min(S, T)]` and leaves the result unspecified. When `query_seqlens` is omitted, `Q = min(S, T)` and the behavior is unchanged.\n\n**Windowed KV Cache (`sliding_window_cache` attribute):**\nWhen `sliding_window_cache` is 1, the past/present buffers are window-sized instead of full-length and the operator evicts internally. Let `C` be the cache capacity (dimension 2 of `past_key`, which is also the sequence dimension of `present_key`), `W` be `local_window_size`, and `T` be the absolute number of tokens processed so far by this batch entry, i.e. `seqlens_k[b] + 1`. The scalar `total_sequence_length` input is only the batch maximum of `T` (or only an upper bound of `T` when `query_seqlens` is given); the layout below is per batch entry, so a ragged batch gets a different resident range per entry. `C` must be at least `W`.\n\nAfter a step, rows `[0, L)` of `present_key` and `present_value` hold the `L` most recent positions in increasing position order, so row `i` holds absolute position `T - L + i`. The retained positions are always physically contiguous and start at row 0; the layout never wraps around, so a ring-buffer layout cannot be exposed through these outputs. Rows `[L, C)` are unspecified. The resident count `L` is a function of `T` alone:\n\n```\nG = C - W + 1\nL(T) = T                            if T <= C\nL(T) = T - G * ceil((T - C) / G)    otherwise\n```\n\nHence `min(T, W) <= L(T) <= min(T, C)`: the whole window stays resident, and eviction reclaims `G` positions at once rather than one position per step, so consumers must not assume that the cache is kept full at `min(T, C)`.\n\n  Because `L` depends only on `T`, the resulting layout is independent of how the tokens were split into steps: a multi-token step of `S` tokens (speculative decoding, chunked prefill) leaves exactly the layout that the same tokens would produce one at a time. A right-padded chunk (`query_seqlens`) leaves the layout of its `Q` valid tokens only, because padding rows never enter the cache. Any `S >= 1` is accepted, including `S > C`; a step that would evict positions it still has to read is staged internally, so the capacity does not have to cover the step. Without `query_seqlens`, the existing restriction with past context still applies: `sequence_length > 1` requires `batch_size == 1`.\n\n  An execution provider may accept only part of the `C >= W` range. A configuration with `C < W` (equivalently, `W > C`) is invalid and is rejected with `INVALID_ARGUMENT`. The CUDA implementation requires `C == W`, so there `G` is 1 and `L(T)` is `min(T, C)`; a larger capacity is rejected. The CPU implementation accepts any `C >= W`, and slack above the window amortizes compaction over `G` steps.\n\nTo drop the last `k` tokens, for example after rejecting speculative draft tokens, re-run with the smaller `total_sequence_length` and `seqlens_k` and leave the buffer untouched. That is exact when `L(T - k) == L(T) - k`, which callers can evaluate with the formula above. Otherwise the shorter layout needs positions that have already been evicted, and the window has to be re-materialized.\n\n**Quantization:**\nWhen quantization is enabled, `past_key` and `past_value` inputs can be of type `float8e4m3fn`, `uint8` or `int8`. The corresponding `k_scale` and `v_scale` tensors must be provided.\nThe operator will output `present_key` and `present_value` in same format as the `past_key` and `past_value`.\n\nFor 4-bit quantization, the data type is uint8 where each byte contains two 4-bit values. The bit width of quantized KV cache can be set using `kv_cache_bit_width` attribute.\n\nThe shapes of the k_scale, v_scale tensors shall be broadcastable to present_key shape.\n\n**Quantization Modes (`k_quant_type`, `v_quant_type` attributes):**\n- **\"NONE\"**: No quantization.\n- **\"PER_TENSOR\"**: A single scale for the entire tensor. Scale example shape: `[1]`.\n- **\"PER_CHANNEL\"**: A scale for each channel. Scale example shape: `[1, num_heads_k, 1, head_size]`.\n",
     "attributes": [
       {
         "name": "causal",
@@ -28634,7 +28817,7 @@
         "name": "sliding_window_cache",
         "type": "int64",
         "required": false,
-        "description": "Set to 1 when the past/present KV buffers are window-sized instead of holding the whole sequence. The op then evicts internally and indexes the buffers in cache-relative coordinates, keeping the most recent positions contiguously at rows [0, L) with min(T, local_window_size) <= L <= min(T, capacity), where T is seqlens_k[b] + 1 for that batch entry. Requires local_window_size > 0 and a cache capacity of at least local_window_size; a smaller capacity (W > C) is rejected with INVALID_ARGUMENT. The CUDA implementation additionally requires the capacity to equal local_window_size. Multi-token steps of any length are supported and produce the same layout as single-token steps, so the capacity need not cover the entire step. When past context is present, sequence_length > 1 requires batch_size == 1. See the Windowed KV Cache section of the operator description for the exact resident-range, eviction and rollback contract. Default value is 0 (full-length cache)."
+        "description": "Set to 1 when the past/present KV buffers are window-sized instead of holding the whole sequence. The op then evicts internally and indexes the buffers in cache-relative coordinates, keeping the most recent positions contiguously at rows [0, L) with min(T, local_window_size) <= L <= min(T, capacity), where T is seqlens_k[b] + 1 for that batch entry. Requires local_window_size > 0 and a cache capacity of at least local_window_size; a smaller capacity (W > C) is rejected with INVALID_ARGUMENT. The CUDA implementation additionally requires the capacity to equal local_window_size. Multi-token steps of any length are supported and produce the same layout as single-token steps, so the capacity need not cover the entire step. Without query_seqlens, when past context is present, sequence_length > 1 requires batch_size == 1. See the Windowed KV Cache section of the operator description for the exact resident-range, eviction and rollback contract. Default value is 0 (full-length cache)."
       },
       {
         "name": "smooth_softmax",
@@ -28755,7 +28938,7 @@
         "name": "query_seqlens",
         "type": "M",
         "option": "optional",
-        "description": "Optional 1D tensor of shape (batch_size) with the number of valid, non-padded tokens in the query/key/value chunk of each batch entry. The chunk is right-padded: rows [0, query_seqlens[b]) are valid and rows [query_seqlens[b], sequence_length) are padding. Unlike seqlens_k this is a count, not a count minus one. After the step the cache holds seqlens_k[b] + 1 tokens, so entry b had seqlens_k[b] + 1 - query_seqlens[b] tokens before it. Requires 1 <= query_seqlens[b] <= min(sequence_length, seqlens_k[b] + 1). When omitted, query_seqlens[b] = min(sequence_length, seqlens_k[b] + 1), which is the behavior without this input. See the Right-padded query chunks section of the operator description for the full contract. Currently honored by the CPU and CUDA execution providers; other EPs must reject the node when this input is set."
+        "description": "Optional 1D tensor of shape (batch_size) with the number of valid, non-padded tokens in the query/key/value chunk of each batch entry. The chunk is right-padded: rows [0, query_seqlens[b]) are valid and rows [query_seqlens[b], sequence_length) are padding. Unlike seqlens_k this is a count, not a count minus one. After the step the cache holds seqlens_k[b] + 1 tokens, so entry b had seqlens_k[b] + 1 - query_seqlens[b] tokens before it. Requires seqlens_k[b] >= 0 and 0 <= query_seqlens[b] <= min(sequence_length, seqlens_k[b] + 1). Zero marks an idle entry whose cache is unchanged, also when sequence_length is 1. Batched chunks are supported. When omitted, query_seqlens[b] = min(sequence_length, seqlens_k[b] + 1), which is the behavior without this input. See the Right-padded query chunks section of the operator description for the full contract. Currently honored by the CPU and CUDA execution providers; other EPs must reject the node when this input is set."
       }
     ],
     "min_input": 7,
