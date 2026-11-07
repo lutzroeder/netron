@@ -363,6 +363,7 @@ export class Target {
                                         case 'float6e3m2fn': data_type = 'float16'; break;
                                         case 'float8e5m2': data_type = 'float16'; break;
                                         case 'float8e5m2fnuz': data_type = 'float16'; break;
+                                        case 'float8e5m3fnu': data_type = 'float16'; break;
                                         case 'float8e3m4': data_type = 'float16'; break;
                                         case 'float8e4m3': data_type = 'float16'; break;
                                         case 'float8e4m3fn': data_type = 'float16'; break;

@@ -316,7 +316,7 @@
   {
     "name": "acc.declare_enter",
     "summary": "declare directive - entry to implicit data region",
-    "description": "The \"acc.declare_enter\" operation represents the OpenACC declare directive\n    and captures the entry semantics to the implicit data region.\n    This operation is modeled similarly to \"acc.enter_data\".\n\n    Example showing `acc declare create(a)`:\n\n    ```mlir\n    %0 = acc.create varPtr(%a : !llvm.ptr) -> !llvm.ptr\n    acc.declare_enter dataOperands(%0 : !llvm.ptr)\n    ```",
+    "description": "The \"acc.declare_enter\" operation represents the OpenACC declare directive\n    and captures the entry semantics to the implicit data region.\n    This operation is modeled similarly to \"acc.enter_data\".\n\n    Example showing `acc declare create(a)`:\n\n    ```mlir\n    %0 = acc.create varPtr(%a : !llvm.ptr) varType(i32) -> !llvm.ptr\n    acc.declare_enter dataOperands(%0 : !llvm.ptr)\n    ```",
     "operands": [
       { "name": "dataClauseOperands", "type": "Variadic<OpenACC_AnyPointerOrMappableType>" }
     ],
@@ -328,7 +328,7 @@
   {
     "name": "acc.declare_exit",
     "summary": "declare directive - exit from implicit data region",
-    "description": "The \"acc.declare_exit\" operation represents the OpenACC declare directive\n    and captures the exit semantics from the implicit data region.\n    This operation is modeled similarly to \"acc.exit_data\".\n\n    Example showing `acc declare device_resident(a)`:\n\n    ```mlir\n    %0 = acc.getdeviceptr varPtr(%a : !llvm.ptr) -> !llvm.ptr {dataClause = #acc.data_clause<declare_device_resident>}\n    acc.declare_exit dataOperands(%0 : !llvm.ptr)\n    acc.delete accPtr(%0 : !llvm.ptr) {dataClause = #acc.data_clause<declare_device_resident>}\n    ```",
+    "description": "The \"acc.declare_exit\" operation represents the OpenACC declare directive\n    and captures the exit semantics from the implicit data region.\n    This operation is modeled similarly to \"acc.exit_data\".\n\n    Example showing `acc declare device_resident(a)`:\n\n    ```mlir\n    %0 = acc.getdeviceptr varPtr(%a : !llvm.ptr) varType(i32) dataClause(acc_declare_device_resident) -> !llvm.ptr\n    acc.declare_exit dataOperands(%0 : !llvm.ptr)\n    acc.delete accPtr(%0 : !llvm.ptr) dataClause(acc_declare_device_resident)\n    ```",
     "operands": [
       { "name": "token", "type": "Optional<OpenACC_DeclareTokenType>" },
       { "name": "dataClauseOperands", "type": "Variadic<OpenACC_AnyPointerOrMappableType>" }
@@ -647,7 +647,7 @@
   {
     "name": "acc.global_ctor",
     "summary": "Used to hold construction operations associated with globals such as declare",
-    "description": "The \"acc.global_ctor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the entry to the implicit data region.\n    This operation is isolated and intended to be used in a module.\n\n    Example showing `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_ctor @acc_constructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.create varPtr(%0 : !llvm.ptr) -> !llvm.ptr\n      acc.declare_enter dataOperands(%1 : !llvm.ptr)\n    }\n    ```",
+    "description": "The \"acc.global_ctor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the entry to the implicit data region.\n    This operation is isolated and intended to be used in a module.\n\n    Example showing `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_ctor @acc_constructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.create varPtr(%0 : !llvm.ptr) varType(i32) -> !llvm.ptr\n      acc.declare_enter dataOperands(%1 : !llvm.ptr)\n      acc.terminator\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
@@ -663,7 +663,7 @@
   {
     "name": "acc.global_dtor",
     "summary": "Used to hold destruction operations associated with globals such as declare",
-    "description": "The \"acc.global_dtor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the exit from the implicit data\n    region. This operation is isolated and intended to be used in a module.\n\n    Example showing delete associated with `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_dtor @acc_destructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.getdeviceptr varPtr(%0 : !llvm.ptr) -> !llvm.ptr {dataClause = #acc.data_clause<create>}\n      acc.declare_exit dataOperands(%1 : !llvm.ptr)\n      acc.delete accPtr(%1 : !llvm.ptr) {dataClause = #acc.data_clause<create>}\n    }\n    ```",
+    "description": "The \"acc.global_dtor\" operation is used to capture OpenACC actions to apply\n    on globals (such as `acc declare`) at the exit from the implicit data\n    region. This operation is isolated and intended to be used in a module.\n\n    Example showing delete associated with `declare create` of global:\n\n    ```mlir\n    llvm.mlir.global external @globalvar() : i32 {\n      %0 = llvm.mlir.constant(0 : i32) : i32\n      llvm.return %0 : i32\n    }\n    acc.global_dtor @acc_destructor {\n      %0 = llvm.mlir.addressof @globalvar : !llvm.ptr\n      %1 = acc.getdeviceptr varPtr(%0 : !llvm.ptr) varType(i32) dataClause(acc_create) -> !llvm.ptr\n      acc.declare_exit dataOperands(%1 : !llvm.ptr)\n      acc.delete accPtr(%1 : !llvm.ptr) dataClause(acc_create)\n      acc.terminator\n    }\n    ```",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
@@ -857,7 +857,7 @@
     "attributes": [
       { "name": "varType", "type": "TypeAttr" },
       { "name": "descKind", "type": "DefaultValuedAttr<OpenACC_DataDescKindAttr{none|cfi|memref|openacc; separator=','}, mlir::acc::DataDescKind::none>" },
-      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|return_param|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach|no_device_descriptor; separator=','}, mlir::acc::MapFlags::none>" },
+      { "name": "mapFlags", "type": "DefaultValuedAttr<OpenACC_MapFlagsAttr{none|to|from|delete|ptr_and_obj|return_param|private|literal|implicit|devptr|managed_devptr|no_create|gang_private|worker_private|vector_private|init_zero|device_resident|if_present|present|descriptor|reduction|attach|detach|no_device_descriptor|link; separator=','}, mlir::acc::MapFlags::none>" },
       { "name": "name", "type": "OptionalAttr<StrAttr>" },
       { "name": "elementSize", "type": "OptionalAttr<ConfinedAttr<I64Attr, [ IntNonNegative ]>>" },
       { "name": "exitLoc", "type": "OptionalAttr<LocationAttr>" }
@@ -15091,7 +15091,7 @@
   },
   {
     "name": "gpu.cluster_block_id",
-    "description": "Returns the block id within the cluster along the x, y, or z `dimension`.\n\n    Example:\n\n    ```mlir\n    %cBlockIdY = gpu.cluster_block_id y\n    ```\n\n    If `upper_bound` is set, then executing (a lowering of) this operation in an\n    environment where the number of thread blocks per cluster along `dimension`\n    is greater than `upper_bound` causes undefined behavior.\n\n    There is an implicit upper bound of `kMaxClusterDim` (currently 8).",
+    "description": "Returns the block id within the cluster along the x, y, or z `dimension`.\n\n    Example:\n\n    ```mlir\n    %cBlockIdY = gpu.cluster_block_id y\n    ```\n\n    If `upper_bound` is set, then executing (a lowering of) this operation in an\n    environment where the number of thread blocks per cluster along `dimension`\n    is greater than `upper_bound` causes undefined behavior.\n\n    There is an implicit upper bound of `kMaxClusterDim`.",
     "results": [
       { "name": "result", "type": "Index" }
     ],
@@ -15115,7 +15115,7 @@
   },
   {
     "name": "gpu.cluster_dim_blocks",
-    "description": "Returns the number of thread blocks in the cluster along\n    the x, y, or z `dimension`.\n\n    Example:\n\n    ```mlir\n    %cDimBlocksX = gpu.cluster_dim_blocks x\n    ```\n\n    If `upper_bound` is set, then executing (a lowering of) this operation in an\n    environment where the thread blocks per cluster  is greater than `upper_bound`\n    causes undefined behavior.\n\n    There is an implicit upper bound of `kMaxClusterDim` (currently 8).",
+    "description": "Returns the number of thread blocks in the cluster along\n    the x, y, or z `dimension`.\n\n    Example:\n\n    ```mlir\n    %cDimBlocksX = gpu.cluster_dim_blocks x\n    ```\n\n    If `upper_bound` is set, then executing (a lowering of) this operation in an\n    environment where the thread blocks per cluster  is greater than `upper_bound`\n    causes undefined behavior.\n\n    There is an implicit upper bound of `kMaxClusterDim`.",
     "results": [
       { "name": "result", "type": "Index" }
     ],
@@ -19435,7 +19435,7 @@
   {
     "name": "iree_linalg_ext.dequantize_affine",
     "summary": "Affine (uniform) dequantization of an integer tensor.",
-    "description": "Dequantizes `input` elementwise, producing a real valued `output`:\n\n    ```\n    output[out_map(d)] = (extend(input[in_map(d)])\n                            - extend(zero_point[zp_map(d)]))\n                           * scale[scale_map(d)]\n    ```\n\n    See `iree_linalg_ext.quantize_affine` for the meaning of `indexing_maps` and\n    of the signedness attributes; here `input_unsigned` refers to the quantized\n    operand, which is the input rather than the output.\n\n    As in `quantize_affine`, the multiplication is performed in the element type of\n    `scale`. Distinct floating-point formats of the same bit width cannot be mixed.\n\n    `zero_point` must be a point on the quantized grid: its values must be\n    representable in the element type of `input`, even when its own element\n    type is wider (PT2E emits `i64` zero points for `i8` data).\n\n    It is what makes the subtraction width depend only on the storage\n    type, `PowerOf2Ceil(storage_width + 1)`, so `i8` data subtracts in `i16`\n    whatever the zero point's own element type.\n\n    `quant_min`/`quant_max` optionally describe the inclusive range of the\n    quantized input values. They do not clamp the input or change the\n    dequantization arithmetic. This preserves information that the storage\n    type alone cannot express: an i8 tensor with range `[-8, 7]` uses a\n    four-bit quantization grid, which a consumer can use to pack the values\n    into i4 storage.\n\n    Example:\n\n    ```mlir\n    %dq = iree_linalg_ext.dequantize_affine\n        <indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         input_unsigned>\n        ins(%q, %scale, %zp : tensor<128x64xi8>, tensor<128xf32>, tensor<128xi32>)\n        outs(%init : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```",
+    "description": "Dequantizes `input` elementwise, producing a real valued `output`:\n\n    ```\n    output[out_map(d)] = (extend(input[in_map(d)])\n                            - extend(zero_point[zp_map(d)]))\n                           * scale[scale_map(d)]\n    ```\n\n    See `iree_linalg_ext.quantize_affine` for the meaning of `indexing_maps` and\n    of the signedness attributes; here `input_unsigned` refers to the quantized\n    operand, which is the input rather than the output.\n\n    As in `quantize_affine`, the multiplication is performed in the element type of\n    `scale`. Distinct floating-point formats of the same bit width cannot be mixed.\n\n    `zero_point` must be a point on the quantized grid: its values must be\n    representable in the element type of `input`, even when its own element\n    type is wider (PT2E emits `i64` zero points for `i8` data).\n\n    It is what makes the subtraction width depend only on the storage\n    type, `PowerOf2Ceil(storage_width + 1)`, so `i8` data subtracts in `i16`\n    whatever the zero point's own element type.\n\n    `quant_min`/`quant_max` optionally describe the inclusive range of the\n    quantized input values. Input values outside the range give undefined\n    results. The attributes do not clamp the input or change the\n    dequantization arithmetic. This preserves information that the storage\n    type alone cannot express: an i8 tensor with range `[-8, 7]` uses a\n    four-bit quantization grid, which a consumer can use to pack the values\n    into i4 storage.\n\n    Example:\n\n    ```mlir\n    %dq = iree_linalg_ext.dequantize_affine\n        <indexing_maps = [affine_map<(d0, d1) -> (d0, d1)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0)>,\n                          affine_map<(d0, d1) -> (d0, d1)>],\n         input_unsigned>\n        ins(%q, %scale, %zp : tensor<128x64xi8>, tensor<128xf32>, tensor<128xi32>)\n        outs(%init : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```",
     "operands": [
       { "name": "input", "type": "AnyRankedShapedType" },
       { "name": "scale", "type": "AnyRankedShapedOrScalarType" },
@@ -35004,6 +35004,27 @@
     "assemblyFormat": "$src `,` `shape` `=` $shape\n    `,` `element_type` `=` $eltType\n    (`,` `layout` `=` $layout^)?\n    attr-dict `:` type($src)"
   },
   {
+    "name": "nvvm.mulf",
+    "summary": "Performs floating point multiplication of the given arguments `lhs` and `rhs`",
+    "description": "The `nvvm.mulf` operation performs floating point multiplication of two \n    floating point operands of the same type.\n\n    The rounding mode is specified by the `rnd` attribute, saturation mode by \n    the `sat` attribute, and flush-to-zero by the `ftz` attribute.\n\n    For more information, see PTX ISA:\n    - [floating point multiplication](https://docs.nvidia.com/cuda/parallel-thread-execution/#floating-point-instructions-mul)\n    - [half-precision floating point multiplication](https://docs.nvidia.com/cuda/parallel-thread-execution/#half-precision-floating-point-instructions-mul)",
+    "operands": [
+      { "name": "lhs", "type": "SIMTFloatType" },
+      { "name": "rhs", "type": "SIMTFloatType" }
+    ],
+    "results": [
+      { "name": "res", "type": "SIMTFloatType" }
+    ],
+    "attributes": [
+      { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [EnumAttrIsOneOf<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [FPRoundingModeNone, FPRoundingModeRM, FPRoundingModeRN, FPRoundingModeRP, FPRoundingModeRZ]>]>, FPRoundingMode::NONE>" },
+      { "name": "sat", "type": "DefaultValuedAttr<ConfinedAttr<SaturationModeAttr{none|satfinite|sat}, [EnumAttrIsOneOf<SaturationModeAttr{none|satfinite|sat}, [SaturationModeNone, SaturationModeSat]>]>, SaturationMode::NONE>" },
+      { "name": "ftz", "type": "DefaultValuedAttr<BoolAttr, false>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$lhs `,` $rhs oilist(\n      `rnd` `=` $rnd | `sat` `=` $sat | `ftz` `=` $ftz\n    )\n    attr-dict `:` type($res)"
+  },
+  {
     "name": "nvvm.nanosleep",
     "summary": "Suspends the thread for a specified duration.",
     "description": "The op suspends the thread for a sleep duration approximately close to the \n    delay `$duration`, specified in nanoseconds. \n\n    The sleep duration is approximated, but guaranteed to be in the \n    interval [0, 2*t]. The maximum sleep duration is 1 millisecond. \n    The implementation may reduce the sleep duration for individual threads \n    within a warp such that all sleeping threads in the warp wake up together.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#miscellaneous-instructions-nanosleep)",
@@ -35038,6 +35059,18 @@
       { "name": "in_param_space", "type": "UnitAttr" }
     ],
     "assemblyFormat": "(`level` `=` enum($cacheLevel)^ (`uniform` $uniform^)? `,`)? (`tensormap` $tensormap^ (`in_param_space` $in_param_space^)? `,`)? (`evict_priority` `=` enum($evictPriority)^ `,`)? $addr (`,` `predicate` `=` $predicate^)? attr-dict `:` type(operands)"
+  },
+  {
+    "name": "nvvm.prefetch.valid_addr",
+    "summary": "Prefetch from a valid global address into the selected cache",
+    "description": "Prefetches data from the address given by `addr` into the cache selected by\n    `cacheLevel`. Currently, only L1 is supported and the operation requests a\n    prefetch of at least 32 bytes.\n\n    The operand must be a global or generic pointer. A generic address must\n    refer to the global state space. At least one byte at `addr` must be valid\n    and accessible for this access; otherwise, behavior is undefined and the\n    instruction may fault.\n\n    Examples:\n    ```mlir\n    nvvm.prefetch.valid_addr level = L1, %global_ptr : !llvm.ptr<1>\n    nvvm.prefetch.valid_addr level = L1, %generic_ptr : !llvm.ptr\n    ```\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-prefetch-prefetchu)",
+    "operands": [
+      { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerGeneric, LLVM_PointerGlobal]>" }
+    ],
+    "attributes": [
+      { "name": "cacheLevel", "type": "ConfinedAttr<PrefetchCacheLevelAttr{L1|L2}, [EnumAttrIsOneOf<PrefetchCacheLevelAttr{L1|L2}, [PrefetchCacheLevelL1]>]>" }
+    ],
+    "assemblyFormat": "`level` `=` enum($cacheLevel) `,` $addr attr-dict `:` type($addr)"
   },
   {
     "name": "nvvm.prmt",
@@ -43665,8 +43698,11 @@
   {
     "name": "rocdl.asyncmark",
     "summary": "Mark the end of a group of asynchronous operations",
-    "description": "This operation, in conjunction with `rocdl.wait.asyncmark`, forms the\n      compiler-provided framework for tracking explicitly asynchronous\n      memory operations, such as copies to LDS that use async intrinsics\n      and gfx1250's tensor loads.\n\n      Details of its behavior can be found in\n      [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.md).\n\n      See `rocdl.wait.asyncmark`'s documentation for a usage example.\n\n      Example:\n      ```mlir\n      // Mark the end of an async operation group.\n      rocdl.asyncmark\n      ```\n\n      Available on gfx9 and later.",
-    "assemblyFormat": "attr-dict"
+    "description": "This operation, in conjunction with `rocdl.wait.asyncmark`, forms the\n      compiler-provided framework for tracking explicitly asynchronous\n      memory operations, such as copies to LDS that use async intrinsics\n      and gfx1250's tensor loads.\n\n      Details of its behavior can be found in\n      [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.md).\n\n      See `rocdl.wait.asyncmark`'s documentation for a usage example.\n\n      `stages` is a mask of the async stages to mark: the mark is appended to\n      the sequence of every stage it names. `all` names every stage.\n\n      Example:\n      ```mlir\n      // Mark the end of an async operation group in every stage.\n      rocdl.asyncmark\n      // Mark the end of a group of tensor loads and stores alone.\n      rocdl.asyncmark stages = tensor\n      ```\n\n      Available on gfx9 and later.",
+    "attributes": [
+      { "name": "stages", "type": "DefaultValuedAttr<ROCDL_AsyncStagesAttr{all|tensor|global_load_async_to_lds|global_load_async_to_lds_mcast|global_store_async_from_lds|buffer_global_load; separator='|'}, ::mlir::ROCDL::AsyncStages::all>" }
+    ],
+    "assemblyFormat": "(`stages` `=` enum($stages)^)? attr-dict"
   },
   {
     "name": "rocdl.ballot",
@@ -48806,11 +48842,12 @@
   {
     "name": "rocdl.wait.asyncmark",
     "summary": "Wait until N or fewer async operation groups are unexecuted",
-    "description": "This operation, along with `rocdl.asyncmark`, forms the compiler-provided\n      framework for explicitly tracking asynchronous operations.\n\n      At the point where a wait.asyncmark operation is executed, all async operations\n      that were parts of any async group (established by asyncmark in program order)\n      other than the `count` previously-added ones will have finished executing.\n\n      For more detail, including on how this mechanism composes with function calls,\n      see [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.md).\n\n      Available on gfx9 and later.\n\n      Example:\n      ```mlir\n      // Wait until at most N async groups remain outstanding.\n      rocdl.wait.asyncmark 1\n      ```\n\n      Usage example:\n      ```mlir\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.wait.asyncmark 1 // First group of loads completes after this\n      ```",
+    "description": "This operation, along with `rocdl.asyncmark`, forms the compiler-provided\n      framework for explicitly tracking asynchronous operations.\n\n      At the point where a wait.asyncmark operation is executed, all async operations\n      that were parts of any async group (established by asyncmark in program order)\n      other than the `count` previously-added ones will have finished executing.\n\n      `stages` is a mask of the async stages to wait on: each stage it names\n      is waited on separately, using its own sequence of asyncmarks. `all`\n      names every stage.\n\n      For more detail, including on how this mechanism composes with function calls,\n      see [the LLVM documentation on async tracking](/llvm/docs/AMDGPUAsyncOperations.md).\n\n      Available on gfx9 and later.\n\n      Example:\n      ```mlir\n      // Wait until at most N async groups remain outstanding.\n      rocdl.wait.asyncmark 1\n      // The same, counting the tensor groups alone.\n      rocdl.wait.asyncmark 1 stages = tensor\n      ```\n\n      Usage example:\n      ```mlir\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.tensor.load.to.lds ...\n      rocdl.global.async.load.to.lds ...\n\n      rocdl.asyncmark\n\n      rocdl.wait.asyncmark 1 // First group of loads completes after this\n      ```",
     "attributes": [
-      { "name": "count", "type": "I16Attr" }
+      { "name": "count", "type": "I16Attr" },
+      { "name": "stages", "type": "DefaultValuedAttr<ROCDL_AsyncStagesAttr{all|tensor|global_load_async_to_lds|global_load_async_to_lds_mcast|global_store_async_from_lds|buffer_global_load; separator='|'}, ::mlir::ROCDL::AsyncStages::all>" }
     ],
-    "assemblyFormat": "$count attr-dict"
+    "assemblyFormat": "$count (`stages` `=` enum($stages)^)? attr-dict"
   },
   {
     "name": "rocdl.wave.barrier",
@@ -49667,7 +49704,7 @@
   {
     "name": "scf.forall",
     "summary": "evaluate a block multiple times in parallel",
-    "description": "`scf.forall` is a target-independent multi-dimensional parallel\n    region application operation. It has exactly one block that represents the\n    parallel body and it takes index operands that specify lower bounds, upper\n    bounds and steps.\n\n    The op also takes a variadic number of tensor operands (`shared_outs`).\n    The future buffers corresponding to these tensors are shared among all\n    threads. Shared tensors should be accessed via their corresponding block\n    arguments. If multiple threads write to a shared buffer in a racy\n    fashion, these writes will execute in some unspecified order. Tensors that\n    are not shared can be used inside the body (i.e., the op is not isolated\n    from above); however, if a use of such a tensor bufferizes to a memory\n    write, the tensor is privatized, i.e., a thread-local copy of the tensor is\n    used. This ensures that memory side effects of a thread are not visible to\n    other threads (or in the parent body), apart from explicitly shared tensors.\n\n    The name \"thread\" conveys the fact that the parallel execution is mapped\n    (i.e. distributed) to a set of virtual threads of execution, one function\n    application per thread. Further lowerings are responsible for specifying\n    how this is materialized on concrete hardware resources.\n\n    An optional `mapping` is an attribute array that specifies processing units\n    with their dimension, how it remaps 1-1 to a set of concrete processing\n    element resources (e.g. a CUDA grid dimension or a level of concrete nested\n    async parallelism). It is expressed via any attribute that implements the\n    device mapping interface. It is the reponsibility of the lowering mechanism\n    to interpret the `mapping` attributes in the context of the concrete target\n    the op is lowered to, or to ignore it when the specification is ill-formed\n    or unsupported for a particular target.\n\n    The only allowed terminator is `scf.forall.in_parallel`.\n    `scf.forall` returns one value per `shared_out` operand. The\n    actions of the `scf.forall.in_parallel` terminators specify how to combine the\n    partial results of all parallel invocations into a full value, in some\n    unspecified order. The \"destination\" of each such op must be a `shared_out`\n    block argument of the `scf.forall` op.\n\n    The actions involved in constructing the return values are further described\n    by `tensor.parallel_insert_slice`.\n\n    `scf.forall` acts as an implicit synchronization point.\n\n    When the parallel function body has side effects, their order is unspecified\n    across threads.\n\n    `scf.forall` can be printed in two different ways depending on\n    whether the loop is normalized or not. The loop is 'normalized' when all\n    lower bounds are equal to zero and steps are equal to one. In that case,\n    `lowerBound` and `step` operands will be omitted during printing.\n\n    Normalized loop example:\n\n    ```mlir\n    //\n    // Sequential context.\n    //\n    %matmul_and_pointwise:2 = scf.forall (%thread_id_1, %thread_id_2) in\n        (%num_threads_1, %numthread_id_2) shared_outs(%o1 = %C, %o2 = %pointwise)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context, each thread with id = (%thread_id_1, %thread_id_2)\n      // runs its version of the code.\n      //\n      %sA = tensor.extract_slice %A[f((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sB = tensor.extract_slice %B[g((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sC = tensor.extract_slice %o1[h((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sD = linalg.matmul\n        ins(%sA, %sB : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%sC : tensor<?x?xT>)\n\n      %spointwise = subtensor %o2[i((%thread_id_1, %thread_id_2))]:\n        tensor<?xT> to tensor<?xT>\n      %sE = linalg.add ins(%spointwise : tensor<?xT>) outs(%sD : tensor<?xT>)\n\n      scf.forall.in_parallel {\n        tensor.parallel_insert_slice %sD into %o1[h((%thread_id_1, %thread_id_2))]:\n          tensor<?x?xT> into tensor<?x?xT>\n\n        tensor.parallel_insert_slice %spointwise into %o2[i((%thread_id_1, %thread_id_2))]:\n          tensor<?xT> into tensor<?xT>\n      }\n    }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Loop with loop bounds example:\n\n    ```mlir\n    //\n    // Sequential context.\n    //\n    %pointwise = scf.forall (%i, %j) = (0, 0) to (%dim1, %dim2)\n      step (%tileSize1, %tileSize2) shared_outs(%o1 = %out)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context.\n      //\n      %sA = tensor.extract_slice %A[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n      %sB = tensor.extract_slice %B[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n      %sC = tensor.extract_slice %o[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n\n      %add = linalg.map {\"arith.addf\"}\n        ins(%sA, %sB : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%sC : tensor<?x?xT>)\n\n      scf.forall.in_parallel {\n        tensor.parallel_insert_slice %add into\n          %o[%i, %j][%tileSize1, %tileSize2][1, 1]\n          : tensor<?x?xT> into tensor<?x?xT>\n      }\n    }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Example with mapping attribute:\n\n    ```mlir\n    //\n    // Sequential context. Here `mapping` is expressed as GPU thread mapping\n    // attributes\n    //\n    %matmul_and_pointwise:2 = scf.forall (%thread_id_1, %thread_id_2) in\n        (%num_threads_1, %numthread_id_2) shared_outs(...)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context, each thread with id = **(%thread_id_2, %thread_id_1)**\n      // runs its version of the code.\n      //\n       scf.forall.in_parallel {\n         ...\n      }\n    } { mapping = [#gpu.thread<y>, #gpu.thread<x>] }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Example with privatized tensors:\n\n    ```mlir\n    %t0 = ...\n    %t1 = ...\n    %r = scf.forall ... shared_outs(%o = t0) -> tensor<?xf32> {\n      // %t0 and %t1 are privatized. %t0 is definitely copied for each thread\n      // because the scf.forall op's %t0 use bufferizes to a memory\n      // write. In the absence of other conflicts, %t1 is copied only if there\n      // are uses of %t1 in the body that bufferize to a memory read and to a\n      // memory write.\n      \"some_use\"(%t0)\n      \"some_use\"(%t1)\n    }\n    ```",
+    "description": "`scf.forall` is a target-independent multi-dimensional parallel\n    region application operation. It has exactly one block that represents the\n    parallel body and it takes index operands that specify lower bounds, upper\n    bounds and steps.\n\n    The op also takes a variadic number of tensor operands (`shared_outs`).\n    The future buffers corresponding to these tensors are shared among all\n    threads. Shared tensors should be accessed via their corresponding block\n    arguments. If multiple threads write to a shared buffer in a racy\n    fashion, these writes will execute in some unspecified order. Tensors that\n    are not shared can be used inside the body (i.e., the op is not isolated\n    from above); however, if a use of such a tensor bufferizes to a memory\n    write, the tensor is privatized, i.e., a thread-local copy of the tensor is\n    used. This ensures that memory side effects of a thread are not visible to\n    other threads (or in the parent body), apart from explicitly shared tensors.\n\n    The name \"thread\" conveys the fact that the parallel execution is mapped\n    (i.e. distributed) to a set of virtual threads of execution, one function\n    application per thread. Further lowerings are responsible for specifying\n    how this is materialized on concrete hardware resources.\n\n    An optional `mapping` is an attribute array that specifies processing units\n    with their dimension, how it remaps 1-1 to a set of concrete processing\n    element resources (e.g. a CUDA grid dimension or a level of concrete nested\n    async parallelism). It is expressed via any attribute that implements the\n    device mapping interface. It is the reponsibility of the lowering mechanism\n    to interpret the `mapping` attributes in the context of the concrete target\n    the op is lowered to, or to ignore it when the specification is ill-formed\n    or unsupported for a particular target.\n\n    The only allowed terminator is `scf.forall.in_parallel`.\n    `scf.forall` returns one value per `shared_out` operand. The\n    actions of the `scf.forall.in_parallel` terminators specify how to combine the\n    partial results of all parallel invocations into a full value, in some\n    unspecified order. The \"destination\" of each such op must be a `shared_out`\n    block argument of the `scf.forall` op.\n\n    The actions involved in constructing the return values are further described\n    by `tensor.parallel_insert_slice`.\n\n    `scf.forall` acts as an implicit synchronization point.\n\n    When the parallel function body has side effects, their order is unspecified\n    across threads.\n\n    `scf.forall` can be printed in two different ways depending on\n    whether the loop is normalized or not. The loop is 'normalized' when all\n    lower bounds are equal to zero and steps are equal to one. In that case,\n    `lowerBound` and `step` operands will be omitted during printing.\n\n    Normalized loop example:\n\n    ```mlir\n    //\n    // Sequential context.\n    //\n    %matmul_and_pointwise:2 = scf.forall (%thread_id_1, %thread_id_2) in\n        (%num_threads_1, %num_threads_2) shared_outs(%o1 = %C, %o2 = %pointwise)\n      -> (tensor<?x?xT>, tensor<?x?xT>) {\n      //\n      // Parallel context, each thread with id = (%thread_id_1, %thread_id_2)\n      // runs its version of the code.\n      //\n      %sA = tensor.extract_slice %A[f((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sB = tensor.extract_slice %B[g((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sC = tensor.extract_slice %o1[h((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sD = linalg.matmul\n        ins(%sA, %sB : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%sC : tensor<?x?xT>) -> tensor<?x?xT>\n\n      %spointwise = tensor.extract_slice %o2[i((%thread_id_1, %thread_id_2))]:\n        tensor<?x?xT> to tensor<?x?xT>\n      %sE = linalg.add\n        ins(%sD, %spointwise : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%spointwise : tensor<?x?xT>) -> tensor<?x?xT>\n\n      scf.forall.in_parallel {\n        tensor.parallel_insert_slice %sD into %o1[h((%thread_id_1, %thread_id_2))]:\n          tensor<?x?xT> into tensor<?x?xT>\n\n        tensor.parallel_insert_slice %sE into %o2[i((%thread_id_1, %thread_id_2))]:\n          tensor<?x?xT> into tensor<?x?xT>\n      }\n    }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Loop with loop bounds example:\n\n    ```mlir\n    //\n    // Sequential context.\n    //\n    %pointwise = scf.forall (%i, %j) = (0, 0) to (%dim1, %dim2)\n      step (%tileSize1, %tileSize2) shared_outs(%o = %out)\n      -> (tensor<?x?xT>) {\n      //\n      // Parallel context.\n      //\n      %sA = tensor.extract_slice %A[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n      %sB = tensor.extract_slice %B[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n      %sC = tensor.extract_slice %o[%i, %j][%tileSize1, %tileSize2][1, 1]\n        : tensor<?x?xT> to tensor<?x?xT>\n\n      %add = linalg.map { arith.addf }\n        ins(%sA, %sB : tensor<?x?xT>, tensor<?x?xT>)\n        outs(%sC : tensor<?x?xT>)\n\n      scf.forall.in_parallel {\n        tensor.parallel_insert_slice %add into\n          %o[%i, %j][%tileSize1, %tileSize2][1, 1]\n          : tensor<?x?xT> into tensor<?x?xT>\n      }\n    }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Example with mapping attribute:\n\n    ```mlir\n    //\n    // Sequential context. Here `mapping` is expressed as GPU thread mapping\n    // attributes\n    //\n    %matmul_and_pointwise:2 = scf.forall (%thread_id_1, %thread_id_2) in\n        (%num_threads_1, %numthread_id_2) shared_outs(...)\n      -> (tensor<?x?xT>, tensor<?xT>) {\n      //\n      // Parallel context, each thread with id = **(%thread_id_2, %thread_id_1)**\n      // runs its version of the code.\n      //\n       scf.forall.in_parallel {\n         ...\n      }\n    } { mapping = [#gpu.thread<y>, #gpu.thread<x>] }\n    // Implicit synchronization point.\n    // Sequential context.\n    //\n    ```\n\n    Example with privatized tensors:\n\n    ```mlir\n    %t0 = ...\n    %t1 = ...\n    %r = scf.forall ... shared_outs(%o = t0) -> tensor<?xf32> {\n      // %t0 and %t1 are privatized. %t0 is definitely copied for each thread\n      // because the scf.forall op's %t0 use bufferizes to a memory\n      // write. In the absence of other conflicts, %t1 is copied only if there\n      // are uses of %t1 in the body that bufferize to a memory read and to a\n      // memory write.\n      \"some_use\"(%t0)\n      \"some_use\"(%t1)\n    }\n    ```",
     "operands": [
       { "name": "dynamicLowerBound", "type": "Variadic<Index>" },
       { "name": "dynamicUpperBound", "type": "Variadic<Index>" },
@@ -67834,6 +67871,22 @@
     "assemblyFormat": "$value1 ($value2^)? attr-dict"
   },
   {
+    "name": "test.op_with_bit_enum_space",
+    "attributes": [
+      { "name": "value", "type": "TestBitEnumSpaceAttr{none|user|group|other}" },
+      { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
+    ],
+    "assemblyFormat": "$value (`tag` $tag^)? attr-dict"
+  },
+  {
+    "name": "test.op_with_bit_enum_space_directive",
+    "attributes": [
+      { "name": "value", "type": "TestBitEnumSpaceAttr{none|user|group|other}" },
+      { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
+    ],
+    "assemblyFormat": "enum($value) (`tag` $tag^)? attr-dict"
+  },
+  {
     "name": "test.op_with_bit_enum_vbar",
     "attributes": [
       { "name": "value", "type": "TestBitEnumVerticalBarAttr{none|user|group|other; separator='|'}" },
@@ -67860,6 +67913,14 @@
     "traits": [
       { "type": "IsolatedFromAbove" }
     ]
+  },
+  {
+    "name": "test.op_with_default_space_bit_enum_prop",
+    "attributes": [
+      { "name": "value", "type": "TestBitEnumSpacePropDefault{none|user|group|other}" },
+      { "name": "tag", "type": "OptionalAttr<AnyAttr>" }
+    ],
+    "assemblyFormat": "($value^)? (`tag` $tag^)? attr-dict"
   },
   {
     "name": "test.op_with_effects_a",
@@ -83759,11 +83820,11 @@
     "summary": "Broadcast an array for a compatible shape.",
     "description": "Broadcasting is the process of making arrays to have compatible shapes\nfor arithmetic operations. Two shapes are compatible if for each\ndimension pair they are either equal or one of them is one. When trying\nto broadcast a Tensor to a shape, it starts with the trailing dimensions,\nand works its way forward.\n\nFor example,\n\n>>> x = tf.constant([1, 2, 3])\n>>> y = tf.broadcast_to(x, [3, 3])\n>>> print(y)\ntf.Tensor(\n    [[1 2 3]\n     [1 2 3]\n     [1 2 3]], shape=(3, 3), dtype=int32)\n\nIn the above example, the input Tensor with the shape of `[1, 3]`\nis broadcasted to output Tensor with shape of `[3, 3]`.\n\nWhen doing broadcasted operations such as multiplying a tensor\nby a scalar, broadcasting (usually) confers some time or space\nbenefit, as the broadcasted tensor is never materialized.\n\nHowever, `broadcast_to` does not carry with it any such benefits.\nThe newly-created tensor takes the full memory of the broadcasted\nshape. (In a graph context, `broadcast_to` might be fused to\nsubsequent operation and then be optimized away, however.)",
     "operands": [
-      { "name": "input", "type": "TFL_TensorOf<[F32, F8E4M3FN, F8E5M2, I32, I1, TFL_I4, I8, QI8, UI8, UI32, QUI8, I16, QI16, I64, Complex<F<32>>]>" },
+      { "name": "input", "type": "TFL_TensorOf<[F32, F16, F8E4M3FN, F8E5M2, I32, I1, TFL_I4, I8, QI8, UI8, UI32, QUI8, I16, QI16, I64, Complex<F<32>>]>" },
       { "name": "shape", "type": "TFL_I32OrI64Tensor" }
     ],
     "results": [
-      { "name": "output", "type": "TFL_TensorOf<[F32, F8E4M3FN, F8E5M2, I32, I1, TFL_I4, I8, QI8, UI8, UI32, QUI8, I16, QI16, I64, Complex<F<32>>]>" }
+      { "name": "output", "type": "TFL_TensorOf<[F32, F16, F8E4M3FN, F8E5M2, I32, I1, TFL_I4, I8, QI8, UI8, UI32, QUI8, I16, QI16, I64, Complex<F<32>>]>" }
     ]
   },
   {
@@ -84221,7 +84282,7 @@
     "summary": "Fully connected op",
     "operands": [
       { "name": "input", "type": "TFL_TensorOf<[F32, F16, QI8, QUI8, QI16, QUI16]>" },
-      { "name": "filter", "type": "TFL_TensorOf<[F32, F16, QI2, QI4, QI8, QUI8, QI16]>" },
+      { "name": "filter", "type": "TFL_TensorOf<[F32, F16, QI2, QI4, QI8, QUI8, QI16, TFL_BlockwiseQuantType]>" },
       { "name": "bias", "type": "TFL_TensorOfOrNone<[F32, F16, QI32, QUI32]>" }
     ],
     "results": [
@@ -84282,8 +84343,8 @@
     "summary": "Greater operator",
     "description": "Element-wise greater operation.",
     "operands": [
-      { "name": "lhs", "type": "TFL_TensorOf<[F32, I32, I64, QUI8, QI8, TFL_Quint8]>" },
-      { "name": "rhs", "type": "TFL_TensorOf<[F32, I32, I64, QUI8, QI8, TFL_Quint8]>" }
+      { "name": "lhs", "type": "TFL_TensorOf<[F32, F16, I32, I64, QUI8, QI8, TFL_Quint8]>" },
+      { "name": "rhs", "type": "TFL_TensorOf<[F32, F16, I32, I64, QUI8, QI8, TFL_Quint8]>" }
     ],
     "results": [
       { "name": "output", "type": "TFL_BoolTensor" }
@@ -118870,7 +118931,7 @@
   {
     "name": "ttg.warp_specialize",
     "summary": "asynchronously execute code on multiple warpgroups",
-    "description": "The `ttg.warp_specialize` op represents executing different code\n    simultaneously on different warp groups. A warp group is a group of\n    power-of-2 warps, which can be a different number of warps than in the\n    enclosing region.\n\n    The \"default\" region of the op represents the code executed by the currently\n    executing warp group. This region is allowed to implicitly capture. The op\n    contains a number of \"partition\" regions that are isolated from above. They\n    must be isolated because these regions represent different layout domains,\n    as the number of warps is different.\n\n    Semantically, execution of each region starts simultaneously for each warp\n    group, and all warp groups are joined at the end of the op.\n\n    Example:\n\n    ```mlir\n    %0 = ttg.warp_specialize(%a, %b)\n    default {\n      %out = some_operation(%a) // implicit capture of `%a`\n      ttg.warp_yield %out : i32\n    }\n    partition0(%arg0: i32, %arg1: i32) num_warps(8) {\n      some_async_dispatch(%arg0, %arg1)\n      ttg.warp_return\n    }\n    partition1(%arg0: i32, %arg1: i32) num_warps(1) {\n      some_async_dispatch(%arg0, %arg1)\n      ttg.warp_return\n    } : (i32, i32) -> i32\n    ```",
+    "description": "The `ttg.warp_specialize` op represents executing different code\n    simultaneously on different warp groups. A warp group is a group of\n    power-of-2 warps, which can be a different number of warps than in the\n    enclosing region.\n\n    The \"default\" region of the op represents the code executed by the currently\n    executing warp group. This region is allowed to implicitly capture. The op\n    contains one or more \"partition\" regions that are isolated from above. They\n    must be isolated because these regions represent different layout domains,\n    as the number of warps is different.\n\n    Semantically, execution of each region starts simultaneously for each warp\n    group, and all warp groups are joined at the end of the op.\n\n    Example:\n\n    ```mlir\n    %0 = ttg.warp_specialize(%a, %b)\n    default {\n      %out = some_operation(%a) // implicit capture of `%a`\n      ttg.warp_yield %out : i32\n    }\n    partition0(%arg0: i32, %arg1: i32) num_warps(8) {\n      some_async_dispatch(%arg0, %arg1)\n      ttg.warp_return\n    }\n    partition1(%arg0: i32, %arg1: i32) num_warps(1) {\n      some_async_dispatch(%arg0, %arg1)\n      ttg.warp_return\n    } : (i32, i32) -> i32\n    ```",
     "results": [
       { "name": "defaultPassthrough", "type": "Variadic<AnyType>" }
     ],
@@ -125897,7 +125958,9 @@
       { "name": "is_async", "type": "UnitAttr" },
       { "name": "two_ctas", "type": "UnitAttr" },
       { "name": "multicast", "type": "UnitAttr" },
-      { "name": "is_unsigned", "type": "UnitAttr" }
+      { "name": "is_unsigned", "type": "UnitAttr" },
+      { "name": "a_type", "type": "OptionalAttr<TT_ScaleDotElemTypeAttr{e4m3|e5m2|e2m3|e3m2|e2m1|bf16|fp16}>" },
+      { "name": "b_type", "type": "OptionalAttr<TT_ScaleDotElemTypeAttr{e4m3|e5m2|e2m3|e3m2|e2m1|bf16|fp16}>" }
     ],
     "traits": [
       { "type": "AttrSizedOperandSegments" }
@@ -130248,14 +130311,14 @@
   {
     "name": "vector.broadcast",
     "summary": "broadcast operation",
-    "description": "Broadcasts the scalar or k-D vector value in the source operand\n    to a n-D result vector such that the broadcast makes sense, i.e.,\n    the source operand is duplicated to match the given rank and sizes\n    in the result vector. The legality rules are:\n    * the source operand must have the same element type as the result type\n    * a K-D vector <s_1 x .. x s_K x type> can be broadcast to\n      a N-D vector <t_1 x .. x t_N x type> if\n       * K <= N, and\n       * the sizes in the trailing dimensions N-K < i <= N with j=i+K-N\n          match exactly as s_j = t_i or s_j = 1:\n       ```\n           t_1 x   ..  t_N-K x t_N-K+1 x .. x t_i x .. x t_N\n                               s_1     x .. x s_j x .. x s_K\n               <duplication>         <potential stretch>\n       ```\n       * in addition, any scalable unit dimension, `[1]`, must match exactly.\n\n    The source operand is duplicated over all the missing leading dimensions\n    and stretched over the trailing dimensions where the source has a non-equal\n    dimension of 1 (stretching a trailing dimension is also referred to as\n    \"dim-1\" broadcasting). These rules imply that any scalar broadcast (K=0) to\n    any shaped vector with the same element type is always legal.\n\n    Example:\n\n    ```mlir\n    %0 = arith.constant 0.0 : f32\n    %1 = vector.broadcast %0 : f32 to vector<16xf32>\n    %2 = vector.broadcast %1 : vector<16xf32> to vector<4x16xf32>\n    ```\n\n    For every element in the result vector, the corresponding coordinate in\n    source dimension `j` can be computed from its linear offset `off` in the\n    result vector as follows:\n    ```\n                            / 0, if source_dim(j) == 1\n    source_coord[j](off) = |\n                            \\ floor(off / result_stride(N - K + j)) % source_dim(j), otherwise\n\n    ```\n    where `j = 1 .. K` and `result_stride(N - K + j)` is the result stride\n    corresponding to source dimension `j`.",
+    "description": "Broadcasts the scalar or K-D vector value in the source operand\n    to a N-D result vector such that the broadcast makes sense, i.e.,\n    the source operand is duplicated to match the given rank and sizes\n    in the result vector. The legality rules are:\n    * the source operand must have the same element type as the result type\n    * a K-D vector <s_1 x .. x s_K x type> can be broadcast to\n      a N-D vector <t_1 x .. x t_N x type> if\n       * K <= N, and\n       * the sizes in the trailing dimensions N-K < i <= N with j=i+K-N\n          match exactly as s_j = t_i or s_j = 1:\n       ```\n           t_1 x   ..  t_N-K x t_N-K+1 x .. x t_i x .. x t_N\n                               s_1     x .. x s_j x .. x s_K\n               <duplication>         <potential stretch>\n       ```\n       * in addition, any scalable unit dimension, `[1]`, must match exactly.\n\n    The source operand is duplicated over all the missing leading dimensions\n    and stretched over the trailing dimensions where the source has a non-equal\n    dimension of 1 (stretching a trailing dimension is also referred to as\n    \"dim-1\" broadcasting). These rules imply that any scalar broadcast (K=0) to\n    any shaped vector with the same element type is always legal.\n\n    For every element in the result vector, the corresponding coordinate in\n    source dimension `j` can be computed from its zero-based, row-major linear\n    element offset `off` in the result vector as follows:\n\n    ```\n    source_coord[j](off) = floor(off / result_stride(N - K + j)) % source_dim(j)\n    ```\n\n    where `j = 1 .. K` indexes source dimensions from left to right, starting\n    at 1, and `result_stride(N - K + j)` is the row-major element stride of\n    the corresponding trailing result dimension. This stride is the product\n    of the sizes of all result dimensions to its right, or 1 for the last\n    dimension.\n\n    Dimension sizes and strides include any runtime `vscale` factors. In\n    particular, a scalable dimension `[1]` has size `vscale`. For a fixed\n    source dimension of size 1, `source_coord[j](off) == 0` for every valid\n    `off`.\n\n    Example:\n\n    ```mlir\n    %0 = arith.constant 0.0 : f32\n    %1 = vector.broadcast %0 : f32 to vector<16xf32>\n    %2 = vector.broadcast %1 : vector<16xf32> to vector<4x16xf32>\n\n    // Let %src = [[[a], [b], [c], [d]]].\n\n    // %3 = [[[a], [b], [c], [d]], [[a], [b], [c], [d]], ...]\n    // For off = 4, the result element is %src[0, 0, 0] = a.\n    // For off = 5, the result element is %src[0, 1, 0] = b.\n    %3 = vector.broadcast %src : vector<1x4x1xf32> to vector<4x4x1xf32>\n\n    // %4 = [[[a, a, a, a], [b, b, b, b],\n    //        [c, c, c, c], [d, d, d, d]]]\n    // For off = 4, the result element is %src[0, 1, 0] = b.\n    // For off = 5, the result element is %src[0, 1, 0] = b.\n    %4 = vector.broadcast %src : vector<1x4x1xf32> to vector<1x4x4xf32>\n    ```",
     "operands": [
       { "name": "source", "type": "AnyType" }
     ],
     "results": [
-      { "name": "vector", "type": "AnyVectorOfAnyRank" }
+      { "name": "result", "type": "AnyVectorOfAnyRank" }
     ],
-    "assemblyFormat": "$source attr-dict `:` type($source) `to` type($vector)"
+    "assemblyFormat": "$source attr-dict `:` type($source) `to` type($result)"
   },
   {
     "name": "vector.compressstore",
@@ -130287,7 +130350,7 @@
   {
     "name": "vector.contract",
     "summary": "vector contraction operation",
-    "description": "Computes the sum of products of vector elements along contracting\n    dimension pairs from 2 vectors of rank M and N respectively, adds this\n    intermediate result to the accumulator argument of rank K, and returns a\n    vector result of rank K (where K = num_lhs_free_dims + num_rhs_free_dims +\n    num_batch_dims (see dimension type descriptions below)). For K = 0 (no\n    free or batch dimensions), the accumulator and output are a scalar.\n\n    If operands and the result have types of different bitwidths, operands are\n    promoted to have the same bitwidth as the result before performing the\n    contraction. For integer types, only signless integer types are supported,\n    and the promotion happens via sign extension.\n\n    An iterator type attribute list must be specified, where each element of\n    the list represents an iterator with one of the following types:\n\n    *   \"reduction\": reduction dimensions are present in the lhs and rhs\n        arguments but not in the output (and accumulator\n        argument). These are the dimensions along which the vector\n        contraction op computes the sum of products, and\n        contracting dimension pair dimension sizes must match\n        between lhs/rhs.\n\n    *   \"parallel\": Batch dimensions are iterator type \"parallel\", and\n        are non-contracting dimensions present in the lhs, rhs and\n        output. The lhs/rhs co-iterate along the batch dimensions,\n        which should be expressed in their indexing maps.\n\n        Free dimensions are iterator type \"parallel\", and are\n        non-contraction, non-batch dimensions accessed by either the\n        lhs or rhs (but not both). The lhs and rhs free dimensions\n        are unrelated to each other and do not co-iterate, which\n        should be expressed in their indexing maps.\n\n    Depending on its iterator type and on the operands it indexes, a dimension\n    is one of the following kinds:\n\n    | Iterator type | In output | In lhs and rhs | Kind                     |\n    | ------------- | --------- | -------------- | ------------------------ |\n    | \"parallel\"    | yes       | both           | batch                    |\n    | \"parallel\"    | yes       | lhs only       | free (M-like)            |\n    | \"parallel\"    | yes       | rhs only       | free (N-like)            |\n    | \"reduction\"   | no        | both           | contracting              |\n    | \"reduction\"   | no        | one of them    | reduction on one operand |\n\n    The M-like and N-like terms follow\n    [`linalg.contract`](https://mlir.llvm.org/docs/Dialects/Linalg/#linalgcontract-linalgcontractop)\n    terminology.\n\n    An indexing map attribute list must be specified with an entry for lhs, rhs\n    and acc arguments. An indexing map attribute specifies a mapping from each\n    iterator in the iterator type list, to each dimension of an N-D vector.\n\n    An optional kind attribute may be used to specify the combining function\n    between the intermediate result and accumulator argument of rank K. This\n    attribute can take the values `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`\n    /`minimumf`/`maximumf` for floats. The default is `add`.\n\n    Example:\n\n    ```mlir\n    // Simple DOT product (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"]\n    }\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n\n    // 2D vector contraction with one contracting dimension (matmul, K = 2).\n    #contraction_accesses = [\n      affine_map<(i, j, k) -> (i, k)>,\n      affine_map<(i, j, k) -> (k, j)>,\n      affine_map<(i, j, k) -> (i, j)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n    }\n\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<4x3xf32>, vector<3x7xf32> into vector<4x7xf32>\n\n    // 4D to 3D vector contraction with two contracting dimensions and\n    // one batch dimension (K = 3).\n    #contraction_accesses = [\n      affine_map<(b0, f0, f1, c0, c1) -> (c0, b0, c1, f0)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, c1, c0, f1)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, f0, f1)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"parallel\",\n                        \"reduction\", \"reduction\"]\n    }\n\n    %4 = vector.contract #contraction_trait %0, %1, %2\n        : vector<7x8x16x15xf32>, vector<8x16x7x5xf32> into vector<8x15x5xf32>\n\n    // Vector contraction with mixed typed. lhs/rhs have different element\n    // types than accumulator/result.\n    %5 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf16>, vector<10xf16> into f32\n\n    // Contract with max (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"],\n      kind = #vector.kind<maxnumf>\n    }\n    %6 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n    ```",
+    "description": "Computes the sum of products of vector elements along contracting\n    dimension pairs from 2 vectors of rank M and N respectively, adds this\n    intermediate result to the accumulator argument of rank K, and returns a\n    vector result of rank K (where K = num_lhs_free_dims + num_rhs_free_dims +\n    num_batch_dims (see dimension type descriptions below)). For K = 0 (no\n    free or batch dimensions), the accumulator and output are a scalar.\n\n    If operands and the result have types of different bitwidths, operands are\n    promoted to have the same bitwidth as the result before performing the\n    contraction. For integer types, only signless integer types are supported,\n    and the promotion happens via sign extension.\n\n    An iterator type attribute list must be specified, where each element of\n    the list represents an iterator with one of the following types:\n\n    *   \"reduction\": reduction dimensions are present in the lhs and rhs\n        arguments but not in the output (and accumulator\n        argument). These are the dimensions along which the vector\n        contraction op computes the sum of products, and\n        contracting dimension pair dimension sizes must match\n        between lhs/rhs.\n\n    *   \"parallel\": Batch dimensions are iterator type \"parallel\", and\n        are non-contracting dimensions present in the lhs, rhs and\n        output. The lhs/rhs co-iterate along the batch dimensions,\n        which should be expressed in their indexing maps.\n\n        Free dimensions are iterator type \"parallel\", and are\n        non-contraction, non-batch dimensions accessed by either the\n        lhs or rhs (but not both). The lhs and rhs free dimensions\n        are unrelated to each other and do not co-iterate, which\n        should be expressed in their indexing maps.\n\n    Depending on its iterator type and on the operands it indexes, a dimension\n    is one of the following kinds:\n\n    | Iterator type | In output | In lhs and rhs | Kind                     |\n    | ------------- | --------- | -------------- | ------------------------ |\n    | \"parallel\"    | yes       | both           | batch                    |\n    | \"parallel\"    | yes       | lhs only       | free (M-like)            |\n    | \"parallel\"    | yes       | rhs only       | free (N-like)            |\n    | \"reduction\"   | no        | both           | contracting              |\n\n    The M-like and N-like terms follow\n    [`linalg.contract`](https://mlir.llvm.org/docs/Dialects/Linalg/#linalgcontract-linalgcontractop)\n    terminology.\n\n    An indexing map attribute list must be specified with an entry for lhs, rhs\n    and acc arguments. An indexing map attribute specifies a mapping from each\n    iterator in the iterator type list, to each dimension of an N-D vector.\n\n    An optional kind attribute may be used to specify the combining function\n    between the intermediate result and accumulator argument of rank K. This\n    attribute can take the values `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`\n    /`minimumf`/`maximumf` for floats. The default is `add`.\n\n    Example:\n\n    ```mlir\n    // Simple DOT product (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"]\n    }\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n\n    // 2D vector contraction with one contracting dimension (matmul, K = 2).\n    #contraction_accesses = [\n      affine_map<(i, j, k) -> (i, k)>,\n      affine_map<(i, j, k) -> (k, j)>,\n      affine_map<(i, j, k) -> (i, j)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n    }\n\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<4x3xf32>, vector<3x7xf32> into vector<4x7xf32>\n\n    // 4D to 3D vector contraction with two contracting dimensions and\n    // one batch dimension (K = 3).\n    #contraction_accesses = [\n      affine_map<(b0, f0, f1, c0, c1) -> (c0, b0, c1, f0)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, c1, c0, f1)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, f0, f1)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"parallel\",\n                        \"reduction\", \"reduction\"]\n    }\n\n    %4 = vector.contract #contraction_trait %0, %1, %2\n        : vector<7x8x16x15xf32>, vector<8x16x7x5xf32> into vector<8x15x5xf32>\n\n    // Vector contraction with mixed typed. lhs/rhs have different element\n    // types than accumulator/result.\n    %5 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf16>, vector<10xf16> into f32\n\n    // Contract with max (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"],\n      kind = #vector.kind<maxnumf>\n    }\n    %6 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n    ```",
     "operands": [
       { "name": "lhs", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
       { "name": "rhs", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
@@ -130324,14 +130387,14 @@
       { "name": "source", "type": "AnyVectorOfNonZeroRank" }
     ],
     "results": [
-      { "name": "res1", "type": "AnyVectorOfNonZeroRank" },
-      { "name": "res2", "type": "AnyVectorOfNonZeroRank" }
+      { "name": "resultEven", "type": "AnyVectorOfNonZeroRank" },
+      { "name": "resultOdd", "type": "AnyVectorOfNonZeroRank" }
     ],
     "traits": [
-      { "type": "TypesMatchWith<'source', 'res1', '[&]() -> ::mlir::VectorType {\n      auto vectorType = ::llvm::cast<mlir::VectorType>($_self);\n      ::mlir::VectorType::Builder builder(vectorType);\n      auto lastDim = vectorType.getRank() - 1;\n      auto newDimSize = vectorType.getDimSize(lastDim) / 2;;\n      if (newDimSize <= 0)\n         return vectorType; // (invalid input type)\n      return builder.setDim(lastDim, newDimSize);\n    }()'>" },
-      { "type": "AllTypesMatch<['res1', 'res2']>" }
+      { "type": "TypesMatchWith<'source', 'resultEven', '[&]() -> ::mlir::VectorType {\n      auto vectorType = ::llvm::cast<mlir::VectorType>($_self);\n      ::mlir::VectorType::Builder builder(vectorType);\n      auto lastDim = vectorType.getRank() - 1;\n      auto newDimSize = vectorType.getDimSize(lastDim) / 2;;\n      if (newDimSize <= 0)\n         return vectorType; // (invalid input type)\n      return builder.setDim(lastDim, newDimSize);\n    }()'>" },
+      { "type": "AllTypesMatch<['resultEven', 'resultOdd']>" }
     ],
-    "assemblyFormat": "$source attr-dict `:` type($source) `->` type($res1)"
+    "assemblyFormat": "$source attr-dict `:` type($source) `->` type($resultEven)"
   },
   {
     "name": "vector.expandload",
@@ -130412,9 +130475,9 @@
       { "name": "elements", "type": "Variadic<AnyType>" }
     ],
     "results": [
-      { "name": "dest", "type": "AnyFixedVectorOfAnyRank" }
+      { "name": "result", "type": "AnyFixedVectorOfAnyRank" }
     ],
-    "assemblyFormat": "$elements attr-dict `:` type($dest)"
+    "assemblyFormat": "$elements attr-dict `:` type($result)"
   },
   {
     "name": "vector.gather",
@@ -130567,7 +130630,7 @@
       { "name": "acc", "type": "AnyType" }
     ],
     "results": [
-      { "name": "dest", "type": "AnyType" }
+      { "name": "result", "type": "AnyType" }
     ],
     "attributes": [
       { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}" },
@@ -130575,9 +130638,9 @@
       { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
     ],
     "traits": [
-      { "type": "AllTypesMatch<['dest', 'acc']>" }
+      { "type": "AllTypesMatch<['result', 'acc']>" }
     ],
-    "assemblyFormat": "$kind `,` $source `,` $acc (`fastmath` `` $fastmath^)? attr-dict $reduction_dims `:` type($source) `to` type($dest)"
+    "assemblyFormat": "$kind `,` $source `,` $acc (`fastmath` `` $fastmath^)? attr-dict $reduction_dims `:` type($source) `to` type($result)"
   },
   {
     "name": "vector.outerproduct",
@@ -130618,16 +130681,16 @@
       { "name": "acc", "type": "Optional<AnyType>" }
     ],
     "results": [
-      { "name": "dest", "type": "AnyType" }
+      { "name": "result", "type": "AnyType" }
     ],
     "attributes": [
       { "name": "kind", "type": "Vector_CombiningKindAttr{add|mul|minui|minsi|minnumf|maxui|maxsi|maxnumf|and|or|xor|maximumf|minimumf|maximumnumf|minimumnumf}" },
       { "name": "fastmath", "type": "DefaultValuedAttr<Arith_FastMathAttr{none|reassoc|nnan|ninf|nsz|arcp|contract|afn|fast}, ::mlir::arith::FastMathFlags::none>" }
     ],
     "traits": [
-      { "type": "TypesMatchWith<'dest', 'acc', '::llvm::cast<Type>($_self)'>" }
+      { "type": "TypesMatchWith<'result', 'acc', '::llvm::cast<Type>($_self)'>" }
     ],
-    "assemblyFormat": "$kind `,` $vector (`,` $acc^)? (`fastmath` `` $fastmath^)? attr-dict `:` type($vector) `into` type($dest)"
+    "assemblyFormat": "$kind `,` $vector (`,` $acc^)? (`fastmath` `` $fastmath^)? attr-dict `:` type($vector) `into` type($result)"
   },
   {
     "name": "vector.scalable.extract",
@@ -130672,7 +130735,7 @@
       { "name": "initial_value", "type": "AnyVectorOfNonI0Elem" }
     ],
     "results": [
-      { "name": "dest", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
+      { "name": "result", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
       { "name": "accumulated_value", "type": "AnyVectorOfNonI0Elem" }
     ],
     "attributes": [
@@ -130681,7 +130744,7 @@
       { "name": "inclusive", "type": "BoolAttr" }
     ],
     "traits": [
-      { "type": "AllTypesMatch<['source', 'dest']>" },
+      { "type": "AllTypesMatch<['source', 'result']>" },
       { "type": "AllTypesMatch<['initial_value', 'accumulated_value']>" }
     ],
     "assemblyFormat": "$kind `,` $source `,` $initial_value\n    `reduction_dim` `=` $reduction_dim `,` `inclusive` `=` $inclusive\n    attr-dict `:` type($source) `,` type($initial_value)"
@@ -130727,7 +130790,7 @@
       { "name": "v2", "type": "AnyFixedVectorOfAnyRank" }
     ],
     "results": [
-      { "name": "vector", "type": "AnyVectorOfNonZeroRank" }
+      { "name": "result", "type": "AnyVectorOfNonZeroRank" }
     ],
     "attributes": [
       { "name": "mask", "type": "DenseI64ArrayAttr" }
@@ -130791,7 +130854,7 @@
       { "name": "mask", "type": "Optional<VectorOfNonZeroRankOf<[ I1 ]>>" }
     ],
     "results": [
-      { "name": "vector", "type": "AnyVectorOfAnyRank" }
+      { "name": "result", "type": "AnyVectorOfAnyRank" }
     ],
     "attributes": [
       { "name": "permutation_map", "type": "AffineMapAttr" },
@@ -130857,7 +130920,7 @@
     "summary": "Load vector scale size",
     "description": "The `vscale` op returns the scale of the scalable vectors, a positive\n    integer value that is constant at runtime but unknown at compile-time.\n    The scale of the vector indicates the multiplicity of the vectors and\n    vector operations. For example, a `vector<[4]xi32>` is equivalent to\n    `vscale` consecutive `vector<4xi32>`; and an operation on a\n    `vector<[4]xi32>` is equivalent to performing that operation `vscale`\n    times, once on each `<4xi32>` segment of the scalable vector. The `vscale`\n    op can be used to calculate the step in vector-length agnostic (VLA) loops.\n    Right now we only support one contiguous set of scalable dimensions, all of\n    them grouped and scaled with the value returned by 'vscale'.",
     "results": [
-      { "name": "res", "type": "Index" }
+      { "name": "result", "type": "Index" }
     ],
     "assemblyFormat": "attr-dict"
   },
@@ -140321,7 +140384,7 @@
   {
     "name": "xla.apply_indexing",
     "summary": "Applies indexing map to a list of SSA values",
-    "description": "The `apply_indexing` operation applies an indexing_map to a list\n    of SSA values, yielding a single SSA value. The number of dimension and\n    symbol arguments must be equal to the respective number of dimensional and\n    symbolic inputs in the indexing_map. The index mapping can be\n    multi-dimensional, and so the `apply_indexing` operation always returns one\n    value. The operands and results must all have ‘index’ type.\n\n    Example:\n\n    ```mlir\n    #map = #xla.indexing_map<(d0, d1)[s0] -> (d0 floordiv 8 + d1 floordiv 128, s0)>\n    %results:2 = xla_ops.apply_indexing #map (%0 in [0, 10], %1 in [0, 11])[%2 in [11, 32]]\n    ```",
+    "description": "The `apply_indexing` operation applies an indexing_map to a list\n    of SSA values, yielding a single SSA value. The number of dimension and\n    symbol arguments must be equal to the respective number of dimensional and\n    symbolic inputs in the indexing_map. The index mapping can be\n    multi-dimensional, and so the `apply_indexing` operation always returns one\n    value. The operands and results must all have ‘index’ type.\n\n    Example:\n\n    ```mlir\n    #map = #xla.indexing_map<(d0, d1)[s0] -> (d0 floordiv 8 + d1 floordiv 128, s0)>\n    %results:2 = xla_ops.apply_indexing #map (%0 in [0, 10], %1 in [0, 11])[%2 in [11, 32]]\n    ```\n\n    A single-result `apply_indexing` op may carry an optional\n    `xla.range = [lower, upper]` attribute. It is a closed interval that is\n    known to contain the result, and `GetRange` intersects it with the range\n    computed from the indexing map. Since folding a result that is a bare\n    dimension or symbol replaces the op with its operand, such a result is only\n    folded if the operand's known range is contained in `xla.range`. Otherwise\n    the op is kept, so that the tighter range is not lost. `xla.range` is not\n    allowed on multi-result ops, because a single interval cannot describe\n    several results.",
     "operands": [
       { "name": "operands", "type": "Variadic<Index>" }
     ],

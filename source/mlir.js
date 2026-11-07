@@ -11082,11 +11082,11 @@ _.Dialect = class {
     parseEnumFlags(parser, type, separator, optional) {
         const flags = [];
         const enumerants = type.getValue('enumerants');
-        do {
-            if (optional && flags.length === 0) {
+        for (;;) {
+            if (separator === ' ' || (optional && flags.length === 0)) {
                 const value = parser.parseOptionalKeyword(enumerants);
                 if (!value) {
-                    return null;
+                    break;
                 }
                 flags.push(value);
             } else {
@@ -11096,7 +11096,16 @@ _.Dialect = class {
                 }
                 flags.push(value);
             }
-        } while (separator === ',' ? parser.parseOptionalComma() : parser.parseOptionalVerticalBar());
+            if (separator === ',' && !parser.parseOptionalComma()) {
+                break;
+            }
+            if (separator === '|' && !parser.parseOptionalVerticalBar()) {
+                break;
+            }
+        }
+        if (flags.length === 0) {
+            return null;
+        }
         return new _.TypedAttr(flags.join(', '));
     }
 
@@ -25919,6 +25928,7 @@ _.test.TestDialect = class extends _.Dialect {
         this.registerCustomAttribute('TestEnumProp', this.parseTestEnumAttr.bind(this));
         this.registerCustomAttribute('TestEnumPropAttrForm', this.parseTestEnumPropAttrForm.bind(this));
         this.registerCustomAttribute('TestBitEnumProp', (parser, type) => this.parseEnumFlags(parser, type, ',', true));
+        this.registerCustomAttribute('TestBitEnumSpacePropDefault', (parser, type) => this.parseEnumFlags(parser, type, ' '));
         this.registerCustomAttribute('TestBitEnumPropNamed', this.parseTestBitEnumPropNamed.bind(this));
         this.registerCustomAttribute('KeyValueSpecializedOptionalProperty', this.parseKeyValueSpecializedOptionalProperty.bind(this));
         this.registerCustomAttribute('TestArrayOfUglyAttrs', this.parseTestArrayOfUglyAttrs.bind(this));
