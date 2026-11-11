@@ -901,7 +901,7 @@
   {
     "name": "acc.on_device",
     "summary": "call to the acc_on_device runtime function",
-    "description": "Represents a call to the OpenACC `acc_on_device` runtime function\n    (OpenACC 3.4, section 3.2.15). The result indicates whether execution is\n    on the given device type.\n\n    The call is evaluated at compile time only when device specialization\n    runs and the call is inside the code being specialized. On that path, a\n    compile-time constant device type folds to a constant result. Otherwise\n    the call remains a runtime call. The device type must be one of the\n    defined accelerator types.\n\n    Example:\n\n    ```mlir\n    %host = arith.constant 1 : i32\n    %on_host = acc.on_device %host : i32 -> i1\n    ```",
+    "description": "Represents a call to the OpenACC `acc_on_device` runtime function\n    (OpenACC 3.4, section 3.2.15). The result indicates whether execution is\n    on the given device type.\n\n    Example:\n\n    ```mlir\n    %host = arith.constant 1 : i32\n    %on_host = acc.on_device %host : i32 -> i1\n    ```",
     "operands": [
       { "name": "deviceType", "type": "IntOrIndex" }
     ],
@@ -4297,12 +4297,12 @@
     "summary": "sdot op",
     "description": "The two input vectors `b` and `c` have a 2D shape, consisting of either 2\n    or 4 rows, each row having length 4. This operation computes the pair-wise\n    dot-products of the rows of `b` and `c` and accumulates them with the\n    corresponding entry of `a`:\n\n    ```\n    res[i] := a[i] + dot_product(b[i, ...], c[i, ...])\n    ```",
     "operands": [
-      { "name": "a", "type": "VectorOfLengthAndType<[4, 2], [I32]>" },
-      { "name": "b", "type": "VectorOfLengthAndType<[16, 8], [I8]>" },
-      { "name": "c", "type": "VectorOfLengthAndType<[16, 8], [I8]>" }
+      { "name": "a", "type": "FixedVectorOfLengthAndType<[4, 2], [I32]>" },
+      { "name": "b", "type": "FixedVectorOfLengthAndType<[16, 8], [I8]>" },
+      { "name": "c", "type": "FixedVectorOfLengthAndType<[16, 8], [I8]>" }
     ],
     "results": [
-      { "name": "res", "type": "VectorOfLengthAndType<[4, 2], [I32]>" }
+      { "name": "res", "type": "FixedVectorOfLengthAndType<[4, 2], [I32]>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['b', 'c']>" },
@@ -4315,12 +4315,12 @@
     "summary": "BFloat16 matrix multiply-accumulate to single-precision",
     "description": "BFMMLA: BFloat16 matrix multiply-accumulate to single-precision.\n\n    The operation multiplies the 2x4 BFloat16 matrix in the first source vector\n    with the 4x2 BFloat16 matrix in the second source vector, then accumulates\n    this intermediate result with the 2x2 Float32 matrix in the accumulator\n    vector, yielding the final 2x2 Float32 result.\n\n    Source:\n    https://developer.arm.com/architectures/instruction-sets/intrinsics/vbfmmlaq_f32",
     "operands": [
-      { "name": "acc", "type": "NeonVectorOfLength<4, F32>" },
-      { "name": "src1", "type": "NeonVectorOfLength<8, BF16>" },
-      { "name": "src2", "type": "NeonVectorOfLength<8, BF16>" }
+      { "name": "acc", "type": "FixedVectorOfRankAndLengthAndType<[1], [4], [F32]>" },
+      { "name": "src1", "type": "FixedVectorOfRankAndLengthAndType<[1], [8], [BF16]>" },
+      { "name": "src2", "type": "FixedVectorOfRankAndLengthAndType<[1], [8], [BF16]>" }
     ],
     "results": [
-      { "name": "res", "type": "NeonVectorOfLength<4, F32>" }
+      { "name": "res", "type": "FixedVectorOfLengthAndType<[4], [F32]>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['src1', 'src2']>" },
@@ -4333,9 +4333,9 @@
     "summary": "sdot op",
     "description": "Signed integer addition of dot product (vector). This instruction performs\n    the following operation on signed integer vectors: res = dot(b, c) + a,\n    where vector operands are partitioned into groups of four elements.\n\n    Source:\n    https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics",
     "operands": [
-      { "name": "a", "type": "VectorOfLengthAndType<[4, 2], [I32]>" },
-      { "name": "b", "type": "VectorOfLengthAndType<[16, 8], [I8]>" },
-      { "name": "c", "type": "VectorOfLengthAndType<[16, 8], [I8]>" }
+      { "name": "a", "type": "FixedVectorOfLengthAndType<[4, 2], [I32]>" },
+      { "name": "b", "type": "FixedVectorOfLengthAndType<[16, 8], [I8]>" },
+      { "name": "c", "type": "FixedVectorOfLengthAndType<[16, 8], [I8]>" }
     ],
     "results": [
       { "name": "res", "type": "VectorOfLengthAndType<[4, 2], [I32]>" }
@@ -4352,12 +4352,12 @@
     "summary": "Matrix-matrix multiply and accumulate op",
     "description": "SMMLA: Signed integer matrix multiply-accumulate.\n\n    Signed 8-bit integer matrix multiply-accumulate. This instruction multiplies\n    the 2x8 matrix of signed 8-bit integer values in the first source vector by\n    the 8x2 matrix of signed 8-bit integer values in the second source vector.\n    The resulting 2x2 32-bit integer matrix product is destructively added to\n    the 32-bit integer matrix accumulator in the destination vector. This is\n    equivalent to performing an 8-way dot product per destination element.\n\n    Source:\n    https://developer.arm.com/architectures/instruction-sets/intrinsics/#f:@navigationhierarchiessimdisa=[Neon]&q=smmla",
     "operands": [
-      { "name": "acc", "type": "NeonVectorOfLength<4, I32>" },
-      { "name": "src1", "type": "NeonVectorOfLength<16, I8>" },
-      { "name": "src2", "type": "NeonVectorOfLength<16, I8>" }
+      { "name": "acc", "type": "FixedVectorOfRankAndLengthAndType<[1], [4], [I32]>" },
+      { "name": "src1", "type": "FixedVectorOfRankAndLengthAndType<[1], [16], [I8]>" },
+      { "name": "src2", "type": "FixedVectorOfRankAndLengthAndType<[1], [16], [I8]>" }
     ],
     "results": [
-      { "name": "res", "type": "NeonVectorOfLength<4, I32>" }
+      { "name": "res", "type": "FixedVectorOfLengthAndType<[4], [I32]>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['src1', 'src2']>" },
@@ -4370,11 +4370,11 @@
     "summary": "smull roundscale op",
     "description": "Signed Multiply Long (vector). This instruction multiplies corresponding\n    signed integer values in the lower or upper half of the vectors of the two\n    source SIMD&FP registers, places the results in a vector, and writes the\n    vector to the destination SIMD&FP register.\n\n    Source:\n    https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics",
     "operands": [
-      { "name": "a", "type": "VectorOfLengthAndType<[8, 4, 2], [I8, I16, I32]>" },
-      { "name": "b", "type": "VectorOfLengthAndType<[8, 4, 2], [I8, I16, I32]>" }
+      { "name": "a", "type": "FixedVectorOfLengthAndType<[8, 4, 2], [I8, I16, I32]>" },
+      { "name": "b", "type": "FixedVectorOfLengthAndType<[8, 4, 2], [I8, I16, I32]>" }
     ],
     "results": [
-      { "name": "res", "type": "VectorOfLengthAndType<[8, 4, 2], [I16, I32, I64]>" }
+      { "name": "res", "type": "FixedVectorOfLengthAndType<[8, 4, 2], [I16, I32, I64]>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['a', 'b']>" },
@@ -4387,12 +4387,12 @@
     "summary": "Unsinged matrix-matrix multiply and accumulate op",
     "description": "UMMLA: Signed integer matrix multiply-accumulate.\n\n    Unsigned 8-bit integer matrix multiply-accumulate. This instruction\n    multiplies the 2x8 matrix of unsigned 8-bit integer values in the first\n    source vector by the 8x2 matrix of unsigned 8-bit integer values in the\n    second source vector. The resulting 2x2 32-bit integer matrix product is\n    destructively added to the 32-bit integer matrix accumulator in the\n    destination vector. This is equivalent to performing an 8-way dot product\n    per destination element.\n\n    Source:\n    https://developer.arm.com/architectures/instruction-sets/intrinsics/#f:@navigationhierarchiessimdisa=[Neon]&q=ummla",
     "operands": [
-      { "name": "acc", "type": "NeonVectorOfLength<4, I32>" },
-      { "name": "src1", "type": "NeonVectorOfLength<16, I8>" },
-      { "name": "src2", "type": "NeonVectorOfLength<16, I8>" }
+      { "name": "acc", "type": "FixedVectorOfLengthAndType<[4], [I32]>" },
+      { "name": "src1", "type": "FixedVectorOfLengthAndType<[16], [I8]>" },
+      { "name": "src2", "type": "FixedVectorOfLengthAndType<[16], [I8]>" }
     ],
     "results": [
-      { "name": "res", "type": "NeonVectorOfLength<4, I32>" }
+      { "name": "res", "type": "FixedVectorOfLengthAndType<[4], [I32]>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['src1', 'src2']>" },
@@ -4405,12 +4405,12 @@
     "summary": "Unsignged and signed matrix-matrix multiply and accumulate op",
     "description": "USMMLA: Signed integer matrix multiply-accumulate.\n\n    Unsigned and signed 8-bit integer matrix multiply-accumulate. This\n    instruction multiplies the 2x8 matrix of unsigned 8-bit integer values in\n    the first source vector by the 8x2 matrix of signed 8-bit integer values in\n    the second source vector. The resulting 2x2 32-bit integer matrix product is\n    destructively added to the 32-bit integer matrix accumulator in the\n    destination vector. This is equivalent to performing an 8-way dot product\n     per destination element.\n\n\n    Source:\n    https://developer.arm.com/architectures/instruction-sets/intrinsics/#f:@navigationhierarchiessimdisa=[Neon]&q=usmmla",
     "operands": [
-      { "name": "acc", "type": "NeonVectorOfLength<4, I32>" },
-      { "name": "src1", "type": "NeonVectorOfLength<16, I8>" },
-      { "name": "src2", "type": "NeonVectorOfLength<16, I8>" }
+      { "name": "acc", "type": "FixedVectorOfRankAndLengthAndType<[1], [4], [I32]>" },
+      { "name": "src1", "type": "FixedVectorOfRankAndLengthAndType<[1], [16], [I8]>" },
+      { "name": "src2", "type": "FixedVectorOfRankAndLengthAndType<[1], [16], [I8]>" }
     ],
     "results": [
-      { "name": "res", "type": "NeonVectorOfLength<4, I32>" }
+      { "name": "res", "type": "FixedVectorOfLengthAndType<[4], [I32]>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['src1', 'src2']>" },
@@ -4947,6 +4947,25 @@
     "assemblyFormat": "$src `[` $lane `]` attr-dict `:` type($dst)"
   },
   {
+    "name": "arm_sve.fmla",
+    "summary": "Floating-point fused multiply-add by indexed element",
+    "description": "FMLA: Floating-point fused multiply-add by indexed element\n\n    Below is a summary from the official documentation for the corresponding\n    [SVE instruction](https://support.arm.com/documentation/111108/2026-09/SVE-Instructions/FMLA--indexed---Floating-point-fused-multiply-add-by-indexed-element-)\n\n    ```\n    This instruction multiplies all floating-point elements within each 128-bit\n    segment of the first source vector by the specified element in the\n    corresponding second source vector segment. The products are then\n    destructively added without intermediate rounding to the corresponding\n    elements of the addend and destination vector.\n\n    The elements within the second source vector are specified using an immediate\n    index that selects the same element position within each 128-bit vector\n    segment. The index range is from 0 to one less than the number of elements per\n    128-bit segment. This instruction is unpredicated.\n    ```\n\n    TODO: When adding support for the \"vector\" variant of FMLA, rename this Op to\n    better differentiate the two.",
+    "operands": [
+      { "name": "acc", "type": "ScalableVectorOfLengthAndType<[4], [F32]>" },
+      { "name": "src1", "type": "ScalableVectorOfLengthAndType<[4], [F32]>" },
+      { "name": "src2", "type": "ScalableVectorOfLengthAndType<[4], [F32]>" },
+      { "name": "lane", "type": "I32" }
+    ],
+    "results": [
+      { "name": "dst", "type": "ScalableVectorOfLengthAndType<[4], [F32]>" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['src1', 'src2']>" },
+      { "type": "AllTypesMatch<['acc', 'dst']>" }
+    ],
+    "assemblyFormat": "$acc `,` $src1 `,` $src2 `,` $lane attr-dict `:` type($src1) `to` type($dst)"
+  },
+  {
     "name": "arm_sve.intr.add",
     "results": [
       { "name": "res", "type": "LLVM_Type" }
@@ -5008,6 +5027,12 @@
   },
   {
     "name": "arm_sve.intr.fdiv",
+    "results": [
+      { "name": "res", "type": "LLVM_Type" }
+    ]
+  },
+  {
+    "name": "arm_sve.intr.fmla.lane",
     "results": [
       { "name": "res", "type": "LLVM_Type" }
     ]
@@ -6406,14 +6431,14 @@
   {
     "name": "bufferization.alloc_tensor",
     "summary": "allocate buffer for a tensor",
-    "description": "`bufferization.alloc_tensor` materializes an uninitialized tensor with a\n    given shape (dynamic or static). It always bufferizes to a new buffer\n    allocation of the given shape. The optional `copy` operand specifies the\n    contents of the tensors. If no `copy` operand is specified, reading from the\n    result of an `alloc_tensor` op yields an undefined value.\n\n    If `copy` is specified, no dynamic sizes should be passed, since they are\n    the same as the dynamic sizes of the `copy` operand.\n\n    `alloc_tensor` is a helper op for bufferization. The operation is provided\n    as an anchor that marks the beginning of a new tensor SSA use-def chain. It\n    can be used to control in-place bufferization decisions during One-Shot\n    Bufferize: The bufferized result of a `bufferization.alloc_tensor` does not\n    alias with any other buffer, so it can be used to resolve read-after-write\n    conflicts that would have been introduced by the in-place bufferization of\n    another op.\n\n    The optional `memory_space` attribute specifies the memory space when\n    bufferizing this op. The memory space is inferred from `copy` if specified.\n    If neither `copy` nor `memory_space` is specified, the default memory space\n    is used during bufferization.\n\n    The optional `size_hint` operand specifies the number of non-zero elements\n    for sparse tensors. The value of `size_hint` should be not less than 1 and\n    not larger than the linear size of the corresponding dense tensor type. If\n    this requirement is not met, the behavior of the operator is undefined.\n\n    Both dense and sparse tensor types are supported. The result of a\n    `bufferization.alloc_tensor` is a tensor value that can be used like any\n    other tensor value. In practice, it is often used as the \"out\" operand of\n    another op. Sparse tensor allocations should always be used in a local\n    construction operation and never escape the function boundary directly.\n\n    Example:\n\n    ```mlir\n    %c = bufferization.alloc_tensor(%d1, %d2) : tensor<?x?xf32, #SparseMatrix>\n    %0 = linalg.matmul\n      ins(%a, %b: tensor<?x?xf32, #SparseMatrix>, tensor<?x?xf32, #SparseMatrix>)\n      outs(%c: tensor<?x?xf32, #SparseMatrix>) -> tensor<?x?xf32, #SparseMatrix>\n    return %0 : tensor<?x?xf32, #SparseMatrix>\n    ```\n\n    ```mlir\n    %c = bufferization.alloc_tensor(%d1, %d2) size_hint = %noe\n      : tensor<?x?xf32, #SparseMatrix>\n    ```\n\n    Note: An `alloc_tensor` with a `copy` should also be expressed as an\n    `alloc_tensor` without `copy`, followed by a `copy_tensor`.",
+    "description": "`bufferization.alloc_tensor` materializes an uninitialized tensor with a\n    given shape (dynamic or static). It always bufferizes to a new buffer\n    allocation of the given shape. The optional `copy` operand specifies the\n    contents of the tensors. If no `copy` operand is specified, reading from the\n    result of an `alloc_tensor` op yields an undefined value.\n\n    If `copy` is specified, no dynamic sizes should be passed, since they are\n    the same as the dynamic sizes of the `copy` operand.\n\n    The result may be any tensor-like type. `dynamic_sizes` and `size_hint`\n    apply only to a ranked tensor result.\n\n    `alloc_tensor` is a helper op for bufferization. The operation is provided\n    as an anchor that marks the beginning of a new tensor SSA use-def chain. It\n    can be used to control in-place bufferization decisions during One-Shot\n    Bufferize: The bufferized result of a `bufferization.alloc_tensor` does not\n    alias with any other buffer, so it can be used to resolve read-after-write\n    conflicts that would have been introduced by the in-place bufferization of\n    another op.\n\n    The optional `memory_space` attribute specifies the memory space when\n    bufferizing this op. The memory space is inferred from `copy` if specified.\n    If neither `copy` nor `memory_space` is specified, the default memory space\n    is used during bufferization.\n\n    The optional `size_hint` operand specifies the number of non-zero elements\n    for sparse tensors. The value of `size_hint` should be not less than 1 and\n    not larger than the linear size of the corresponding dense tensor type. If\n    this requirement is not met, the behavior of the operator is undefined.\n\n    Both dense and sparse tensor types are supported. The result of a\n    `bufferization.alloc_tensor` is a tensor value that can be used like any\n    other tensor value. In practice, it is often used as the \"out\" operand of\n    another op. Sparse tensor allocations should always be used in a local\n    construction operation and never escape the function boundary directly.\n\n    Example:\n\n    ```mlir\n    %c = bufferization.alloc_tensor(%d1, %d2) : tensor<?x?xf32, #SparseMatrix>\n    %0 = linalg.matmul\n      ins(%a, %b: tensor<?x?xf32, #SparseMatrix>, tensor<?x?xf32, #SparseMatrix>)\n      outs(%c: tensor<?x?xf32, #SparseMatrix>) -> tensor<?x?xf32, #SparseMatrix>\n    return %0 : tensor<?x?xf32, #SparseMatrix>\n    ```\n\n    ```mlir\n    %c = bufferization.alloc_tensor(%d1, %d2) size_hint = %noe\n      : tensor<?x?xf32, #SparseMatrix>\n    ```\n\n    Note: An `alloc_tensor` with a `copy` should also be expressed as an\n    `alloc_tensor` without `copy`, followed by a `copy_tensor`.",
     "operands": [
       { "name": "dynamic_sizes", "type": "Variadic<Index>" },
-      { "name": "copy", "type": "Optional<AnyTensor>" },
+      { "name": "copy", "type": "Optional<Bufferization_TensorLikeTypeInterface>" },
       { "name": "size_hint", "type": "Optional<Index>" }
     ],
     "results": [
-      { "name": "result", "type": "AnyTensor" }
+      { "name": "result", "type": "Bufferization_TensorLikeTypeInterface" }
     ],
     "attributes": [
       { "name": "memory_space", "type": "OptionalAttr<AnyAttr>" }
@@ -20517,7 +20542,7 @@
   {
     "name": "krnl.collapse",
     "summary": "Krnl collapse operation",
-    "description": "Fuse two or more perfectly nested for loops into a single for loop whose\n    trip count is the product of the original trip counts. Operands are given\n    outer-to-inner, and the single result refers to the fused loop.\n\n    `krnl.get_induction_var_value` hands the body one index **per original\n    dimension** by default, so a collapsed nest is queried exactly like an\n    uncollapsed one and a body does not have to know whether it was collapsed:\n\n    ```\n    %ii, %jj = krnl.define_loops 2\n    %f = krnl.collapse(%ii, %jj) : (!krnl.loop, !krnl.loop) -> !krnl.loop\n    krnl.iterate(%f) with (%ii -> %i = 0 to 10, %jj -> %j = 0 to 20) {\n      %i, %j = krnl.get_induction_var_value(%f) : (!krnl.loop) -> (index, index)\n      %v = krnl.load %2d[%i, %j] : memref<10x20xf32>\n    }\n    ```\n\n    Recovering those per-dimension indices costs a floordiv/mod chain. When a\n    **linearized** access is what the body wants instead, ask for the fused index\n    with the `fusedIndex` attribute and no division is emitted at all -- for a flat\n    `memref<200xf32>`, the fused index is already the right subscript:\n\n    ```\n    %idx = krnl.get_induction_var_value(%f) {fusedIndex} : (!krnl.loop) -> index\n    %v = krnl.load %flat[%idx] : memref<200xf32>\n    // %idx is the flat iteration number over the fused range, here 0 to 199.\n    ```\n\n    Both may appear in the same body, as two separate queries on the same loop\n    reference.\n\n    The main motivation is `krnl.parallel`, which can then spread a single\n    fused iteration space over the available threads instead of parallelizing\n    only the outermost dimension.\n\n    Restrictions in this first version:\n\n    * Every collapsed dimension must have a **lower bound of compile-time\n      constant 0** and a **step of 1**. A literal `0 to N` qualifies, and so\n      does a bound spelled as a constant SSA value such as `%c0 to N`, which is\n      folded before being checked. A non-zero bound (`5 to N`) or a bound that\n      is only known at run time (`%lb to N`) is rejected: the trip count of a\n      collapsed dimension is taken to be its upper bound, and recovering the\n      per-dimension indices would additionally have to add each dimension's\n      offset back in, which the recovery does not do.\n    * The enclosing `krnl.iterate` must have no reduction `iterArgs`.\n    * The operands may not themselves be results of `krnl.block` or\n      `krnl.collapse`. Conversely, the result may not be fed to `krnl.block` or\n      `krnl.unroll`.\n    * An **operand** loop reference is consumed by the collapse: after fusing it\n      no longer refers to a loop of its own, so nothing else may use it. In\n      particular `krnl.get_induction_var_value(%ii)` on a collapsed-away operand\n      is invalid, and so is naming that dimension's induction variable in the\n      `with` clause and then using it (the `%i` in `with (%ii -> %i = 0 to N)`).\n      The latter is an implementation restriction rather than a fundamental one:\n      `affine::coalesceLoops` rewrites uses of the collapsed induction variables\n      only within the fused loop's own region, whereas the iterate body has by\n      then been parked elsewhere in the function.\n\n      The **result** is the opposite, and is not restricted at all: `%f` is the\n      one surviving loop, and `krnl.get_induction_var_value(%f)` is exactly how\n      its indices are obtained -- per-dimension by default, or the fused index\n      with `{fusedIndex}`.\n\n    Only the two operand/result restrictions are enforced by this op's verifier.\n    The bound, `iterArgs` and use restrictions depend on the enclosing\n    `krnl.iterate`, which this op cannot see from its own operands, so they are\n    reported when the loop nest is lowered instead.",
+    "description": "Fuse two or more perfectly nested for loops into a single for loop whose\n    trip count is the product of the original trip counts. Operands are given\n    outer-to-inner, and the single result refers to the fused loop.\n\n    `krnl.get_induction_var_value` hands the body one index **per original\n    dimension** by default, so a collapsed nest is queried exactly like an\n    uncollapsed one and a body does not have to know whether it was collapsed:\n\n    ```\n    %ii, %jj = krnl.define_loops 2\n    %f = krnl.collapse(%ii, %jj) : (!krnl.loop, !krnl.loop) -> !krnl.loop\n    krnl.iterate(%f) with (%ii -> %i = 0 to 10, %jj -> %j = 0 to 20) {\n      %i, %j = krnl.get_induction_var_value(%f) : (!krnl.loop) -> (index, index)\n      %v = krnl.load %2d[%i, %j] : memref<10x20xf32>\n    }\n    ```\n\n    Recovering those per-dimension indices costs a floordiv/mod chain. When a\n    **linearized** access is what the body wants instead, ask for the fused index\n    with the `fusedIndex` attribute and no division is emitted at all -- for a flat\n    `memref<200xf32>`, the fused index is already the right subscript:\n\n    ```\n    %idx = krnl.get_induction_var_value(%f) {fusedIndex} : (!krnl.loop) -> index\n    %v = krnl.load %flat[%idx] : memref<200xf32>\n    // %idx is the flat iteration number over the fused range, here 0 to 199.\n    ```\n\n    Both may appear in the same body, as two separate queries on the same loop\n    reference.\n\n    The main motivation is `krnl.parallel`, which can then spread a single\n    fused iteration space over the available threads instead of parallelizing\n    only the outermost dimension.\n\n    Restrictions in this first version:\n\n    * Every collapsed dimension must have a **lower bound of compile-time\n      constant 0**. A literal `0 to N` qualifies, and so does a bound spelled\n      as a constant SSA value such as `%c0 to N`, which is folded before being\n      checked. A non-zero bound (`5 to N`) or a bound that is only known at run\n      time (`%lb to N`) is rejected: the trip count of a collapsed dimension is\n      taken to be its upper bound, and recovering the per-dimension indices\n      would additionally have to add each dimension's offset back in, which the\n      recovery does not do.\n    * The enclosing `krnl.iterate` must have no reduction `iterArgs`.\n    * An operand may be the **tile loop** of a `krnl.block` (its first result),\n      anywhere in the group and in any number. It is fused as a count of tiles,\n      and its recovered index is still an element index, a multiple of the tile\n      size, exactly as when querying the tile loop without collapsing. The\n      **intra-tile loop** (the second result) may not be collapsed, and may not\n      end up between two collapsed loops: it must stay nested inside them.\n    * An operand may not itself be the result of a `krnl.collapse`. Conversely,\n      the result may not be fed to `krnl.block` or `krnl.unroll`.\n    * The collapsed loops must be adjacent and listed outer-to-inner in the\n      order they have once every preceding `krnl.permute` is applied. A\n      `krnl.permute` may name an operand only if it precedes the collapse.\n    * An **operand** loop reference is consumed by the collapse: after fusing it\n      no longer refers to a loop of its own, so nothing else may use it. In\n      particular `krnl.get_induction_var_value(%ii)` on a collapsed-away operand\n      is invalid, and so is naming that dimension's induction variable in the\n      `with` clause and then using it (the `%i` in `with (%ii -> %i = 0 to N)`).\n      The latter is an implementation restriction rather than a fundamental one:\n      `affine::coalesceLoops` rewrites uses of the collapsed induction variables\n      only within the fused loop's own region, whereas the iterate body has by\n      then been parked elsewhere in the function.\n\n      The **result** is the opposite, and is not restricted at all: `%f` is the\n      one surviving loop, and `krnl.get_induction_var_value(%f)` is exactly how\n      its indices are obtained -- per-dimension by default, or the fused index\n      with `{fusedIndex}`.\n\n    Only the two operand/result restrictions are enforced by this op's verifier.\n    The bound, `iterArgs` and use restrictions depend on the enclosing\n    `krnl.iterate`, which this op cannot see from its own operands, so they are\n    reported when the loop nest is lowered instead.",
     "operands": [
       { "name": "loops", "type": "Variadic<AnyType>" }
     ],
@@ -21277,7 +21302,7 @@
   {
     "name": "linalg.contract",
     "summary": "Perform a contraction on two inputs, accumulating into the third.",
-    "description": "The semantics of contracting inputs `A` and `B` on top of `C` to produce\n    output `D` is given by\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} A[I] * B[J]) + C[H]`\n\n    where `I`, `J`, and `H` are tuples of (pairwise distinct) dimension\n    identifiers - meant to range over valid indices - corresponding to the\n    results of the mandatory (projected permutation) `indexing_maps` for `A`,\n    `B` and `C`. `SUM_{dims}` means reduce over all valid indices for the\n    dimensions in the set `dims` (with `I`, `J`, and `K` treated as _sets_ of\n    dim identifiers).\n\n    The iteration space consists of all dimensions in `I`, `J` and `H`, i.e. the\n    domain of each of the `affine_map`s. Like for einsums, the iteration type of\n    each dim is inferred and is either:\n\n    - reduction: the dim is used to index into `A` and `B` but not `C`. Per the\n      above semantics, these dims will be contracted, i.e. reduced over.\n\n    - parallel: the dim is used to index into `C` and at least one of `A` and\n      `B`, and - deriving from matmul terminology - is either an \"M-like\" dim\n      (if used on `A` and `C`), an \"N-like\" dim (if used on `B` and `C`) or a\n      \"batch\"-dim (if used to index into `A`, `B`, and `C`).\n\n    For example, batch-matmul is given by `I = ⟨ b, m, k ⟩`, `J = ⟨ b, k, n ⟩`,\n    `H = ⟨ b, m, n ⟩` (with `k` as a contracting reduction-dimension while `m`,\n    `n` and `b` have parallel iteration-type) and gets represented as:\n\n    ```mlir\n    %D = linalg.contract\n        indexing_maps = [affine_map<(batch, m, n, k) -> (batch, m, k)>,\n                         affine_map<(batch, m, n, k) -> (batch, k, n)>,\n                         affine_map<(batch, m, n, k) -> (batch, m, n)>]\n        ins(%A, %B: tensor<?x?x?xf32>, tensor<?x?x?xf32>)\n        outs(%C: tensor<?x?x?xf32>) -> tensor<?x?x?xf32>\n    ```\n\n    Note that by permuting dims in the `affine_map`s' results, accesses to\n    to the inputs and output can be arbitrarily transposed. Similarly, arbitrary\n    broadcasts can be achieved through leaving out dims on either input operand.\n    For example, the following is a variant of batch-matmul with a transposition\n    applied to `A` while `B`'s 2D-matrix gets broadcasted along the batch dim:\n\n    ```mlir\n    linalg.contract\n        indexing_maps = [affine_map<(batch, m, n, k) -> (batch, k, m)>,\n                         affine_map<(batch, m, n, k) -> (k, n)>,\n                         affine_map<(batch, m, n, k) -> (batch, m, n)>]\n        ins(%A, %B: memref<?x?x?xf32>, memref<?x?xf32>)\n        outs(%C: memref<?x?x?xf32>)\n    ```\n\n    Numeric casting is performed on the operands to the inner multiplication,\n    promoting/truncating them to the same data type as the accumulator/output.\n\n    TODO: Allow control over the combining/accumulating op and possibly the\n          multiplication op.",
+    "description": "The semantics of contracting inputs `A` and `B` on top of `C` to produce\n    output `D` is given by\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} A[I] * B[J]) + C[H]`\n\n    where `I`, `J`, and `H` are tuples of (pairwise distinct) dimension\n    identifiers - meant to range over valid indices - corresponding to the\n    results of the mandatory (projected permutation) `indexing_maps` for `A`,\n    `B` and `C`. `SUM_{dims}` means reduce over all valid indices for the\n    dimensions in the set `dims` (with `I`, `J`, and `K` treated as _sets_ of\n    dim identifiers).\n\n    Currently, this operation supports multiplication followed by summation,\n    with the corresponding type-specific operations (`int`, `float`, `bool`, `complex`).\n    Support for other combinations can be added in the future if required\n    by concrete use cases and can be lowered to appropriate lower-level operations.\n\n    The iteration space consists of all dimensions in `I`, `J` and `H`, i.e. the\n    domain of each of the `affine_map`s. Like for einsums, the iteration type of\n    each dim is inferred and is either:\n\n    - reduction: the dim is used to index into `A` and `B` but not `C`. Per the\n      above semantics, these dims will be contracted, i.e. reduced over.\n\n    - parallel: the dim is used to index into `C` and at least one of `A` and\n      `B`, and - deriving from matmul terminology - is either an \"M-like\" dim\n      (if used on `A` and `C`), an \"N-like\" dim (if used on `B` and `C`) or a\n      \"batch\"-dim (if used to index into `A`, `B`, and `C`).\n\n    For example, batch-matmul is given by `I = ⟨ b, m, k ⟩`, `J = ⟨ b, k, n ⟩`,\n    `H = ⟨ b, m, n ⟩` (with `k` as a contracting reduction-dimension while `m`,\n    `n` and `b` have parallel iteration-type) and gets represented as:\n\n    ```mlir\n    %D = linalg.contract\n        indexing_maps = [affine_map<(batch, m, n, k) -> (batch, m, k)>,\n                         affine_map<(batch, m, n, k) -> (batch, k, n)>,\n                         affine_map<(batch, m, n, k) -> (batch, m, n)>]\n        ins(%A, %B: tensor<?x?x?xf32>, tensor<?x?x?xf32>)\n        outs(%C: tensor<?x?x?xf32>) -> tensor<?x?x?xf32>\n    ```\n\n    Note that by permuting dims in the `affine_map`s' results, accesses to\n    to the inputs and output can be arbitrarily transposed. Similarly, arbitrary\n    broadcasts can be achieved through leaving out dims on either input operand.\n    For example, the following is a variant of batch-matmul with a transposition\n    applied to `A` while `B`'s 2D-matrix gets broadcasted along the batch dim:\n\n    ```mlir\n    linalg.contract\n        indexing_maps = [affine_map<(batch, m, n, k) -> (batch, k, m)>,\n                         affine_map<(batch, m, n, k) -> (k, n)>,\n                         affine_map<(batch, m, n, k) -> (batch, m, n)>]\n        ins(%A, %B: memref<?x?x?xf32>, memref<?x?xf32>)\n        outs(%C: memref<?x?x?xf32>)\n    ```\n\n    Numeric casting is performed on the operands to the inner multiplication,\n    promoting/truncating them to the same data type as the accumulator/output.",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyType>" },
       { "name": "outputs", "type": "Variadic<AnyShaped>" }
@@ -22567,7 +22592,7 @@
   {
     "name": "linalg.scaled_contract",
     "summary": "Perform a scaled contraction on two inputs where their scaling is described\n    by affine maps of the two corresponding scales, accumulating into the output.",
-    "description": "Extends the semantics of `linalg.contract` by including extra scaling factors\n    for the inputs `A` and `B` described by the scales' affine maps.\n    The data types of the inputs are chosen independently from the scales.\n\n    The output element type must be floating-point. Input element types must be\n    integer or floating-point, with bitwidth no greater than the output element\n    type's bitwidth.\n\n    The semantics of contracting inputs `A` and `B` with scales `scale_A` and\n    `scale_B` on top of `C` to produce output `D` is given by:\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} (A[I] * scale_A[I]) * (B[J] * scale_B[J])) + C[H]`\n\n    The iteration type of each dim is inferred.\n\n    The input operands `A`, `B`, and `C` follow the standard contraction semantics\n    together with broadcasting and transposition rules.\n    See `linalg.contract` for further details.\n\n    **Affine maps for scales**\n\n    Each scale indexing map describes the scaling scheme for the corresponding\n    input `A` and `B`. The following scaling schemes are supported:\n\n    - Tensor scaling - no dimensions: a scalar value used to scale the whole input.\n    - Dimension scaling - dimension `d`: one scale value per element along `d`.\n    - Block scaling - binary expression `d floordiv B`: one scale value for every\n      `B` elements along `d` where `B` corresponds to the block size.\n\n    Scale maps may only use dimensions present in the corresponding input's map.\n    A dimension absent from the scale map indicates that a single scale value is\n    reused across the whole input dimension.\n\n    **Dim sizes for scales**\n\n    - Tensor scaling: a unit-size scale.\n    - Dimension scaling (`d`): the scale dim size equals the input dim size.\n    - Block scaling (`d floordiv B`): the scale dim size equals\n      `ceil(input_dim_size / B)`.\n\n    For dynamic shapes, all sizes are assumed to be correct at runtime.\n\n    Example scaled matmul with transposed B using semi-affine maps:\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (m floordiv 32, k floordiv 128)>, // A - 32x128 block scale\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (n)>, // B - row-wise scale\n          affine_map<(m, n, k) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<200x512xf8E5M2>, tensor<7x4xf8E8M0FNU>,\n            tensor<128x512xf8E5M2>, tensor<128xf8E8M0FNU>)\n        outs(%C: tensor<200x128xf32>) -> tensor<200x128xf32>\n    ```\n\n    or using expanded dimensions:\n\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, ko, kb) -> (m, ko, kb)>, // A - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (m, ko)>,\n          affine_map<(m, n, ko, kb) -> (n, ko, kb)>, // B - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (n, ko)>,\n          affine_map<(m, n, ko, kb) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<128x4x32xf4E2M1FN>, tensor<128x4xf8E8M0FNU>,\n            tensor<64x4x32xf4E2M1FN>, tensor<64x4xf8E8M0FNU>)\n        outs(%C : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```\n\n    Numeric casting promotes inputs and scales to the accumulator/output type.\n\n    TODO: Allow control over the combining/accumulating op and possibly the\n          multiplication op.",
+    "description": "Extends the semantics of `linalg.contract` by including extra scaling factors\n    for the inputs `A` and `B` described by the scales' affine maps.\n    The data types of the inputs are chosen independently from the scales.\n\n    The output element type must be floating-point. Input element types must be\n    integer or floating-point, with bitwidth no greater than the output element\n    type's bitwidth.\n\n    The semantics of contracting inputs `A` and `B` with scales `scale_A` and\n    `scale_B` on top of `C` to produce output `D` is given by:\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} (A[I] * scale_A[I]) * (B[J] * scale_B[J])) + C[H]`\n\n    The iteration type of each dim is inferred.\n\n    Currently, this operation supports multiplication followed by summation,\n    with the corresponding type-specific operations.\n\n    The input operands `A`, `B`, and `C` follow the standard contraction semantics\n    together with broadcasting and transposition rules.\n    See `linalg.contract` for further details.\n\n    **Affine maps for scales**\n\n    Each scale indexing map describes the scaling scheme for the corresponding\n    input `A` and `B`. The following scaling schemes are supported:\n\n    - Tensor scaling - no dimensions: a scalar value used to scale the whole input.\n    - Dimension scaling - dimension `d`: one scale value per element along `d`.\n    - Block scaling - binary expression `d floordiv B`: one scale value for every\n      `B` elements along `d` where `B` corresponds to the block size.\n\n    Scale maps may only use dimensions present in the corresponding input's map.\n    A dimension absent from the scale map indicates that a single scale value is\n    reused across the whole input dimension.\n\n    **Dim sizes for scales**\n\n    - Tensor scaling: a unit-size scale.\n    - Dimension scaling (`d`): the scale dim size equals the input dim size.\n    - Block scaling (`d floordiv B`): the scale dim size equals\n      `ceil(input_dim_size / B)`.\n\n    For dynamic shapes, all sizes are assumed to be correct at runtime.\n\n    Example scaled matmul with transposed B using semi-affine maps:\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (m floordiv 32, k floordiv 128)>, // A - 32x128 block scale\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (n)>, // B - row-wise scale\n          affine_map<(m, n, k) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<200x512xf8E5M2>, tensor<7x4xf8E8M0FNU>,\n            tensor<128x512xf8E5M2>, tensor<128xf8E8M0FNU>)\n        outs(%C: tensor<200x128xf32>) -> tensor<200x128xf32>\n    ```\n\n    or using expanded dimensions:\n\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, ko, kb) -> (m, ko, kb)>, // A - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (m, ko)>,\n          affine_map<(m, n, ko, kb) -> (n, ko, kb)>, // B - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (n, ko)>,\n          affine_map<(m, n, ko, kb) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<128x4x32xf4E2M1FN>, tensor<128x4xf8E8M0FNU>,\n            tensor<64x4x32xf4E2M1FN>, tensor<64x4xf8E8M0FNU>)\n        outs(%C : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```\n\n    Numeric casting promotes inputs and scales to the accumulator/output type.",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyType>" },
       { "name": "outputs", "type": "Variadic<AnyShaped>" }
@@ -25164,7 +25189,7 @@
     "name": "llvm.intr.ldexp",
     "operands": [
       { "name": "val", "type": "LLVM_ScalarOrVectorOf<LLVM_AnyFloat>" },
-      { "name": "power", "type": "AnySignlessInteger" }
+      { "name": "exp", "type": "LLVM_ScalarOrVectorOf<AnySignlessInteger>" }
     ],
     "results": [
       { "name": "res", "type": "LLVM_Type" }
@@ -37110,7 +37135,7 @@
   {
     "name": "omp.iterator",
     "summary": "OpenMP iterator modifier",
-    "description": "The result of `omp.iterator` is an abstract handle of type\n    `!omp.iterated<T>`, representing the list of yielded values. This handle\n    can be directly consumed by OpenMP clauses that accept iterator modifiers,\n    such as `affinity`, `map`, `to`, `from`, or `depend`.\n\n    The region may contain multiple blocks. Exactly one of them is terminated\n    by `omp.yield`; every other block branches to a block of the region.\n\n    Example:\n      %it = omp.iterator(%i, %j) =\n        (%lb_i to %ub_i step %st_i, %lb_j to %ub_j step %st_j) {\n        %addr = ...\n        omp.yield(%addr)\n      } -> !omp.iterated<ptr>",
+    "description": "The result of `omp.iterator` is an abstract handle of type\n    `!omp.iterated<T>`, representing the list of yielded values. This handle\n    can be directly consumed by OpenMP clauses that accept iterator modifiers,\n    such as `affinity`, `map`, `to`, `from`, or `depend`.\n\n    The region may contain multiple blocks. Exactly one of them is terminated\n    by `omp.yield`; every other block branches to a block of the region.\n\n    Each range has a nonzero step and an exclusive upper bound unless\n    `inclusive` is specified. A range is empty when its lower bound is beyond\n    its upper bound in the direction of the step (or equal to an exclusive\n    upper bound). If any range is empty, the result is an empty list and the\n    region is not evaluated.\n\n    Example:\n      %it = omp.iterator(%i, %j) =\n        (%lb_i to %ub_i step %st_i, %lb_j to %ub_j step %st_j) {\n        %addr = ...\n        omp.yield(%addr)\n      } -> !omp.iterated<ptr>",
     "operands": [
       { "name": "loop_lower_bounds", "type": "Variadic<IntLikeType>" },
       { "name": "loop_upper_bounds", "type": "Variadic<IntLikeType>" },
@@ -37639,7 +37664,7 @@
   {
     "name": "omp.taskgroup",
     "summary": "taskgroup construct",
-    "description": "The taskgroup construct specifies a wait on completion of child tasks of the\n    current task and their descendent tasks.\n\n    When a thread encounters a taskgroup construct, it starts executing the\n    region. All child tasks generated in the taskgroup region and all of their\n    descendants that bind to the same parallel region as the taskgroup region\n    are part of the taskgroup set associated with the taskgroup region. There is\n    an implicit task scheduling point at the end of the taskgroup region. The\n    current task is suspended at the task scheduling point until all tasks in\n    the taskgroup set complete execution.The `allocate_vars` and `allocator_vars` parameters are parallel lists that\n    pair each allocated private value with the allocator used to obtain its\n    storage. When present, `allocate_alignments` has one entry per allocate\n    variable; zero means omitted alignment, and nonzero entries must be powers\n    of two.\n    `allocate_private_indices` maps each allocate variable to the corresponding\n    position in the operation's private variables.The `task_reduction` clause specifies a reduction among tasks. For each list\n    item, the number of copies is unspecified. Any copies associated with the\n    reduction are initialized before they are accessed by the tasks\n    participating in the reduction. After the end of the region, the original\n    list item contains the result of the reduction. Similarly to the `reduction`\n    clause, accumulator variables must be passed in `task_reduction_vars`,\n    symbols referring to reduction declarations in the `task_reduction_syms`\n    attribute, and whether the reduction variable should be passed into the\n    reduction region by value or by reference in `task_reduction_byref`.",
+    "description": "The taskgroup construct specifies a wait on completion of child tasks of the\n    current task and their descendent tasks.\n\n    When a thread encounters a taskgroup construct, it starts executing the\n    region. All child tasks generated in the taskgroup region and all of their\n    descendants that bind to the same parallel region as the taskgroup region\n    are part of the taskgroup set associated with the taskgroup region. There is\n    an implicit task scheduling point at the end of the taskgroup region. The\n    current task is suspended at the task scheduling point until all tasks in\n    the taskgroup set complete execution.The `allocate_vars` and `allocator_vars` parameters are parallel lists that\n    pair each allocated private value with the allocator used to obtain its\n    storage. When present, `allocate_alignments` has one entry per allocate\n    variable; zero means omitted alignment, and nonzero entries must be powers\n    of two.\n    `allocate_private_indices` maps each allocate variable to the corresponding\n    position in the operation's private variables.The `task_reduction` clause specifies a reduction among tasks. For each list\n    item, the number of copies is unspecified. Any copies associated with the\n    reduction are initialized before they are accessed by the tasks\n    participating in the reduction. After the end of the region, the original\n    list item contains the result of the reduction. Similarly to the `reduction`\n    clause, accumulator variables must be passed in `task_reduction_vars`,\n    symbols referring to reduction declarations in the `task_reduction_syms`\n    attribute, and whether the reduction variable should be passed into the\n    reduction region by value or by reference in `task_reduction_byref`.\n\n    The optional `task_reduction_assume_bounded_recipe_effects` unit attribute\n    asserts that all regions of every referenced reduction recipe may only read\n    or write the original variable and allocate, free, read or write private\n    accumulators.\n\n    These effects apply only to storage directly designated by the original\n    variables and their corresponding private block arguments. Recipes may not\n    access other storage, including globals or pointees reached by loading\n    pointers from these variables. Without the attribute, referenced reduction\n    recipes are assumed to have arbitrary memory effects.",
     "operands": [
       { "name": "allocate_vars", "type": "Variadic<AnyType>" },
       { "name": "allocator_vars", "type": "Variadic<AnyType>" },
@@ -37649,12 +37674,13 @@
       { "name": "allocate_alignments", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "allocate_private_indices", "type": "OptionalAttr<DenseI64ArrayAttr>" },
       { "name": "task_reduction_byref", "type": "OptionalAttr<DenseBoolArrayAttr>" },
-      { "name": "task_reduction_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" }
+      { "name": "task_reduction_syms", "type": "OptionalAttr<TypedArrayAttrBase<SymbolRefAttr>>" },
+      { "name": "task_reduction_assume_bounded_recipe_effects", "type": "UnitAttr" }
     ],
     "regions": [
       { "name": "region", "type": "AnyRegion" }
     ],
-    "assemblyFormat": "oilist(`allocate` `(`\n      custom<AllocateAndAllocator>($allocate_vars, type($allocate_vars),\n                                   $allocator_vars, type($allocator_vars)) `)`\n      (`allocate_alignments` `(` $allocate_alignments^ `)`)?\n      (`allocate_private_indices` `(` $allocate_private_indices^ `)`)?)custom<TaskReductionRegion>(\n        $region, $task_reduction_vars, type($task_reduction_vars),\n        $task_reduction_byref, $task_reduction_syms) attr-dict"
+    "assemblyFormat": "oilist(`allocate` `(`\n      custom<AllocateAndAllocator>($allocate_vars, type($allocate_vars),\n                                   $allocator_vars, type($allocator_vars)) `)`\n      (`allocate_alignments` `(` $allocate_alignments^ `)`)?\n      (`allocate_private_indices` `(` $allocate_private_indices^ `)`)?)custom<TaskReductionRegion>(\n        $region, $task_reduction_vars, type($task_reduction_vars),\n        $task_reduction_byref, $task_reduction_syms) prop-dict attr-dict"
   },
   {
     "name": "omp.taskloop",
@@ -43456,7 +43482,7 @@
       { "name": "result", "type": "Ptr_PtrLikeType" }
     ],
     "attributes": [
-      { "name": "flags", "type": "DefaultValuedProp<EnumProp<Ptr_PtrAddFlags{none|nusw|nuw|inbounds}>, PtrAddFlags::none>" }
+      { "name": "flags", "type": "DefaultValuedEnumProp<Ptr_PtrAddFlags{none|nusw|nuw|inbounds}, Ptr_PtrAddFlagsNone>" }
     ],
     "assemblyFormat": "($flags^)? $base `,` $offset attr-dict `:` type($base) `,` type($offset)"
   },
@@ -43472,7 +43498,7 @@
       { "name": "result", "type": "Ptr_IntLikeType" }
     ],
     "attributes": [
-      { "name": "flags", "type": "DefaultValuedProp<EnumProp<Ptr_PtrDiffFlags{none|nuw|nsw; separator='|'}>, PtrDiffFlags::none>" }
+      { "name": "flags", "type": "DefaultValuedEnumProp<Ptr_PtrDiffFlags{none|nuw|nsw; separator='|'}, Ptr_PtrDiffFlagsNone>" }
     ],
     "traits": [
       { "type": "AllTypesMatch<['lhs', 'rhs']>" }
@@ -66222,6 +66248,14 @@
     "assemblyFormat": "($e^)? attr-dict"
   },
   {
+    "name": "test.format_optional_default_enum_props",
+    "attributes": [
+      { "name": "value", "type": "DefaultValuedEnumProp<SomeI64Enum{case5|case10|caseLarse}, I64Case5>" },
+      { "name": "flags", "type": "DefaultValuedEnumProp<TestBitEnum{none|read|write|execute; separator=','}, TestBitEnumNone>" }
+    ],
+    "assemblyFormat": "($value^)? ($flags^)? attr-dict"
+  },
+  {
     "name": "test.format_optional_else",
     "attributes": [
       { "name": "isFirstBranchPresent", "type": "UnitAttr" }
@@ -68249,6 +68283,27 @@
     ]
   },
   {
+    "name": "test.owning_access",
+    "results": [
+      { "name": "results", "type": "Variadic<AnyType>" }
+    ],
+    "attributes": [
+      { "name": "disown", "type": "UnitAttr" },
+      { "name": "decline", "type": "UnitAttr" }
+    ],
+    "regions": [
+      { "name": "body", "type": "SizedRegion<1>" }
+    ],
+    "assemblyFormat": "(`disown` $disown^)? (`decline` $decline^)? attr-dict-with-keyword $body\n    (`:` type($results)^)?"
+  },
+  {
+    "name": "test.owning_access_yield",
+    "operands": [
+      { "name": "values", "type": "Variadic<AnyType>" }
+    ],
+    "assemblyFormat": "attr-dict ($values^ `:` type($values))?"
+  },
+  {
     "name": "test.parse_b64",
     "attributes": [
       { "name": "b64", "type": "StrAttr" }
@@ -69606,6 +69661,21 @@
       { "name": "region", "type": "SizedRegion<1>" }
     ],
     "hasCustomAssemblyFormat": true
+  },
+  {
+    "name": "test.with_bounds_region_branch",
+    "description": "Forward the first input to the first region argument, and yield it to the\n    first result. The second region argument and second result have the range\n    of the second input.",
+    "operands": [
+      { "name": "forwarded", "type": "I32" },
+      { "name": "value", "type": "I32" }
+    ],
+    "results": [
+      { "name": "forwardedResult", "type": "I32" },
+      { "name": "inferredResult", "type": "I32" }
+    ],
+    "regions": [
+      { "name": "body", "type": "SizedRegion<1>" }
+    ]
   },
   {
     "name": "test.with_custom_attr_prop_dict",
@@ -84155,10 +84225,10 @@
   {
     "name": "tfl.embedding_lookup",
     "summary": "Embedding lookup operator",
-    "description": "Looks up ids in a list of embedding tensors.",
+    "description": "Looks up ids in a list of embedding tensors.\n\n    A `!tfl.blockwise_quant` table is dequantized row by row into a float\n    output.",
     "operands": [
       { "name": "lookup", "type": "TFL_TensorOf<[I32]>" },
-      { "name": "value", "type": "TFL_TensorOf<[F32, I8, UI8, QI8, QUI8, QI4, QI2]>" }
+      { "name": "value", "type": "TFL_TensorOf<[F32, I8, UI8, QI8, QUI8, QI4, QI2, TFL_BlockwiseQuantType]>" }
     ],
     "results": [
       { "name": "output", "type": "TFL_TensorOf<[F32, I8, UI8]>" }
@@ -118108,6 +118178,7 @@
   {
     "name": "tt.map_elementwise",
     "summary": "Map a scalar subregion over a tensor",
+    "description": "The scalar function and its callees may contain memory-effect-free\n      operations, `llvm.intr.assume`, `tt.assert`, and `tt.print`.",
     "operands": [
       { "name": "srcs", "type": "Variadic<TT_Tensor>" }
     ],
@@ -118204,6 +118275,7 @@
   {
     "name": "tt.reduce",
     "summary": "Reduction using generic combination algorithm",
+    "description": "The combiner and its callees may contain memory-effect-free operations,\n      `llvm.intr.assume`, `tt.assert`, and `tt.print`.",
     "operands": [
       { "name": "srcs", "type": "Variadic<TT_Tensor>" }
     ],
@@ -118252,6 +118324,7 @@
   {
     "name": "tt.scan",
     "summary": "Associative scan using generic combination algorithm",
+    "description": "The combiner and its callees may contain memory-effect-free operations,\n      `llvm.intr.assume`, `tt.assert`, and `tt.print`.",
     "operands": [
       { "name": "srcs", "type": "Variadic<TT_Tensor>" }
     ],
@@ -130350,7 +130423,7 @@
   {
     "name": "vector.contract",
     "summary": "vector contraction operation",
-    "description": "Computes the sum of products of vector elements along contracting\n    dimension pairs from 2 vectors of rank M and N respectively, adds this\n    intermediate result to the accumulator argument of rank K, and returns a\n    vector result of rank K (where K = num_lhs_free_dims + num_rhs_free_dims +\n    num_batch_dims (see dimension type descriptions below)). For K = 0 (no\n    free or batch dimensions), the accumulator and output are a scalar.\n\n    If operands and the result have types of different bitwidths, operands are\n    promoted to have the same bitwidth as the result before performing the\n    contraction. For integer types, only signless integer types are supported,\n    and the promotion happens via sign extension.\n\n    An iterator type attribute list must be specified, where each element of\n    the list represents an iterator with one of the following types:\n\n    *   \"reduction\": reduction dimensions are present in the lhs and rhs\n        arguments but not in the output (and accumulator\n        argument). These are the dimensions along which the vector\n        contraction op computes the sum of products, and\n        contracting dimension pair dimension sizes must match\n        between lhs/rhs.\n\n    *   \"parallel\": Batch dimensions are iterator type \"parallel\", and\n        are non-contracting dimensions present in the lhs, rhs and\n        output. The lhs/rhs co-iterate along the batch dimensions,\n        which should be expressed in their indexing maps.\n\n        Free dimensions are iterator type \"parallel\", and are\n        non-contraction, non-batch dimensions accessed by either the\n        lhs or rhs (but not both). The lhs and rhs free dimensions\n        are unrelated to each other and do not co-iterate, which\n        should be expressed in their indexing maps.\n\n    Depending on its iterator type and on the operands it indexes, a dimension\n    is one of the following kinds:\n\n    | Iterator type | In output | In lhs and rhs | Kind                     |\n    | ------------- | --------- | -------------- | ------------------------ |\n    | \"parallel\"    | yes       | both           | batch                    |\n    | \"parallel\"    | yes       | lhs only       | free (M-like)            |\n    | \"parallel\"    | yes       | rhs only       | free (N-like)            |\n    | \"reduction\"   | no        | both           | contracting              |\n\n    The M-like and N-like terms follow\n    [`linalg.contract`](https://mlir.llvm.org/docs/Dialects/Linalg/#linalgcontract-linalgcontractop)\n    terminology.\n\n    An indexing map attribute list must be specified with an entry for lhs, rhs\n    and acc arguments. An indexing map attribute specifies a mapping from each\n    iterator in the iterator type list, to each dimension of an N-D vector.\n\n    An optional kind attribute may be used to specify the combining function\n    between the intermediate result and accumulator argument of rank K. This\n    attribute can take the values `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`\n    /`minimumf`/`maximumf` for floats. The default is `add`.\n\n    Example:\n\n    ```mlir\n    // Simple DOT product (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"]\n    }\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n\n    // 2D vector contraction with one contracting dimension (matmul, K = 2).\n    #contraction_accesses = [\n      affine_map<(i, j, k) -> (i, k)>,\n      affine_map<(i, j, k) -> (k, j)>,\n      affine_map<(i, j, k) -> (i, j)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n    }\n\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<4x3xf32>, vector<3x7xf32> into vector<4x7xf32>\n\n    // 4D to 3D vector contraction with two contracting dimensions and\n    // one batch dimension (K = 3).\n    #contraction_accesses = [\n      affine_map<(b0, f0, f1, c0, c1) -> (c0, b0, c1, f0)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, c1, c0, f1)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, f0, f1)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"parallel\",\n                        \"reduction\", \"reduction\"]\n    }\n\n    %4 = vector.contract #contraction_trait %0, %1, %2\n        : vector<7x8x16x15xf32>, vector<8x16x7x5xf32> into vector<8x15x5xf32>\n\n    // Vector contraction with mixed typed. lhs/rhs have different element\n    // types than accumulator/result.\n    %5 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf16>, vector<10xf16> into f32\n\n    // Contract with max (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"],\n      kind = #vector.kind<maxnumf>\n    }\n    %6 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n    ```",
+    "description": "Computes the sum of products of vector elements along contracting\n    dimension pairs from 2 vectors of rank M and N respectively, adds this\n    intermediate result to the accumulator argument of rank K, and returns a\n    vector result of rank K (where K = num_lhs_free_dims + num_rhs_free_dims +\n    num_batch_dims (see dimension type descriptions below)). For K = 0 (no\n    free or batch dimensions), the accumulator and output are either a scalar\n    or a 0-D vector, i.e. both variants are supported: `f32` and `vector<f32>`.\n\n    If operands and the result have types of different bitwidths, operands are\n    promoted to have the same bitwidth as the result before performing the\n    contraction. For integer types, only signless integer types are supported,\n    and the promotion happens via sign extension.\n\n    An iterator type attribute list must be specified, where each element of\n    the list represents an iterator with one of the following types:\n\n    *   \"reduction\": reduction dimensions are present in the lhs and rhs\n        arguments but not in the output (and accumulator\n        argument). These are the dimensions along which the vector\n        contraction op computes the sum of products, and\n        contracting dimension pair dimension sizes must match\n        between lhs/rhs.\n\n    *   \"parallel\": Batch dimensions are iterator type \"parallel\", and\n        are non-contracting dimensions present in the lhs, rhs and\n        output. The lhs/rhs co-iterate along the batch dimensions,\n        which should be expressed in their indexing maps.\n\n        Free dimensions are iterator type \"parallel\", and are\n        non-contraction, non-batch dimensions accessed by either the\n        lhs or rhs (but not both). The lhs and rhs free dimensions\n        are unrelated to each other and do not co-iterate, which\n        should be expressed in their indexing maps.\n\n    Depending on its iterator type and on the operands it indexes, a dimension\n    is one of the following kinds:\n\n    | Iterator type | In output | In lhs and rhs | Kind                     |\n    | ------------- | --------- | -------------- | ------------------------ |\n    | \"parallel\"    | yes       | both           | batch                    |\n    | \"parallel\"    | yes       | lhs only       | free (M-like)            |\n    | \"parallel\"    | yes       | rhs only       | free (N-like)            |\n    | \"reduction\"   | no        | both           | contracting              |\n\n    The M-like and N-like terms follow\n    [`linalg.contract`](https://mlir.llvm.org/docs/Dialects/Linalg/#linalgcontract-linalgcontractop)\n    terminology.\n\n    An indexing map attribute list must be specified with an entry for lhs, rhs\n    and acc arguments. An indexing map attribute specifies a mapping from each\n    iterator in the iterator type list, to each dimension of an N-D vector.\n\n    An optional kind attribute may be used to specify the combining function\n    between the intermediate result and accumulator argument of rank K. This\n    attribute can take the values `add`/`mul`/`minsi`/`minui`/`maxsi`/`maxui`\n    /`and`/`or`/`xor` for integers, and `add`/`mul`/`minnumf`/`maxnumf`\n    /`minimumf`/`maximumf` for floats. The default is `add`.\n\n    Example:\n\n    ```mlir\n    // Simple DOT product (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"]\n    }\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n\n    // 2D vector contraction with one contracting dimension (matmul, K = 2).\n    #contraction_accesses = [\n      affine_map<(i, j, k) -> (i, k)>,\n      affine_map<(i, j, k) -> (k, j)>,\n      affine_map<(i, j, k) -> (i, j)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"reduction\"]\n    }\n\n    %3 = vector.contract #contraction_trait %0, %1, %2\n      : vector<4x3xf32>, vector<3x7xf32> into vector<4x7xf32>\n\n    // 4D to 3D vector contraction with two contracting dimensions and\n    // one batch dimension (K = 3).\n    #contraction_accesses = [\n      affine_map<(b0, f0, f1, c0, c1) -> (c0, b0, c1, f0)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, c1, c0, f1)>,\n      affine_map<(b0, f0, f1, c0, c1) -> (b0, f0, f1)>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"parallel\", \"parallel\", \"parallel\",\n                        \"reduction\", \"reduction\"]\n    }\n\n    %4 = vector.contract #contraction_trait %0, %1, %2\n        : vector<7x8x16x15xf32>, vector<8x16x7x5xf32> into vector<8x15x5xf32>\n\n    // Vector contraction with mixed typed. lhs/rhs have different element\n    // types than accumulator/result.\n    %5 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf16>, vector<10xf16> into f32\n\n    // Contract with max (K = 0).\n    #contraction_accesses = [\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> (i)>,\n     affine_map<(i) -> ()>\n    ]\n    #contraction_trait = {\n      indexing_maps = #contraction_accesses,\n      iterator_types = [\"reduction\"],\n      kind = #vector.kind<maxnumf>\n    }\n    %6 = vector.contract #contraction_trait %0, %1, %2\n      : vector<10xf32>, vector<10xf32> into f32\n    ```",
     "operands": [
       { "name": "lhs", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
       { "name": "rhs", "type": "AnyVectorOfNonZeroRankNonI0Elem" },
@@ -140416,6 +140489,28 @@
     "assemblyFormat": "$input `[` $indices `]` `:` type($input) $computation attr-dict"
   },
   {
+    "name": "xla.copy_slice",
+    "summary": "Copies a contiguous slice from one tensor to another.",
+    "description": "Copies `$num_elements` contiguous elements starting at `$src[$src_indices]`\n    into `$dest[$dest_indices]` in physical memory order and returns the\n    updated destination tensor.",
+    "operands": [
+      { "name": "src", "type": "AnyRankedTensor" },
+      { "name": "dest", "type": "AnyRankedTensor" },
+      { "name": "src_indices", "type": "Variadic<Index>" },
+      { "name": "dest_indices", "type": "Variadic<Index>" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "attributes": [
+      { "name": "num_elements", "type": "I64Attr" }
+    ],
+    "traits": [
+      { "type": "AttrSizedOperandSegments" },
+      { "type": "TypesMatchWith<'dest', 'result', '$_self'>" }
+    ],
+    "assemblyFormat": "$src `[` $src_indices `]` `into` $dest `[` $dest_indices `]`\n    `count` `(` $num_elements `)` attr-dict `:` type($src) `into` type($dest)"
+  },
+  {
     "name": "xla.get_dynamic_dim_size",
     "summary": "Returns the dynamic size of a dimension. The dynamic sizes are stored in the same buffer, after the main values as an array of s32. The `dim` argument can be larger than `tensor`'s rank, because XLA has passes like flatten_tensors that only change the view of the memory.",
     "operands": [
@@ -140428,6 +140523,40 @@
       { "name": "dim", "type": "I64Attr" }
     ],
     "assemblyFormat": "$tensor $dim attr-dict `:` type($tensor)"
+  },
+  {
+    "name": "xla.linear_extract",
+    "summary": "Extracts an element at a 1D physical element index.",
+    "description": "Extracts the element at 1D physical memory offset `$index` from `$tensor`\n    without applying its static layout strides.",
+    "operands": [
+      { "name": "tensor", "type": "AnyRankedTensor" },
+      { "name": "index", "type": "Index" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyType" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'tensor', 'result', 'mlir::cast<mlir::ShapedType>($_self).getElementType()'>" }
+    ],
+    "assemblyFormat": "$tensor `[` $index `]` attr-dict `:` type($tensor)"
+  },
+  {
+    "name": "xla.linear_insert",
+    "summary": "Inserts an element at a 1D physical element index.",
+    "description": "Inserts `$value` at 1D physical memory offset `$index` into `$tensor`\n    without applying its static layout strides and returns the updated tensor.",
+    "operands": [
+      { "name": "value", "type": "AnyType" },
+      { "name": "tensor", "type": "AnyRankedTensor" },
+      { "name": "index", "type": "Index" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyRankedTensor" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'tensor', 'result', '$_self'>" },
+      { "type": "TypesMatchWith<'tensor', 'value', 'mlir::cast<mlir::ShapedType>($_self).getElementType()'>" }
+    ],
+    "assemblyFormat": "$value `into` $tensor `[` $index `]` attr-dict `:` type($tensor)"
   },
   {
     "name": "xla.loop",
@@ -140500,6 +140629,25 @@
       { "name": "callee", "type": "FlatSymbolRefAttr" }
     ],
     "assemblyFormat": "$callee `(` $operands `)` attr-dict `:` functional-type($operands, results)"
+  },
+  {
+    "name": "xla.set_dynamic_dim_size",
+    "summary": "Stores the dynamic size of a dimension into the metadata suffix of a tensor.",
+    "description": "Stores `$size` into dynamic dimension slot `$dim` in the tail metadata array\n    of `$tensor` and returns the updated tensor. The `dim` argument can be\n    larger than `tensor`'s rank after passes such as `flatten_tensors` change\n    the view to 1D.",
+    "operands": [
+      { "name": "tensor", "type": "AnyStaticShapeTensor" },
+      { "name": "size", "type": "I32" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyStaticShapeTensor" }
+    ],
+    "attributes": [
+      { "name": "dim", "type": "I64Attr" }
+    ],
+    "traits": [
+      { "type": "TypesMatchWith<'tensor', 'result', '$_self'>" }
+    ],
+    "assemblyFormat": "$size `into` $tensor `[` $dim `]` attr-dict `:` type($tensor)"
   },
   {
     "name": "xla.workgroup_id",
@@ -141436,15 +141584,16 @@
   {
     "name": "xtile.select_buffer",
     "summary": "Selects a specific buffer from an array of buffers.",
-    "description": "Takes a source buffer (which is an array of pointers to disjoint buffers)\n    and an index (replica_id), and returns a new buffer handle representing\n    the selected disjoint buffer.\n\n    This is useful when the input to a kernel is a collection of disjoint\n    buffers and we want to select one of them based on the replica_id.",
+    "description": "Takes a source buffer (which is an array of pointers to disjoint buffers)\n    and an index (replica_id), and returns a new buffer handle representing\n    the selected disjoint buffer.\n\n    This is useful when the input to a kernel is a collection of disjoint\n    buffers and we want to select one of them based on the replica_id.\n\n    If `offset` is given, shifts the start of the selected buffer forward by\n    `offset` elements (for example, `offset = 128` on an `f32` buffer starts\n    at element 128).",
     "operands": [
       { "name": "source", "type": "AnyMemRef" },
-      { "name": "replica_id", "type": "Index" }
+      { "name": "replica_id", "type": "Index" },
+      { "name": "offset", "type": "Optional<Index>" }
     ],
     "results": [
       { "name": "result", "type": "AnyMemRef" }
     ],
-    "assemblyFormat": "$source `[` $replica_id `]` `:` type($source) `->` type($result) attr-dict"
+    "assemblyFormat": "$source `[` $replica_id `]` (`offset` $offset^)? `:` type($source) `->` type($result) attr-dict"
   },
   {
     "name": "xtile.yield",
