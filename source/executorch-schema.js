@@ -643,6 +643,7 @@ fb_xnnpack.XNodeUnion = class {
             case 47: return fb_xnnpack.XNNCos.decode(reader, position);
             case 48: return fb_xnnpack.XNNApproxGelu.decode(reader, position);
             case 49: return fb_xnnpack.XNNDepthToSpace2d.decode(reader, position);
+            case 50: return fb_xnnpack._XNNStaticReduce.decode(reader, position);
             default: return undefined;
         }
     }
@@ -860,6 +861,18 @@ fb_xnnpack.XNNDepthToSpace2d = class XNNDepthToSpace2d {
     static decode(reader, position) {
         const $ = new fb_xnnpack.XNNDepthToSpace2d();
         $.block_size = reader.uint32_(position, 4, 0);
+        $.input_id = reader.uint32_(position, 6, 0);
+        $.output_id = reader.uint32_(position, 8, 0);
+        $.flags = reader.uint32_(position, 10, 0);
+        return $;
+    }
+};
+
+fb_xnnpack._XNNStaticReduce = class _XNNStaticReduce {
+
+    static decode(reader, position) {
+        const $ = new fb_xnnpack._XNNStaticReduce();
+        $.reduction_axes = reader.array(position, 4, Uint32Array);
         $.input_id = reader.uint32_(position, 6, 0);
         $.output_id = reader.uint32_(position, 8, 0);
         $.flags = reader.uint32_(position, 10, 0);
