@@ -19936,7 +19936,7 @@
     "name": "DynamicSparseAttention",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Model-neutral sparse grouped-query attention with a contiguous main KV cache.\n\n`selected_indices` and `selected_counts` are produced by an external selector. The operator never computes selection\nscores or TopK indices. The first `selected_counts[q]` entries in each selected-index row are valid; remaining entries\nmust be -1. Valid entries must be unique, non-negative request-local positions in the selected source.\n\n`attention_mode=\"selected_only\"` attends only to selected entries. `attention_mode=\"local_plus_selected\"` jointly\nnormalizes causally valid main-cache entries in `local_window_size` and selected auxiliary entries. An optional\nper-query-head sink can participate in either mode; it contributes to the shared softmax denominator but has no value\nvector. A row with no entries and no sink produces zero output.\n\nSupported mode/source combinations:\n\n- `selected_only` + `main`: Qwen4-Exp QSA-compatible execution.\n- `local_plus_selected` + `auxiliary`: DeepSeek V4 CSA-compatible execution and requires `local_window_size > 0`.\n\nThe main cache uses BNSH layout and ordinary contiguous append semantics. Selection changes reads, not cache writes.\nAuxiliary K/V use BNSH layout and are read-only. When `auxiliary_kv_shared=1`, auxiliary_value may be omitted and\nauxiliary_key is used as both K and V. DeepSeek-style post-attention inverse/conjugate RoPE and output projection remain\nthe exporter's responsibility.\n\nMain caches may instead use INT8 with positive finite float32 key_scale and value_scale vectors, one scale per\nKV-head channel. The cache is symmetric signed int8 without a zero point, like the 8-bit KV cache of GroupQueryAttention\nand PagedAttention; tensor(uint8) is reserved for packed 4-bit caches in those operators and is not accepted here.\nNewly appended keys (after optional normalization and RoPE) and values are divided by their scales,\nrounded to nearest with ties to even, and saturated to [-128, 127]. Attention reads the quantized representation,\nincluding newly appended rows. Auxiliary caches remain floating point. Invalid scale values produce validation_status=10\nwhen validation is requested; CUDA strict validation also reports them as an error.\n",
+    "description": "Model-neutral sparse grouped-query attention with a contiguous main KV cache.\n\n`selected_indices` and `selected_counts` are produced by an external selector. The operator never computes selection\nscores or TopK indices. The first `selected_counts[q]` entries in each selected-index row are valid; remaining entries\nmust be -1. Valid entries must be unique, non-negative request-local positions in the selected source.\n\n`attention_mode=\"selected_only\"` attends only to selected entries. `attention_mode=\"local_plus_selected\"` jointly\nnormalizes causally valid main-cache entries in `local_window_size` and selected auxiliary entries. An optional\nper-query-head sink can participate in either mode; it contributes to the shared softmax denominator but has no value\nvector. A row with no entries and no sink produces zero output.\n\nSupported mode/source combinations:\n\n- `selected_only` + `main`: Qwen4-Exp QSA-compatible execution.\n- `local_plus_selected` + `auxiliary`: DeepSeek V4 CSA-compatible execution and requires `local_window_size > 0`.\n\nThe main cache uses BNSH layout and ordinary contiguous append semantics. Selection changes reads, not cache writes.\nAuxiliary K/V use BNSH layout and are read-only. When `auxiliary_kv_shared=1`, auxiliary_value may be omitted and\nauxiliary_key is used as both K and V. DeepSeek-style post-attention inverse/conjugate RoPE and output projection remain\nthe exporter's responsibility.\nWebGPU requires all floating-point inputs and caches to have the same type as query.\n\nMain caches may instead use INT8 with positive finite float32 key_scale and value_scale vectors, one scale per\nKV-head channel. The cache is symmetric signed int8 without a zero point, like the 8-bit KV cache of GroupQueryAttention\nand PagedAttention; tensor(uint8) is reserved for packed 4-bit caches in those operators and is not accepted here.\nNewly appended keys (after optional normalization and RoPE) and values are divided by their scales,\nrounded to nearest with ties to even, and saturated to [-128, 127]. Attention reads the quantized representation,\nincluding newly appended rows. Auxiliary caches remain floating point. Invalid scale values produce validation_status=10\nwhen validation is requested; CUDA strict validation also reports them as an error.\n",
     "attributes": [
       {
         "name": "attention_mode",
@@ -19984,6 +19984,12 @@
         "description": "Number of query heads."
       },
       {
+        "name": "output_bf16",
+        "type": "int64",
+        "required": false,
+        "description": "Output in bfloat16 (1) when query, key, and value are float16."
+      },
+      {
         "name": "qk_norm_epsilon",
         "type": "float32",
         "required": false,
@@ -20025,18 +20031,18 @@
     "inputs": [
       {
         "name": "query",
-        "type": "T",
+        "type": "TQuery",
         "description": "Query [batch, sequence, num_heads * head_size]. When key and value are omitted, each row contains Q, K, then V concatenated with total width (num_heads + 2 * kv_num_heads) * head_size."
       },
       {
         "name": "key",
-        "type": "T",
+        "type": "TQuery",
         "option": "optional",
         "description": "Current main key [batch, sequence, kv_num_heads * head_size]."
       },
       {
         "name": "value",
-        "type": "T",
+        "type": "TValue",
         "option": "optional",
         "description": "Current main value [batch, sequence, kv_num_heads * head_size]."
       },
@@ -20044,7 +20050,7 @@
         "name": "past_key",
         "type": "TCache",
         "option": "optional",
-        "description": "Main key cache in BNSH layout, same type as query or INT8."
+        "description": "Main key cache in BNSH layout, same type as query, FP16, or INT8."
       },
       {
         "name": "past_value",
@@ -20172,7 +20178,7 @@
     "outputs_range": "1 - 4",
     "type_constraints": [
       {
-        "description": "Constrain all floating-point inputs and outputs to one element type.",
+        "description": "Constrain auxiliary, rotary, normalization, sink, and output tensors to one element type.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float)",
@@ -20181,7 +20187,25 @@
         ]
       },
       {
-        "description": "Cache type must match T unless INT8 per-channel scales are supplied.",
+        "description": "Query and key type must match T or TCache.",
+        "type_param_str": "TQuery",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Value type must match T or TCache.",
+        "type_param_str": "TValue",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Cache type must match T, be FP16, or use INT8 per-channel scales.",
         "type_param_str": "TCache",
         "allowed_type_strs": [
           "tensor(float)",
@@ -29197,7 +29221,15 @@
     "name": "GroupedMatMul",
     "module": "ai.onnx",
     "version": 29,
-    "description": "GroupedMatMul multiplies each row of a token matrix by one or more selected\ngroup (expert) weight matrices. Given `input` of shape `[M, K]`, `weights` of\nshape `[G, K, N]`, and `group_indices` of shape `[M, S]`, where `S` is the number\nof selections per token, the output has shape `[M, S, N]` and is defined by:\n\n```\noutput[m, i] = input[m] @ weights[group_indices[m, i]]\n```\n\nIf `bias` is present, `bias[group_indices[m, i]]` is added to each corresponding\nresult. Every value in `group_indices` must be in the range `[0, G)`.\nValues outside this range, including negative indices, are invalid input;\nthe behavior is undefined for such inputs. In particular, negative indices\ndo not select groups by counting backwards from `G`.\n\nThis operator is represented as a context-dependent function, which also provides\nits reference implementation. Its decomposition uses Gather, Expand, and MatMul\nto define the result, while runtimes are expected to use a fused\ngrouped-matrix-multiplication implementation to avoid materializing the expanded\nintermediate tensors, including selected weights of shape `[M * S, K, N]`.\n\nWeight-only quantized experts are intended to be expressed by applying\nDequantizeLinear to quantized weights (with the appropriate scales and zero\npoints) and passing the result to GroupedMatMul. Runtimes may fuse this\ncomposition to avoid materializing the dequantized `[G, K, N]` weights.\n",
+    "description": "GroupedMatMul multiplies each row of a token matrix by one or more selected\ngroup (expert) weight matrices. Given `input` of shape `[M, K]`, `weights` of\nshape `[G, K, N]` when `transB` is zero (the default), and `group_indices` of shape\n`[M, S]`, where `S` is the number of selections per token, the output has shape\n`[M, S, N]` and is defined by:\n\n```\noutput[m, i] = input[m] @ weights[group_indices[m, i]]\n```\n\nWhen `transB` is non-zero, `weights` has shape `[G, N, K]` and each selected\nweight matrix is transposed before multiplication:\n\n```\noutput[m, i] = input[m] @ weights[group_indices[m, i]].T\n```\n\n`M` is the number of input rows, `G` is the number of groups, `K` is the\ncontraction dimension, and `N` is the output dimension. Only the last two axes\nof `weights` are logically transposed; the group axis and the layouts of\n`input`, `output`, and `bias` are unchanged.\n\nIf `bias` is present, it must have shape `[G, N]`, and\n`bias[group_indices[m, i]]` is added to each corresponding result.\nIf `M` or `S` is zero, the output is an empty tensor of shape `[M, S, N]`.\nEvery value in `group_indices` must be in the range `[0, G)`.\nValues outside this range, including negative indices, are invalid input;\nthe behavior is undefined for such inputs. In particular, negative indices\ndo not select groups by counting backwards from `G`.\n\nQuantized weights can be dequantized with DequantizeLinear before this operator.\nThe dequantized weights must have the shape specified by `transB`.\n",
+    "attributes": [
+      {
+        "name": "transB",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to transpose the last two axes of weights before multiplication. If zero, weights has shape [G, K, N]; if non-zero, weights has shape [G, N, K]."
+      }
+    ],
     "inputs": [
       {
         "name": "input",
@@ -29207,7 +29239,7 @@
       {
         "name": "weights",
         "type": "T",
-        "description": "Stack of G group weight matrices with shape [G, K, N]."
+        "description": "Stack of G group weight matrices with shape [G, K, N] if transB is zero, or [G, N, K] if transB is non-zero."
       },
       {
         "name": "group_indices",
@@ -29264,7 +29296,19 @@
       },
       {
         "summary": "single_group",
-        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n)\ninput = np.array([[1, 2], [3, 4], [5, 6]], dtype=np.float32)\nweights = np.array([[[1, 2, 3], [4, 5, 6]]], dtype=np.float32)\ngroup_indices = np.zeros((3, 1), dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_single_group\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+        "code": "node = onnx.helper.make_node(\n    \"GroupedMatMul\",\n    inputs=[\"input\", \"weights\", \"group_indices\"],\n    outputs=[\"output\"],\n    transB=0,\n)\ninput = np.array([[1, 2], [3, 4], [5, 6]], dtype=np.float32)\nweights = np.array([[[1, 2, 3], [4, 5, 6]]], dtype=np.float32)\ngroup_indices = np.zeros((3, 1), dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices)\n\nexpect(\n    node,\n    inputs=[input, weights, group_indices],\n    outputs=[output],\n    name=\"test_groupedmatmul_single_group\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "transposed_weights",
+        "code": "input = np.array([[1, 2, -1], [3, 0, 4]], dtype=np.float32)\nweights = np.arange(18, dtype=np.float32).reshape(3, 2, 3)\ngroup_indices = np.array([[2, 0, 2], [1, 2, 0]], dtype=np.int64)\nbias = np.array([[0.5, 1], [1.5, -2], [3, 0.25]], dtype=np.float32)\nfor bias_input in (None, \"\", \"bias\"):\n    input_names = [\"input\", \"weights\", \"group_indices\"]\n    values = [input, weights, group_indices]\n    if bias_input is not None:\n        input_names.append(bias_input)\n    if bias_input:\n        values.append(bias)\n    node = onnx.helper.make_node(\n        \"GroupedMatMul\", input_names, [\"output\"], transB=1\n    )\n    output = grouped_matmul(\n        input, weights, group_indices, bias if bias_input else None, transB=1\n    )\n    suffix = {None: \"\", \"\": \"_explicit_empty_bias\", \"bias\": \"_with_bias\"}[\n        bias_input\n    ]\n    expect(\n        node,\n        inputs=values,\n        outputs=[output],\n        name=f\"test_groupedmatmul_transB{suffix}\",\n        opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n    )"
+      },
+      {
+        "summary": "transposed_weights_empty",
+        "code": "weights = np.arange(24, dtype=np.float32).reshape(2, 4, 3)\nfor m, s in ((0, 2), (2, 0)):\n    input = np.empty((m, 3), dtype=np.float32)\n    group_indices = np.empty((m, s), dtype=np.int32)\n    node = onnx.helper.make_node(\n        \"GroupedMatMul\",\n        [\"input\", \"weights\", \"group_indices\"],\n        [\"output\"],\n        transB=1,\n    )\n    output = grouped_matmul(input, weights, group_indices, transB=1)\n    expect(\n        node,\n        inputs=[input, weights, group_indices],\n        outputs=[output],\n        name=f\"test_groupedmatmul_transB_empty_{m}_{s}\",\n        opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n    )"
+      },
+      {
+        "summary": "transposed_weights_nonzero",
+        "code": "input = np.array([[1, 2, -1], [3, 0, 4]], dtype=np.float32)\nweights = np.arange(18, dtype=np.float32).reshape(3, 2, 3)\ngroup_indices = np.array([[2, 0], [1, 2]], dtype=np.int64)\noutput = grouped_matmul(input, weights, group_indices, transB=1)\nfor transB in (-1, 2):\n    node = onnx.helper.make_node(\n        \"GroupedMatMul\",\n        [\"input\", \"weights\", \"group_indices\"],\n        [\"output\"],\n        transB=transB,\n    )\n    expect(\n        node,\n        inputs=[input, weights, group_indices],\n        outputs=[output],\n        name=f\"test_groupedmatmul_transB_nonzero_{transB}\",\n        opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n    )"
       },
       {
         "summary": "with_bias",
@@ -35753,6 +35797,64 @@
     ]
   },
   {
+    "name": "Log1p",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "Computes `y = ln(1 + x)` element-wise, where `ln` is the natural logarithm.\nThe output has the same shape and element type as the input, including for\nscalar and empty inputs.\n\nFor finite `x > -1`, the result is a floating-point approximation of `ln(1 + x)`,\nwith `1 + x` evaluated as an exact real sum. Small nonzero results representable\nin the output type must be preserved even when floating-point addition would\nround `1 + x` to `1`. For example, a FLOAT input of `1e-8` produces approximately\n`1e-8`.\n\nSpecial values are defined element-wise as follows:\n\n| Input `x` | Output `y` |\n| --- | --- |\n| Positive zero | Positive zero |\n| Negative zero | Negative zero |\n| `-1` | Negative infinity |\n| Finite `x < -1` | NaN |\n| Negative infinity | NaN |\n| Positive infinity | Positive infinity |\n| NaN | NaN |\n\nThe sign and payload of an output NaN are unspecified.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "The natural logarithm of one plus the input, computed element-wise"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "log1p",
+        "code": "node = onnx.helper.make_node(\"Log1p\", [\"x\"], [\"y\"])\nfor dtype in [np.float16, ml_dtypes.bfloat16, np.float32, np.float64]:\n    x = np.array(\n        [[-0.75, -0.5, 0.0, 0.25], [0.5, 1.0, 3.0, 1000.0]], dtype=dtype\n    )\n    y = np.array([math.log1p(float(v)) for v in x.flat], dtype=dtype).reshape(\n        x.shape\n    )\n    expect(\n        node,\n        inputs=[x],\n        outputs=[y],\n        name=f\"test_log1p_{np.dtype(dtype).name}\",\n        rtol=1e-2 if dtype == ml_dtypes.bfloat16 else 1e-3,\n    )"
+      },
+      {
+        "summary": "log1p_near_negative_one",
+        "code": "node = onnx.helper.make_node(\"Log1p\", [\"x\"], [\"y\"])\nfor dtype in [np.float16, ml_dtypes.bfloat16, np.float32, np.float64]:\n    x = np.nextafter(\n        np.array([-1.0], dtype=dtype), np.array([0.0], dtype=dtype)\n    )\n    y = np.array([math.log1p(float(x[0]))], dtype=dtype)\n    expect(\n        node,\n        inputs=[x],\n        outputs=[y],\n        name=f\"test_log1p_near_negative_one_{np.dtype(dtype).name}\",\n        rtol=1e-2 if dtype == ml_dtypes.bfloat16 else 1e-3,\n    )"
+      },
+      {
+        "summary": "log1p_scalar_and_empty",
+        "code": "node = onnx.helper.make_node(\"Log1p\", [\"x\"], [\"y\"])\nexpect(\n    node,\n    inputs=[np.array(1.0, dtype=np.float32)],\n    outputs=[np.array(math.log(2), dtype=np.float32)],\n    name=\"test_log1p_scalar\",\n)\nx = np.empty((0, 3), dtype=np.float32)\nexpect(node, inputs=[x], outputs=[x], name=\"test_log1p_empty\")"
+      },
+      {
+        "summary": "log1p_small_inputs",
+        "code": "node = onnx.helper.make_node(\"Log1p\", [\"x\"], [\"y\"])\nfor dtype, tiny in [\n    (np.float16, 2.0**-14),\n    (ml_dtypes.bfloat16, 2.0**-10),\n    (np.float32, 1e-8),\n    (np.float64, 1e-20),\n]:\n    x = np.array([-tiny, -0.0, 0.0, tiny], dtype=dtype)\n    y = np.array([math.log1p(float(v)) for v in x], dtype=dtype)\n    # Relative error allows backend variation, while atol=0 catches\n    # an incorrect zero caused by rounding the intermediate 1 + x.\n    expect(\n        node,\n        inputs=[x],\n        outputs=[y],\n        name=f\"test_log1p_small_inputs_{np.dtype(dtype).name}\",\n        rtol=1e-2 if dtype == ml_dtypes.bfloat16 else 1e-3,\n        atol=0,\n    )"
+      },
+      {
+        "summary": "log1p_special_values",
+        "code": "node = onnx.helper.make_node(\"Log1p\", [\"x\"], [\"y\"])\nfor dtype in [np.float16, ml_dtypes.bfloat16, np.float32, np.float64]:\n    x = np.array([-0.0, 0.0, -1.0, -2.0, -np.inf, np.inf, np.nan], dtype=dtype)\n    y = np.array(\n        [-0.0, 0.0, -np.inf, np.nan, np.nan, np.inf, np.nan], dtype=dtype\n    )\n    expect(\n        node,\n        inputs=[x],\n        outputs=[y],\n        name=f\"test_log1p_special_values_{np.dtype(dtype).name}\",\n    )"
+      }
+    ]
+  },
+  {
     "name": "Log",
     "module": "ai.onnx",
     "version": 1,
@@ -35881,6 +35983,72 @@
       {
         "summary": "log",
         "code": "node = onnx.helper.make_node(\n    \"Log\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([1, 10]).astype(np.float32)\ny = np.log(x)  # expected output [0., 2.30258512]\nexpect(node, inputs=[x], outputs=[y], name=\"test_log_example\")\n\nx = np.exp(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.log(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_log\")"
+      }
+    ]
+  },
+  {
+    "name": "LogCumSumExp",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "Computes the inclusive, forward cumulative log-sum-exp of `X` along `axis`.\nLet `r = rank(X)`, where `r >= 1`. The attribute `axis` defaults to 0 and must\nbe in `[-r, r-1]`. The normalized axis is `a = axis` if `axis >= 0`, and\n`a = axis + r` otherwise.\n\nFor each fixed choice of indices in the dimensions other than `a`, let\n`x[0], ..., x[n-1]` be the input slice along `a`, where `n = X.shape[a]`.\nThe corresponding output slice is defined by\n`y[j] = log(sum(exp(x[k]), k = 0, ..., j))` for `0 <= j < n`.\nThus, each prefix includes the current element and all preceding elements,\nand excludes subsequent elements. The output `Y` has the same shape and\nelement type as `X`. If any dimension of `X` is zero, `Y` is empty.\n\nThe following rules apply independently to each prefix, in order:\n\n* If the prefix contains NaN, its output is NaN.\n* Otherwise, if the prefix contains positive infinity, its output is positive infinity.\n* Otherwise, if every element in the prefix is negative infinity, its output is negative infinity.\n\nNegative infinity contributes zero to the sum of exponentials.\n\nAccumulation must be numerically stable and use at least float32 precision\nfor float16, bfloat16 and float32 inputs, and at least float64 precision for\nfloat64 inputs. Each prefix result is converted to the element type of `X`\nto form `Y`; this conversion must not reduce the precision of the intermediate\naccumulation for subsequent prefixes. The floating-point accumulation order\nis unspecified, and different orders may produce different rounding.\n",
+    "attributes": [
+      {
+        "name": "axis",
+        "type": "int64",
+        "required": false,
+        "description": "Axis along which to compute inclusive prefixes, defaulting to 0. Must be in [-rank(X), rank(X)-1]. A negative value is normalized by adding rank(X)."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Floating-point input tensor of rank at least one. Dimensions may be zero."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Tensor with the same shape and element type as X, containing inclusive cumulative log-sum-exp values."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Input and output have the same floating-point element type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "logcumsumexp",
+        "code": "x = np.array([-200, -100, 100], dtype=np.float32)\nnode = onnx.helper.make_node(\"LogCumSumExp\", [\"X\"], [\"Y\"])\nexpect(node, [x], [x.copy()], name=\"test_logcumsumexp_dynamic_range\")"
+      },
+      {
+        "summary": "logcumsumexp_axes",
+        "code": "x = np.log(np.arange(1, 25, dtype=np.float64)).reshape(2, 3, 4)\nfor axis in (0, 1, 2, -1, -3):\n    node = onnx.helper.make_node(\"LogCumSumExp\", [\"X\"], [\"Y\"], axis=axis)\n    y = np.log(np.cumsum(np.exp(x), axis=axis))\n    expect(node, [x], [y], name=f\"test_logcumsumexp_axis_{axis}\")"
+      },
+      {
+        "summary": "logcumsumexp_empty",
+        "code": "for shape, axis in (((2, 0, 3), 1), ((0, 3), -1)):\n    x = np.empty(shape, dtype=np.float32)\n    node = onnx.helper.make_node(\"LogCumSumExp\", [\"X\"], [\"Y\"], axis=axis)\n    expect(node, [x], [x.copy()], name=f\"test_logcumsumexp_empty_axis_{axis}\")"
+      },
+      {
+        "summary": "logcumsumexp_low_precision",
+        "code": "for dtype in (np.float16, ml_dtypes.bfloat16):\n    x = np.zeros(128, dtype=dtype)\n    y = np.log(np.arange(1, 129, dtype=np.float64)).astype(dtype)\n    node = onnx.helper.make_node(\"LogCumSumExp\", [\"X\"], [\"Y\"])\n    expect(node, [x], [y], name=f\"test_logcumsumexp_{np.dtype(dtype).name}\")"
+      },
+      {
+        "summary": "logcumsumexp_special_values",
+        "code": "x = np.array(\n    [\n        [-np.inf, -np.inf, -np.inf, -np.inf],\n        [-np.inf, 0, np.inf, -np.inf],\n        [0, np.inf, np.inf, 1],\n        [0, np.nan, np.inf, -np.inf],\n        [np.inf, -np.inf, np.nan, 0],\n    ],\n    dtype=np.float32,\n)\ny = np.array(\n    [\n        [-np.inf, -np.inf, -np.inf, -np.inf],\n        [-np.inf, 0, np.inf, np.inf],\n        [0, np.inf, np.inf, np.inf],\n        [0, np.nan, np.nan, np.nan],\n        [np.inf, np.inf, np.nan, np.nan],\n    ],\n    dtype=np.float32,\n)\nnode = onnx.helper.make_node(\"LogCumSumExp\", [\"X\"], [\"Y\"], axis=1)\nexpect(node, [x], [y], name=\"test_logcumsumexp_special_values\")"
       }
     ]
   },
@@ -39478,6 +39646,437 @@
     ]
   },
   {
+    "name": "MatMulNBitsQLoRAMlp",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Fuses two MatMulNBitsQLoRA projections, their shared optional normalization, and a SiLU-gated MLP. Empty adapter B tensors use the base-only MLP path. Adapter weights are runtime inputs and may change between calls.",
+    "attributes": [
+      {
+        "name": "K",
+        "type": "int64",
+        "required": true,
+        "description": "Shared input feature dimension."
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "required": true,
+        "description": "Shared gate and up output feature dimension."
+      },
+      {
+        "name": "accuracy_level",
+        "type": "int64",
+        "required": false,
+        "description": "MatMulNBits accuracy policy."
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "required": true,
+        "description": "Gate activation; WebGPU currently supports silu."
+      },
+      {
+        "name": "bits",
+        "type": "int64",
+        "required": false,
+        "default": 4,
+        "description": "Base weight bit width."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "default": 32,
+        "description": "Base quantization block size."
+      },
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999747378752e-06,
+        "description": "Normalization epsilon."
+      },
+      {
+        "name": "lora_bits",
+        "type": "int64",
+        "required": false,
+        "default": 8,
+        "description": "Adapter weight bit width."
+      },
+      {
+        "name": "lora_block_size",
+        "type": "int64",
+        "required": false,
+        "default": 32,
+        "description": "Adapter quantization block size."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T1",
+        "description": "Shared MLP input."
+      },
+      {
+        "name": "skip",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional residual for SkipSimplifiedLayerNormalization."
+      },
+      {
+        "name": "norm_scale",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional normalization scale."
+      },
+      {
+        "name": "gate_W",
+        "type": "T2",
+        "description": "Packed gate base weights."
+      },
+      {
+        "name": "gate_scales",
+        "type": "T1",
+        "description": "Gate base scales."
+      },
+      {
+        "name": "gate_bias",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional gate bias; omitted by automatic QLoRA fusion."
+      },
+      {
+        "name": "up_W",
+        "type": "T2",
+        "description": "Packed up base weights."
+      },
+      {
+        "name": "up_scales",
+        "type": "T1",
+        "description": "Up base scales."
+      },
+      {
+        "name": "up_bias",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional up bias; omitted by automatic QLoRA fusion."
+      },
+      {
+        "name": "gate_lora_A",
+        "type": "T2",
+        "description": "Packed gate down weights."
+      },
+      {
+        "name": "gate_lora_A_scales",
+        "type": "T1",
+        "description": "Gate down scales."
+      },
+      {
+        "name": "gate_lora_B",
+        "type": "T2",
+        "description": "Packed gate up weights or empty adapter."
+      },
+      {
+        "name": "gate_lora_B_scales",
+        "type": "T1",
+        "description": "Gate up scales."
+      },
+      {
+        "name": "up_lora_A",
+        "type": "T2",
+        "description": "Packed up down weights."
+      },
+      {
+        "name": "up_lora_A_scales",
+        "type": "T1",
+        "description": "Up down scales."
+      },
+      {
+        "name": "up_lora_B",
+        "type": "T2",
+        "description": "Packed up up weights or empty adapter."
+      },
+      {
+        "name": "up_lora_B_scales",
+        "type": "T1",
+        "description": "Up up scales."
+      }
+    ],
+    "min_input": 17,
+    "max_input": 17,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T1",
+        "description": "SiLU(gate) multiplied by up."
+      },
+      {
+        "name": "input_skip_bias_sum",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional residual sum."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 2,
+    "outputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Floating-point activation and scale type.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)"
+        ]
+      },
+      {
+        "description": "Packed quantized weight type.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "MatMulNBitsQLoRAQkv",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Fuses three MatMulNBitsQLoRA projections with shared optional normalization. Empty adapter B tensors use the base QKV path; adapters remain runtime inputs.",
+    "attributes": [
+      {
+        "name": "K",
+        "type": "int64",
+        "required": true,
+        "description": "Shared input feature dimension."
+      },
+      {
+        "name": "Nkv",
+        "type": "int64",
+        "required": true,
+        "description": "K and V output feature dimension."
+      },
+      {
+        "name": "Nq",
+        "type": "int64",
+        "required": true,
+        "description": "Q output feature dimension."
+      },
+      {
+        "name": "accuracy_level",
+        "type": "int64",
+        "required": false,
+        "description": "MatMulNBits accuracy policy."
+      },
+      {
+        "name": "bits",
+        "type": "int64",
+        "required": false,
+        "default": 4,
+        "description": "Base weight bit width."
+      },
+      {
+        "name": "block_size",
+        "type": "int64",
+        "required": false,
+        "default": 32,
+        "description": "Base quantization block size."
+      },
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999974752427e-07,
+        "description": "Normalization epsilon."
+      },
+      {
+        "name": "lora_bits",
+        "type": "int64",
+        "required": false,
+        "default": 8,
+        "description": "Adapter weight bit width."
+      },
+      {
+        "name": "lora_block_size",
+        "type": "int64",
+        "required": false,
+        "default": 32,
+        "description": "Adapter quantization block size."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T1",
+        "description": "Shared QKV input."
+      },
+      {
+        "name": "skip",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional residual for SkipSimplifiedLayerNormalization."
+      },
+      {
+        "name": "norm_scale",
+        "type": "T1",
+        "description": "Normalization scale."
+      },
+      {
+        "name": "q_W",
+        "type": "T2",
+        "description": "Packed Q base weights."
+      },
+      {
+        "name": "q_scales",
+        "type": "T1",
+        "description": "Q base scales."
+      },
+      {
+        "name": "q_bias",
+        "type": "T1",
+        "option": "optional",
+        "description": "Reserved optional Q bias."
+      },
+      {
+        "name": "k_W",
+        "type": "T2",
+        "description": "Packed K base weights."
+      },
+      {
+        "name": "k_scales",
+        "type": "T1",
+        "description": "K base scales."
+      },
+      {
+        "name": "k_bias",
+        "type": "T1",
+        "option": "optional",
+        "description": "Reserved optional K bias."
+      },
+      {
+        "name": "v_W",
+        "type": "T2",
+        "description": "Packed V base weights."
+      },
+      {
+        "name": "v_scales",
+        "type": "T1",
+        "description": "V base scales."
+      },
+      {
+        "name": "v_bias",
+        "type": "T1",
+        "option": "optional",
+        "description": "Reserved optional V bias."
+      },
+      {
+        "name": "q_lora_A",
+        "type": "T2",
+        "description": "Packed Q down weights."
+      },
+      {
+        "name": "q_lora_A_scales",
+        "type": "T1",
+        "description": "Q down scales."
+      },
+      {
+        "name": "q_lora_B",
+        "type": "T2",
+        "description": "Packed Q up weights or empty adapter."
+      },
+      {
+        "name": "q_lora_B_scales",
+        "type": "T1",
+        "description": "Q up scales."
+      },
+      {
+        "name": "k_lora_A",
+        "type": "T2",
+        "description": "Packed K down weights."
+      },
+      {
+        "name": "k_lora_A_scales",
+        "type": "T1",
+        "description": "K down scales."
+      },
+      {
+        "name": "k_lora_B",
+        "type": "T2",
+        "description": "Packed K up weights or empty adapter."
+      },
+      {
+        "name": "k_lora_B_scales",
+        "type": "T1",
+        "description": "K up scales."
+      },
+      {
+        "name": "v_lora_A",
+        "type": "T2",
+        "description": "Packed V down weights."
+      },
+      {
+        "name": "v_lora_A_scales",
+        "type": "T1",
+        "description": "V down scales."
+      },
+      {
+        "name": "v_lora_B",
+        "type": "T2",
+        "description": "Packed V up weights or empty adapter."
+      },
+      {
+        "name": "v_lora_B_scales",
+        "type": "T1",
+        "description": "V up scales."
+      }
+    ],
+    "min_input": 24,
+    "max_input": 24,
+    "outputs": [
+      {
+        "name": "Q",
+        "type": "T1",
+        "description": "Q projection."
+      },
+      {
+        "name": "K_output",
+        "type": "T1",
+        "description": "K projection."
+      },
+      {
+        "name": "V",
+        "type": "T1",
+        "description": "V projection."
+      },
+      {
+        "name": "input_skip_bias_sum",
+        "type": "T1",
+        "option": "optional",
+        "description": "Optional residual sum."
+      }
+    ],
+    "min_output": 3,
+    "max_output": 4,
+    "outputs_range": "3 - 4",
+    "type_constraints": [
+      {
+        "description": "Floating-point activation and scale type.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)"
+        ]
+      },
+      {
+        "description": "Packed quantized weight type.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "MatMulNBitsQkv",
     "module": "com.microsoft",
     "version": 1,
@@ -39646,7 +40245,7 @@
     "name": "MatMulPacked",
     "module": "com.microsoft",
     "version": 1,
-    "description": "Matrix multiplication Y = A @ B^T where B is a 2D block-packed weight tensor.\nCUDA uses float32 accumulation and reductions. M is the product of A's leading dimensions. Decode (M <= 8) uses float32-decoded weights for FP16 and for BF16 with N < 65536. BF16 decode with N >= 65536 rounds decoded weights to BF16, including the SIMT fallback. Prefill (M > 8) uses bounded scratch memory and BF16-rounded decoded weights for BF16; FP16 prefill uses float32-decoded weights unless the packed format is F16. Consequently, BF16 results may differ across the M and N dispatch boundaries. CUDA execution requires weights in device memory.\nSupported format IDs and their stable byte layouts are defined in the [packed-weight format contract](https://github.com/microsoft/onnxruntime/blob/main/docs/PackedWeightFormats.md).",
+    "description": "Matrix multiplication Y = A @ B^T where B is a 2D block-packed weight tensor.\nComplete dequantized weights are rounded to A's dtype before multiplication by default. CUDA uses float32 accumulation and reductions. M is the product of A's leading dimensions. The CUDA session option ep.cuda.matmul_packed_allow_unrounded_gemv=1 permits eligible decode/GEMV kernels (M <= 8) to skip weight rounding; its default is 0. Prefill (M > 8) uses bounded scratch memory and always rounds weights to A's dtype, including when using float32 scratch buffers. Kernel reduction orders can still differ. CUDA execution requires weights in device memory.\nSupported format IDs and their stable byte layouts are defined in the [packed-weight format contract](https://github.com/microsoft/onnxruntime/blob/main/docs/PackedWeightFormats.md).",
     "attributes": [
       {
         "name": "K",
@@ -39677,10 +40276,16 @@
         "name": "B",
         "type": "T2",
         "description": "Packed weight blob [N, row_bytes]."
+      },
+      {
+        "name": "global_scale",
+        "type": "Tscale",
+        "option": "optional",
+        "description": "Optional scalar FP32 multiplier for NVFP4, applied to FP32 accumulation before the output cast."
       }
     ],
     "min_input": 2,
-    "max_input": 2,
+    "max_input": 3,
     "outputs": [
       {
         "name": "Y",
@@ -39690,6 +40295,7 @@
     ],
     "min_output": 1,
     "max_output": 1,
+    "inputs_range": "2 - 3",
     "type_constraints": [
       {
         "description": "Activation type.",
@@ -39704,6 +40310,13 @@
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(uint8)"
+        ]
+      },
+      {
+        "description": "Global scale type.",
+        "type_param_str": "Tscale",
+        "allowed_type_strs": [
+          "tensor(float)"
         ]
       }
     ]
@@ -42416,8 +43029,16 @@
     ],
     "examples": [
       {
+        "summary": "epsilon",
+        "code": "epsilon = 1.0\nnode = onnx.helper.make_node(\n    \"MeanVarianceNormalization\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    axes=[1, -1],\n    epsilon=epsilon,\n)\n\ninput_data = np.arange(24, dtype=np.float64).reshape(2, 3, 4)\n\n# Calculate expected output with custom epsilon\ndata_mean = np.mean(input_data, axis=(1, -1), keepdims=True)\ncentered = input_data - data_mean\nstd = np.sqrt(np.mean(np.square(centered), axis=(1, -1), keepdims=True))\nexpected_output = (input_data - data_mean) / (std + epsilon)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_mvn_epsilon\",\n)"
+      },
+      {
         "summary": "meanvariancenormalization",
-        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\", inputs=[\"X\"], outputs=[\"Y\"]\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ndata_mean_squared = np.power(data_mean, 2)\ndata_squared = np.power(input_data, 2)\ndata_squared_mean = np.mean(data_squared, axis=(0, 2, 3), keepdims=1)\nstd = np.sqrt(data_squared_mean - data_mean_squared)\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mvn\")"
+        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\", inputs=[\"X\"], outputs=[\"Y\"]\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ncentered = input_data - data_mean\nstd = np.sqrt(np.mean(np.square(centered), axis=(0, 2, 3), keepdims=True))\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mvn\")"
+      },
+      {
+        "summary": "zero_variance",
+        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    axes=[0],\n)\ninput_data = np.ones(2, dtype=np.float32)\nmean = np.mean(input_data, axis=0, keepdims=True)\ncentered = input_data - mean\nexpected_output = centered / (\n    np.sqrt(np.mean(np.square(centered), axis=0, keepdims=True)) + 1e-9\n)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_mvn_zero_variance\",\n)"
       }
     ]
   },
@@ -42425,7 +43046,7 @@
     "name": "MeanVarianceNormalization",
     "module": "ai.onnx",
     "version": 13,
-    "description": "A MeanVarianceNormalization Function: Perform mean variance normalization\n      on the input tensor X using formula: `(X-EX)/sqrt(E(X-EX)^2)`\n",
+    "description": "Computes mean-variance normalization of `X`:\n`Y = (X - mean) / (sqrt(variance) + 1e-9)`, where\n`mean = ReduceMean(X, axes)` and\n`variance = ReduceMean(X^2, axes) - mean^2`.\nEach reduction computes the arithmetic mean over `axes` and retains the\nreduced dimensions with size 1 for broadcasting.\n",
     "attributes": [
       {
         "name": "axes",
@@ -42466,8 +43087,81 @@
     ],
     "examples": [
       {
+        "summary": "epsilon",
+        "code": "epsilon = 1.0\nnode = onnx.helper.make_node(\n    \"MeanVarianceNormalization\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    axes=[1, -1],\n    epsilon=epsilon,\n)\n\ninput_data = np.arange(24, dtype=np.float64).reshape(2, 3, 4)\n\n# Calculate expected output with custom epsilon\ndata_mean = np.mean(input_data, axis=(1, -1), keepdims=True)\ncentered = input_data - data_mean\nstd = np.sqrt(np.mean(np.square(centered), axis=(1, -1), keepdims=True))\nexpected_output = (input_data - data_mean) / (std + epsilon)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_mvn_epsilon\",\n)"
+      },
+      {
         "summary": "meanvariancenormalization",
-        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\", inputs=[\"X\"], outputs=[\"Y\"]\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ndata_mean_squared = np.power(data_mean, 2)\ndata_squared = np.power(input_data, 2)\ndata_squared_mean = np.mean(data_squared, axis=(0, 2, 3), keepdims=1)\nstd = np.sqrt(data_squared_mean - data_mean_squared)\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mvn\")"
+        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\", inputs=[\"X\"], outputs=[\"Y\"]\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ncentered = input_data - data_mean\nstd = np.sqrt(np.mean(np.square(centered), axis=(0, 2, 3), keepdims=True))\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mvn\")"
+      },
+      {
+        "summary": "zero_variance",
+        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    axes=[0],\n)\ninput_data = np.ones(2, dtype=np.float32)\nmean = np.mean(input_data, axis=0, keepdims=True)\ncentered = input_data - mean\nexpected_output = centered / (\n    np.sqrt(np.mean(np.square(centered), axis=0, keepdims=True)) + 1e-9\n)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_mvn_zero_variance\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "MeanVarianceNormalization",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "Computes mean-variance normalization of `X`:\n`Y = (X - mean) / (sqrt(variance) + epsilon)`, where\n`mean = ReduceMean(X, axes)` and\n`variance = ReduceMean((X - mean)^2, axes)`.\nEach reduction computes the arithmetic mean over `axes` and retains the\nreduced dimensions with size 1 for broadcasting.\nAn empty `axes` list reduces over all dimensions.\n\nThe default `epsilon` is 1e-9 and is added after the square root.\nFor float16 and bfloat16 inputs, `X` is converted to float32 before computation.\nOtherwise, computation uses the input type. `epsilon` is converted to the\ncomputation type, and the result is cast to the input type.\n`Y` has the same shape and element type as `X`.\n",
+    "attributes": [
+      {
+        "name": "axes",
+        "type": "int64[]",
+        "required": false,
+        "description": "Axes over which to compute mean and variance. Values must be in [-r, r-1], where r is the rank of X; negative values count from the last dimension. An empty list reduces over all dimensions. The default is [0, 2, 3], which computes per-channel statistics for an NCHW tensor."
+      },
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999717180685e-10,
+        "description": "Value added to the standard deviation in the denominator."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to floating-point tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "epsilon",
+        "code": "epsilon = 1.0\nnode = onnx.helper.make_node(\n    \"MeanVarianceNormalization\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    axes=[1, -1],\n    epsilon=epsilon,\n)\n\ninput_data = np.arange(24, dtype=np.float64).reshape(2, 3, 4)\n\n# Calculate expected output with custom epsilon\ndata_mean = np.mean(input_data, axis=(1, -1), keepdims=True)\ncentered = input_data - data_mean\nstd = np.sqrt(np.mean(np.square(centered), axis=(1, -1), keepdims=True))\nexpected_output = (input_data - data_mean) / (std + epsilon)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_mvn_epsilon\",\n)"
+      },
+      {
+        "summary": "meanvariancenormalization",
+        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\", inputs=[\"X\"], outputs=[\"Y\"]\n)\n\ninput_data = np.array(\n    [\n        [\n            [[0.8439683], [0.5665144], [0.05836735]],\n            [[0.02916367], [0.12964272], [0.5060197]],\n            [[0.79538304], [0.9411346], [0.9546573]],\n        ],\n        [\n            [[0.17730942], [0.46192095], [0.26480448]],\n            [[0.6746842], [0.01665257], [0.62473077]],\n            [[0.9240844], [0.9722341], [0.11965699]],\n        ],\n        [\n            [[0.41356155], [0.9129373], [0.59330076]],\n            [[0.81929934], [0.7862604], [0.11799799]],\n            [[0.69248444], [0.54119414], [0.07513223]],\n        ],\n    ],\n    dtype=np.float32,\n)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ncentered = input_data - data_mean\nstd = np.sqrt(np.mean(np.square(centered), axis=(0, 2, 3), keepdims=True))\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output], name=\"test_mvn\")"
+      },
+      {
+        "summary": "zero_variance",
+        "code": "node = onnx.helper.make_node(\n    \"MeanVarianceNormalization\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    axes=[0],\n)\ninput_data = np.ones(2, dtype=np.float32)\nmean = np.mean(input_data, axis=0, keepdims=True)\ncentered = input_data - mean\nexpected_output = centered / (\n    np.sqrt(np.mean(np.square(centered), axis=0, keepdims=True)) + 1e-9\n)\n\nexpect(\n    node,\n    inputs=[input_data],\n    outputs=[expected_output],\n    name=\"test_mvn_zero_variance\",\n)"
       }
     ]
   },
@@ -43093,6 +43787,12 @@
         "type": "float32",
         "required": false,
         "description": "The limit used to clamp in SwiGLU. No clamp when limit is not provided. Does not affect GEGLU."
+      },
+      {
+        "name": "swiglu_limit_after_activation",
+        "type": "int64",
+        "required": false,
+        "description": "When 1, clamp the activated gate instead of the gate input: min(gate * sigmoid(activation_alpha * gate), swiglu_limit) * (clamp(up, -swiglu_limit, swiglu_limit) + activation_beta). Requires activation_type='swiglu' and CUDA. The default 0 preserves input clipping."
       },
       {
         "name": "use_sparse_mixer",
@@ -52570,6 +53270,12 @@
         "description": "The limit used to clamp inputs in SwiGLU. It is infinite when limit is not provided. Does not affect GEGLU."
       },
       {
+        "name": "swiglu_limit_after_activation",
+        "type": "int64",
+        "required": false,
+        "description": "When 1, clamp the activated gate instead of the gate input: min(gate * sigmoid(activation_alpha * gate), swiglu_limit) * (clamp(up, -swiglu_limit, swiglu_limit) + activation_beta). Requires activation_type='swiglu' and CUDA with INT4/INT8 or block-FP8 weights. Offload is unsupported. The default 0 preserves input clipping."
+      },
+      {
         "name": "use_sparse_mixer",
         "type": "int64",
         "required": false,
@@ -54783,7 +55489,7 @@
     "name": "RMSNormRotary",
     "module": "com.microsoft",
     "version": 1,
-    "description": "CUDA BF16 ONNX-arithmetic RMS normalization followed by non-interleaved partial RoPE. Input is [B,S,heads,stride]; a contiguous last-axis slice is normalized with FP32 scale. Normalization rounds to BF16 before rotation. Output is flattened [B,S,heads*width]. Width 256 and more than one row use one kernel for FP32 decode rotary or prefill; other shapes and BF16 decode rotary reuse existing CUDA kernels. Prefill mode uses reciprocal-multiply normalization and BF16 rotary intermediates; decode uses division normalization and the selected rotary arithmetic.",
+    "description": "CUDA RMS normalization followed by non-interleaved partial RoPE. Input is BF16 or FP16 [B,S,heads,stride]; a contiguous last-axis slice is normalized with FP32 scale. FP16 input/output or FP32 rotary caches use FP32 intermediates without BF16 rounding before rotation. Otherwise normalization rounds to BF16 before rotation: prefill mode uses reciprocal-multiply normalization and BF16 rotary intermediates, while decode uses division normalization and the selected rotary arithmetic. Numerical mode controls do not change the FP32-intermediate path. Output defaults to BF16 and is flattened [B,S,heads*width].",
     "attributes": [
       {
         "name": "epsilon",
@@ -54811,6 +55517,12 @@
         "description": "Normalized width; zero uses the full last dimension."
       },
       {
+        "name": "output_fp16",
+        "type": "int64",
+        "required": false,
+        "description": "Output Y in float16 (1) instead of bfloat16 (0)."
+      },
+      {
         "name": "rotary_embedding_dim",
         "type": "int64",
         "required": true,
@@ -54828,7 +55540,7 @@
       {
         "name": "X",
         "type": "T",
-        "description": "BF16 input [B,S,heads,stride]."
+        "description": "BF16 or FP16 input [B,S,heads,stride]."
       },
       {
         "name": "scale",
@@ -54842,12 +55554,12 @@
       },
       {
         "name": "cosine",
-        "type": "T",
-        "description": "BF16 cache [cache_rows,rotary_embedding_dim/2]."
+        "type": "TCos",
+        "description": "BF16 or FP32 cache [cache_rows,rotary_embedding_dim/2]."
       },
       {
         "name": "sine",
-        "type": "T",
+        "type": "TCos",
         "description": "Same shape/type as cosine."
       },
       {
@@ -54862,14 +55574,14 @@
     "outputs": [
       {
         "name": "Y",
-        "type": "T",
+        "type": "TOut",
         "description": "Normalized and rotated [B,S,heads*width]."
       },
       {
         "name": "normalized_fp32",
         "type": "F",
         "option": "optional",
-        "description": "Optional BF16-rounded normalized values widened to FP32, before rotation, [B,S,heads,width]."
+        "description": "Optional normalized values before rotation, [B,S,heads,width]. The FP32-intermediate path retains FP32 values; the BF16 path widens BF16-rounded values to FP32."
       }
     ],
     "min_output": 1,
@@ -54878,10 +55590,27 @@
     "outputs_range": "1 - 2",
     "type_constraints": [
       {
-        "description": "BF16 data.",
+        "description": "BF16 or FP16 data.",
         "type_param_str": "T",
         "allowed_type_strs": [
-          "tensor(bfloat16)"
+          "tensor(bfloat16)",
+          "tensor(float16)"
+        ]
+      },
+      {
+        "description": "BF16 or FP32 rotary cache.",
+        "type_param_str": "TCos",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "BF16 or FP16 output.",
+        "type_param_str": "TOut",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)"
         ]
       },
       {
