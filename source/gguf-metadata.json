@@ -3358,7 +3358,7 @@
         { "name": "ffn_up", "type": "MUL_MAT" },
         { "name": "ffn_down", "type": "MUL_MAT" },
         { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"] },
-        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_out"] },
+        { "name": "ssm", "type": "MAMBA2", "tensors": ["attn_qkv", "attn_gate", "attn_qkv_gate", "ssm_a", "ssm_conv1d", "ssm_dt", "ssm_norm", "ssm_beta", "ssm_alpha", "ssm_beta_alpha", "ssm_out"] },
         { "name": "nextn.eh_proj", "type": "MUL_MAT" },
         { "name": "nextn.embed_tokens", "type": "EMBEDDING", "category": "Transform" },
         { "name": "nextn.enorm", "type": "RMS_NORM", "category": "Normalization" },
