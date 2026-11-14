@@ -19825,7 +19825,7 @@
   {
     "name": "iree_linalg_ext.sort",
     "summary": "Sorts a tensor a specified dimension.",
-    "description": "Based on XLA operation semantics, sorts the given `operands` at the given\n    `dimension` with the given `comparator`.\n\n    See https://www.tensorflow.org/xla/operation_semantics#sort.",
+    "description": "Based on XLA operation semantics, sorts the given `operands` at the given\n    `dimension` with the given `comparator`.\n\n    See https://www.tensorflow.org/xla/operation_semantics#sort.\n\n    The comparator gets two elements, as one pair of scalars per operand, and\n    returns whether the first has to be placed before the second. It does not\n    order two elements if it returns the same value for both argument orders,\n    e.g. for equal keys both `false` with a strict comparison like `slt` and\n    both `true` with a non-strict one like `sle`.\n\n    By default the sort is not stable: elements that the comparator does not\n    order are placed in unspecified order. With `is_stable` set they keep their\n    input order: an element is only moved in front of another one if the\n    comparator returns `true` for that order and `false` for the opposite one.\n    A stable sort lowers to a slower algorithm, so only request it if the\n    order of such elements matters.\n\n    The comparator has to be consistent: if it does not order `a` and `b`, and\n    does not order `b` and `c`, it must not order `a` and `c` either. An\n    ordered floating point comparison is not consistent when the operand\n    contains NaNs, which it does not order with any other value. The result\n    for an inconsistent comparator is some permutation of the elements, in\n    unspecified order.\n\n    Example:\n    ```mlir\n    %sorted = iree_linalg_ext.sort dimension(0) is_stable(true)\n        ins(%arr : tensor<?xi64>) outs(%init : tensor<?xi64>) {\n      ^bb0(%lhs: i64, %rhs: i64):\n        %before = arith.cmpi slt, %lhs, %rhs : i64\n        iree_linalg_ext.yield %before : i1\n    } -> tensor<?xi64>\n    ```",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyRankedTensorOrMemRef>" },
       { "name": "outputs", "type": "Variadic<AnyRankedTensorOrMemRef>" }
@@ -19834,7 +19834,8 @@
       { "name": "results", "type": "Variadic<AnyRankedTensor>" }
     ],
     "attributes": [
-      { "name": "dimension", "type": "I64Attr" }
+      { "name": "dimension", "type": "I64Attr" },
+      { "name": "is_stable", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
     "regions": [
       { "name": "region", "type": "AnyRegion" }
@@ -19842,7 +19843,7 @@
     "traits": [
       { "type": "AttrSizedOperandSegments" }
     ],
-    "assemblyFormat": "attr-dict\n    `dimension` `(` $dimension `)`\n    (`ins` `(` $inputs^ `:` type($inputs) `)`)?\n    `outs` `(` $outputs `:` type($outputs) `)`\n    $region (`->` type($results)^)?",
+    "assemblyFormat": "attr-dict\n    `dimension` `(` $dimension `)`\n    (`is_stable` `(` $is_stable^ `)`)?\n    (`ins` `(` $inputs^ `:` type($inputs) `)`)?\n    `outs` `(` $outputs `:` type($outputs) `)`\n    $region (`->` type($results)^)?",
     "hasCustomAssemblyFormat": true
   },
   {
@@ -25520,6 +25521,7 @@
     ],
     "attributes": [
       { "name": "isVolatile", "type": "I1Attr" },
+      { "name": "tbaa_struct", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAAStructFieldAttr>>" },
       { "name": "access_groups", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AccessGroupAttr>>" },
       { "name": "alias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
@@ -25537,6 +25539,7 @@
     "attributes": [
       { "name": "len", "type": "APIntAttr" },
       { "name": "isVolatile", "type": "I1Attr" },
+      { "name": "tbaa_struct", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAAStructFieldAttr>>" },
       { "name": "access_groups", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AccessGroupAttr>>" },
       { "name": "alias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
@@ -25554,6 +25557,7 @@
     ],
     "attributes": [
       { "name": "isVolatile", "type": "I1Attr" },
+      { "name": "tbaa_struct", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_TBAAStructFieldAttr>>" },
       { "name": "access_groups", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AccessGroupAttr>>" },
       { "name": "alias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
       { "name": "noalias_scopes", "type": "OptionalAttr<TypedArrayAttrBase<LLVM_AliasScopeAttr>>" },
@@ -33710,9 +33714,10 @@
   {
     "name": "nvvm.convert.bf16x2.to.f4x2",
     "summary": "Convert an bf16x2 input to f4x2",
-    "description": "This Op converts each of the givenBF16inputs in anbf16x2 vector to the specified fp4 type.\n    The result `dst` is returned as an i8 type where the converted values are \n    packed such that the value converted from the first element of `a` is \n    stored in the lower 4 bits of `dst` and the value converted from the second \n    element of `a` is stored in the upper 4 bits of `dst`.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.",
+    "description": "This Op converts each of the givenBF16inputs in anbf16x2 vector to the specified fp4 type.\n    The result `dst` is returned as an i8 type where the converted values are \n    packed such that the value converted from the first element of `a` is \n    stored in the lower 4 bits of `dst` and the value converted from the second \n    element of `a` is stored in the upper 4 bits of `dst`.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.",
     "operands": [
-      { "name": "src", "type": "VectorOfLengthAndType<[2]>" }
+      { "name": "src", "type": "VectorOfLengthAndType<[2]>" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "I8" }
@@ -33723,14 +33728,15 @@
       { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo) attr-dict\n    `:` type($src) `->` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$src (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($src) `->` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.bf16x2.to.f6x2",
     "summary": "Convert an bf16x2 input to f6x2",
-    "description": "This Op converts each of the givenBF16inputs in anbf16x2 vector to the specified fp6 type. The result `dst` is \n    represented either as an i16 type or as a vector of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from the first element of `a` is stored in the \n    lower 8 bits of `dst` with 2 MSB bits padded with zeros and the value \n    converted from the second element of `a` is stored in the upper 8 bits of \n    `dst` with 2 MSB bits padded with zeros.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector with 2 MSB bits padded with zeros.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.",
+    "description": "This Op converts each of the givenBF16inputs in anbf16x2 vector to the specified fp6 type. The result `dst` is \n    represented either as an i16 type or as a vector of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from the first element of `a` is stored in the \n    lower 8 bits of `dst` with 2 MSB bits padded with zeros and the value \n    converted from the second element of `a` is stored in the upper 8 bits of \n    `dst` with 2 MSB bits padded with zeros.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector with 2 MSB bits padded with zeros.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.",
     "operands": [
-      { "name": "src", "type": "VectorOfLengthAndType<[2]>" }
+      { "name": "src", "type": "VectorOfLengthAndType<[2]>" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "AnyTypeOf<[I16, VectorOfLengthAndType<[2], [I8]>]>" }
@@ -33741,14 +33747,15 @@
       { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo) attr-dict\n    `:` type($src) `->` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$src (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($src) `->` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.bf16x2.to.f8x2",
     "summary": "Convert a pair of bf16 inputs to f8x2",
-    "description": "This Op converts the given bf16 inputs in a bf16x2 vector to the specified \n    f8 type. The result `dst` is represented either as a packed i16 type or as \n    a vector of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from the first element of `a` is stored in the \n    lower 8 bits of `dst` and the value converted from the second element of \n    `a` is stored in the upper 8 bits of `dst`.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` and `sat` attributes specify the rounding and saturation modes \n    respectively. Conversions to `f8E4M3FN` and `f8E5M2` support `rn` and `rz`\n    rounding. The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the '.pzo'\n    variant of the cvt instruction. `pzo` is not supported for conversions to\n    `f8E8M0FNU`.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "This Op converts the given bf16 inputs in a bf16x2 vector to the specified \n    f8 type. The result `dst` is represented either as a packed i16 type or as \n    a vector of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from the first element of `a` is stored in the \n    lower 8 bits of `dst` and the value converted from the second element of \n    `a` is stored in the upper 8 bits of `dst`.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` and `sat` attributes specify the rounding and saturation modes \n    respectively. Conversions to `f8E4M3FN` and `f8E5M2` support `rn` and `rz`\n    rounding. The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the '.pzo'\n    variant of the cvt instruction. `pzo` is not supported for conversions to\n    `f8E8M0FNU` or `f8E5M3FNU`.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.\n    Scaled conversions to `f8E5M3FNU` support `rn` and `rz` only.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
-      { "name": "src", "type": "VectorOfLengthAndType<[2], [BF16]>" }
+      { "name": "src", "type": "VectorOfLengthAndType<[2], [BF16]>" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "AnyTypeOf<[I16, VectorOfLengthAndType<[2], [I8]>]>" }
@@ -33757,10 +33764,10 @@
       { "name": "rnd", "type": "DefaultValuedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, FPRoundingMode::NONE>" },
       { "name": "sat", "type": "DefaultValuedAttr<SaturationModeAttr{none|satfinite|sat}, SaturationMode::NONE>" },
       { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" },
-      { "name": "dstTy", "type": "TypeAttrOf<AnyTypeOf<[ F8E8M0FNU, F8E4M3FN, F8E5M2 ]>>" },
+      { "name": "dstTy", "type": "TypeAttrOf<AnyTypeOf<[ F8E8M0FNU, F8E5M3FNU, F8E4M3FN, F8E5M2 ]>>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src oilist(\n      `rnd` `=` $rnd | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict\n    `:` type($src) `->` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$src (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict\n    `:` type($src) `->` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.bf16x2.to.s2f6x2",
@@ -33781,9 +33788,10 @@
   {
     "name": "nvvm.convert.f16x2.to.f4x2",
     "summary": "Convert an f16x2 input to f4x2",
-    "description": "This Op converts each of the givenF16inputs in anf16x2 vector to the specified fp4 type.\n    The result `dst` is returned as an i8 type where the converted values are \n    packed such that the value converted from the first element of `a` is \n    stored in the lower 4 bits of `dst` and the value converted from the second \n    element of `a` is stored in the upper 4 bits of `dst`.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.",
+    "description": "This Op converts each of the givenF16inputs in anf16x2 vector to the specified fp4 type.\n    The result `dst` is returned as an i8 type where the converted values are \n    packed such that the value converted from the first element of `a` is \n    stored in the lower 4 bits of `dst` and the value converted from the second \n    element of `a` is stored in the upper 4 bits of `dst`.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.",
     "operands": [
-      { "name": "src", "type": "VectorOfLengthAndType<[2]>" }
+      { "name": "src", "type": "VectorOfLengthAndType<[2]>" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "I8" }
@@ -33794,14 +33802,15 @@
       { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo) attr-dict\n    `:` type($src) `->` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$src (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($src) `->` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.f16x2.to.f6x2",
     "summary": "Convert an f16x2 input to f6x2",
-    "description": "This Op converts each of the givenF16inputs in anf16x2 vector to the specified fp6 type. The result `dst` is \n    represented either as an i16 type or as a vector of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from the first element of `a` is stored in the \n    lower 8 bits of `dst` with 2 MSB bits padded with zeros and the value \n    converted from the second element of `a` is stored in the upper 8 bits of \n    `dst` with 2 MSB bits padded with zeros.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector with 2 MSB bits padded with zeros.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.",
+    "description": "This Op converts each of the givenF16inputs in anf16x2 vector to the specified fp6 type. The result `dst` is \n    represented either as an i16 type or as a vector of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from the first element of `a` is stored in the \n    lower 8 bits of `dst` with 2 MSB bits padded with zeros and the value \n    converted from the second element of `a` is stored in the upper 8 bits of \n    `dst` with 2 MSB bits padded with zeros.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector with 2 MSB bits padded with zeros.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.",
     "operands": [
-      { "name": "src", "type": "VectorOfLengthAndType<[2]>" }
+      { "name": "src", "type": "VectorOfLengthAndType<[2]>" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "AnyTypeOf<[I16, VectorOfLengthAndType<[2], [I8]>]>" }
@@ -33812,25 +33821,27 @@
       { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$src oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo) attr-dict\n    `:` type($src) `->` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$src (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($src) `->` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.f16x2.to.f8x2",
     "summary": "Convert an f16x2 input to f8x2",
-    "description": "This Op converts the given f16 inputs in an f16x2 vector to the specified \n    f8 type.\n    The result `dst` is represented as an i16 type or as a vector\n    of two i8 types.\n    If `dst` is returned as an i16 type, the converted values from `a`\n    are packed such that the value converted from the first element of `a`\n    is stored in the upper 8 bits of `dst` and the value converted from the\n    second element of `a` is stored in the lower 8 bits of `dst`.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "This Op converts the given f16 inputs in an f16x2 vector to the specified \n    f8 type.\n    The result `dst` is represented as an i16 type or as a vector\n    of two i8 types.\n    If `dst` is returned as an i16 type, the converted values from `a`\n    are packed such that the value converted from the first element of `a`\n    is stored in the upper 8 bits of `dst` and the value converted from the\n    second element of `a` is stored in the lower 8 bits of `dst`.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` attribute specifies the rounding mode. Conversions to\n    `f8E4M3FN` and `f8E5M2` support `rn` and `rz`. Conversions to\n    `f8E5M3FNU` also support `rp`, except when a scale factor is present.\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction. `relu` and `pzo` are not\n    supported for conversions to `f8E5M3FNU`.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
-      { "name": "a", "type": "VectorOfLengthAndType<[2], [F16]>" }
+      { "name": "a", "type": "VectorOfLengthAndType<[2], [F16]>" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "AnyTypeOf<[I16, VectorOfLengthAndType<[2], [I8]>]>" }
     ],
     "attributes": [
+      { "name": "sat", "type": "DefaultValuedAttr<SaturationModeAttr{none|satfinite|sat}, SaturationMode::NONE>" },
       { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" },
       { "name": "dstTy", "type": "TypeAttr" },
-      { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
+      { "name": "rnd", "type": "DefaultValuedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$a oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo) attr-dict\n    `:` type($a) `->` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$a (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($a) `->` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.f32x2.to.bf16x2",
@@ -33875,10 +33886,11 @@
   {
     "name": "nvvm.convert.f32x2.to.f4x2",
     "summary": "Convert a pair of float inputs to f4x2",
-    "description": "This Op converts each of the given float inputs to the specified fp4 type.\n    The result `dst` is returned as an i8 type where the converted values are \n    packed such that the value converted from `a` is stored in the upper 4 bits \n    of `dst` and the value converted from `b` is stored in the lower 4 bits of \n    `dst`.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "This Op converts each of the given float inputs to the specified fp4 type.\n    The result `dst` is returned as an i8 type where the converted values are \n    packed such that the value converted from `a` is stored in the upper 4 bits \n    of `dst` and the value converted from `b` is stored in the lower 4 bits of \n    `dst`.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
       { "name": "a", "type": "F32" },
-      { "name": "b", "type": "F32" }
+      { "name": "b", "type": "F32" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "I8" }
@@ -33889,15 +33901,16 @@
       { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$a `,` $b oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo)\n    attr-dict `:` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$a `,` $b (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.f32x2.to.f6x2",
     "summary": "Convert a pair of float inputs to f6x2",
-    "description": "This Op converts each of the given float inputs to the specified fp6 type.\n    The result `dst` is represented either as an i16 type or as a vector\n    of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from `a` is stored in the upper 8 bits of `dst` \n    with 2 MSB bits padded with zeros and the value converted from `b` is \n    stored in the lower 8 bits of `dst` with 2 MSB bits padded with zeros.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "This Op converts each of the given float inputs to the specified fp6 type.\n    The result `dst` is represented either as an i16 type or as a vector\n    of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from `a` is stored in the upper 8 bits of `dst` \n    with 2 MSB bits padded with zeros and the value converted from `b` is \n    stored in the lower 8 bits of `dst` with 2 MSB bits padded with zeros.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` attribute specifies the rounding mode (`rn` or `rz`).\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
       { "name": "a", "type": "F32" },
-      { "name": "b", "type": "F32" }
+      { "name": "b", "type": "F32" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "AnyTypeOf<[I16, VectorOfLengthAndType<[2], [I8]>]>" }
@@ -33908,15 +33921,16 @@
       { "name": "rnd", "type": "DefaultValuedAttr<ConfinedAttr<FPRoundingModeAttr{none|rn|rm|rp|rz|rna|rs}, [ EnumAttrIsOneOf < FPRoundingModeAttr , [ FPRoundingModeRN , FPRoundingModeRZ ] > ]>, FPRoundingMode::RN>" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$a `,` $b oilist(`rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo)\n    attr-dict `:` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$a `,` $b (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.f32x2.to.f8x2",
     "summary": "Convert a pair of float inputs to f8x2",
-    "description": "This Op converts each of the given float inputs to the specified fp8 type.\n    The result `dst` is represented as an i16 type or as a vector\n    of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from `a` is stored in the upper 8 bits of `dst` \n    and the value converted from `b` is stored in the lower 8 bits of `dst`.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` and `sat` attributes specify the rounding and saturation modes respectively.\n    Conversions to `f8E4M3FN` and `f8E5M2` support `rn` and `rz` rounding.\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction. `pzo` is not supported for\n    conversions to `f8E8M0FNU`.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
+    "description": "This Op converts each of the given float inputs to the specified fp8 type.\n    The result `dst` is represented as an i16 type or as a vector\n    of two i8 types.\n    If `dst` is returned as an i16 type, the converted values are packed such \n    that the value converted from `a` is stored in the upper 8 bits of `dst` \n    and the value converted from `b` is stored in the lower 8 bits of `dst`.\n    If `dst` is returned as a vector type, each converted value is stored as an \n    i8 element in the vector.\n    The `rnd` and `sat` attributes specify the rounding and saturation modes respectively.\n    Conversions to `f8E4M3FN` and `f8E5M2` support `rn` and `rz` rounding.\n    The `relu` attribute, when set, lowers to the '.relu' variant of\n    the cvt instruction. The `pzo` attribute, when set, lowers to the\n    '.pzo' variant of the cvt instruction. `pzo` is not supported for\n    conversions to `f8E8M0FNU` or `f8E5M3FNU`.\n    The optional `scale_factor` operand is an i8 `ue8m0` scale.\n    Scaled conversions to `f8E5M3FNU` support `rn` and `rz` only.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cvt)",
     "operands": [
       { "name": "a", "type": "F32" },
-      { "name": "b", "type": "F32" }
+      { "name": "b", "type": "F32" },
+      { "name": "scale_factor", "type": "Optional<I8>" }
     ],
     "results": [
       { "name": "dst", "type": "AnyTypeOf<[I16, VectorOfLengthAndType<[2], [I8]>]>" }
@@ -33928,7 +33942,7 @@
       { "name": "dstTy", "type": "TypeAttr" },
       { "name": "pzo", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$a `,` $b oilist(\n      `rnd` `=` $rnd | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($dst) `(` $dstTy `)`"
+    "assemblyFormat": "$a `,` $b (`,` $scale_factor^)? oilist(\n      `rnd` `=` $rnd | `sat` `=` $sat | `relu` `=` $relu | `pzo` `=` $pzo\n    ) attr-dict `:` type($dst) `(` $dstTy `)`"
   },
   {
     "name": "nvvm.convert.f32x2.to.s2f6x2",
@@ -34078,7 +34092,7 @@
       { "name": "dst", "type": "VectorOfLengthAndType<[2]>" }
     ],
     "attributes": [
-      { "name": "srcType", "type": "TypeAttrOf<AnyTypeOf<[F8E8M0FNU, F8E4M3FN, F8E5M2]>>" },
+      { "name": "srcType", "type": "TypeAttrOf<AnyTypeOf<[F8E8M0FNU, F8E4M3FN, F8E5M2, F8E5M3FNU]>>" },
       { "name": "sat", "type": "DefaultValuedAttr<ConfinedAttr<SaturationModeAttr{none|satfinite|sat}, [EnumAttrIsOneOf<SaturationModeAttr{none|satfinite|sat}, [SaturationModeNone, SaturationModeFinite]>]>, SaturationMode::NONE>" },
       { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
@@ -34095,7 +34109,7 @@
       { "name": "dst", "type": "VectorOfLengthAndType<[2]>" }
     ],
     "attributes": [
-      { "name": "srcType", "type": "TypeAttrOf<AnyTypeOf<[F8E4M3FN, F8E5M2]>>" },
+      { "name": "srcType", "type": "TypeAttrOf<AnyTypeOf<[F8E4M3FN, F8E5M2, F8E5M3FNU]>>" },
       { "name": "relu", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
     "assemblyFormat": "$src oilist(`relu` `=` $relu) attr-dict `:` type($src) `(` $srcType `)` `->` type($dst)"
@@ -34624,7 +34638,7 @@
       { "name": "num", "type": "I32Attr" },
       { "name": "layout", "type": "MMALayoutAttr{row|col}" },
       { "name": "shape", "type": "LdStMatrixShapeAttr" },
-      { "name": "eltType", "type": "LdStMatrixEltTypeAttr{b16|b8|b8x16.b6x16_p32|b8x16.b4x16_p64}" }
+      { "name": "eltType", "type": "LdStMatrixEltTypeAttr{b16|b8|b8x16.b6x16_p32|b8x16.b4x16_p64|s8.s4}" }
     ],
     "traits": [
       { "type": "InferTypeOpInterface" }
@@ -34682,10 +34696,11 @@
   {
     "name": "nvvm.mbarrier.arrive",
     "summary": "MBarrier Arrive Operation",
-    "description": "The `nvvm.mbarrier.arrive` operation performs an arrive-on operation on the \n    *mbarrier object* at the specified address. Uses the default `.release.cta` semantics. \n    This release pattern establishes memory ordering for operations occurring in program \n    order before this arrive instruction by making operations from the current thread \n    visible to subsequent operations in other threads within the CTA. When other threads \n    perform corresponding acquire operations (like 'mbarrier.test.wait'), they synchronize \n    with this release pattern.\n\n    This operation causes the executing thread to signal its arrival at the barrier.\n\n    - `res`: When the `space` is not shared_cluster, this operation returns an\n      opaque 64-bit value capturing the phase of the *mbarrier object* prior to\n      the arrive-on operation. The contents of this return value are\n      implementation-specific. An *mbarrier object* located in the shared_cluster\n      space cannot return a value.\n\n    The operation takes the following operands:\n    - `addr`: A pointer to the memory location of the *mbarrier object*. The `addr`\n      must be a pointer to generic or shared_cta or shared_cluster memory. When it\n      is generic, the underlying address must be within the shared_cta memory space;\n      otherwise the behavior is undefined.\n    - `count`: This specifies the amount by which the pending arrival count is\n      decremented. If the `count` argument is not specified, the pending arrival\n      count is decremented by 1.\n    - `scope`: This specifies the set of threads that directly observe the memory\n      synchronizing effect of the `mbarrier.arrive` operation.\n    - `space`: This indicates the memory space where the mbarrier object resides.\n    - `relaxed`: When set to true, the `arrive` operation has relaxed memory semantics\n      and does not provide any ordering or visibility guarantees.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive)",
+    "description": "The `nvvm.mbarrier.arrive` operation performs an arrive-on operation on the \n    *mbarrier object* at the specified address. Uses the default `.release.cta` semantics. \n    This release pattern establishes memory ordering for operations occurring in program \n    order before this arrive instruction by making operations from the current thread \n    visible to subsequent operations in other threads within the CTA. When other threads \n    perform corresponding acquire operations (like 'mbarrier.test.wait'), they synchronize \n    with this release pattern.\n\n    This operation causes the executing thread to signal its arrival at the barrier.\n\n    - `res`: When the `space` is not shared_cluster, this operation returns an\n      opaque 64-bit value capturing the phase of the *mbarrier object* prior to\n      the arrive-on operation. The contents of this return value are\n      implementation-specific. An *mbarrier object* located in the shared_cluster\n      space cannot return a value.\n\n    The operation takes the following operands:\n    - `addr`: A pointer to the memory location of the *mbarrier object*. The `addr`\n      must be a pointer to generic or shared_cta or shared_cluster memory. When it\n      is generic, the underlying address must be within the shared_cta memory space;\n      otherwise the behavior is undefined.\n    - `count`: This specifies the amount by which the pending arrival count is\n      decremented. If the `count` argument is not specified, the pending arrival\n      count is decremented by 1.\n    - `scope`: This specifies the set of threads that directly observe the memory\n      synchronizing effect of the `mbarrier.arrive` operation.\n    - `space`: This indicates the memory space where the mbarrier object resides.\n    - `relaxed`: When set to true, the `arrive` operation has relaxed memory semantics\n      and does not provide any ordering or visibility guarantees.\n\n    When `multicastMask` is present, the operation updates the barrier at the\n    same shared-memory offset in each CTA selected by the 32-bit mask. The\n    `addr` must be in shared::cluster space. Both CTA and cluster scopes are\n    supported. Omitting the mask preserves the non-multicast behavior.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerGeneric, LLVM_PointerShared, LLVM_PointerSharedCluster]>" },
-      { "name": "count", "type": "Optional<I32>" }
+      { "name": "count", "type": "Optional<I32>" },
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "results": [
       { "name": "res", "type": "Optional<I64>" }
@@ -34694,15 +34709,19 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr (`,` $count^)? oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "$addr (`,` $count^)? (`multicast_mask` `=` $multicastMask^)?\n    oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive_drop",
     "summary": "MBarrier Arrive-Drop Operation",
-    "description": "The `nvvm.mbarrier.arrive_drop` operation decrements the expected arrival\n    count of the *mbarrier object* by `count` and then performs an arrive-on\n    operation. When `count` is not specified, it defaults to 1. The decrement\n    of the expected arrival count applies to all the subsequent phases of the\n    *mbarrier object*. The remaining semantics are identical to those of the\n    `nvvm.mbarrier.arrive` operation.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive-drop)",
+    "description": "The `nvvm.mbarrier.arrive_drop` operation decrements the expected arrival\n    count of the *mbarrier object* by `count` and then performs an arrive-on\n    operation. When `count` is not specified, it defaults to 1. The decrement\n    of the expected arrival count applies to all the subsequent phases of the\n    *mbarrier object*. The remaining semantics are identical to those of the\n    `nvvm.mbarrier.arrive` operation.\n\n    When `multicastMask` is present, the operation updates the barrier at the\n    same shared-memory offset in each CTA selected by the 32-bit mask. The\n    `addr` must be in shared::cluster space. Both CTA and cluster scopes are\n    supported. Omitting the mask preserves the non-multicast behavior.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive-drop)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerGeneric, LLVM_PointerShared, LLVM_PointerSharedCluster]>" },
-      { "name": "count", "type": "Optional<I32>" }
+      { "name": "count", "type": "Optional<I32>" },
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "results": [
       { "name": "res", "type": "Optional<I64>" }
@@ -34711,15 +34730,19 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr (`,` $count^)? oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "$addr (`,` $count^)? (`multicast_mask` `=` $multicastMask^)?\n    oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type($addr)\n    (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive_drop.expect_tx",
     "summary": "MBarrier arrive_drop with expected transaction count",
-    "description": "The `nvvm.mbarrier.arrive_drop.expect_tx` operation is similar to the\n    `nvvm.mbarrier.arrive.expect_tx` operation except that it performs an\n    `arrive_drop` operation instead of only an `arrive` operation.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive-drop)",
+    "description": "The `nvvm.mbarrier.arrive_drop.expect_tx` operation is similar to the\n    `nvvm.mbarrier.arrive.expect_tx` operation except that it performs an\n    `arrive_drop` operation instead of only an `arrive` operation.\n\n    When `multicastMask` is present, the operation updates the barrier at the\n    same shared-memory offset in each CTA selected by the 32-bit mask. The\n    `addr` must be in shared::cluster space. Both CTA and cluster scopes are\n    supported. Omitting the mask preserves the non-multicast behavior.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive-drop)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerGeneric, LLVM_PointerShared, LLVM_PointerSharedCluster]>" },
-      { "name": "txcount", "type": "I32" }
+      { "name": "txcount", "type": "I32" },
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "results": [
       { "name": "res", "type": "Optional<I64>" }
@@ -34728,7 +34751,7 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands)\n    (`->` type($res)^)?"
+    "assemblyFormat": "$addr `,` $txcount (`multicast_mask` `=` $multicastMask^)?\n    oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands)\n    (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive_drop.nocomplete",
@@ -34746,10 +34769,11 @@
   {
     "name": "nvvm.mbarrier.arrive.expect_tx",
     "summary": "MBarrier Arrive with Expected Transaction Count",
-    "description": "The `nvvm.mbarrier.arrive.expect_tx` operation performs an expect-tx operation \n    followed by an arrive-on operation on the *mbarrier object*. Uses the default \n    `.release.cta` semantics. This release pattern establishes memory ordering for \n    operations occurring in program order before this arrive instruction by making \n    operations from the current thread visible to subsequent operations in other \n    threads within the CTA. When other threads perform corresponding acquire operations \n    (like 'mbarrier.test.wait'), they synchronize with this release pattern.\n\n    This operation first performs an expect-tx operation with the specified transaction\n    count, then performs an arrive-on operation with an implicit count of 1. The\n    expect-tx operation increases the expect-count of the *mbarrier object* by the\n    specified value (i.e. `txcount`), setting the current phase to expect and track\n    the completion of additional asynchronous transactions.\n\n    The operation takes the following operands:\n    - `addr`: A pointer to the memory location of the *mbarrier object*. Uses generic \n      addressing, but the address must still be in the shared memory space.\n    - `txcount`: An unsigned integer specifying the expected transaction count \n      for the expect-tx operation. This represents the number of asynchronous transactions \n      expected to complete before the barrier phase completes.\n    - `scope`: This specifies the set of threads that directly observe the memory\n      synchronizing effect of the `mbarrier.test.wait` operation.\n    - `relaxed`: When set to true, the `arrive` operation has relaxed memory semantics\n      and does not provide any ordering or visibility guarantees.\n    - `predicate`: Optional predicate for conditional execution used only when lowering to\n      inline-ptx.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive-drop)",
+    "description": "The `nvvm.mbarrier.arrive.expect_tx` operation performs an expect-tx operation \n    followed by an arrive-on operation on the *mbarrier object*. Uses the default \n    `.release.cta` semantics. This release pattern establishes memory ordering for \n    operations occurring in program order before this arrive instruction by making \n    operations from the current thread visible to subsequent operations in other \n    threads within the CTA. When other threads perform corresponding acquire operations \n    (like 'mbarrier.test.wait'), they synchronize with this release pattern.\n\n    This operation first performs an expect-tx operation with the specified transaction\n    count, then performs an arrive-on operation with an implicit count of 1. The\n    expect-tx operation increases the expect-count of the *mbarrier object* by the\n    specified value (i.e. `txcount`), setting the current phase to expect and track\n    the completion of additional asynchronous transactions.\n\n    The operation takes the following operands:\n    - `addr`: A pointer to the memory location of the *mbarrier object*. Uses generic \n      addressing, but the address must still be in the shared memory space.\n    - `txcount`: An unsigned integer specifying the expected transaction count \n      for the expect-tx operation. This represents the number of asynchronous transactions \n      expected to complete before the barrier phase completes.\n    - `scope`: This specifies the set of threads that directly observe the memory\n      synchronizing effect of the `mbarrier.test.wait` operation.\n    - `relaxed`: When set to true, the `arrive` operation has relaxed memory semantics\n      and does not provide any ordering or visibility guarantees.\n    - `predicate`: Optional predicate for conditional execution used only when lowering to\n      inline-ptx.\n\n    When `multicastMask` is present, the operation updates the barrier at the\n    same shared-memory offset in each CTA selected by the 32-bit mask. The\n    `addr` must be in shared::cluster space. Both CTA and cluster scopes are\n    supported. Omitting the mask preserves the non-multicast behavior.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-arrive-drop)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerGeneric, LLVM_PointerShared, LLVM_PointerSharedCluster]>" },
       { "name": "txcount", "type": "I32" },
+      { "name": "multicastMask", "type": "Optional<I32>" },
       { "name": "predicate", "type": "Optional<I1>" }
     ],
     "results": [
@@ -34759,7 +34783,10 @@
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" },
       { "name": "relaxed", "type": "DefaultValuedAttr<BoolAttr, false>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount (`,` `predicate` `=` $predicate^)?\n    oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands) (`->` type($res)^)?"
+    "traits": [
+      { "type": "AttrSizedOperandSegments" }
+    ],
+    "assemblyFormat": "$addr `,` $txcount (`,` `predicate` `=` $predicate^)?\n    (`multicast_mask` `=` $multicastMask^)?\n    oilist(`scope` `=` enum($scope) | `relaxed` `=` $relaxed)\n    attr-dict `:` type(operands) (`->` type($res)^)?"
   },
   {
     "name": "nvvm.mbarrier.arrive.nocomplete",
@@ -34792,28 +34819,30 @@
   {
     "name": "nvvm.mbarrier.complete_tx",
     "summary": "MBarrier complete-tx Operation",
-    "description": "The `nvvm.mbarrier.complete_tx` operation decrements the transaction\n    count of the *mbarrier object* at `addr` by `txcount`. It also signals\n    the completion of asynchronous transactions that were tracked by the\n    current phase. The `scope` specifies the set of threads that can directly\n    observe the memory synchronizing effect of the `mbarrier.complete_tx`\n    operation. `CTA` and `CLUSTER` are the only allowed values for `scope`.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-complete-tx)",
+    "description": "The `nvvm.mbarrier.complete_tx` operation decrements the transaction\n    count of the *mbarrier object* at `addr` by `txcount`. It also signals\n    the completion of asynchronous transactions that were tracked by the\n    current phase. The `scope` specifies the set of threads that can directly\n    observe the memory synchronizing effect of the `mbarrier.complete_tx`\n    operation. `CTA` and `CLUSTER` are the only allowed values for `scope`.\n\n    When `multicastMask` is present, the operation updates the barrier at the\n    same shared-memory offset in each CTA selected by the 32-bit mask. The\n    `addr` must be in shared::cluster space. Both CTA and cluster scopes are\n    supported. Omitting the mask preserves the non-multicast behavior.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-complete-tx)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerShared, LLVM_PointerSharedCluster]>" },
-      { "name": "txcount", "type": "I32" }
+      { "name": "txcount", "type": "I32" },
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "attributes": [
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` enum($scope)) attr-dict `:` type(operands)"
+    "assemblyFormat": "$addr `,` $txcount (`multicast_mask` `=` $multicastMask^)?\n    oilist(`scope` `=` enum($scope)) attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.mbarrier.expect_tx",
     "summary": "MBarrier expect-tx Operation",
-    "description": "The `nvvm.mbarrier.expect_tx` operation increases the transaction count\n    of the mbarrier located at `addr` by `txcount` amount. The `scope`\n    specifies the set of threads that can directly observe the memory\n    synchronizing effect of the `mbarrier.expect_tx` operation. `CTA`\n    and `CLUSTER` are the only allowed values for `scope`.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-expect-tx)",
+    "description": "The `nvvm.mbarrier.expect_tx` operation increases the transaction count\n    of the mbarrier located at `addr` by `txcount` amount. The `scope`\n    specifies the set of threads that can directly observe the memory\n    synchronizing effect of the `mbarrier.expect_tx` operation. `CTA`\n    and `CLUSTER` are the only allowed values for `scope`.\n\n    When `multicastMask` is present, the operation updates the barrier at the\n    same shared-memory offset in each CTA selected by the 32-bit mask. The\n    `addr` must be in shared::cluster space. Both CTA and cluster scopes are\n    supported. Omitting the mask preserves the non-multicast behavior.\n\n    [For more information, see PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-expect-tx)",
     "operands": [
       { "name": "addr", "type": "AnyTypeOf<[LLVM_PointerShared, LLVM_PointerSharedCluster]>" },
-      { "name": "txcount", "type": "I32" }
+      { "name": "txcount", "type": "I32" },
+      { "name": "multicastMask", "type": "Optional<I32>" }
     ],
     "attributes": [
       { "name": "scope", "type": "DefaultValuedAttr<MemScopeKindAttr{cta|cluster|gpu|sys}, MemScopeKind::CTA>" }
     ],
-    "assemblyFormat": "$addr `,` $txcount oilist(`scope` `=` enum($scope)) attr-dict `:` type(operands)"
+    "assemblyFormat": "$addr `,` $txcount (`multicast_mask` `=` $multicastMask^)?\n    oilist(`scope` `=` enum($scope)) attr-dict `:` type(operands)"
   },
   {
     "name": "nvvm.mbarrier.init",
@@ -35024,7 +35053,7 @@
     "attributes": [
       { "name": "shape", "type": "LdStMatrixShapeAttr" },
       { "name": "layout", "type": "DefaultValuedAttr<MMALayoutAttr{row|col}, MMALayout::col>" },
-      { "name": "eltType", "type": "LdStMatrixEltTypeAttr{b16|b8|b8x16.b6x16_p32|b8x16.b4x16_p64}" }
+      { "name": "eltType", "type": "LdStMatrixEltTypeAttr{b16|b8|b8x16.b6x16_p32|b8x16.b4x16_p64|s8.s4}" }
     ],
     "assemblyFormat": "$src `,` `shape` `=` $shape\n    `,` `element_type` `=` $eltType\n    (`,` `layout` `=` $layout^)?\n    attr-dict `:` type($src)"
   },
@@ -35944,7 +35973,7 @@
     "attributes": [
       { "name": "layout", "type": "MMALayoutAttr{row|col}" },
       { "name": "shape", "type": "LdStMatrixShapeAttr" },
-      { "name": "eltType", "type": "LdStMatrixEltTypeAttr{b16|b8|b8x16.b6x16_p32|b8x16.b4x16_p64}" }
+      { "name": "eltType", "type": "LdStMatrixEltTypeAttr{b16|b8|b8x16.b6x16_p32|b8x16.b4x16_p64|s8.s4}" }
     ],
     "assemblyFormat": "$ptr `,` $sources `layout` `=` $layout\n    `,` `shape` `=` $shape\n    `,` `element_type` `=` $eltType\n    attr-dict `:` type(operands)"
   },
@@ -37200,7 +37229,7 @@
   {
     "name": "omp.map.bounds",
     "summary": "Represents normalized bounds information for map clauses.",
-    "description": "This operation is a variation on the OpenACC dialects DataBoundsOp. Within\n    the OpenMP dialect it stores the bounds/range of data to be mapped to a\n    device specified by map clauses on target directives. Within\n    the OpenMP dialect, the MapBoundsOp is associated with MapInfoOp,\n    helping to store bounds information for the mapped variable.\n\n    It is used to support OpenMP array sectioning, Fortran pointer and\n    allocatable mapping and pointer/allocatable member of derived types.\n    In all cases the MapBoundsOp holds information on the section of\n    data to be mapped. Such as the upper bound and lower bound of the\n    section of data to be mapped. This information is currently\n    utilised by the LLVM-IR lowering to help generate instructions to\n    copy data to and from the device when processing target operations.\n\n    The example below copys a section of a 10-element array; all except the\n    first element, utilising OpenMP array sectioning syntax where array\n    subscripts are provided to specify the bounds to be mapped to device.\n    To simplify the examples, the constants are used directly, in reality\n    they will be MLIR SSA values.\n\n    C++:\n    ```\n    int array[10];\n    #pragma target map(array[1:9])\n    ```\n    =>\n    ```mlir\n    omp.map.bounds lower_bound(1) upper_bound(9) extent(9) start_idx(0)\n    ```\n\n    Fortran:\n    ```\n    integer :: array(1:10)\n    !$target map(array(2:10))\n    ```\n    =>\n    ```mlir\n    omp.map.bounds lower_bound(1) upper_bound(9) extent(9) start_idx(1)\n    ```\n\n    For Fortran pointers and allocatables (as well as those that are\n    members of derived types) the bounds information is provided by\n    the Fortran compiler and runtime through descriptor information.\n\n    A basic pointer example can be found below (constants again\n    provided for simplicity, where in reality SSA values will be\n    used, in this case that point to data yielded by Fortran's\n    descriptors):\n\n    Fortran:\n    ```\n    integer, pointer :: ptr(:)\n    allocate(ptr(10))\n    !$target map(ptr)\n    ```\n    =>\n    ```mlir\n    omp.map.bounds lower_bound(0) upper_bound(9) extent(10) start_idx(1)\n    ```\n\n    This operation records the bounds information in a normalized fashion\n    (zero-based). This works well with the `PointerLikeType`\n    requirement in data clauses - since a `lower_bound` of 0 means looking\n    at data at the zero offset from pointer.\n\n    This operation must have an `upper_bound` or `extent` (or both are allowed -\n    but not checked for consistency). When the source language's arrays are\n    not zero-based, the `start_idx` must specify the zero-position index.",
+    "description": "This operation is a variation on the OpenACC dialects DataBoundsOp. Within\n    the OpenMP dialect it stores the bounds/range of data to be mapped to a\n    device specified by map clauses on target directives. Within\n    the OpenMP dialect, the MapBoundsOp is associated with MapInfoOp,\n    helping to store bounds information for the mapped variable.\n\n    It is used to support OpenMP array sectioning, Fortran pointer and\n    allocatable mapping and pointer/allocatable member of derived types.\n    In all cases the MapBoundsOp holds information on the section of\n    data to be mapped. Such as the upper bound and lower bound of the\n    section of data to be mapped. This information is currently\n    utilised by the LLVM-IR lowering to help generate instructions to\n    copy data to and from the device when processing target operations.\n\n    The example below copys a section of a 10-element array; all except the\n    first element, utilising OpenMP array sectioning syntax where array\n    subscripts are provided to specify the bounds to be mapped to device.\n    To simplify the examples, the constants are used directly, in reality\n    they will be MLIR SSA values.\n\n    C++:\n    ```\n    int array[10];\n    #pragma target map(array[1:9])\n    ```\n    =>\n    ```mlir\n    omp.map.bounds lower_bound(1) upper_bound(9) extent(9) start_idx(0)\n    ```\n\n    Fortran:\n    ```\n    integer :: array(1:10)\n    !$target map(array(2:10))\n    ```\n    =>\n    ```mlir\n    omp.map.bounds lower_bound(1) upper_bound(9) extent(9) start_idx(1)\n    ```\n\n    For Fortran pointers and allocatables (as well as those that are\n    members of derived types) the bounds information is provided by\n    the Fortran compiler and runtime through descriptor information.\n\n    A basic pointer example can be found below (constants again\n    provided for simplicity, where in reality SSA values will be\n    used, in this case that point to data yielded by Fortran's\n    descriptors):\n\n    Fortran:\n    ```\n    integer, pointer :: ptr(:)\n    allocate(ptr(10))\n    !$target map(ptr)\n    ```\n    =>\n    ```mlir\n    omp.map.bounds lower_bound(0) upper_bound(9) extent(10) start_idx(1)\n    ```\n\n    This operation records the bounds information in a normalized fashion\n    (zero-based). This works well with the `PointerLikeType`\n    requirement in data clauses - since a `lower_bound` of 0 means looking\n    at data at the zero offset from pointer.\n\n    For target-update translation, bounds are ordered from fastest to slowest\n    varying dimension. With `stride_in_bytes`, `stride` is the byte distance\n    between adjacent elements of that source dimension, including any faster\n    varying dimensions. Otherwise strides are measured in scalar elements.\n    When the mapped type is a nested LLVM array, translation reconstructs the\n    physical element strides from its complete shape; this also supports\n    existing static-array bounds that carry unit strides. When only the scalar\n    element type is available, each explicit element stride must already\n    include the complete source extents of faster varying dimensions. Selected\n    section lengths must not replace those source extents when computing a\n    physical stride. Explicit byte strides take precedence over the type shape.\n\n    This operation must have an `upper_bound` or `extent` (or both are allowed -\n    but not checked for consistency). When the source language's arrays are\n    not zero-based, the `start_idx` must specify the zero-position index.",
     "operands": [
       { "name": "lower_bound", "type": "Optional<IntLikeType>" },
       { "name": "upper_bound", "type": "Optional<IntLikeType>" },
@@ -54300,7 +54329,7 @@
   {
     "name": "spirv.Constant",
     "summary": "Declare a new integer-type or floating-point-type scalar constant.",
-    "description": "This op declares a SPIR-V normal constant. SPIR-V has multiple constant\n    instructions covering different constant types:\n\n    * `OpConstantTrue` and `OpConstantFalse` for boolean constants\n    * `OpConstant` for scalar constants\n    * `OpConstantComposite` for composite constants\n    * `OpConstantNull` for null constants\n    * ...\n\n    Having such a plethora of constant instructions renders IR transformations\n    more tedious. Therefore, we use a single `spirv.Constant` op to represent\n    them all. Note that conversion between those SPIR-V constant instructions\n    and this op is purely mechanical; so it can be scoped to the binary\n    (de)serialization process.\n\n    <!-- End of AutoGen section -->\n\n    ```\n    spirv.Constant-op ::= ssa-id `=` `spirv.Constant` attribute-value\n                        (`:` spirv-type)?\n    ```\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.Constant true\n    %1 = spirv.Constant dense<[2.0, 3.0]> : vector<2xf32>\n    %2 = spirv.Constant [dense<3.0> : vector<2xf32>] : !spirv.array<1xvector<2xf32>>\n    ```\n\n    TODO: support constant structs",
+    "description": "This op declares a SPIR-V normal constant. SPIR-V has multiple constant\n    instructions covering different constant types:\n\n    * `OpConstantTrue` and `OpConstantFalse` for boolean constants\n    * `OpConstant` for scalar constants\n    * `OpConstantComposite` for composite constants\n    * `OpConstantNull` for null constants\n    * ...\n\n    Having such a plethora of constant instructions renders IR transformations\n    more tedious. Therefore, we use a single `spirv.Constant` op to represent\n    them all. Note that conversion between those SPIR-V constant instructions\n    and this op is purely mechanical; so it can be scoped to the binary\n    (de)serialization process.\n\n    <!-- End of AutoGen section -->\n\n    ```\n    spirv.Constant-op ::= ssa-id `=` `spirv.Constant` attribute-value\n                        (`:` spirv-type)?\n    ```\n\n    #### Example:\n\n    ```mlir\n    %0 = spirv.Constant true\n    %1 = spirv.Constant dense<[2.0, 3.0]> : vector<2xf32>\n    %2 = spirv.Constant [dense<3.0> : vector<2xf32>] : !spirv.array<1xvector<2xf32>>\n    %3 = spirv.Constant #spirv.null : !spirv.ptr<i32, CrossWorkgroup>\n    ```\n\n    TODO: support constant structs",
     "results": [
       { "name": "constant", "type": "SPIRV_Type" }
     ],
@@ -84655,10 +84684,10 @@
     "summary": "Logistic operator",
     "description": "Computes element-wise Sigmoid of input",
     "operands": [
-      { "name": "x", "type": "TFL_TensorOf<[F32, QI8, QUI8, QI16, TFL_Quint8]>" }
+      { "name": "x", "type": "TFL_TensorOf<[F32, F16, QI8, QUI8, QI16, TFL_Quint8]>" }
     ],
     "results": [
-      { "name": "y", "type": "TFL_TensorOf<[F32, QI8, QUI8, QI16, TFL_Quint8]>" }
+      { "name": "y", "type": "TFL_TensorOf<[F32, F16, QI8, QUI8, QI16, TFL_Quint8]>" }
     ]
   },
   {
@@ -117996,6 +118025,33 @@
     "assemblyFormat": "$src attr-dict  (`,` `rounding` `=` $rounding^)? `:` type($src) `->` type($result)"
   },
   {
+    "name": "tt.fpsan_barrier",
+    "summary": "Mark an expression boundary for floating-point sanitization",
+    "description": "Apply a deterministic, non-homomorphic transformation to the input's\n        FPSan payload. This makes the placement of the boundary observable\n        without changing the input's shape, element type, or layout.\n\n        The frontend emits this operation only when FPSan is enabled. It is\n        neither a synchronization barrier nor a floating-point rounding mode.",
+    "operands": [
+      { "name": "input", "type": "TT_FloatLike" }
+    ],
+    "results": [
+      { "name": "result", "type": "TT_FloatLike" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$input attr-dict `:` type($input)"
+  },
+  {
+    "name": "tt.fpsan_homomorphic_cast",
+    "summary": "Project an FPSan payload into a same-width or narrower ring",
+    "description": "Preserve the low bits of the input's FPSan payload in the destination\n        floating-point type. Unlike an ordinary FPSan downcast, this operation\n        preserves addition and multiplication. Widening is not supported.\n\n        The frontend emits this operation only when FPSan is enabled.",
+    "operands": [
+      { "name": "input", "type": "TT_FloatLike" }
+    ],
+    "results": [
+      { "name": "result", "type": "TT_FloatLike" }
+    ],
+    "assemblyFormat": "$input attr-dict `:` type($input) `->` type($result)"
+  },
+  {
     "name": "tt.func",
     "summary": "An operation with a name containing a single `SSACFG` region",
     "description": "Operations within the function cannot implicitly capture values defined\n    outside of the function, i.e. Functions are `IsolatedFromAbove`. All\n    external references must use function arguments or attributes that establish\n    a symbolic connection (e.g. symbols referenced by name via a string\n    attribute like SymbolRefAttr). An external function declaration (used when\n    referring to a function declared in some other module) has no body. While\n    the MLIR textual form provides a nice inline syntax for function arguments,\n    they are internally represented as “block arguments” to the first block in\n    the region.\n\n    Only dialect attribute names may be specified in the attribute dictionaries\n    for function arguments, results, or the function itself.\n\n    Example:\n\n    ```mlir\n    // External function definitions.\n    tt.func @abort()\n    tt.func @scribble(i32, i64, memref<? x 128 x f32, #layout_map0>) -> f64\n\n    // A function that returns its argument twice:\n    tt.func @count(%x: i64) -> (i64, i64)\n      attributes {fruit: \"banana\"} {\n      return %x, %x: i64, i64\n    }\n\n    // A function with an argument attribute\n    tt.func @example_fn_arg(%x: i32 {swift.self = unit})\n\n    // A function with a result attribute\n    tt.func @example_fn_result() -> (f64 {dialectName.attrName = 0 : i64})\n\n    // A function with an attribute\n    tt.func @example_fn_attr() attributes {dialectName.attrName = false}\n    ```",
@@ -118178,7 +118234,7 @@
   {
     "name": "tt.map_elementwise",
     "summary": "Map a scalar subregion over a tensor",
-    "description": "The scalar function and its callees may contain memory-effect-free\n      operations, `llvm.intr.assume`, `tt.assert`, and `tt.print`.",
+    "description": "The scalar function and its callees may contain memory-effect-free\n      operations, `llvm.intr.assume`, `tt.assert`, and `tt.print`.\n      These operations must lower without shared-memory scratch.",
     "operands": [
       { "name": "srcs", "type": "Variadic<TT_Tensor>" }
     ],
@@ -118275,7 +118331,7 @@
   {
     "name": "tt.reduce",
     "summary": "Reduction using generic combination algorithm",
-    "description": "The combiner and its callees may contain memory-effect-free operations,\n      `llvm.intr.assume`, `tt.assert`, and `tt.print`.",
+    "description": "The combiner and its callees may contain memory-effect-free operations,\n      `llvm.intr.assume`, `tt.assert`, and `tt.print`.\n      These operations must lower without shared-memory scratch.",
     "operands": [
       { "name": "srcs", "type": "Variadic<TT_Tensor>" }
     ],
@@ -118324,7 +118380,7 @@
   {
     "name": "tt.scan",
     "summary": "Associative scan using generic combination algorithm",
-    "description": "The combiner and its callees may contain memory-effect-free operations,\n      `llvm.intr.assume`, `tt.assert`, and `tt.print`.",
+    "description": "The combiner and its callees may contain memory-effect-free operations,\n      `llvm.intr.assume`, `tt.assert`, and `tt.print`.\n      These operations must lower without shared-memory scratch.",
     "operands": [
       { "name": "srcs", "type": "Variadic<TT_Tensor>" }
     ],
@@ -141450,13 +141506,15 @@
   {
     "name": "xtile.entry_func",
     "summary": "My custom entry function operation",
-    "description": "This operation defines a custom entry function that is the starting\n    point for execution. It has a single-block region, takes a\n    variadic list of memrefs and exactly one tile id index arguments,\n    it has no return values.",
+    "description": "This operation defines a custom entry function that is the starting\n    point for execution. It has a single-block region, takes a\n    variadic list of memrefs and exactly one tile id index arguments,\n    it has no return values.\n\n    Multi-GPU collective kernels can also take peer scratch buffers, a peer\n    signal buffer, and this device's rank right before `tile_id`:\n      `(io_buffers..., scratch_buffers..., signal_buffer, rank, tile_id)`\n    For example, on 2 GPUs with 1 input, 1 output, and 1 scratch table:\n      `(%in: memref<8xf32>, %out: memref<8xf32>, %scratch: memref<2xi64>, %signal: memref<2xi64>, %rank: index, %tile_id: index)`\n    Here `%scratch` and `%signal` are `memref<2xi64>` tables holding one\n    64-bit device address per GPU. `signal_buffer` and `rank` always come\n    together, and `scratch_buffers` are only allowed when both are present.",
     "attributes": [
       { "name": "sym_name", "type": "SymbolNameAttr" },
       { "name": "function_type", "type": "TypeAttrOf<FunctionType>" },
       { "name": "arg_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
       { "name": "res_attrs", "type": "OptionalAttr<TypedArrayAttrBase<DictionaryAttr>>" },
-      { "name": "num_opaque_args", "type": "DefaultValuedAttr<I32Attr, 0>" },
+      { "name": "num_scratch_buffers", "type": "OptionalAttr<I32Attr>" },
+      { "name": "has_signal_buffer", "type": "UnitAttr" },
+      { "name": "has_rank", "type": "UnitAttr" },
       { "name": "sym_visibility", "type": "OptionalAttr<StrAttr>" }
     ],
     "regions": [

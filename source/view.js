@@ -4327,6 +4327,7 @@ view.TensorView = class extends view.Expander {
                     case 'float8e8m0': data_type = 'float16'; break;
                     case 'int4': data_type = 'int8'; break;
                     case 'int48': data_type = 'int64'; break;
+                    case 'mxi8': data_type = 'float16'; break;
                     case 'quint8': data_type = 'uint8'; break;
                     default: data_type = tensor.type.dataType; break;
                 }

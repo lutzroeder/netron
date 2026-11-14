@@ -701,6 +701,9 @@ mlir.Tensor = class {
                 }
                 values = data;
             }
+            if (this.encoding === '|' && type.dataType === 'mxi8') {
+                values = values.map((value) => value / 64);
+            }
             this.values = values;
         }
     }
@@ -8941,7 +8944,7 @@ _.DialectContext = class {
         this._dialects.set('xla_cpu', new _.Dialect(operations, 'xla_cpu'));
         this._dialects.set('xla_framework', new _.Dialect(operations, 'xla_framework'));
         this._dialects.set('ifrt', new _.Dialect(operations, 'ifrt'));
-        this._dialects.set('vifrt', new _.Dialect(operations, 'vifrt'));
+        this._dialects.set('vifrt', new _.VifrtDialect(operations));
         this._dialects.set('triton_xla', new _.triton.xla.TritonXlaDialect(operations));
         this._dialects.set('xtile', new _.XTileDialect(operations));
         this._dialects.set('xten_nn', new _.XtenNNDialect(operations));
@@ -28914,6 +28917,18 @@ _.XTileLayoutAttr = class extends _.MemRefLayoutAttr {
 
     toString() {
         return `#xtile.layout<[${this.minorToMajor.join(', ')}]>`;
+    }
+};
+
+_.VifrtDialect = class extends _.Dialect {
+
+    constructor(operations) {
+        super(operations, 'vifrt');
+        this.registerCustomDirective('FunctionBody', this.parseFunctionBody.bind(this));
+    }
+
+    parseFunctionBody(parser, op /*, symNameAttr, bodyRegion, functionTypeAttr */) {
+        parser.parseFunctionOp(op, false);
     }
 };
 
