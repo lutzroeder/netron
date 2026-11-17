@@ -25857,6 +25857,82 @@
     ]
   },
   {
+    "name": "GeGLU",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "GeGLU is a gated activation that takes two inputs, a gate `A` and a linear (value)\ninput `B`, and produces one output `Y`. It applies the Gelu activation to the gate\nand multiplies the result elementwise by the linear input:\n\n```\nY = Gelu(A) * B\n```\n\nThe gate activation is the `Gelu` operator with the same `approximate` attribute.\nWith `approximate = \"none\"` (the default) it is the exact form\n\n```\nGelu(a) = 0.5 * a * (1 + erf(a / sqrt(2)))\n```\n\nand with `approximate = \"tanh\"` it is the tanh approximation\n\n```\nGelu(a) = 0.5 * a * (1 + tanh(sqrt(2 / pi) * (a + 0.044715 * a^3)))\n```\n\nAny other value of `approximate` is invalid. For float16 and bfloat16 inputs the\nfunction body computes `Gelu(A) * B` in float32 and casts the result back to the\ninput type, because Gelu evaluated in float16 loses nearly all precision for\nnegative gate values.\n\nInputs `A` and `B` must have identical shapes; broadcasting is not applied and the\noutput `Y` has the same shape as the inputs. A model whose `A` and `B` shapes\ndiffer at runtime is invalid, even though the `Mul` in the function body would\nbroadcast them.\n\nExporters typically produce `A` and `B` in one of two ways: for the common\ntwo-projection form wire the two projection outputs directly to `A` (gate) and `B`\n(value); for a fused/packed single projection, split it upstream into `A` and `B`\nwith `Split` (contiguous layout) or `Slice`/`Gather` (interleaved layout).\n\nGeGLU was introduced in \"GLU Variants Improve Transformer\" (Shazeer, 2020,\nhttps://arxiv.org/abs/2002.05202) and is used as the feed-forward gate in models\nsuch as T5 v1.1 and Gemma.\n",
+    "attributes": [
+      {
+        "name": "approximate",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "Gelu approximation algorithm used for the gate: `\"none\"` (default) or `\"tanh\"`. Any other value is invalid."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T",
+        "description": "Gate input tensor"
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Linear (value) input tensor"
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "approximate_none",
+        "code": "node = onnx.helper.make_node(\n    \"GeGLU\",\n    inputs=[\"a\", \"b\"],\n    outputs=[\"y\"],\n    approximate=\"none\",\n)\na = np.array(\n    [\n        [[1.0, -2.0, 3.0], [4.0, -1.0, 0.5]],\n        [[-3.0, 2.0, -0.5], [-4.0, 0.0, 1.5]],\n    ],\n    dtype=np.float32,\n)\nb = np.array(\n    [\n        [[0.5, 1.0, -1.0], [2.0, 2.0, -1.0]],\n        [[0.5, 1.0, 1.5], [-2.0, 3.0, 0.25]],\n    ],\n    dtype=np.float32,\n)\ny = np.array(\n    [\n        [\n            [0.4206724, -0.045500264, -2.9959502],\n            [7.999747, -0.3173105, -0.34573123],\n        ],\n        [\n            [-0.002024847, 1.9544997, -0.23140316],\n            [0.00025336994, 0.0, 0.3499473],\n        ],\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[a, b],\n    outputs=[y],\n    name=\"test_geglu_approximate_none\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "bfloat16",
+        "code": "node = onnx.helper.make_node(\n    \"GeGLU\",\n    inputs=[\"a\", \"b\"],\n    outputs=[\"y\"],\n)\na = np.array(\n    [[-3.0, -4.0, -1.0, 2.0], [-0.5, 1.5, -2.5, 0.75]], dtype=ml_dtypes.bfloat16\n)\nb = np.array(\n    [[0.5, 1.0, -1.0, 2.0], [2.0, -1.0, 0.5, 1.0]], dtype=ml_dtypes.bfloat16\n)\ny = np.array(\n    [\n        [-0.0020294189453125, -0.00012683868408203125, 0.158203125, 3.90625],\n        [-0.30859375, -1.3984375, -0.00775146484375, 0.578125],\n    ],\n    dtype=ml_dtypes.bfloat16,\n)\nexpect(\n    node,\n    inputs=[a, b],\n    outputs=[y],\n    name=\"test_geglu_bfloat16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "double",
+        "code": "node = onnx.helper.make_node(\n    \"GeGLU\",\n    inputs=[\"a\", \"b\"],\n    outputs=[\"y\"],\n)\na = np.array(\n    [[-3.0, -4.0, -1.0, 2.0], [-0.5, 1.5, -2.5, 0.75]], dtype=np.float64\n)\nb = np.array([[0.5, 1.0, -1.0, 2.0], [2.0, -1.0, 0.5, 1.0]], dtype=np.float64)\ny = np.array(\n    [\n        [\n            -0.002024847047445155,\n            -0.00012668496733247991,\n            0.15865525393145707,\n            3.908999472207283,\n        ],\n        [\n            -0.3085375387259869,\n            -1.399789198096713,\n            -0.007762081657220199,\n            0.5800294857173488,\n        ],\n    ],\n    dtype=np.float64,\n)\nexpect(\n    node,\n    inputs=[a, b],\n    outputs=[y],\n    name=\"test_geglu_double\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "float16",
+        "code": "node = onnx.helper.make_node(\n    \"GeGLU\",\n    inputs=[\"a\", \"b\"],\n    outputs=[\"y\"],\n)\na = np.array(\n    [[-3.0, -4.0, -1.0, 2.0], [-0.5, 1.5, -2.5, 0.75]], dtype=np.float16\n)\nb = np.array([[0.5, 1.0, -1.0, 2.0], [2.0, -1.0, 0.5, 1.0]], dtype=np.float16)\ny = np.array(\n    [\n        [\n            -0.002025604248046875,\n            -0.00012671947479248047,\n            0.15869140625,\n            3.908203125,\n        ],\n        [-0.30859375, -1.3994140625, -0.007762908935546875, 0.580078125],\n    ],\n    dtype=np.float16,\n)\nexpect(\n    node,\n    inputs=[a, b],\n    outputs=[y],\n    name=\"test_geglu_float16\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "geglu",
+        "code": "node = onnx.helper.make_node(\n    \"GeGLU\",\n    inputs=[\"a\", \"b\"],\n    outputs=[\"y\"],\n)\na = np.array(\n    [\n        [[1.0, -2.0, 3.0], [4.0, -1.0, 0.5]],\n        [[-3.0, 2.0, -0.5], [-4.0, 0.0, 1.5]],\n    ],\n    dtype=np.float32,\n)\nb = np.array(\n    [\n        [[0.5, 1.0, -1.0], [2.0, 2.0, -1.0]],\n        [[0.5, 1.0, 1.5], [-2.0, 3.0, 0.25]],\n    ],\n    dtype=np.float32,\n)\ny = np.array(\n    [\n        [\n            [0.4206724, -0.045500264, -2.9959502],\n            [7.999747, -0.3173105, -0.34573123],\n        ],\n        [\n            [-0.002024847, 1.9544997, -0.23140316],\n            [0.00025336994, 0.0, 0.3499473],\n        ],\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[a, b],\n    outputs=[y],\n    name=\"test_geglu\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      },
+      {
+        "summary": "tanh",
+        "code": "node = onnx.helper.make_node(\n    \"GeGLU\",\n    inputs=[\"a\", \"b\"],\n    outputs=[\"y\"],\n    approximate=\"tanh\",\n)\ny = np.array(\n    [\n        [\n            [0.420596, -0.045402307, -2.9963627],\n            [7.9998593, -0.31761602, -0.345714],\n        ],\n        [\n            [-0.001818696, 1.9545977, -0.23142898],\n            [0.0001404919, 0.0, 0.34989288],\n        ],\n    ],\n    dtype=np.float32,\n)\na = np.array(\n    [\n        [[1.0, -2.0, 3.0], [4.0, -1.0, 0.5]],\n        [[-3.0, 2.0, -0.5], [-4.0, 0.0, 1.5]],\n    ],\n    dtype=np.float32,\n)\nb = np.array(\n    [\n        [[0.5, 1.0, -1.0], [2.0, 2.0, -1.0]],\n        [[0.5, 1.0, 1.5], [-2.0, 3.0, 0.25]],\n    ],\n    dtype=np.float32,\n)\nexpect(\n    node,\n    inputs=[a, b],\n    outputs=[y],\n    name=\"test_geglu_tanh\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n)"
+      }
+    ]
+  },
+  {
     "name": "Gelu",
     "module": "ai.onnx",
     "version": 20,
@@ -35672,6 +35748,10 @@
     ],
     "examples": [
       {
+        "summary": "compact_value_heads",
+        "code": "# Scaled-down Gated DeltaNet examples: adjacent Q/K repeats, independent\n# value/state heads and gates. Real head ratios include 2, 3 and 8.\nrng = np.random.default_rng(0)\nfor factor in (2, 3, 8):\n    b, t, hk, dk, dv = 1, 3, 2, 4, 5\n    hv = hk * factor\n    query = _l2_normalize(\n        rng.normal(size=(b, t, hk * dk)).astype(np.float16), hk\n    )\n    key = _l2_normalize(rng.normal(size=(b, t, hk * dk)).astype(np.float16), hk)\n    value = rng.normal(size=(b, t, hv * dv)).astype(np.float16)\n    state = rng.normal(size=(b, hv, dk, dv)).astype(np.float32)\n    decay = -rng.uniform(0.1, 0.9, (b, t, hv)).astype(np.float16)\n    beta = rng.uniform(0.1, 0.9, (b, t, hv)).astype(np.float16)\n    expanded = [\n        np.repeat(x.reshape(b, t, hk, dk), factor, axis=2).reshape(\n            b, t, hv * dk\n        )\n        for x in (query, key)\n    ]\n    expected = _compute(\n        *expanded,\n        value,\n        state,\n        decay,\n        beta,\n        q_num_heads=hv,\n        kv_num_heads=hv,\n    )\n    node = onnx.helper.make_node(\n        \"LinearAttention\",\n        [\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n        [\"output\", \"present_state\"],\n        q_num_heads=hk,\n        kv_num_heads=hk,\n        v_num_heads=hv,\n    )\n    expect(\n        node,\n        inputs=[query, key, value, state, decay, beta],\n        outputs=list(expected),\n        name=f\"test_linear_attention_compact_value_heads_factor_{factor}\",\n        opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n    )"
+      },
+      {
         "summary": "decode_step",
         "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 1, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\npast_state = np.random.randn(b, h_kv, d_k, d_v).astype(np.float32) * 0.1\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    past_state=past_state,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, past_state, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_decode_step\",\n    opset_imports=_OPSET,\n)"
       },
@@ -35726,6 +35806,201 @@
       {
         "summary": "prefill_with_past",
         "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\npast_state = np.random.randn(b, h_kv, d_k, d_v).astype(np.float32) * 0.1\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    past_state=past_state,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, past_state, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_prefill_with_past\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "state_trajectory",
+        "code": "rng = np.random.default_rng(42)\nfor rule in (\"linear\", \"gated\", \"delta\", \"gated_delta\"):\n    for length in (0, 3):\n        b, hk, hv, dk, dv = 2, 2, 4, 2, 3\n        query = rng.normal(size=(b, length, hk * dk)).astype(np.float16)\n        key = _l2_normalize(\n            rng.normal(size=(b, length, hk * dk)).astype(np.float16), hk\n        )\n        value = rng.normal(size=(b, length, hv * dv)).astype(np.float16)\n        state = rng.normal(size=(b, hv, dk, dv)).astype(np.float32)\n        decay = (\n            -rng.uniform(0.1, 0.9, (b, length, hv)).astype(np.float16)\n            if rule in (\"gated\", \"gated_delta\")\n            else None\n        )\n        beta = (\n            rng.uniform(0.1, 0.9, (b, length, hv)).astype(np.float16)\n            if rule in (\"delta\", \"gated_delta\")\n            else None\n        )\n        expanded = [\n            np.repeat(x.reshape(b, length, hk, dk), hv // hk, axis=2).reshape(\n                b, length, hv * dk\n            )\n            for x in (query, key)\n        ]\n        packed = [*expanded, value, state, decay, beta]\n        expected = _compute(\n            *packed, q_num_heads=hv, kv_num_heads=hv, update_rule=rule\n        )\n        snapshots = [\n            _compute(\n                *[\n                    x if x is None or i == 3 else x[:, :end]\n                    for i, x in enumerate(packed)\n                ],\n                q_num_heads=hv,\n                kv_num_heads=hv,\n                update_rule=rule,\n            )[1]\n            for end in range(1, length + 1)\n        ]\n        states = (\n            np.stack(snapshots, axis=1)\n            if snapshots\n            else np.empty((b, 0, hv, dk, dv), dtype=np.float32)\n        )\n        values = [query, key, value, state, decay, beta]\n        names = [\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"]\n        node = onnx.helper.make_node(\n            \"LinearAttention\",\n            [\n                name if x is not None else \"\"\n                for name, x in zip(names, values, strict=True)\n            ],\n            [\"output\", \"present_state\", \"states\"],\n            q_num_heads=hk,\n            kv_num_heads=hk,\n            v_num_heads=hv,\n            update_rule=rule,\n        )\n        expect(\n            node,\n            inputs=[x for x in values if x is not None],\n            outputs=[*expected, states],\n            name=f\"test_linear_attention_state_trajectory_{rule}_length_{length}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
+      }
+    ]
+  },
+  {
+    "name": "LinearAttention",
+    "module": "ai.onnx",
+    "version": 29,
+    "description": "Unified recurrent linear attention for prefill and autoregressive decoding.\n\nLet B be the batch size, T the sequence length, d_k the key head width,\nand d_v the value head width. The required positive attributes q_num_heads\nand kv_num_heads specify the query head count H_q and key head count H_kv.\nBoth d_k and d_v must be positive; T may be zero. All sequence inputs share\nthe same B and T.\n\nInputs query, key and value have shapes [B,T,H_q*d_k], [B,T,H_kv*d_k]\nand [B,T,H_v*d_v]. Heads are packed contiguously in the last dimension:\nelement j of head h has packed index h*d+j, where d is that input's head width.\n\nWith v_num_heads=0 (default), H_v=H_kv and H_q must be a multiple of H_kv.\nThe output head count H_o is H_q. Query head h reads state head\nfloor(h/(H_q/H_kv)), so adjacent query heads share each state head.\nState head h uses key head h.\n\nWith v_num_heads>0, H_v=v_num_heads, H_q must equal H_kv, and H_v must be\na multiple of H_kv. H_o is H_v. Value/state head h uses query and key head\nfloor(h/(H_v/H_kv)). For H_kv=2 and H_v=6, this mapping is [0,0,0,1,1,1].\nNegative v_num_heads is invalid. State, decay and beta use H_v heads.\n\nThe output tensor output has shape [B,T,H_o*d_v], with contiguous head packing.\npast_state and present_state have shape [B,H_v,d_k,d_v].\nThe initial state is past_state when supplied, otherwise zeros.\nInput values and the initial state are converted to float32 for the recurrence\nand output computation. The output tensor output has query's element type.\nThe state outputs have past_state's element type when supplied, otherwise\nquery's element type. A float32 past_state therefore retains float32 state\nwith float16 or bfloat16 activations.\n\nFor each batch element and token, let S be a state head's preceding\n[d_k,d_v] matrix, k its mapped key vector, and v its value vector.\nThe update_rule attribute is one of \"linear\", \"gated\", \"delta\", or\n\"gated_delta\" (default). Process tokens in increasing order t=0,...,T-1.\nFor each token, apply these steps in order:\n1. For \"gated\" and \"gated_delta\", D = exp(decay) * S; otherwise D = S.\n   Decay is log-space [B,T,H_v] for per-head decay or [B,T,H_v*d_k]\n   for per-key-element decay, packed by head. It broadcasts over d_v.\n2. For \"delta\" and \"gated_delta\", u = beta * (v - D^T k); otherwise u = v.\n   Beta has shape [B,T,H_v] for per-head rates or [B,T,1] shared by all heads.\n3. S_new = D + k outer u, where (k outer u)[i,j] = k[i] * u[j].\n4. For each output head, o = scale * q^T S_new using its mapped query and\n   state heads. The resulting vectors form output, and S_new is the\n   preceding state for the next token.\n\nexp and scalar/vector multiplication are elementwise; transpose and\nmatrix-vector products act on the displayed head matrix/vector dimensions.\n\nDecay must be supplied for \"gated\" and \"gated_delta\" and omitted otherwise.\nBeta must be supplied for \"delta\" and \"gated_delta\" and omitted otherwise.\nQ/K normalization is not performed by this operator. A zero scale attribute\n(default) uses 1/sqrt(d_k). chunk_size (default 64) is an implementation hint\nand does not change results.\n\npresent_state is the final state. The optional states output has shape\n[B,T,H_v,d_k,d_v]; states[:,t,:,:,:] is the state after token t's complete\ndecay and update, converted to present_state's element type. These conversions\ndo not round the internal float32 recurrence between tokens. For T>0, the\nlast snapshot equals present_state. For T=0, output has shape [B,0,H_o*d_v],\nstates has shape [B,0,H_v,d_k,d_v], and present_state is the initial state.\nOmitting states does not change output or present_state and does not require\nintermediate-state storage. When requested, states contains B*T*H_v*d_k*d_v\nelements.\n\nThe operator does not modify inputs or retain state between invocations.\nThe caller supplies any state carried from a preceding invocation.\n",
+    "attributes": [
+      {
+        "name": "chunk_size",
+        "type": "int64",
+        "required": false,
+        "default": 64,
+        "description": "Implementation hint for processing sequence chunks. Does not change results."
+      },
+      {
+        "name": "kv_num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of compact key heads. Always required."
+      },
+      {
+        "name": "q_num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of query heads. Always required."
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": false,
+        "description": "Output scaling factor. When 0.0 (default), derives d_k = query.shape[-1] / q_num_heads and uses 1/sqrt(d_k). Set explicitly to override."
+      },
+      {
+        "name": "update_rule",
+        "type": "string",
+        "required": false,
+        "default": "gated_delta",
+        "description": "The update rule for the linear attention recurrence. One of: 'linear', 'gated', 'delta', 'gated_delta'. Default is 'gated_delta'."
+      },
+      {
+        "name": "v_num_heads",
+        "type": "int64",
+        "required": false,
+        "description": "Value/state head count. Zero (default) uses kv_num_heads and preserves query GQA. A positive value requires q_num_heads == kv_num_heads and must be a multiple of kv_num_heads. Q/K head h is repeated adjacently v_num_heads / kv_num_heads times. The output has v_num_heads heads, and value, state, decay and beta use this head count."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Query vectors with 3D packed shape (B, T, H_q * d_k). Heads are packed into the last dimension."
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "description": "Key vectors with 3D packed shape (B, T, H_kv * d_k). The operator does not normalize these vectors."
+      },
+      {
+        "name": "value",
+        "type": "T",
+        "description": "Value vectors with 3D packed shape (B, T, H_v * d_v), where H_v is kv_num_heads unless a positive v_num_heads is specified."
+      },
+      {
+        "name": "past_state",
+        "type": "S",
+        "option": "optional",
+        "description": "Recurrent state from previous step with shape (B, H_v, d_k, d_v). Always 4D. If not provided, defaults to zeros."
+      },
+      {
+        "name": "decay",
+        "type": "T",
+        "option": "optional",
+        "description": "Exponential decay gate in log-space, with shape (B, T, H_v * d_k) or (B, T, H_v). Required for 'gated' and 'gated_delta' modes."
+      },
+      {
+        "name": "beta",
+        "type": "T",
+        "option": "optional",
+        "description": "Update rate with shape (B, T, H_v) or (B, T, 1). Required for 'delta' and 'gated_delta' modes."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 6,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Attention output with 3D packed shape (B, T, H_o * d_v), where H_o is q_num_heads unless a positive v_num_heads is specified."
+      },
+      {
+        "name": "present_state",
+        "type": "S",
+        "description": "Updated recurrent state with shape (B, H_v, d_k, d_v). Always 4D."
+      },
+      {
+        "name": "states",
+        "type": "S",
+        "option": "optional",
+        "description": "Optional recurrent state trajectory with shape (B, T, H_v, d_k, d_v), in the same type as present_state. Entry [:, t] is the state after token t's complete decay/update, before token t+1. For T > 0 the last entry equals present_state; for T = 0 the trajectory is empty. Omitting this output does not require storing intermediate states."
+      }
+    ],
+    "min_output": 2,
+    "max_output": 3,
+    "inputs_range": "3 - 6",
+    "outputs_range": "2 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain activation input and output types to float16, bfloat16, or float32 tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "State tensors have type float16, bfloat16, or float32. When past_state is omitted, state outputs have the activation type T.",
+        "type_param_str": "S",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(float)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "compact_value_heads",
+        "code": "# Scaled-down Gated DeltaNet examples: adjacent Q/K repeats, independent\n# value/state heads and gates. Real head ratios include 2, 3 and 8.\nrng = np.random.default_rng(0)\nfor factor in (2, 3, 8):\n    b, t, hk, dk, dv = 1, 3, 2, 4, 5\n    hv = hk * factor\n    query = _l2_normalize(\n        rng.normal(size=(b, t, hk * dk)).astype(np.float16), hk\n    )\n    key = _l2_normalize(rng.normal(size=(b, t, hk * dk)).astype(np.float16), hk)\n    value = rng.normal(size=(b, t, hv * dv)).astype(np.float16)\n    state = rng.normal(size=(b, hv, dk, dv)).astype(np.float32)\n    decay = -rng.uniform(0.1, 0.9, (b, t, hv)).astype(np.float16)\n    beta = rng.uniform(0.1, 0.9, (b, t, hv)).astype(np.float16)\n    expanded = [\n        np.repeat(x.reshape(b, t, hk, dk), factor, axis=2).reshape(\n            b, t, hv * dk\n        )\n        for x in (query, key)\n    ]\n    expected = _compute(\n        *expanded,\n        value,\n        state,\n        decay,\n        beta,\n        q_num_heads=hv,\n        kv_num_heads=hv,\n    )\n    node = onnx.helper.make_node(\n        \"LinearAttention\",\n        [\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n        [\"output\", \"present_state\"],\n        q_num_heads=hk,\n        kv_num_heads=hk,\n        v_num_heads=hv,\n    )\n    expect(\n        node,\n        inputs=[query, key, value, state, decay, beta],\n        outputs=list(expected),\n        name=f\"test_linear_attention_compact_value_heads_factor_{factor}\",\n        opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n    )"
+      },
+      {
+        "summary": "decode_step",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 1, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\npast_state = np.random.randn(b, h_kv, d_k, d_v).astype(np.float32) * 0.1\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    past_state=past_state,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, past_state, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_decode_step\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "delta",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    update_rule=\"delta\",\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n    update_rule=\"delta\",\n)\nexpect(\n    node,\n    inputs=[query, key, value, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_delta\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "explicit_scale",
+        "code": "scale = 0.25\nnode = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n    scale=scale,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n    scale=scale,\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_explicit_scale\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "fp16",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=8,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 8, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float16)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float16), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float16)\ndecay = (-np.abs(np.random.randn(b, t, h_kv * d_k)) * 0.1).astype(np.float16)\nbeta = np.random.rand(b, t, h_kv).astype(np.float16)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_fp16\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "gated",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\"],\n    outputs=[\"output\", \"present_state\"],\n    update_rule=\"gated\",\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = np.random.randn(b, t, h_kv * d_k).astype(np.float32)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\n# Per-key-dim decay in log-space (negative -> decay).\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n    update_rule=\"gated\",\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_gated\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "gated_delta",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_gated_delta\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "gated_delta_beta_scalar",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, 1).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_gated_delta_beta_scalar\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "gated_delta_gqa",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=8,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 8, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_gated_delta_gqa\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "gated_delta_mqa",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=8,\n    kv_num_heads=1,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 8, 1, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_gated_delta_mqa\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "gated_per_head_decay",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"\", \"decay\"],\n    outputs=[\"output\", \"present_state\"],\n    update_rule=\"gated\",\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = np.random.randn(b, t, h_kv * d_k).astype(np.float32)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\n# Per-head scalar decay.\ndecay = -np.abs(np.random.randn(b, t, h_kv)).astype(np.float32) * 0.1\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    decay=decay,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n    update_rule=\"gated\",\n)\nexpect(\n    node,\n    inputs=[query, key, value, decay],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_gated_per_head_decay\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "linear",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\"],\n    outputs=[\"output\", \"present_state\"],\n    update_rule=\"linear\",\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = np.random.randn(b, t, h_kv * d_k).astype(np.float32)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n    update_rule=\"linear\",\n)\nexpect(\n    node,\n    inputs=[query, key, value],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_linear\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "linear_t1_no_past",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\"],\n    outputs=[\"output\", \"present_state\"],\n    update_rule=\"linear\",\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 1, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = np.random.randn(b, t, h_kv * d_k).astype(np.float32)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n    update_rule=\"linear\",\n)\nexpect(\n    node,\n    inputs=[query, key, value],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_linear_t1_no_past\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "no_past_explicit_zeros",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\npast_state = np.zeros((b, h_kv, d_k, d_v), dtype=np.float32)\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    past_state=past_state,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, past_state, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_no_past_explicit_zeros\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "prefill_with_past",
+        "code": "node = onnx.helper.make_node(\n    \"LinearAttention\",\n    inputs=[\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"],\n    outputs=[\"output\", \"present_state\"],\n    q_num_heads=4,\n    kv_num_heads=4,\n)\nb, t, h_q, h_kv, d_k, d_v = 2, 4, 4, 4, 8, 8\nquery = np.random.randn(b, t, h_q * d_k).astype(np.float32)\nkey = _l2_normalize(np.random.randn(b, t, h_kv * d_k).astype(np.float32), h_kv)\nvalue = np.random.randn(b, t, h_kv * d_v).astype(np.float32)\npast_state = np.random.randn(b, h_kv, d_k, d_v).astype(np.float32) * 0.1\ndecay = -np.abs(np.random.randn(b, t, h_kv * d_k)).astype(np.float32) * 0.1\nbeta = np.random.rand(b, t, h_kv).astype(np.float32)\n\noutput, present_state = _compute(\n    query,\n    key,\n    value,\n    past_state=past_state,\n    decay=decay,\n    beta=beta,\n    q_num_heads=h_q,\n    kv_num_heads=h_kv,\n)\nexpect(\n    node,\n    inputs=[query, key, value, past_state, decay, beta],\n    outputs=[output, present_state],\n    name=\"test_linear_attention_prefill_with_past\",\n    opset_imports=_OPSET,\n)"
+      },
+      {
+        "summary": "state_trajectory",
+        "code": "rng = np.random.default_rng(42)\nfor rule in (\"linear\", \"gated\", \"delta\", \"gated_delta\"):\n    for length in (0, 3):\n        b, hk, hv, dk, dv = 2, 2, 4, 2, 3\n        query = rng.normal(size=(b, length, hk * dk)).astype(np.float16)\n        key = _l2_normalize(\n            rng.normal(size=(b, length, hk * dk)).astype(np.float16), hk\n        )\n        value = rng.normal(size=(b, length, hv * dv)).astype(np.float16)\n        state = rng.normal(size=(b, hv, dk, dv)).astype(np.float32)\n        decay = (\n            -rng.uniform(0.1, 0.9, (b, length, hv)).astype(np.float16)\n            if rule in (\"gated\", \"gated_delta\")\n            else None\n        )\n        beta = (\n            rng.uniform(0.1, 0.9, (b, length, hv)).astype(np.float16)\n            if rule in (\"delta\", \"gated_delta\")\n            else None\n        )\n        expanded = [\n            np.repeat(x.reshape(b, length, hk, dk), hv // hk, axis=2).reshape(\n                b, length, hv * dk\n            )\n            for x in (query, key)\n        ]\n        packed = [*expanded, value, state, decay, beta]\n        expected = _compute(\n            *packed, q_num_heads=hv, kv_num_heads=hv, update_rule=rule\n        )\n        snapshots = [\n            _compute(\n                *[\n                    x if x is None or i == 3 else x[:, :end]\n                    for i, x in enumerate(packed)\n                ],\n                q_num_heads=hv,\n                kv_num_heads=hv,\n                update_rule=rule,\n            )[1]\n            for end in range(1, length + 1)\n        ]\n        states = (\n            np.stack(snapshots, axis=1)\n            if snapshots\n            else np.empty((b, 0, hv, dk, dv), dtype=np.float32)\n        )\n        values = [query, key, value, state, decay, beta]\n        names = [\"query\", \"key\", \"value\", \"past_state\", \"decay\", \"beta\"]\n        node = onnx.helper.make_node(\n            \"LinearAttention\",\n            [\n                name if x is not None else \"\"\n                for name, x in zip(names, values, strict=True)\n            ],\n            [\"output\", \"present_state\", \"states\"],\n            q_num_heads=hk,\n            kv_num_heads=hk,\n            v_num_heads=hv,\n            update_rule=rule,\n        )\n        expect(\n            node,\n            inputs=[x for x in values if x is not None],\n            outputs=[*expected, states],\n            name=f\"test_linear_attention_state_trajectory_{rule}_length_{length}\",\n            opset_imports=[onnx.helper.make_opsetid(\"\", 29)],\n        )"
       }
     ]
   },
@@ -45612,6 +45887,102 @@
       }
     ],
     "category": "Attention"
+  },
+  {
+    "name": "MultiHeadLatentAttention",
+    "module": "com.microsoft",
+    "version": 1,
+    "description": "Multi-head latent attention (MLA) in absorbed form, with a KV cache, as used by DeepSeek-V2 and DeepSeek-V3.\n\nAll query heads attend over one cache of latent rows. Each cached row (head_size wide) is the key for every head, and\nchannels [v_offset, v_offset + v_head_size) of the same row are the value. The caller folds the key up-projection into\nthe query and the value up-projection into the output projection, so the op never materializes per-head keys or values.\nIn DeepSeek-V2 and DeepSeek-V3 a row is the 512-channel latent followed by the 64 RoPE channels: head_size = 576,\nv_head_size = 512 and v_offset = 0.\n\nThe cache contract is GroupQueryAttention's with kv_num_heads = 1 and do_rotary = 0. A first prompt\n(sequence_length == total_sequence_length) writes its rows from row 0, and an entry may be right-padded\n(seqlens_k + 1 < sequence_length). Otherwise the new rows in 'key' are written at rows\n[seqlens_k + 1 - sequence_length, seqlens_k + 1) of each batch entry. present_kv has length\nmax(total_sequence_length, past length); past_kv and present_kv may share one buffer of length max_sequence_length.\nOnly filled rows are read, and new tokens attend causally.\n\nWith v_offset = 0 the cache has the layout PagedAttention uses with kv_cache_layout = LATENT, restricted to one\nblock per sequence.\n",
+    "attributes": [
+      {
+        "name": "num_heads",
+        "type": "int64",
+        "required": true,
+        "description": "Number of attention heads for q"
+      },
+      {
+        "name": "scale",
+        "type": "float32",
+        "required": true,
+        "description": "Scale applied to Q*K' before softmax. Required: after absorption it is the original model's 1/sqrt(qk_nope_head_dim + qk_rope_head_dim), times any RoPE scaling factor, not 1/sqrt(head_size)."
+      },
+      {
+        "name": "v_head_size",
+        "type": "int64",
+        "required": true,
+        "description": "Width of the value read from each cached row, and of each output head (kv_lora_rank). Must satisfy 0 < v_head_size and v_offset + v_head_size <= head_size."
+      },
+      {
+        "name": "v_offset",
+        "type": "int64",
+        "required": false,
+        "description": "First channel of the value within each cached row. 0 when rows are stored as [latent | rope], rope_dim when stored as [rope | latent]. Default value is 0."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "query",
+        "type": "T",
+        "description": "Absorbed query with shape (batch_size, sequence_length, num_heads * head_size), RoPE already applied."
+      },
+      {
+        "name": "key",
+        "type": "T",
+        "description": "New latent rows with shape (batch_size, sequence_length, head_size), RoPE already applied."
+      },
+      {
+        "name": "past_kv",
+        "type": "T",
+        "option": "optional",
+        "description": "Latent cache with shape (batch_size, 1, past_sequence_length, head_size), or (batch_size, 1, max_sequence_length, head_size) when it shares its buffer with present_kv."
+      },
+      {
+        "name": "seqlens_k",
+        "type": "M",
+        "description": "1D tensor of shape (batch_size). Equivalent to (total_sequence_lengths - 1)."
+      },
+      {
+        "name": "total_sequence_length",
+        "type": "M",
+        "description": "Scalar tensor: the maximum total sequence length (past + new) of the batch. Equal to sequence_length for a first prompt."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "3D output tensor with shape (batch_size, sequence_length, num_heads * v_head_size)"
+      },
+      {
+        "name": "present_kv",
+        "type": "T",
+        "option": "optional",
+        "description": "Updated latent cache with shape (batch_size, 1, present_sequence_length, head_size), where present_sequence_length = max(total_sequence_length, past_sequence_length). When past_kv shares its buffer with present_kv, it has length max_sequence_length and is updated in place."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 2,
+    "outputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Constrain input, output and cache to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(bfloat16)",
+          "tensor(float)"
+        ]
+      },
+      {
+        "description": "Constrain sequence lengths to int32 tensors.",
+        "type_param_str": "M",
+        "allowed_type_strs": [
+          "tensor(int32)"
+        ]
+      }
+    ]
   },
   {
     "name": "MultilevelCropAndResize_TRT",
