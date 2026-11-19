@@ -646,8 +646,14 @@ zip.InflaterStream = class {
     }
 
     _inflate(position, length) {
-        const size = Number.isInteger(position) && Number.isInteger(length) ? position + length : undefined;
+        let size = Number.isInteger(position) && Number.isInteger(length) ? position + length : undefined;
         if (this._buffer === undefined || (size !== undefined && this._buffer.length < size)) {
+            // Inflating restarts from the beginning of the entry, so grow the target
+            // geometrically. Otherwise a sequential scan that advances in small steps
+            // re-inflates the whole entry on every step.
+            if (size !== undefined && this._buffer !== undefined) {
+                size = Math.max(size, this._buffer.length * 2);
+            }
             const position = this._stream.position;
             this._stream.seek(this._offset);
             const buffer = this._stream.peek();
