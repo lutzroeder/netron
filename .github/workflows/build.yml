@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        os: [ macos-latest, ubuntu-latest, windows-latest, windows-11-arm ]
 
     steps:
       - name: Clone Git repository
