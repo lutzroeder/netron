@@ -5330,5 +5330,104 @@
         { "name": "output_res_query" }
       ]
     }
+  },
+  {
+    "name": "kokoro",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" },
+        { "name": "token_embd_norm", "type": "LAYER_NORM", "category": "Normalization" },
+        { "name": "token_embd_proj", "type": "MUL_MAT" },
+        { "name": "position_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"], "position_encoding": "learned", "has_bias": true },
+        { "name": "attn_output_norm", "type": "LAYER_NORM", "category": "Normalization" },
+        { "name": "ffn_up", "type": "MUL_MAT" },
+        { "name": "ffn_down", "type": "MUL_MAT" },
+        { "name": "layer_output_norm", "type": "LAYER_NORM", "category": "Normalization" }
+      ]
+    }
+  },
+  {
+    "name": "tiny-voca",
+    "graph": {
+      "input": [
+        { "name": "token_embd", "type": "EMBEDDING", "category": "Transform" }
+      ],
+      "blocks": [
+        { "name": "attn_norm", "type": "LAYER_NORM", "category": "Normalization" },
+        { "name": "attention", "type": "MULTI_HEAD_ATTENTION", "category": "Attention", "tensors": ["attn_q", "attn_k", "attn_v", "attn_output"], "position_encoding": "rope", "has_bias": true },
+        { "name": "ffn_norm", "type": "LAYER_NORM", "category": "Normalization" },
+        { "name": "ffn_pre_conv", "type": "CONV_1D", "category": "Layer", "tensors": ["ssm_conv1d"] },
+        { "name": "ffn_up", "type": "MUL_MAT" },
+        { "name": "ffn_down", "type": "MUL_MAT" }
+      ],
+      "output": [
+        { "name": "output_norm", "type": "LAYER_NORM", "category": "Normalization" }
+      ]
+    }
+  },
+  {
+    "name": "zaya1",
+    "graph": {
+      "input": [
+        { "name": "token_embd" },
+        { "name": "res_scale_in" }
+      ],
+      "blocks": [
+        { "name": "attn_norm" },
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_qkv" },
+        { "name": "ssm_conv1d" },
+        { "name": "cca_conv_grp" },
+        { "name": "cca_temp" },
+        { "name": "attn_output" },
+        { "name": "attn_res_scale_hs" },
+        { "name": "attn_resid_scale" },
+        { "name": "ffn_norm" },
+        { "name": "ffn_gate_inp" },
+        { "name": "ffn_router_eda" },
+        { "name": "ffn_router_norm" },
+        { "name": "ffn_router_fc1" },
+        { "name": "ffn_router_fc2" },
+        { "name": "ffn_router_out" },
+        { "name": "exp_probs_b" },
+        { "name": "ffn_gate_up_exps" },
+        { "name": "ffn_down_exps" },
+        { "name": "ffn_res_scale_hs" },
+        { "name": "ffn_resid_scale" }
+      ],
+      "output": [
+        { "name": "output_norm" }
+      ]
+    }
+  },
+  {
+    "name": "domynedge",
+    "graph": {
+      "input": [
+        { "name": "token_embd" }
+      ],
+      "blocks": [
+        { "name": "attn_q" },
+        { "name": "attn_k" },
+        { "name": "attn_v" },
+        { "name": "attn_output" },
+        { "name": "attn_k_norm" },
+        { "name": "attn_norm" },
+        { "name": "post_attention_norm" },
+        { "name": "ffn_norm" },
+        { "name": "post_ffw_norm" },
+        { "name": "ffn_down" },
+        { "name": "ffn_up" },
+        { "name": "ffn_gate" }
+      ],
+      "output": [
+        { "name": "output_norm" }
+      ]
+    }
   }
 ]

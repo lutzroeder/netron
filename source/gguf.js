@@ -368,7 +368,8 @@ gguf.Graph = class {
                     const n2 = newValue();
                     addNode(use('ffn_norm'), [ffnInput], n2);
                     const ffnResidual = get('ffn_norm').residual === 'normalized' ? n2 : cur;
-                    const f1 = buildFfn(n2);
+                    const ffnConv = applyComponent('ffn_pre_conv', n2);
+                    const f1 = buildFfn(ffnConv);
                     let preAdd2 = f1;
                     if (has('ffn_post_norm')) {
                         const pn = newValue();
