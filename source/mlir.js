@@ -869,7 +869,20 @@ mlir.Utility = class {
             return value.toString();
         }
         if (value instanceof _.Type) {
-            return value.toString();
+            const name = value.toString();
+            switch (name) {
+                case '!tf_type.qint8': return 'qint8';
+                case '!tf_type.qint16': return 'qint16';
+                case '!tf_type.qint32': return 'qint32';
+                case '!tf_type.quint8': return 'quint8';
+                case '!tf_type.quint16': return 'quint16';
+                case '!tfl.quint8': return 'quint8';
+                case '!torch.qint8': return 'qint8';
+                case '!torch.qint16': return 'qint16';
+                case '!torch.qint32': return 'qint32';
+                case '!torch.quint8': return 'quint8';
+                default: return name;
+            }
         }
         throw new mlir.Error(`Unexpected data type '${value}'.`);
     }
@@ -6490,7 +6503,7 @@ _.TensorLiteralParser = class {
             return this._hexStorage;
         }
         const elementType = type && type.elementType ? type.elementType : null;
-        const numElements = type && type.getNumElements ? type.getNumElements().toNumber() : 0;
+        const numElements = type && type.getNumElements ? type.getNumElements() : 0n;
         const isComplex = elementType instanceof _.ComplexType;
         const baseElemType = isComplex && elementType.elementType ? elementType.elementType : elementType;
         let isUnsigned = false;
@@ -6567,26 +6580,27 @@ _.TensorLiteralParser = class {
             }
             return result;
         };
-        if (numElements === 0) {
+        if (numElements === 0n) {
             return [];
         }
-        const maxSplatExpansion = 10000000;
+        const maxSplatExpansion = 10000000n;
         const isSplat = this._shape.length === 0 && this._storage.length > 0;
-        if (isSplat && numElements > 1) {
+        if (isSplat && numElements > 1n) {
             if (numElements > maxSplatExpansion) {
                 return null;
             }
+            const count = numElements.toNumber();
             if (isComplex && this._storage.length === 2) {
                 const result = [];
                 const real = convertElement(this._storage[0]);
                 const imag = convertElement(this._storage[1]);
-                for (let i = 0; i < numElements; i++) {
+                for (let i = 0; i < count; i++) {
                     result.push(new base.Complex(real, imag));
                 }
                 return result;
             }
             const converted = convertElement(this._storage[0]);
-            return new Array(numElements).fill(converted);
+            return new Array(count).fill(converted);
         }
         if (isComplex && Array.isArray(this._storage)) {
             const result = [];

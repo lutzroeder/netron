@@ -6817,10 +6817,10 @@
     "summary": "AsinAcosKernel operator",
     "description": "Returns `AsinAcosKernel(operand)` element-wise.\n\n    ```\n    If\n      w = _asin_acos_kernel(z)\n      w' = _asin_acos_kernel(I * z)\n    Then\n      asin(z) = complex(atan2(z.real, w.real), sign(z.imag) * w.imag)\n      acos(z) = complex(atan2(w.real, z.real), -sign(z.imag) * w.imag)\n      asinh(z) = complex(sign(z.real) * w'.imag, atan2(z.imag, w'.real))\n      acosh(z) = complex(w.imag, sign(z.imag) * atan2(w.real, z.real))\n    ```\n\n    This op is used as an intermediate value in decompositions and\n    should never be constructed directly by frameworks or consumed by\n    backends.",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -6829,10 +6829,10 @@
     "summary": "Acos operator",
     "description": "Returns `Acos(operand)` element-wise.\n\n    $$\n    \\acos(x) = 2 * \\atan(\\sqrt(1 - x^2) / (1 + x)) if x != -1\n             = pi                                  if x == -1\n    $$",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -6841,10 +6841,10 @@
     "summary": "Acosh operation",
     "description": "Returns `Acosh(operand)` element-wise.\n\n    $$\n    \\acosh(x) = log(x + sqrt(x^2 - 1))      if x >= -1\n    \\acosh(x) = nan                         if x < -1\n    $$",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -6853,10 +6853,10 @@
     "summary": "Asin operator",
     "description": "Returns `Asin(operand)` element-wise.\n\n    $$\n    \\asin(x) = 2 * atan(x / (1 + sqrt(1 - x^2)))\n    $$",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -6865,10 +6865,10 @@
     "summary": "Asinh operation",
     "description": "Returns `Asinh(operand)` element-wise.\n\n    $$\n    \\asinh(x) = log(x + sqrt(x^2 + 1))\n    $$",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -6877,10 +6877,10 @@
     "summary": "Atan operator",
     "description": "Returns `Atan(operand)` element-wise.\n\n    $$\n    \\atan(x) = \\atan2(x, 1)\n    $$",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -6889,10 +6889,10 @@
     "summary": "Atanh operator",
     "description": "Returns `Atanh(operand)` element-wise.\n\n    $$\n    \\atanh(x) = 0.5 * log((1 + x) / (1 - x)) if abs(x) <= 1\n              = nan                          otherwise\n    $$",
     "operands": [
-      { "name": "operand", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "operand", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "results": [
-      { "name": "result", "type": "HLO_AnyFpOrComplexTensor" }
+      { "name": "result", "type": "CHLO_AnyFpOrNonF16ComplexTensor" }
     ],
     "assemblyFormat": "$operand attr-dict `:` type($operand) `->` type($result)"
   },
@@ -15940,9 +15940,6 @@
     "attributes": [
       { "name": "opType", "type": "MMAElementWiseAttr{addf|mulf|subf|maxf|minf|divf|addi|muli|subi|divs|divu|negatef|negates|extf|truncf}" }
     ],
-    "traits": [
-      { "type": "AllTypesMatch<['args']>" }
-    ],
     "assemblyFormat": "enum($opType) $args attr-dict `:` functional-type($args, $res)"
   },
   {
@@ -22599,7 +22596,7 @@
   {
     "name": "linalg.scaled_contract",
     "summary": "Perform a scaled contraction on two inputs where their scaling is described\n    by affine maps of the two corresponding scales, accumulating into the output.",
-    "description": "Extends the semantics of `linalg.contract` by including extra scaling factors\n    for the inputs `A` and `B` described by the scales' affine maps.\n    The data types of the inputs are chosen independently from the scales.\n\n    The output element type must be floating-point. Input element types must be\n    integer or floating-point, with bitwidth no greater than the output element\n    type's bitwidth.\n\n    The semantics of contracting inputs `A` and `B` with scales `scale_A` and\n    `scale_B` on top of `C` to produce output `D` is given by:\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} (A[I] * scale_A[I]) * (B[J] * scale_B[J])) + C[H]`\n\n    The iteration type of each dim is inferred.\n\n    Currently, this operation supports multiplication followed by summation,\n    with the corresponding type-specific operations.\n\n    The input operands `A`, `B`, and `C` follow the standard contraction semantics\n    together with broadcasting and transposition rules.\n    See `linalg.contract` for further details.\n\n    **Affine maps for scales**\n\n    Each scale indexing map describes the scaling scheme for the corresponding\n    input `A` and `B`. The following scaling schemes are supported:\n\n    - Tensor scaling - no dimensions: a scalar value used to scale the whole input.\n    - Dimension scaling - dimension `d`: one scale value per element along `d`.\n    - Block scaling - binary expression `d floordiv B`: one scale value for every\n      `B` elements along `d` where `B` corresponds to the block size.\n\n    Scale maps may only use dimensions present in the corresponding input's map.\n    A dimension absent from the scale map indicates that a single scale value is\n    reused across the whole input dimension.\n\n    **Dim sizes for scales**\n\n    - Tensor scaling: a unit-size scale.\n    - Dimension scaling (`d`): the scale dim size equals the input dim size.\n    - Block scaling (`d floordiv B`): the scale dim size equals\n      `ceil(input_dim_size / B)`.\n\n    For dynamic shapes, all sizes are assumed to be correct at runtime.\n\n    Example scaled matmul with transposed B using semi-affine maps:\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (m floordiv 32, k floordiv 128)>, // A - 32x128 block scale\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (n)>, // B - row-wise scale\n          affine_map<(m, n, k) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<200x512xf8E5M2>, tensor<7x4xf8E8M0FNU>,\n            tensor<128x512xf8E5M2>, tensor<128xf8E8M0FNU>)\n        outs(%C: tensor<200x128xf32>) -> tensor<200x128xf32>\n    ```\n\n    or using expanded dimensions:\n\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, ko, kb) -> (m, ko, kb)>, // A - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (m, ko)>,\n          affine_map<(m, n, ko, kb) -> (n, ko, kb)>, // B - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (n, ko)>,\n          affine_map<(m, n, ko, kb) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<128x4x32xf4E2M1FN>, tensor<128x4xf8E8M0FNU>,\n            tensor<64x4x32xf4E2M1FN>, tensor<64x4xf8E8M0FNU>)\n        outs(%C : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```\n\n    Numeric casting promotes inputs and scales to the accumulator/output type.",
+    "description": "Extends the semantics of `linalg.contract` by including extra scaling factors\n    for the inputs `A` and `B` described by the scales' affine maps.\n    The data types of the inputs are chosen independently from the scales.\n\n    The output element type must be floating-point. Input element types must be\n    integer or floating-point, with bitwidth no greater than the output element\n    type's bitwidth.\n\n    The semantics of contracting inputs `A` and `B` with scales `scale_A` and\n    `scale_B` on top of `C` to produce output `D` is given by:\n\n      `D[H] = (SUM_{(I ∪ J) \\ H} (A[I] * scale_A[I]) * (B[J] * scale_B[J])) + C[H]`\n\n    The iteration type of each dim is inferred.\n\n    Currently, this operation supports multiplication followed by summation,\n    with the corresponding type-specific operations.\n\n    The input operands `A`, `B`, and `C` follow the standard contraction semantics\n    together with broadcasting and transposition rules.\n    See `linalg.contract` for further details.\n\n    **Affine maps for scales**\n\n    Each scale indexing map describes the scaling scheme for the corresponding\n    input `A` and `B`. The following scaling schemes are supported:\n\n    - Tensor scaling - no dimensions: a scalar value used to scale the whole input.\n    - Dimension scaling - dimension `d`: one scale value per element along `d`.\n    - Block scaling - binary expression `d floordiv B`: one scale value for every\n      `B` elements along `d` where `B` corresponds to the block size.\n\n    Scale maps may only use dimensions present in the corresponding input's map.\n    A dimension absent from the scale map indicates that a single scale value is\n    reused across the whole input dimension.\n\n    **Dim sizes for scales**\n\n    - Tensor scaling: a unit-size scale.\n    - Dimension scaling (`d`): the scale dim size equals the input dim size.\n    - Block scaling (`d floordiv B`): the scale dim size equals\n      `ceil(input_dim_size / B)`.\n\n    For dynamic shapes, all sizes are assumed to be correct at runtime.\n\n    Example scaled matmul with transposed B using semi-affine maps:\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, k) -> (m, k)>,\n          affine_map<(m, n, k) -> (m floordiv 32, k floordiv 128)>, // A - 32x128 block scale\n          affine_map<(m, n, k) -> (n, k)>,\n          affine_map<(m, n, k) -> (n)>, // B - row-wise scale\n          affine_map<(m, n, k) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<200x512xf8E5M2>, tensor<7x4xf8E8M0FNU>,\n            tensor<128x512xf8E5M2>, tensor<128xf8E8M0FNU>)\n        outs(%C: tensor<200x128xf32>) -> tensor<200x128xf32>\n    ```\n\n    or using expanded dimensions:\n\n    ```mlir\n    %D = linalg.scaled_contract\n        indexing_maps = [\n          affine_map<(m, n, ko, kb) -> (m, ko, kb)>, // A - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (m, ko)>,\n          affine_map<(m, n, ko, kb) -> (n, ko, kb)>, // B - 32 block dim 'kb'\n          affine_map<(m, n, ko, kb) -> (n, ko)>,\n          affine_map<(m, n, ko, kb) -> (m, n)>]\n        ins(%A, %scale_A, %B, %scale_B\n          : tensor<128x4x32xf4E2M1FN>, tensor<128x4xf8E8M0FNU>,\n            tensor<64x4x32xf4E2M1FN>, tensor<64x4xf8E8M0FNU>)\n        outs(%C : tensor<128x64xf32>) -> tensor<128x64xf32>\n    ```\n\n    Numeric casting promotes inputs and scales to the accumulator/output type.\n\n    **Decomposition**\n\n    The op can be decomposed by first expanding block scaled dims at scaling\n    block boundaries. The unscaled inputs are then contracted over reduction\n    dims `R` not used by the scales, followed by scaling of the partial results\n    and reduction over the remaining reduction dims `S`:\n\n      `T[H ∪ S] = SUM_{R} A[I] * B[J]`\n\n      `D[H] = (SUM_{S} T[H ∪ S] * scale_A[I] * scale_B[J]) + C[H]`\n\n    This follows the dot product definition of the OCP Microscaling\n    specification, where the order of operations and internal precision are\n    implementation-defined. Intermediate values may be computed in a wider type\n    than the output element type.",
     "operands": [
       { "name": "inputs", "type": "Variadic<AnyType>" },
       { "name": "outputs", "type": "Variadic<AnyShaped>" }
@@ -29872,7 +29869,8 @@
     "description": "Computes dot products between slices of `lhs` and slices of `rhs` and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dot_general\n\n    Example:\n    ```mlir\n    %result = \"mhlo.dot_general\"(%lhs, %rhs) {\n      dot_dimension_numbers = #mhlo.dot<\n        lhs_batching_dimensions = [0],\n        rhs_batching_dimensions = [0],\n        lhs_contracting_dimensions = [2],\n        rhs_contracting_dimensions = [1]\n      >,\n      precision_config = [#stablehlo<precision DEFAULT>, #stablehlo<precision DEFAULT>]\n    } : (tensor<2x2x2xi32>, tensor<2x2x2xi32>) -> tensor<2x2x2xi32>\n    ```",
     "operands": [
       { "name": "lhs", "type": "MHLO_Tensor" },
-      { "name": "rhs", "type": "MHLO_Tensor" }
+      { "name": "rhs", "type": "MHLO_Tensor" },
+      { "name": "ext_operands", "type": "Variadic<MHLO_Tensor>" }
     ],
     "results": [
       { "name": "result", "type": "MHLO_Tensor" }
@@ -29880,7 +29878,9 @@
     "attributes": [
       { "name": "dot_dimension_numbers", "type": "MHLO_DotDimensionNumbers" },
       { "name": "precision_config", "type": "OptionalAttr<TypedArrayAttrBase<MHLO_PrecisionAttr{DEFAULT|HIGH|HIGHEST}>>" },
-      { "name": "algorithm", "type": "OptionalAttr<MHLO_DotAlgorithmAttr>" }
+      { "name": "algorithm", "type": "OptionalAttr<MHLO_DotAlgorithmAttr>" },
+      { "name": "block_scaling_config", "type": "OptionalAttr<MHLO_BlockScalingConfigAttr>" },
+      { "name": "sparsity_config", "type": "OptionalAttr<MHLO_SparsityConfigAttr>" }
     ]
   },
   {
@@ -56249,6 +56249,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56266,6 +56269,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56282,6 +56288,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56352,6 +56361,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56368,6 +56380,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56386,6 +56401,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56402,6 +56420,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56420,6 +56441,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56436,6 +56460,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56454,6 +56481,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56471,6 +56501,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56487,6 +56520,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56626,6 +56662,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56642,6 +56681,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56660,6 +56702,9 @@
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
     ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
+    ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
   {
@@ -56676,6 +56721,9 @@
     "attributes": [
       { "name": "execution_scope", "type": "SPIRV_ScopeAttr{CrossDevice|Device|Workgroup|Subgroup|Invocation|QueueFamily|ShaderCallKHR}" },
       { "name": "group_operation", "type": "SPIRV_GroupOperationAttr{Reduce|InclusiveScan|ExclusiveScan|ClusteredReduce|PartitionedReduceNV|PartitionedInclusiveScanNV|PartitionedExclusiveScanNV}" }
+    ],
+    "traits": [
+      { "type": "AllTypesMatch<['value', 'result']>" }
     ],
     "assemblyFormat": "$execution_scope $group_operation $value (`cluster_size``(` $cluster_size^ `)`)? attr-dict `:` type($value) (`,` type($cluster_size)^)? `->` type(results)"
   },
@@ -56781,8 +56829,8 @@
     "summary": "Integer addition of Operand 1 and Operand 2, including the carry.",
     "description": "Result Type must be from OpTypeStruct.  The struct must have two\n    members, and the two members must be the same type.  The member type\n    must be a scalar or vector of integer type, whose Signedness operand is\n    0.\n\n    Operand 1 and Operand 2 must have the same type as the members of Result\n    Type. These are consumed as unsigned integers.\n\n     Results are computed per component.\n\n    Member 0 of the result gets the low-order bits (full component width) of\n    the addition.\n\n    Member 1 of the result gets the high-order (carry) bit of the result of\n    the addition. That is, it gets the value 1 if the addition overflowed\n    the component width, and 0 otherwise.\n\n    <!-- End of AutoGen section -->\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.IAddCarry %0, %1 : !spirv.struct<(i32, i32)>\n    %2 = spirv.IAddCarry %0, %1 : !spirv.struct<(vector<2xi32>, vector<2xi32>)>\n    ```",
     "operands": [
-      { "name": "operand1", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
-      { "name": "operand2", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+      { "name": "operand1", "type": "SPIRV_ScalarOrVectorOf<SPIRV_SignlessOrUnsignedInt>" },
+      { "name": "operand2", "type": "SPIRV_ScalarOrVectorOf<SPIRV_SignlessOrUnsignedInt>" }
     ],
     "results": [
       { "name": "result", "type": "SPIRV_AnyStruct" }
@@ -57234,8 +57282,8 @@
     "summary": "Result is the unsigned integer subtraction of Operand 2 from Operand 1,\n    and what it needed to borrow.",
     "description": "Result Type must be from OpTypeStruct.  The struct must have two\n    members, and the two members must be the same type.  The member type\n    must be a scalar or vector of integer type, whose Signedness operand is\n    0.\n\n    Operand 1 and Operand 2 must have the same type as the members of Result\n    Type. These are consumed as unsigned integers.\n\n     Results are computed per component.\n\n    Member 0 of the result gets the low-order bits (full component width) of\n    the subtraction. That is, if Operand 1 is larger than Operand 2, member\n    0 gets the full value of the subtraction;  if Operand 2 is larger than\n    Operand 1, member 0 gets 2w + Operand 1 - Operand 2, where w is the\n    component width.\n\n    Member 1 of the result gets 0 if Operand 1 ≥ Operand 2, and gets 1\n    otherwise.\n\n    <!-- End of AutoGen section -->\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.ISubBorrow %0, %1 : !spirv.struct<(i32, i32)>\n    %2 = spirv.ISubBorrow %0, %1 : !spirv.struct<(vector<2xi32>, vector<2xi32>)>\n    ```",
     "operands": [
-      { "name": "operand1", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
-      { "name": "operand2", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+      { "name": "operand1", "type": "SPIRV_ScalarOrVectorOf<SPIRV_SignlessOrUnsignedInt>" },
+      { "name": "operand2", "type": "SPIRV_ScalarOrVectorOf<SPIRV_SignlessOrUnsignedInt>" }
     ],
     "results": [
       { "name": "result", "type": "SPIRV_AnyStruct" }
@@ -59476,8 +59524,8 @@
     "summary": "Result is the full value of the unsigned integer multiplication of\n    Operand 1 and Operand 2.",
     "description": "Result Type must be from OpTypeStruct.  The struct must have two\n    members, and the two members must be the same type.  The member type\n    must be a scalar or vector of integer type, whose Signedness operand is\n    0.\n\n    Operand 1 and Operand 2 must have the same type as the members of Result\n    Type. These are consumed as unsigned integers.\n\n    Results are computed per component.\n\n    Member 0 of the result gets the low-order bits of the multiplication.\n\n    Member 1 of the result gets the high-order bits of the multiplication.\n\n    <!-- End of AutoGen section -->\n\n    #### Example:\n\n    ```mlir\n    %2 = spirv.UMulExtended %0, %1 : !spirv.struct<(i32, i32)>\n    %2 = spirv.UMulExtended %0, %1 : !spirv.struct<(vector<2xi32>, vector<2xi32>)>\n    ```",
     "operands": [
-      { "name": "operand1", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" },
-      { "name": "operand2", "type": "SPIRV_ScalarOrVectorOf<SPIRV_Integer>" }
+      { "name": "operand1", "type": "SPIRV_ScalarOrVectorOf<SPIRV_SignlessOrUnsignedInt>" },
+      { "name": "operand2", "type": "SPIRV_ScalarOrVectorOf<SPIRV_SignlessOrUnsignedInt>" }
     ],
     "results": [
       { "name": "result", "type": "SPIRV_AnyStruct" }
@@ -60009,8 +60057,8 @@
     "summary": "Complex operation",
     "description": "Performs element-wise conversion to a complex value from a pair of real and\n    imaginary values, `lhs` and `rhs`, and produces a `result` tensor.\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#complex\n    Example:\n    ```mlir\n    %result = stablehlo.complex %lhs, %rhs : tensor<2xcomplex<f64>>\n    ```",
     "operands": [
-      { "name": "lhs", "type": "HLO_Fp32Or64Tensor" },
-      { "name": "rhs", "type": "HLO_Fp32Or64Tensor" }
+      { "name": "lhs", "type": "HLO_ComplexElementTypeTensor" },
+      { "name": "rhs", "type": "HLO_ComplexElementTypeTensor" }
     ],
     "results": [
       { "name": "result", "type": "HLO_ComplexTensor" }
@@ -60208,10 +60256,11 @@
   {
     "name": "stablehlo.dot_general",
     "summary": "DotGeneral operation",
-    "description": "Computes dot products between slices of `lhs` and slices of `rhs` and\n    produces a `result` tensor.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dot_general\n\n    Example:\n    ```mlir\n    %result = stablehlo.dot_general %lhs, %rhs,\n      batching_dims = [0] x [0],\n      contracting_dims = [2] x [1],\n      precision = [DEFAULT, DEFAULT],\n      algorithm = <lhs_precision_type = tf32, rhs_precision_type = tf32, accumulation_type = f32, lhs_component_count = 1, rhs_component_count = 1, num_primitive_operations = 1, allow_imprecise_accumulation = false>\n      : (tensor<2x2x2xi64>, tensor<2x2x2xi64>) -> tensor<2x2x2xi64>\n    ```",
+    "description": "Computes dot products between slices of `lhs` and slices of `rhs` and\n    produces a `result` tensor.\n\n    Optionally accepts trailing `ext_operands` referenced by\n    `block_scaling_config` (`#stablehlo.block_scaling_config`) and\n    `sparsity_config` (`#stablehlo.sparsity_config`) using absolute operand\n    indices (where `lhs` is 0, `rhs` is 1, and `ext_operands[i]` is `i + 2`):\n    * `block_scaling_config`: `#stablehlo.block_scaling_config<lhs = #stablehlo.tensor_block_scaling_config<scale_idx = <i64>, zero_idx = <i64>, strides = [...], steps = [...]>, rhs = ...>`.\n      The referenced scale tensor must have the same rank as the operand and\n      each scale dimension size must evenly divide the corresponding operand\n      dimension size.\n    * `sparsity_config`: `#stablehlo.sparsity_config<lhs = #stablehlo.tensor_sparsity_config<num_non_zero = <i64>, block_size = <i64>, dimension = <i64>, stride = <i64>, idx = <i64>>, rhs = ...>`\n      describing structured sparsity along a contracting dimension\n      (`num_non_zero == 1`, `block_size > 1`, `stride >= 1`). Along the sparse\n      contracting dimension, the operand has compressed size\n      `K * num_non_zero / block_size` while its logical contracting size is `K`.\n      With `stride = 1` each sparsity block is `block_size` consecutive\n      elements; with `stride = k` its elements are `k` apart.\n\n    See:\n    https://github.com/openxla/stablehlo/blob/main/docs/spec.md#dot_general\n\n    Example:\n    ```mlir\n    %result = stablehlo.dot_general %lhs, %rhs,\n      batching_dims = [0] x [0],\n      contracting_dims = [2] x [1],\n      precision = [DEFAULT, DEFAULT],\n      algorithm = <lhs_precision_type = tf32, rhs_precision_type = tf32, accumulation_type = f32, lhs_component_count = 1, rhs_component_count = 1, num_primitive_operations = 1, allow_imprecise_accumulation = false>\n      : (tensor<2x2x2xi64>, tensor<2x2x2xi64>) -> tensor<2x2x2xi64>\n    ```",
     "operands": [
       { "name": "lhs", "type": "HLO_Tensor" },
-      { "name": "rhs", "type": "HLO_TensorOrPerAxisQuantizedTensor" }
+      { "name": "rhs", "type": "HLO_TensorOrPerAxisQuantizedTensor" },
+      { "name": "ext_operands", "type": "Variadic<HLO_Tensor>" }
     ],
     "results": [
       { "name": "result", "type": "HLO_TensorOrPerAxisQuantizedTensor" }
@@ -60219,9 +60268,11 @@
     "attributes": [
       { "name": "dot_dimension_numbers", "type": "StableHLO_DotDimensionNumbers" },
       { "name": "precision_config", "type": "OptionalAttr<TypedArrayAttrBase<StableHLO_PrecisionAttr{DEFAULT|HIGH|HIGHEST}>>" },
-      { "name": "algorithm", "type": "OptionalAttr<StableHLO_DotAlgorithm>" }
+      { "name": "algorithm", "type": "OptionalAttr<StableHLO_DotAlgorithm>" },
+      { "name": "block_scaling_config", "type": "OptionalAttr<StableHLO_BlockScalingConfig>" },
+      { "name": "sparsity_config", "type": "OptionalAttr<StableHLO_SparsityConfig>" }
     ],
-    "assemblyFormat": "$lhs `,` $rhs `,` custom<DotDimensionNumbers>($dot_dimension_numbers) ``\n    custom<PrecisionConfigAndAlgorithm>($precision_config, $algorithm) attr-dict\n      `:` functional-type(operands, results)"
+    "assemblyFormat": "$lhs `,` $rhs `,` (`[` $ext_operands^ `]` `,`)? custom<DotDimensionNumbers>($dot_dimension_numbers) ``\n    custom<PrecisionConfigAndAlgorithm>($precision_config, $algorithm) attr-dict\n      `:` functional-type(operands, results)"
   },
   {
     "name": "stablehlo.dynamic_broadcast_in_dim",
@@ -69578,6 +69629,31 @@
       { "name": "my_regions", "type": "VariadicRegion<SizedRegion<1>>" }
     ],
     "assemblyFormat": "attr-dict `:` $my_regions"
+  },
+  {
+    "name": "test.variadic_operands_have_same_element_type",
+    "operands": [
+      { "name": "first", "type": "AnyType" },
+      { "name": "xs", "type": "Variadic<AnyType>" }
+    ]
+  },
+  {
+    "name": "test.variadic_operands_have_same_rank",
+    "operands": [
+      { "name": "xs", "type": "Variadic<AnyShaped>" }
+    ]
+  },
+  {
+    "name": "test.variadic_operands_have_same_shape",
+    "operands": [
+      { "name": "xs", "type": "Variadic<AnyShaped>" }
+    ]
+  },
+  {
+    "name": "test.variadic_operands_have_same_type",
+    "operands": [
+      { "name": "xs", "type": "Variadic<AnyType>" }
+    ]
   },
   {
     "name": "test.variadic_region_inferred",
@@ -94914,7 +94990,7 @@
   {
     "name": "top.RecurrentGatedDeltaRule",
     "summary": "Recurrent Gated Delta Rule operator",
-    "description": "1.Op Introduction\n    The RecurrentGatedDeltaRule operator implements a single-step recurrent gated delta rule\n    attention mechanism, designed for efficient autoregressive inference with linear attention\n    and recurrent state updates.\n\n    2.Math formula\n    ```math\n        scale = 1 / sqrt(k_head_dim)\n        query = query * scale\n        g_exp = exp(g)\n        state = state * g_exp\n        kv_mem = state^T @ key\n        delta = (value - kv_mem) * beta\n        state = state + key (outer) delta\n        output = state^T @ query\n    ```\n\n    3.activation and weight\n    query(act.): query tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    key(act.): key tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    value(act.): value tensor with shape (B, 1, num_v_heads, v_head_dim).;\n    g(act.): gating signal tensor with shape (B, 1, num_v_heads), controls the exponential decay rate.;\n    beta(act.): scaling factor tensor with shape (B, 1, num_v_heads), modulates value contributions.;\n    recurrent_state(act.): recurrent state tensor with shape (B, num_v_heads, k_head_dim, v_head_dim).;\n\n    4.attributes\n    num_k_heads: number of key/query heads.;\n    num_v_heads: number of value heads (must be a multiple of num_k_heads for GQA).;\n    d: head dimension.;\n    use_qk_l2norm: whether to apply L2 normalization to query and key.;\n    scale: scaling factor applied to query.;",
+    "description": "1.Op Introduction\n    The RecurrentGatedDeltaRule operator implements a single-step recurrent gated delta rule\n    attention mechanism, designed for efficient autoregressive inference with linear attention\n    and recurrent state updates.\n\n    2.Math formula\n    ```math\n        scale = 1 / sqrt(k_head_dim)\n        query = query * scale\n        g_exp = exp(g)\n        state = state * g_exp\n        kv_mem = state^T @ key\n        delta = (value - kv_mem) * beta\n        state = state + key (outer) delta\n        output = state^T @ query\n    ```\n\n    3.activation and weight\n    query(act.): query tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    key(act.): key tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    value(act.): value tensor with shape (B, 1, num_v_heads, v_head_dim).;\n    g(act.): gating signal tensor with shape (B, 1, num_v_heads), controls the exponential decay rate.;\n    beta(act.): scaling factor tensor with shape (B, 1, num_v_heads), modulates value contributions.;\n    recurrent_state(act.): recurrent state tensor with shape (B, num_v_heads, k_head_dim, v_head_dim).;\n\n    4.attributes\n    num_k_heads: number of key/query heads.;\n    num_v_heads: number of value heads (must be a multiple of num_k_heads for GQA).;\n    d: head dimension.;\n    use_qk_l2norm: whether to apply L2 normalization to query and key.;\n    scale: scaling factor applied to query.;\n\n    5.outputs\n    attn_out: attention output with shape (B, 1, num_v_heads, v_head_dim).;\n    new_state(optional): the updated recurrent state, same shape as recurrent_state.\n      When omitted (NoneType) the backend kernel updates recurrent_state in place;\n      when present the input state is left untouched and the updated state is\n      written to this output (needed when several steps are chained in one graph,\n      e.g. multi-token speculative verification).;",
     "operands": [
       { "name": "query", "type": "AnyTensor" },
       { "name": "key", "type": "AnyTensor" },
@@ -94924,7 +95000,8 @@
       { "name": "recurrent_state", "type": "AnyTensor" }
     ],
     "results": [
-      { "name": "attn_out", "type": "AnyTensor" }
+      { "name": "attn_out", "type": "AnyTensor" },
+      { "name": "new_state", "type": "AnyTensorOrNone" }
     ],
     "attributes": [
       { "name": "num_k_heads", "type": "I64Attr" },
@@ -111700,7 +111777,7 @@
   {
     "name": "tpu.RecurrentGatedDeltaRule",
     "summary": "Recurrent Gated Delta Rule operator",
-    "description": "1.Op Introduction\n    The RecurrentGatedDeltaRule operator implements a single-step recurrent gated delta rule\n    attention mechanism, designed for efficient autoregressive inference with linear attention\n    and recurrent state updates.\n\n    2.Math formula\n    ```math\n        scale = 1 / sqrt(k_head_dim)\n        query = query * scale\n        g_exp = exp(g)\n        state = state * g_exp\n        kv_mem = state^T @ key\n        delta = (value - kv_mem) * beta\n        state = state + key (outer) delta\n        output = state^T @ query\n    ```\n\n    3.activation and weight\n    query(act.): query tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    key(act.): key tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    value(act.): value tensor with shape (B, 1, num_v_heads, v_head_dim).;\n    g(act.): gating signal tensor with shape (B, 1, num_v_heads), controls the exponential decay rate.;\n    beta(act.): scaling factor tensor with shape (B, 1, num_v_heads), modulates value contributions.;\n    recurrent_state(act.): recurrent state tensor with shape (B, num_v_heads, k_head_dim, v_head_dim).;\n\n    4.attributes\n    num_k_heads: number of key/query heads.;\n    num_v_heads: number of value heads (must be a multiple of num_k_heads for GQA).;\n    d: head dimension.;\n    use_qk_l2norm: whether to apply L2 normalization to query and key.;\n    scale: scaling factor applied to query.;",
+    "description": "1.Op Introduction\n    The RecurrentGatedDeltaRule operator implements a single-step recurrent gated delta rule\n    attention mechanism, designed for efficient autoregressive inference with linear attention\n    and recurrent state updates.\n\n    2.Math formula\n    ```math\n        scale = 1 / sqrt(k_head_dim)\n        query = query * scale\n        g_exp = exp(g)\n        state = state * g_exp\n        kv_mem = state^T @ key\n        delta = (value - kv_mem) * beta\n        state = state + key (outer) delta\n        output = state^T @ query\n    ```\n\n    3.activation and weight\n    query(act.): query tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    key(act.): key tensor with shape (B, 1, num_k_heads, k_head_dim).;\n    value(act.): value tensor with shape (B, 1, num_v_heads, v_head_dim).;\n    g(act.): gating signal tensor with shape (B, 1, num_v_heads), controls the exponential decay rate.;\n    beta(act.): scaling factor tensor with shape (B, 1, num_v_heads), modulates value contributions.;\n    recurrent_state(act.): recurrent state tensor with shape (B, num_v_heads, k_head_dim, v_head_dim).;\n\n    4.attributes\n    num_k_heads: number of key/query heads.;\n    num_v_heads: number of value heads (must be a multiple of num_k_heads for GQA).;\n    d: head dimension.;\n    use_qk_l2norm: whether to apply L2 normalization to query and key.;\n    scale: scaling factor applied to query.;\n\n    5.outputs\n    attn_out: attention output.;\n    new_state(optional): updated recurrent state; when NoneType the kernel updates\n      recurrent_state in place.;",
     "operands": [
       { "name": "query", "type": "AnyTensor" },
       { "name": "key", "type": "AnyTensor" },
@@ -111710,7 +111787,8 @@
       { "name": "recurrent_state", "type": "AnyTensor" }
     ],
     "results": [
-      { "name": "attn_out", "type": "AnyTensor" }
+      { "name": "attn_out", "type": "AnyTensor" },
+      { "name": "new_state", "type": "AnyTensorOrNone" }
     ],
     "attributes": [
       { "name": "num_k_heads", "type": "I64Attr" },
@@ -115779,7 +115857,7 @@
   {
     "name": "transform.structured.fuse_into_containing_op",
     "summary": "Fuse a producer into a containing operation.",
-    "description": "Fuses the `producer_op` into the `containing_op`.\n    Returns a handle to the fused ops and the `new_containing_op`.\n\n    The producer is typically a slice of a tileable op (i.e., implements\n    TilingInterface). In that case, this transform computes the accessed\n    producer slice inside of the containing op (\"tile and fuse\") and if required,\n    creates a new containing op with outputs from the fused producer. Otherwise,\n    the entire producer is cloned inside the containing op (\"clone and fuse\").\n\n    The containing op handle must be associated with exactly one payload op. The\n    producer op handle may be associated with multiple payload ops. This\n    transform fuses producers one-by-one, always picking an unspecified producer\n    that has at least one use inside the containing op among the\n    producers. A producer can be listed multiple times in the handle.\n\n    Note: If a producer has multiple uses inside the containing op, it is\n    currently tiled and/or cloned multiple times into the containing op.\n    TODO: Reuse already fused OpResults instead of tiling/cloning a second time\n    when possible. Fuse producers according to a topological sorting to achieve\n    the largest amount of reuse.\n\n    #### Return modes\n\n    If at least one producer could not be fused, this operation produces a\n    silenceable failure.  This is the case when tiling fails or when no\n    producer op could be found among the remaining producers that has at least\n    one use within the containing op. I.e., \"producers\" that are not consumed\n    within the containing op are rejected by this operation.\n\n    This operation consumes the producer handle.\n    This operation only reads the containing op handle.\n\n    The optional `inner_tile_alignments` attribute forwards a per-dimension\n    `InnerTileAlignment` hint to the tiling driver for pack/unpack tiling.\n    These are only used to hint alignment or equality between the pack/unpack\n    operations inner tile sizes, and the loop tile sizes. No other operation\n    needs them.",
+    "description": "Fuses the `producer_op` into the `containing_op`.\n    Returns a handle to the fused ops and the `new_containing_op`.\n\n    The producer is typically a slice of a tileable op (i.e., implements\n    TilingInterface). In that case, this transform computes the accessed\n    producer slice inside of the containing op (\"tile and fuse\") and if required,\n    creates a new containing op with outputs from the fused producer. Otherwise,\n    the entire producer is cloned inside the containing op (\"clone and fuse\").\n\n    The containing op handle must be associated with exactly one payload op. The\n    producer op handle may be associated with multiple payload ops. This\n    transform fuses producers one-by-one in reverse topological order, picking\n    producers that have at least one use inside the containing op. This exposes\n    uses introduced by fusing selected consumers before fusing their producers.\n    A producer can be listed multiple times in the handle.\n\n    Note: If a producer has multiple uses inside the containing op, it is\n    currently tiled and/or cloned multiple times into the containing op.\n    TODO: Reuse already fused OpResults instead of tiling/cloning a second time\n    when possible.\n\n    #### Return modes\n\n    If at least one producer could not be fused, this operation produces a\n    silenceable failure.  This is the case when tiling fails or when no\n    producer op could be found among the remaining producers that has at least\n    one use within the containing op. I.e., \"producers\" that are not consumed\n    within the containing op are rejected by this operation.\n\n    This operation consumes the producer handle.\n    This operation only reads the containing op handle.\n\n    The optional `inner_tile_alignments` attribute forwards a per-dimension\n    `InnerTileAlignment` hint to the tiling driver for pack/unpack tiling.\n    These are only used to hint alignment or equality between the pack/unpack\n    operations inner tile sizes, and the loop tile sizes. No other operation\n    needs them.",
     "operands": [
       { "name": "producer_op", "type": "TransformHandleTypeInterface" },
       { "name": "containing_op", "type": "TransformHandleTypeInterface" }
@@ -118115,6 +118193,21 @@
     "assemblyFormat": "$input attr-dict `:` type($input)"
   },
   {
+    "name": "tt.fpsan_compact_exp2",
+    "summary": "Compute a base-2 exponential with 128 distinct FPSan payloads",
+    "description": "Raise 1 + 2^25 to the input payload modulo 2^32. The 128 powers\n        can be encoded exactly by an FPSan probability cast.",
+    "operands": [
+      { "name": "input", "type": "AnyTypeOf<[F32, RankedTensorOf<[F32]>]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "AnyTypeOf<[F32, RankedTensorOf<[F32]>]>" }
+    ],
+    "traits": [
+      { "type": "SameOperandsAndResultType" }
+    ],
+    "assemblyFormat": "$input attr-dict `:` type($input)"
+  },
+  {
     "name": "tt.fpsan_homomorphic_cast",
     "summary": "Project an FPSan payload into a same-width or narrower ring",
     "description": "Preserve the low bits of the input's FPSan payload in the destination\n        floating-point type. Unlike an ordinary FPSan downcast, this operation\n        preserves addition and multiplication. Widening is not supported.\n\n        The frontend emits this operation only when FPSan is enabled.",
@@ -119085,7 +119178,7 @@
   {
     "name": "ttg.thread_predicate",
     "summary": "select the threads in a compiler-generated execution domain",
-    "description": "This operation marks entry into a restricted thread region and executes in\n    the enclosing domain before its branch. Its conservative effects let\n    synchronization analysis finish pending waits before entering the region.\n    It must not be speculated, merged, or eliminated before that analysis.",
+    "description": "This operation marks entry into a restricted thread region and executes in\n    the enclosing domain before its branch. It returns whether the current\n    thread belongs to the specified domain.",
     "results": [
       { "name": "result", "type": "I1" }
     ],
@@ -119253,6 +119346,17 @@
       { "name": "result", "type": "TT_IntLike" }
     ],
     "assemblyFormat": "$val attr-dict `:` functional-type(operands, $result)"
+  },
+  {
+    "name": "tti.experimental_fpsan_probability_cast",
+    "summary": "Pack or expand compact FPSan probability payloads",
+    "operands": [
+      { "name": "src", "type": "RankedTensorOf<[F32, F8E4M3FN, F8E5M2]>" }
+    ],
+    "results": [
+      { "name": "result", "type": "RankedTensorOf<[F32, F8E4M3FN, F8E5M2]>" }
+    ],
+    "assemblyFormat": "$src attr-dict `:` functional-type(operands, results)"
   },
   {
     "name": "tti.experimental_fpsan_unembed",
@@ -119443,6 +119547,19 @@
     "assemblyFormat": "attr-dict"
   },
   {
+    "name": "tti.experimental_gsan_load_range",
+    "summary": "Instrument a contiguous global-memory read for GSan",
+    "description": "Checks numBytes bytes starting at ptr, guarded by the optional predicate.\n    The runtime processes the range as one row using the TMA shadow walker.",
+    "operands": [
+      { "name": "ptr", "type": "TT_Ptr" },
+      { "name": "pred", "type": "Optional<I1>" }
+    ],
+    "attributes": [
+      { "name": "numBytes", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$ptr `,` $numBytes (`,` $pred^)? attr-dict `:` type($ptr)"
+  },
+  {
     "name": "tti.experimental_gsan_mbarrier_arrive",
     "summary": "Record an mbarrier arrival in GSan",
     "description": "Records an arrival for every mbarrier targeted by the corresponding\n    hardware operation. When `publishClock` is true, the issuing CTA's vector\n    clock is also published without advancing its local epoch. Waiters acquire\n    the issuing CTA's completed epochs and its imported clocks, but not its\n    current epoch. A false value records only phase\n    progress for asynchronous completion signals that provide no generic\n    memory ordering. `multicastMasks` contains CTA-id broadcast masks whose\n    recipient bitsets are unioned. When `multicast` is false, the arrival\n    targets the leader selected by the barrier's CGA layout.\n    This operation is internal to GSan instrumentation.",
@@ -119496,6 +119613,19 @@
       { "name": "pred", "type": "I1" }
     ],
     "assemblyFormat": "$scratch `,` $barrier `,` $phase `,` $pred attr-dict `:` type($scratch) `,`\n    qualified(type($barrier))"
+  },
+  {
+    "name": "tti.experimental_gsan_store_range",
+    "summary": "Instrument a contiguous global-memory write for GSan",
+    "description": "Checks numBytes bytes starting at ptr, guarded by the optional predicate.\n    The runtime processes the range as one row using the TMA shadow walker.",
+    "operands": [
+      { "name": "ptr", "type": "TT_Ptr" },
+      { "name": "pred", "type": "Optional<I1>" }
+    ],
+    "attributes": [
+      { "name": "numBytes", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$ptr `,` $numBytes (`,` $pred^)? attr-dict `:` type($ptr)"
   },
   {
     "name": "tti.experimental_gsan_tensor_access",
@@ -119562,20 +119692,28 @@
   {
     "name": "tti.experimental_lock_acquire",
     "summary": "Acquire a lock.",
-    "description": "Enter a critical section by acquiring a lock with single thread.",
+    "description": "Enter a critical section by acquiring a lock with single thread.\n    `uncontended` records that only one software group can enter the critical\n    section. Collective synchronization still orders its memory accesses.\n    `ctaLocal` records that every contender for this lock is in the same CTA.",
     "operands": [
       { "name": "lock", "type": "TT_PtrLike" },
       { "name": "pred", "type": "Optional<I1>" }
+    ],
+    "attributes": [
+      { "name": "uncontended", "type": "UnitAttr" },
+      { "name": "ctaLocal", "type": "UnitAttr" }
     ],
     "assemblyFormat": "$lock (`,` $pred^)? attr-dict `:` type($lock)"
   },
   {
     "name": "tti.experimental_lock_release",
     "summary": "Release a lock.",
-    "description": "Leave a critical section by releasing a lock with single thread.",
+    "description": "Leave a critical section by releasing a lock with single thread.\n    `uncontended` records that only one software group can enter the critical\n    section. Collective synchronization still orders its memory accesses.\n    `ctaLocal` records that every contender for this lock is in the same CTA.",
     "operands": [
       { "name": "lock", "type": "TT_PtrLike" },
       { "name": "pred", "type": "Optional<I1>" }
+    ],
+    "attributes": [
+      { "name": "uncontended", "type": "UnitAttr" },
+      { "name": "ctaLocal", "type": "UnitAttr" }
     ],
     "assemblyFormat": "$lock (`,` $pred^)? attr-dict `:` type($lock)"
   },
@@ -125846,7 +125984,7 @@
   {
     "name": "ttng.arrive_barrier",
     "summary": "perform the arrive operation on an mbarrier",
-    "description": "The `ttng.arrive_barrier` operation performs the \"arrive\" operation on an\n    mbarrier object in shared memory. The operation requires a `count` attribute\n    of at least 1 and decreases the pending arrival count of the mbarrier by\n    the specified count.\n\n    The compiler-owned `per_warp` flag selects an arrival from each of the\n    execution region's warps. The compiler may set this flag before final count\n    scaling. Before lowering, the count must be divisible by the warp count;\n    it remains the total decrement per source CTA and target barrier. Membar\n    inserts the required warp synchronization before each warp contributes its\n    equal share to every routed target.\n\n    When `multicastCTA` is non-zero, the arrive is multicast across the cluster.\n    Each bit set in the mask identifies a CTA ID dimension to multicast\n    along. CTA IDs `a` and `b` belong to the same equivalence class iff\n    `a & ~multicastCTA == b & ~multicastCTA`; all CTAs in a class multicast to each\n    other. Multicast requires `numCTAs > 1`, `0 < multicastCTA <= numCTAs - 1`,\n    and the barrier must have the identity CGA layout `[[1], [2], ...]`. The\n    default value of `multicastCTA` is 0 (no multicast).\n\n    The operation accepts an optional predicate and `fromCTA` attribute. The\n    latter is a CTA-ID basis-selection mask: set bits are preserved and unset\n    bits are zeroed when selecting the CTA that routes the arrival to each\n    per-CTA barrier. A non-identity `fromCTA` cannot be combined with\n    multicast.\n\n    Example:\n\n    ```mlir\n    ttng.arrive_barrier %barrier, 2 : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1, %pred : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1 {multicastCTA = 1 : i32} : !ttg.memdesc<2xi64, #shared, #smem, mutable>\n    ```",
+    "description": "The `ttng.arrive_barrier` operation performs the \"arrive\" operation on an\n    mbarrier object in shared memory. The operation requires a `count` attribute\n    of at least 1 and decreases the pending arrival count of the mbarrier by\n    the specified count.\n\n    The compiler-owned `per_warp` flag selects an arrival from each of the\n    execution region's warps. The count is the total decrement per source CTA\n    and target barrier and must be divisible by the warp count. Membar\n    inserts the required warp synchronization before each warp contributes its\n    equal share to every routed target.\n\n    When `multicastCTA` is non-zero, the arrive is multicast across the cluster.\n    Each bit set in the mask identifies a CTA ID dimension to multicast\n    along. CTA IDs `a` and `b` belong to the same equivalence class iff\n    `a & ~multicastCTA == b & ~multicastCTA`; all CTAs in a class multicast to each\n    other. Multicast requires `numCTAs > 1`, `0 < multicastCTA <= numCTAs - 1`,\n    and the barrier must have the identity CGA layout `[[1], [2], ...]`. The\n    default value of `multicastCTA` is 0 (no multicast).\n\n    The operation accepts an optional predicate and `fromCTA` attribute. The\n    latter is a CTA-ID basis-selection mask: set bits are preserved and unset\n    bits are zeroed when selecting the CTA that routes the arrival to each\n    per-CTA barrier. A non-identity `fromCTA` cannot be combined with\n    multicast.\n\n    Example:\n\n    ```mlir\n    ttng.arrive_barrier %barrier, 2 : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1, %pred : !ttg.memdesc<1xi64, #shared, #smem, mutable>\n    ttng.arrive_barrier %barrier, 1 {multicastCTA = 1 : i32} : !ttg.memdesc<2xi64, #shared, #smem, mutable>\n    ```",
     "operands": [
       { "name": "alloc", "type": "TTG_MemDescType" },
       { "name": "pred", "type": "Optional<I1>" }
@@ -125858,6 +125996,36 @@
       { "name": "per_warp", "type": "UnitAttr" }
     ],
     "assemblyFormat": "$alloc `,` $count (`,` $pred^)? attr-dict `:` qualified(type($alloc))"
+  },
+  {
+    "name": "ttng.async_bulk_copy_global_to_local",
+    "summary": "copy a linear global-memory range to shared memory asynchronously",
+    "description": "Copies numBytes bytes in total, guarded by the scalar predicate, using\n    cp.async.bulk with mbarrier completion. The total is divided equally among\n    the distinct CTA tiles of the destination; replicated CTAs do not increase\n    the total. Each per-CTA count must be a positive multiple of 16 and fit in\n    the contiguous destination view. With multiple CTAs, including replicated\n    layouts, the copy must fill the entire destination view. Partial copies\n    are supported only with one CTA. Source and destination addresses must be\n    16-byte aligned.\n\n    Source tiles are packed in increasing CTA-id order, omitting broadcast\n    bits, with a stride of numBytes / numTiles.\n    This is a raw physical byte copy: a swizzled destination is supported, but\n    the source must already have the desired physical ordering. With multicast,\n    only the representative CTA issues a copy to the destination replicas.\n    The CGA layout may partition, replicate, or combine both; it need not be\n    the identity layout. Each CTA must have its own completion barrier.\n\n    The destination effect conservatively covers the entire view. Completion\n    decrements each barrier's transaction count by numBytes / numTiles; users\n    must wait on the barrier before consuming or reusing the memory.",
+    "operands": [
+      { "name": "dst", "type": "TTG_MemDescType" },
+      { "name": "src", "type": "TT_Ptr" },
+      { "name": "barrier", "type": "TTG_MemDescType" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "numBytes", "type": "I32Attr" },
+      { "name": "multicast", "type": "UnitAttr" }
+    ],
+    "assemblyFormat": "$src `,` $dst `,` $numBytes `,` $barrier `,` $pred attr-dict `:`\n    type($src) `,` qualified(type($dst)) `,` qualified(type($barrier))"
+  },
+  {
+    "name": "ttng.async_bulk_copy_local_to_global",
+    "summary": "copy a linear shared-memory range to global memory asynchronously",
+    "description": "Copies numBytes bytes in total, guarded by the scalar predicate, using\n    cp.async.bulk with bulk async-group completion. The size and physical\n    layout requirements match async_bulk_copy_global_to_local. Source tiles\n    are packed into global memory in increasing CTA-id order, omitting\n    broadcast bits. Only the representative of each replicated tile issues\n    the store. This is a raw physical byte copy without unswizzling.\n\n    Each executed store commits one group to the same queue as TMA stores.\n    A false predicate neither copies nor commits a group. Wait using\n    async_tma_store_wait before reusing shared memory or accessing the global\n    destination; global visibility requires a wait without read_only.\n    The source effect conservatively covers the entire view.",
+    "operands": [
+      { "name": "dst", "type": "TT_Ptr" },
+      { "name": "src", "type": "TTG_MemDescType" },
+      { "name": "pred", "type": "I1" }
+    ],
+    "attributes": [
+      { "name": "numBytes", "type": "I32Attr" }
+    ],
+    "assemblyFormat": "$dst `,` $src `,` $numBytes `,` $pred attr-dict `:`\n    type($dst) `,` qualified(type($src))"
   },
   {
     "name": "ttng.async_copy_mbarrier_arrive",
@@ -125966,13 +126134,16 @@
   },
   {
     "name": "ttng.async_tma_store_wait",
-    "summary": "wait for pending TMA store operations.",
-    "description": "Wait for the associated store operations to complete. When `read_only` is\n    set, only wait until their reads from shared memory have completed. This is\n    needed before shared memory can be written to again.",
+    "summary": "wait for pending bulk and TMA store operations.",
+    "description": "Wait for the associated store operations to complete. When `read_only` is\n    set, only wait until their reads from shared memory have completed. This is\n    needed before shared memory can be written to again. Optional dependencies\n    keep the source buffers live through this wait.",
+    "operands": [
+      { "name": "deps", "type": "Variadic<TTG_MemDescType>" }
+    ],
     "attributes": [
       { "name": "pendings", "type": "I32Attr" },
       { "name": "read_only", "type": "UnitAttr" }
     ],
-    "assemblyFormat": "attr-dict"
+    "assemblyFormat": "attr-dict (`deps` $deps^ `:` type($deps))?"
   },
   {
     "name": "ttng.barrier_expect",
@@ -126114,6 +126285,17 @@
       { "name": "op_kind", "type": "TTNG_PackedArithOpKindAttr{add|sub|mul|fma|min|max}" }
     ],
     "assemblyFormat": "$op_kind $operands attr-dict `:` functional-type($operands, $result)"
+  },
+  {
+    "name": "ttng.prefetch_bulk",
+    "summary": "prefetch global-memory ranges into L2",
+    "description": "For each enabled logical element, issues an asynchronous hint to prefetch\n    numBytes bytes starting at ptr into the GPU's L2 cache. Each source address\n    must be aligned to 16 bytes and each unsigned byte count must be a multiple\n    of 16. Scalar operands specify one range for the program.",
+    "operands": [
+      { "name": "ptr", "type": "TT_PtrLike" },
+      { "name": "numBytes", "type": "TT_I32Like" },
+      { "name": "pred", "type": "TT_BoolLike" }
+    ],
+    "assemblyFormat": "$ptr `,` $numBytes `,` $pred attr-dict `:` type($ptr) `,`\n    type($numBytes) `,` type($pred)"
   },
   {
     "name": "ttng.reinterpret_tensor_descriptor",
@@ -130782,7 +130964,7 @@
   {
     "name": "vector.mask",
     "summary": "Predicates a maskable vector operation",
-    "description": "The `vector.mask` is a `MaskingOpInterface` operation that predicates the\n    execution of another operation. It takes an `i1` vector mask and an\n    optional passthru vector as arguments.\n\n    A implicitly `vector.yield`-terminated region encloses the operation to be\n    masked. Values used within the region are captured from above. Only one\n    *maskable* operation can be masked with a `vector.mask` operation at a time.\n    An operation is *maskable* if it implements the `MaskableOpInterface`. The\n    terminator yields all results from the maskable operation to the result of\n    this operation. No other values are allowed to be yielded.\n\n    An empty `vector.mask` operation is currently legal to enable optimizations\n    across the `vector.mask` region. However, this might change in the future\n    once vector transformations gain better support for `vector.mask`.\n    TODO: Consider making empty `vector.mask` illegal.\n\n    The vector mask argument holds a bit for each vector lane and determines\n    which vector lanes should execute the maskable operation and which ones\n    should not. The `vector.mask` operation returns the value produced by the\n    masked execution of the nested operation, if any. The masked-off lanes in\n    the result vector are taken from the corresponding lanes of the pass-thru\n    argument, if provided, or left unmodified, otherwise. At this point, 0-D\n    vectors are not supported by `vector.mask`. They may be supported in the\n    future.\n\n    The `vector.mask` operation does not prescribe how a maskable operation\n    should be masked or how a masked operation should be lowered. Masking\n    constraints and some semantic details are provided by each maskable\n    operation through the `MaskableOpInterface`. Lowering of masked operations\n    is implementation defined. For instance, scalarizing the masked operation\n    or executing the operation for the masked-off lanes are valid lowerings as\n    long as the execution of masked-off lanes does not change the observable\n    behavior of the program.\n\n    Examples:\n\n    ```\n      %0 = vector.mask %mask { vector.reduction <add>, %a : vector<8xi32> into i32 } : vector<8xi1> -> i32\n    ```\n\n    ```\n      %0 = vector.mask %mask, %passthru { arith.divsi %a, %b : vector<8xi32> } : vector<8xi1> -> vector<8xi32>\n    ```\n\n    ```\n      vector.mask %mask { vector.transfer_write %val, %t0[%idx] : vector<16xf32>, memref<?xf32> } : vector<16xi1>\n    ```\n\n    ```\n      vector.mask %mask { vector.transfer_write %val, %t0[%idx] : vector<16xf32>, tensor<?xf32> } : vector<16xi1> -> tensor<?xf32>\n    ```",
+    "description": "The `vector.mask` is a `MaskingOpInterface` operation that predicates the\n    execution of another operation. It takes an `i1` vector mask and an\n    optional passthru vector as arguments.\n\n    A implicitly `vector.yield`-terminated region encloses the operation to be\n    masked. Values used within the region are captured from above. Only one\n    *maskable* operation can be masked with a `vector.mask` operation at a time.\n    An operation is *maskable* if it implements the `MaskableOpInterface`. The\n    terminator yields all results from the maskable operation to the result of\n    this operation. No other values are allowed to be yielded.\n\n    An empty `vector.mask` operation is currently legal to enable optimizations\n    across the `vector.mask` region. However, this might change in the future\n    once vector transformations gain better support for `vector.mask`.\n    TODO: Consider making empty `vector.mask` illegal.\n\n    The vector mask argument holds a bit for each vector lane and determines\n    which vector lanes should execute the maskable operation and which ones\n    should not. The `vector.mask` operation returns the value produced by the\n    masked execution of the nested operation, if any. The masked-off lanes in\n    the result vector are taken from the corresponding lanes of the pass-thru\n    argument, if provided, or as specified by the masked operation, otherwise.\n    At this point, 0-D vectors are not supported by `vector.mask`. They may be\n    supported in the future.\n\n    The `vector.mask` operation does not prescribe how a maskable operation\n    should be masked or how a masked operation should be lowered. Masking\n    constraints and some semantic details are provided by each maskable\n    operation through the `MaskableOpInterface`. Lowering of masked operations\n    is implementation defined. For instance, scalarizing the masked operation\n    or executing the operation for the masked-off lanes are valid lowerings as\n    long as the execution of masked-off lanes does not change the observable\n    behavior of the program.\n\n    Examples:\n\n    ```\n      %0 = vector.mask %mask { vector.reduction <add>, %a : vector<8xi32> into i32 } : vector<8xi1> -> i32\n    ```\n\n    ```\n      %0 = vector.mask %mask, %passthru { arith.divsi %a, %b : vector<8xi32> } : vector<8xi1> -> vector<8xi32>\n    ```\n\n    ```\n      vector.mask %mask { vector.transfer_write %val, %t0[%idx] : vector<16xf32>, memref<?xf32> } : vector<16xi1>\n    ```\n\n    ```\n      vector.mask %mask { vector.transfer_write %val, %t0[%idx] : vector<16xf32>, tensor<?xf32> } : vector<16xi1> -> tensor<?xf32>\n    ```",
     "operands": [
       { "name": "mask", "type": "VectorOfNonZeroRankOf<[I1]>" },
       { "name": "passthru", "type": "Optional<AnyType>" }
@@ -131053,7 +131235,7 @@
   {
     "name": "vector.transfer_read",
     "summary": "Reads a supervector from memory into an SSA vector value.",
-    "description": "The `vector.transfer_read` op performs a read from a slice within a\n    [MemRef](../LangRef.md#memref-type) or a Ranked\n    [Tensor](../LangRef.md#tensor-type) supplied as its first operand\n    into a [vector](../LangRef.md#vector-type) of the same base elemental type.\n\n    A memref/tensor operand with vector element type, must have its vector\n    element type match a suffix (shape and element type) of the vector (e.g.\n    memref<3x2x6x4x3xf32>, vector<1x1x4x3xf32>).\n\n    The slice is further defined by a full-rank index within the MemRef/Tensor,\n    supplied as the operands `[1 .. 1 + rank(memref/tensor))` that defines the\n    starting point of the transfer (e.g. `%A[%i0, %i1, %i2]`).\n\n    The permutation_map [attribute](../LangRef.md#attributes) is an\n    [affine-map](Affine.md#affine-maps) which specifies the transposition on the\n    slice to match the vector shape. The permutation map may be implicit and\n    omitted from parsing and printing if it is the canonical minor identity map\n    (i.e. if it does not permute or broadcast any dimension).\n\n    The size of the slice is specified by the size of the vector, given as the\n    return type.\n\n    An SSA value `padding` of the same elemental type as the MemRef/Tensor is\n    provided to specify a fallback value in the case of out-of-bounds accesses\n    and/or masking.\n\n    An optional SSA value `mask` may be specified to mask out elements read from\n    the MemRef/Tensor. The `mask` type is an `i1` vector with a shape that\n    matches how elements are read from the MemRef/Tensor, *before* any\n    permutation or broadcasting. Elements whose corresponding mask element is\n    `0` are masked out and replaced with `padding`.\n\n    For every vector dimension, the boolean array attribute `in_bounds`\n    specifies if the transfer is guaranteed to be within the source bounds. If\n    set to \"false\", accesses (including the starting point) may run\n    out-of-bounds along the respective vector dimension as the index increases.\n    Non-vector dimensions *must* always be in-bounds. The `in_bounds` array\n    length has to be equal to the vector rank. This attribute has a default\n    value: `false` (i.e. \"out-of-bounds\"). When skipped in the textual IR, the\n    default value is assumed. Similarly, the OP printer will omit this\n    attribute when all dimensions are out-of-bounds (i.e. the default value is\n    used).\n\n    A `vector.transfer_read` can be lowered to a simple load if all dimensions\n    are specified to be within bounds and no `mask` was specified.\n\n    This operation is called 'read' by opposition to 'load' because the\n    super-vector granularity is generally not representable with a single\n    hardware register. A `vector.transfer_read` is thus a mid-level abstraction\n    that supports super-vectorization with non-effecting padding for full-tile\n    only operations.\n\n    More precisely, let's dive deeper into the permutation_map for the following\n    MLIR:\n\n    ```mlir\n    vector.transfer_read %A[%expr1, %expr2, %expr3, %expr4]\n      { permutation_map : (d0,d1,d2,d3) -> (d2,0,d0) } :\n      memref<?x?x?x?xf32>, vector<3x4x5xf32>\n    ```\n\n    This operation always reads a slice starting at `%A[%expr1, %expr2, %expr3,\n    %expr4]`. The size of the slice can be inferred from the resulting vector\n    shape and walking back through the permutation map: 3 along d2 and 5 along\n    d0, so the slice is: `%A[%expr1 : %expr1 + 5, %expr2, %expr3:%expr3 + 3, %expr4]`\n\n    That slice needs to be read into a `vector<3x4x5xf32>`. Since the\n    permutation map is not full rank, there must be a broadcast along vector\n    dimension `1`.\n\n    A notional lowering of vector.transfer_read could generate code resembling:\n\n    ```mlir\n    // %expr1, %expr2, %expr3, %expr4 defined before this point\n    // alloc a temporary buffer for performing the \"gather\" of the slice.\n    %tmp = memref.alloc() : memref<vector<3x4x5xf32>>\n    for %i = 0 to 3 {\n      affine.for %j = 0 to 4 {\n        affine.for %k = 0 to 5 {\n          // Note that this load does not involve %j.\n          %a = load %A[%expr1 + %k, %expr2, %expr3 + %i, %expr4] : memref<?x?x?x?xf32>\n          // Update the temporary gathered slice with the individual element\n          %slice = memref.load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n          %updated = vector.insert %a, %slice[%i, %j, %k] : f32 into vector<3x4x5xf32>\n          memref.store %updated, %tmp : memref<vector<3x4x5xf32>>\n    }}}\n    // At this point we gathered the elements from the original\n    // memref into the desired vector layout, stored in the `%tmp` allocation.\n    %vec = memref.load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n    ```\n\n    On a GPU one could then map `i`, `j`, `k` to blocks and threads. Notice that\n    the temporary storage footprint could conceptually be only `3 * 5` values but\n    `3 * 4 * 5` values are actually transferred between `%A` and `%tmp`.\n\n    Alternatively, if a notional vector broadcast operation were available, we\n    could avoid the loop on `%j` and the lowered code would resemble:\n\n    ```mlir\n    // %expr1, %expr2, %expr3, %expr4 defined before this point\n    %tmp = memref.alloc() : memref<vector<3x4x5xf32>>\n    for %i = 0 to 3 {\n      affine.for %k = 0 to 5 {\n        %a = load %A[%expr1 + %k, %expr2, %expr3 + %i, %expr4] : memref<?x?x?x?xf32>\n        %slice = memref.load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n        // Here we only store to the first element in dimension one\n        %updated = vector.insert %a, %slice[%i, 0, %k] : f32 into vector<3x4x5xf32>\n        memref.store %updated, %tmp : memref<vector<3x4x5xf32>>\n    }}\n    // At this point we gathered the elements from the original\n    // memref into the desired vector layout, stored in the `%tmp` allocation.\n    // However we haven't replicated them alongside the first dimension, we need\n    // to broadcast now.\n    %partialVec = load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n    %vec = broadcast %tmpvec, 1 : vector<3x4x5xf32>\n    ```\n\n    where `broadcast` broadcasts from element 0 to all others along the\n    specified dimension. This time, the number of loaded element is `3 * 5`\n    values.\n    An additional `1` broadcast is required. On a GPU this broadcast could be\n    implemented using a warp-shuffle if loop `j` were mapped to `threadIdx.x`.\n\n    Syntax\n    ```\n    operation ::= ssa-id `=` `vector.transfer_read` ssa-use-list\n      `{` attribute-entry `} :` memref-type `,` vector-type\n    ```\n\n    Example:\n\n    ```mlir\n    // Read the slice `%A[%i0, %i1:%i1+256, %i2:%i2+32]` into vector<32x256xf32>\n    // and pad with %f0 to handle the boundary case:\n    %f0 = arith.constant 0.0f : f32\n    affine.for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 256 {\n        affine.for %i2 = 0 to %2 step 32 {\n          %v = vector.transfer_read %A[%i0, %i1, %i2], (%f0)\n               {permutation_map: (d0, d1, d2) -> (d2, d1)} :\n               memref<?x?x?xf32>, vector<32x256xf32>\n    }}}\n\n    // or equivalently (rewrite with vector.transpose)\n    %f0 = arith.constant 0.0f : f32\n    affine.for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 256 {\n        affine.for %i2 = 0 to %2 step 32 {\n          %v0 = vector.transfer_read %A[%i0, %i1, %i2], (%f0)\n               {permutation_map: (d0, d1, d2) -> (d1, d2)} :\n               memref<?x?x?xf32>, vector<256x32xf32>\n          %v = vector.transpose %v0, [1, 0] :\n              vector<256x32xf32> to vector<32x256f32>\n    }}}\n\n    // Read the slice `%A[%i0, %i1]` (i.e. the element `%A[%i0, %i1]`) into\n    // vector<128xf32>. The underlying implementation will require a 1-D vector\n    // broadcast:\n    affine.for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 {\n        %3 = vector.transfer_read %A[%i0, %i1]\n             {permutation_map: (d0, d1) -> (0)} :\n             memref<?x?xf32>, vector<128xf32>\n      }\n    }\n\n    // Read from a memref with vector element type.\n    %4 = vector.transfer_read %arg1[%c3, %c3], %vf0\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : memref<?x?xvector<4x3xf32>>, vector<1x1x4x3xf32>\n\n    // Read from a tensor with vector element type.\n    %4 = vector.transfer_read %arg1[%c3, %c3], %vf0\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : tensor<?x?xvector<4x3xf32>>, vector<1x1x4x3xf32>\n\n    // Special encoding for 0-d transfer with 0-d tensor/memref, vector shape\n    // {1} and permutation_map () -> (0).\n    %0 = vector.transfer_read %arg0[], %f0 {permutation_map = affine_map<()->(0)>} :\n      tensor<f32>, vector<1xf32>\n    ```",
+    "description": "The `vector.transfer_read` op performs a read from a slice within a\n    [MemRef](../LangRef.md#memref-type) or a Ranked\n    [Tensor](../LangRef.md#tensor-type) supplied as its first operand\n    into a [vector](../LangRef.md#vector-type) of the same base elemental type.\n\n    A memref/tensor operand with vector element type, must have its vector\n    element type match a suffix (shape and element type) of the vector (e.g.\n    memref<3x2x6x4x3xf32>, vector<1x1x4x3xf32>).\n\n    The slice is further defined by a full-rank index within the MemRef/Tensor,\n    supplied as the operands `[1 .. 1 + rank(memref/tensor))` that defines the\n    starting point of the transfer (e.g. `%A[%i0, %i1, %i2]`).\n\n    The permutation_map [attribute](../LangRef.md#attributes) is an\n    [affine-map](Affine.md#affine-maps) which specifies the transposition on the\n    slice to match the vector shape. The permutation map may be implicit and\n    omitted from parsing and printing if it is the canonical minor identity map\n    (i.e. if it does not permute or broadcast any dimension).\n\n    The size of the slice is specified by the size of the vector, given as the\n    return type.\n\n    An SSA value `padding` of the same elemental type as the MemRef/Tensor is\n    provided to specify a fallback value in the case of out-of-bounds accesses\n    and/or masking.\n\n    An optional SSA value `mask` may be specified to mask out elements read from\n    the MemRef/Tensor. The `mask` type is an `i1` vector with a shape that\n    matches how elements are read from the MemRef/Tensor, *before* any\n    permutation or broadcasting. Elements whose corresponding mask element is\n    `0` are masked out and replaced with `padding`.\n\n    When wrapped in `vector.mask`, only the lanes enabled by the mask access\n    the MemRef/Tensor. The lanes disabled by the mask take the value of the\n    pass-thru, if provided, and `padding` otherwise. An enabled lane that\n    accesses the MemRef/Tensor out-of-bounds is undefined behavior, unless\n    `in_bounds` is false for that dimension.\n\n    For every vector dimension, the boolean array attribute `in_bounds`\n    specifies if the transfer is guaranteed to be within the source bounds. If\n    set to \"false\", accesses (including the starting point) may run\n    out-of-bounds along the respective vector dimension as the index increases.\n    Non-vector dimensions *must* always be in-bounds. The `in_bounds` array\n    length has to be equal to the vector rank. This attribute has a default\n    value: `false` (i.e. \"out-of-bounds\"). When skipped in the textual IR, the\n    default value is assumed. Similarly, the OP printer will omit this\n    attribute when all dimensions are out-of-bounds (i.e. the default value is\n    used).\n\n    A `vector.transfer_read` can be lowered to a simple load if all dimensions\n    are specified to be within bounds and no `mask` was specified.\n\n    This operation is called 'read' by opposition to 'load' because the\n    super-vector granularity is generally not representable with a single\n    hardware register. A `vector.transfer_read` is thus a mid-level abstraction\n    that supports super-vectorization with non-effecting padding for full-tile\n    only operations.\n\n    More precisely, let's dive deeper into the permutation_map for the following\n    MLIR:\n\n    ```mlir\n    vector.transfer_read %A[%expr1, %expr2, %expr3, %expr4]\n      { permutation_map : (d0,d1,d2,d3) -> (d2,0,d0) } :\n      memref<?x?x?x?xf32>, vector<3x4x5xf32>\n    ```\n\n    This operation always reads a slice starting at `%A[%expr1, %expr2, %expr3,\n    %expr4]`. The size of the slice can be inferred from the resulting vector\n    shape and walking back through the permutation map: 3 along d2 and 5 along\n    d0, so the slice is: `%A[%expr1 : %expr1 + 5, %expr2, %expr3:%expr3 + 3, %expr4]`\n\n    That slice needs to be read into a `vector<3x4x5xf32>`. Since the\n    permutation map is not full rank, there must be a broadcast along vector\n    dimension `1`.\n\n    A notional lowering of vector.transfer_read could generate code resembling:\n\n    ```mlir\n    // %expr1, %expr2, %expr3, %expr4 defined before this point\n    // alloc a temporary buffer for performing the \"gather\" of the slice.\n    %tmp = memref.alloc() : memref<vector<3x4x5xf32>>\n    for %i = 0 to 3 {\n      affine.for %j = 0 to 4 {\n        affine.for %k = 0 to 5 {\n          // Note that this load does not involve %j.\n          %a = load %A[%expr1 + %k, %expr2, %expr3 + %i, %expr4] : memref<?x?x?x?xf32>\n          // Update the temporary gathered slice with the individual element\n          %slice = memref.load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n          %updated = vector.insert %a, %slice[%i, %j, %k] : f32 into vector<3x4x5xf32>\n          memref.store %updated, %tmp : memref<vector<3x4x5xf32>>\n    }}}\n    // At this point we gathered the elements from the original\n    // memref into the desired vector layout, stored in the `%tmp` allocation.\n    %vec = memref.load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n    ```\n\n    On a GPU one could then map `i`, `j`, `k` to blocks and threads. Notice that\n    the temporary storage footprint could conceptually be only `3 * 5` values but\n    `3 * 4 * 5` values are actually transferred between `%A` and `%tmp`.\n\n    Alternatively, if a notional vector broadcast operation were available, we\n    could avoid the loop on `%j` and the lowered code would resemble:\n\n    ```mlir\n    // %expr1, %expr2, %expr3, %expr4 defined before this point\n    %tmp = memref.alloc() : memref<vector<3x4x5xf32>>\n    for %i = 0 to 3 {\n      affine.for %k = 0 to 5 {\n        %a = load %A[%expr1 + %k, %expr2, %expr3 + %i, %expr4] : memref<?x?x?x?xf32>\n        %slice = memref.load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n        // Here we only store to the first element in dimension one\n        %updated = vector.insert %a, %slice[%i, 0, %k] : f32 into vector<3x4x5xf32>\n        memref.store %updated, %tmp : memref<vector<3x4x5xf32>>\n    }}\n    // At this point we gathered the elements from the original\n    // memref into the desired vector layout, stored in the `%tmp` allocation.\n    // However we haven't replicated them alongside the first dimension, we need\n    // to broadcast now.\n    %partialVec = load %tmp : memref<vector<3x4x5xf32>> -> vector<3x4x5xf32>\n    %vec = broadcast %tmpvec, 1 : vector<3x4x5xf32>\n    ```\n\n    where `broadcast` broadcasts from element 0 to all others along the\n    specified dimension. This time, the number of loaded element is `3 * 5`\n    values.\n    An additional `1` broadcast is required. On a GPU this broadcast could be\n    implemented using a warp-shuffle if loop `j` were mapped to `threadIdx.x`.\n\n    Syntax\n    ```\n    operation ::= ssa-id `=` `vector.transfer_read` ssa-use-list\n      `{` attribute-entry `} :` memref-type `,` vector-type\n    ```\n\n    Example:\n\n    ```mlir\n    // Read the slice `%A[%i0, %i1:%i1+256, %i2:%i2+32]` into vector<32x256xf32>\n    // and pad with %f0 to handle the boundary case:\n    %f0 = arith.constant 0.0f : f32\n    affine.for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 256 {\n        affine.for %i2 = 0 to %2 step 32 {\n          %v = vector.transfer_read %A[%i0, %i1, %i2], (%f0)\n               {permutation_map: (d0, d1, d2) -> (d2, d1)} :\n               memref<?x?x?xf32>, vector<32x256xf32>\n    }}}\n\n    // or equivalently (rewrite with vector.transpose)\n    %f0 = arith.constant 0.0f : f32\n    affine.for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 256 {\n        affine.for %i2 = 0 to %2 step 32 {\n          %v0 = vector.transfer_read %A[%i0, %i1, %i2], (%f0)\n               {permutation_map: (d0, d1, d2) -> (d1, d2)} :\n               memref<?x?x?xf32>, vector<256x32xf32>\n          %v = vector.transpose %v0, [1, 0] :\n              vector<256x32xf32> to vector<32x256f32>\n    }}}\n\n    // Read the slice `%A[%i0, %i1]` (i.e. the element `%A[%i0, %i1]`) into\n    // vector<128xf32>. The underlying implementation will require a 1-D vector\n    // broadcast:\n    affine.for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 {\n        %3 = vector.transfer_read %A[%i0, %i1]\n             {permutation_map: (d0, d1) -> (0)} :\n             memref<?x?xf32>, vector<128xf32>\n      }\n    }\n\n    // Read from a memref with vector element type.\n    %4 = vector.transfer_read %arg1[%c3, %c3], %vf0\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : memref<?x?xvector<4x3xf32>>, vector<1x1x4x3xf32>\n\n    // Read from a tensor with vector element type.\n    %4 = vector.transfer_read %arg1[%c3, %c3], %vf0\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : tensor<?x?xvector<4x3xf32>>, vector<1x1x4x3xf32>\n\n    // Special encoding for 0-d transfer with 0-d tensor/memref, vector shape\n    // {1} and permutation_map () -> (0).\n    %0 = vector.transfer_read %arg0[], %f0 {permutation_map = affine_map<()->(0)>} :\n      tensor<f32>, vector<1xf32>\n    ```",
     "operands": [
       { "name": "base", "type": "AnyShaped" },
       { "name": "indices", "type": "Variadic<Index>" },
@@ -131075,7 +131257,7 @@
   {
     "name": "vector.transfer_write",
     "summary": "The vector.transfer_write op writes a supervector to memory.",
-    "description": "The `vector.transfer_write` op performs a write from a\n    [vector](../LangRef.md#vector-type), supplied as its first operand, into a\n    slice within a [MemRef](../LangRef.md#memref-type) or a Ranked\n    [Tensor](../LangRef.md#tensor-type) of the same base elemental type,\n    supplied as its second operand.\n\n    A vector memref/tensor operand must have its vector element type match a\n    suffix (shape and element type) of the vector (e.g. memref<3x2x6x4x3xf32>,\n    vector<1x1x4x3xf32>). If the operand is a tensor, the operation returns a\n    new tensor of the same type.\n\n    The slice is further defined by a full-rank index within the MemRef/Tensor,\n    supplied as the operands `[2 .. 2 + rank(memref/tensor))` that defines the\n    starting point of the transfer (e.g. `%A[%i0, %i1, %i2, %i3]`).\n\n    The permutation_map [attribute](../LangRef.md#attributes) is an\n    [affine-map](Affine.md#affine-maps) which specifies the transposition on the\n    slice to match the vector shape. The permutation map may be implicit and\n    omitted from parsing and printing if it is the canonical minor identity map\n    (i.e. if it does not permute any dimension). In contrast to `transfer_read`,\n    write ops cannot have broadcast dimensions.\n\n    The size of the slice is specified by the size of the vector.\n\n    An optional SSA value `mask` may be specified to mask out elements written\n    to the MemRef/Tensor. The `mask` type is an `i1` vector with a shape that\n    matches how elements are written into the MemRef/Tensor, *after* applying\n    any permutation. Elements whose corresponding mask element is `0` are\n    masked out.\n\n    For every vector dimension, the boolean array attribute `in_bounds`\n    specifies if the transfer is guaranteed to be within the source bounds. If\n    set to \"false\", accesses (including the starting point) may run\n    out-of-bounds along the respective vector dimension as the index increases.\n    Non-vector dimensions *must* always be in-bounds. The `in_bounds` array\n    length has to be equal to the vector rank. This attribute has a default\n    value: `false` (i.e. \"out-of-bounds\"). When skipped in the textual IR, the\n    default value is assumed. Similarly, the OP printer will omit this\n    attribute when all dimensions are out-of-bounds (i.e. the default value is\n    used).\n\n     A `vector.transfer_write` can be lowered to a simple store if all\n     dimensions are specified to be within bounds and no `mask` was specified.\n\n    This operation is called 'write' by opposition to 'store' because the\n    super-vector granularity is generally not representable with a single\n    hardware register. A `vector.transfer_write` is thus a\n    mid-level abstraction that supports super-vectorization with non-effecting\n    padding for full-tile-only code. It is the responsibility of\n    `vector.transfer_write`'s implementation to ensure the memory writes are\n    valid. Different lowerings may be pertinent depending on the hardware\n    support.\n\n    Example:\n\n    ```mlir\n    // write vector<16x32x64xf32> into the slice\n    //   `%A[%i0, %i1:%i1+32, %i2:%i2+64, %i3:%i3+16]`:\n    for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 32 {\n        affine.for %i2 = 0 to %2 step 64 {\n          affine.for %i3 = 0 to %3 step 16 {\n            %val = `ssa-value` : vector<16x32x64xf32>\n            vector.transfer_write %val, %A[%i0, %i1, %i2, %i3]\n              {permutation_map: (d0, d1, d2, d3) -> (d3, d1, d2)} :\n              vector<16x32x64xf32>, memref<?x?x?x?xf32>\n    }}}}\n\n    // or equivalently (rewrite with vector.transpose)\n    for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 32 {\n        affine.for %i2 = 0 to %2 step 64 {\n          affine.for %i3 = 0 to %3 step 16 {\n            %val = `ssa-value` : vector<16x32x64xf32>\n            %valt = vector.transpose %val, [1, 2, 0] :\n                  vector<16x32x64xf32> -> vector<32x64x16xf32>\n            vector.transfer_write %valt, %A[%i0, %i1, %i2, %i3]\n              {permutation_map: (d0, d1, d2, d3) -> (d1, d2, d3)} :\n              vector<32x64x16xf32>, memref<?x?x?x?xf32>\n    }}}}\n\n    // write to a memref with vector element type.\n    vector.transfer_write %4, %arg1[%c3, %c3]\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : vector<1x1x4x3xf32>, memref<?x?xvector<4x3xf32>>\n\n    // return a tensor where the vector is inserted into the source tensor.\n    %5 = vector.transfer_write %4, %arg1[%c3, %c3]\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : vector<1x1x4x3xf32>, tensor<?x?xvector<4x3xf32>>\n\n    // Special encoding for 0-d transfer with 0-d tensor/memref, vector shape\n    // {1} and permutation_map () -> (0).\n    %1 = vector.transfer_write %0, %arg0[] {permutation_map = affine_map<()->(0)>} :\n      vector<1xf32>, tensor<f32>\n    ```",
+    "description": "The `vector.transfer_write` op performs a write from a\n    [vector](../LangRef.md#vector-type), supplied as its first operand, into a\n    slice within a [MemRef](../LangRef.md#memref-type) or a Ranked\n    [Tensor](../LangRef.md#tensor-type) of the same base elemental type,\n    supplied as its second operand.\n\n    A vector memref/tensor operand must have its vector element type match a\n    suffix (shape and element type) of the vector (e.g. memref<3x2x6x4x3xf32>,\n    vector<1x1x4x3xf32>). If the operand is a tensor, the operation returns a\n    new tensor of the same type.\n\n    The slice is further defined by a full-rank index within the MemRef/Tensor,\n    supplied as the operands `[2 .. 2 + rank(memref/tensor))` that defines the\n    starting point of the transfer (e.g. `%A[%i0, %i1, %i2, %i3]`).\n\n    The permutation_map [attribute](../LangRef.md#attributes) is an\n    [affine-map](Affine.md#affine-maps) which specifies the transposition on the\n    slice to match the vector shape. The permutation map may be implicit and\n    omitted from parsing and printing if it is the canonical minor identity map\n    (i.e. if it does not permute any dimension). In contrast to `transfer_read`,\n    write ops cannot have broadcast dimensions.\n\n    The size of the slice is specified by the size of the vector.\n\n    An optional SSA value `mask` may be specified to mask out elements written\n    to the MemRef/Tensor. The `mask` type is an `i1` vector with a shape that\n    matches how elements are written into the MemRef/Tensor, *after* applying\n    any permutation. Elements whose corresponding mask element is `0` are\n    masked out.\n\n    When wrapped in `vector.mask`, only the lanes enabled by the mask access\n    the MemRef/Tensor. The lanes disabled by the mask are not written: the\n    MemRef keeps its previous contents and the result Tensor takes the\n    corresponding elements of the destination Tensor. An enabled lane that\n    accesses the MemRef/Tensor out-of-bounds is undefined behavior, unless\n    `in_bounds` is false for that dimension.\n\n    For every vector dimension, the boolean array attribute `in_bounds`\n    specifies if the transfer is guaranteed to be within the source bounds. If\n    set to \"false\", accesses (including the starting point) may run\n    out-of-bounds along the respective vector dimension as the index increases.\n    Non-vector dimensions *must* always be in-bounds. The `in_bounds` array\n    length has to be equal to the vector rank. This attribute has a default\n    value: `false` (i.e. \"out-of-bounds\"). When skipped in the textual IR, the\n    default value is assumed. Similarly, the OP printer will omit this\n    attribute when all dimensions are out-of-bounds (i.e. the default value is\n    used).\n\n     A `vector.transfer_write` can be lowered to a simple store if all\n     dimensions are specified to be within bounds and no `mask` was specified.\n\n    This operation is called 'write' by opposition to 'store' because the\n    super-vector granularity is generally not representable with a single\n    hardware register. A `vector.transfer_write` is thus a\n    mid-level abstraction that supports super-vectorization with non-effecting\n    padding for full-tile-only code. It is the responsibility of\n    `vector.transfer_write`'s implementation to ensure the memory writes are\n    valid. Different lowerings may be pertinent depending on the hardware\n    support.\n\n    Example:\n\n    ```mlir\n    // write vector<16x32x64xf32> into the slice\n    //   `%A[%i0, %i1:%i1+32, %i2:%i2+64, %i3:%i3+16]`:\n    for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 32 {\n        affine.for %i2 = 0 to %2 step 64 {\n          affine.for %i3 = 0 to %3 step 16 {\n            %val = `ssa-value` : vector<16x32x64xf32>\n            vector.transfer_write %val, %A[%i0, %i1, %i2, %i3]\n              {permutation_map: (d0, d1, d2, d3) -> (d3, d1, d2)} :\n              vector<16x32x64xf32>, memref<?x?x?x?xf32>\n    }}}}\n\n    // or equivalently (rewrite with vector.transpose)\n    for %i0 = 0 to %0 {\n      affine.for %i1 = 0 to %1 step 32 {\n        affine.for %i2 = 0 to %2 step 64 {\n          affine.for %i3 = 0 to %3 step 16 {\n            %val = `ssa-value` : vector<16x32x64xf32>\n            %valt = vector.transpose %val, [1, 2, 0] :\n                  vector<16x32x64xf32> -> vector<32x64x16xf32>\n            vector.transfer_write %valt, %A[%i0, %i1, %i2, %i3]\n              {permutation_map: (d0, d1, d2, d3) -> (d1, d2, d3)} :\n              vector<32x64x16xf32>, memref<?x?x?x?xf32>\n    }}}}\n\n    // write to a memref with vector element type.\n    vector.transfer_write %4, %arg1[%c3, %c3]\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : vector<1x1x4x3xf32>, memref<?x?xvector<4x3xf32>>\n\n    // return a tensor where the vector is inserted into the source tensor.\n    %5 = vector.transfer_write %4, %arg1[%c3, %c3]\n      {permutation_map = (d0, d1)->(d0, d1)}\n        : vector<1x1x4x3xf32>, tensor<?x?xvector<4x3xf32>>\n\n    // Special encoding for 0-d transfer with 0-d tensor/memref, vector shape\n    // {1} and permutation_map () -> (0).\n    %1 = vector.transfer_write %0, %arg0[] {permutation_map = affine_map<()->(0)>} :\n      vector<1xf32>, tensor<f32>\n    ```",
     "operands": [
       { "name": "valueToStore", "type": "AnyVectorOfAnyRank" },
       { "name": "base", "type": "AnyShaped" },
@@ -131783,6 +131965,33 @@
       { "name": "rhs_component_count", "type": "VHLO_AnyAttr" },
       { "name": "num_primitive_operations", "type": "VHLO_AnyAttr" },
       { "name": "allow_imprecise_accumulation", "type": "VHLO_AnyAttr" }
+    ]
+  },
+  {
+    "name": "vhlo.dot_general_v3",
+    "operands": [
+      { "name": "lhs", "type": "VHLO_AnyType" },
+      { "name": "rhs", "type": "VHLO_AnyType" },
+      { "name": "ext_operands", "type": "Variadic<VHLO_AnyType>" }
+    ],
+    "results": [
+      { "name": "result", "type": "VHLO_AnyType" }
+    ],
+    "attributes": [
+      { "name": "lhs_batching_dimensions", "type": "VHLO_AnyAttr" },
+      { "name": "rhs_batching_dimensions", "type": "VHLO_AnyAttr" },
+      { "name": "lhs_contracting_dimensions", "type": "VHLO_AnyAttr" },
+      { "name": "rhs_contracting_dimensions", "type": "VHLO_AnyAttr" },
+      { "name": "precision_config", "type": "VHLO_AnyAttr" },
+      { "name": "lhs_precision_type", "type": "VHLO_AnyAttr" },
+      { "name": "rhs_precision_type", "type": "VHLO_AnyAttr" },
+      { "name": "accumulation_type", "type": "VHLO_AnyAttr" },
+      { "name": "lhs_component_count", "type": "VHLO_AnyAttr" },
+      { "name": "rhs_component_count", "type": "VHLO_AnyAttr" },
+      { "name": "num_primitive_operations", "type": "VHLO_AnyAttr" },
+      { "name": "allow_imprecise_accumulation", "type": "VHLO_AnyAttr" },
+      { "name": "block_scaling_config", "type": "VHLO_AnyAttr" },
+      { "name": "sparsity_config", "type": "VHLO_AnyAttr" }
     ]
   },
   {
