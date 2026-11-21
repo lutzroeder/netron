@@ -869,7 +869,20 @@ mlir.Utility = class {
             return value.toString();
         }
         if (value instanceof _.Type) {
-            return value.toString();
+            const name = value.toString();
+            switch (name) {
+                case '!tf_type.qint8': return 'qint8';
+                case '!tf_type.qint16': return 'qint16';
+                case '!tf_type.qint32': return 'qint32';
+                case '!tf_type.quint8': return 'quint8';
+                case '!tf_type.quint16': return 'quint16';
+                case '!tfl.quint8': return 'quint8';
+                case '!torch.qint8': return 'qint8';
+                case '!torch.qint16': return 'qint16';
+                case '!torch.qint32': return 'qint32';
+                case '!torch.quint8': return 'quint8';
+                default: return name;
+            }
         }
         throw new mlir.Error(`Unexpected data type '${value}'.`);
     }

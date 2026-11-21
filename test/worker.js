@@ -373,10 +373,16 @@ export class Target {
                                         case 'float8e8m0': data_type = 'float16'; break;
                                         case 'float80': data_type = 'float64'; break;
                                         case 'float128': data_type = 'float64'; break;
+                                        case 'complex<float16>': data_type = 'complex64'; break;
                                         case 'complex<float32>': data_type = 'complex64'; break;
                                         case 'complex<float64>': data_type = 'complex128'; break;
                                         case 'int48': data_type = 'int64'; break;
                                         case 'mxi8': data_type = 'float16'; break;
+                                        case 'qint8': data_type = 'int8'; break;
+                                        case 'qint16': data_type = 'int16'; break;
+                                        case 'qint32': data_type = 'int32'; break;
+                                        case 'quint8': data_type = 'uint8'; break;
+                                        case 'quint16': data_type = 'uint16'; break;
                                         case 'quint4x2': data_type = 'uint8'; break;
                                         case 'quint2x4': data_type = 'uint8'; break;
                                         default: {
