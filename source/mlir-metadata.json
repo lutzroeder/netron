@@ -18088,7 +18088,7 @@
   {
     "name": "ifrt.BitcastArrays",
     "summary": "Bitcasts `Array`s to new `Array`s with a different type.",
-    "description": "A metadata-only op that can change the per-shard interpretation without\n    changing the per-sharding location. The new arrays must use the same\n    devices, have the same on-device size, and have the same memory kind.\n\n    The `dtype`, `shape`, `sharding`, and `layout` of the new arrays might be\n    different from the input arrays.",
+    "description": "A metadata-only op that can change the per-shard interpretation without\n    changing the per-sharding location. The input arrays must be donated\n    (`donated = true`), and the new arrays must use the same devices, have the\n    same on-device size, and have the same memory kind.\n\n    The `dtype`, `shape`, `sharding`, and `layout` of the new arrays might be\n    different from the input arrays.",
     "operands": [
       { "name": "inputs", "type": "Variadic<Ifrt_ArrayType>" },
       { "name": "control_inputs", "type": "Variadic<Ifrt_ControlType>" }
