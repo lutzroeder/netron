@@ -338,7 +338,8 @@ gguf.Graph = class {
                     // modern-bert block has no attn_norm
                     const inp = prevValue || newValue();
                     let cur = inp;
-                    const attnInput = applyComponent('attn_res_score', cur);
+                    const attnMix = applyComponent('attn_res_score', cur);
+                    const attnInput = applyComponent('loop_attn_ctrl', attnMix);
                     let n1 = attnInput;
                     if (has('attn_norm')) {
                         n1 = newValue();
@@ -364,16 +365,17 @@ gguf.Graph = class {
                     const r1 = newValue();
                     addOp('ADD', [preAdd1, attnResidual], r1);
                     cur = r1;
-                    const ffnInput = applyComponent('ffn_res_score', cur);
+                    const ffnMix = applyComponent('ffn_res_score', cur);
+                    const ffnInput = applyComponent('loop_ffn_ctrl', ffnMix);
                     const n2 = newValue();
                     addNode(use('ffn_norm'), [ffnInput], n2);
                     const ffnResidual = get('ffn_norm').residual === 'normalized' ? n2 : cur;
                     const ffnConv = applyComponent('ffn_pre_conv', n2);
                     const f1 = buildFfn(ffnConv);
-                    let preAdd2 = f1;
+                    let preAdd2 = applyComponent('ffn_post_conv', f1);
                     if (has('ffn_post_norm')) {
                         const pn = newValue();
-                        addNode(use('ffn_post_norm'), [f1], pn);
+                        addNode(use('ffn_post_norm'), [preAdd2], pn);
                         preAdd2 = pn;
                     }
                     const r2 = newValue();
