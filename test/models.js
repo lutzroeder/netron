@@ -1,4 +1,5 @@
 
+import './base.js';
 import * as fs from 'fs/promises';
 import * as inspector from 'inspector';
 import * as os from 'os';
