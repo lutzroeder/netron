@@ -39,8 +39,8 @@ sync() {
         git -C "${onnx_src_dir}" gc --quiet --prune=all
     fi
     popd > /dev/null
-    mkdir -p "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema"
-    curl --silent --show-error --location --output "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/raw/main/onnxruntime/core/flatbuffers/schema/ort.fbs"
+    # mkdir -p "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema"
+    # curl --silent --show-error --location --output "./third_party/source/onnx/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/raw/main/onnxruntime/core/flatbuffers/schema/ort.fbs"
 }
 
 install() {
@@ -93,11 +93,11 @@ schema() {
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
     fi
-    [[ $(grep -U $'\x0D' ./source/onnx-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root ort --out ./source/onnx-schema.js ${src_dir}/onnxruntime/core/flatbuffers/schema/ort.fbs
-    if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./source/onnx-schema.js ./source/onnx-schema.js
-    fi
+    # [[ $(grep -U $'\x0D' ./source/onnx-schema.js) ]] && crlf=1
+    # node ./tools/flatc.js --root ort --out ./source/onnx-schema.js ${src_dir}/onnxruntime/core/flatbuffers/schema/ort.fbs
+    # if [[ -n ${crlf} ]]; then
+    #     unix2dos --quiet --newfile ./source/onnx-schema.js ./source/onnx-schema.js
+    # fi
 }
 
 metadata() {
