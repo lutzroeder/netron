@@ -210,7 +210,8 @@ gguf.Graph = class {
                             const sharedOut = buildLinearFfn(input, 'ffn_gate_shexp', 'ffn_up_shexp', 'ffn_down_shexp');
                             const sum = newValue();
                             addOp('ADD', [moeOut, sharedOut], sum);
-                            return sum;
+                            // Raon reasoning-effort steering vector added to the MoE output
+                            return applyComponent('ffn_effort_steer', sum);
                         }
                         if (hasFusedExps && has('ffn_up')) {
                             let sharedOut = buildLinearFfn(input, 'ffn_gate', 'ffn_up', 'ffn_down');
@@ -613,7 +614,7 @@ gguf.Graph = class {
                 node.outputs.push(new gguf.Argument('output', [out]));
                 this.nodes.push(node);
                 perLayerOutputs[layer.name] = out;
-                if (((graph.type === 'qwen4exp' || graph.type === 'deepseek41') && layer.name === 'per_layer_token_embd') || layer.name === 'value_embd') {
+                if (((graph.type === 'qwen4exp' || graph.type === 'deepseek41' || graph.type === 'hy_v4_flash') && layer.name === 'per_layer_token_embd') || layer.name === 'value_embd') {
                     perLayerInputValue = out;
                 }
                 if (perLayerOutputs.per_layer_token_embd && perLayerOutputs.per_layer_proj_norm && !perLayerInputValue) {
