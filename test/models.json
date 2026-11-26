@@ -3503,6 +3503,13 @@
   },
   {
     "type":     "mlir",
+    "target":   "cat_detector.mlir",
+    "source":   "https://github.com/user-attachments/files/35486854/cat_detector.mlir.zip[cat_detector.mlir]",
+    "format":   "MLIR",
+    "link":     "https://github.com/lutzroeder/netron/issues/1044"
+  },
+  {
+    "type":     "mlir",
     "target":   "codegen.toy.mlir",
     "source":   "https://github.com/user-attachments/files/17878028/codegen.toy.mlir.zip[codegen.toy.mlir]",
     "format":   "MLIR",

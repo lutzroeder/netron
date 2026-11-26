@@ -8803,182 +8803,189 @@ _.AssemblyFormatParser = class {
 _.DialectContext = class {
 
     constructor(metadata) {
-        const operations = metadata.operations;
+        this._operations = metadata.operations;
         this._dialects = new Map();
-        this._dialects.set('builtin', new _.BuiltinDialect(operations));
-        this._dialects.set('std', new _.Dialect(operations, 'std'));
-        this._dialects.set('bufferization', new _.BufferizationDialect(operations));
-        this._dialects.set('stablehlo', new _.stablehlo.StableHLODialect(operations));
-        this._dialects.set('vhlo', new _.vhlo.VhloDialect(operations));
-        this._dialects.set('interpreter', new _.InterpreterDialect(operations));
-        this._dialects.set('affine', new _.AffineDialect(operations));
-        this._dialects.set('asuka', new _.AsukaDialect(operations));
-        this._dialects.set('arith', new _.ArithDialect(operations));
-        this._dialects.set('async', new _.async.AsyncDialect(operations));
-        this._dialects.set('cf', new _.CFDialect(operations));
-        this._dialects.set('emitc', new _.emitc.EmitCDialect(operations));
-        this._dialects.set('complex', new _.Dialect(operations, 'complex'));
-        this._dialects.set('index', new _.Dialect(operations, 'index'));
-        this._dialects.set('pdl', new _.pdl.PDLDialect(operations));
-        this._dialects.set('ptr', new _.ptr.PtrDialect(operations));
-        this._dialects.set('ub', new _.Dialect(operations, 'ub'));
-        this._dialects.set('amdgpu', new _.AMDGPUDialect(operations));
-        this._dialects.set('nvgpu', new _.nvgpu.NVGPUDialect(operations));
-        this._dialects.set('nvvm', new _.NVVMDialect(operations));
-        this._dialects.set('rocdl', new _.ROCDLDialect(operations));
-        this._dialects.set('nvws', new _.triton.nvws.NVWSDialect(operations));
-        this._dialects.set('tti', new _.triton.instrument.TritonInstrumentDialect(operations));
-        this._dialects.set('omp', new _.OpenMPDialect(operations));
-        this._dialects.set('proton', new _.triton.proton.ProtonDialect(operations));
-        this._dialects.set('proton_gpu', new _.Dialect(operations, 'proton_gpu'));
-        this._dialects.set('arm_sme', new _.ArmSMEDialect(operations));
-        this._dialects.set('arm_neon', new _.ArmNeonDialect(operations));
-        this._dialects.set('arm_sve', new _.ArmSVEDialect(operations));
-        this._dialects.set('shard', new _.ShardDialect(operations));
-        this._dialects.set('smt', new _.smt.SMTDialect(operations));
-        this._dialects.set('lagrad', new _.Dialect(operations, 'lagrad'));
-        this._dialects.set('iree_codegen', new _.IREECodegenDialect(operations));
-        this._dialects.set('iree_encoding', new _.Dialect(operations, 'iree_encoding'));
-        this._dialects.set('test', new _.test.TestDialect(operations));
-        this._dialects.set('scf', new _.SCFDialect(operations));
-        this._dialects.set('shape', new _.ShapeDialect(operations));
-        this._dialects.set('sparse_tensor', new _.SparseTensorDialect(operations));
-        this._dialects.set('func', new _.FuncDialect(operations));
-        this._dialects.set('gpu', new _.GpuDialect(operations));
-        this._dialects.set('llvm', new _.llvm.LLVMDialect(operations));
-        this._dialects.set('xegpu', new _.xegpu.XeGPUDialect(operations));
-        this._dialects.set('memref', new _.MemRefDialect(operations));
-        this._dialects.set('vector', new _.VectorDialect(operations));
-        this._dialects.set('x86', new _.Dialect(operations, 'x86'));
-        this._dialects.set('x86vector', new _.Dialect(operations, 'x86vector'));
-        this._dialects.set('onnx', new _.ONNXDialect(operations));
-        this._dialects.set('krnl', new _.KrnlDialect(operations));
-        this._dialects.set('torch', new _.torch.TorchDialect(operations));
-        this._dialects.set('torch_c', new _.Dialect(operations, 'torch_c'));
-        this._dialects.set('hal', new _.HALDialect(operations));
-        this._dialects.set('hal_loader', new _.HALLoaderDialect(operations));
-        this._dialects.set('hal_inline', new _.Dialect(operations, 'hal_inline'));
-        this._dialects.set('util', new _.UtilDialect(operations));
-        this._dialects.set('mhlo', new _.hlo.MhloDialect(operations));
-        this._dialects.set('chlo', new _.hlo.ChloDialect(operations));
-        this._dialects.set('thlo', new _.THLODialect(operations));
-        this._dialects.set('flow', new _.FlowDialect(operations));
-        this._dialects.set('stream', new _.StreamDialect(operations));
-        this._dialects.set('iree_vector_ext', new _.IREEVectorExtDialect(operations));
-        this._dialects.set('iree_tensor_ext', new _.IREETensorExtDialect(operations));
-        this._dialects.set('linalg', new _.LinalgDialect(operations));
-        this._dialects.set('iree_linalg_ext', new _.Dialect(operations, 'iree_linalg_ext'));
-        this._dialects.set('linalg_ext', this._dialects.get('iree_linalg_ext'));
-        this._dialects.set('quant', new _.quant.QuantDialect(operations));
-        this._dialects.set('tensor', new _.TensorDialect(operations));
-        this._dialects.set('tosa', new _.TosaDialect(operations));
-        this._dialects.set('tf', new _.TFDialect(operations));
-        this._dialects.set('tf_saved_model', new _.Dialect(operations, 'tf_saved_model'));
-        this._dialects.set('tf_type', new _.TFTypeDialect(operations));
-        this._dialects.set('tf_device', new _.TFDeviceDialect(operations));
-        this._dialects.set('tf_executor', new _.TFExecutorDialect(operations));
-        this._dialects.set('tf_framework', new _.TFFrameworkDialect(operations));
-        this._dialects.set('tfr', new _.TFRDialect(operations));
-        this._dialects.set('corert', new _.CoreRTDialect(operations));
-        this._dialects.set('tfrt', new _.TFRTDialect(operations));
-        this._dialects.set('tfrt_fallback', new _.Dialect(operations, 'tfrt_fallback'));
-        this._dialects.set('tfrt_fallback_async', new _.TFRTFallbackAsyncDialect(operations));
-        this._dialects.set('tfl', new _.TFLDialect(operations));
-        this._dialects.set('stdx', new _.StdxDialect(operations));
-        this._dialects.set('vm', new _.vm.VMDialect(operations));
-        this._dialects.set('math', new _.MathDialect(operations));
-        this._dialects.set('tm_tensor', new _.torch.TMTensorDialect(operations));
-        this._dialects.set('ml_program', new _.MLProgramDialect(operations));
-        this._dialects.set('iree_gpu', new _.IREEGPUDialect(operations));
-        this._dialects.set('tile', new _.TileDialect(operations));
-        this._dialects.set('pxa', new _.PXADialect(operations));
-        this._dialects.set('irdl', new _.IRDLDialect(operations));
-        this._dialects.set('transform', new _.TransformDialect(operations));
-        this._dialects.set('wasmssa', new _.WasmSSADialect(operations));
-        this._dialects.set('spirv', new _.spirv.SPIRVDialect(operations));
-        this._dialects.set('spv', this._dialects.get('spirv'));
-        this._dialects.set('toy', new _.hlo.ToyDialect(operations));
-        this._dialects.set('top', new _.Dialect(operations, 'top'));
-        this._dialects.set('tpu', new _.Dialect(operations, 'tpu'));
-        this._dialects.set('sdfg', new _.SdfgDialect(operations));
-        this._dialects.set('sdir', this._dialects.get('sdfg'));
-        this._dialects.set('check', new _.Dialect(operations, 'check'));
-        this._dialects.set('tt', new _.triton.TritonDialect(operations));
-        this._dialects.set('ttg', new _.triton.gpu.TritonGPUDialect(operations));
-        this._dialects.set('triton_gpu', this._dialects.get('ttg'));
-        this._dialects.set('gluon', new _.triton.gluon.GluonDialect(operations));
-        this._dialects.set('ttng', new _.triton.nvidia_gpu.TritonNvidiaGPUDialect(operations));
-        this._dialects.set('nvidia_gpu', this._dialects.get('ttng'));
-        this._dialects.set('amdg', new _.triton.amdgpu.TritonAMDGPUDialect(operations));
-        this._dialects.set('amd_gpu', this._dialects.get('amdg'));
-        this._dialects.set('michelson', new _.MichelsonDialect(operations));
-        this._dialects.set('tensorrt', new _.tensorrt.TensorRTDialect(operations));
-        this._dialects.set('executor', new _.executor.ExecutorDialect(operations));
-        this._dialects.set('exec', this._dialects.get('executor'));
-        this._dialects.set('tfrt_test', new _.TFRTTestDialect(operations));
-        this._dialects.set('xevm', new _.XeVMDialect(operations));
-        this._dialects.set('vmvx', new _.VMVXDialect(operations));
-        this._dialects.set('mlrt', new _.MLRTDialect(operations));
-        this._dialects.set('tfrt_tensor', new _.TFRTTensorDialect(operations));
-        this._dialects.set('tfrt_dht', new _.TFRTDHTDialect(operations));
-        this._dialects.set('coo', new _.Dialect(operations, 'coo'));
-        this._dialects.set('tfd', new _.TFDDialect(operations));
-        this._dialects.set('acc', new _.ACCDialect(operations));
-        this._dialects.set('cuda', new _.Dialect(operations, 'cuda'));
-        this._dialects.set('trtrt', new _.Dialect(operations, 'trtrt'));
-        this._dialects.set('plan', new _.PlanDialect(operations));
-        this._dialects.set('kernel', new _.KernelDialect(operations));
-        this._dialects.set('nvg', new _.Dialect(operations, 'nvg'));
-        this._dialects.set('mpi', new _.Dialect(operations, 'mpi'));
-        this._dialects.set('pdl_interp', new _.PDLInterpDialect(operations));
-        this._dialects.set('standalone', new _.Dialect(operations, 'standalone'));
-        this._dialects.set('custom', new _.Dialect(operations, 'custom'));
-        this._dialects.set('layer', new _.Dialect(operations, 'layer'));
-        this._dialects.set('foo', new _.Dialect(operations, 'foo'));
-        this._dialects.set('some', new _.Dialect(operations, 'some'));
-        this._dialects.set('ts', new _.Dialect(operations, 'ts'));
-        this._dialects.set('tf_mlrt', new _.Dialect(operations, 'tf_mlrt'));
-        this._dialects.set('io_parameters', new _.IOParametersDialect(operations));
-        this._dialects.set('pcf', new _.PCFDialect(operations));
-        this._dialects.set('linalgx', new _.Dialect(operations, 'linalgx'));
-        this._dialects.set('xsmm', new _.XSMMDialect(operations));
-        this._dialects.set('sdy', new _.SdyDialect(operations));
-        this._dialects.set('mpmd', new _.MPMDDialect(operations));
-        this._dialects.set('tfg', new _.TFGDialect(operations));
-        this._dialects.set('vt', new _.Dialect(operations, 'vt'));
-        this._dialects.set('testd', new _.Dialect(operations, 'testd'));
-        this._dialects.set('cmath', new _.Dialect(operations, 'cmath'));
-        this._dialects.set('bytecode', new _.Dialect(operations, 'bytecode'));
-        this._dialects.set('test_irdl_to_cpp', new _.Dialect(operations, 'test_irdl_to_cpp'));
-        this._dialects.set('iree_unregistered', new _.Dialect(operations, 'iree_unregistered'));
-        this._dialects.set('cir', new _.Dialect(operations, 'cir'));
-        this._dialects.set('migraphx', new _.Dialect(operations, 'migraphx'));
-        this._dialects.set('xla', new _.XlaDialect(operations));
-        this._dialects.set('xla_gpu', new _.XlaGpuDialect(operations));
-        this._dialects.set('xla_cpu', new _.Dialect(operations, 'xla_cpu'));
-        this._dialects.set('xla_framework', new _.Dialect(operations, 'xla_framework'));
-        this._dialects.set('ifrt', new _.Dialect(operations, 'ifrt'));
-        this._dialects.set('vifrt', new _.VifrtDialect(operations));
-        this._dialects.set('triton_xla', new _.triton.xla.TritonXlaDialect(operations));
-        this._dialects.set('xtile', new _.XTileDialect(operations));
-        this._dialects.set('xten_nn', new _.XtenNNDialect(operations));
-        this._dialects.set('ensemble', new _.EnsembleDialect(operations));
-        this._dialects.set('poly', new _.PolyDialect(operations));
-        this._dialects.set('noisy', new _.NoisyDialect(operations));
-        this._dialects.set('plugin', new _.Dialect(operations, 'plugin'));
-        this._dialects.set('ttcore', new _.Dialect(operations, 'ttcore'));
-        this._dialects.set('ttir', new _.Dialect(operations, 'ttir'));
-        this._dialects.set('ttnn', new _.Dialect(operations, 'ttnn'));
-        this._dialects.set('ttkernel', new _.Dialect(operations, 'ttkernel'));
-        this._dialects.set('ttmetal', new _.Dialect(operations, 'ttmetal'));
+        this._registry = new Map([
+            ['builtin', _.BuiltinDialect],
+            ['std', _.Dialect],
+            ['bufferization', _.BufferizationDialect],
+            ['stablehlo', _.stablehlo.StableHLODialect],
+            ['vhlo', _.vhlo.VhloDialect],
+            ['interpreter', _.InterpreterDialect],
+            ['affine', _.AffineDialect],
+            ['asuka', _.AsukaDialect],
+            ['arith', _.ArithDialect],
+            ['async', _.async.AsyncDialect],
+            ['cf', _.CFDialect],
+            ['emitc', _.emitc.EmitCDialect],
+            ['complex', _.Dialect],
+            ['index', _.Dialect],
+            ['pdl', _.pdl.PDLDialect],
+            ['ptr', _.ptr.PtrDialect],
+            ['ub', _.Dialect],
+            ['amdgpu', _.AMDGPUDialect],
+            ['nvgpu', _.nvgpu.NVGPUDialect],
+            ['nvvm', _.NVVMDialect],
+            ['rocdl', _.ROCDLDialect],
+            ['nvws', _.triton.nvws.NVWSDialect],
+            ['tti', _.triton.instrument.TritonInstrumentDialect],
+            ['omp', _.OpenMPDialect],
+            ['proton', _.triton.proton.ProtonDialect],
+            ['proton_gpu', _.Dialect],
+            ['arm_sme', _.ArmSMEDialect],
+            ['arm_neon', _.ArmNeonDialect],
+            ['arm_sve', _.ArmSVEDialect],
+            ['shard', _.ShardDialect],
+            ['smt', _.smt.SMTDialect],
+            ['lagrad', _.Dialect],
+            ['iree_codegen', _.IREECodegenDialect],
+            ['iree_encoding', _.Dialect],
+            ['test', _.test.TestDialect],
+            ['scf', _.SCFDialect],
+            ['shape', _.ShapeDialect],
+            ['sparse_tensor', _.SparseTensorDialect],
+            ['func', _.FuncDialect],
+            ['gpu', _.GpuDialect],
+            ['llvm', _.llvm.LLVMDialect],
+            ['xegpu', _.xegpu.XeGPUDialect],
+            ['memref', _.MemRefDialect],
+            ['vector', _.VectorDialect],
+            ['x86', _.Dialect],
+            ['x86vector', _.Dialect],
+            ['onnx', _.ONNXDialect],
+            ['krnl', _.KrnlDialect],
+            ['torch', _.torch.TorchDialect],
+            ['torch_c', _.Dialect],
+            ['hal', _.HALDialect],
+            ['hal_loader', _.HALLoaderDialect],
+            ['hal_inline', _.Dialect],
+            ['util', _.UtilDialect],
+            ['mhlo', _.hlo.MhloDialect],
+            ['chlo', _.hlo.ChloDialect],
+            ['thlo', _.THLODialect],
+            ['flow', _.FlowDialect],
+            ['stream', _.StreamDialect],
+            ['iree_vector_ext', _.IREEVectorExtDialect],
+            ['iree_tensor_ext', _.IREETensorExtDialect],
+            ['linalg', _.LinalgDialect],
+            ['iree_linalg_ext', _.Dialect],
+            ['quant', _.quant.QuantDialect],
+            ['tensor', _.TensorDialect],
+            ['tosa', _.TosaDialect],
+            ['tf', _.TFDialect],
+            ['tf_saved_model', _.Dialect],
+            ['tf_type', _.TFTypeDialect],
+            ['tf_device', _.TFDeviceDialect],
+            ['tf_executor', _.TFExecutorDialect],
+            ['tf_framework', _.TFFrameworkDialect],
+            ['tfr', _.TFRDialect],
+            ['corert', _.CoreRTDialect],
+            ['tfrt', _.TFRTDialect],
+            ['tfrt_fallback', _.Dialect],
+            ['tfrt_fallback_async', _.TFRTFallbackAsyncDialect],
+            ['tfl', _.TFLDialect],
+            ['stdx', _.StdxDialect],
+            ['vm', _.vm.VMDialect],
+            ['math', _.MathDialect],
+            ['tm_tensor', _.torch.TMTensorDialect],
+            ['ml_program', _.MLProgramDialect],
+            ['iree_gpu', _.IREEGPUDialect],
+            ['tile', _.TileDialect],
+            ['pxa', _.PXADialect],
+            ['irdl', _.IRDLDialect],
+            ['transform', _.TransformDialect],
+            ['wasmssa', _.WasmSSADialect],
+            ['spirv', _.spirv.SPIRVDialect],
+            ['toy', _.hlo.ToyDialect],
+            ['top', _.Dialect],
+            ['tpu', _.Dialect],
+            ['sdfg', _.SdfgDialect],
+            ['check', _.Dialect],
+            ['tt', _.triton.TritonDialect],
+            ['ttg', _.triton.gpu.TritonGPUDialect],
+            ['gluon', _.triton.gluon.GluonDialect],
+            ['ttng', _.triton.nvidia_gpu.TritonNvidiaGPUDialect],
+            ['amdg', _.triton.amdgpu.TritonAMDGPUDialect],
+            ['michelson', _.MichelsonDialect],
+            ['tensorrt', _.tensorrt.TensorRTDialect],
+            ['executor', _.executor.ExecutorDialect],
+            ['tfrt_test', _.TFRTTestDialect],
+            ['xevm', _.XeVMDialect],
+            ['vmvx', _.VMVXDialect],
+            ['mlrt', _.MLRTDialect],
+            ['tfrt_tensor', _.TFRTTensorDialect],
+            ['tfrt_dht', _.TFRTDHTDialect],
+            ['coo', _.Dialect],
+            ['tfd', _.TFDDialect],
+            ['acc', _.ACCDialect],
+            ['cuda', _.Dialect],
+            ['trtrt', _.Dialect],
+            ['plan', _.PlanDialect],
+            ['kernel', _.KernelDialect],
+            ['nvg', _.Dialect],
+            ['mpi', _.Dialect],
+            ['pdl_interp', _.PDLInterpDialect],
+            ['standalone', _.Dialect],
+            ['custom', _.Dialect],
+            ['layer', _.Dialect],
+            ['foo', _.Dialect],
+            ['some', _.Dialect],
+            ['ts', _.Dialect],
+            ['tf_mlrt', _.Dialect],
+            ['io_parameters', _.IOParametersDialect],
+            ['pcf', _.PCFDialect],
+            ['linalgx', _.Dialect],
+            ['xsmm', _.XSMMDialect],
+            ['sdy', _.SdyDialect],
+            ['mpmd', _.MPMDDialect],
+            ['tfg', _.TFGDialect],
+            ['vt', _.Dialect],
+            ['testd', _.Dialect],
+            ['cmath', _.Dialect],
+            ['bytecode', _.Dialect],
+            ['test_irdl_to_cpp', _.Dialect],
+            ['iree_unregistered', _.Dialect],
+            ['cir', _.Dialect],
+            ['migraphx', _.Dialect],
+            ['xla', _.XlaDialect],
+            ['xla_gpu', _.XlaGpuDialect],
+            ['xla_cpu', _.Dialect],
+            ['xla_framework', _.Dialect],
+            ['ifrt', _.Dialect],
+            ['vifrt', _.VifrtDialect],
+            ['triton_xla', _.triton.xla.TritonXlaDialect],
+            ['xtile', _.XTileDialect],
+            ['xten_nn', _.XtenNNDialect],
+            ['ensemble', _.EnsembleDialect],
+            ['poly', _.PolyDialect],
+            ['noisy', _.NoisyDialect],
+            ['plugin', _.Dialect],
+            ['ttcore', _.Dialect],
+            ['ttir', _.Dialect],
+            ['ttnn', _.Dialect],
+            ['ttkernel', _.Dialect],
+            ['ttmetal', _.Dialect],
+        ]);
+        this._aliases = new Map([
+            ['linalg_ext', 'iree_linalg_ext'],
+            ['spv', 'spirv'],
+            ['sdir', 'sdfg'],
+            ['triton_gpu', 'ttg'],
+            ['nvidia_gpu', 'ttng'],
+            ['amd_gpu', 'amdg'],
+            ['exec', 'executor'],
+        ]);
     }
 
     getOrLoadDialect(name) {
+        if (this._aliases.has(name)) {
+            name = this._aliases.get(name);
+        }
+        if (!this._dialects.has(name) && this._registry.has(name)) {
+            const type = this._registry.get(name);
+            this._dialects.set(name, new type(this._operations, name));
+        }
         return this._dialects.get(name);
-    }
-
-    getLoadedDialect(name) {
-        return this._dialects.has(name);
     }
 
     undocumented(name) {
