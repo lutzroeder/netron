@@ -373,57 +373,42 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
 };
 
 DataView.prototype.getComplexInt32 = DataView.prototype.getComplexInt32 || function(byteOffset, littleEndian) {
-    const real = littleEndian ? this.getInt32(byteOffset, littleEndian) : this.getInt32(byteOffset + 4, littleEndian);
-    const imaginary = littleEndian ? this.getInt32(byteOffset + 4, littleEndian) : this.getInt32(byteOffset, littleEndian);
+    const real = this.getInt32(byteOffset, littleEndian);
+    const imaginary = this.getInt32(byteOffset + 4, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
 DataView.prototype.getComplexFloat16 = DataView.prototype.getComplexFloat16 || function(byteOffset, littleEndian) {
-    const real = littleEndian ? this.getFloat16(byteOffset, littleEndian) : this.getFloat16(byteOffset + 2, littleEndian);
-    const imaginary = littleEndian ? this.getFloat16(byteOffset + 2, littleEndian) : this.getFloat16(byteOffset, littleEndian);
+    const real = this.getFloat16(byteOffset, littleEndian);
+    const imaginary = this.getFloat16(byteOffset + 2, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
 DataView.prototype.setComplexFloat16 = DataView.prototype.setComplexFloat16 || function(byteOffset, value, littleEndian) {
-    if (littleEndian) {
-        this.setFloat16(byteOffset, value.real, littleEndian);
-        this.setFloat16(byteOffset + 2, value.imaginary, littleEndian);
-    } else {
-        this.setFloat16(byteOffset + 2, value.real, littleEndian);
-        this.setFloat16(byteOffset, value.imaginary, littleEndian);
-    }
+    this.setFloat16(byteOffset, value.real, littleEndian);
+    this.setFloat16(byteOffset + 2, value.imaginary, littleEndian);
 };
 
 DataView.prototype.getComplexFloat32 = DataView.prototype.getComplexFloat32 || function(byteOffset, littleEndian) {
-    const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
-    const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
+    const real = this.getFloat32(byteOffset, littleEndian);
+    const imaginary = this.getFloat32(byteOffset + 4, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
 DataView.prototype.setComplexFloat32 = DataView.prototype.setComplexFloat32 || function(byteOffset, value, littleEndian) {
-    if (littleEndian) {
-        this.setFloat32(byteOffset, value.real, littleEndian);
-        this.setFloat32(byteOffset + 4, value.imaginary, littleEndian);
-    } else {
-        this.setFloat32(byteOffset + 4, value.real, littleEndian);
-        this.setFloat32(byteOffset, value.imaginary, littleEndian);
-    }
+    this.setFloat32(byteOffset, value.real, littleEndian);
+    this.setFloat32(byteOffset + 4, value.imaginary, littleEndian);
 };
 
 DataView.prototype.getComplexFloat64 = DataView.prototype.getComplexFloat64 || function(byteOffset, littleEndian) {
-    const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
-    const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
+    const real = this.getFloat64(byteOffset, littleEndian);
+    const imaginary = this.getFloat64(byteOffset + 8, littleEndian);
     return new base.Complex(real, imaginary);
 };
 
 DataView.prototype.setComplexFloat64 = DataView.prototype.setComplexFloat64 || function(byteOffset, value, littleEndian) {
-    if (littleEndian) {
-        this.setFloat64(byteOffset, value.real, littleEndian);
-        this.setFloat64(byteOffset + 8, value.imaginary, littleEndian);
-    } else {
-        this.setFloat64(byteOffset + 8, value.real, littleEndian);
-        this.setFloat64(byteOffset, value.imaginary, littleEndian);
-    }
+    this.setFloat64(byteOffset, value.real, littleEndian);
+    this.setFloat64(byteOffset + 8, value.imaginary, littleEndian);
 };
 
 /* eslint-enable no-extend-native */
