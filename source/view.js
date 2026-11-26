@@ -4744,6 +4744,8 @@ view.DocumentationSidebar = class extends view.Control {
         this._escapeReplacementsMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
         this._escapeTestNoEncodeRegExp = /[<>"']|&(?!#?\w+;)/;
         this._escapeReplaceNoEncodeRegExp = /[<>"']|&(?!#?\w+;)/g;
+        this._tags = new Set(['a', 'b', 'blockquote', 'br', 'code', 'del', 'details', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'img', 'li', 'ol', 'p', 'pre', 'strong', 'summary', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'tt', 'ul']);
+        this._attributes = new Set(['alt', 'href', 'src', 'start', 'style', 'target']);
     }
 
     get identifier() {
@@ -4754,7 +4756,7 @@ view.DocumentationSidebar = class extends view.Control {
         if (!this.element) {
             this.element = this.createElement('div', 'sidebar-documentation');
             const type = view.Documentation.open(this._type);
-            this._append(this.element, 'h1', type.name);
+            this._append(this.element, 'h1', this._escape(type.name));
             if (type.summary) {
                 this._append(this.element, 'p', type.summary);
             }
@@ -4825,7 +4827,21 @@ view.DocumentationSidebar = class extends view.Control {
     _append(parent, type, content) {
         const element = this.createElement(type);
         if (content) {
-            element.innerHTML = content;
+            const template = this.createElement('template');
+            template.innerHTML = content;
+            for (const node of template.content.querySelectorAll('*')) {
+                if (this._tags.has(node.localName)) {
+                    for (const attribute of Array.from(node.attributes)) {
+                        const url = attribute.name === 'href' || attribute.name === 'src';
+                        if (!this._attributes.has(attribute.name) || (url && !/^(https?:|#)/i.test(attribute.value.trim()))) {
+                            node.removeAttribute(attribute.name);
+                        }
+                    }
+                } else {
+                    node.replaceWith(...node.childNodes);
+                }
+            }
+            element.appendChild(template.content);
         }
         parent.appendChild(element);
         return element;
