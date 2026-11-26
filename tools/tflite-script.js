@@ -4,17 +4,6 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as url from 'url';
 
-/* eslint-disable no-extend-native */
-
-BigInt.prototype.toNumber = function() {
-    if (this > Number.MAX_SAFE_INTEGER || this < Number.MIN_SAFE_INTEGER) {
-        throw new Error('64-bit value exceeds safe integer.');
-    }
-    return Number(this);
-};
-
-/* eslint-enable no-extend-native */
-
 const main = async () => {
     const dirname = path.dirname(url.fileURLToPath(import.meta.url));
     const schema = path.join(dirname, '..', 'third_party', 'source', 'tensorflow', 'tensorflow', 'compiler', 'mlir', 'lite', 'schema', 'schema.fbs');
@@ -63,7 +52,7 @@ const main = async () => {
                 const type = field.type;
                 let defaultValue = field.defaultValue;
                 if (typeof defaultValue === 'bigint') {
-                    defaultValue = defaultValue.toNumber();
+                    defaultValue = Number(defaultValue);
                 }
                 if (type instanceof flatc.Enum) {
                     if (!type.keys.has(defaultValue)) {

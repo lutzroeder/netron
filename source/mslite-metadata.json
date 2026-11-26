@@ -20,7 +20,8 @@
       { "name": "min_val", "type": "float32", "default": -1 },
       { "name": "max_val", "type": "float32", "default": 1 },
       { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
-      { "name": "approximate", "type": "boolean", "default": false }
+      { "name": "approximate", "type": "boolean", "default": false },
+      { "name": "beta", "type": "float32", "default": 0 }
     ],
     "inputs": [
       { "name": "input" }
@@ -528,7 +529,9 @@
     "attributes": [
       { "name": "dataType", "type": "int32", "default": 0 },
       { "name": "value", "type": "float32[]", "default": 0 },
-      { "name": "data_type", "type": "int64", "default": 0 }
+      { "name": "data_type", "type": "int64", "default": 0 },
+      { "name": "element_size", "type": "int32", "default": 0 },
+      { "name": "shape", "type": "int64[]", "default": 0 }
     ],
     "outputs": [
       { "name": "output" }

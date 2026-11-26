@@ -59,6 +59,9 @@ const main = async () => {
                 const attribute = attributes.get(attr_key);
                 const type = field.type;
                 let defaultValue = field.defaultValue;
+                if (typeof defaultValue === 'bigint') {
+                    defaultValue = Number(defaultValue);
+                }
                 if (type instanceof flatc.Enum) {
                     if (!type.keys.has(defaultValue)) {
                         throw new Error(`Invalid '${type.name}' default value '${defaultValue}'.`);

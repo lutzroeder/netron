@@ -68,7 +68,8 @@ mindspore.schema.ActivationType = {
     SWISH: 18, '18': 'SWISH',
     GELU: 19, '19': 'GELU',
     FAST_GELU: 20, '20': 'FAST_GELU',
-    UNKNOWN: 21, '21': 'UNKNOWN'
+    CELU: 27, '27': 'CELU',
+    UNKNOWN: 40, '40': 'UNKNOWN'
 };
 
 mindspore.schema.ReduceMode = {
@@ -651,6 +652,7 @@ mindspore.schema.Activation = class Activation {
         $.min_val = reader.float32_(position, 8, 0);
         $.max_val = reader.float32_(position, 10, 0);
         $.approximate = reader.bool_(position, 12, false);
+        $.beta = reader.float32_(position, 14, 0);
         return $;
     }
 
@@ -661,6 +663,7 @@ mindspore.schema.Activation = class Activation {
         $.min_val = reader.value(json.min_val, 0);
         $.max_val = reader.value(json.max_val, 0);
         $.approximate = reader.value(json.approximate, false);
+        $.beta = reader.value(json.beta, 0);
         return $;
     }
 };
@@ -833,7 +836,7 @@ mindspore.schema.ArgMinFusion = class ArgMinFusion {
     static decode(reader, position) {
         const $ = new mindspore.schema.ArgMinFusion();
         $.axis = reader.int64_(position, 4, 0n);
-        $.top_k = reader.int64_(position, 6, 0n);
+        $.top_k = reader.int64_(position, 6, 1n);
         $.keep_dims = reader.bool_(position, 8, false);
         $.out_max_value = reader.bool_(position, 10, false);
         return $;
@@ -842,7 +845,7 @@ mindspore.schema.ArgMinFusion = class ArgMinFusion {
     static decodeText(reader, json) {
         const $ = new mindspore.schema.ArgMinFusion();
         $.axis = reader.int64(json.axis, 0n);
-        $.top_k = reader.int64(json.top_k, 0n);
+        $.top_k = reader.int64(json.top_k, 1n);
         $.keep_dims = reader.value(json.keep_dims, false);
         $.out_max_value = reader.value(json.out_max_value, false);
         return $;
@@ -1346,6 +1349,8 @@ mindspore.schema.ConstantOfShape = class ConstantOfShape {
         const $ = new mindspore.schema.ConstantOfShape();
         $.data_type = reader.int64_(position, 4, 0n);
         $.value = reader.array(position, 6, Float32Array);
+        $.element_size = reader.int32_(position, 8, 0);
+        $.shape = reader.int64s_(position, 10);
         return $;
     }
 
@@ -1353,6 +1358,8 @@ mindspore.schema.ConstantOfShape = class ConstantOfShape {
         const $ = new mindspore.schema.ConstantOfShape();
         $.data_type = reader.int64(json.data_type, 0n);
         $.value = reader.array(json.value, Float32Array);
+        $.element_size = reader.value(json.element_size, 0);
+        $.shape = reader.array(json.shape);
         return $;
     }
 };

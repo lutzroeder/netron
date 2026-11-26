@@ -4,7 +4,8 @@ export const mind_ir = {};
 mind_ir.Version = {
     "IR_VERSION_START": 0,
     "IR_VERSION": 1,
-    "IR_VERSION_WITH_PRIM_FUNCTION": 2
+    "IR_VERSION_WITH_PRIM_FUNCTION": 2,
+    "IR_VERSION_WITH_SCALAR_GRAPH_HOLDER": 3
 };
 
 mind_ir.AttributeProto = class AttributeProto {
@@ -82,6 +83,9 @@ mind_ir.AttributeProto = class AttributeProto {
                 case 19:
                     message.functor = mind_ir.FunctorProto.decode(reader, reader.uint32());
                     break;
+                case 20:
+                    message.graph_holder = mind_ir.ScalarGraphHolderProto.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -153,6 +157,9 @@ mind_ir.AttributeProto = class AttributeProto {
                 case "functor":
                     message.functor = mind_ir.FunctorProto.decodeText(reader);
                     break;
+                case "graph_holder":
+                    message.graph_holder = mind_ir.ScalarGraphHolderProto.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -174,6 +181,7 @@ mind_ir.AttributeProto.prototype.ref_attr_name = "";
 mind_ir.AttributeProto.prototype.type = 0;
 mind_ir.AttributeProto.prototype.seq_info = null;
 mind_ir.AttributeProto.prototype.functor = null;
+mind_ir.AttributeProto.prototype.graph_holder = null;
 
 mind_ir.AttributeProto.AttributeType = {
     "UNDEFINED": 0,
@@ -215,7 +223,8 @@ mind_ir.AttributeProto.AttributeType = {
     "TYPE_NULL": 36,
     "MAP_TENSOR": 37,
     "FUNCTOR": 38,
-    "SCALAR": 39
+    "SCALAR": 39,
+    "SCALAR_GRAPH_HOLDER": 40
 };
 
 mind_ir.AttributeProto.SeqInfoProto = class SeqInfoProto {
@@ -321,7 +330,8 @@ mind_ir.FunctorProto.prototype.type = 1;
 mind_ir.FunctorProto.prototype.name = "";
 
 mind_ir.FunctorProto.FunctorType = {
-    "SHAPE_CALC_FUNCTOR": 1
+    "SHAPE_CALC_FUNCTOR": 1,
+    "ANY_FUNCTOR": 2
 };
 
 mind_ir.ValueInfoProto = class ValueInfoProto {
@@ -1283,6 +1293,7 @@ mind_ir.LayoutProto = class LayoutProto {
         this.device_arrangement_int = [];
         this.tensor_map_int = [];
         this.slice_shape_int = [];
+        this.opt_shard_slice_shape_int = [];
     }
 
     static decode(reader, length) {
@@ -1323,6 +1334,9 @@ mind_ir.LayoutProto = class LayoutProto {
                     break;
                 case 11:
                     message.sr_tag = reader.int64();
+                    break;
+                case 12:
+                    message.opt_shard_slice_shape_int = reader.array(message.opt_shard_slice_shape_int, () => reader.int64(), tag);
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1370,6 +1384,9 @@ mind_ir.LayoutProto = class LayoutProto {
                     break;
                 case "sr_tag":
                     message.sr_tag = reader.int64();
+                    break;
+                case "opt_shard_slice_shape_int":
+                    reader.array(message.opt_shard_slice_shape_int, () => reader.int64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -1462,4 +1479,108 @@ mind_ir.PrimitiveProto.prototype.prim_type = 1;
 mind_ir.PrimitiveProto.PrimType = {
     "PRIMITIVE": 1,
     "PRIMITIVE_FUNCTION": 2
+};
+
+mind_ir.ScalarNodeProto = class ScalarNodeProto {
+
+    constructor() {
+        this.in_index = [];
+        this.value = [];
+    }
+
+    static decode(reader, length) {
+        const message = new mind_ir.ScalarNodeProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.scalar_op_type = reader.int64();
+                    break;
+                case 2:
+                    message.in_index = reader.array(message.in_index, () => reader.int64(), tag);
+                    break;
+                case 3:
+                    message.value = reader.array(message.value, () => reader.int64(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new mind_ir.ScalarNodeProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "scalar_op_type":
+                    message.scalar_op_type = reader.int64();
+                    break;
+                case "in_index":
+                    reader.array(message.in_index, () => reader.int64());
+                    break;
+                case "value":
+                    reader.array(message.value, () => reader.int64());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+mind_ir.ScalarNodeProto.prototype.scalar_op_type = 0n;
+
+mind_ir.ScalarGraphHolderProto = class ScalarGraphHolderProto {
+
+    constructor() {
+        this.scalar_node = [];
+        this.input_shape_index = [];
+    }
+
+    static decode(reader, length) {
+        const message = new mind_ir.ScalarGraphHolderProto();
+        const end = length === undefined ? reader.length : reader.position + length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.scalar_node.push(mind_ir.ScalarNodeProto.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.input_shape_index = reader.array(message.input_shape_index, () => reader.uint64(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new mind_ir.ScalarGraphHolderProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "scalar_node":
+                    message.scalar_node.push(mind_ir.ScalarNodeProto.decodeText(reader));
+                    break;
+                case "input_shape_index":
+                    reader.array(message.input_shape_index, () => reader.uint64());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
 };
