@@ -1406,6 +1406,7 @@ MNN.TopKV2 = class TopKV2 {
         $.T = reader.int32_(position, 4, 1);
         $.sorted = reader.bool_(position, 6, false);
         $.largest = reader.bool_(position, 8, true);
+        $.routeSigmoid = reader.bool_(position, 10, false);
         return $;
     }
 
@@ -1414,6 +1415,7 @@ MNN.TopKV2 = class TopKV2 {
         $.T = MNN.DataType[json.T];
         $.sorted = reader.value(json.sorted, false);
         $.largest = reader.value(json.largest, true);
+        $.routeSigmoid = reader.value(json.routeSigmoid, false);
         return $;
     }
 };
@@ -2769,6 +2771,8 @@ MNN.RoPEParam = class RoPEParam {
         $.head_dim = reader.int32_(position, 10, 0);
         $.q_norm = reader.table(position, 12, MNN.LayerNorm);
         $.k_norm = reader.table(position, 14, MNN.LayerNorm);
+        $.interleaved = reader.bool_(position, 16, false);
+        $.norm_after = reader.bool_(position, 18, false);
         return $;
     }
 
@@ -2780,6 +2784,8 @@ MNN.RoPEParam = class RoPEParam {
         $.head_dim = reader.value(json.head_dim, 0);
         $.q_norm = reader.object(json.q_norm, MNN.LayerNorm);
         $.k_norm = reader.object(json.k_norm, MNN.LayerNorm);
+        $.interleaved = reader.value(json.interleaved, false);
+        $.norm_after = reader.value(json.norm_after, false);
         return $;
     }
 };
@@ -2791,6 +2797,9 @@ MNN.IndexedLinearParam = class IndexedLinearParam {
         $.linears = reader.tables(position, 4, MNN.Convolution2D);
         $.inputMode = reader.int32_(position, 6, 0);
         $.fusedActivation = reader.int32_(position, 8, -1);
+        $.routeWeight = reader.int32_(position, 10, 0);
+        $.routeEps = reader.float32_(position, 12, 0);
+        $.routeScale = reader.float32_(position, 14, 1);
         return $;
     }
 
@@ -2799,6 +2808,9 @@ MNN.IndexedLinearParam = class IndexedLinearParam {
         $.linears = reader.objects(json.linears, MNN.Convolution2D);
         $.inputMode = reader.value(json.inputMode, 0);
         $.fusedActivation = reader.value(json.fusedActivation, -1);
+        $.routeWeight = reader.value(json.routeWeight, 0);
+        $.routeEps = reader.value(json.routeEps, 0);
+        $.routeScale = reader.value(json.routeScale, 1);
         return $;
     }
 };
@@ -2812,6 +2824,7 @@ MNN.FusedLinearParam = class FusedLinearParam {
         $.has_ln = reader.bool_(position, 8, false);
         $.ln = reader.table(position, 10, MNN.LayerNorm);
         $.ln_fold = reader.bool_(position, 12, false);
+        $.row_mul = reader.bool_(position, 14, false);
         return $;
     }
 
@@ -2822,6 +2835,7 @@ MNN.FusedLinearParam = class FusedLinearParam {
         $.has_ln = reader.value(json.has_ln, false);
         $.ln = reader.object(json.ln, MNN.LayerNorm);
         $.ln_fold = reader.value(json.ln_fold, false);
+        $.row_mul = reader.value(json.row_mul, false);
         return $;
     }
 };
