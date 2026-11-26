@@ -4534,7 +4534,7 @@
   {
     "type":     "onnx",
     "target":   "conv_autopad.onnx",
-    "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/conv_autopad.onnx",
+    "source":   "https://github.com/user-attachments/files/35483697/conv_autopad.onnx.zip[conv_autopad.onnx]",
     "format":   "ONNX v3",
     "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
@@ -4803,7 +4803,7 @@
   {
     "type":     "onnx",
     "target":   "LabelEncoder.onnx",
-    "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/LabelEncoder.onnx",
+    "source":   "https://github.com/user-attachments/files/35483700/LabelEncoder.onnx.zip[LabelEncoder.onnx]",
     "format":   "ONNX v3",
     "link":     "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
@@ -4867,7 +4867,7 @@
   {
     "type":     "onnx",
     "target":   "mlnet_encoder.onnx",
-    "source":   "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/mlnet_encoder.onnx",
+    "source":   "https://github.com/user-attachments/files/35483698/mlnet_encoder.onnx.zip[mlnet_encoder.onnx]",
     "format":   "ONNX v3",
     "link":     "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
@@ -4913,7 +4913,7 @@
   {
     "type":     "onnx",
     "target":   "optional_1.onnx",
-    "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/optional_1.onnx",
+    "source":   "https://github.com/user-attachments/files/35483699/optional_1.onnx.zip[optional_1.onnx]",
     "format":   "ONNX v3",
     "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
@@ -5222,7 +5222,7 @@
   {
     "type":     "onnx",
     "target":   "zipmap_int64float.onnx",
-    "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/zipmap_int64float.onnx",
+    "source":   "https://github.com/user-attachments/files/35483701/zipmap_int64float.onnx.zip[zipmap_int64float.onnx]",
     "format":   "ONNX v3",
     "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
