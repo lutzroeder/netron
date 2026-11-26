@@ -896,6 +896,9 @@ pytorch.Tensor = class {
             const offset = tensor.storage_offset();
             if (storage) {
                 this._data = storage.data;
+                if (storage.byteorder === 'big') {
+                    this.encoding = '>';
+                }
                 let length = 0;
                 if (!Array.isArray(stride)) {
                     length = storage.size();

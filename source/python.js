@@ -5414,6 +5414,14 @@ python.Execution = class {
                         default: throw new python.Error(`Unsupported scalar dtype uint itemsize '${dtype.itemsize}'.`);
                     }
                 }
+                case 'c': {
+                    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    switch (dtype.itemsize) {
+                        case 8: return new builtins.complex(view.getFloat32(0, dtype.byteorder === '<'), view.getFloat32(4, dtype.byteorder === '<'));
+                        case 16: return new builtins.complex(view.getFloat64(0, dtype.byteorder === '<'), view.getFloat64(8, dtype.byteorder === '<'));
+                        default: throw new python.Error(`Unsupported scalar dtype complex itemsize '${dtype.itemsize}'.`);
+                    }
+                }
                 case 'U': {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     const list = [];
@@ -5649,13 +5657,13 @@ python.Execution = class {
                                 context.view.setUint32(context.position, data[i], littleendian);
                                 break;
                             case 'u8':
-                                context.view.setComplexFloat16(context.position, data[i], littleendian);
+                                context.view.setBigUint64(context.position, typeof data[i] === 'number' ? BigInt(data[i]) : data[i], littleendian);
                                 break;
                             case 'c8':
-                                context.view.setComplexFloat32(context.position, data[i], littleendian);
+                                context.view.setComplexFloat32(context.position, { real: data[i].real, imaginary: data[i].imag }, littleendian);
                                 break;
                             case 'c16':
-                                context.view.setComplexFloat64(context.position, data[i], littleendian);
+                                context.view.setComplexFloat64(context.position, { real: data[i].real, imaginary: data[i].imag }, littleendian);
                                 break;
                             case 'b1':
                                 context.view.setInt8(context.position, data[i] ? 1 : 0);
@@ -5692,7 +5700,7 @@ python.Execution = class {
                 position: 0,
                 itemsize: dtype.itemsize,
                 dtype: dtype.str.substring(1),
-                littleendian: dtype.str[0],
+                littleendian: dtype.str[0] === '<',
                 shape,
                 data: new Uint8Array(size)
             };
@@ -9931,6 +9939,11 @@ python.Execution = class {
                     throw python.Error("TorchScript 'torch.load' not supported.");
                 }
                 const loaded_storages = new Map();
+                let byteorder = 'little';
+                if (entries.has('byteorder')) {
+                    const decoder = new TextDecoder('utf-8');
+                    byteorder = decoder.decode(entries.get('byteorder').peek());
+                }
                 const persistent_load = (saved_id) => {
                     switch (saved_id[0]) {
                         case 'storage': {
@@ -9946,6 +9959,7 @@ python.Execution = class {
                                     throw new python.Error(`Record '${name}' not found.`);
                                 }
                                 storage._set_cdata(stream);
+                                storage.byteorder = byteorder;
                                 loaded_storages.set(key, storage);
                             }
                             return loaded_storages.get(key);
