@@ -48,37 +48,24 @@ if (!DataView.prototype.getFloat16) {
 
 if (!DataView.prototype.setFloat16) {
     DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
-        DataView.__float16_float[0] = value;
-        [value] = DataView.__float16_int;
-        const s = (value >>> 16) & 0x8000;
-        const e = (value >>> 23) & 0xff;
-        const f = value & 0x7fffff;
-        const v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
-        this.setUint16(byteOffset, v, littleEndian);
-    };
-    DataView.__float16_float = new Float32Array(1);
-    DataView.__float16_int = new Uint32Array(DataView.__float16_float.buffer, 0, DataView.__float16_float.length);
-    DataView.__float16_base = new Uint32Array(256);
-    DataView.__float16_shift = new Uint32Array(256);
-    for (let i = 0; i < 256; ++i) {
-        const e = i - 127;
-        if (e < -27) {
-            DataView.__float16_base[i] = 0x0000;
-            DataView.__float16_shift[i] = 24;
-        } else if (e < -14) {
-            DataView.__float16_base[i] = 0x0400 >> -e - 14;
-            DataView.__float16_shift[i] = -e - 1;
-        } else if (e <= 15) {
-            DataView.__float16_base[i] = e + 15 << 10;
-            DataView.__float16_shift[i] = 13;
-        } else if (e < 128) {
-            DataView.__float16_base[i] = 0x7c00;
-            DataView.__float16_shift[i] = 24;
+        value = +value; // eslint-disable-line no-implicit-coercion
+        const sign = value < 0 || Object.is(value, -0) ? 0x8000 : 0;
+        const magnitude = Math.abs(value);
+        let bits = 0;
+        if (Number.isNaN(value)) {
+            bits = 0x7e00;
+        } else if (magnitude >= 65520) {
+            bits = 0x7c00;
         } else {
-            DataView.__float16_base[i] = 0x7c00;
-            DataView.__float16_shift[i] = 13;
+            const exponent = Math.max(-14, Math.floor(Math.log2(magnitude)));
+            const significand = magnitude * 2 ** (10 - exponent);
+            const integer = Math.floor(significand);
+            const fraction = significand - integer;
+            const rounded = integer + (fraction > 0.5 || (fraction === 0.5 && (integer & 1)) ? 1 : 0);
+            bits = (exponent + 14) * 1024 + rounded;
         }
-    }
+        this.setUint16(byteOffset, sign | bits, littleEndian);
+    };
 }
 
 if (!DataView.prototype.getBfloat16) {
