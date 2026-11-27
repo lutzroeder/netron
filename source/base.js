@@ -342,34 +342,26 @@ DataView.prototype.getInt48 = DataView.prototype.getInt48 || function(offset, li
     return value;
 };
 
-DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
-    offset *= bits;
-    const position = Math.floor(offset / 8);
-    const remainder = offset % 8;
-    let value = 0;
-    if ((remainder + bits) <= 8) {
-        value = littleEndian ? this.getUint8(position) >> remainder : this.getUint8(position) >> (8 - remainder - bits);
-    } else {
-        value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
-    }
-    value &= (1 << bits) - 1;
-    if (value & (1 << (bits - 1))) {
-        value -= 1 << bits;
-    }
-    return value;
+DataView.prototype.getIntBits = DataView.prototype.getIntBits || function(offset, bits, littleEndian) {
+    const value = this.getUintBits(offset, bits, littleEndian);
+    return value >= 2 ** (bits - 1) ? value - 2 ** bits : value;
 };
 
 DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset *= bits;
-    const position = Math.floor(offset / 8);
-    const remainder = offset % 8;
     let value = 0;
-    if ((remainder + bits) <= 8) {
-        value = littleEndian ? this.getUint8(position) >> remainder : this.getUint8(position) >> (8 - remainder - bits);
-    } else {
-        value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
+    let consumed = 0;
+    while (consumed < bits) {
+        const position = Math.floor(offset / 8);
+        const remainder = offset % 8;
+        const size = Math.min(8 - remainder, bits - consumed);
+        const shift = littleEndian ? remainder : 8 - remainder - size;
+        const chunk = (this.getUint8(position) >> shift) & ((1 << size) - 1);
+        value = littleEndian ? value + chunk * 2 ** consumed : value * 2 ** size + chunk;
+        offset += size;
+        consumed += size;
     }
-    return value & ((1 << bits) - 1);
+    return value;
 };
 
 DataView.prototype.getComplexInt32 = DataView.prototype.getComplexInt32 || function(byteOffset, littleEndian) {

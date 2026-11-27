@@ -1,3 +1,4 @@
+import './packed-integers.js';
 
 import * as fs from 'fs/promises';
 import * as inspector from 'inspector';
