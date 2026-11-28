@@ -690,8 +690,24 @@ mlir.Tensor = class {
                     shape[index] = BigInt(values.length / size);
                     this.type = new mlir.TensorType(elementType, new mlir.TensorShape(shape), type.layout);
                 }
-                if (numElements > 1 && values.length < numElements * itemsize) {
+                const packed = bitWidth === 1 && values.length === Math.ceil(numElements / 8) && values.length !== numElements;
+                if (numElements > 1 && values.length < numElements * itemsize && !packed) {
                     this.stride = new Array(dims.length).fill(0);
+                } else if (elementType instanceof _.IntegerType && bitWidth % 8 !== 0 && !packed) {
+                    const data = new Uint8Array(Math.ceil(values.length / itemsize * bitWidth / 8));
+                    let position = 0;
+                    for (let i = 0; i < values.length; i++) {
+                        const bits = Math.min(8, bitWidth - (i % itemsize) * 8);
+                        const value = values[i] & ((1 << bits) - 1);
+                        const shift = position % 8;
+                        const offset = (position - shift) / 8;
+                        data[offset] |= value << shift;
+                        if (shift + bits > 8) {
+                            data[offset + 1] |= value >> (8 - shift);
+                        }
+                        position += bits;
+                    }
+                    values = data;
                 }
             }
             if (this.encoding === '<' && type.dataType === 'float4e2m1fn') {
@@ -6562,7 +6578,7 @@ _.TensorLiteralParser = class {
                     } else {
                         result = Number(bits);
                     }
-                } else if (bitWidth >= 64) {
+                } else if (bitWidth > 53) {
                     result = BigInt(isNegative ? `-${value}` : value);
                 } else {
                     result = Number(value);
