@@ -48,37 +48,29 @@ if (!DataView.prototype.getFloat16) {
 
 if (!DataView.prototype.setFloat16) {
     DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
-        DataView.__float16_float[0] = value;
-        [value] = DataView.__float16_int;
-        const s = (value >>> 16) & 0x8000;
-        const e = (value >>> 23) & 0xff;
-        const f = value & 0x7fffff;
-        const v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
-        this.setUint16(byteOffset, v, littleEndian);
-    };
-    DataView.__float16_float = new Float32Array(1);
-    DataView.__float16_int = new Uint32Array(DataView.__float16_float.buffer, 0, DataView.__float16_float.length);
-    DataView.__float16_base = new Uint32Array(256);
-    DataView.__float16_shift = new Uint32Array(256);
-    for (let i = 0; i < 256; ++i) {
-        const e = i - 127;
-        if (e < -27) {
-            DataView.__float16_base[i] = 0x0000;
-            DataView.__float16_shift[i] = 24;
-        } else if (e < -14) {
-            DataView.__float16_base[i] = 0x0400 >> -e - 14;
-            DataView.__float16_shift[i] = -e - 1;
-        } else if (e <= 15) {
-            DataView.__float16_base[i] = e + 15 << 10;
-            DataView.__float16_shift[i] = 13;
-        } else if (e < 128) {
-            DataView.__float16_base[i] = 0x7c00;
-            DataView.__float16_shift[i] = 24;
-        } else {
-            DataView.__float16_base[i] = 0x7c00;
-            DataView.__float16_shift[i] = 13;
+        const view = DataView.__float16_view;
+        view.setFloat64(0, value);
+        const high = view.getUint32(0);
+        const low = view.getUint32(4);
+        const exponent = (high >>> 20) & 0x7ff;
+        let bits = 0;
+        if (exponent === 0x7ff && ((high & 0xfffff) | low) !== 0) {
+            bits = 0x7e00;
+        } else if (exponent > 1038) {
+            bits = 0x7c00;
+        } else if (exponent > 997) {
+            const shift = Math.max(1019 - exponent, 10);
+            const significand = (high & 0xfffff) | 0x100000;
+            const rest = significand & ((1 << shift) - 1);
+            const half = 1 << (shift - 1);
+            bits = (Math.max(exponent - 1009, 0) << 10) + (significand >>> shift);
+            if (rest > half || (rest === half && (low || bits & 1))) {
+                bits++;
+            }
         }
-    }
+        this.setUint16(byteOffset, ((high >>> 16) & 0x8000) | bits, littleEndian);
+    };
+    DataView.__float16_view = new DataView(new ArrayBuffer(8));
 }
 
 if (!DataView.prototype.getBfloat16) {
@@ -342,34 +334,50 @@ DataView.prototype.getInt48 = DataView.prototype.getInt48 || function(offset, li
     return value;
 };
 
-DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
-    offset *= bits;
-    const position = Math.floor(offset / 8);
-    const remainder = offset % 8;
-    let value = 0;
-    if ((remainder + bits) <= 8) {
-        value = littleEndian ? this.getUint8(position) >> remainder : this.getUint8(position) >> (8 - remainder - bits);
-    } else {
-        value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
+DataView.prototype.getIntBits = DataView.prototype.getIntBits || function(offset, bits, littleEndian) {
+    const value = this.getUintBits(offset, bits, littleEndian);
+    if (bits <= 32) {
+        return (value << (32 - bits)) >> (32 - bits);
     }
-    value &= (1 << bits) - 1;
-    if (value & (1 << (bits - 1))) {
-        value -= 1 << bits;
+    if (bits > 53) {
+        return BigInt.asIntN(bits, value);
+    }
+    const range = 0x100000000 * (1 << (bits - 32));
+    if (value >= range / 2) {
+        return value - range;
     }
     return value;
 };
 
 DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits, littleEndian) {
     offset *= bits;
-    const position = Math.floor(offset / 8);
-    const remainder = offset % 8;
-    let value = 0;
-    if ((remainder + bits) <= 8) {
-        value = littleEndian ? this.getUint8(position) >> remainder : this.getUint8(position) >> (8 - remainder - bits);
-    } else {
-        value = littleEndian ? this.getUint16(position, true) >> remainder : this.getUint16(position, false) >> (16 - remainder - bits);
+    const remainder = offset & 7;
+    const position = (offset - remainder) / 8;
+    const length = remainder + bits;
+    if (length <= 8) {
+        return (this.getUint8(position) >> (littleEndian ? remainder : 8 - length)) & ((1 << bits) - 1);
     }
-    return value & ((1 << bits) - 1);
+    if (bits > 53) {
+        let value = 0n;
+        for (let i = 0; i < bits; i++) {
+            value = (value << 1n) | BigInt(this.getUintBits(littleEndian ? offset + bits - 1 - i : offset + i, 1, littleEndian));
+        }
+        return value;
+    }
+    const last = position + ((length - 1) >> 3);
+    const tail = ((length - 1) & 7) + 1;
+    if (littleEndian) {
+        let value = this.getUint8(last) & ((1 << tail) - 1);
+        for (let i = last - 1; i > position; i--) {
+            value = value * 256 + this.getUint8(i);
+        }
+        return value * (256 >> remainder) + (this.getUint8(position) >> remainder);
+    }
+    let value = this.getUint8(position) & (0xff >> remainder);
+    for (let i = position + 1; i < last; i++) {
+        value = value * 256 + this.getUint8(i);
+    }
+    return value * (1 << tail) + (this.getUint8(last) >> (8 - tail));
 };
 
 DataView.prototype.getComplexInt32 = DataView.prototype.getComplexInt32 || function(byteOffset, littleEndian) {
@@ -1032,6 +1040,13 @@ base.Tensor = class {
                 case 'int64':
                     for (let i = 0; i < length; i++, offset += stride) {
                         results.push(view.getBigInt64(offset, this._littleEndian));
+                    }
+                    break;
+                case 'int128':
+                    for (let i = 0; i < length; i++, offset += stride) {
+                        const low = view.getBigUint64(this._littleEndian ? offset : offset + 8, this._littleEndian);
+                        const high = view.getBigInt64(this._littleEndian ? offset + 8 : offset, this._littleEndian);
+                        results.push((high << 64n) | low);
                     }
                     break;
                 case 'int':
